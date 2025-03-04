@@ -58,17 +58,21 @@ const data = {
       isActive: true,
       items: [
         {
-          title: "History",
-          url: "#",
+          title: "Home",
+          url: "/",
         },
         {
-          title: "Starred",
-          url: "#",
+          title: "Test",
+          url: "/test",
         },
         {
-          title: "Settings",
-          url: "#",
+          title: "节点",
+          url: "/node",
         },
+        {
+          title: "策略",
+          url: "/strategy",
+        }
       ],
     },
     {
