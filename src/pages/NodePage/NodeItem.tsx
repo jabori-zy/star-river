@@ -1,21 +1,20 @@
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
 import { GripHorizontal } from "lucide-react";
+import { useDragAndDrop } from "./useDragAndDrop";
+import { NodeItemProps } from "@/types/node";
 
-interface NodeItemProps {
-  name: string;
-  description: string;
-  color: string;
-}
 
-export function NodeItem({ name, description, color }: NodeItemProps) {
+export function NodeItem({ nodeId: id, nodeType: type, nodeName: name, nodeDescription: description, nodeColor: color, nodeData: data }: NodeItemProps) {
+  const [, setNodeType] = useDragAndDrop();
+
+  const onDragStart = (event: React.DragEvent<HTMLDivElement>, nodeItemType: NodeItemProps) => {
+    setNodeType(nodeItemType);
+    event.dataTransfer.effectAllowed = 'move';
+  };
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
+    <div
       className={cn(
         "rounded-lg cursor-grab active:cursor-grabbing",
         "bg-gradient-to-r shadow-sm hover:shadow-md",
@@ -24,9 +23,7 @@ export function NodeItem({ name, description, color }: NodeItemProps) {
         color
       )}
       draggable
-      onDragStart={(e) => {
-        e.dataTransfer.setData('application/reactflow', name);
-      }}
+      onDragStart={(e: React.DragEvent<HTMLDivElement>) => onDragStart(e, {nodeId: id, nodeType: type, nodeName: name, nodeDescription: description, nodeColor: color, nodeData: data} as NodeItemProps)} 
     >
       <div className="p-3 space-y-2">
         <div className="flex items-center justify-between">
@@ -45,6 +42,6 @@ export function NodeItem({ name, description, color }: NodeItemProps) {
           {description}
         </p>
       </div>
-    </motion.div>
+    </div>
   );
 }

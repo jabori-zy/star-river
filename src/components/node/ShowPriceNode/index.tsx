@@ -39,10 +39,6 @@ function ShowPriceNode({id, data, isConnectable}:NodeProps) {
     }, [priceNodeData]);
 
     
-
-
-    
-
     return (
         <div className="show-price-node">
             <Card>

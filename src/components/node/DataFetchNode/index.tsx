@@ -82,6 +82,8 @@ function SelectInterval(
     )
 }
 
+
+
 //策略的起始节点
 //设置数据的来源
 function DataFetchNode({id, data, isConnectable}:NodeProps) {
@@ -136,8 +138,7 @@ function DataFetchNode({id, data, isConnectable}:NodeProps) {
                 <CardFooter>
                     <Button onClick={() => {}}>获取数据</Button>
                 </CardFooter>
-                
-                
+
                 <Handle 
                     type="source" 
                     position={Position.Right} 
@@ -145,7 +146,6 @@ function DataFetchNode({id, data, isConnectable}:NodeProps) {
                     className="w-3 h-3"
                     isConnectable={isConnectable}
                 />
-
             </Card>
             
 

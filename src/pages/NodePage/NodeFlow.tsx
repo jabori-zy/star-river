@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import {
   ReactFlow,
 //   MiniMap,
@@ -7,7 +7,6 @@ import {
   useNodesState,
   useEdgesState,
   addEdge,
-
   NodeToolbar,
   applyNodeChanges,
   NodeChange,
@@ -22,58 +21,73 @@ import {
 } from '@xyflow/react';
 
 import '@xyflow/react/dist/style.css';
-import DataFetchNode from '@/components/node/DataFetchNode';
-import ShowPriceNode from '@/components/node/ShowPriceNode';
-import SMAIndicatorNode from '@/components/node/IndicatorNode/SMAIndicatorNode';
-import { DevTools } from '@/components/node/devtools';
+import DataFetchNode from '@/components/node/DataFetchNode'; // 数据获取节点
+import ShowPriceNode from '@/components/node/ShowPriceNode'; // 显示价格节点
+import SMAIndicatorNode from '@/components/node/IndicatorNode/SMAIndicatorNode'; // SMA指标节点
+import LiveDataNode from '@/components/node/LiveDataNode'; // 实时数据节点
+import StartNode from '@/components/node/StartNode'; // 开始节点
+import { DevTools } from '@/components/node/devtools'; // 开发者工具
+import { useDragAndDrop } from './useDragAndDrop';
+import { useReactFlow } from '@xyflow/react';
+import { Strategy } from '@/types/strategy';
 
-
-const nodeTypes = {  
-  dataFetch: DataFetchNode,
-  showPrice: ShowPriceNode,
-  smaIndicator: SMAIndicatorNode,
+const nodeTypes = {
+  startNode: StartNode,
+  dataFetchNode: DataFetchNode,
+  showPriceNode: ShowPriceNode,
+  smaIndicatorNode: SMAIndicatorNode,
+  liveDataNode: LiveDataNode,
 };
 
-const initialNodes: Node[] = [
-    {
-        id: '1',
-        type: 'dataFetch',
-        data: { label: 'Data Fetch Node' },
-        position: { x: 100, y: 250 },
-    },
-    {
-        id: '2',
-        type: 'showPrice',
-        data: { label: 'Show Price Node' },
-        position: { x: 470, y: 330 },
-    },
-    {
-        id: '3',
-        type: 'smaIndicator',
-        data: { label: 'SMA Indicator Node' },
-        position: { x: 470, y: 330 },
-    },
-    {
-        id: '4',
-        type: 'smaIndicator',
-        data: { label: 'SMA Indicator Node' },
-        position: { x: 470, y: 500 },
-    },
-  ];
-
-const initialEdges: Edge[] = [
-    { id: '1-2', source: '1', target: '2', sourceHandle: 'data_fetch_node_source', targetHandle: 'show_price_node_handle', animated: true },
-    { id: '1-3', source: '1', target: '3', sourceHandle: 'data_fetch_node_source', targetHandle: 'show_price_node_handle', animated: true },
+export default function NodeFlow({strategy}:{strategy:Strategy}) {
+    const [nodes, setNodes] = useNodesState<Node>([]);
+    const [edges, setEdges] = useEdgesState<Edge>([]);
+    const [nodeItemProp] = useDragAndDrop();
+    const { screenToFlowPosition } = useReactFlow();
     
-  ];
+    const [nodeIdCounter, setNodeIdCounter] = useState(1);
 
-// const rfStyle = {
-//     backgroundColor: '#B8CEFF',
-//   };
+    // 当策略数据变化时更新节点和边
+    useEffect(() => {
+        if (strategy?.nodes && strategy?.edges) {
+            setNodes(strategy.nodes);
+            setEdges(strategy.edges);
+            // 设置计数器为现有节点数量加1
+            setNodeIdCounter(strategy.nodes.length);
+        }
+    }, [strategy, setNodes, setEdges]);
 
-export default function NodeFlow() {
-    const [nodes, setNodes] = useNodesState(initialNodes);
-    const [edges, setEdges] = useEdgesState(initialEdges);
+    const onDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = 'move';
+    }, []);
+
+    const onDrop = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+        event.preventDefault();
+      
+
+        console.log("nodeItemType", nodeItemProp);
+
+        if (!nodeItemProp) return;
+
+        const position = screenToFlowPosition({
+            x: event.clientX,
+            y: event.clientY,
+        });
+        
+        const newNode = {
+            id: `${nodeItemProp.nodeId}_${nodeIdCounter}`,
+            type: nodeItemProp.nodeType,
+            position,
+            data: { 
+                label: nodeItemProp.nodeName,
+                ...(nodeItemProp.nodeData)
+            },
+        };
+
+        setNodes((nds) => nds.concat(newNode));
+        setNodeIdCounter(prev => prev + 1);
+    }, [screenToFlowPosition, nodeItemProp, setNodes, nodeIdCounter]);
 
     // 当拖动或者选择节点时，将会触发onNodesChange事件
     const onNodesChange: OnNodesChange = useCallback(
@@ -81,10 +95,10 @@ export default function NodeFlow() {
           // console.log(changes)
           setNodes((nds: Node[]) => applyNodeChanges(changes, nds))
         },
-        
-        [setNodes],
+        [setNodes]
     );
 
+    // 当拖动或者选择边时，将会触发onEdgesChange事件
     const onEdgesChange: OnEdgesChange = useCallback(
         (changes: EdgeChange[]) => {
           // console.log(changes)
@@ -92,30 +106,53 @@ export default function NodeFlow() {
         [setEdges]
     );
 
+    // 当连接节点时，将会触发onConnect事件
     const onConnect: OnConnect = useCallback(
         (params: Connection) => {
-          // console.log(params)
-          setEdges((eds) => addEdge(params, eds))
+          setEdges((eds) => {
+            const customEdge: Edge = {
+              ...params,
+              id: `${params.source}.${params.sourceHandle || 'default'}=>${params.target}.${params.targetHandle || 'default'}`,
+              sourceHandle: params.sourceHandle || null,
+              targetHandle: params.targetHandle || null,
+              source: params.source,
+              target: params.target
+            };
+            const newEdges = addEdge(customEdge, eds);
+            return newEdges;
+          });
+          
+          // 如果需要在连接建立后执行某些操作，使用 useEffect
         }, 
-        [setEdges]);
+        [setEdges]
+    );
 
-    return (
-    <div className="flex-1 h-full overflow-hidden">
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        nodeTypes={nodeTypes}
-        // style={rfStyle}
-    > 
-        <DevTools />
-        {/* <MiniMap /> */}
-        <Controls />
-        <Background />
-        <NodeToolbar />
-    </ReactFlow>
-    </div>
+    // 添加 useEffect 来监听 edges 的变化
+    useEffect(() => {
+        console.log('Current nodes:', nodes);
+        console.log('Current edges:', edges);
+    }, [nodes, edges]);
+
+    return ( 
+          <div className="flex-1 h-full overflow-hidden">
+            <ReactFlow
+              nodes={nodes}
+              edges={edges}
+              onNodesChange={onNodesChange}
+              onEdgesChange={onEdgesChange}
+              onConnect={onConnect}
+              nodeTypes={nodeTypes}
+              onDragOver={onDragOver}
+              onDrop={onDrop}
+              fitView
+              style={{ backgroundColor: "#F7F9FB" }}
+          > 
+              <DevTools />
+              {/* <MiniMap /> */}
+              <Controls />
+              <Background />
+              <NodeToolbar />
+          </ReactFlow>
+        </div>
     );
 }
