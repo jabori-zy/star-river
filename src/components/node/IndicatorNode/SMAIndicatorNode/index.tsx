@@ -1,5 +1,12 @@
-import { useState } from 'react';
-import { Handle, type NodeProps, Position } from '@xyflow/react';
+import { useState, useEffect, useCallback } from 'react';
+import { 
+    Handle, 
+    type NodeProps, 
+    type Connection,
+    Position,
+    useNodeConnections,
+    useReactFlow
+} from '@xyflow/react';
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import {
@@ -24,17 +31,25 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Input } from "@/components/ui/input"
 import { PencilIcon, CircleDot, TrendingUp } from 'lucide-react';
 import { Badge } from "@/components/ui/badge"
-import { useReactFlow } from '@xyflow/react';
 
 function SMAIndicatorNode({id, data, isConnectable}:NodeProps) {
     const [showEditButton, setShowEditButton] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [smaPeriod, setSmaPeriod] = useState(9);
+    const { getNode } = useReactFlow();
+    
+    const connections = useNodeConnections({
+        handleType: 'target',
+    });
     const { updateNodeData } = useReactFlow();
 
     const preventDragHandler = (e: React.MouseEvent | React.DragEvent | React.PointerEvent) => {
         e.stopPropagation();
         e.preventDefault();
+    };
+
+    const isValidConnection = (connection: any) => {
+        return connection.target === "start_node";
     };
 
     const handleSave = () => {
@@ -47,6 +62,10 @@ function SMAIndicatorNode({id, data, isConnectable}:NodeProps) {
         });
         setIsEditing(false);
     };
+
+    // useEffect(() => {
+    //     console.log(connections);
+    // }, );
 
     return (
         <>
@@ -118,8 +137,9 @@ function SMAIndicatorNode({id, data, isConnectable}:NodeProps) {
                         position={Position.Left} 
                         id="sma_indicator_node_target"
                         className="w-2.5 h-2.5 !bg-purple-500"
-                        isConnectable={isConnectable}
+                        isConnectable={connections.length < 1}
                     />
+
                     <Handle 
                         type="source" 
                         position={Position.Right} 

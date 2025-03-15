@@ -9,7 +9,7 @@ import {
   ChevronsUp
 } from "lucide-react";
 import { useState } from "react";
-import { Boxes, Sigma } from "lucide-react";
+import { Boxes, Sigma, ChevronsUpDown } from "lucide-react";
 import { NodeItem } from "./NodeItem";
 import { NodeItemProps } from "@/types/node";
 
@@ -28,7 +28,7 @@ const nodeCategories = [
         nodeData: {
           exchange: null,
           symbol: null,
-          interval: null
+          interval: null,
         }
       } as NodeItemProps
     ]
@@ -41,19 +41,39 @@ const nodeCategories = [
       {
         nodeId: "sma_indicator_node",
         nodeType: "smaIndicatorNode",
-        nodeName: "SMA",
-        nodeDescription: "移动平均线",
+        nodeName: "简单移动平均线",
+        nodeDescription: "简单移动平均线",
         nodeColor: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
         nodeData: {
+          strategyId: null,
+          nodeName: "简单移动平均线",
           indicatorName: "sma",
-          indicatorConfig: {
-            period: null
-          }
-          
+          indicatorConfig: {"period": {paramName: "周期", paramValue: 14}},
+          indicatorValue: {"sma": {value: null, timestamp: null}}
         }
       } as NodeItemProps
     ]
   },
+  {
+    title: "条件",
+    icon: ChevronsUpDown,
+    color: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
+    items: [
+      {
+        nodeId: "if_else_node",
+        nodeType: "ifElseNode",
+        nodeName: "条件",
+        nodeDescription: "条件",
+        nodeColor: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
+        nodeData: {
+          condition: null
+        }
+      } as NodeItemProps
+    ]
+  }
+  
+  
+
 ];
 
 export function NodeList() {

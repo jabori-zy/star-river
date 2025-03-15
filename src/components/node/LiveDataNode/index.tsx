@@ -181,8 +181,8 @@ function LiveDataNode({id, data, isConnectable}:NodeProps<LiveDataNode>) {
                                             <SelectValue placeholder="选择交易对" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="btc/usdt">BTC/USDT</SelectItem>
-                                            <SelectItem value="eth/usdt">ETH/USDT</SelectItem>
+                                            <SelectItem value="BTCUSDT">BTC/USDT</SelectItem>
+                                            <SelectItem value="ETHUSDT">ETH/USDT</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>

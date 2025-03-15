@@ -10,6 +10,7 @@ import { Strategy } from "@/types/strategy";
 async function getStrategyById(strategyId: number) {
   const response = await fetch(`http://localhost:3100/get_strategy?id=${strategyId}`);
   const data = await response.json();
+  console.log(data.data);
   return data.data;
 }
 
@@ -29,7 +30,6 @@ function NodePageContent() {
   useEffect(() => {
     getStrategyById(strategyId).then((data) => {
       setStrategy(data);
-      console.log(data);
     });
   }, [strategyId]);
 

@@ -88,37 +88,6 @@ function SelectInterval(
 //设置数据的来源
 function DataFetchNode({id, data, isConnectable}:NodeProps) {
 
-    // const [btcPrice, setBtcPrice] = useState({symbol: "", price: 0, timestamp: 0});
-    // const {updateNodeData} = useReactFlow();
-    // const [exchange, setExchange] = useState("");
-    // const [kline_interval, setKlineInterval] = useState("");
-    // const [symbol, setSymbol] = useState("");
-
-    // const handleExchangeChange = (exchange: string) => {
-    //     setExchange(exchange);
-    //     console.log(exchange);
-    // }
-    // const handleSymbolChange = (symbol: string) => {
-    //     setSymbol(symbol);
-    //     console.log(symbol);
-    // }
-    // const handleIntervalChange = (interval: string) => {
-    //     setKlineInterval(interval);
-    //     console.log(interval);
-    // }
-
-    // useEffect(() => {
-      //   const btcPriceListener = listen("btc_price", (event) => {
-      //       let btcPrice = event.payload as {symbol: string, price: number,timestamp: number};
-      //       setBtcPrice(btcPrice);
-      //       //更新节点自身的数据
-      //       updateNodeData(id, {price: btcPrice.price});
-      //   });
-      //   return () => {
-      //     btcPriceListener.then(fn => fn());
-      //   };
-      // }, []);
-
     return (
         <div className="data-fetch-node">
             <Card>

@@ -30,13 +30,14 @@ import { DevTools } from '@/components/node/devtools'; // 开发者工具
 import { useDragAndDrop } from './useDragAndDrop';
 import { useReactFlow } from '@xyflow/react';
 import { Strategy } from '@/types/strategy';
-
+import IfElseNode from '@/components/node/IfElseNode';
 const nodeTypes = {
   startNode: StartNode,
   dataFetchNode: DataFetchNode,
   showPriceNode: ShowPriceNode,
   smaIndicatorNode: SMAIndicatorNode,
   liveDataNode: LiveDataNode,
+  ifElseNode: IfElseNode,
 };
 
 export default function NodeFlow({strategy}:{strategy:Strategy}) {
@@ -66,7 +67,7 @@ export default function NodeFlow({strategy}:{strategy:Strategy}) {
         event.preventDefault();
       
 
-        console.log("nodeItemType", nodeItemProp);
+        // console.log("nodeItemType", nodeItemProp);
 
         if (!nodeItemProp) return;
 
@@ -79,15 +80,15 @@ export default function NodeFlow({strategy}:{strategy:Strategy}) {
             id: `${nodeItemProp.nodeId}_${nodeIdCounter}`,
             type: nodeItemProp.nodeType,
             position,
-            data: { 
-                label: nodeItemProp.nodeName,
-                ...(nodeItemProp.nodeData)
+            data: {
+                ...(nodeItemProp.nodeData),
+                strategyId: strategy.id
             },
         };
 
         setNodes((nds) => nds.concat(newNode));
         setNodeIdCounter(prev => prev + 1);
-    }, [screenToFlowPosition, nodeItemProp, setNodes, nodeIdCounter]);
+    }, [screenToFlowPosition, nodeItemProp, setNodes, nodeIdCounter, strategy.id]);
 
     // 当拖动或者选择节点时，将会触发onNodesChange事件
     const onNodesChange: OnNodesChange = useCallback(
@@ -105,6 +106,7 @@ export default function NodeFlow({strategy}:{strategy:Strategy}) {
           setEdges((eds) => applyEdgeChanges(changes, eds))},
         [setEdges]
     );
+
 
     // 当连接节点时，将会触发onConnect事件
     const onConnect: OnConnect = useCallback(
