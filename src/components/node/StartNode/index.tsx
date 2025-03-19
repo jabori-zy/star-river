@@ -20,14 +20,14 @@ function StartNode({ data, isConnectable }: NodeProps) {
                     </Badge>
                 </div>
                 <div className="text-xs text-muted-foreground font-medium">
-                    {data.strategyTitle || "我的策略"}
+                    {data.strategyTitle as string || "我的策略"}
                 </div>
             </CardHeader>
 
             <Handle 
                 type="source" 
                 position={Position.Right} 
-                id="start_node_source"
+                id="start_node_output"
                 className="w-2.5 h-2.5 !bg-green-500"
                 isConnectable={isConnectable}
             />

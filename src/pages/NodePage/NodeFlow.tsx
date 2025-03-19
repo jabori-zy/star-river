@@ -31,6 +31,9 @@ import { useDragAndDrop } from './useDragAndDrop';
 import { useReactFlow } from '@xyflow/react';
 import { Strategy } from '@/types/strategy';
 import IfElseNode from '@/components/node/IfElseNode';
+import BuyNode from '@/components/node/BuyNode';
+
+
 const nodeTypes = {
   startNode: StartNode,
   dataFetchNode: DataFetchNode,
@@ -38,6 +41,7 @@ const nodeTypes = {
   smaIndicatorNode: SMAIndicatorNode,
   liveDataNode: LiveDataNode,
   ifElseNode: IfElseNode,
+  buyNode: BuyNode,
 };
 
 export default function NodeFlow({strategy}:{strategy:Strategy}) {
@@ -50,11 +54,24 @@ export default function NodeFlow({strategy}:{strategy:Strategy}) {
 
     // 当策略数据变化时更新节点和边
     useEffect(() => {
-        if (strategy?.nodes && strategy?.edges) {
+        if (strategy.nodes?.length > 0 && strategy.edges?.length > 0) {
             setNodes(strategy.nodes);
             setEdges(strategy.edges);
             // 设置计数器为现有节点数量加1
             setNodeIdCounter(strategy.nodes.length);
+        }
+        // 如果没有节点和边，则创建一个开始节点
+        else {
+            const startNode: Node = {
+                id: 'start_node',
+                type: 'startNode',
+                position: { x: 0, y: 0 },
+                data: {
+                    strategyId: strategy.id,
+                    strategyTitle: strategy.name
+                }
+            };
+            setNodes([startNode]);
         }
     }, [strategy, setNodes, setEdges]);
 

@@ -6,6 +6,7 @@ import { NodeList } from "./NodeList";
 import { useLocation } from "react-router";
 import { useState, useEffect } from "react";
 import { Strategy } from "@/types/strategy";
+import { StrategyMessageProvider } from "./StrategyMessageContext";
 
 async function getStrategyById(strategyId: number) {
   const response = await fetch(`http://localhost:3100/get_strategy?id=${strategyId}`);
@@ -19,7 +20,7 @@ async function getStrategyById(strategyId: number) {
 function NodePageContent() {
   const location = useLocation();
   //策略的id
-  const strategyId = location.state?.strategyId || 1;
+  const strategyId = location.state?.strategyId;
   //策略的名称
   const strategyName = location.state?.strategyName || "未命名策略";
   //策略的描述
@@ -36,7 +37,6 @@ function NodePageContent() {
   return (
     <div className="h-screen flex flex-col bg-background">
       <Header strategyId={strategyId} strategyName={strategyName} strategyDescription={strategyDescription} />
-      
       <div className="flex flex-1 overflow-hidden">
         <div className="border-2 border-gray-200 rounded-lg">
           <NodeList />
@@ -50,10 +50,14 @@ function NodePageContent() {
 }
 
 export default function NodePage() {
+  const location = useLocation();
+  const strategyId = location.state?.strategyId;
   return (
     <ReactFlowProvider>
       <DragAndDropProvider>
-        <NodePageContent />
+        <StrategyMessageProvider strategyId={strategyId}>
+          <NodePageContent />
+        </StrategyMessageProvider>
       </DragAndDropProvider>
     </ReactFlowProvider>
   );

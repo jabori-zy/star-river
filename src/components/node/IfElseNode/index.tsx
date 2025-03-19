@@ -14,8 +14,7 @@ import IfElseNodePanel from './panel';
 import { LogicalOperator } from '@/types/node';
 
 
-function IfElseNode({id, data, isConnectable}:NodeProps) {
-    console.log("传入的data:",data);
+function IfElseNode({id, data}:NodeProps) {
     const [showEditButton, setShowEditButton] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [cases, setCases] = useState<CaseItem[]>(data.cases as CaseItem[] || [{
@@ -46,21 +45,36 @@ function IfElseNode({id, data, isConnectable}:NodeProps) {
         <div key={caseItem.caseId} className="px-4 py-3 border-b bg-gradient-to-r from-blue-50/30 to-transparent relative">
             <div className="flex items-center gap-3">
                 <div className="flex items-center justify-center w-10 h-6 rounded-md bg-gradient-to-br from-indigo-50 to-indigo-100 text-indigo-600 text-[11px] font-medium shadow-sm border border-indigo-200/50 whitespace-nowrap">
-                    条件{caseItem.caseId-1}
+                    条件{caseItem.caseId}
                 </div>
                 <div className="flex-1">
-                    <span className="text-xs text-gray-500">
-                        {caseItem.conditions.length > 0 
-                            ? caseItem.conditions.map(formatCondition).join(` ${caseItem.logicalOperator} `)
-                            : '未设置条件'}
-                    </span>
+                    <div className="text-xs text-gray-500">
+                        {caseItem.conditions.length > 0 ? (
+                            <div className="space-y-1">
+                                {caseItem.conditions.map((condition, index) => (
+                                    <div key={index} className="flex items-center gap-1">
+                                        {index > 0 && (
+                                            <span className="text-[10px] font-medium text-blue-400">
+                                                {caseItem.logicalOperator}
+                                            </span>
+                                        )}
+                                        <span className="truncate">
+                                            {formatCondition(condition)}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <span className="text-gray-400 italic">未设置条件</span>
+                        )}
+                    </div>
                 </div>
             </div>
             <Handle 
                 type="source" 
                 position={Position.Right}
-                id={`case_${caseItem.caseId}`}
-                className="!-right-[6px] !w-3 !h-3 !border-2 !border-white !bg-blue-400"
+                id={`if_else_node_case_${caseItem.caseId}_output`}
+                className="!w-3 !h-3 !border-2 !border-white !bg-blue-400 !top-[22px]"
             />
         </div>
     );
@@ -91,8 +105,9 @@ function IfElseNode({id, data, isConnectable}:NodeProps) {
                 {/* 输入 Handle */}
                 <Handle 
                     type="target" 
-                    position={Position.Left} 
-                    className="!-left-[6px] !w-3 !h-3 !border-2 !border-white !bg-blue-400"
+                    position={Position.Left}
+                    id="if_else_node_input"
+                    className="!w-3 !h-3 !border-2 !border-white !bg-blue-400 !top-[22px]"
                 />
 
                 {/* 渲染所有 case */}
@@ -111,7 +126,7 @@ function IfElseNode({id, data, isConnectable}:NodeProps) {
                     <Handle 
                         type="source" 
                         position={Position.Right}
-                        id="else" 
+                        id="if_else_node_else_output" 
                         className="!-right-[6px] !w-3 !h-3 !border-2 !border-white !bg-orange-400"
                     />
                 </div>

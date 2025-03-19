@@ -66,7 +66,26 @@ const nodeCategories = [
         nodeDescription: "条件",
         nodeColor: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
         nodeData: {
-          condition: null
+          cases: null
+        }
+      } as NodeItemProps
+    ]
+  },
+  {
+    title: "买卖操作",
+    icon: ChevronsUpDown,
+    color: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
+    items: [
+      {
+        nodeId: "buy_node",
+        nodeType: "buyNode",
+        nodeName: "买入",
+        nodeDescription: "买入",
+        nodeColor: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
+        nodeData: {
+          strategyId: null,
+          nodeName: "买入",
+          buyValue: null
         }
       } as NodeItemProps
     ]

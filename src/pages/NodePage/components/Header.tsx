@@ -3,16 +3,18 @@ import { useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Save, X, Check, Loader2 } from "lucide-react";
+import { ArrowLeft, Save, X, Check, Loader2, Play, Square } from "lucide-react";
 import { useReactFlow } from '@xyflow/react';
 import { toast } from "sonner";
+import { useStrategyMessages } from "@/hooks/use-strategyMessage";
 
 // 保存策略按钮组件
 function SaveStrategyButton({ strategyId, strategyName, strategyDescription }: { strategyId: number, strategyName: string, strategyDescription: string }) {
   const [isSaving, setIsSaving] = useState(false);
   const reactFlowInstance = useReactFlow();
 
-  const handleSave = async () => {
+  // 保存策略
+  const handleSaveStrategy = async () => {
     const nodes = reactFlowInstance.getNodes();
     const edges = reactFlowInstance.getEdges();
 
@@ -48,10 +50,12 @@ function SaveStrategyButton({ strategyId, strategyName, strategyDescription }: {
 
   return (
     <Button
-      variant="default"
+      variant="outline"
       size="sm"
-      className="flex items-center gap-2 min-w-[100px]"
-      onClick={handleSave}
+      className="flex items-center gap-2 min-w-[100px] font-medium
+        border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400
+        transition-all duration-200"
+      onClick={handleSaveStrategy}
       disabled={isSaving}
     >
       {isSaving ? (
@@ -63,6 +67,84 @@ function SaveStrategyButton({ strategyId, strategyName, strategyDescription }: {
     </Button>
   );
 }
+
+
+function requestRunStrategy(strategyId: number) {
+  fetch('http://localhost:3100/run_strategy', {
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    method: 'POST',
+    body: JSON.stringify({ "strategy_id": strategyId })
+  });
+}
+
+function requestStopStrategy(strategyId: number) {
+  fetch('http://localhost:3100/stop_strategy', {
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    method: 'POST',
+    body: JSON.stringify({ "strategy_id": strategyId })
+  });
+} 
+
+// 运行策略按钮组件
+function RunStrategyButton({ strategyId }: { strategyId: number }) {
+  const [isRunning, setIsRunning] = useState(false);
+  const { connectSSE, disconnectSSE, isSSEConnected } = useStrategyMessages();
+
+  const handleRun = async () => {
+    //如果是运行状态
+    if (isRunning) {
+      // 停止策略
+      // requestStopStrategy(strategyId);
+      // 断开sse
+      disconnectSSE();
+      // 设置为停止状态
+      setIsRunning(false);
+    } 
+    //如果是停止状态
+    else {
+      // 连接sse
+      connectSSE();
+      // 运行策略
+      requestRunStrategy(strategyId);
+      // 设置为运行状态
+      setIsRunning(true);
+    }
+  };
+
+  return (
+    <Button
+      variant="outline"
+      size="sm"
+      className={`
+        flex items-center gap-2 min-w-[100px] font-medium
+        transition-all duration-200
+        ${isSSEConnected 
+          ? 'border-orange-500/50 text-orange-600 hover:bg-orange-50 hover:border-orange-500' 
+          : 'border-blue-500/50 text-blue-600 hover:bg-blue-50 hover:border-blue-500'
+        }
+      `}
+      onClick={handleRun}
+    >
+      {isRunning ? (
+        <Square className="h-4 w-4 animate-pulse" />
+      ) : isSSEConnected ? (
+        <Square className="h-4 w-4" />
+      ) : (
+        <Play className="h-4 w-4" />
+      )}
+      <span className="inline-block">
+        {isSSEConnected ? "停止策略" : "运行策略"}
+      </span>
+    </Button>
+  );
+}
+
+
+
 
 interface HeaderProps {
     strategyId: number;
@@ -150,6 +232,7 @@ export function Header({ strategyId, strategyName, strategyDescription }: Header
             最后保存: 10:30:25
           </Badge>
           <SaveStrategyButton strategyId={strategyId} strategyName={displayName} strategyDescription={strategyDescription} />
+          <RunStrategyButton strategyId={strategyId} />
         </div>
       </div>
     </div>

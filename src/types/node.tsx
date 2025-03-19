@@ -8,7 +8,7 @@ export type NodeItemProps = {
     nodeName: string;
     nodeDescription: string;
     nodeColor: string;
-    nodeData: LiveDataNodeData | SMAIndicatorNodeData | IfElseNodeData;
+    nodeData: LiveDataNodeData | SMAIndicatorNodeData | IfElseNodeData | BuyNodeData;
 };
 
 type outputValue = {
@@ -39,7 +39,14 @@ type SMAIndicatorNodeData = {
 };
 
 type IfElseNodeData = {
-  condition: string | null;
+  cases: CaseItem[] | null;
+};
+
+type BuyNodeData = {
+  strategyId: number | null;
+  nodeName: string | null;
+  buyValue: number | null;
+  
 };
 
 
