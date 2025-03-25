@@ -68,7 +68,18 @@ function SaveStrategyButton({ strategyId, strategyName, strategyDescription }: {
   );
 }
 
+// 初始化策略
+function requestInitStrategy(strategyId: number) {
+  fetch('http://localhost:3100/init_strategy', {
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    method: 'POST',
+    body: JSON.stringify({ "strategy_id": strategyId })
+  });
+}
 
+// 运行策略
 function requestRunStrategy(strategyId: number) {
   fetch('http://localhost:3100/run_strategy', {
     headers: {
@@ -79,6 +90,7 @@ function requestRunStrategy(strategyId: number) {
   });
 }
 
+// 停止策略
 function requestStopStrategy(strategyId: number) {
   fetch('http://localhost:3100/stop_strategy', {
     headers: {
@@ -87,18 +99,30 @@ function requestStopStrategy(strategyId: number) {
     method: 'POST',
     body: JSON.stringify({ "strategy_id": strategyId })
   });
-} 
+}
+
+function requestEnabelStrategyEventPush(strategyId: number) {
+  fetch('http://localhost:3100/enable_strategy_event_push', {
+    headers: {
+      'Content-Type': 'application/json'
+    },
+  });
+}
 
 // 运行策略按钮组件
 function RunStrategyButton({ strategyId }: { strategyId: number }) {
+  // 策略是否正在运行
   const [isRunning, setIsRunning] = useState(false);
+  // 策略是否初始化
+  const [isInit, setIsInit] = useState(false);
+  // 是否已经连接sse
   const { connectSSE, disconnectSSE, isSSEConnected } = useStrategyMessages();
 
   const handleRun = async () => {
-    //如果是运行状态
+    //如果策略是运行状态
     if (isRunning) {
       // 停止策略
-      // requestStopStrategy(strategyId);
+      requestStopStrategy(strategyId);
       // 断开sse
       disconnectSSE();
       // 设置为停止状态
@@ -108,6 +132,8 @@ function RunStrategyButton({ strategyId }: { strategyId: number }) {
     else {
       // 连接sse
       connectSSE();
+      // 初始化策略
+      requestInitStrategy(strategyId);
       // 运行策略
       requestRunStrategy(strategyId);
       // 设置为运行状态

@@ -54,7 +54,7 @@ export default function NodeFlow({strategy}:{strategy:Strategy}) {
 
     // 当策略数据变化时更新节点和边
     useEffect(() => {
-        if (strategy.nodes?.length > 0 && strategy.edges?.length > 0) {
+        if (strategy.nodes?.length > 0) {
             setNodes(strategy.nodes);
             setEdges(strategy.edges);
             // 设置计数器为现有节点数量加1
