@@ -44,9 +44,11 @@ function SMAIndicatorNode({id, data, isConnectable}:NodeProps) {
         // 获取实时数据节点的消息
         const sma_node_message = messages[id];
         if (sma_node_message && sma_node_message.length > 0) {
-            const last_sma = sma_node_message.at(-1).indicator_data.indicator_value.sma.at(-1).value;
-            console.log(`Node ${id} received message`, last_sma);
-            setLastSma(last_sma);
+            const new_last_sma = sma_node_message.at(-1).indicator_data.indicator_value.sma.at(-1).value;
+            if (new_last_sma !== last_sma) {
+                console.log(`Node ${id} received message`, new_last_sma);
+                setLastSma(new_last_sma);
+            }
         }
 
         clearNodeMessages(id);

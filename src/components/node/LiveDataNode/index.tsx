@@ -141,6 +141,7 @@ function LiveDataNode({id, data, isConnectable}:NodeProps<LiveDataNode>) {
                                             <SelectItem value="binance">Binance</SelectItem>
                                             <SelectItem value="okx">OKX</SelectItem>
                                             <SelectItem value="bitget">Bitget</SelectItem>
+                                            <SelectItem value="metatrader5">MetaTrader 5</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
@@ -157,6 +158,8 @@ function LiveDataNode({id, data, isConnectable}:NodeProps<LiveDataNode>) {
                                         <SelectContent>
                                             <SelectItem value="BTCUSDT">BTC/USDT</SelectItem>
                                             <SelectItem value="ETHUSDT">ETH/USDT</SelectItem>
+                                            <SelectItem value="XAUUSD">XAU/USD</SelectItem>
+                                            <SelectItem value="BTCUSDm">BTC/USDm</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>

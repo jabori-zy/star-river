@@ -8,7 +8,7 @@ export type NodeItemProps = {
     nodeName: string;
     nodeDescription: string;
     nodeColor: string;
-    nodeData: LiveDataNodeData | SMAIndicatorNodeData | IfElseNodeData | BuyNodeData;
+    nodeData: LiveDataNodeData | SMAIndicatorNodeData | IfElseNodeData | OrderNodeData | GetPositionNumberNodeData;
 };
 
 type outputValue = {
@@ -42,12 +42,49 @@ type IfElseNodeData = {
   cases: CaseItem[] | null;
 };
 
-type BuyNodeData = {
+type OrderNodeData = {
   strategyId: number | null;
   nodeName: string | null;
-  buyValue: number | null;
+  exchange: string | null;
+  symbol: string | null;
+  orderRequest: OrderRequest | null;
+};
+
+type GetPositionNumberNodeData = {
+  strategyId: number | null;
+  nodeName: string | null;
+  exchange: string | null;
+  symbol: string | null;
+  positionNumber: number
+  getPositionNumberRequest: GetPositionNumberRequest | null;
   
 };
+
+
+
+type OrderRequest = {
+  strategyId: number;
+  nodeId: string;
+  exchange: string;
+  symbol: string;
+  orderType: string;
+  orderSide: string;
+  price: number;
+  quantity: number;
+  tp: number | null;
+  sl: number | null;
+}
+
+type GetPositionNumberRequest = {
+  strategyId: number;
+  nodeId: string;
+  exchange: string;
+  symbol: string;
+  positionSide: string | null;
+  position_number: number;
+
+}
+
 
 
 
@@ -78,6 +115,25 @@ export type IndicatorNode = Node<
   'indicator'
 >;
 
+export type OrderNode = Node<
+  {
+    nodeName: string | null;
+    exchange: string | null;
+    symbol: string | null;
+    orderRequest: OrderRequest | null;
+  },
+  'order'
+>;
+
+export type GetPositionNumberNode = Node<
+  {
+    nodeName: string;
+    exchange: string;
+    symbol: string;
+    positionNumber: number,
+    getPositionNumberRequest: GetPositionNumberRequest;
+  }
+>;
 
 export enum ComparisonOperator {
   equal = '=',

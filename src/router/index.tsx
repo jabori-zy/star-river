@@ -4,6 +4,7 @@ import StrategyMain from "../pages/StrategyMain";
 import { createBrowserRouter } from "react-router";
 import TestPage from "../pages/TestPage";
 import NodePage from "../pages/NodePage";
+import AccountPage from "../pages/AccountPage";
 
 const router = createBrowserRouter([
     {
@@ -25,6 +26,10 @@ const router = createBrowserRouter([
     {
         path: "/test",
         element: <TestPage />,
+    },
+    {
+        path: "/account",
+        element: <AccountPage />,
     },
 ]);
 

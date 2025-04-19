@@ -77,15 +77,28 @@ const nodeCategories = [
     color: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
     items: [
       {
-        nodeId: "buy_node",
-        nodeType: "buyNode",
-        nodeName: "买入",
-        nodeDescription: "买入",
+        nodeId: "order_node",
+        nodeType: "orderNode",
+        nodeName: "订单节点",
+        nodeDescription: "订单节点",
         nodeColor: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
         nodeData: {
           strategyId: null,
-          nodeName: "买入",
-          buyValue: null
+          nodeName: "订单节点",
+          orderRequest: null
+        }
+      } as NodeItemProps,
+      {
+        nodeId: "get_position_number_node",
+        nodeType: "getPositionNumberNode",
+        nodeName: "获取仓位数量节点",
+        nodeDescription: "获取仓位数量节点",
+        nodeColor: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
+        nodeData: {
+          strategyId: null,
+          nodeName: "获取仓位数量节点",
+          positionNumber: 0,
+          getPositionNumberRequest: null
         }
       } as NodeItemProps
     ]

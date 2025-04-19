@@ -22,7 +22,6 @@ import {
 
 import '@xyflow/react/dist/style.css';
 import DataFetchNode from '@/components/node/DataFetchNode'; // 数据获取节点
-import ShowPriceNode from '@/components/node/ShowPriceNode'; // 显示价格节点
 import SMAIndicatorNode from '@/components/node/IndicatorNode/SMAIndicatorNode'; // SMA指标节点
 import LiveDataNode from '@/components/node/LiveDataNode'; // 实时数据节点
 import StartNode from '@/components/node/StartNode'; // 开始节点
@@ -31,17 +30,18 @@ import { useDragAndDrop } from './useDragAndDrop';
 import { useReactFlow } from '@xyflow/react';
 import { Strategy } from '@/types/strategy';
 import IfElseNode from '@/components/node/IfElseNode';
-import BuyNode from '@/components/node/BuyNode';
+import OrderNode from '@/components/node/OrderNode';
+import GetPositionNumberNode from '@/components/node/GetPositionNumberNode';
 
 
 const nodeTypes = {
   startNode: StartNode,
   dataFetchNode: DataFetchNode,
-  showPriceNode: ShowPriceNode,
   smaIndicatorNode: SMAIndicatorNode,
   liveDataNode: LiveDataNode,
   ifElseNode: IfElseNode,
-  buyNode: BuyNode,
+  orderNode: OrderNode,
+  getPositionNumberNode: GetPositionNumberNode,
 };
 
 export default function NodeFlow({strategy}:{strategy:Strategy}) {

@@ -72,7 +72,12 @@ const data = {
         {
           title: "策略",
           url: "/strategy",
+        },
+        {
+          title: "账户",
+          url: "/account",
         }
+
       ],
     },
     {

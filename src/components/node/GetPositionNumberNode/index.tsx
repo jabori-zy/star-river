@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { type GetPositionNumberNode } from "@/types/node";
+import { useState, useEffect } from "react";
 import { 
     Handle, 
     type NodeProps, 
     Position,
-    useNodeConnections,
     useReactFlow
 } from '@xyflow/react';
 import { Button } from "@/components/ui/button"
@@ -19,17 +19,23 @@ import {
 import { Label } from "@/components/ui/label"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Input } from "@/components/ui/input"
-import { PencilIcon, CircleDot, ShoppingCart, X } from 'lucide-react';
+import { PencilIcon, Box , X } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-function BuyNode({id, data, isConnectable}:NodeProps) {
+
+
+function GetPositionNumberNode({id, data, isConnectable} : NodeProps<GetPositionNumberNode>) {
+
     const [showEditButton, setShowEditButton] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
-    const [buyAmount, setBuyAmount] = useState(100);
-    const [nodeName, setNodeName] = useState(data.nodeName as string || "买入");
-    const [nodeNameEditing, setNodeNameEditing] = useState(false);
-    const connections = useNodeConnections({
-        handleType: 'target',
-    });
+    const [nodeName, setNodeName] = useState(data.nodeName as string || "获取订单数量");
+    const [nodeNameEditing, setNodeNameEditing] = useState<boolean>(false);
+    const [exchange, setExchange] = useState<string>("Metatrader5");
+    const [symbol, setSymbol] = useState<string>("BTCUSDT");
+    const [positionSide, setPositionSide] = useState<string>("所有类型")
+    const [positionNumber, setPositionNumber] = useState<number>(0);
+
+
     const { updateNodeData } = useReactFlow();
 
     const preventDragHandler = (e: React.MouseEvent | React.DragEvent | React.PointerEvent) => {
@@ -63,9 +69,14 @@ function BuyNode({id, data, isConnectable}:NodeProps) {
     const handleSave = () => {
         updateNodeData(id, {
             ...data,
-            buyConfig: {
-                ...(data.buyConfig || {}),
-                amount: buyAmount
+            nodeName: nodeName,
+            exchange: exchange,
+            symbol: symbol,
+            getPositionNumberRequest: {
+                ...(data.getPositionNumberRequest || {}),
+                exchange: exchange,
+                symbol: symbol,
+                positionSide: positionSide,
             }
         });
         setIsEditing(false);
@@ -74,7 +85,7 @@ function BuyNode({id, data, isConnectable}:NodeProps) {
     return (
         <>
             <div 
-                className="buy-node relative"
+                className="get-position-number-node relative"
                 onMouseEnter={() => setShowEditButton(true)}
                 onMouseLeave={() => setShowEditButton(false)}
             >
@@ -92,21 +103,20 @@ function BuyNode({id, data, isConnectable}:NodeProps) {
 
                     <div className="p-2">
                         <div className="flex items-center gap-2">
-                            <ShoppingCart className="h-3.5 w-3.5 text-green-500" />
+                            <Box className="h-3.5 w-3.5 text-green-500" />
                             <div className="text-sm font-medium">{nodeName}</div>
                         </div>
                         
                         <div className="mt-1 flex items-center gap-2 text-[10px] text-muted-foreground">
-                            <span>买入金额: {buyAmount}</span>
+                            <span>仓位数量: {data.positionNumber || 0}</span>
                         </div>
                     </div>
 
                     <Handle 
                         type="target" 
                         position={Position.Left} 
-                        id="buy_node_input"
+                        id="get_position_number_node_input"
                         className="!w-3 !h-3 !border-2 !border-white !bg-green-400 !top-[22px]"
-                        isConnectable={connections.length < 1}
                     />
                 </div>
             </div>
@@ -160,24 +170,65 @@ function BuyNode({id, data, isConnectable}:NodeProps) {
                             </DrawerDescription>
                         </DrawerHeader>
                         
-                        <ScrollArea className="flex-1 px-4">
-                            <div className="py-6 space-y-6">
-                                <div className="space-y-4">
+                        <ScrollArea className="px-4 max-h-[70vh]">
+                                {/* 交易基本信息 - 两列布局 */}
+                                <div className="grid grid-cols-2 gap-4">
+                                    {/* 交易所 */}
                                     <div className="space-y-2">
-                                        <Label className="flex items-center gap-2">
-                                            <CircleDot className="h-3 w-3 text-green-500 fill-green-500" />
-                                            买入金额
+                                        <Label className="flex items-center gap-2 text-sm">
+                                            
+                                            交易所
+                                        </Label>
+                                        <Select value={exchange} onValueChange={setExchange}>
+                                            <SelectTrigger className="h-9">
+                                                <SelectValue placeholder="选择交易所" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="binance">Binance</SelectItem>
+                                                <SelectItem value="okx">OKX</SelectItem>
+                                                <SelectItem value="bybit">Bybit</SelectItem>
+                                                <SelectItem value="metatrader5">MetaTrader5</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    
+                                    {/* 交易对 */}
+                                    <div className="space-y-2">
+                                        <Label className="flex items-center gap-2 text-sm">
+                                            交易对
                                         </Label>
                                         <Input 
-                                            type="number"
-                                            value={buyAmount}
-                                            onChange={(e) => setBuyAmount(Number(e.target.value))}
-                                            min={1}
-                                            className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                            type="text"
+                                            value={symbol}
+                                            onChange={(e) => setSymbol(e.target.value)}
+                                            className="h-9"
                                         />
                                     </div>
                                 </div>
-                            </div>
+
+                                {/* 订单类型信息 - 两列布局 */}
+                                <div className="mb-6">
+                                    <h3 className="text-sm font-medium text-gray-500 mb-3">订单类型</h3>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        {/* 订单类型 */}
+                                        <div className="space-y-2">
+                                            <Label className="flex items-center gap-2 text-sm">
+                                                
+                                                仓位方向
+                                            </Label>
+                                            <Select value={positionSide} onValueChange={setPositionSide}>
+                                                <SelectTrigger className="h-9">
+                                                    <SelectValue placeholder="选择订单类型" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="all">所有方向</SelectItem>
+                                                    <SelectItem value="long">多</SelectItem>
+                                                    <SelectItem value="short">空</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    </div>
+                                </div>
                         </ScrollArea>
 
                         <DrawerFooter className="border-t">
@@ -200,6 +251,10 @@ function BuyNode({id, data, isConnectable}:NodeProps) {
             </Drawer>
         </>
     );
+
+
+
+
 }
 
-export default BuyNode;
+export default GetPositionNumberNode;
