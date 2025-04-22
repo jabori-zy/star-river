@@ -22,6 +22,31 @@ import {
 import { DragHandle } from "./DragHandle"
 import axios from "axios"
 import { Trash2, CirclePlay } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+
+// 格式化日期时间
+const formatDateTime = (dateTimeStr: string) => {
+  if (!dateTimeStr) return "-";
+  try {
+    const date = new Date(dateTimeStr);
+    return date.toLocaleString('zh-CN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    }).replace(/\//g, '-');
+  } catch {
+    return dateTimeStr;
+  }
+};
 
 // 为开关按钮创建一个独立的组件，这样可以正确使用useState
 // 账户开关
@@ -42,29 +67,37 @@ function AccountAvaliableSwitch({ enabled, onChange }: { enabled: boolean, onCha
   )
 }
 
-// 状态样式和文本的公共方法
-const getStatusStyle = (status: string) => {
+// 终端状态
+const getTerminalStatus = (status: string) => {
   switch (status) {
-    case "normal":
-      return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
-    case "warning":
-      return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
-    case "error":
-      return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
-    case "inactive":
-      return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300"
-    default:
-      return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300"
+    case "connected": return "已连接"
+    case "disconnected": return "未连接"
   }
 }
 
-const getStatusText = (status: string) => {
+const getTerminalStatusStyle = (status: string) => {
   switch (status) {
-    case "normal": return "正常"
-    case "warning": return "警告"
-    case "error": return "错误"
-    case "inactive": return "未激活"
-    default: return "未知"
+    case "connected": return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
+    case "disconnected": return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
+    case "connecting": return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
+  }
+}
+
+// EA状态样式
+const getEAStatusStyle = (status: string) => {
+  switch (status) {
+    case "open":
+      return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
+    case "close":
+      return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
+  }
+}
+
+// 交易状态文本
+const getEAStatus = (status: string) => {
+  switch (status) {
+    case "open": return "已开启"
+    case "close": return "已关闭"
   }
 }
 
@@ -83,9 +116,9 @@ export const mt5Columns: ColumnDef<MT5Account>[] = [
     cell: ({ row }) => <div className="whitespace-nowrap">{row.getValue("accountName")}</div>,
   },
   {
-    accessorKey: "accountId",
+    accessorKey: "login",
     header: "登录账号",
-    cell: ({ row }) => <div className="whitespace-nowrap">{row.getValue("accountId")}</div>,
+    cell: ({ row }) => <div className="whitespace-nowrap">{row.getValue("login")}</div>,
   },
   {
     accessorKey: "server",
@@ -95,88 +128,179 @@ export const mt5Columns: ColumnDef<MT5Account>[] = [
   {
     accessorKey: "terminalPath",
     header: "终端路径",
-    cell: ({ row }) => <div className="whitespace-nowrap">{row.getValue("terminalPath")}</div>,
+    cell: ({ row }) => {
+      const path = row.getValue("terminalPath") as string;
+      // 获取文件名部分
+      const fileName = path.split('\\').pop()?.split('/').pop() || path;
+      
+      // 提取盘符
+      let driveLetter = "";
+      if (path.match(/^[A-Za-z]:/)) {
+        driveLetter = path.charAt(0).toUpperCase();
+      }
+      
+      // 设置Badge颜色
+      const getDriveColor = (drive: string) => {
+        switch(drive) {
+          case "C": return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300";
+          case "D": return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
+          case "E": return "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300";
+          default: return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300";
+        }
+      };
+      
+      return (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex items-center max-w-[200px] cursor-help">
+                {driveLetter && (
+                  <Badge variant="outline" className={`mr-1.5 px-1.5 py-0 h-4 min-w-[1.2rem] text-[10px] rounded-sm ${getDriveColor(driveLetter)}`}>
+                    {driveLetter}
+                  </Badge>
+                )}
+                <span className="truncate" title={path}>
+                  {fileName}
+                </span>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="max-w-sm">
+              <p className="font-mono text-xs">{path}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
+    },
   },
   {
     accessorKey: "leverage",
     header: "杠杆",
-    cell: ({ row }) => <div className="whitespace-nowrap">{row.getValue("leverage")}:1</div>,
+    cell: ({ row }) => {
+      const leverage = row.getValue("leverage");
+      // console.log(`渲染杠杆数据: ${leverage}, 类型: ${typeof leverage}`);
+      return <div className="whitespace-nowrap">{leverage ? `${leverage}:1` : "-"}</div>;
+    },
   },
   {
     accessorKey: "balance",
     header: "余额",
     cell: ({ row }) => {
-      const balance = parseFloat(row.getValue("balance"))
+      const balance = row.getValue("balance");
+      // console.log(`渲染余额数据: ${balance}, 类型: ${typeof balance}`);
+      if (balance === null || balance === undefined) return <div className="whitespace-nowrap">-</div>;
+      
       const formatted = new Intl.NumberFormat("zh-CN", {
         style: "currency",
         currency: "USD",
-      }).format(balance)
-      return <div className="whitespace-nowrap">{formatted}</div>
+      }).format(Number(balance));
+      return <div className="whitespace-nowrap">{formatted}</div>;
     },
   },
   {
     accessorKey: "equity",
     header: "净值",
     cell: ({ row }) => {
-      const equity = parseFloat(row.getValue("equity"))
+      const equity = row.getValue("equity");
+      if (equity === null || equity === undefined) return <div className="whitespace-nowrap">-</div>;
+      
       const formatted = new Intl.NumberFormat("zh-CN", {
         style: "currency",
         currency: "USD",
-      }).format(equity)
-      return <div className="whitespace-nowrap">{formatted}</div>
+      }).format(Number(equity));
+      return <div className="whitespace-nowrap">{formatted}</div>;
     },
   },
   {
     accessorKey: "margin",
     header: "保证金",
     cell: ({ row }) => {
-      const margin = parseFloat(row.getValue("margin"))
+      const margin = row.getValue("margin");
+      if (margin === null || margin === undefined) return <div className="whitespace-nowrap">-</div>;
+      
       const formatted = new Intl.NumberFormat("zh-CN", {
         style: "currency",
         currency: "USD",
-      }).format(margin)
-      return <div className="whitespace-nowrap">{formatted}</div>
+      }).format(Number(margin));
+      return <div className="whitespace-nowrap">{formatted}</div>;
     },
   },
+  // 终端状态
   {
-    accessorKey: "status",
-    header: "账户状态",
+    accessorKey: "terminalStatus",
+    header: "终端状态",
     cell: ({ row }) => {
-      const status = row.getValue("status") as string
+      const status = row.getValue("terminalStatus") as string
       
       return (
         <div className="whitespace-nowrap">
-          <Badge className={`${getStatusStyle(status)}`}>
-            {getStatusText(status)}
+          <Badge className={`${getTerminalStatusStyle(status)}`}>
+            {getTerminalStatus(status)}
           </Badge>
         </div>
       )
     },
   },
   {
-    accessorKey: "enabled",
-    header: "账户开关",
+    accessorKey: "eaStatus",
+    header: "EA交易状态",
     cell: ({ row }) => {
-      const enabled = row.getValue("enabled") as boolean
-      // 使用API调用的处理函数
-      const handleAccountToggle = (value: boolean) => {
-        console.log(`账户 ${row.original.id} 状态被设置为: ${value}`)
-        row.original.enabled = value
-        console.log(row.original)
-        
-      }
+      const status = row.getValue("eaStatus") as string
       
       return (
         <div className="whitespace-nowrap">
-          <AccountAvaliableSwitch enabled={enabled} onChange={handleAccountToggle} />
+          <Badge className={`${getEAStatusStyle(status)}`}>
+            {getEAStatus(status)}
+          </Badge>
         </div>
       )
     },
   },
   {
-    accessorKey: "createdAt",
+    accessorKey: "isAvailable",
+    header: "账户开关",
+    cell: ({ row }) => {
+      const isAvailable = row.getValue("isAvailable") as boolean
+      // 使用API调用的处理函数
+      const handleAccountToggle = async (value: boolean) => {
+        console.log(`账户 ${row.original.id} 状态被设置为: ${value}`)
+        row.original.isAvailable = value
+        console.log(row.original)
+        // 调用API更新账户状态
+        const requestBody = {
+          id: row.original.id,
+          is_available: value
+        }
+        // 通过axios发送请求
+        axios.post("http://localhost:3100/update_mt5_account_config_is_available", requestBody, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }).then((res) => {
+          // 如果添加成功，则刷新账户数据
+          if (res.data.code === 200) {
+            window.location.reload()
+          }
+        }).catch(error => {
+          console.error("切换账户状态失败:", error)
+        })
+
+      }
+      
+      return (
+        <div className="whitespace-nowrap">
+          <AccountAvaliableSwitch enabled={isAvailable} onChange={handleAccountToggle} />
+        </div>
+      )
+    },
+  },
+  {
+    accessorKey: "createdTime",
     header: "创建时间",
-    cell: ({ row }) => <div className="whitespace-nowrap">{row.getValue("createdAt")}</div>,
+    cell: ({ row }) => (
+      <div className="whitespace-nowrap">
+        {formatDateTime(row.getValue("createdTime"))}
+      </div>
+    ),
   },
   {
     id: "actions",
@@ -184,14 +308,20 @@ export const mt5Columns: ColumnDef<MT5Account>[] = [
     cell: ({ row }) => {
       const account = row.original
       // 启动客户端
-      const handleStartTerminal = async (terminal_id: number,terminalPath: string) => {
-        console.log(`启动客户端: ${terminalPath}`)
+      const handleStartTerminal = async (account_id: number) => {
         // 调用API启动客户端
-        const {data} = await axios.post(`http://localhost:3100/start_mt5_terminal?terminalPath=${terminalPath}`)
+        const requestBody = {
+          account_id: account_id
+        }
+        const {data} = await axios.post(`http://localhost:3100/login_mt5_account`, requestBody, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
         console.log(data)
       }
       // 删除账户
-      const handleDeleteAccount = async (id: string) => {
+      const handleDeleteAccount = async (id: number) => {
         console.log(`删除账户 ${id}`)
         // 调用API删除账户
         const {data} = await axios.delete(`http://localhost:3100/delete_mt5_account_config?id=${id}`)
@@ -214,7 +344,7 @@ export const mt5Columns: ColumnDef<MT5Account>[] = [
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 className="flex items-center cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-950"
-                onClick={() => handleStartTerminal(account.terminalPath)}
+                onClick={() => handleStartTerminal(account.id, account.terminalPath)}
               >
                 <CirclePlay className="h-4 w-4 mr-2 text-blue-500" />
                 <span className="text-blue-600 dark:text-blue-400">启动客户端</span>
@@ -300,25 +430,10 @@ export const binanceColumns: ColumnDef<BinanceAccount>[] = [
     },
   },
   {
-    accessorKey: "status",
-    header: "账户状态",
-    cell: ({ row }) => {
-      const status = row.getValue("status") as string
-      
-      return (
-        <div className="whitespace-nowrap">
-          <Badge className={`${getStatusStyle(status)}`}>
-            {getStatusText(status)}
-          </Badge>
-        </div>
-      )
-    },
-  },
-  {
-    accessorKey: "enabled",
+    accessorKey: "isAvailable",
     header: "账户开关",
     cell: ({ row }) => {
-      const enabled = row.getValue("enabled") as boolean
+      const enabled = row.getValue("isAvailable") as boolean
       // 使用API调用的处理函数
       const handleAccountToggle = (value: boolean) => {
         console.log(`账户 ${row.original.id} 状态被设置为: ${value}`)
@@ -333,9 +448,9 @@ export const binanceColumns: ColumnDef<BinanceAccount>[] = [
     },
   },
   {
-    accessorKey: "createdAt",
+    accessorKey: "createdTime",
     header: "创建时间",
-    cell: ({ row }) => <div className="whitespace-nowrap">{row.getValue("createdAt")}</div>,
+    cell: ({ row }) => <div className="whitespace-nowrap">{row.getValue("createdTime")}</div>,
   },
   {
     id: "actions",
@@ -357,7 +472,7 @@ export const binanceColumns: ColumnDef<BinanceAccount>[] = [
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 className="flex items-center cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800"
-                onClick={() => navigator.clipboard.writeText(account.id)}
+                onClick={() => navigator.clipboard.writeText(String(account.id))}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
@@ -467,25 +582,10 @@ export const okxColumns: ColumnDef<OKXAccount>[] = [
     },
   },
   {
-    accessorKey: "status",
-    header: "账户状态",
-    cell: ({ row }) => {
-      const status = row.getValue("status") as string
-      
-      return (
-        <div className="whitespace-nowrap">
-          <Badge className={`${getStatusStyle(status)}`}>
-            {getStatusText(status)}
-          </Badge>
-        </div>
-      )
-    },
-  },
-  {
-    accessorKey: "enabled",
+    accessorKey: "isAvailable",
     header: "账户开关",
     cell: ({ row }) => {
-      const enabled = row.getValue("enabled") as boolean
+      const enabled = row.getValue("isAvailable") as boolean
       // 使用API调用的处理函数
       const handleAccountToggle = (value: boolean) => {
         console.log(`账户 ${row.original.id} 状态被设置为: ${value}`)
@@ -524,7 +624,7 @@ export const okxColumns: ColumnDef<OKXAccount>[] = [
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 className="flex items-center cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800"
-                onClick={() => navigator.clipboard.writeText(account.id)}
+                onClick={() => navigator.clipboard.writeText(String(account.id))}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />

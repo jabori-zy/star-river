@@ -1,22 +1,23 @@
 // 定义账户公共属性
 export interface BaseAccount {
-  id: string
+  id: number
   accountName: string
-  // 公共字段
-  status: "normal" | "warning" | "error" | "inactive"
-  enabled: boolean
+  isAvailable: boolean
   createdTime: string
 }
 
 // Metatrader5特有属性
 export interface MT5Account extends BaseAccount {
-  login: string
+  login: number
   server: string
   terminalPath: string
   leverage: number | null
   balance: number | null
   equity: number | null
   margin: number | null
+  terminalStatus: string
+  eaStatus: string
+  
 }
 
 // Binance特有属性
@@ -30,7 +31,6 @@ export interface BinanceAccount extends BaseAccount {
 
 // OKX特有属性
 export interface OKXAccount extends BaseAccount {
-  accountId: string
   apiVersion: string
   marginMode: "cross" | "isolated"
   totalAssets: number
