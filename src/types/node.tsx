@@ -1,5 +1,12 @@
 import {Node} from '@xyflow/react'
+import { StartNodeData } from './start_node';
 
+// 交易模式枚举
+export enum TradingMode {
+  LIVE = "live",
+  SIMULATE = "simulate",
+  BACKTEST = "backtest"
+}
 
 // 所有可能的节点数据类型
 export type NodeItemProps = {
@@ -8,13 +15,14 @@ export type NodeItemProps = {
     nodeName: string;
     nodeDescription: string;
     nodeColor: string;
-    nodeData: LiveDataNodeData | SMAIndicatorNodeData | IfElseNodeData | OrderNodeData | GetPositionNumberNodeData;
+    nodeData: LiveDataNodeData | SMAIndicatorNodeData | IfElseNodeData | OrderNodeData | GetPositionNumberNodeData | StartNodeData;
 };
 
 type outputValue = {
   value: number | null;
   timestamp: number | null;
 }
+
 
 type LiveDataNodeData = {
   strategyId: number | null;
