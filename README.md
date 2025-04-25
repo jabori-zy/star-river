@@ -48,3 +48,36 @@ export default tseslint.config({
   },
 })
 ```
+
+# StartNode 修改说明
+
+## 主要更改内容
+
+1. 创建了 `useTradingConfigStore.ts` 全局状态管理，用于存储独立的配置状态：
+   - `liveModeConfig`: 单独保存实盘交易配置
+   - `simulateModeConfig`: 单独保存模拟交易配置
+   - `backtestModeConfig`: 单独保存回测交易配置
+
+2. 修改了 `StartNode/index.tsx` 组件
+   - 添加了交易模式的展示（参考 LiveDataNode）
+   - 引入 `useTradingModeStore` 获取当前交易模式
+   - 将三种模式的独立配置更新到对应的全局状态变量
+
+3. 修改了 `StartNode/panel.tsx` 面板
+   - 在面板保存时，同时更新全局交易模式状态
+   - 在面板保存时，根据当前交易模式，更新对应的独立配置状态
+
+## 技术实现
+
+- 使用 Zustand 进行状态管理
+- 使用 React Hooks 进行状态变更监听
+- 交易模式样式使用与 LiveDataNode 相同的 Helper 函数
+
+## 效果
+
+- StartNode 现在会显示当前的交易模式标签
+- 当交易模式变化时，节点会实时更新显示
+- 其他节点可以通过 `useTradingConfigStore` 获取：
+  - 实盘交易配置：`useTradingConfigStore(state => state.liveModeConfig)`
+  - 模拟交易配置：`useTradingConfigStore(state => state.simulateModeConfig)`
+  - 回测交易配置：`useTradingConfigStore(state => state.backtestModeConfig)`

@@ -2,21 +2,34 @@ import { Handle, type NodeProps, Position } from '@xyflow/react';
 import { Card, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { PlayIcon, Edit } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button"
 import StartNodePanel from './panel';
 import { StartNodeData } from '@/types/start_node';
-import { TradingMode } from '@/types/node';
+import { TradeMode } from '@/types/node';
 import { useReactFlow } from '@xyflow/react';
+import useTradingModeStore from '@/store/useTradingModeStore';
+import useTradingConfigStore from '@/store/useTradingConfigStore';
+import { getTradingModeName, getTradingModeColor } from '@/utils/tradingModeHelper';
 
 function StartNode({ data, isConnectable, id }: NodeProps) {
+    // 编辑状态
     const [isEditing, setIsEditing] = useState(false);
     const [showEditButton, setShowEditButton] = useState(false);
     const { updateNodeData } = useReactFlow();
+    // 引入交易模式
+    const { tradingMode } = useTradingModeStore();
+    // 引入交易配置状态
+    const { 
+        setLiveModeConfig,
+        setSimulateModeConfig,
+        setBacktestModeConfig
+    } = useTradingConfigStore();
+    
     // 确保data是有效的对象
     const nodeData = data as StartNodeData || { 
         strategyTitle: "我的策略",
-        tradingMode: TradingMode.SIMULATE,
+        tradingMode: TradeMode.SIMULATE,
         liveTradingConfig: {
             liveAccounts: [],
             maxPositions: 10
@@ -33,10 +46,42 @@ function StartNode({ data, isConnectable, id }: NodeProps) {
         }
     };
 
+    // 将节点数据中的配置保存到全局状态，当节点数据更新时触发
+    useEffect(() => {
+        if (nodeData) {
+            // 更新三种模式的独立配置
+            if (nodeData.liveTradingConfig) {
+                setLiveModeConfig(nodeData.liveTradingConfig);
+            }
+            
+            if (nodeData.simulateTradingConfig) {
+                setSimulateModeConfig(nodeData.simulateTradingConfig);
+            }
+            
+            if (nodeData.backtestTradingConfig) {
+                setBacktestModeConfig(nodeData.backtestTradingConfig);
+            }
+        }
+    }, [nodeData, setLiveModeConfig, setSimulateModeConfig, setBacktestModeConfig]);
+
     const handleSave = (data: StartNodeData) => {
-        console.log("handleSave", data);
         // 更新节点数据
         updateNodeData(id, data);
+        
+        // 更新三种模式的独立配置
+        if (data.liveTradingConfig) {
+            setLiveModeConfig(data.liveTradingConfig);
+        }
+        
+        if (data.simulateTradingConfig) {
+            setSimulateModeConfig(data.simulateTradingConfig);
+        }
+        
+        if (data.backtestTradingConfig) {
+            setBacktestModeConfig(data.backtestTradingConfig);
+        }
+        
+        console.log(nodeData);
     };
 
     return (
@@ -67,9 +112,9 @@ function StartNode({ data, isConnectable, id }: NodeProps) {
                         </div>
                         <Badge 
                             variant="secondary" 
-                            className="h-4 text-[10px] font-normal bg-green-500/10 text-green-600 hover:bg-green-500/10"
+                            className={`h-4 text-[10px] font-normal ${getTradingModeColor(tradingMode)}`}
                         >
-                            起点
+                            {getTradingModeName(tradingMode)}
                         </Badge>
                     </div>
                     <div className="text-xs text-muted-foreground font-medium">

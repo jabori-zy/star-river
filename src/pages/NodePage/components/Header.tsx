@@ -3,13 +3,108 @@ import { useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Save, X, Check, Loader2, Play, Square } from "lucide-react";
+import { ArrowLeft, Save, X, Check, Loader2, Play, Square, DollarSign, CreditCard, Calendar } from "lucide-react";
 import { useReactFlow } from '@xyflow/react';
 import { toast } from "sonner";
 import { useStrategyMessages } from "@/hooks/use-strategyMessage";
+import { TradeMode } from "@/types/node";
+import useTradingModeStore from "@/store/useTradingModeStore";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+
+// 交易模式选择器组件
+function TradingModeSelector() {
+  const { tradingMode, setTradingMode } = useTradingModeStore();
+
+  // 获取交易模式图标
+  const getTradingModeIcon = (mode: TradeMode) => {
+    switch (mode) {
+      case TradeMode.LIVE:
+        return <DollarSign className="h-4 w-4 text-green-500" />;
+      case TradeMode.SIMULATE:
+        return <CreditCard className="h-4 w-4 text-blue-500" />;
+      case TradeMode.BACKTEST:
+        return <Calendar className="h-4 w-4 text-purple-500" />;
+      default:
+        return null;
+    }
+  };
+
+  // 交易模式名称
+  const getTradingModeName = (mode: TradeMode) => {
+    switch (mode) {
+      case TradeMode.LIVE:
+        return "实盘交易";
+      case TradeMode.SIMULATE:
+        return "模拟交易";
+      case TradeMode.BACKTEST:
+        return "回测交易";
+      default:
+        return "";
+    }
+  };
+
+  // 交易模式颜色
+  const getTradingModeColor = (mode: TradeMode) => {
+    switch (mode) {
+      case TradeMode.LIVE:
+        return "text-green-500 border-green-200";
+      case TradeMode.SIMULATE:
+        return "text-blue-500 border-blue-200";
+      case TradeMode.BACKTEST:
+        return "text-purple-500 border-purple-200";
+      default:
+        return "";
+    }
+  };
+
+  return (
+    <div className="flex items-center gap-2">
+      <span className="text-xs text-muted-foreground">交易模式:</span>
+      <Select
+        value={tradingMode}
+        onValueChange={(value) => setTradingMode(value as TradeMode)}
+      >
+        <SelectTrigger className={`h-8 w-[110px] ${getTradingModeColor(tradingMode)}`}>
+          <SelectValue>
+            <div className="flex items-center gap-2">
+              {getTradingModeIcon(tradingMode)}
+              <span>{getTradingModeName(tradingMode)}</span>
+            </div>
+          </SelectValue>
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value={TradeMode.LIVE} className="flex items-center gap-2">
+            <div className="flex items-center gap-2">
+              <DollarSign className="h-4 w-4 text-green-500" />
+              <span>实盘交易</span>
+            </div>
+          </SelectItem>
+          <SelectItem value={TradeMode.SIMULATE} className="flex items-center gap-2">
+            <div className="flex items-center gap-2">
+              <CreditCard className="h-4 w-4 text-blue-500" />
+              <span>模拟交易</span>
+            </div>
+          </SelectItem>
+          <SelectItem value={TradeMode.BACKTEST} className="flex items-center gap-2">
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-purple-500" />
+              <span>回测交易</span>
+            </div>
+          </SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
+  );
+}
 
 // 保存策略按钮组件
-function SaveStrategyButton({ strategyId, strategyName, strategyDescription }: { strategyId: number, strategyName: string, strategyDescription: string }) {
+function SaveStrategyButton({ strategyId, strategyName, strategyDescription, tradingMode }: { strategyId: number, strategyName: string, strategyDescription: string, tradingMode: TradeMode }) {
   const [isSaving, setIsSaving] = useState(false);
   const reactFlowInstance = useReactFlow();
 
@@ -18,15 +113,18 @@ function SaveStrategyButton({ strategyId, strategyName, strategyDescription }: {
     const nodes = reactFlowInstance.getNodes();
     const edges = reactFlowInstance.getEdges();
 
-    
+    console.log(tradingMode);
     const body = {
       id: strategyId,
       name: strategyName,
       description: strategyDescription,
+      // 如果是Live，则trade_mode为live，如果是Simulate，则trade_mode为simulate，如果是Backtest，则trade_mode为backtest
+      trade_mode: tradingMode === TradeMode.LIVE ? "live" : tradingMode === TradeMode.SIMULATE ? "simulate" : "backtest",
       status: 1,
       nodes,
       edges
     }
+    console.log(body);
 
     setIsSaving(true);
 
@@ -183,6 +281,7 @@ export function Header({ strategyId, strategyName, strategyDescription }: Header
   const [isEditing, setIsEditing] = useState(false);
   const [displayName, setDisplayName] = useState(strategyName);
   const [tempName, setTempName] = useState(displayName);
+  const { tradingMode, setTradingMode } = useTradingModeStore();
 
   const handleSave = () => {
     setDisplayName(tempName);
@@ -254,10 +353,11 @@ export function Header({ strategyId, strategyName, strategyDescription }: Header
         </div>
 
         <div className="flex items-center gap-3">
+          <TradingModeSelector />
           <Badge variant="outline" className="font-mono">
             最后保存: 10:30:25
           </Badge>
-          <SaveStrategyButton strategyId={strategyId} strategyName={displayName} strategyDescription={strategyDescription} />
+          <SaveStrategyButton strategyId={strategyId} strategyName={displayName} strategyDescription={strategyDescription} tradingMode={tradingMode} />
           <RunStrategyButton strategyId={strategyId} />
         </div>
       </div>

@@ -1,208 +1,192 @@
-import { useState, useEffect, useRef } from 'react';
-import { Handle, type NodeProps, Position, useReactFlow } from '@xyflow/react';
-import { Button } from "@/components/ui/button"
+import { useState, useCallback } from 'react';
+import { 
+    type NodeProps, 
+    Handle, 
+    Position, 
+    useNodeConnections,
+    useReactFlow,
+    Node
+} from '@xyflow/react';
+import { Badge } from '@/components/ui/badge';
+import { LineChart, PencilIcon } from 'lucide-react';
+import LiveDataNodePanel from './panel';
+import { Button } from '@/components/ui/button';
+import useTradingModeStore from '@/store/useTradingModeStore';
+import { TradeMode } from '@/types/node';
+import { getTradingModeName, getTradingModeColor } from '@/utils/tradingModeHelper';
+import { Drawer } from '@/components/ui/drawer';
+import { LiveTradeConfig, SimulateTradeConfig, BacktestTradeConfig } from '@/types/start_node';
 
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerDescription,
-} from "@/components/ui/drawer"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Label } from "@/components/ui/label"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { PencilIcon, CircleDot } from 'lucide-react';
-import { Badge } from "@/components/ui/badge"
-import { type LiveDataNode } from "@/types/node";
-import { useStrategyMessages } from '@/hooks/use-strategyMessage';
-
-function LiveDataNode({id, data, isConnectable}:NodeProps<LiveDataNode>) {
-    const [showEditButton, setShowEditButton] = useState(false);
-    const [isEditing, setIsEditing] = useState(false);
-    const { updateNodeData } = useReactFlow();
-    const [exchange, setExchange] = useState(data.exchange || 'binance');
-    const [symbol, setSymbol] = useState(data.symbol || 'BTC/USDT');
-    const [interval, setInterval] = useState(data.interval || '1m');
-    const { messages, clearNodeMessages } = useStrategyMessages();
-    const [last_price, setLastPrice] = useState(0);
-
-    useEffect(() => {
-        // console.log(`Node ${id} received message`, messages);
-        // 获取实时数据节点的消息
-        const live_node_message = messages[id];
-        if (live_node_message && live_node_message.length > 0) {
-            const last_price = live_node_message.at(-1).kline_series.series.at(-1).close;
-            setLastPrice(last_price);
-        }
-
-        clearNodeMessages(id);
-        
-    }, [messages, id, clearNodeMessages]);
-
-    const handleSave = () => {
-        updateNodeData(id, {
-            ...data,
-            exchange,
-            symbol,
-            interval
-        });
-        setIsEditing(false);
-    };
-
-
-
-    return (
-        <>
-            <div 
-                className="live-data-node relative"
-                onMouseEnter={() => setShowEditButton(true)}
-                onMouseLeave={() => setShowEditButton(false)}
-            >
-                <div className="w-[280px] bg-white border-2 rounded-lg shadow-sm">
-                    {showEditButton && (
-                        <Button 
-                            variant="outline" 
-                            size="icon"
-                            className="absolute -right-2 -top-2 w-6 h-6 rounded-full bg-white shadow-md hover:bg-gray-100 z-10"
-                            onClick={() => setIsEditing(true)}
-                        >
-                            <PencilIcon className="h-3 w-3" />
-                        </Button>
-                    )}
-
-                    <div className="p-2 pb-1.5 relative">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                                <div className="text-sm font-medium">数据获取节点</div>
-                                <Badge variant="secondary" className="h-4 text-xs">实时</Badge>
-                            </div>
-                            <Badge variant="outline" className="h-4 text-xs px-2">已连接</Badge>
-                        </div>
-                        
-                        <Handle 
-                            type="target" 
-                            position={Position.Left} 
-                            id="live_data_node_input"
-                            className="!-left-[6px] !w-3 !h-3 !border-2 !border-white !bg-blue-400 !top-[22px]"
-                            isConnectable={isConnectable}
-                        />
-
-                        <Handle 
-                            type="source" 
-                            position={Position.Right} 
-                            id="live_data_node_output"
-                            className="!-right-[6px] !w-3 !h-3 !border-2 !border-white !bg-blue-400 !top-[22px]"
-                            isConnectable={isConnectable}
-                        />
-                    </div>
-
-                    <div className="p-2 pt-0">
-                        <div className="space-y-1.5">
-                            <div className="flex items-center justify-between">
-                                <Label className="text-xs text-muted-foreground">最新价格</Label>
-                                <div className="text-sm font-semibold text-green-500">{last_price}</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <Drawer open={isEditing} onOpenChange={setIsEditing} direction="right">
-                <DrawerContent className="h-[calc(100vh-2rem)] max-w-[400px] rounded-l-xl shadow-2xl mx-0 my-4">
-                    <DrawerHeader className="border-b">
-                        <DrawerTitle>编辑节点</DrawerTitle>
-                        <DrawerDescription>
-                            配置数据获取节点的参数
-                        </DrawerDescription>
-                    </DrawerHeader>
-                    
-                    <ScrollArea className="flex-1 px-4">
-                        <div className="py-6 space-y-6">
-                            <div className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label className="flex items-center gap-2">
-                                        <CircleDot className="h-3 w-3 text-green-500 fill-green-500" />
-                                        交易所
-                                    </Label>
-                                    <Select value={exchange} onValueChange={setExchange}>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="选择交易所" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="binance">Binance</SelectItem>
-                                            <SelectItem value="okx">OKX</SelectItem>
-                                            <SelectItem value="bitget">Bitget</SelectItem>
-                                            <SelectItem value="metatrader5">MetaTrader 5</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label className="flex items-center gap-2">
-                                        <CircleDot className="h-3 w-3 text-blue-500 fill-blue-500" />
-                                        交易对
-                                    </Label>
-                                    <Select value={symbol} onValueChange={setSymbol}>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="选择交易对" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="BTCUSDT">BTC/USDT</SelectItem>
-                                            <SelectItem value="ETHUSDT">ETH/USDT</SelectItem>
-                                            <SelectItem value="XAUUSD">XAU/USD</SelectItem>
-                                            <SelectItem value="BTCUSDm">BTC/USDm</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label className="flex items-center gap-2">
-                                        <CircleDot className="h-3 w-3 text-purple-500 fill-purple-500" />
-                                        时间间隔
-                                    </Label>
-                                    <Select value={interval} onValueChange={setInterval}>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="选择时间间隔" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="1m">1分钟</SelectItem>
-                                            <SelectItem value="5m">5分钟</SelectItem>
-                                            <SelectItem value="15m">15分钟</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            </div>
-                        </div>
-                    </ScrollArea>
-
-                    <DrawerFooter className="border-t">
-                        <div className="flex gap-2">
-                            <DrawerClose asChild>
-                                <Button className="flex-1" variant="outline">
-                                    取消
-                                </Button>
-                            </DrawerClose>
-                            <Button 
-                                className="flex-1"
-                                onClick={handleSave}
-                            >
-                                保存
-                            </Button>
-                        </div>
-                    </DrawerFooter>
-                </DrawerContent>
-            </Drawer>
-        </>
-    );
+// 每个交易模式的配置
+interface TradingModeConfig {
+  symbol: string;
+  interval: string;
+  selectedAccount?: string;
 }
+
+const LiveDataNode = ({ data, id, isConnectable }: NodeProps) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [showEditButton, setShowEditButton] = useState(false);
+  const { tradingMode } = useTradingModeStore();
+  const { setNodes } = useReactFlow();
+
+  const handleSave = useCallback((newData: Record<string, unknown>) => {
+    // 使用React Flow的setNodes来更新节点数据
+    setNodes(nodes => 
+      nodes.map(node => 
+        node.id === id 
+          ? { ...node, data: { ...node.data, ...newData } }
+          : node
+      )
+    );
+    // 打印节点的数据
+    console.log('node data', newData);
+
+    // 如果有回调函数，也调用它
+    if (typeof data.onSaveData === 'function') {
+      data.onSaveData(id, newData);
+    }
+    
+    setIsEditing(false);
+  }, [data, id, setNodes]);
+
+  const preventDragHandler = (e: React.MouseEvent | React.DragEvent | React.PointerEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+  };
+
+  const { getNode } = useReactFlow();
+  const connections = useNodeConnections({
+      handleType: 'target',
+  });
+
+  const sourceNodes = connections
+      .map(connection => getNode(connection.source))
+      .filter((node): node is Node => node !== null);
+
+  // 获取当前交易模式对应的配置
+  const getCurrentConfig = (): TradingModeConfig => {
+    const defaultConfig: TradingModeConfig = { symbol: 'BTCUSDT', interval: '1m' };
+    
+    switch(tradingMode) {
+      case TradeMode.LIVE:
+        return (data.liveConfig as TradingModeConfig) || defaultConfig;
+      case TradeMode.SIMULATE:
+        return (data.simulateConfig as TradingModeConfig) || defaultConfig;
+      case TradeMode.BACKTEST:
+        return (data.backtestConfig as TradingModeConfig) || defaultConfig;
+      default:
+        return defaultConfig;
+    }
+  };
+
+  const currentConfig = getCurrentConfig();
+
+  // 构造面板数据
+  const panelData = {
+    liveDataNodeConfig: currentConfig,
+    tradingMode,
+    liveTradingConfig: data.liveTradingConfig as LiveTradeConfig | undefined,
+    simulateTradingConfig: data.simulateTradingConfig as SimulateTradeConfig | undefined,
+    backtestTradingConfig: data.backtestTradingConfig as BacktestTradeConfig | undefined
+  };
+
+  const panel = (
+    <LiveDataNodePanel
+      data={panelData}
+      isEditing={isEditing}
+      setIsEditing={setIsEditing}
+      handleSave={handleSave}
+      sourceNodes={sourceNodes}
+    />
+  );
+
+  return (
+    <>
+      <div 
+        className="live-data-node relative"
+        onMouseEnter={() => setShowEditButton(true)}
+        onMouseLeave={() => setShowEditButton(false)}
+      >
+        <div className="w-[200px] bg-white border-2 rounded-lg shadow-sm">
+          {showEditButton && (
+            <Button 
+              variant="outline" 
+              size="icon"
+              className="absolute -right-2 -top-2 w-6 h-6 rounded-full bg-white shadow-md hover:bg-gray-100 z-10"
+              onClick={() => setIsEditing(true)}
+            >
+              <PencilIcon className="h-3 w-3" />
+            </Button>
+          )}
+
+          <div className="p-2">
+            <div className="flex items-center gap-2">
+              <LineChart className="h-3.5 w-3.5 text-blue-500" />
+              <div className="text-sm font-medium">数据获取</div>
+              <Badge variant="secondary" className={`h-5 text-xs ${getTradingModeColor(tradingMode)}`}>
+                {getTradingModeName(tradingMode)}
+              </Badge>
+            </div>
+            
+            <div className="mt-1.5 space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] text-muted-foreground">交易对:</span>
+                <span className="text-xs font-medium">{currentConfig.symbol || "未设置"}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] text-muted-foreground">时间间隔:</span>
+                <span className="text-xs font-medium">{currentConfig.interval || "未设置"}</span>
+              </div>
+              
+              {/* 显示选择的账户 */}
+              {(tradingMode === TradeMode.LIVE || tradingMode === TradeMode.SIMULATE) && (
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] text-muted-foreground">账户:</span>
+                  <span className="text-xs font-medium">{
+                    tradingMode === TradeMode.LIVE 
+                      ? (data.liveTradingConfig as LiveTradeConfig)?.liveAccounts?.find(acc => acc.id.toString() === currentConfig.selectedAccount)?.accountName || "未选择" 
+                      : (data.simulateTradingConfig as SimulateTradeConfig)?.simulateAccounts?.find(acc => acc.id.toString() === currentConfig.selectedAccount)?.accountName || "未选择"
+                  }</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <Handle
+            type="target"
+            position={Position.Left}
+            id="live_data_node_input"
+            className="!w-3 !h-3 !border-2 !border-white !bg-blue-400 !top-[22px]"
+            isConnectable={isConnectable}
+          />
+          <Handle
+            type="source"
+            position={Position.Right}
+            id="live_data_node_output"
+            className="!w-3 !h-3 !border-2 !border-white !bg-blue-400 !top-[22px]"
+            isConnectable={isConnectable}
+          />
+        </div>
+      </div>
+
+      <Drawer 
+        open={isEditing} 
+        onOpenChange={setIsEditing} 
+        direction="right"
+        modal={false}
+      >
+        <div 
+          onDragStart={preventDragHandler}
+          onDrag={preventDragHandler}
+          onDragEnd={preventDragHandler}
+          style={{ isolation: 'isolate' }}
+        >
+          {panel}
+        </div>
+      </Drawer>
+    </>
+  );
+};
 
 export default LiveDataNode;
