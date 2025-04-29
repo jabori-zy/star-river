@@ -88,7 +88,7 @@ export const LiveAccount = ({ liveAccounts, setLiveAccounts }: LiveAccountProps)
   // 获取实盘账户配置列表
   const getMT5AccountConfigs = useCallback(async () => {
     try {
-      const {data} = await axios.get(`http://localhost:3100/get_mt5_account_config`);
+      const {data} = await axios.get(`http://localhost:3100/get_account_config?exchange=metatrader5`);
       const mt5ConfigData = data.data || [];
       console.log("获取到的MT5账户配置:", mt5ConfigData);
       

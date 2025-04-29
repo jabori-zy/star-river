@@ -82,6 +82,7 @@ export default function AccountPage() {
   useEffect(() => {
     if (accountUpdateMessage && accountUpdateMessage.event_name === "account-updated") {
       // console.log("收到MT5账户实时数据:", accountUpdateMessage);
+
       
       // 更新MT5账户数据
       setMt5AccountData(prevData => {
@@ -171,37 +172,6 @@ export default function AccountPage() {
       console.error("添加账户失败:", error)
     })
   }
-
-  // // 映射mt5账户的数据
-  // const handleMapMT5AccountsConfig = (data: Array<{
-  //   id: number,
-  //   account_name: string,
-  //   login: number,
-  //   server: string,
-  //   terminal_path: string,
-  //   is_available: boolean,
-  //   created_time: string
-  // }>) => {
-  //   const mt5Accounts: MT5Account[] = []
-  //   data.forEach((item) => {
-  //     mt5Accounts.push({
-  //       id: item.id,  // 转换为数字类型
-  //       accountName: item.account_name,
-  //       login: item.login,  // 转换为数字类型
-  //       server: item.server,
-  //       terminalPath: item.terminal_path,
-  //       isAvailable: item.is_available,
-  //       createdTime: item.created_time,
-  //       leverage: 0,
-  //       balance: 0,
-  //       equity: 0,
-  //       margin: 0,
-  //       terminalStatus: "disconnected",
-  //       eaStatus: "close",
-  //     })
-  //   })
-  //   return mt5Accounts
-  // }
     
   
   

@@ -83,7 +83,6 @@ export default function NodeFlow({strategy}:{strategy:Strategy}) {
     const onDrop = useCallback((event: React.DragEvent<HTMLDivElement>) => {
         event.preventDefault();
       
-
         // console.log("nodeItemType", nodeItemProp);
 
         if (!nodeItemProp) return;
@@ -99,7 +98,8 @@ export default function NodeFlow({strategy}:{strategy:Strategy}) {
             position,
             data: {
                 ...(nodeItemProp.nodeData),
-                strategyId: strategy.id
+                strategyId: strategy.id,
+                nodeName: nodeItemProp.nodeName
             },
         };
 
