@@ -5,10 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Save, X, Check, Loader2, Play, Square, DollarSign, CreditCard, Calendar } from "lucide-react";
 import { useReactFlow } from '@xyflow/react';
-import { toast } from "sonner";
 import { useStrategyMessages } from "@/hooks/use-strategyMessage";
 import { TradeMode } from "@/types/node";
-import useTradingModeStore from "@/store/useTradingModeStore";
 import {
   Select,
   SelectContent,
@@ -16,13 +14,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Strategy } from "@/types/strategy";
+import { updateStrategy } from "@/service/strategy";
 
 // 交易模式选择器组件
-function TradingModeSelector() {
-  const { tradingMode, setTradingMode } = useTradingModeStore();
+function TradingModeSelector({ strategy, setStrategy }: { strategy: Strategy | undefined, setStrategy: (strategy: Strategy) => void }) {
+  const tradingMode = strategy?.tradeMode;
 
   // 获取交易模式图标
-  const getTradingModeIcon = (mode: TradeMode) => {
+  const getTradingModeIcon = (mode: TradeMode | undefined) => {
     switch (mode) {
       case TradeMode.LIVE:
         return <DollarSign className="h-4 w-4 text-green-500" />;
@@ -36,7 +36,7 @@ function TradingModeSelector() {
   };
 
   // 交易模式名称
-  const getTradingModeName = (mode: TradeMode) => {
+  const getTradingModeName = (mode: TradeMode | undefined) => {
     switch (mode) {
       case TradeMode.LIVE:
         return "实盘交易";
@@ -50,7 +50,7 @@ function TradingModeSelector() {
   };
 
   // 交易模式颜色
-  const getTradingModeColor = (mode: TradeMode) => {
+  const getTradingModeColor = (mode: TradeMode | undefined) => {
     switch (mode) {
       case TradeMode.LIVE:
         return "text-green-500 border-green-200";
@@ -63,18 +63,27 @@ function TradingModeSelector() {
     }
   };
 
+  const handleModeChange = (value: TradeMode) => {
+    if (strategy && strategy.id) {
+      setStrategy({
+        ...strategy,
+        tradeMode: value
+      });
+    }
+  };
+
   return (
     <div className="flex items-center gap-2">
-      <span className="text-xs text-muted-foreground">交易模式:</span>
+      <span className="flex text-xs text-muted-foreground">交易模式:</span>
       <Select
         value={tradingMode}
-        onValueChange={(value) => setTradingMode(value as TradeMode)}
+        onValueChange={handleModeChange}
       >
-        <SelectTrigger className={`h-8 w-[110px] ${getTradingModeColor(tradingMode)}`}>
+        <SelectTrigger className={`h-8 w-[130px] ${getTradingModeColor(tradingMode)}`}>
           <SelectValue>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 w-full">
               {getTradingModeIcon(tradingMode)}
-              <span>{getTradingModeName(tradingMode)}</span>
+              <span className="text-xs truncate">{getTradingModeName(tradingMode)}</span>
             </div>
           </SelectValue>
         </SelectTrigger>
@@ -104,7 +113,8 @@ function TradingModeSelector() {
 }
 
 // 保存策略按钮组件
-function SaveStrategyButton({ strategyId, strategyName, strategyDescription, tradingMode }: { strategyId: number, strategyName: string, strategyDescription: string, tradingMode: TradeMode }) {
+function SaveStrategyButton({ strategy }: { strategy: Strategy}) {
+  // console.log("保存策略按钮组件", strategy);
   const [isSaving, setIsSaving] = useState(false);
   const reactFlowInstance = useReactFlow();
 
@@ -113,36 +123,40 @@ function SaveStrategyButton({ strategyId, strategyName, strategyDescription, tra
     const nodes = reactFlowInstance.getNodes();
     const edges = reactFlowInstance.getEdges();
 
-    console.log(tradingMode);
-    const body = {
-      id: strategyId,
-      name: strategyName,
-      description: strategyDescription,
-      // 如果是Live，则trade_mode为live，如果是Simulate，则trade_mode为simulate，如果是Backtest，则trade_mode为backtest
-      trade_mode: tradingMode === TradeMode.LIVE ? "live" : tradingMode === TradeMode.SIMULATE ? "simulate" : "backtest",
+    // 根据策略模式获取正确的TradeMode枚举值
+    let tradeMode = TradeMode.BACKTEST; // 默认值
+    if (strategy?.tradeMode === TradeMode.LIVE) {
+      tradeMode = TradeMode.LIVE;
+    } else if (strategy?.tradeMode === TradeMode.SIMULATE) {
+      tradeMode = TradeMode.SIMULATE;
+    }
+
+    const strategyData = {
+      id: strategy?.id,
+      name: strategy?.name,
+      description: strategy?.description,
+      config: strategy?.config,
+      tradeMode, // 使用枚举值
       status: 1,
       nodes,
       edges
-    }
-    console.log(body);
+    };
 
     setIsSaving(true);
 
     try {
-      await fetch('http://localhost:3100/update_strategy', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(body)
+      // 使用service方法替代直接fetch调用
+      await updateStrategy(strategy?.id as number, strategyData, {
+        showToast: true,
+        onFinally: () => {
+          setTimeout(() => {
+            setIsSaving(false);
+          }, 1000);
+        }
       });
-      toast.success('保存成功');
     } catch (err) {
-      toast.error('保存失败' + err);
-    } finally {
-      setTimeout(() => {
-        setIsSaving(false);
-      }, 1000);
+      // 错误处理已在service中完成
+      console.error('保存策略时出错:', err);
     }
   };
 
@@ -167,7 +181,7 @@ function SaveStrategyButton({ strategyId, strategyName, strategyDescription, tra
 }
 
 // 初始化策略
-function requestInitStrategy(strategyId: number) {
+function requestInitStrategy(strategyId: number | undefined) {
   fetch('http://localhost:3100/init_strategy', {
     headers: {
       'Content-Type': 'application/json'
@@ -178,7 +192,7 @@ function requestInitStrategy(strategyId: number) {
 }
 
 // 运行策略
-function requestRunStrategy(strategyId: number) {
+function requestRunStrategy(strategyId: number | undefined) {
   fetch('http://localhost:3100/run_strategy', {
     headers: {
       'Content-Type': 'application/json'
@@ -189,7 +203,7 @@ function requestRunStrategy(strategyId: number) {
 }
 
 // 停止策略
-function requestStopStrategy(strategyId: number) {
+function requestStopStrategy(strategyId: number | undefined) {
   fetch('http://localhost:3100/stop_strategy', {
     headers: {
       'Content-Type': 'application/json'
@@ -208,11 +222,11 @@ function requestEnabelStrategyEventPush(strategyId: number) {
 }
 
 // 运行策略按钮组件
-function RunStrategyButton({ strategyId }: { strategyId: number }) {
+function RunStrategyButton({ strategyId }: { strategyId: number | undefined }) {
   // 策略是否正在运行
   const [isRunning, setIsRunning] = useState(false);
   // 策略是否初始化
-  const [isInit, setIsInit] = useState(false);
+  // const [isInit, setIsInit] = useState(false);
   // 是否已经连接sse
   const { connectSSE, disconnectSSE, isSSEConnected } = useStrategyMessages();
 
@@ -271,27 +285,41 @@ function RunStrategyButton({ strategyId }: { strategyId: number }) {
 
 
 interface HeaderProps {
-    strategyId: number;
-    strategyName: string;
-    strategyDescription: string;
+    strategy: Strategy | undefined;
+    setStrategy: (strategy: Strategy) => void;
 }
 
-export function Header({ strategyId, strategyName, strategyDescription }: HeaderProps) {
+export function Header({ strategy, setStrategy }: HeaderProps) {
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
-  const [displayName, setDisplayName] = useState(strategyName);
-  const [tempName, setTempName] = useState(displayName);
-  const { tradingMode, setTradingMode } = useTradingModeStore();
+  console.log("strategy", strategy);
+  const [tempName, setTempName] = useState(strategy?.name || "");
 
-  const handleSave = () => {
-    setDisplayName(tempName);
+  
+  // 保存策略名称
+  const handleSaveStrategyName = () => {
+    // setDisplayName(tempName);
     setIsEditing(false);
     // 实际的保存操作由 SaveStrategyButton 处理
+
+    if(strategy) {
+      setStrategy(
+        {
+          ...strategy,
+          name: tempName
+        });
+    }
+
+      console.log("修改策略名称", strategy);
+
+
   };
 
   const handleCancel = () => {
-    setTempName(displayName);
-    setIsEditing(false);
+    if(strategy) {
+      setTempName(strategy.name);
+      setIsEditing(false);
+    }
   };
 
   return (
@@ -316,14 +344,14 @@ export function Header({ strategyId, strategyName, strategyDescription }: Header
                 onChange={(e) => setTempName(e.target.value)}
                 className="h-8 w-[300px] text-lg font-semibold"
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleSave();
+                  if (e.key === 'Enter') handleSaveStrategyName();
                   if (e.key === 'Escape') handleCancel();
                 }}
               />
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={handleSave}
+                onClick={handleSaveStrategyName}
                 className="h-8 w-8 p-0 border border-border/50 hover:border-green-500 hover:text-green-500 transition-colors"
               >
                 <Check className="h-4 w-4 text-green-500" />
@@ -343,7 +371,7 @@ export function Header({ strategyId, strategyName, strategyDescription }: Header
                 onClick={() => setIsEditing(true)}
                 className="text-lg font-semibold hover:text-primary cursor-pointer px-3 py-1.5 rounded hover:bg-accent transition-colors"
               >
-                {displayName}
+                {strategy?.name}
               </div>
               <Badge variant="secondary" className="bg-primary/10 text-primary">
                 编辑中
@@ -353,12 +381,12 @@ export function Header({ strategyId, strategyName, strategyDescription }: Header
         </div>
 
         <div className="flex items-center gap-3">
-          <TradingModeSelector />
+          <TradingModeSelector strategy={strategy} setStrategy={setStrategy} />
           <Badge variant="outline" className="font-mono">
             最后保存: 10:30:25
           </Badge>
-          <SaveStrategyButton strategyId={strategyId} strategyName={displayName} strategyDescription={strategyDescription} tradingMode={tradingMode} />
-          <RunStrategyButton strategyId={strategyId} />
+          <SaveStrategyButton strategy={strategy as Strategy} />
+          <RunStrategyButton strategyId={strategy?.id} />
         </div>
       </div>
     </div>

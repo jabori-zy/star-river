@@ -1,12 +1,12 @@
 import { TradeMode } from '@/types/node';
-import { LiveTradeConfig, SimulateTradeConfig, BacktestTradeConfig } from '@/types/start_node';
+import { StrategyLiveConfig, StrategySimulateConfig } from '@/types/strategy';
 
 /**
  * 安全获取实盘交易配置中的账户列表
  * @param config - 实盘交易配置
  * @returns 账户列表或空数组
  */
-export function getSafeLiveAccounts(config: LiveTradeConfig | any) {
+export function getSafeLiveAccounts(config: StrategyLiveConfig) {
   if (config && config.liveAccounts && Array.isArray(config.liveAccounts)) {
     return config.liveAccounts;
   }
@@ -18,7 +18,7 @@ export function getSafeLiveAccounts(config: LiveTradeConfig | any) {
  * @param config - 模拟交易配置
  * @returns 账户列表或空数组
  */
-export function getSafeSimulateAccounts(config: SimulateTradeConfig | any) {
+export function getSafeSimulateAccounts(config: StrategySimulateConfig) {
   if (config && config.simulateAccounts && Array.isArray(config.simulateAccounts)) {
     return config.simulateAccounts;
   }

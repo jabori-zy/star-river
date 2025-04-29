@@ -10,8 +10,9 @@ import { AccountsHeader } from "./components/AccountsHeader"
 import { Toaster } from "sonner"
 import axios from "axios"
 import { MT5Account } from "@/types/account"
-import useAccountSSE, { MT5AccountInfo } from "@/hooks/use-accountSSE"
+import useAccountSSE, { AccountInfo } from "@/hooks/use-accountSSE"
 import React from "react"
+import { getAccountConfigByExchange } from "@/service/account"
 
 // 定义账户类型
 type AccountType = {
@@ -63,61 +64,52 @@ export default function AccountPage() {
   // 获取SSE实时数据
   const accountUpdateMessage = useAccountSSE()
 
-  // 根据交易所，从接口获取账户数据
-  const getAccountConfigByExchange = useCallback(async (exchange: string) => {
-    // 根据交易所，映射账户配置数据
+  // 获取账户数据
+  const getAccountConfig = useCallback(async (exchange: string) => {
+    const accountData = await getAccountConfigByExchange(exchange)
     if (exchange === "metatrader5") {
-      try {
-        const {data} = await axios.get(`http://localhost:3100/get_mt5_account_config`)
-        const configData = data.data || []
-        console.log("获取到的MT5账户配置:", configData)
-        const mt5Accounts = handleMapMT5AccountsConfig(configData)
-        
-        // 设置账户数据
-        setMt5AccountData(mt5Accounts)
-      } catch (error) {
-        console.error("获取MT5账户数据失败:", error)
-      }
+      setMt5AccountData(accountData)
     }
   }, [])
 
   // 处理页面首次加载和Tab切换时获取数据
   useEffect(() => {
     // 获取账户数据
-    
-    getAccountConfigByExchange(activeTab)
-  }, [activeTab, getAccountConfigByExchange])
+    getAccountConfig(activeTab)
+  }, [activeTab, getAccountConfig])
   
   // 处理SSE实时数据更新
   useEffect(() => {
     if (accountUpdateMessage && accountUpdateMessage.event_name === "account-updated") {
-      console.log("收到MT5账户实时数据:", accountUpdateMessage);
+      // console.log("收到MT5账户实时数据:", accountUpdateMessage);
       
       // 更新MT5账户数据
       setMt5AccountData(prevData => {
         // 根据terminal_id与id匹配，更新账户数据
         const updatedData = prevData.map(account => {
           // 如果account_info为null，则将客户端设置为断开，EA设置为关闭
-          if (!accountUpdateMessage.account_info) {
+          if (!accountUpdateMessage.account_info && accountUpdateMessage.account_config.id === account.id) {
             return {
               ...account,
               terminalStatus: "disconnected",
               eaStatus: "close",
             };
           }
-          // 现在可以直接比较数字类型
-          if (accountUpdateMessage.account_info.account_id === account.id) {
+          
+          // 如果account_info.account_id与account.id匹配，则更新账户数据
+          if (accountUpdateMessage.account_config.id === account.id && accountUpdateMessage.account_info) {
             
             // 更新账户数据
             return {
               ...account,
               // 更新指定字段
-              leverage: accountUpdateMessage.account_info.leverage,
-              balance: accountUpdateMessage.account_info.balance,
-              equity: accountUpdateMessage.account_info.equity,
-              margin: accountUpdateMessage.account_info.margin,
-              terminalStatus: accountUpdateMessage.account_info.terminal_connected ? "connected" : "disconnected",
-              eaStatus: accountUpdateMessage.account_info.trade_allowed ? "open" : "close",
+              leverage: accountUpdateMessage.account_info.info.leverage,
+              balance: accountUpdateMessage.account_info.info.balance,
+              equity: accountUpdateMessage.account_info.info.equity,
+              margin: accountUpdateMessage.account_info.info.margin,
+              terminalStatus: accountUpdateMessage.account_info.info.terminal_connected ? "connected" : "disconnected",
+              eaStatus: accountUpdateMessage.account_info.info.trade_allowed ? "open" : "close",
+              createdTime: accountUpdateMessage.account_info.create_time,
               // 其他字段保持不变
             };
           }
@@ -180,36 +172,36 @@ export default function AccountPage() {
     })
   }
 
-  // 映射mt5账户的数据
-  const handleMapMT5AccountsConfig = (data: Array<{
-    id: number,
-    account_name: string,
-    login: number,
-    server: string,
-    terminal_path: string,
-    is_available: boolean,
-    created_time: string
-  }>) => {
-    const mt5Accounts: MT5Account[] = []
-    data.forEach((item) => {
-      mt5Accounts.push({
-        id: item.id,  // 转换为数字类型
-        accountName: item.account_name,
-        login: item.login,  // 转换为数字类型
-        server: item.server,
-        terminalPath: item.terminal_path,
-        isAvailable: item.is_available,
-        createdTime: item.created_time,
-        leverage: 0,
-        balance: 0,
-        equity: 0,
-        margin: 0,
-        terminalStatus: "disconnected",
-        eaStatus: "close",
-      })
-    })
-    return mt5Accounts
-  }
+  // // 映射mt5账户的数据
+  // const handleMapMT5AccountsConfig = (data: Array<{
+  //   id: number,
+  //   account_name: string,
+  //   login: number,
+  //   server: string,
+  //   terminal_path: string,
+  //   is_available: boolean,
+  //   created_time: string
+  // }>) => {
+  //   const mt5Accounts: MT5Account[] = []
+  //   data.forEach((item) => {
+  //     mt5Accounts.push({
+  //       id: item.id,  // 转换为数字类型
+  //       accountName: item.account_name,
+  //       login: item.login,  // 转换为数字类型
+  //       server: item.server,
+  //       terminalPath: item.terminal_path,
+  //       isAvailable: item.is_available,
+  //       createdTime: item.created_time,
+  //       leverage: 0,
+  //       balance: 0,
+  //       equity: 0,
+  //       margin: 0,
+  //       terminalStatus: "disconnected",
+  //       eaStatus: "close",
+  //     })
+  //   })
+  //   return mt5Accounts
+  // }
     
   
   

@@ -9,104 +9,9 @@ import {
   ChevronsUp
 } from "lucide-react";
 import { useState } from "react";
-import { Boxes, Sigma, ChevronsUpDown } from "lucide-react";
 import { NodeItem } from "./NodeItem";
-import { NodeItemProps } from "@/types/node";
+import { nodeCategories } from "@/constants/nodeCategories";
 
-const nodeCategories = [
-  {
-    title: "数据输入",
-    icon: Boxes,
-    color: "from-[#4776E6]/20 to-[#8E54E9]/20 hover:from-[#4776E6]/30 hover:to-[#8E54E9]/30",
-    items: [
-      {
-        nodeId: "live_data_node",
-        nodeType: "liveDataNode",
-        nodeName: "实时数据",
-        nodeDescription: "实时数据流",
-        nodeColor: "from-[#4776E6]/20 to-[#8E54E9]/20 hover:from-[#4776E6]/30 hover:to-[#8E54E9]/30",
-        nodeData: {
-          exchange: null,
-          symbol: null,
-          interval: null,
-        }
-      } as NodeItemProps
-    ]
-  },
-  {
-    title: "技术指标",
-    icon: Sigma,
-    color: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
-    items: [
-      {
-        nodeId: "sma_indicator_node",
-        nodeType: "smaIndicatorNode",
-        nodeName: "简单移动平均线",
-        nodeDescription: "简单移动平均线",
-        nodeColor: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
-        nodeData: {
-          strategyId: null,
-          nodeName: "简单移动平均线",
-          indicatorName: "sma",
-          indicatorConfig: {"period": {paramName: "周期", paramValue: 14}},
-          indicatorValue: {"sma": {value: null, timestamp: null}}
-        }
-      } as NodeItemProps
-    ]
-  },
-  {
-    title: "条件",
-    icon: ChevronsUpDown,
-    color: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
-    items: [
-      {
-        nodeId: "if_else_node",
-        nodeType: "ifElseNode",
-        nodeName: "条件",
-        nodeDescription: "条件",
-        nodeColor: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
-        nodeData: {
-          cases: null
-        }
-      } as NodeItemProps
-    ]
-  },
-  {
-    title: "买卖操作",
-    icon: ChevronsUpDown,
-    color: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
-    items: [
-      {
-        nodeId: "order_node",
-        nodeType: "orderNode",
-        nodeName: "订单节点",
-        nodeDescription: "订单节点",
-        nodeColor: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
-        nodeData: {
-          strategyId: null,
-          nodeName: "订单节点",
-          orderRequest: null
-        }
-      } as NodeItemProps,
-      {
-        nodeId: "get_position_number_node",
-        nodeType: "getPositionNumberNode",
-        nodeName: "获取仓位数量节点",
-        nodeDescription: "获取仓位数量节点",
-        nodeColor: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
-        nodeData: {
-          strategyId: null,
-          nodeName: "获取仓位数量节点",
-          positionNumber: 0,
-          getPositionNumberRequest: null
-        }
-      } as NodeItemProps
-    ]
-  }
-  
-  
-
-];
 
 export function NodeList() {
   const [openCategories, setOpenCategories] = useState<string[]>(nodeCategories.map(c => c.title));
@@ -185,7 +90,7 @@ export function NodeList() {
                       nodeName={item.nodeName}
                       nodeDescription={item.nodeDescription}
                       nodeColor={category.color}
-                      nodeData={item.nodeData}
+                      // nodeData={item.nodeData}
                     />
                   ))}
                 </div>

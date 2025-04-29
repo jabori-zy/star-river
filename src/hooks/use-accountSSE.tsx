@@ -14,48 +14,54 @@ export interface AccountConfig {
     updated_time: string;
 }
 
-// 定义SSE事件类型
 export interface MT5AccountInfo {
-    channel: string;
-    event_name: string;
     account_id: number;
-    login: number;
-    trade_mode: string;
-    leverage: number;
-    limit_orders: number;
-    margin_stopout_mode: string;
-    trade_allowed: boolean;
-    dlls_allowed: boolean;
-    terminal_connected: boolean;
-    trade_expert: boolean;
-    margin_mode: string;
-    currency_digits: number;
-    fifo_close: boolean;
+    assets: number;
     balance: number;
+    commission_blocked: number;
+    company: string;
     credit: number;
-    profit: number;
+    currency: string;
+    currency_digits: number;
+    dlls_allowed: boolean;
     equity: number;
+    fifo_close: boolean;
+    leverage: number;
+    liabilities: number;
+    limit_orders: number;
+    login: number;
     margin: number;
     margin_free: number;
+    margin_initial: number;
     margin_level: number;
+    margin_maintenance: number;
+    margin_mode: string;
     margin_so_call: number;
     margin_so_so: number;
-    margin_initial: number;
-    margin_maintenance: number;
-    assets: number;
-    liabilities: number;
-    commission_blocked: number;
+    margin_stopout_mode: string;
     name: string;
+    profit: number;
     server: string;
-    currency: string;
-    company: string;
+    terminal_connected: boolean;
+    trade_allowed: boolean;
+    trade_expert: boolean;
+    trade_mode: string;
+}
+
+// 定义SSE事件类型
+export interface AccountInfo {
+    id: number;
+    account_id: number;
+    info: MT5AccountInfo;
+    create_time: string;
+    update_time: string;
 }
 
 export interface AccountEvent {
     channel: string;
     event_name: string;
     account_config: AccountConfig;
-    account_info: MT5AccountInfo | null;
+    account_info: AccountInfo | null;
     exchange_status: string;
 }
 

@@ -1,0 +1,240 @@
+import { Strategy } from "@/types/strategy";
+import { toast } from "sonner";
+import axios from "axios";
+
+/**
+ * 策略相关API服务
+ */
+
+// 正确使用Vite环境变量的方式
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3100';
+console.log("API基础URL:", API_BASE_URL);
+
+interface UpdateOptions {
+  onSuccess?: () => void;
+  onError?: (error: Error) => void;
+  onFinally?: () => void;
+  showToast?: boolean;
+}
+
+/**
+ * 根据ID获取策略详情
+ */
+export async function getStrategyById(strategyId: number): Promise<Strategy> {
+  try {
+    console.log(`${API_BASE_URL}/get_strategy?id=${strategyId}`);
+    const response = await axios.get(`${API_BASE_URL}/get_strategy?id=${strategyId}`);
+    
+    if (response.status !== 200) {
+      throw new Error(`获取策略失败: ${response.status}`);
+    }
+    
+    const data = response.data;
+    console.log("接口获取的原始策略数据", data.data);
+    
+    if (!data.data) {
+      throw new Error('获取策略数据为空');
+    }
+    
+    const strategy: Strategy = {
+      id: data.data["id"],
+      name: data.data["name"],
+      description: data.data["description"],
+      isDeleted: data.data["is_deleted"],
+      tradeMode: data.data["trade_mode"],
+      config: data.data["config"] || {},
+      nodes: data.data["nodes"],
+      edges: data.data["edges"],
+      status: data.data["status"],
+      createTime: data.data["created_time"],
+      updateTime: data.data["updated_time"]
+    };
+    
+    return strategy;
+  } catch (error) {
+    console.error('获取策略详情错误:', error);
+    throw error;
+  }
+}
+
+/**
+ * 获取所有策略列表
+ */
+export async function getAllStrategies(): Promise<Strategy[]> {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/get_strategies`);
+    
+    if (response.status !== 200) {
+      throw new Error(`获取策略列表失败: ${response.status}`);
+    }
+    
+    const data = response.data;
+    
+    if (!data.data || !Array.isArray(data.data)) {
+      return [];
+    }
+    
+    return data.data.map((item: Record<string, unknown>) => ({
+      id: item["id"],
+      name: item["name"],
+      description: item["description"],
+      isDeleted: item["is_deleted"],
+      tradeMode: item["trade_mode"],
+      config: item["config"],
+      nodes: item["nodes"],
+      edges: item["edges"],
+      status: item["status"],
+      createTime: item["created_time"],
+      updateTime: item["updated_time"]
+    }));
+  } catch (error) {
+    console.error('获取策略列表错误:', error);
+    throw error;
+  }
+}
+
+/**
+ * 创建新策略
+ */
+export async function createStrategy(
+  strategyData: Omit<Strategy, 'id' | 'createTime' | 'updateTime'>, 
+  options?: UpdateOptions
+): Promise<Strategy> {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/create_strategy`, {
+      name: strategyData.name,
+      description: strategyData.description,
+      is_deleted: strategyData.isDeleted,
+      trade_mode: strategyData.tradeMode,
+      config: strategyData.config,
+      nodes: strategyData.nodes,
+      edges: strategyData.edges,
+      status: strategyData.status,
+    });
+    
+    if (response.status !== 200) {
+      throw new Error(`创建策略失败: ${response.status}`);
+    }
+    
+    const data = response.data;
+    const result = await getStrategyById(data.data.id);
+    
+    // 成功回调
+    if (options?.showToast) {
+      toast.success('创建成功');
+    }
+    options?.onSuccess?.();
+    
+    return result;
+  } catch (error) {
+    console.error('创建策略错误:', error);
+    
+    // 错误回调
+    if (options?.showToast) {
+      toast.error(`创建失败: ${error instanceof Error ? error.message : String(error)}`);
+    }
+    options?.onError?.(error instanceof Error ? error : new Error(String(error)));
+    
+    throw error;
+  } finally {
+    options?.onFinally?.();
+  }
+}
+
+/**
+ * 更新策略
+ */
+export async function updateStrategy(
+  strategyId: number, 
+  strategyData: Partial<Strategy>,
+  options?: UpdateOptions
+): Promise<Strategy> {
+  try {
+    // 将驼峰命名转换为下划线命名以匹配API格式
+    const requestBody = {
+        name: strategyData.name ?? "",
+        description: strategyData.description ?? "",
+        is_deleted: strategyData.isDeleted ?? false,
+        trade_mode: strategyData.tradeMode ?? "",
+        config: strategyData.config ?? {},
+        nodes: strategyData.nodes ?? [],
+        edges: strategyData.edges ?? [],
+        status: strategyData.status ?? 0
+    };
+
+    console.log("requestBody", requestBody);
+    
+    // 使用POST方法以匹配组件中的用法
+    const response = await axios.post(`${API_BASE_URL}/update_strategy`, {
+      id: strategyId,
+      ...requestBody
+    });
+    
+    if (response.status !== 200) {
+      throw new Error(`更新策略失败: ${response.status}`);
+    }
+    
+    const result = await getStrategyById(strategyId);
+    
+    // 成功回调
+    if (options?.showToast) {
+      toast.success('保存成功');
+    }
+    options?.onSuccess?.();
+    
+    return result;
+  } catch (error) {
+    console.error('更新策略错误:', error);
+    
+    // 错误回调
+    if (options?.showToast) {
+      toast.error(`保存失败: ${error instanceof Error ? error.message : String(error)}`);
+    }
+    options?.onError?.(error instanceof Error ? error : new Error(String(error)));
+    
+    throw error;
+  } finally {
+    options?.onFinally?.();
+  }
+}
+
+/**
+ * 删除策略
+ */
+export async function deleteStrategy(
+  strategyId: number,
+  options?: UpdateOptions
+): Promise<boolean> {
+  try {
+    const response = await axios.delete(`${API_BASE_URL}/delete_strategy?id=${strategyId}`);
+    
+    if (response.status !== 200) {
+      throw new Error(`删除策略失败: ${response.status}`);
+    }
+    
+    const data = response.data;
+    const success = data.success === true;
+    
+    // 成功回调
+    if (success && options?.showToast) {
+      toast.success('删除成功');
+    }
+    if (success) {
+      options?.onSuccess?.();
+    }
+    
+    return success;
+  } catch (error) {
+    console.error('删除策略错误:', error);
+    
+    // 错误回调
+    if (options?.showToast) {
+      toast.error(`删除失败: ${error instanceof Error ? error.message : String(error)}`);
+    }
+    options?.onError?.(error instanceof Error ? error : new Error(String(error)));
+    
+    throw error;
+  } finally {
+    options?.onFinally?.();
+  }
+}

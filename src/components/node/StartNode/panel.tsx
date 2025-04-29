@@ -6,81 +6,59 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { X, Plus, CreditCard, Settings, Variable, Code, Hash, AlignLeft } from 'lucide-react'
-import { StartNodeData, StrategyVariable, StrategyVariableType } from '@/types/start_node';
+import { Plus, CreditCard, Settings, Variable, Code, X } from 'lucide-react'
 import { TradeMode } from '@/types/node';
-import { Badge } from "@/components/ui/badge";
-import { AccountItem } from '@/types/start_node';
-import useTradingModeStore from '@/store/useTradingModeStore';
-import useTradingConfigStore from '@/store/useTradingConfigStore';
-
+import { Strategy, SelectedAccount, StrategyVariable as StrategyVarType } from '@/types/strategy';
 // 导入拆分后的账户设置组件
 import LiveAccount from './AccountSetting/LiveAccount';
 // import SimulateAccount from './AccountSetting/SimulateAccount';
 // import BacktestAccount from './AccountSetting/BacktestAccount';
+// 导入变量相关组件
+import VariableDialog from './variableDialog';
+import VariableItem from './VariableItem';
 
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 
 interface StartNodePanelProps {
-  id: string;
-  data: StartNodeData;
+  strategy: Strategy | undefined;
   isEditing: boolean;
   setIsEditing: (value: boolean) => void;
-  handleSave: (data: StartNodeData) => void;
+  handleSaveStrategy: (strategy: Strategy) => void;
+  nodeName: string;
+  onNodeNameChange: (name: string) => void;
 }
 
-// 变量编辑对话框的属性
-interface VariableDialogProps {
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSave: (variable: StrategyVariable) => void;
-  editingVariable?: StrategyVariable;
-}
-
-// 变量显示项组件的属性
-interface VariableItemProps {
-  variable: StrategyVariable;
-  onEdit: (variable: StrategyVariable) => void;
-  onDelete: (name: string) => void;
-}
-
-const StartNodePanel = ({
-  data,
+const StartNodePanel: React.FC<StartNodePanelProps> = ({
+  strategy,
   isEditing,
   setIsEditing,
-  handleSave
+  handleSaveStrategy,
+  nodeName,
+  onNodeNameChange
 }: StartNodePanelProps) => {
   // 策略标题
-  const [strategyTitle, setStrategyTitle] = useState<string>(data?.strategyTitle || "我的策略");
+  const [strategyTitle, setStrategyTitle] = useState<string>(strategy?.name || "我的策略");
+  // 节点名称修改
+  const [tempNodeName, setTempNodeName] = useState<string>(nodeName || "策略起点");
+  const [nodeNameEditing, setNodeNameEditing] = useState<boolean>(false);
   // 交易模式
-  const [tradingMode, setTradingMode] = useState<TradeMode>(data?.tradingMode || TradeMode.LIVE);
-  // 引入tradingMode全局状态的更新函数
-  const { setTradingMode: setGlobalTradingMode } = useTradingModeStore();
-  // 引入各交易模式配置的更新函数
-  const { 
-    setLiveModeConfig, 
-    setSimulateModeConfig, 
-    setBacktestModeConfig 
-  } = useTradingConfigStore();
+  const [tradingMode, setTradingMode] = useState<TradeMode>(strategy?.tradeMode || TradeMode.LIVE);
   
   // 实盘交易配置
-  const [liveAccounts, setLiveAccounts] = useState<AccountItem[]>(data?.liveTradingConfig?.liveAccounts || []);
-  const [liveVariables, setLiveVariables] = useState<StrategyVariable[]>(data?.liveTradingConfig?.variables || []);
+  const [liveAccounts, setLiveAccounts] = useState<SelectedAccount[]>(strategy?.config?.liveConfig?.liveAccounts || []);
+  const [liveVariables, setLiveVariables] = useState<StrategyVarType[]>(strategy?.config?.liveConfig?.variables || []);
 
   // 模拟交易配置
-  const [simulateAccounts] = useState<AccountItem[]>(data?.simulateTradingConfig?.simulateAccounts || []);
-  const [simulateVariables, setSimulateVariables] = useState<StrategyVariable[]>(data?.simulateTradingConfig?.variables || []);
+  const [simulateAccounts] = useState<SelectedAccount[]>(strategy?.config?.simulateConfig?.simulateAccounts || []);
+  const [simulateVariables, setSimulateVariables] = useState<StrategyVarType[]>(strategy?.config?.simulateConfig?.variables || []);
 
   // 回测交易配置
-  const [backtestStartDate] = useState<string>(data?.backtestTradingConfig?.backtestStartDate || "");
-  const [backtestEndDate] = useState<string>(data?.backtestTradingConfig?.backtestEndDate || "");
-  const [backtestVariables, setBacktestVariables] = useState<StrategyVariable[]>(data?.backtestTradingConfig?.variables || []);
+  const [backtestStartDate] = useState<string>(strategy?.config?.backtestConfig?.backtestStartDate || "");
+  const [backtestEndDate] = useState<string>(strategy?.config?.backtestConfig?.backtestEndDate || "");
+  const [backtestVariables, setBacktestVariables] = useState<StrategyVarType[]>(strategy?.config?.backtestConfig?.variables || []);
 
   // 变量编辑对话框状态
   const [isVariableDialogOpen, setIsVariableDialogOpen] = useState<boolean>(false);
-  const [editingVariable, setEditingVariable] = useState<StrategyVariable | undefined>(undefined);
+  const [editingVariable, setEditingVariable] = useState<StrategyVarType | undefined>(undefined);
 
   // 获取当前模式的变量列表
   const getCurrentVariables = () => {
@@ -97,7 +75,7 @@ const StartNodePanel = ({
   };
 
   // 设置当前模式的变量列表
-  const setCurrentVariables = (variables: StrategyVariable[]) => {
+  const setCurrentVariables = (variables: StrategyVarType[]) => {
     switch (tradingMode) {
       case TradeMode.LIVE:
         setLiveVariables(variables);
@@ -112,9 +90,9 @@ const StartNodePanel = ({
   };
 
   // 添加或更新变量
-  const handleVariableSave = (variable: StrategyVariable) => {
+  const handleVariableSave = (variable: StrategyVarType) => {
     const currentVariables = getCurrentVariables();
-    const index = currentVariables.findIndex(v => v.name === variable.name);
+    const index = currentVariables.findIndex(v => v.varName === variable.varName);
     
     if (index !== -1) {
       // 更新现有变量
@@ -131,15 +109,15 @@ const StartNodePanel = ({
   };
 
   // 编辑变量
-  const handleEditVariable = (variable: StrategyVariable) => {
+  const handleEditVariable = (variable: StrategyVarType) => {
     setEditingVariable(variable);
     setIsVariableDialogOpen(true);
   };
 
   // 删除变量
-  const handleDeleteVariable = (name: string) => {
+  const handleDeleteVariable = (varName: string) => {
     const currentVariables = getCurrentVariables();
-    setCurrentVariables(currentVariables.filter(v => v.name !== name));
+    setCurrentVariables(currentVariables.filter(v => v.varName !== varName));
   };
 
   // 添加新变量
@@ -167,205 +145,63 @@ const StartNodePanel = ({
     }
   };
 
-  // 变量编辑对话框组件
-  const VariableDialog = ({ isOpen, onOpenChange, onSave, editingVariable }: VariableDialogProps) => {
-    const [variableName, setVariableName] = useState<string>(editingVariable?.name || "");
-    const [variableDisplayName, setVariableDisplayName] = useState<string>(editingVariable?.displayName || "");
-    const [variableType, setVariableType] = useState<StrategyVariableType>(editingVariable?.type || StrategyVariableType.NUMBER);
-    const [variableValue, setVariableValue] = useState<string>(editingVariable?.value?.toString() || "");
-    const [nameError, setNameError] = useState<string>("");
-
-    // 检查变量名是否符合规则
-    const validateVariableName = (name: string): boolean => {
-      if (!name) {
-        setNameError("变量名不能为空");
-        return false;
-      }
+  // 保存按钮处理
+  const handleSaveButton = () => {
+    // 更新策略状态
+    if (strategy) {
+      // 创建策略对象的副本
+      const updatedStrategy = { ...strategy};
       
-      const nameRegex = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
-      if (!nameRegex.test(name)) {
-        setNameError("变量名必须以字母或下划线开头，只能包含字母、数字和下划线");
-        return false;
-      }
+      // 更新策略名称
+      updatedStrategy.name = strategyTitle;
       
-      const currentVariables = getCurrentVariables();
-      if (currentVariables.some(v => v.name === name && v.name !== editingVariable?.name)) {
-        setNameError("变量名已存在");
-        return false;
+      // 更新对应模式下的账户和变量信息
+      if (tradingMode === TradeMode.LIVE) {
+        updatedStrategy.config.liveConfig = {
+          liveAccounts: liveAccounts,
+          variables: liveVariables.length > 0 ? liveVariables : undefined
+        };
+      } else if (tradingMode === TradeMode.SIMULATE) {
+        updatedStrategy.config.simulateConfig = {
+          simulateAccounts: simulateAccounts,
+          variables: simulateVariables.length > 0 ? simulateVariables : undefined
+        };
+      } else if (tradingMode === TradeMode.BACKTEST) {
+        updatedStrategy.config.backtestConfig = {
+          backtestStartDate,
+          backtestEndDate,
+          variables: backtestVariables.length > 0 ? backtestVariables : undefined
+        };
       }
-      
-      setNameError("");
-      return true;
-    };
+      console.log("准备更新的updatedStrategy", updatedStrategy);
 
-    const handleValueChange = (value: string) => {
-      setVariableValue(value);
-    };
+      handleSaveStrategy(updatedStrategy);
+    }
 
-    const handleSave = () => {
-      if (!validateVariableName(variableName) || !variableDisplayName) {
-        return;
-      }
-
-      // 根据类型转换值
-      let finalValue: string | number = variableValue;
-      if (variableType === StrategyVariableType.NUMBER) {
-        finalValue = variableValue === "" ? 0 : parseFloat(variableValue);
-      }
-
-      onSave({
-        name: variableName,
-        displayName: variableDisplayName,
-        type: variableType,
-        value: finalValue
-      });
-    };
-
-    return (
-      <Dialog open={isOpen} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>{editingVariable ? '编辑变量' : '添加变量'}</DialogTitle>
-            <DialogDescription>
-              为策略添加可配置的变量，运行时可根据变量值调整策略行为。
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="variable-type" className="text-right">
-                变量类型
-              </Label>
-              <div className="col-span-3">
-                <Select 
-                  value={variableType} 
-                  onValueChange={(value) => setVariableType(value as StrategyVariableType)}
-                >
-                  <SelectTrigger id="variable-type">
-                    <SelectValue placeholder="选择变量类型" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={StrategyVariableType.NUMBER}>
-                      <div className="flex items-center">
-                        <Hash className="h-4 w-4 mr-2 text-blue-500" />
-                        <span>数字</span>
-                      </div>
-                    </SelectItem>
-                    <SelectItem value={StrategyVariableType.STRING}>
-                      <div className="flex items-center">
-                        <AlignLeft className="h-4 w-4 mr-2 text-green-500" />
-                        <span>字符串</span>
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="variable-name" className="text-right">
-                变量名
-              </Label>
-              <div className="col-span-3 space-y-1">
-                <Input
-                  id="variable-name"
-                  value={variableName}
-                  onChange={(e) => {
-                    setVariableName(e.target.value);
-                    validateVariableName(e.target.value);
-                  }}
-                  placeholder="如: threshold_value"
-                  className={nameError ? "border-red-500" : ""}
-                  disabled={!!editingVariable} // 编辑模式下不允许修改变量名
-                />
-                {nameError && <p className="text-xs text-red-500">{nameError}</p>}
-              </div>
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="variable-display-name" className="text-right">
-                显示名称
-              </Label>
-              <Input
-                id="variable-display-name"
-                value={variableDisplayName}
-                onChange={(e) => setVariableDisplayName(e.target.value)}
-                placeholder="如: 阈值"
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="variable-value" className="text-right">
-                变量值
-              </Label>
-              <Input
-                id="variable-value"
-                value={variableValue}
-                onChange={(e) => handleValueChange(e.target.value)}
-                placeholder={variableType === StrategyVariableType.NUMBER ? "如: 0.05" : "如: BTC/USDT"}
-                type={variableType === StrategyVariableType.NUMBER ? "number" : "text"}
-                className="col-span-3"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button 
-              variant="outline" 
-              onClick={() => onOpenChange(false)}
-            >
-              取消
-            </Button>
-            <Button onClick={handleSave}>保存</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    );
+    // 延迟关闭面板，确保数据更新完成
+    setTimeout(() => {
+      setIsEditing(false);
+    }, 150);
   };
 
-  // 变量显示组件
-  const VariableItem = ({ variable, onEdit, onDelete }: VariableItemProps) => {
-    return (
-      <div className="flex items-center justify-between p-2 border rounded-md bg-background group">
-        <div className="flex items-center gap-2">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Badge variant="outline" className="h-5 px-1 cursor-help">
-                  {variable.type === StrategyVariableType.NUMBER ? (
-                    <Hash className="h-3 w-3 mr-1 text-blue-500" />
-                  ) : (
-                    <AlignLeft className="h-3 w-3 mr-1 text-green-500" />
-                  )}
-                  {variable.type === StrategyVariableType.NUMBER ? "数字" : "文本"}
-                </Badge>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p className="text-xs">{variable.name}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          <span className="font-medium">{variable.displayName}</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="text-sm">{variable.value?.toString()}</div>
-          <div className="flex opacity-0 group-hover:opacity-100 transition-opacity">
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="h-6 w-6"
-              onClick={() => onEdit(variable)}
-            >
-              <Settings className="h-3 w-3" />
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="h-6 w-6 text-destructive"
-              onClick={() => onDelete(variable.name)}
-            >
-              <X className="h-3 w-3" />
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
+  // 节点名称相关函数
+  const handleDoubleClick = () => {
+    setNodeNameEditing(true);
+  }
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTempNodeName(e.target.value);
+  };
+
+  const saveNodeName = () => {
+    onNodeNameChange(tempNodeName);
+    setNodeNameEditing(false);
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      saveNodeName();
+    }
   };
 
   return (
@@ -378,9 +214,37 @@ const StartNodePanel = ({
       >
         <DrawerPortal>
           <DrawerOverlay className="!bg-transparent" />
-          <DrawerContent className="h-[calc(100vh-2rem)] max-w-[400px] rounded-l-xl shadow-2xl mx-0 my-4">
+          <DrawerContent
+            className="h-[calc(100vh-2rem)] max-w-[400px] rounded-l-xl shadow-2xl mx-0 my-4"
+          >
             <DrawerHeader className="border-b">
-              <DrawerTitle>编辑策略起点</DrawerTitle>
+              <DrawerTitle>
+                <div>
+                  {nodeNameEditing ? (
+                    <Input
+                      type="text"
+                      value={tempNodeName}
+                      onChange={handleNameChange}
+                      onBlur={saveNodeName}
+                      onKeyDown={handleKeyDown}
+                      autoFocus
+                      className="w-full px-1 text-sm border rounded focus:outline-none"
+                    />
+                  ) : (
+                    <span onDoubleClick={handleDoubleClick}>
+                      {nodeName}
+                    </span>
+                  )}
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="absolute right-4 top-4"
+                    onClick={() => setIsEditing(false)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              </DrawerTitle>
               <DrawerDescription>
                 配置量化策略的全局参数
               </DrawerDescription>
@@ -484,7 +348,7 @@ const StartNodePanel = ({
                       <div className="space-y-2">
                         {getCurrentVariables().map((variable) => (
                           <VariableItem
-                            key={variable.name}
+                            key={variable.varName}
                             variable={variable}
                             onEdit={handleEditVariable}
                             onDelete={handleDeleteVariable}
@@ -506,50 +370,7 @@ const StartNodePanel = ({
                 </DrawerClose>
                 <Button 
                   className="flex-1"
-                  onClick={() => {
-                    // 构建需要保存的数据
-                    const newData: StartNodeData = {
-                      strategyTitle,
-                      tradingMode,
-                      // 根据当前选择的交易模式，设置对应的配置
-                      ...(tradingMode === TradeMode.LIVE ? {
-                        liveTradingConfig: {
-                          liveAccounts,
-                          variables: liveVariables.length > 0 ? liveVariables : undefined
-                        }
-                      } : {}),
-                      ...(tradingMode === TradeMode.SIMULATE ? {
-                        simulateTradingConfig: {
-                          simulateAccounts,
-                          variables: simulateVariables.length > 0 ? simulateVariables : undefined
-                        }
-                      } : {}),
-                      ...(tradingMode === TradeMode.BACKTEST ? {
-                        backtestTradingConfig: {
-                          backtestStartDate,
-                          backtestEndDate,
-                          variables: backtestVariables.length > 0 ? backtestVariables : undefined
-                        }
-                      } : {})
-                    };
-                    
-                    // 更新节点数据
-                    handleSave(newData);
-                    
-                    // 同时更新全局交易模式状态
-                    setGlobalTradingMode(tradingMode);
-                    
-                    // 更新各交易模式配置独立状态
-                    if (tradingMode === TradeMode.LIVE && newData.liveTradingConfig) {
-                      setLiveModeConfig(newData.liveTradingConfig);
-                    } else if (tradingMode === TradeMode.SIMULATE && newData.simulateTradingConfig) {
-                      setSimulateModeConfig(newData.simulateTradingConfig);
-                    } else if (tradingMode === TradeMode.BACKTEST && newData.backtestTradingConfig) {
-                      setBacktestModeConfig(newData.backtestTradingConfig);
-                    }
-                    
-                    setIsEditing(false);
-                  }}
+                  onClick={handleSaveButton}
                 >
                   保存
                 </Button>
@@ -565,6 +386,7 @@ const StartNodePanel = ({
         onOpenChange={setIsVariableDialogOpen}
         onSave={handleVariableSave}
         editingVariable={editingVariable}
+        currentVariables={getCurrentVariables()}
       />
     </Drawer>
   );

@@ -2,88 +2,59 @@ import { Handle, type NodeProps, Position } from '@xyflow/react';
 import { Card, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { PlayIcon, Edit } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { Button } from "@/components/ui/button"
 import StartNodePanel from './panel';
-import { StartNodeData } from '@/types/start_node';
-import { TradeMode } from '@/types/node';
 import { useReactFlow } from '@xyflow/react';
-import useTradingModeStore from '@/store/useTradingModeStore';
-import useTradingConfigStore from '@/store/useTradingConfigStore';
 import { getTradingModeName, getTradingModeColor } from '@/utils/tradingModeHelper';
+import { useStrategyStore } from '@/store/useStrategyStore';
+import { type StartNode } from '@/types/startNode';
+import { Strategy } from '@/types/strategy';
 
-function StartNode({ data, isConnectable, id }: NodeProps) {
+
+function StartNode({ data, isConnectable, id }: NodeProps<StartNode>) {
     // 编辑状态
     const [isEditing, setIsEditing] = useState(false);
     const [showEditButton, setShowEditButton] = useState(false);
-    const { updateNodeData } = useReactFlow();
-    // 引入交易模式
-    const { tradingMode } = useTradingModeStore();
-    // 引入交易配置状态
-    const { 
-        setLiveModeConfig,
-        setSimulateModeConfig,
-        setBacktestModeConfig
-    } = useTradingConfigStore();
+    const [nodeName, setNodeName] = useState(data?.nodeName || "策略起点");
+
+
+    // 引入React Flow的更新节点数据
+    const { setNodes } = useReactFlow();
+
+    // 引入策略状态
+    const { strategy, setStrategy } = useStrategyStore();
     
-    // 确保data是有效的对象
-    const nodeData = data as StartNodeData || { 
-        strategyTitle: "我的策略",
-        tradingMode: TradeMode.SIMULATE,
-        liveTradingConfig: {
-            liveAccounts: [],
-            maxPositions: 10
-        },
-        simulateTradingConfig: {
-            simulateAccounts: [],
-            maxPositions: 10,
-            feeRate: 0.0003
-        },
-        backtestTradingConfig: {
-            backtestStartDate: "",
-            backtestEndDate: "",
-            feeRate: 0.0003
-        }
-    };
+    // 只有在strategy存在时才获取tradingMode
+    const tradingMode = strategy?.tradeMode;
 
-    // 将节点数据中的配置保存到全局状态，当节点数据更新时触发
-    useEffect(() => {
-        if (nodeData) {
-            // 更新三种模式的独立配置
-            if (nodeData.liveTradingConfig) {
-                setLiveModeConfig(nodeData.liveTradingConfig);
-            }
+    const handleSaveStrategy = useCallback((strategy: Strategy) => {
+        setStrategy(strategy);
+        console.log("更新后的strategy", strategy);
+
+        setTimeout(() => {
+            const startNodeData = {
+                strategyId: strategy.id,
+                strategyName: strategy.name,
+                nodeName: nodeName,
+                liveConfig: strategy.config?.liveConfig,
+                simulateConfig: strategy.config?.simulateConfig,
+                backtestConfig: strategy.config?.backtestConfig
+            };
             
-            if (nodeData.simulateTradingConfig) {
-                setSimulateModeConfig(nodeData.simulateTradingConfig);
-            }
-            
-            if (nodeData.backtestTradingConfig) {
-                setBacktestModeConfig(nodeData.backtestTradingConfig);
-            }
-        }
-    }, [nodeData, setLiveModeConfig, setSimulateModeConfig, setBacktestModeConfig]);
+            setNodes(nodes => 
+                nodes.map(node => 
+                    node.id === id 
+                        ? { ...node, data: startNodeData }
+                        : node
+                )
+            );
+        }, 200);
+        
 
-    const handleSave = (data: StartNodeData) => {
-        // 更新节点数据
-        updateNodeData(id, data);
-        
-        // 更新三种模式的独立配置
-        if (data.liveTradingConfig) {
-            setLiveModeConfig(data.liveTradingConfig);
-        }
-        
-        if (data.simulateTradingConfig) {
-            setSimulateModeConfig(data.simulateTradingConfig);
-        }
-        
-        if (data.backtestTradingConfig) {
-            setBacktestModeConfig(data.backtestTradingConfig);
-        }
-        
-        console.log(nodeData);
-    };
+    }, [id, setNodes, setStrategy, nodeName]);
 
+    // 渲染主体内容
     return (
         <div className="flex">
             <Card 
@@ -108,17 +79,19 @@ function StartNode({ data, isConnectable, id }: NodeProps) {
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-1.5">
                             <PlayIcon className="h-3.5 w-3.5 text-green-500" />
-                            <CardTitle className="text-sm font-medium">开始节点</CardTitle>
+                            <CardTitle className="text-sm font-medium">{nodeName}</CardTitle>
                         </div>
-                        <Badge 
-                            variant="secondary" 
-                            className={`h-4 text-[10px] font-normal ${getTradingModeColor(tradingMode)}`}
-                        >
-                            {getTradingModeName(tradingMode)}
-                        </Badge>
+                        {tradingMode && (
+                            <Badge 
+                                variant="secondary" 
+                                className={`h-4 text-[10px] font-normal ${getTradingModeColor(tradingMode)}`}
+                            >
+                                {getTradingModeName(tradingMode)}
+                            </Badge>
+                        )}
                     </div>
                     <div className="text-xs text-muted-foreground font-medium">
-                        {nodeData?.strategyTitle || "我的策略"}
+                        {(data?.strategyName as string) || "我的策略"}
                     </div>
                 </CardHeader>
 
@@ -126,18 +99,22 @@ function StartNode({ data, isConnectable, id }: NodeProps) {
                     type="source" 
                     position={Position.Right} 
                     id="start_node_output"
-                    className="w-2.5 h-2.5 !bg-green-500"
+                    className="!w-3 !h-3 !border-2 !border-white !bg-blue-400 !top-[22px]"
                     isConnectable={isConnectable}
                 />
             </Card>
 
-            <StartNodePanel
-                id={id}
-                data={nodeData}
-                isEditing={isEditing}
-                setIsEditing={setIsEditing}
-                handleSave={handleSave}
-            />
+            {/* 开始节点面板 */}
+            {isEditing ? (
+                <StartNodePanel
+                    strategy={strategy}
+                    isEditing={isEditing}
+                    setIsEditing={setIsEditing}
+                    handleSaveStrategy={handleSaveStrategy}
+                    nodeName={nodeName}
+                    onNodeNameChange={setNodeName}
+                />
+            ) : null}
         </div>
     );
 }

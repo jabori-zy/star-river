@@ -11,27 +11,25 @@ import { Badge } from '@/components/ui/badge';
 import { LineChart, PencilIcon } from 'lucide-react';
 import LiveDataNodePanel from './panel';
 import { Button } from '@/components/ui/button';
-import useTradingModeStore from '@/store/useTradingModeStore';
 import { TradeMode } from '@/types/node';
 import { getTradingModeName, getTradingModeColor } from '@/utils/tradingModeHelper';
 import { Drawer } from '@/components/ui/drawer';
-import { LiveTradeConfig, SimulateTradeConfig, BacktestTradeConfig } from '@/types/start_node';
+import { useStrategyStore } from '@/store/useStrategyStore';
+import { type LiveDataNode, type LiveDataNodeData } from '@/types/LiveDataNode';
 
-// 每个交易模式的配置
-interface TradingModeConfig {
-  symbol: string;
-  interval: string;
-  selectedAccount?: string;
-}
 
-const LiveDataNode = ({ data, id, isConnectable }: NodeProps) => {
+const LiveDataNode = ({ data, id, isConnectable }: NodeProps<LiveDataNode>) => {
   const [isEditing, setIsEditing] = useState(false);
   const [showEditButton, setShowEditButton] = useState(false);
-  const { tradingMode } = useTradingModeStore();
-  const { setNodes } = useReactFlow();
+  const [nodeName, setNodeName] = useState<string>(data.nodeName || "数据获取节点");
+  // const { tradingMode } = useTradingModeStore();
+  const { strategy } = useStrategyStore();
+  const tradingMode = strategy!.tradeMode;
+  const { setNodes, updateNodeData } = useReactFlow();
 
-  const handleSave = useCallback((newData: Record<string, unknown>) => {
+  const handleSave = useCallback((newData: LiveDataNodeData) => {
     // 使用React Flow的setNodes来更新节点数据
+    console.log("准备更新节点id", id);
     setNodes(nodes => 
       nodes.map(node => 
         node.id === id 
@@ -41,14 +39,9 @@ const LiveDataNode = ({ data, id, isConnectable }: NodeProps) => {
     );
     // 打印节点的数据
     console.log('node data', newData);
-
-    // 如果有回调函数，也调用它
-    if (typeof data.onSaveData === 'function') {
-      data.onSaveData(id, newData);
-    }
     
     setIsEditing(false);
-  }, [data, id, setNodes]);
+  }, [id, setNodes]);
 
   const preventDragHandler = (e: React.MouseEvent | React.DragEvent | React.PointerEvent) => {
     e.stopPropagation();
@@ -64,42 +57,28 @@ const LiveDataNode = ({ data, id, isConnectable }: NodeProps) => {
       .map(connection => getNode(connection.source))
       .filter((node): node is Node => node !== null);
 
-  // 获取当前交易模式对应的配置
-  const getCurrentConfig = (): TradingModeConfig => {
-    const defaultConfig: TradingModeConfig = { symbol: 'BTCUSDT', interval: '1m' };
-    
-    switch(tradingMode) {
-      case TradeMode.LIVE:
-        return (data.liveConfig as TradingModeConfig) || defaultConfig;
-      case TradeMode.SIMULATE:
-        return (data.simulateConfig as TradingModeConfig) || defaultConfig;
-      case TradeMode.BACKTEST:
-        return (data.backtestConfig as TradingModeConfig) || defaultConfig;
-      default:
-        return defaultConfig;
+
+  const panel = () => {
+    // 如果策略存在，则正常显示面板
+    if (strategy) {
+      return (
+        <LiveDataNodePanel
+          data={data}
+          strategy={strategy}
+          isEditing={isEditing}
+          setIsEditing={setIsEditing}
+          handleSave={handleSave}
+          nodeName={nodeName}
+          onNodeNameChange={setNodeName}
+        />
+      );
+    } else {
+      // 如果策略不存在，则显示错误信息
+      return (
+        <div className="text-red-500">策略不存在</div>
+      );
     }
   };
-
-  const currentConfig = getCurrentConfig();
-
-  // 构造面板数据
-  const panelData = {
-    liveDataNodeConfig: currentConfig,
-    tradingMode,
-    liveTradingConfig: data.liveTradingConfig as LiveTradeConfig | undefined,
-    simulateTradingConfig: data.simulateTradingConfig as SimulateTradeConfig | undefined,
-    backtestTradingConfig: data.backtestTradingConfig as BacktestTradeConfig | undefined
-  };
-
-  const panel = (
-    <LiveDataNodePanel
-      data={panelData}
-      isEditing={isEditing}
-      setIsEditing={setIsEditing}
-      handleSave={handleSave}
-      sourceNodes={sourceNodes}
-    />
-  );
 
   return (
     <>
@@ -120,10 +99,10 @@ const LiveDataNode = ({ data, id, isConnectable }: NodeProps) => {
             </Button>
           )}
 
-          <div className="p-2">
+          <div className="flex flex-col p-2">
             <div className="flex items-center gap-2">
               <LineChart className="h-3.5 w-3.5 text-blue-500" />
-              <div className="text-sm font-medium">数据获取</div>
+              <div className="text-xs font-medium">{nodeName}</div>
               <Badge variant="secondary" className={`h-5 text-xs ${getTradingModeColor(tradingMode)}`}>
                 {getTradingModeName(tradingMode)}
               </Badge>
@@ -132,11 +111,23 @@ const LiveDataNode = ({ data, id, isConnectable }: NodeProps) => {
             <div className="mt-1.5 space-y-1">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] text-muted-foreground">交易对:</span>
-                <span className="text-xs font-medium">{currentConfig.symbol || "未设置"}</span>
+                <span className="text-xs font-medium">{
+                  tradingMode === TradeMode.LIVE
+                    ? data.liveConfig?.symbol || "未设置"
+                    : tradingMode === TradeMode.SIMULATE
+                      ? data.simulateConfig?.symbol || "未设置"
+                      : data.backtestConfig?.backtestStartDate || "未设置"
+                }</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-[10px] text-muted-foreground">时间间隔:</span>
-                <span className="text-xs font-medium">{currentConfig.interval || "未设置"}</span>
+                <span className="text-xs font-medium">{
+                  tradingMode === TradeMode.LIVE
+                    ? data.liveConfig?.interval || "未设置"
+                    : tradingMode === TradeMode.SIMULATE
+                      ? data.simulateConfig?.interval || "未设置"
+                      : data.backtestConfig?.backtestEndDate || "未设置"
+                }</span>
               </div>
               
               {/* 显示选择的账户 */}
@@ -145,8 +136,8 @@ const LiveDataNode = ({ data, id, isConnectable }: NodeProps) => {
                   <span className="text-[10px] text-muted-foreground">账户:</span>
                   <span className="text-xs font-medium">{
                     tradingMode === TradeMode.LIVE 
-                      ? (data.liveTradingConfig as LiveTradeConfig)?.liveAccounts?.find(acc => acc.id.toString() === currentConfig.selectedAccount)?.accountName || "未选择" 
-                      : (data.simulateTradingConfig as SimulateTradeConfig)?.simulateAccounts?.find(acc => acc.id.toString() === currentConfig.selectedAccount)?.accountName || "未选择"
+                      ? data.liveConfig?.selectedLiveAccount?.accountName || "未选择"
+                      : data.simulateConfig?.selectedSimulateAccount?.accountName || "未选择"
                   }</span>
                 </div>
               )}
@@ -182,7 +173,7 @@ const LiveDataNode = ({ data, id, isConnectable }: NodeProps) => {
           onDragEnd={preventDragHandler}
           style={{ isolation: 'isolate' }}
         >
-          {panel}
+          {panel()}
         </div>
       </Drawer>
     </>

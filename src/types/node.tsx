@@ -1,7 +1,6 @@
 import {Node} from '@xyflow/react'
-import { StartNodeData } from './start_node';
-import { AccountItem } from './start_node';
-import { LiveTradeConfig, SimulateTradeConfig, BacktestTradeConfig } from './start_node';
+import { StartNodeData } from './startNode';
+import { StrategyLiveConfig, StrategySimulateConfig, StrategyBacktestConfig } from './strategy';
 
 // 交易模式枚举
 export enum TradeMode {
@@ -17,7 +16,6 @@ export type NodeItemProps = {
     nodeName: string;
     nodeDescription: string;
     nodeColor: string;
-    nodeData: LiveDataNodeData | SMAIndicatorNodeData | IfElseNodeData | OrderNodeData | GetPositionNumberNodeData | StartNodeData;
 };
 
 type outputValue = {
@@ -32,9 +30,9 @@ type LiveDataNodeData = {
   symbol: string | null;
   interval: string | null;
   tradingMode?: TradeMode; // 交易模式
-  liveTradingConfig?: LiveTradeConfig; // 实盘交易配置。三个配置中，只有一个有效，可以共存
-  simulateTradingConfig?: SimulateTradeConfig; // 模拟交易配置
-  backtestTradingConfig?: BacktestTradeConfig; // 回测交易配置
+  liveTradingConfig?: StrategyLiveConfig; // 实盘交易配置。三个配置中，只有一个有效，可以共存
+  simulateTradingConfig?: StrategySimulateConfig; // 模拟交易配置
+  backtestTradingConfig?: StrategyBacktestConfig; // 回测交易配置
 };
 
 
@@ -112,9 +110,9 @@ export type LiveDataNode = Node<
     symbol: string;
     interval: string;
     tradingMode?: TradeMode; // 交易模式
-    liveTradingConfig?: LiveTradeConfig; // 实盘交易配置。三个配置中，只有一个有效，可以共存
-    simulateTradingConfig?: SimulateTradeConfig; // 模拟交易配置
-    backtestTradingConfig?: BacktestTradeConfig; // 回测交易配置
+    liveTradingConfig?: StrategyLiveConfig; // 实盘交易配置。三个配置中，只有一个有效，可以共存
+    simulateTradingConfig?: StrategySimulateConfig; // 模拟交易配置
+    backtestTradingConfig?: StrategyBacktestConfig; // 回测交易配置
   },
   'liveData'
 >;
