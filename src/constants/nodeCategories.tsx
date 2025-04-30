@@ -1,4 +1,3 @@
-
 import { Boxes, Sigma, ChevronsUpDown } from "lucide-react";
 import { NodeItemProps } from "@/types/nodeCategory";
 
@@ -23,10 +22,10 @@ export const nodeCategories = [
       color: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
       items: [
         {
-          nodeId: "sma_indicator_node",
-          nodeType: "smaIndicatorNode",
-          nodeName: "简单移动平均线",
-          nodeDescription: "简单移动平均线",
+          nodeId: "indicator_node",
+          nodeType: "indicatorNode",
+          nodeName: "技术指标",
+          nodeDescription: "技术分析指标",
           nodeColor: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
         } as NodeItemProps
       ]

@@ -22,7 +22,7 @@ import {
 
 import '@xyflow/react/dist/style.css';
 import DataFetchNode from '@/components/node/DataFetchNode'; // 数据获取节点
-import SMAIndicatorNode from '@/components/node/IndicatorNode/SMAIndicatorNode'; // SMA指标节点
+import IndicatorNode from '@/components/node/IndicatorNode'; // 指标节点
 import LiveDataNode from '@/components/node/LiveDataNode'; // 实时数据节点
 import StartNode from '@/components/node/StartNode'; // 开始节点
 import { DevTools } from '@/components/node/devtools'; // 开发者工具
@@ -37,7 +37,7 @@ import GetPositionNumberNode from '@/components/node/GetPositionNumberNode';
 const nodeTypes = {
   startNode: StartNode,
   dataFetchNode: DataFetchNode,
-  smaIndicatorNode: SMAIndicatorNode,
+  indicatorNode: IndicatorNode,
   liveDataNode: LiveDataNode,
   ifElseNode: IfElseNode,
   orderNode: OrderNode,
