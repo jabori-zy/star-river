@@ -1,3 +1,5 @@
+import { IndicatorValue } from "./indicatorValue";
+
 // 指标类型枚举
 export enum IndicatorType {
     SMA = "sma",
@@ -17,15 +19,6 @@ export type IndicatorConfig = {
     priceSource?: string;  // 价格来源
 }
 
-// 指标值类型
-export type IndicatorValue = {
-    sma?: Array<{value: number}>;
-    boll?: {
-        upper: Array<{value: number}>;
-        middle: Array<{value: number}>;
-        lower: Array<{value: number}>;
-    };
-}
 
 // 实盘交易指标配置
 export type IndicatorNodeLiveConfig = {
@@ -52,8 +45,9 @@ export type IndicatorNodeBacktestConfig = {
 export type IndicatorNodeData = {
     nodeName: string;
     indicatorType: IndicatorType;
+    indicatorValue?: IndicatorValue;
     liveConfig?: IndicatorNodeLiveConfig;    // 实盘交易配置
     simulateConfig?: IndicatorNodeSimulateConfig;  // 模拟交易配置
     backtestConfig?: IndicatorNodeBacktestConfig;  // 回测交易配置
-    indicatorValue?: IndicatorValue | null;
+
 } 

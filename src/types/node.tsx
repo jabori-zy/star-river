@@ -24,16 +24,16 @@ type outputValue = {
 }
 
 
-type LiveDataNodeData = {
-  strategyId: number | null;
-  exchange: string | null;
-  symbol: string | null;
-  interval: string | null;
-  tradingMode?: TradeMode; // 交易模式
-  liveTradingConfig?: StrategyLiveConfig; // 实盘交易配置。三个配置中，只有一个有效，可以共存
-  simulateTradingConfig?: StrategySimulateConfig; // 模拟交易配置
-  backtestTradingConfig?: StrategyBacktestConfig; // 回测交易配置
-};
+// type LiveDataNodeData = {
+//   strategyId: number | null;
+//   exchange: string | null;
+//   symbol: string | null;
+//   interval: string | null;
+//   tradingMode?: TradeMode; // 交易模式
+//   liveTradingConfig?: StrategyLiveConfig; // 实盘交易配置。三个配置中，只有一个有效，可以共存
+//   simulateTradingConfig?: StrategySimulateConfig; // 模拟交易配置
+//   backtestTradingConfig?: StrategyBacktestConfig; // 回测交易配置
+// };
 
 
 type IndicatorParam = {
@@ -45,14 +45,12 @@ type SMAIndicatorNodeData = {
   strategyId: number | null;
   nodeName: string | null;
   indicatorName: string | null;
-  indicatorConfig: Record<string, IndicatorParam>;
+  indicatorConfig: Record<string, IndicatorParam>; 
   indicatorValue: Record<string, outputValue> | null;
 
 };
 
-type IfElseNodeData = {
-  cases: CaseItem[] | null;
-};
+
 
 type OrderNodeData = {
   strategyId: number | null;
@@ -103,19 +101,19 @@ type GetPositionNumberRequest = {
 
 
 
-// node定义
-export type LiveDataNode = Node<
-  {
-    exchange: string;
-    symbol: string;
-    interval: string;
-    tradingMode?: TradeMode; // 交易模式
-    liveTradingConfig?: StrategyLiveConfig; // 实盘交易配置。三个配置中，只有一个有效，可以共存
-    simulateTradingConfig?: StrategySimulateConfig; // 模拟交易配置
-    backtestTradingConfig?: StrategyBacktestConfig; // 回测交易配置
-  },
-  'liveData'
->;
+// // node定义
+// export type LiveDataNode = Node<
+//   {
+//     exchange: string;
+//     symbol: string;
+//     interval: string;
+//     tradingMode?: TradeMode; // 交易模式
+//     liveTradingConfig?: StrategyLiveConfig; // 实盘交易配置。三个配置中，只有一个有效，可以共存
+//     simulateTradingConfig?: StrategySimulateConfig; // 模拟交易配置
+//     backtestTradingConfig?: StrategyBacktestConfig; // 回测交易配置
+//   },
+//   'liveData'
+// >;
 
 export type IndicatorNode = Node<
   {
@@ -150,49 +148,3 @@ export type GetPositionNumberNode = Node<
     getPositionNumberRequest: GetPositionNumberRequest;
   }
 >;
-
-export enum ComparisonOperator {
-  equal = '=',
-  notEqual = '!=',
-  greaterThan = '>',
-  lessThan = '<',
-  greaterThanOrEqual = '>=',
-  lessThanOrEqual = '<=',
-}
-
-export enum LogicalOperator {
-  and = 'and',
-  or = 'or',
-}
-
-export type CaseItem = {
-  caseId: number // 条件id
-  logicalOperator: LogicalOperator | null // 逻辑运算符
-  conditions: Condition[] // 条件列表
-}
-
-type LeftVariable = {
-  varType: VarType | null // 变量类型
-  nodeId: string | null // 节点id
-  varibale: string | null // 变量名
-}
-
-type RightVariable = {
-  varType: VarType | null
-  nodeId: string | null
-  varibale: string | null
-}
-
-
-
-export type Condition = {
-  conditionId: string | null // 条件id
-  leftVariable: LeftVariable | null // 左变量
-  comparisonOperator: ComparisonOperator | null // 比较运算符
-  rightVariable: RightVariable | null // 右变量
-}
-
-export enum VarType {
-  variable = 'variable',
-  constant = 'constant',
-}

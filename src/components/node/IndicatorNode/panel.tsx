@@ -4,7 +4,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Settings, Save, ChevronLeft, AlertCircle, CreditCard } from 'lucide-react';
-import { IndicatorType } from '@/types/indicator';
+import { IndicatorType } from '@/types/indicatorNode';
 import {
   Select,
   SelectContent,
@@ -21,6 +21,7 @@ import { type Node } from '@xyflow/react';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { TradeMode } from '@/types/node';
 import { LiveDataNodeData } from '@/types/LiveDataNode';
+import { getIndicatorValue } from '@/utils/getIndicatorValue';
 
 
 interface IndicatorNodePanelProps {
@@ -109,7 +110,7 @@ const IndicatorNodePanel = ({
           // 获取当前的indicator_config或创建默认值
           const indicatorConfig = prevConfig.indicator_config as Record<string, unknown> || 
             { 
-              period: indicatorType === IndicatorType.SMA ? 9 : 20, 
+              period: indicatorType === IndicatorType.SMA ? 9 : 20,
               priceSource: "close",
               ...(indicatorType === IndicatorType.BOLL ? { stdDev: 2 } : {})
             };
@@ -238,12 +239,17 @@ const IndicatorNodePanel = ({
   
   // 保存配置
   const onSave = () => {
+    // 生成对应指标类型的指标值
+    const indicatorValue = getIndicatorValue(indicatorType);
+    
     handleSave({
       liveConfig,
       simulateConfig,
       backtestConfig,
-      indicatorType
+      indicatorType,
+      indicatorValue // 添加指标值到节点数据中
     });
+    console.log(data);
   };
 
   // 获取指标名称

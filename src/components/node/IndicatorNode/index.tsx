@@ -13,7 +13,8 @@ import { PencilIcon, TrendingUp } from 'lucide-react';
 import { useStrategyMessages } from '@/hooks/use-strategyMessage';
 import { Badge } from "@/components/ui/badge";
 import IndicatorNodePanel from './panel';
-import { IndicatorType, IndicatorValue, IndicatorNodeLiveConfig, IndicatorNodeSimulateConfig, IndicatorNodeBacktestConfig } from '@/types/indicator';
+import { IndicatorType, IndicatorNodeLiveConfig, IndicatorNodeSimulateConfig, IndicatorNodeBacktestConfig } from '@/types/indicatorNode';
+import { IndicatorValue } from '@/types/indicatorValue';
 import { TradeMode } from '@/types/node';
 import { useStrategyStore } from '@/store/useStrategyStore';
 import { getTradingModeName, getTradingModeColor } from '@/utils/tradingModeHelper';
@@ -83,12 +84,16 @@ function IndicatorNode({id, data, isConnectable}:NodeProps) {
     };
 
     const handleSave = (newData: Record<string, unknown>) => {
+        // 保存节点数据时，如果有新的指标值，则使用新的指标值
+        // 如果没有，则保留现有的指标值（可能来自实时数据更新）
+        const newIndicatorValue = newData.indicatorValue as IndicatorValue || indicatorValue;
+        
         updateNodeData(id, {
             ...data,
             ...newData,
             nodeName: nodeName,
             indicatorType: indicatorType,
-            indicatorValue: indicatorValue
+            indicatorValue: newIndicatorValue
         });
         setIsEditing(false);
     };
@@ -152,11 +157,9 @@ function IndicatorNode({id, data, isConnectable}:NodeProps) {
     const renderIndicatorValue = () => {
         if (!indicatorValue) return null;
 
-        let smaValue, upperValue, middleValue, lowerValue;
-
         switch (indicatorType) {
             case IndicatorType.SMA:
-                smaValue = indicatorValue.sma?.at(-1)?.value;
+                const smaValue = (indicatorValue as any).sma?.value;
                 return (
                     <div className="flex flex-col gap-1 mt-2">
                         <div className="flex items-center justify-between">
@@ -176,9 +179,9 @@ function IndicatorNode({id, data, isConnectable}:NodeProps) {
                     </div>
                 );
             case IndicatorType.BOLL:
-                upperValue = indicatorValue.boll?.upper?.at(-1)?.value;
-                middleValue = indicatorValue.boll?.middle?.at(-1)?.value;
-                lowerValue = indicatorValue.boll?.lower?.at(-1)?.value;
+                const upperValue = (indicatorValue as any).upper?.value;
+                const middleValue = (indicatorValue as any).middle?.value;
+                const lowerValue = (indicatorValue as any).lower?.value;
                 return (
                     <div className="flex flex-col gap-1 mt-2">
                         <div className="flex items-center justify-between">
