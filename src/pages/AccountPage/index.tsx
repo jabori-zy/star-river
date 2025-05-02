@@ -139,7 +139,7 @@ export default function AccountPage() {
     login: string,
     password: string,
     server: string,
-    clientPath: string
+    terminalPath: string
   }) => {
     console.log("添加MT5账户数据:", accountData)
     
@@ -147,17 +147,18 @@ export default function AccountPage() {
     const requestData = {
       account_name: accountData.accountName,
       exchange: accountData.exchange,
-      login: accountData.login,
-      password: accountData.password,
-      server: accountData.server,
-      terminal_path: accountData.clientPath
-      
+      account_config: {
+        login: accountData.login,
+        password: accountData.password,
+        server: accountData.server,
+        terminal_path: accountData.terminalPath
+      }
     }
     
     console.log("发送请求数据:", requestData)
    
     // 发送 POST 请求，指定 Content-Type 为 application/json
-    axios.post("http://localhost:3100/add_mt5_account_config", requestData, {
+    axios.post("http://localhost:3100/add_account_config", requestData, {
       headers: {
         'Content-Type': 'application/json'
       }

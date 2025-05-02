@@ -37,7 +37,7 @@ export const mt5FormConfig = {
       required: true,
     },
     {
-      name: "clientPath",
+      name: "terminalPath",
       label: "客户端路径",
       type: "text",
       placeholder: "请输入MT5客户端安装路径",
@@ -49,6 +49,6 @@ export const mt5FormConfig = {
     login: "",
     password: "",
     server: "",
-    clientPath: "",
+    terminalPath: "",
   },
 } 

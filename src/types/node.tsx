@@ -72,18 +72,7 @@ type GetPositionNumberNodeData = {
 
 
 
-type OrderRequest = {
-  strategyId: number;
-  nodeId: string;
-  exchange: string;
-  symbol: string;
-  orderType: string;
-  orderSide: string;
-  price: number;
-  quantity: number;
-  tp: number | null;
-  sl: number | null;
-}
+
 
 type GetPositionNumberRequest = {
   strategyId: number;
@@ -129,15 +118,7 @@ export type IndicatorNode = Node<
   'indicator'
 >;
 
-export type OrderNode = Node<
-  {
-    nodeName: string | null;
-    exchange: string | null;
-    symbol: string | null;
-    orderRequest: OrderRequest | null;
-  },
-  'order'
->;
+
 
 export type GetPositionNumberNode = Node<
   {

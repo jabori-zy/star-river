@@ -18,7 +18,7 @@ interface LiveDataNodePanelProps {
   strategy: Strategy;
   isEditing: boolean;
   setIsEditing: (value: boolean) => void;
-  handleSave: (data: Record<string, unknown>) => void;
+  handleSave: (data: LiveDataNodeData) => void;
   nodeName: string;
   onNodeNameChange: (name: string) => void;
 }
