@@ -6,16 +6,13 @@ export enum PositionOperationType {
   CLOSEALL = "close_all", // 全部平仓
 }
 
-export type OperationConfig = {
-  selectedAccount?: SelectedAccount;
-  symbol: string;
-}
 
 export type PositionOperationConfig = {
   configId: number; // 配置ID
   operationType: PositionOperationType; // 操作类型
   operationName: string; // 操作名称
-  operationConfig: OperationConfig; // 操作配置
+  selectedAccount?: SelectedAccount;
+  symbol: string;
 }
 
 export type PositionNodeData = {

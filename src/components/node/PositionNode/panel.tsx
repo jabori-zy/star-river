@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { PositionNode, PositionOperationConfig, PositionOperationType, OperationConfig } from "@/types/positionNode";
+import { PositionNode, PositionOperationConfig, PositionOperationType } from "@/types/positionNode";
 import { Strategy, SelectedAccount } from "@/types/strategy";
 import { TradeMode } from "@/types/node";
 import {
@@ -149,7 +149,7 @@ function PositionNodePanel({
             configId: newConfigId,
             operationType,
             operationName: generateOperationName(operationType, operations),
-            operationConfig: { symbol: "" }
+            symbol: ""
         };
         
         setOperations([...operations, newOperation]);
@@ -194,16 +194,16 @@ function PositionNodePanel({
     };
     
     // 更新操作配置 (作用于当前活动标签页)
-    const updateOperationConfig = (configId: number, config: Partial<OperationConfig>) => {
+    const updateOperationConfig = (configId: number, config: Partial<PositionOperationConfig>) => {
         const { operations, setOperations } = getActiveOperationsAndSetter();
         setOperations(operations.map(op => {
             if (op.configId === configId) {
                 // 处理 selectedAccount 为 undefined 的情况
-                const updatedOpConfig = { ...op.operationConfig, ...config };
+                const updatedConfig = { ...op, ...config };
                 if ('selectedAccount' in config && config.selectedAccount === undefined) {
-                    delete updatedOpConfig.selectedAccount;
+                    delete updatedConfig.selectedAccount;
                 }
-                return { ...op, operationConfig: updatedOpConfig };
+                return updatedConfig;
             }
             return op;
         }));
@@ -213,7 +213,15 @@ function PositionNodePanel({
     const handleAccountSelect = (configId: number, accountId: string) => {
         const accounts = getAccounts(); // 获取当前活动标签页的账户列表
         const selectedAccount = accounts.find(account => account.id.toString() === accountId);
-        updateOperationConfig(configId, { selectedAccount });
+        
+        // 直接将selectedAccount添加到操作中，不再通过operationConfig包装
+        const { operations, setOperations } = getActiveOperationsAndSetter();
+        setOperations(operations.map(op => {
+            if (op.configId === configId) {
+                return { ...op, selectedAccount };
+            }
+            return op;
+        }));
     };
     
     // 保存配置 (保存所有模式的数据)
@@ -372,7 +380,7 @@ function PositionNodePanel({
                                                     <div className="space-y-1">
                                                         <Label className="text-xs">选择账户</Label>
                                                         <Select 
-                                                            value={operation.operationConfig.selectedAccount?.id?.toString() ?? ''} 
+                                                            value={operation.selectedAccount?.id?.toString() || ''}
                                                             onValueChange={(accountId) => handleAccountSelect(operation.configId, accountId)}
                                                         >
                                                             <SelectTrigger className="h-8">
@@ -394,7 +402,7 @@ function PositionNodePanel({
                                                     <Label className="text-xs">交易对</Label>
                                                     <Input 
                                                         type="text"
-                                                        value={operation.operationConfig.symbol}
+                                                        value={operation.symbol || ""}
                                                         onChange={(e) => updateOperationConfig(operation.configId, { symbol: e.target.value })}
                                                         placeholder="例如: BTCUSDT"
                                                         className="h-8"

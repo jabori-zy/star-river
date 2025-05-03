@@ -33,6 +33,7 @@ import IfElseNode from '@/components/node/IfElseNode';
 import OrderNode from '@/components/node/OrderNode';
 import GetPositionNumberNode from '@/components/node/GetPositionNumberNode';
 import PositionNode from '@/components/node/PositionNode';
+import GetVariableNode from '@/components/node/GetVariableNode';
 
 const nodeTypes = {
   startNode: StartNode,
@@ -43,6 +44,7 @@ const nodeTypes = {
   orderNode: OrderNode,
   getPositionNumberNode: GetPositionNumberNode,
   positionNode: PositionNode,
+  getVariableNode: GetVariableNode,
 };
 
 export default function NodeFlow({strategy}:{strategy:Strategy}) {

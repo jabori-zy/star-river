@@ -57,13 +57,13 @@ export const nodeCategories = [
           nodeColor: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
         } as NodeItemProps,
 
-        {
-          nodeId: "get_position_number_node",
-          nodeType: "getPositionNumberNode",
-          nodeName: "获取仓位数量节点",
-          nodeDescription: "获取仓位数量节点",
-          nodeColor: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
-        } as NodeItemProps
+        // {
+        //   nodeId: "get_position_number_node",
+        //   nodeType: "getPositionNumberNode",
+        //   nodeName: "获取仓位数量节点",
+        //   nodeDescription: "获取仓位数量节点",
+        //   nodeColor: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
+        // } as NodeItemProps
       ]
     },
     {
@@ -79,7 +79,19 @@ export const nodeCategories = [
           nodeColor: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
         } as NodeItemProps
       ]
+    },
+    {
+      title: "获取变量节点",
+      icon: ChevronsUpDown,
+      color: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
+      items: [
+        {
+          nodeId: "get_variable_node",
+          nodeType: "getVariableNode",
+          nodeName: "获取变量",
+          nodeDescription: "获取变量",
+          nodeColor: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
+        } as NodeItemProps
+      ]
     }
-    
-  
   ];
