@@ -231,7 +231,6 @@ function IfElseNode({ id, data }: NodeProps) {
                     liveConfig: nodeData.liveConfig,
                     simulateConfig: nodeData.simulateConfig,
                     backtestConfig: nodeData.backtestConfig,
-                    cases: nodeData.cases
                 }}
                 isEditing={isEditing}
                 setIsEditing={setIsEditing}

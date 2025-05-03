@@ -32,7 +32,7 @@ import { Strategy } from '@/types/strategy';
 import IfElseNode from '@/components/node/IfElseNode';
 import OrderNode from '@/components/node/OrderNode';
 import GetPositionNumberNode from '@/components/node/GetPositionNumberNode';
-
+import PositionNode from '@/components/node/PositionNode';
 
 const nodeTypes = {
   startNode: StartNode,
@@ -42,6 +42,7 @@ const nodeTypes = {
   ifElseNode: IfElseNode,
   orderNode: OrderNode,
   getPositionNumberNode: GetPositionNumberNode,
+  positionNode: PositionNode,
 };
 
 export default function NodeFlow({strategy}:{strategy:Strategy}) {
@@ -148,8 +149,8 @@ export default function NodeFlow({strategy}:{strategy:Strategy}) {
 
     // 添加 useEffect 来监听 edges 的变化
     useEffect(() => {
-        // console.log('Current nodes:', nodes);
-        // console.log('Current edges:', edges);
+        console.log('Current nodes:', nodes);
+        console.log('Current edges:', edges);
     }, [nodes, edges]);
 
     return ( 

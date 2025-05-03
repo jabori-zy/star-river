@@ -114,6 +114,12 @@ function OrderNode({id, data}:NodeProps<OrderNodeData>) {
                         id="order_node_input"
                         className="!w-3 !h-3 !border-2 !border-white !bg-green-400 !top-[22px]"
                     />
+                    <Handle 
+                        type="source" 
+                        position={Position.Right} 
+                        id="order_node_output"
+                        className="!w-3 !h-3 !border-2 !border-white !bg-green-400 !top-[22px]"
+                    />
                 </div>
             </div>
 

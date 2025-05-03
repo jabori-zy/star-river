@@ -1,6 +1,7 @@
 import { Strategy } from "@/types/strategy";
 import { toast } from "sonner";
 import axios from "axios";
+import { useStrategyStore } from "@/store/useStrategyStore";
 
 /**
  * 策略相关API服务
@@ -150,6 +151,7 @@ export async function updateStrategy(
   options?: UpdateOptions
 ): Promise<Strategy> {
   try {
+    const { setStrategy } = useStrategyStore.getState();
     // 将驼峰命名转换为下划线命名以匹配API格式
     const requestBody = {
         name: strategyData.name ?? "",
@@ -162,7 +164,7 @@ export async function updateStrategy(
         status: strategyData.status ?? 0
     };
 
-    console.log("requestBody", requestBody);
+    // console.log("requestBody", requestBody);
     
     // 使用POST方法以匹配组件中的用法
     const response = await axios.post(`${API_BASE_URL}/update_strategy`, {
@@ -174,7 +176,11 @@ export async function updateStrategy(
       throw new Error(`更新策略失败: ${response.status}`);
     }
     
+    // 获取更新后的策略数据
     const result = await getStrategyById(strategyId);
+    
+    // 更新全局策略状态
+    setStrategy(result);
     
     // 成功回调
     if (options?.showToast) {

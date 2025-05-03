@@ -12,7 +12,7 @@ export type IfElseNodeData = {
     backtestConfig?: {
       cases: CaseItem[]
     };
-    cases?: CaseItem[]; // 向后兼容的字段
+    // cases?: CaseItem[]; // 向后兼容的字段
   };
 
 
@@ -26,7 +26,7 @@ export type CaseItem = {
 
 // 条件
 export type Condition = {
-    conditionId: string // 条件id
+    conditionId: number // 条件id
     leftVariable: LeftVariable | null // 左变量
     comparisonOperator: ComparisonOperator | null // 比较运算符
     rightVariable: RightVariable | null // 右变量
