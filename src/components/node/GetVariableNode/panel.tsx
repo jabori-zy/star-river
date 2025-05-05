@@ -30,7 +30,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { getTradingModeName } from "@/utils/tradingModeHelper";
-import { MultiSelect } from "@/components/ui/multi-select";
 
 interface GetVariableNodePanelProps {
     data: GetVariableNodeData;
@@ -52,12 +51,28 @@ function GetVariableNodePanel({
     const [nodeNameEditing, setNodeNameEditing] = useState<boolean>(false);
     const [tempNodeName, setTempNodeName] = useState<string>(nodeName || "获取变量节点");
     
-    // 记录MultiSelect默认选中值的状态
-    const [accountSelectKey, setAccountSelectKey] = useState<number>(0);
-    
     // 交易模式
     const initialTradingMode = strategy?.tradeMode || TradeMode.SIMULATE;
     const [activeTab, setActiveTab] = useState<TradeMode>(initialTradingMode);
+    
+    // 各交易模式的账户和交易对设置
+    const [liveAccount, setLiveAccount] = useState<SelectedAccount | null>(
+        data.liveConfig?.selectedLiveAccount || null
+    );
+    const [liveSymbol, setLiveSymbol] = useState<string | null>(
+        data.liveConfig?.symbol || null
+    );
+    
+    const [simulateAccount, setSimulateAccount] = useState<SelectedAccount | null>(
+        data.simulateConfig?.selectedSimulateAccount || null
+    );
+    const [simulateSymbol, setSimulateSymbol] = useState<string | null>(
+        data.simulateConfig?.symbol || null
+    );
+    
+    const [backtestSymbol, setBacktestSymbol] = useState<string | null>(
+        data.backtestConfig?.symbol || null
+    );
     
     // 初始化各个模式的配置
     const initVariables = (configVariables?: GetVariableConfig[]) => {
@@ -93,6 +108,40 @@ function GetVariableNodePanel({
         }
     };
     
+    // 获取当前活动标签页的全局配置
+    const getActiveGlobalConfig = () => {
+        switch (activeTab) {
+            case TradeMode.LIVE:
+                return { 
+                    account: liveAccount, 
+                    setAccount: setLiveAccount,
+                    symbol: liveSymbol,
+                    setSymbol: setLiveSymbol
+                };
+            case TradeMode.SIMULATE:
+                return { 
+                    account: simulateAccount, 
+                    setAccount: setSimulateAccount,
+                    symbol: simulateSymbol,
+                    setSymbol: setSimulateSymbol
+                };
+            case TradeMode.BACKTEST:
+                return { 
+                    account: null, 
+                    setAccount: (() => {}) as React.Dispatch<React.SetStateAction<SelectedAccount | null>>,
+                    symbol: backtestSymbol,
+                    setSymbol: setBacktestSymbol
+                };
+            default:
+                return { 
+                    account: simulateAccount, 
+                    setAccount: setSimulateAccount,
+                    symbol: simulateSymbol,
+                    setSymbol: setSimulateSymbol
+                };
+        }
+    };
+    
     // 当外部交易模式或数据变化时，更新活动标签
     useEffect(() => {
         setActiveTab(initialTradingMode);
@@ -104,14 +153,26 @@ function GetVariableNodePanel({
         return Math.max(...variables.map(v => v.configId)) + 1;
     };
     
-    // 生成变量名称
-    const generateVariableName = (variables: GetVariableConfig[]) => {
-        const baseName = "变量";
-        let newName = `${baseName}${variables.length + 1}`;
+    // 获取变量类型文本
+    const getVariableTypeText = (variable: string = StrategySysVariable.POSITION_NUMBER) => {
+        const option = variableTypeOptions.find(opt => opt.value === variable);
+        return option ? option.label : "未知变量";
+    };
+    
+    // 生成变量名称 - 基于变量类型而不是'变量1，变量2'
+    const generateVariableName = (variableType: string, variables: GetVariableConfig[]) => {
+        const typeText = getVariableTypeText(variableType);
+        
+        // 计算该类型已存在的变量数量
+        const sameTypeVariables = variables.filter(v => v.variable === variableType);
+        const count = sameTypeVariables.length + 1;
+        
+        let newName = `${typeText}${count}`;
         let counter = 1;
         
+        // 确保名称唯一
         while (variables.some(v => v.variableName === newName)) {
-            newName = `${baseName}${variables.length + 1}_${counter}`;
+            newName = `${typeText}${count}_${counter}`;
             counter++;
         }
         
@@ -144,13 +205,20 @@ function GetVariableNodePanel({
     // 添加新变量 (作用于当前活动标签页)
     const addVariable = () => {
         const { variables, setVariables } = getActiveVariablesAndSetter();
+        
+        // 查找一个未被使用的变量类型
+        const availableVariableTypes = getAvailableVariableTypes();
+        if (availableVariableTypes.length === 0) {
+            return; // 如果所有变量类型都已使用，则不添加
+        }
+        
+        const defaultVariableType = availableVariableTypes[0].value;
+        
         const newVariable: GetVariableConfig = {
             configId: getNextConfigId(variables),
-            variableName: generateVariableName(variables),
+            variableName: generateVariableName(defaultVariableType, variables),
             variableValue: 0,
-            variable: StrategySysVariable.POSITION_NUMBER,
-            selectedAccount: [],
-            symbol: null
+            variable: defaultVariableType
         };
         
         setVariables([...variables, newVariable]);
@@ -170,14 +238,6 @@ function GetVariableNodePanel({
         ));
     };
     
-    // 更新交易对
-    const updateSymbol = (configId: number, symbol: string) => {
-        const { variables, setVariables } = getActiveVariablesAndSetter();
-        setVariables(variables.map(v => 
-            v.configId === configId ? { ...v, symbol } : v
-        ));
-    };
-    
     // 更新变量类型
     const updateVariableType = (configId: number, variable: string) => {
         const { variables, setVariables } = getActiveVariablesAndSetter();
@@ -185,6 +245,7 @@ function GetVariableNodePanel({
             v.configId === configId ? { 
                 ...v, 
                 variable,
+                variableName: generateVariableName(variable, variables.filter(item => item.configId !== configId)),
                 // 根据变量类型设置默认值
                 variableValue: typeof v.variableValue === 'number' ? 0 : 
                                typeof v.variableValue === 'string' ? '' : 
@@ -193,14 +254,18 @@ function GetVariableNodePanel({
         ));
     };
     
-    // 更新某个变量的账户选择
-    const updateSelectedAccounts = (configId: number, selectedAccounts: SelectedAccount[]) => {
-        const { variables, setVariables } = getActiveVariablesAndSetter();
-        setVariables(variables.map(v => 
-            v.configId === configId ? { ...v, selectedAccount: selectedAccounts } : v
-        ));
-        // 更新key强制重新渲染MultiSelect组件
-        setAccountSelectKey(prev => prev + 1);
+    // 处理账户选择
+    const handleAccountSelect = (accountId: string) => {
+        const { setAccount } = getActiveGlobalConfig();
+        const accounts = getAccounts();
+        const selectedAccount = accounts.find(account => account.id.toString() === accountId);
+        setAccount(selectedAccount || null);
+    };
+    
+    // 处理交易对变更
+    const handleSymbolChange = (symbol: string) => {
+        const { setSymbol } = getActiveGlobalConfig();
+        setSymbol(symbol || null);
     };
     
     // 保存配置 (保存所有模式的数据)
@@ -208,14 +273,26 @@ function GetVariableNodePanel({
         const updatedData: GetVariableNodeData = {
             ...data,
             nodeName: tempNodeName,
-            liveConfig: { variables: liveVariables },
-            simulateConfig: { variables: simulateVariables },
-            backtestConfig: { variables: backtestVariables }
+            liveConfig: { 
+                selectedLiveAccount: liveAccount,
+                symbol: liveSymbol,
+                variables: liveVariables 
+            },
+            simulateConfig: { 
+                selectedSimulateAccount: simulateAccount,
+                symbol: simulateSymbol,
+                variables: simulateVariables 
+            },
+            backtestConfig: { 
+                symbol: backtestSymbol,
+                variables: backtestVariables 
+            }
         };
         handleSave(updatedData);
     };
     
     const { variables: currentVariables } = getActiveVariablesAndSetter();
+    const { account: currentAccount, symbol: currentSymbol } = getActiveGlobalConfig();
     
     // 变量类型选项
     const variableTypeOptions = [
@@ -223,10 +300,20 @@ function GetVariableNodePanel({
         { value: StrategySysVariable.Filled_ORDER_NUMBER, label: "已成交订单数量" }
     ];
     
-    // 获取变量类型文本
-    const getVariableTypeText = (variable: string = StrategySysVariable.POSITION_NUMBER) => {
-        const option = variableTypeOptions.find(opt => opt.value === variable);
-        return option ? option.label : "未知变量";
+    // 获取已使用的变量类型，排除当前编辑的变量
+    const getUsedVariableTypes = (currentConfigId?: number) => {
+        const { variables } = getActiveVariablesAndSetter();
+        return variables
+            .filter(v => v.configId !== currentConfigId)
+            .map(v => v.variable);
+    };
+    
+    // 获取可用的变量类型选项
+    const getAvailableVariableTypes = (currentConfigId?: number) => {
+        const usedTypes = getUsedVariableTypes(currentConfigId);
+        return variableTypeOptions.filter(option => 
+            !usedTypes.includes(option.value)
+        );
     };
     
     // 处理交易模式切换
@@ -250,6 +337,11 @@ function GetVariableNodePanel({
         }
         return [];
     };
+    
+    // 账户列表
+    const accounts = getAccounts();
+    // 判断是否禁用添加变量按钮（所有类型都已使用）
+    const isAddVariableDisabled = getAvailableVariableTypes().length === 0;
     
     return (
         <DrawerContent 
@@ -309,12 +401,56 @@ function GetVariableNodePanel({
                 </div>
                 
                 <ScrollArea className="h-[calc(100vh-22rem)] px-4 py-2">
+                    {/* 当前模式的账户和交易对配置 */}
+                    <div className="space-y-4 mb-4">
+                        {/* 账户选择 (仅适用于LIVE和SIMULATE模式) */}
+                        {activeTab !== TradeMode.BACKTEST && (
+                            <div className="space-y-1">
+                                <Label className="text-xs">选择账户</Label>
+                                <Select 
+                                    value={currentAccount?.id.toString() || ""} 
+                                    onValueChange={handleAccountSelect}
+                                    disabled={accounts.length === 0}
+                                >
+                                    <SelectTrigger className="h-8">
+                                        <SelectValue placeholder={accounts.length === 0 ? "请配置账户" : "选择账户"} />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {accounts.map(account => (
+                                            <SelectItem key={account.id} value={account.id.toString()}>
+                                                {`${account.accountName} (${account.exchange})`}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        )}
+                        
+                        {/* 交易对配置 */}
+                        <div className="space-y-1">
+                            <Label className="text-xs">交易对</Label>
+                            <Input 
+                                type="text"
+                                value={currentSymbol || ''}
+                                onChange={(e) => handleSymbolChange(e.target.value)}
+                                placeholder="例如: BTCUSDT"
+                                className="h-8"
+                            />
+                        </div>
+                    </div>
+                    
                     {/* 变量配置面板 */}
                     <div className="space-y-4">
                         {/* 变量列表顶部添加按钮 */}
                         <div className="flex items-center justify-between">
                             <Label className="text-sm font-semibold">变量配置 ({getTradingModeName(activeTab)})</Label>
-                            <Button variant="outline" size="sm" onClick={addVariable}>
+                            <Button 
+                                variant="outline" 
+                                size="sm" 
+                                onClick={addVariable}
+                                disabled={isAddVariableDisabled}
+                                title={isAddVariableDisabled ? "所有可用变量类型都已添加" : "添加变量"}
+                            >
                                 <Plus className="h-3.5 w-3.5 mr-1" />
                                 添加变量
                             </Button>
@@ -326,7 +462,12 @@ function GetVariableNodePanel({
                                 <div className="text-sm text-muted-foreground text-center mb-3">
                                     暂无变量配置
                                 </div>
-                                <Button variant="outline" size="sm" onClick={addVariable}>
+                                <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    onClick={addVariable}
+                                    disabled={isAddVariableDisabled}
+                                >
                                     <Plus className="h-3.5 w-3.5 mr-1" />
                                     添加第一个变量
                                 </Button>
@@ -373,60 +514,21 @@ function GetVariableNodePanel({
                                                             <SelectValue placeholder="选择变量类型" />
                                                         </SelectTrigger>
                                                         <SelectContent>
-                                                            {variableTypeOptions.map(option => (
-                                                                <SelectItem key={option.value} value={option.value}>
-                                                                    {option.label}
-                                                                </SelectItem>
+                                                            {/* 当前变量已选类型 */}
+                                                            <SelectItem key={variable.variable} value={variable.variable}>
+                                                                {getVariableTypeText(variable.variable)}
+                                                            </SelectItem>
+                                                            
+                                                            {/* 其他可用类型 */}
+                                                            {getAvailableVariableTypes(variable.configId).map(option => (
+                                                                option.value !== variable.variable && (
+                                                                    <SelectItem key={option.value} value={option.value}>
+                                                                        {option.label}
+                                                                    </SelectItem>
+                                                                )
                                                             ))}
                                                         </SelectContent>
                                                     </Select>
-                                                </div>
-                                                
-                                                {/* 账户选择 (仅在实盘和模拟交易模式下显示) */}
-                                                {(activeTab === TradeMode.LIVE || activeTab === TradeMode.SIMULATE) && (
-                                                    <div className="space-y-1">
-                                                        <Label className="text-xs mb-1 flex justify-between items-center">
-                                                            <span>选择账户</span>
-                                                            <span className="text-[10px] text-muted-foreground">
-                                                                {variable.selectedAccount.length > 0 
-                                                                    ? `已选择 ${variable.selectedAccount.length} 个账户` 
-                                                                    : "未选择账户"}
-                                                            </span>
-                                                        </Label>
-                                                        
-                                                        {/* 使用MultiSelect组件替换原有的账户选择器 */}
-                                                        <MultiSelect
-                                                            key={`account-select-${variable.configId}-${accountSelectKey}`}
-                                                            options={getAccounts().map(account => ({
-                                                                label: `${account.accountName} (${account.exchange})`,
-                                                                value: account.id.toString()
-                                                            }))}
-                                                            placeholder="选择账户"
-                                                            defaultValue={variable.selectedAccount.map(acc => acc.id.toString())}
-                                                            modalPopover={true}
-                                                            className="h-8 text-xs"
-                                                            onValueChange={(selectedValues) => {
-                                                                const allAccounts = getAccounts();
-                                                                const selectedAccounts = selectedValues.map(val => 
-                                                                    allAccounts.find(acc => acc.id.toString() === val)
-                                                                ).filter(acc => acc !== undefined) as SelectedAccount[];
-                                                                
-                                                                updateSelectedAccounts(variable.configId, selectedAccounts);
-                                                            }}
-                                                        />
-                                                    </div>
-                                                )}
-                                                
-                                                {/* 交易对 */}
-                                                <div className="space-y-1">
-                                                    <Label className="text-xs">交易对</Label>
-                                                    <Input 
-                                                        type="text"
-                                                        value={variable.symbol || ''}
-                                                        onChange={(e) => updateSymbol(variable.configId, e.target.value)}
-                                                        placeholder="例如: BTCUSDT"
-                                                        className="h-8"
-                                                    />
                                                 </div>
                                                 
                                                 {/* 删除变量按钮 */}

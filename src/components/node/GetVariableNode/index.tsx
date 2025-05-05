@@ -39,8 +39,31 @@ function GetVariableNode({id, data}:NodeProps<GetVariableNode>) {
         
         return variables;
     };
+    
+    // 获取当前交易模式下的账户和交易对
+    const getCurrentAccount = () => {
+        if (tradingMode === TradeMode.LIVE && data.liveConfig) {
+            return data.liveConfig.selectedLiveAccount;
+        } else if (tradingMode === TradeMode.SIMULATE && data.simulateConfig) {
+            return data.simulateConfig.selectedSimulateAccount;
+        }
+        return null;
+    };
+    
+    const getCurrentSymbol = () => {
+        if (tradingMode === TradeMode.LIVE && data.liveConfig) {
+            return data.liveConfig.symbol;
+        } else if (tradingMode === TradeMode.SIMULATE && data.simulateConfig) {
+            return data.simulateConfig.symbol;
+        } else if (tradingMode === TradeMode.BACKTEST && data.backtestConfig) {
+            return data.backtestConfig.symbol;
+        }
+        return null;
+    };
 
     const variables = getVariables();
+    const currentAccount = getCurrentAccount();
+    const currentSymbol = getCurrentSymbol();
 
     const { updateNodeData } = useReactFlow();
 
@@ -100,6 +123,29 @@ function GetVariableNode({id, data}:NodeProps<GetVariableNode>) {
                         title="输入"
                     />
 
+                    {/* 账户和交易对信息 */}
+                    <div className="px-3 py-2 border-b">
+                        <div className="space-y-1">
+                            {/* 显示账户信息 */}
+                            {(tradingMode === TradeMode.LIVE || tradingMode === TradeMode.SIMULATE) && (
+                                <div className="flex items-start gap-1">
+                                    <span className="text-[10px] text-muted-foreground">账户:</span>
+                                    <span className="text-[10px]">
+                                        {currentAccount ? 
+                                            currentAccount.accountName : 
+                                            "未设置"}
+                                    </span>
+                                </div>
+                            )}
+                            
+                            {/* 显示交易对 */}
+                            <div className="flex items-center gap-1">
+                                <span className="text-[10px] text-muted-foreground">交易对:</span>
+                                <span className="text-[10px]">{currentSymbol || "未设置"}</span>
+                            </div>
+                        </div>
+                    </div>
+
                     {/* 变量列表 */}
                     {variables.length > 0 ? (
                         <div className="px-3 py-2 space-y-2">
@@ -111,31 +157,6 @@ function GetVariableNode({id, data}:NodeProps<GetVariableNode>) {
                                         <Badge variant="outline" className="text-[10px] h-5 bg-green-100 text-green-800">
                                             {getVariableTypeText(variable.variable)}
                                         </Badge>
-                                    </div>
-                                    
-                                    {/* 显示账户和交易对 */}
-                                    <div className="space-y-0.5">
-                                        {/* 显示账户信息 */}
-                                        <div className="flex flex-col gap-1">
-                                            <span className="text-[10px] text-muted-foreground">账户:</span>
-                                            {variable.selectedAccount.length > 0 ? (
-                                                <div className="flex flex-wrap gap-1">
-                                                    {variable.selectedAccount.map(account => (
-                                                        <Badge key={account.id} variant="outline" className="text-[9px] h-4 px-1">
-                                                            {account.accountName}
-                                                        </Badge>
-                                                    ))}
-                                                </div>
-                                            ) : (
-                                                <span className="text-[10px]">所有账户</span>
-                                            )}
-                                        </div>
-                                        
-                                        {/* 显示交易对 */}
-                                        <div className="flex items-center gap-1">
-                                            <span className="text-[10px] text-muted-foreground">交易对:</span>
-                                            <span className="text-[10px]">{variable.symbol || "未设置"}</span>
-                                        </div>
                                     </div>
                                     
                                     {/* 输出Handle */}

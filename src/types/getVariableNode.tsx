@@ -14,19 +14,22 @@ export type GetVariableConfig = {
     variableName: string; // 变量名称
     variable: string; // 变量类型，使用StrategySysVariable的值
     variableValue: VariableValue; // 变量值
-    selectedAccount: SelectedAccount[];
-    symbol: string | null;
 }
 
 export type GetVariableNodeLiveConfig = {
+    selectedLiveAccount: SelectedAccount | null; // 账户选择
+    symbol: string | null; // 交易对
     variables: GetVariableConfig[];
 }
 
 export type GetVariableNodeSimulateConfig = {
+    selectedSimulateAccount: SelectedAccount | null; // 账户选择
+    symbol: string | null; // 交易对
     variables: GetVariableConfig[];
 }
 
 export type GetVariableNodeBacktestConfig = {
+    symbol: string | null; // 交易对
     variables: GetVariableConfig[];
 }
 
