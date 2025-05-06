@@ -60,8 +60,8 @@ export function NodeList() {
           </Button>
         </div>
       </div>
-      <ScrollArea className="flex-1 h-[calc(100vh-8rem)]">
-        <div className="p-3">
+      <ScrollArea className="flex-1 h-full">
+        <div className="p-3 pb-16">
           {nodeCategories.map((category) => (
             <div key={category.title} className="mb-4">
               <Button
@@ -89,8 +89,8 @@ export function NodeList() {
                       nodeType={item.nodeType}
                       nodeName={item.nodeName}
                       nodeDescription={item.nodeDescription}
-                      nodeColor={category.color}
-                      // nodeData={item.nodeData}
+                      nodeColor={item.nodeColor}
+                      nodeData={item.nodeData}
                     />
                   ))}
                 </div>
@@ -102,4 +102,4 @@ export function NodeList() {
       </ScrollArea>
     </div>
   );
-}
+} 

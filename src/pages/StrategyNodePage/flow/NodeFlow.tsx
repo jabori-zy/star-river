@@ -26,7 +26,7 @@ import IndicatorNode from '@/components/node/IndicatorNode'; // 指标节点
 import LiveDataNode from '@/components/node/LiveDataNode'; // 实时数据节点
 import StartNode from '@/components/node/StartNode'; // 开始节点
 import { DevTools } from '@/components/node/devtools'; // 开发者工具
-import { useDragAndDrop } from './useDragAndDrop';
+import { useDragAndDrop } from '../useDragAndDrop';
 import { useReactFlow } from '@xyflow/react';
 import { Strategy } from '@/types/strategy';
 import IfElseNode from '@/components/node/IfElseNode';
@@ -156,7 +156,7 @@ export default function NodeFlow({strategy}:{strategy:Strategy}) {
     }, [nodes, edges]);
 
     return ( 
-          <div className="flex-1 h-full overflow-hidden">
+          <div className="flex-1 h-full w-full overflow-hidden">
             <ReactFlow
               nodes={nodes}
               edges={edges}
@@ -167,7 +167,8 @@ export default function NodeFlow({strategy}:{strategy:Strategy}) {
               onDragOver={onDragOver}
               onDrop={onDrop}
               fitView
-              style={{ backgroundColor: "#F7F9FB" }}
+              fitViewOptions={{ padding: 0.1 }}
+              style={{ backgroundColor: "#F7F9FB", height: "100%" }}
           > 
               <DevTools />
               {/* <MiniMap /> */}
@@ -177,4 +178,4 @@ export default function NodeFlow({strategy}:{strategy:Strategy}) {
           </ReactFlow>
         </div>
     );
-}
+} 

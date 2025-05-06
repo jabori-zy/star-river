@@ -1,9 +1,7 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Save, X, Check, Loader2, Play, Square, DollarSign, CreditCard, Calendar } from "lucide-react";
+import { Loader2, Save, Play, Square, DollarSign, CreditCard, Calendar } from "lucide-react";
 import { useReactFlow } from '@xyflow/react';
 import { useStrategyMessages } from "@/hooks/use-strategyMessage";
 import { TradeMode } from "@/types/node";
@@ -213,7 +211,7 @@ function requestStopStrategy(strategyId: number | undefined) {
   });
 }
 
-function requestEnabelStrategyEventPush(strategyId: number) {
+function requestEnableStrategyEventPush() {
   fetch('http://localhost:3100/enable_strategy_event_push', {
     headers: {
       'Content-Type': 'application/json'
@@ -225,10 +223,8 @@ function requestEnabelStrategyEventPush(strategyId: number) {
 function RunStrategyButton({ strategyId }: { strategyId: number | undefined }) {
   // 策略是否正在运行
   const [isRunning, setIsRunning] = useState(false);
-  // 策略是否初始化
-  // const [isInit, setIsInit] = useState(false);
   // 是否已经连接sse
-  const { connectSSE, disconnectSSE, isSSEConnected } = useStrategyMessages();
+  const { connectSSE, disconnectSSE } = useStrategyMessages();
 
   const handleRun = async () => {
     //如果策略是运行状态
@@ -255,139 +251,41 @@ function RunStrategyButton({ strategyId }: { strategyId: number | undefined }) {
 
   return (
     <Button
-      variant="outline"
+      variant={isRunning ? "destructive" : "default"}
       size="sm"
-      className={`
-        flex items-center gap-2 min-w-[100px] font-medium
-        transition-all duration-200
-        ${isSSEConnected 
-          ? 'border-orange-500/50 text-orange-600 hover:bg-orange-50 hover:border-orange-500' 
-          : 'border-blue-500/50 text-blue-600 hover:bg-blue-50 hover:border-blue-500'
-        }
-      `}
+      className="flex items-center gap-2 min-w-[90px]"
       onClick={handleRun}
     >
       {isRunning ? (
-        <Square className="h-4 w-4 animate-pulse" />
-      ) : isSSEConnected ? (
-        <Square className="h-4 w-4" />
+        <>
+          <Square className="h-4 w-4" />
+          停止
+        </>
       ) : (
-        <Play className="h-4 w-4" />
+        <>
+          <Play className="h-4 w-4" />
+          运行
+        </>
       )}
-      <span className="inline-block">
-        {isSSEConnected ? "停止策略" : "运行策略"}
-      </span>
     </Button>
   );
 }
 
-
-
-
-interface HeaderProps {
-    strategy: Strategy | undefined;
-    setStrategy: (strategy: Strategy) => void;
+interface StrategyControlsProps {
+  strategy: Strategy;
+  setStrategy: (strategy: Strategy) => void;
 }
 
-export function Header({ strategy, setStrategy }: HeaderProps) {
-  const navigate = useNavigate();
-  const [isEditing, setIsEditing] = useState(false);
-  console.log("strategy", strategy);
-  const [tempName, setTempName] = useState(strategy?.name || "");
-
-  
-  // 保存策略名称
-  const handleSaveStrategyName = () => {
-    // setDisplayName(tempName);
-    setIsEditing(false);
-    // 实际的保存操作由 SaveStrategyButton 处理
-
-    if(strategy) {
-      setStrategy(
-        {
-          ...strategy,
-          name: tempName
-        });
-    }
-
-      console.log("修改策略名称", strategy);
-
-
-  };
-
-  const handleCancel = () => {
-    if(strategy) {
-      setTempName(strategy.name);
-      setIsEditing(false);
-    }
-  };
-
+export function StrategyControls({ strategy, setStrategy }: StrategyControlsProps) {
   return (
-    <div className="border-b shadow-sm">
-      <div className="flex h-16 items-center px-6 justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-2 hover:bg-background"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            返回
-          </Button>
-
-          {isEditing ? (
-            <div className="flex items-center gap-2">
-              <Input
-                autoFocus
-                value={tempName}
-                onChange={(e) => setTempName(e.target.value)}
-                className="h-8 w-[300px] text-lg font-semibold"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleSaveStrategyName();
-                  if (e.key === 'Escape') handleCancel();
-                }}
-              />
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleSaveStrategyName}
-                className="h-8 w-8 p-0 border border-border/50 hover:border-green-500 hover:text-green-500 transition-colors"
-              >
-                <Check className="h-4 w-4 text-green-500" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleCancel}
-                className="h-8 w-8 p-0 border border-border/50 hover:border-red-500 hover:text-red-500 transition-colors"
-              >
-                <X className="h-4 w-4 text-red-500" />
-              </Button>
-            </div>
-          ) : (
-            <div className="flex items-center gap-3">
-              <div
-                onClick={() => setIsEditing(true)}
-                className="text-lg font-semibold hover:text-primary cursor-pointer px-3 py-1.5 rounded hover:bg-accent transition-colors"
-              >
-                {strategy?.name}
-              </div>
-              <Badge variant="secondary" className="bg-primary/10 text-primary">
-                编辑中
-              </Badge>
-            </div>
-          )}
-        </div>
-
-        <div className="flex items-center gap-3">
-          <TradingModeSelector strategy={strategy} setStrategy={setStrategy} />
-          <Badge variant="outline" className="font-mono">
-            最后保存: 10:30:25
-          </Badge>
-          <SaveStrategyButton strategy={strategy as Strategy} />
-          <RunStrategyButton strategyId={strategy?.id} />
-        </div>
+    <div className="flex items-center justify-end px-6 py-2 border-b">
+      <TradingModeSelector strategy={strategy} setStrategy={setStrategy} />
+      <Badge variant="outline" className="font-mono mx-3">
+        最后保存: 10:30:25
+      </Badge>
+      <SaveStrategyButton strategy={strategy} />
+      <div className="ml-3">
+        <RunStrategyButton strategyId={strategy?.id} />
       </div>
     </div>
   );

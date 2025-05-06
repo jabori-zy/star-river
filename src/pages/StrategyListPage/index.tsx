@@ -24,7 +24,7 @@ interface Strategy {
   updated_time: string;
 }
 
-function StrategyMain() {
+function StrategyListPage() {
   const [open, setOpen] = useState(false);
   const [strategies, setStrategies] = useState<Strategy[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -172,4 +172,4 @@ function StrategyMain() {
   );
 }
 
-export default StrategyMain;
+export default StrategyListPage;

@@ -1,19 +1,19 @@
 
 import Login from "../pages/login";
-import StrategyMain from "../pages/StrategyMain";
+import StrategyListPage from "../pages/StrategyListPage";
 import { createBrowserRouter } from "react-router";
 import TestPage from "../pages/TestPage";
-import NodePage from "../pages/NodePage";
+import StrategyNodePage from "../pages/StrategyNodePage";
 import AccountPage from "../pages/AccountPage";
 
 const router = createBrowserRouter([
     {
         path: "/",
-        element: <StrategyMain />,
+        element: <StrategyListPage />,
     },
     {
         path: "/node",
-        element: <NodePage />,
+        element: <StrategyNodePage />,
     },
     {
         path: "/login",
@@ -21,7 +21,7 @@ const router = createBrowserRouter([
     },
     {
         path: "/strategy",
-        element: <StrategyMain />,
+        element: <StrategyListPage />,
     },
     {
         path: "/test",
