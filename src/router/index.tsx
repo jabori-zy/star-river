@@ -3,7 +3,7 @@ import Login from "../pages/login";
 import StrategyListPage from "../pages/StrategyListPage";
 import { createBrowserRouter } from "react-router";
 import TestPage from "../pages/TestPage";
-import StrategyNodePage from "../pages/StrategyNodePage";
+import StrategyPage from "../pages/StrategyPage";
 import AccountPage from "../pages/AccountPage";
 
 const router = createBrowserRouter([
@@ -13,7 +13,7 @@ const router = createBrowserRouter([
     },
     {
         path: "/node",
-        element: <StrategyNodePage />,
+        element: <StrategyPage />,
     },
     {
         path: "/login",

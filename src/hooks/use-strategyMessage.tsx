@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import  { StrategyMessageContext }  from "@/pages/StrategyNodePage/StrategyMessageContext";
+import  { StrategyMessageContext }  from "@/pages/StrategyPage/StrategyMessageContext";
 
 
 

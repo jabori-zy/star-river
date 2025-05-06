@@ -2,7 +2,7 @@ import { NodeList } from "./NodeList";
 import NodeFlow from "./NodeFlow";
 import { Strategy } from "@/types/strategy";
 import { ReactFlowProvider } from '@xyflow/react';
-import { DragAndDropProvider } from "../DragAndDropContext";
+import { DragAndDropProvider } from "../context/DragAndDropContext";
 import { StrategyControls } from "../components/StrategyControls";
 import { useStrategyStore } from "@/store/useStrategyStore";
 

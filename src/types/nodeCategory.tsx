@@ -1,6 +1,3 @@
-
-
-
 // 节点目录中的节点item
 export type NodeItemProps = {
     nodeId: string;
@@ -8,5 +5,5 @@ export type NodeItemProps = {
     nodeName: string;
     nodeDescription: string;
     nodeColor: string;  
-    nodeData: Record<string, unknown>;
+    nodeData?: Record<string, unknown>;
 };

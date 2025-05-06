@@ -51,7 +51,7 @@ function StrategyNodeContent() {
   );
 }
 
-export default function StrategyNodePage() {
+export default function StrategyPage() {
   const location = useLocation();
   const strategyId = location.state?.strategyId;
   

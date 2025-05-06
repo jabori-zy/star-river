@@ -1,7 +1,7 @@
 import { useDragAndDrop } from "../useDragAndDrop";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { NodeItemProps } from "@/types/nodeCategory";
+import { NodeItemProps } from "@/types/node";
 
 // 本地定义组件属性接口
 
@@ -26,7 +26,6 @@ export function NodeItem({
       nodeName,
       nodeDescription: nodeDescription || "",
       nodeColor,
-      // @ts-expect-error - nodeData不是DragNodeItemProps的一部分，但我们需要传递它
       nodeData
     });
   };
