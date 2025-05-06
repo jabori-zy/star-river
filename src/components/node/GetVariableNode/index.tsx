@@ -7,12 +7,12 @@ import {
 } from '@xyflow/react';
 import { Button } from "@/components/ui/button"
 import { Drawer } from "@/components/ui/drawer"
-import { PencilIcon, Variable, Plus } from 'lucide-react';
+import { PencilIcon, Variable, Plus, Clock, Filter } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { TradeMode } from "@/types/node";
 import { useStrategyStore } from "@/store/useStrategyStore";
 import { getTradingModeName, getTradingModeColor } from "@/utils/tradingModeHelper";
-import { StrategySysVariable } from "@/types/getVariableNode";
+import { StrategySysVariable, GetVariableType } from "@/types/getVariableNode";
 import GetVariableNodePanel from './panel';
 import { type GetVariableNode, GetVariableConfig } from "@/types/getVariableNode";
 
@@ -84,6 +84,32 @@ function GetVariableNode({id, data}:NodeProps<GetVariableNode>) {
         }
     };
 
+    // 获取当前交易模式下的触发方式及定时配置
+    const getVariableTriggerType = () => {
+        if (tradingMode === TradeMode.LIVE && data.liveConfig) {
+            return {
+                type: data.liveConfig.getVariableType,
+                timerConfig: data.liveConfig.timerConfig
+            };
+        } else if (tradingMode === TradeMode.SIMULATE && data.simulateConfig) {
+            return {
+                type: data.simulateConfig.getVariableType,
+                timerConfig: data.simulateConfig.timerConfig
+            };
+        } else if (tradingMode === TradeMode.BACKTEST && data.backtestConfig) {
+            return {
+                type: data.backtestConfig.getVariableType,
+                timerConfig: data.backtestConfig.timerConfig
+            };
+        }
+        return {
+            type: GetVariableType.CONDITION,
+            timerConfig: undefined
+        };
+    };
+
+    const { type: triggerType, timerConfig } = getVariableTriggerType();
+
     return (
         <>
             <div 
@@ -143,6 +169,26 @@ function GetVariableNode({id, data}:NodeProps<GetVariableNode>) {
                                 <span className="text-[10px] text-muted-foreground">交易对:</span>
                                 <span className="text-[10px]">{currentSymbol || "未设置"}</span>
                             </div>
+
+                            {/* 显示触发方式 */}
+                            <div className="flex items-center gap-1 mt-1">
+                                {triggerType === GetVariableType.TIMER ? (
+                                    <Badge className="h-5 text-[10px] bg-blue-100 text-blue-800">
+                                        <Clock className="h-3 w-3 mr-1" />
+                                        {timerConfig ? 
+                                            `${timerConfig.interval}${
+                                                timerConfig.unit === "second" ? "s" : 
+                                                timerConfig.unit === "minute" ? "m" : 
+                                                timerConfig.unit === "hour" ? "h" : "d"
+                                            }` : "定时触发"}
+                                    </Badge>
+                                ) : (
+                                    <Badge className="h-5 text-[10px] bg-orange-100 text-orange-800">
+                                        <Filter className="h-3 w-3 mr-1" />
+                                        条件触发
+                                    </Badge>
+                                )}
+                            </div>
                         </div>
                     </div>
 
@@ -163,9 +209,8 @@ function GetVariableNode({id, data}:NodeProps<GetVariableNode>) {
                                     <Handle 
                                         type="source" 
                                         position={Position.Right} 
-                                        id={`get_variable_node_${variable.configId}_output`}
+                                        id={`${variable.configId}`}
                                         className="!w-3 !h-3 !border-2 !border-white !bg-green-400"
-                                        title={`${variable.variableName}输出`}
                                     />
                                 </div>
                             ))}

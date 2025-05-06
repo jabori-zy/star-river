@@ -11,12 +11,14 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { TradeMode } from "@/types/node";
-import { Variable, X, Plus, Trash2 } from 'lucide-react';
+import { Variable, X, Plus, Trash2, Clock, Filter } from 'lucide-react';
 import { Strategy, SelectedAccount } from '@/types/strategy';
 import { 
     StrategySysVariable,
     GetVariableNodeData, 
-    GetVariableConfig
+    GetVariableConfig,
+    GetVariableType,
+    TimerConfig
 } from '@/types/getVariableNode';
 import {
     DrawerClose,
@@ -30,6 +32,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { getTradingModeName } from "@/utils/tradingModeHelper";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface GetVariableNodePanelProps {
     data: GetVariableNodeData;
@@ -72,6 +75,28 @@ function GetVariableNodePanel({
     
     const [backtestSymbol, setBacktestSymbol] = useState<string | null>(
         data.backtestConfig?.symbol || null
+    );
+
+    // 各交易模式的触发方式和定时配置
+    const [liveGetVariableType, setLiveGetVariableType] = useState<GetVariableType>(
+        data.liveConfig?.getVariableType || GetVariableType.CONDITION
+    );
+    const [liveTimerConfig, setLiveTimerConfig] = useState<TimerConfig>(
+        data.liveConfig?.timerConfig || { interval: 5, unit: "minute" }
+    );
+
+    const [simulateGetVariableType, setSimulateGetVariableType] = useState<GetVariableType>(
+        data.simulateConfig?.getVariableType || GetVariableType.CONDITION
+    );
+    const [simulateTimerConfig, setSimulateTimerConfig] = useState<TimerConfig>(
+        data.simulateConfig?.timerConfig || { interval: 5, unit: "minute" }
+    );
+
+    const [backtestGetVariableType, setBacktestGetVariableType] = useState<GetVariableType>(
+        data.backtestConfig?.getVariableType || GetVariableType.CONDITION
+    );
+    const [backtestTimerConfig, setBacktestTimerConfig] = useState<TimerConfig>(
+        data.backtestConfig?.timerConfig || { interval: 5, unit: "minute" }
     );
     
     // 初始化各个模式的配置
@@ -116,28 +141,44 @@ function GetVariableNodePanel({
                     account: liveAccount, 
                     setAccount: setLiveAccount,
                     symbol: liveSymbol,
-                    setSymbol: setLiveSymbol
+                    setSymbol: setLiveSymbol,
+                    getVariableType: liveGetVariableType,
+                    setGetVariableType: setLiveGetVariableType,
+                    timerConfig: liveTimerConfig,
+                    setTimerConfig: setLiveTimerConfig
                 };
             case TradeMode.SIMULATE:
                 return { 
                     account: simulateAccount, 
                     setAccount: setSimulateAccount,
                     symbol: simulateSymbol,
-                    setSymbol: setSimulateSymbol
+                    setSymbol: setSimulateSymbol,
+                    getVariableType: simulateGetVariableType,
+                    setGetVariableType: setSimulateGetVariableType,
+                    timerConfig: simulateTimerConfig,
+                    setTimerConfig: setSimulateTimerConfig
                 };
             case TradeMode.BACKTEST:
                 return { 
                     account: null, 
                     setAccount: (() => {}) as React.Dispatch<React.SetStateAction<SelectedAccount | null>>,
                     symbol: backtestSymbol,
-                    setSymbol: setBacktestSymbol
+                    setSymbol: setBacktestSymbol,
+                    getVariableType: backtestGetVariableType,
+                    setGetVariableType: setBacktestGetVariableType,
+                    timerConfig: backtestTimerConfig,
+                    setTimerConfig: setBacktestTimerConfig
                 };
             default:
                 return { 
                     account: simulateAccount, 
                     setAccount: setSimulateAccount,
                     symbol: simulateSymbol,
-                    setSymbol: setSimulateSymbol
+                    setSymbol: setSimulateSymbol,
+                    getVariableType: simulateGetVariableType,
+                    setGetVariableType: setSimulateGetVariableType,
+                    timerConfig: simulateTimerConfig,
+                    setTimerConfig: setSimulateTimerConfig
                 };
         }
     };
@@ -148,9 +189,9 @@ function GetVariableNodePanel({
     }, [initialTradingMode]);
     
     // 获取下一个可用的configId
-    const getNextConfigId = (variables: GetVariableConfig[]) => {
-        if (variables.length === 0) return 1;
-        return Math.max(...variables.map(v => v.configId)) + 1;
+    const getNextConfigId = (variables: GetVariableConfig[], variableType: string) => {
+        // 直接返回基于变量类型的configId，不再附加序号
+        return `get_variable_node_output_${variableType}`;
     };
     
     // 获取变量类型文本
@@ -163,16 +204,13 @@ function GetVariableNodePanel({
     const generateVariableName = (variableType: string, variables: GetVariableConfig[]) => {
         const typeText = getVariableTypeText(variableType);
         
-        // 计算该类型已存在的变量数量
-        const sameTypeVariables = variables.filter(v => v.variable === variableType);
-        const count = sameTypeVariables.length + 1;
-        
-        let newName = `${typeText}${count}`;
+        // 直接使用变量类型文本作为变量名称
+        let newName = typeText;
         let counter = 1;
         
-        // 确保名称唯一
+        // 确保名称唯一 (针对极少数情况，可能需要添加后缀)
         while (variables.some(v => v.variableName === newName)) {
-            newName = `${typeText}${count}_${counter}`;
+            newName = `${typeText}_${counter}`;
             counter++;
         }
         
@@ -215,7 +253,7 @@ function GetVariableNodePanel({
         const defaultVariableType = availableVariableTypes[0].value;
         
         const newVariable: GetVariableConfig = {
-            configId: getNextConfigId(variables),
+            configId: getNextConfigId(variables, defaultVariableType),
             variableName: generateVariableName(defaultVariableType, variables),
             variableValue: 0,
             variable: defaultVariableType
@@ -225,13 +263,13 @@ function GetVariableNodePanel({
     };
     
     // 删除变量 (作用于当前活动标签页)
-    const removeVariable = (configId: number) => {
+    const removeVariable = (configId: string) => {
         const { variables, setVariables } = getActiveVariablesAndSetter();
         setVariables(variables.filter(v => v.configId !== configId));
     };
     
     // 更新变量名称
-    const updateVariableName = (configId: number, variableName: string) => {
+    const updateVariableName = (configId: string, variableName: string) => {
         const { variables, setVariables } = getActiveVariablesAndSetter();
         setVariables(variables.map(v => 
             v.configId === configId ? { ...v, variableName } : v
@@ -239,12 +277,16 @@ function GetVariableNodePanel({
     };
     
     // 更新变量类型
-    const updateVariableType = (configId: number, variable: string) => {
+    const updateVariableType = (configId: string, variable: string) => {
         const { variables, setVariables } = getActiveVariablesAndSetter();
         setVariables(variables.map(v => 
             v.configId === configId ? { 
                 ...v, 
                 variable,
+                configId: getNextConfigId(
+                    variables.filter(item => item.configId !== configId), 
+                    variable
+                ),
                 variableName: generateVariableName(variable, variables.filter(item => item.configId !== configId)),
                 // 根据变量类型设置默认值
                 variableValue: typeof v.variableValue === 'number' ? 0 : 
@@ -252,6 +294,18 @@ function GetVariableNodePanel({
                                typeof v.variableValue === 'boolean' ? false : 0
             } : v
         ));
+    };
+
+    // 更新当前模式的触发方式
+    const updateGetVariableType = (getVariableType: GetVariableType) => {
+        const { setGetVariableType } = getActiveGlobalConfig();
+        setGetVariableType(getVariableType);
+    };
+
+    // 更新定时触发的时间间隔和单位（一次性更新两个属性）
+    const updateTimerConfig = (interval: number, unit: "second" | "minute" | "hour" | "day") => {
+        const { timerConfig, setTimerConfig } = getActiveGlobalConfig();
+        setTimerConfig({ ...timerConfig, interval, unit });
     };
     
     // 处理账户选择
@@ -276,15 +330,21 @@ function GetVariableNodePanel({
             liveConfig: { 
                 selectedLiveAccount: liveAccount,
                 symbol: liveSymbol,
+                getVariableType: liveGetVariableType,
+                timerConfig: liveGetVariableType === GetVariableType.TIMER ? liveTimerConfig : undefined,
                 variables: liveVariables 
             },
             simulateConfig: { 
                 selectedSimulateAccount: simulateAccount,
                 symbol: simulateSymbol,
+                getVariableType: simulateGetVariableType,
+                timerConfig: simulateGetVariableType === GetVariableType.TIMER ? simulateTimerConfig : undefined,
                 variables: simulateVariables 
             },
             backtestConfig: { 
                 symbol: backtestSymbol,
+                getVariableType: backtestGetVariableType,
+                timerConfig: backtestGetVariableType === GetVariableType.TIMER ? backtestTimerConfig : undefined,
                 variables: backtestVariables 
             }
         };
@@ -292,7 +352,12 @@ function GetVariableNodePanel({
     };
     
     const { variables: currentVariables } = getActiveVariablesAndSetter();
-    const { account: currentAccount, symbol: currentSymbol } = getActiveGlobalConfig();
+    const { 
+        account: currentAccount, 
+        symbol: currentSymbol,
+        getVariableType: currentGetVariableType,
+        timerConfig: currentTimerConfig
+    } = getActiveGlobalConfig();
     
     // 变量类型选项
     const variableTypeOptions = [
@@ -301,7 +366,7 @@ function GetVariableNodePanel({
     ];
     
     // 获取已使用的变量类型，排除当前编辑的变量
-    const getUsedVariableTypes = (currentConfigId?: number) => {
+    const getUsedVariableTypes = (currentConfigId?: string) => {
         const { variables } = getActiveVariablesAndSetter();
         return variables
             .filter(v => v.configId !== currentConfigId)
@@ -309,7 +374,7 @@ function GetVariableNodePanel({
     };
     
     // 获取可用的变量类型选项
-    const getAvailableVariableTypes = (currentConfigId?: number) => {
+    const getAvailableVariableTypes = (currentConfigId?: string) => {
         const usedTypes = getUsedVariableTypes(currentConfigId);
         return variableTypeOptions.filter(option => 
             !usedTypes.includes(option.value)
@@ -437,6 +502,111 @@ function GetVariableNodePanel({
                                 className="h-8"
                             />
                         </div>
+
+                        {/* 触发方式 */}
+                        <div className="space-y-1">
+                            <Label className="text-xs">触发方式</Label>
+                            <div className="flex items-center space-x-6 pt-1">
+                                <div className="flex items-center space-x-2">
+                                    <Checkbox 
+                                        id={`condition-${activeTab}`}
+                                        checked={currentGetVariableType === GetVariableType.CONDITION}
+                                        onCheckedChange={(checked) => {
+                                            if (checked) {
+                                                updateGetVariableType(GetVariableType.CONDITION);
+                                            }
+                                        }}
+                                    />
+                                    <Label 
+                                        htmlFor={`condition-${activeTab}`}
+                                        className="text-xs cursor-pointer flex items-center"
+                                    >
+                                        <Filter className="h-3.5 w-3.5 mr-1 text-orange-500" />
+                                        条件触发
+                                    </Label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                    <Checkbox 
+                                        id={`timer-${activeTab}`}
+                                        checked={currentGetVariableType === GetVariableType.TIMER}
+                                        onCheckedChange={(checked) => {
+                                            if (checked) {
+                                                updateGetVariableType(GetVariableType.TIMER);
+                                            }
+                                        }}
+                                    />
+                                    <Label 
+                                        htmlFor={`timer-${activeTab}`}
+                                        className="text-xs cursor-pointer flex items-center"
+                                    >
+                                        <Clock className="h-3.5 w-3.5 mr-1 text-blue-500" />
+                                        定时触发
+                                    </Label>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 定时触发配置 - 仅在选择定时触发时显示 */}
+                        {currentGetVariableType === GetVariableType.TIMER && (
+                            <div className="space-y-1">
+                                <Label className="text-xs">定时配置</Label>
+                                <div className="flex items-center space-x-2">
+                                    <Input 
+                                        type="number"
+                                        min="1"
+                                        step="1"
+                                        value={currentTimerConfig.interval}
+                                        onChange={(e) => updateTimerConfig(parseInt(e.target.value) || 1, currentTimerConfig.unit)}
+                                        className="h-8 w-20"
+                                    />
+                                    <Select 
+                                        value={currentTimerConfig.unit} 
+                                        onValueChange={(value: "second" | "minute" | "hour" | "day") => 
+                                            updateTimerConfig(currentTimerConfig.interval, value)
+                                        }
+                                    >
+                                        <SelectTrigger className="h-8 flex-1">
+                                            <SelectValue placeholder="选择时间单位" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="second">秒</SelectItem>
+                                            <SelectItem value="minute">分钟</SelectItem>
+                                            <SelectItem value="hour">小时</SelectItem>
+                                            <SelectItem value="day">天</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="flex flex-wrap gap-2 mt-2">
+                                    {/* 1s */}
+                                    <Badge variant="outline" className="bg-blue-50 text-blue-800 cursor-pointer hover:bg-blue-100"
+                                        onClick={() => updateTimerConfig(1, "second")}
+                                    >
+                                        <Clock className="h-3 w-3 mr-1" />1s
+                                    </Badge>
+                                    
+                                    <Badge variant="outline" className="bg-blue-50 text-blue-800 cursor-pointer hover:bg-blue-100"
+                                        onClick={() => updateTimerConfig(1, "minute")}
+                                    >
+                                        <Clock className="h-3 w-3 mr-1" />1m
+                                    </Badge>
+                                    <Badge variant="outline" className="bg-blue-50 text-blue-800 cursor-pointer hover:bg-blue-100"
+                                        onClick={() => updateTimerConfig(5, "minute")}
+                                    >
+                                        <Clock className="h-3 w-3 mr-1" />5m
+                                    </Badge>
+                                    <Badge variant="outline" className="bg-blue-50 text-blue-800 cursor-pointer hover:bg-blue-100"
+                                        onClick={() => updateTimerConfig(1, "hour")}
+                                    >
+                                        <Clock className="h-3 w-3 mr-1" />1h
+                                    </Badge>
+                                    <Badge variant="outline" className="bg-blue-50 text-blue-800 cursor-pointer hover:bg-blue-100"
+                                        onClick={() => updateTimerConfig(1, "day")}
+                                    >
+                                        <Clock className="h-3 w-3 mr-1" />1d
+                                    </Badge>
+                                </div>
+                            </div>
+                        )}
                     </div>
                     
                     {/* 变量配置面板 */}
@@ -477,7 +647,7 @@ function GetVariableNodePanel({
                                 {currentVariables.map((variable) => (
                                     <AccordionItem 
                                         key={variable.configId} 
-                                        value={variable.configId.toString()}
+                                        value={variable.configId}
                                         className="border rounded-md bg-slate-50"
                                     >
                                         <AccordionTrigger className="px-3 py-2 hover:no-underline">

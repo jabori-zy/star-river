@@ -1,5 +1,5 @@
 // 数据获取节点面板
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter, DrawerClose, DrawerOverlay, DrawerPortal } from "@/components/ui/drawer"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
@@ -9,7 +9,6 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CreditCard, Settings, CircleDot, X } from 'lucide-react'
 import { TradeMode } from '@/types/node';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
-import { Node } from '@xyflow/react';
 import { LiveDataNodeData } from '@/types/LiveDataNode';
 import { Strategy, SelectedAccount } from '@/types/strategy';
 
@@ -99,7 +98,15 @@ const LiveDataNodePanel = ({
       nodeName: tempNodeName,
       liveConfig: data.liveConfig,
       simulateConfig: data.simulateConfig,
-      backtestConfig: data.backtestConfig
+      backtestConfig: data.backtestConfig,
+      klineData: {
+        timestamp: null,
+        open: null,
+        high: null,
+        low: null,
+        close: null,
+        volume: null,
+      }
     };
     
     // 更新实盘交易配置

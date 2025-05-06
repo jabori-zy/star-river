@@ -1,4 +1,3 @@
-
 // 条件判断节点数据
 export type IfElseNodeData = {
     nodeName: string; // 节点名称
@@ -26,7 +25,7 @@ export type CaseItem = {
 
 // 条件
 export type Condition = {
-    conditionId: number // 条件id
+    conditionId: string | number // 条件id
     leftVariable: LeftVariable | null // 左变量
     comparisonOperator: ComparisonOperator | null // 比较运算符
     rightVariable: RightVariable | null // 右变量
@@ -58,14 +57,18 @@ export enum VarType {
 export type LeftVariable = {
     varType: VarType | null // 变量类型
     nodeId: string | null // 节点id
-    varibale: string | null // 变量名
+    varibale: string | null // 变量值(ID)
+    variableName?: string | null // 变量显示名称
+    nodeName?: string | null // 节点名称
 }
 
 // 右变量
 export type RightVariable = {
-    varType: VarType | null
-    nodeId: string | null
-    varibale: string | null
+    varType: VarType | null // 变量类型
+    nodeId: string | null // 节点id
+    varibale: string | null // 变量值(ID)
+    variableName?: string | null // 变量显示名称
+    nodeName?: string | null // 节点名称
 }
   
   
