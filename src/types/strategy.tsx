@@ -1,6 +1,7 @@
 import { Node, Edge } from "@xyflow/react";
 import { TradeMode } from "@/types/node";
 import { Exchange } from "@/types/common";
+import { StrategyChartConfig } from "@/types/strategyChartConfig";
 
 // 策略已选择的账户
 export type SelectedAccount = {
@@ -61,6 +62,7 @@ export interface Strategy {
   config: StrategyConfig; // 策略配置
   nodes: Node[] | null; // 节点列表
   edges: Edge[] | null; // 边列表
+  chartConfig: StrategyChartConfig[]; // 图表配置
   createTime: string; // 创建时间
   updateTime: string; // 更新时间
 }

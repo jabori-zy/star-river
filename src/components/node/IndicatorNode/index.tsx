@@ -10,10 +10,10 @@ import {
 import { Button } from "@/components/ui/button"
 import { Drawer } from "@/components/ui/drawer"
 import { PencilIcon, TrendingUp } from 'lucide-react';
-import { useStrategyMessages } from '@/hooks/use-strategyMessage';
 import { Badge } from "@/components/ui/badge";
 import IndicatorNodePanel from './panel';
-import { IndicatorType, IndicatorNodeLiveConfig, IndicatorNodeSimulateConfig, IndicatorNodeBacktestConfig } from '@/types/indicatorNode';
+import { IndicatorNodeLiveConfig, IndicatorNodeSimulateConfig, IndicatorNodeBacktestConfig } from '@/types/indicatorNode';
+import { IndicatorType } from '@/types/indicator';
 import { IndicatorValue } from '@/types/indicatorValue';
 import { TradeMode } from '@/types/node';
 import { useStrategyStore } from '@/store/useStrategyStore';
@@ -28,26 +28,27 @@ function IndicatorNode({id, data, isConnectable}:NodeProps) {
         data.indicatorType as IndicatorType || IndicatorType.SMA
     );
 
-    const { messages, clearNodeMessages } = useStrategyMessages();
+    // const { event: messages, clearNodeMessages } = useStrategyEventContext();
+    
     const [indicatorValue, setIndicatorValue] = useState<IndicatorValue | null>(null);
     
     // 获取当前策略的交易模式
     const { strategy } = useStrategyStore();
     const tradingMode = strategy?.tradeMode || TradeMode.LIVE;
 
-    useEffect(() => {
-        // 获取实时数据节点的消息
-        const indicator_node_message = messages[id];
-        if (indicator_node_message && indicator_node_message.length > 0) {
-            const lastMessage = indicator_node_message.at(-1);
-            if (lastMessage && lastMessage.indicator_data && lastMessage.indicator_data.indicator_value) {
-                const newValue = lastMessage.indicator_data.indicator_value;
-                setIndicatorValue(newValue);
-            }
-        }
+    // useEffect(() => {
+    //     // 获取实时数据节点的消息
+    //     const indicator_node_message = messages[id];
+    //     if (indicator_node_message && indicator_node_message.length > 0) {
+    //         const lastMessage = indicator_node_message.at(-1);
+    //         if (lastMessage && lastMessage.indicator_data && lastMessage.indicator_data.indicator_value) {
+    //             const newValue = lastMessage.indicator_data.indicator_value;
+    //             setIndicatorValue(newValue);
+    //         }
+    //     }
 
-        clearNodeMessages(id);
-    }, [messages, id, clearNodeMessages]);
+    //     clearNodeMessages(id);
+    // }, [messages, id, clearNodeMessages]);
 
     const connections = useNodeConnections({
         handleType: 'target',

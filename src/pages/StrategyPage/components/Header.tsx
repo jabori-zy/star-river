@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, memo } from "react";
 import { useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,10 +12,9 @@ interface HeaderProps {
     children?: React.ReactNode;
 }
 
-export function Header({ strategy, setStrategy, children }: HeaderProps) {
+function HeaderComponent({ strategy, setStrategy, children }: HeaderProps) {
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
-  console.log("strategy", strategy);
   const [tempName, setTempName] = useState(strategy?.name || "");
 
   
@@ -32,10 +31,6 @@ export function Header({ strategy, setStrategy, children }: HeaderProps) {
           name: tempName
         });
     }
-
-      console.log("修改策略名称", strategy);
-
-
   };
 
   const handleCancel = () => {
@@ -110,4 +105,17 @@ export function Header({ strategy, setStrategy, children }: HeaderProps) {
       {children && <div className="px-6 pb-2">{children}</div>}
     </div>
   );
-} 
+}
+
+// 使用 memo 包装组件，允许 strategy 名称或子组件变化时重新渲染
+export const Header = memo(HeaderComponent, (prevProps, nextProps) => {
+  // 如果 strategy 名称变化，需要重新渲染
+  const strategyNameChanged = prevProps.strategy?.name !== nextProps.strategy?.name;
+  
+  // 如果 children 变化（例如 tab 变化），需要重新渲染
+  // 由于 children 可能是复杂的 React 节点，无法直接比较，我们让它始终触发重新渲染
+  
+  // 返回 true 表示相等（不需要重新渲染），返回 false 表示需要重新渲染
+  // 如果 strategy 名称没有变化且没有 children，则不需要重新渲染
+  return !strategyNameChanged && !prevProps.children && !nextProps.children;
+}); 

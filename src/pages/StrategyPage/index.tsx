@@ -1,4 +1,3 @@
-import { StrategyMessageProvider } from "./StrategyMessageContext";
 import { useLocation } from "react-router";
 import { useEffect, useState } from "react";
 import { useStrategyStore } from "@/store/useStrategyStore";
@@ -7,15 +6,22 @@ import { Header } from './components/Header';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import StrategyFlowContent from "./flow";
 import StrategyChartContent from "./chart";
+import useStrategyEventSSE from "@/hooks/use-strategyEventSSE";
 
-function StrategyNodeContent() {
+function StrategyPageMainContent() {
   const location = useLocation();
   //策略的id
   const strategyId = location.state?.strategyId;
   const {strategy, setStrategy} = useStrategyStore();
+  // 活跃的tab
   const [activeTab, setActiveTab] = useState("flow");
 
+  // 连接 SSE
+  useStrategyEventSSE(strategyId);
+
+
   useEffect(() => {
+    // 获取策略信息
     getStrategyById(strategyId).then((data) => {
       setStrategy(data);
     });
@@ -42,7 +48,7 @@ function StrategyNodeContent() {
           
           <TabsContent value="chart" className="h-full flex-1 overflow-hidden mt-0 absolute inset-0">
             <div className="h-full w-full overflow-hidden">
-              <StrategyChartContent />
+              <StrategyChartContent strategyId={strategyId} />
             </div>
           </TabsContent>
         </Tabs>
@@ -52,13 +58,8 @@ function StrategyNodeContent() {
 }
 
 export default function StrategyPage() {
-  const location = useLocation();
-  const strategyId = location.state?.strategyId;
-  
   return (
-    <StrategyMessageProvider strategyId={strategyId}>
-      <StrategyNodeContent />
-    </StrategyMessageProvider>
+      <StrategyPageMainContent />
   );
 }
 

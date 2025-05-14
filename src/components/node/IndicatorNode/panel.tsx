@@ -4,7 +4,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Settings, Save, ChevronLeft, AlertCircle, CreditCard } from 'lucide-react';
-import { IndicatorType } from '@/types/indicatorNode';
+import { IndicatorType } from '@/types/indicator';
 import {
   Select,
   SelectContent,

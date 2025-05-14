@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Save, Play, Square, DollarSign, CreditCard, Calendar } from "lucide-react";
 import { useReactFlow } from '@xyflow/react';
-import { useStrategyMessages } from "@/hooks/use-strategyMessage";
+import { useStrategyEventContext } from "@/context/use-strategyMessage";
 import { TradeMode } from "@/types/node";
 import {
   Select,
@@ -223,23 +223,17 @@ function requestEnableStrategyEventPush() {
 function RunStrategyButton({ strategyId }: { strategyId: number | undefined }) {
   // 策略是否正在运行
   const [isRunning, setIsRunning] = useState(false);
-  // 是否已经连接sse
-  const { connectSSE, disconnectSSE } = useStrategyMessages();
 
   const handleRun = async () => {
     //如果策略是运行状态
     if (isRunning) {
       // 停止策略
       requestStopStrategy(strategyId);
-      // 断开sse
-      disconnectSSE();
       // 设置为停止状态
       setIsRunning(false);
     } 
     //如果是停止状态
     else {
-      // 连接sse
-      connectSSE();
       // 初始化策略
       requestInitStrategy(strategyId);
       // 运行策略

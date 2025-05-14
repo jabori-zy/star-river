@@ -2,29 +2,29 @@ import React, { createContext, useState, useEffect } from 'react';
 import useStrategySSE from '@/hooks/use-strategySSE';
 
 
-export interface StrategyMessageContextType {
+export interface StrategyEventContextProps {
     // message: StrategyMessage | null;
-    messages: Record<string, any[]>;
+    event: Record<string, any[]>;
     isSSEConnected: boolean;
     connectSSE: () => void;
     disconnectSSE: () => void;
     clearNodeMessages: (nodeId: string) => void;
   }
 
-const StrategyMessageContext = createContext<StrategyMessageContextType | null>(null);
+const StrategyEventContext = createContext<StrategyEventContextProps | null>(null);
 
-function StrategyMessageProvider({ children, strategyId }: { children: React.ReactNode, strategyId: number }) {
+function StrategyEventProvider({ children, strategyId }: { children: React.ReactNode, strategyId: number }) {
     const [isSSEConnected, setIsSSEConnected] = useState(false);
 
-    const { strategeMessage, clearNodeMessages } = useStrategySSE(strategyId, isSSEConnected);
-    const [messages, setMessages] = useState<Record<string, any[]>>([]);
+    const { strategeEvent, clearNodeMessages } = useStrategySSE(strategyId, isSSEConnected);
+    const [event, setEvent] = useState<Record<string, any[]>>([]);
 
 
     useEffect(() => {
-        setMessages(strategeMessage);
+        setEvent(strategeEvent);
         // setStrategyMessage(strategyMessageQuene);
         
-    }, [strategeMessage]);
+    }, [strategeEvent]);
 
    
 
@@ -32,19 +32,19 @@ function StrategyMessageProvider({ children, strategyId }: { children: React.Rea
     const disconnectSSE = () => setIsSSEConnected(false);
 
     return (
-        <StrategyMessageContext.Provider value={{ 
-            messages,
+        <StrategyEventContext.Provider value={{ 
+            event: event,
             clearNodeMessages,
             isSSEConnected, 
             connectSSE, 
             disconnectSSE 
         }}>
             {children}
-        </StrategyMessageContext.Provider>
+        </StrategyEventContext.Provider>
     );
 }
 
 // 分别导出 Context 和 Provider
-export { StrategyMessageContext };
-export { StrategyMessageProvider };
+export { StrategyEventContext as StrategyMessageContext };
+export { StrategyEventProvider as StrategyMessageProvider };
 

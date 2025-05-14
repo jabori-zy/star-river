@@ -77,65 +77,29 @@ function KlineChart(props: HighchartsReact.Props) {
   const [kline, setKline] = useState({});
   const [httpKline, setHttpKline] = useState<Array<KlineData>>([]);
 
-  useEffect(() => {
-    //监听btc价格
-    const klineListener = listen("kline-update", (event) => {
-        const data = event.payload as {open_time: number, open: number, high: number, low: number, close: number, volume: number};
-        setKline(data);
-        const chart = chartComponentRef.current?.chart;
-        if (chart) {
-            const series = chart.series[0];
-            if (series) {
-              // 如果series没有数据，则添加数据
-              if (series.points.length === 0) {
-                series.addPoint([data.open_time, data.open, data.high, data.low, data.close], true, false);
-                
-              } else {
-                // 判断当前开盘时间是否一样
-                const lastPoint = series.points[series.points.length - 1];
-                const lastPointOpenTime = lastPoint.x;
-                // 如果当前时间与上一个时间相同，则更新数据
-                if (lastPointOpenTime === data.open_time) {
-                  lastPoint.update([data.open_time, data.open, data.high, data.low, data.close], true, false);
-                } else {
-                  // 如果当前时间与上一个时间不同，则添加数据
-                  series.addPoint([data.open_time, data.open, data.high, data.low, data.close], true, false);
-                }
-              }
+  // const get_http_kline = async () => {
+  //   // const data = await invoke<Array<KlineData>>("get_http_kline");
+  //   console.log("data", data);
+  //   const result = data.map(item => [
+  //     item.timestamp,
+  //     item.open,
+  //     item.high,
+  //     item.low,
+  //     item.close,
+  //     item.volume,
+  //   ]);
+  //   // console.log("result", result);
+  //   // setHttpKline(result);
+  //   // console.log("httpKline", data);
 
-              // console.log("series_data", series.points)
-            }
-        }
-    });
-    
-    return () => {
-        klineListener.then(fn => fn());
-    };
-  }, []);
-
-  const get_http_kline = async () => {
-    const data = await invoke<Array<KlineData>>("get_http_kline");
-    console.log("data", data);
-    const result = data.map(item => [
-      item.timestamp,
-      item.open,
-      item.high,
-      item.low,
-      item.close,
-      item.volume,
-    ]);
-    // console.log("result", result);
-    // setHttpKline(result);
-    // console.log("httpKline", data);
-
-    const chart = chartComponentRef.current?.chart;
-    if (chart) {
-      const series = chart.series[0];
-      if (series) {
-        series.setData(result);
-      }
-    }
-  }
+  //   const chart = chartComponentRef.current?.chart;
+  //   if (chart) {
+  //     const series = chart.series[0];
+  //     if (series) {
+  //       series.setData(result);
+  //     }
+  //   }
+  // }
 
   useChartResize(chartComponentRef);
 
@@ -149,7 +113,7 @@ function KlineChart(props: HighchartsReact.Props) {
             ref={chartComponentRef}
             {...props}
         />
-        <Button onClick={get_http_kline}>获取K线</Button>
+        {/* <Button onClick={}>获取K线</Button> */}
     </div>
 
   );

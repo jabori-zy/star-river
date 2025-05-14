@@ -1,4 +1,4 @@
-import { IndicatorType } from "@/types/indicatorNode";
+import { IndicatorType } from "@/types/indicator";
 import { SMAValue, BOLLValue } from "@/types/indicatorValue";
 
 export function getIndicatorValue(indicatorType: IndicatorType){

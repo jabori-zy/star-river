@@ -47,6 +47,7 @@ export async function getStrategyById(strategyId: number): Promise<Strategy> {
       nodes: data.data["nodes"],
       edges: data.data["edges"],
       status: data.data["status"],
+      chartConfig: data.data["chart_config"],
       createTime: data.data["created_time"],
       updateTime: data.data["updated_time"]
     };
@@ -161,7 +162,8 @@ export async function updateStrategy(
         config: strategyData.config ?? {},
         nodes: strategyData.nodes ?? [],
         edges: strategyData.edges ?? [],
-        status: strategyData.status ?? 0
+        status: strategyData.status ?? 0,
+        chart_config: strategyData.chartConfig ?? []
     };
 
     // console.log("requestBody", requestBody);
@@ -242,5 +244,19 @@ export async function deleteStrategy(
     throw error;
   } finally {
     options?.onFinally?.();
+  }
+}
+
+/**
+ * 获取策略订阅的缓存键
+ */
+export async function getStrategyCacheKeys(strategyId: number): Promise<string[]> {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/get_strategy_cache_keys?strategy_id=${strategyId}`);
+    console.log("response", response.data["data"]);
+    return response.data["data"];
+  } catch (error) {
+    console.error('获取策略订阅的缓存键错误:', error);
+    throw error;
   }
 }
