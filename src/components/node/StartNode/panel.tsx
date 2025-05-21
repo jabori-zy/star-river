@@ -1,5 +1,5 @@
 // 策略起点节点面板
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter, DrawerClose, DrawerOverlay, DrawerPortal } from "@/components/ui/drawer"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
@@ -8,14 +8,17 @@ import { Label } from "@/components/ui/label"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Plus, CreditCard, Settings, Variable, Code, X } from 'lucide-react'
 import { TradeMode } from '@/types/node';
-import { Strategy, SelectedAccount, StrategyVariable as StrategyVarType } from '@/types/strategy';
+import { Strategy, SelectedAccount, StrategyVariable as StrategyVarType, DataSourceExchange } from '@/types/strategy';
 // 导入拆分后的账户设置组件
-import LiveAccount from './AccountSetting/LiveAccount';
-// import SimulateAccount from './AccountSetting/SimulateAccount';
-// import BacktestAccount from './AccountSetting/BacktestAccount';
+import LiveModeConfig from './TradeModeSetting/liveModeConfig';
+// import SimulateModeConfig from './TradeModeSetting/simulateModeConfig';
+import BacktestModeConfig from './TradeModeSetting/backtestModeConfig';
 // 导入变量相关组件
 import VariableDialog from './variableDialog';
 import VariableItem from './VariableItem';
+import { TimeRange, BacktestDataSource } from '@/types/strategy';
+// 导入账户服务
+import { MT5AccountConfig, getAccountConfigs } from './TradeModeSetting/accountService';
 
 
 interface StartNodePanelProps {
@@ -52,13 +55,46 @@ const StartNodePanel: React.FC<StartNodePanelProps> = ({
   const [simulateVariables, setSimulateVariables] = useState<StrategyVarType[]>(strategy?.config?.simulateConfig?.variables || []);
 
   // 回测交易配置
-  const [backtestStartDate] = useState<string>(strategy?.config?.backtestConfig?.backtestStartDate || "");
-  const [backtestEndDate] = useState<string>(strategy?.config?.backtestConfig?.backtestEndDate || "");
+  const [dataSource, setDataSource] = useState<BacktestDataSource>(strategy?.config?.backtestConfig?.dataSource || BacktestDataSource.EXCHANGE);
+  const [timeRange, setTimeRange] = useState<TimeRange>(strategy?.config?.backtestConfig?.timeRange || { startDate: "", endDate: "" });
+  const [fromExchanges, setFromExchanges] = useState<DataSourceExchange[]>(strategy?.config?.backtestConfig?.fromExchanges || []);
   const [backtestVariables, setBacktestVariables] = useState<StrategyVarType[]>(strategy?.config?.backtestConfig?.variables || []);
+  const [initialBalance, setInitialBalance] = useState<number>(strategy?.config?.backtestConfig?.initialBalance || 10000);
+  const [leverage, setLeverage] = useState<number>(strategy?.config?.backtestConfig?.leverage || 10);
+  const [feeRate, setFeeRate] = useState<number>(strategy?.config?.backtestConfig?.feeRate || 0.0001);
+  const [playSpeed, setPlaySpeed] = useState<number>(strategy?.config?.backtestConfig?.playSpeed || 1);
+  
 
   // 变量编辑对话框状态
   const [isVariableDialogOpen, setIsVariableDialogOpen] = useState<boolean>(false);
   const [editingVariable, setEditingVariable] = useState<StrategyVarType | undefined>(undefined);
+
+  // 账户数据获取状态
+  const [availableMT5Accounts, setAvailableMT5Accounts] = useState<MT5AccountConfig[]>([]);
+  const [isLoadingAccounts, setIsLoadingAccounts] = useState<boolean>(false);
+  const [accountError, setAccountError] = useState<string>("");
+
+  // 获取账户数据
+  const fetchAccountConfigs = useCallback(async () => {
+    try {
+      setIsLoadingAccounts(true);
+      setAccountError("");
+      const accounts = await getAccountConfigs();
+      setAvailableMT5Accounts(accounts);
+    } catch (error) {
+      console.error("获取账户配置失败:", error);
+      setAccountError("获取账户列表失败，请稍后重试");
+    } finally {
+      setIsLoadingAccounts(false);
+    }
+  }, []);
+
+  // 初始化时获取账户数据
+  useEffect(() => {
+    if (isEditing) {
+      fetchAccountConfigs();
+    }
+  }, [isEditing, fetchAccountConfigs]);
 
   // 获取当前模式的变量列表
   const getCurrentVariables = () => {
@@ -131,6 +167,11 @@ const StartNodePanel: React.FC<StartNodePanelProps> = ({
     e.preventDefault();
   };
 
+  // 阻止日期选择器和其他组件事件冒泡
+  const preventClosingBubble = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
   // 根据不同的交易模式返回不同的描述文本
   const getTradingModeDescription = (mode: TradeMode) => {
     switch (mode) {
@@ -168,8 +209,13 @@ const StartNodePanel: React.FC<StartNodePanelProps> = ({
         };
       } else if (tradingMode === TradeMode.BACKTEST) {
         updatedStrategy.config.backtestConfig = {
-          backtestStartDate,
-          backtestEndDate,
+          dataSource: dataSource,
+          timeRange: timeRange,
+          fromExchanges: fromExchanges.length > 0 ? fromExchanges : undefined,
+          initialBalance: initialBalance,
+          leverage: leverage,
+          feeRate: feeRate,
+          playSpeed: playSpeed,
           variables: backtestVariables.length > 0 ? backtestVariables : undefined
         };
       }
@@ -215,7 +261,8 @@ const StartNodePanel: React.FC<StartNodePanelProps> = ({
         <DrawerPortal>
           <DrawerOverlay className="!bg-transparent" />
           <DrawerContent
-            className="h-[calc(100vh-2rem)] max-w-[400px] rounded-l-xl shadow-2xl mx-0 my-4"
+            className="h-[calc(100vh-2rem)] w-[500px] max-w-[90vw] rounded-l-xl shadow-2xl mx-0 my-4"
+            onMouseDown={preventClosingBubble}
           >
             <DrawerHeader className="border-b">
               <DrawerTitle>
@@ -250,7 +297,7 @@ const StartNodePanel: React.FC<StartNodePanelProps> = ({
               </DrawerDescription>
             </DrawerHeader>
             
-            <ScrollArea className="flex-1 px-4">
+            <ScrollArea className="h-[calc(100vh-12rem)] px-4">
               <div className="py-6 space-y-6">
                 {/* 策略标题 */}
                 <div className="space-y-2">
@@ -297,9 +344,13 @@ const StartNodePanel: React.FC<StartNodePanelProps> = ({
 
                 {/* 根据交易模式显示对应的账户配置组件 */}
                 {tradingMode === TradeMode.LIVE && (
-                  <LiveAccount 
+                  <LiveModeConfig 
                     liveAccounts={liveAccounts} 
-                    setLiveAccounts={setLiveAccounts} 
+                    setLiveAccounts={setLiveAccounts}
+                    availableMT5Accounts={availableMT5Accounts}
+                    isLoadingAccounts={isLoadingAccounts}
+                    errorMessage={accountError}
+                    onRefreshAccounts={fetchAccountConfigs}
                   />
                 )}
 
@@ -312,14 +363,28 @@ const StartNodePanel: React.FC<StartNodePanelProps> = ({
                 )
                 } */}
 
-                {/* {tradingMode === TradingMode.BACKTEST && (
-                  <BacktestAccount 
-                    backtestStartDate={backtestStartDate}
-                    setBacktestStartDate={setBacktestStartDate}
-                    backtestEndDate={backtestEndDate}
-                    setBacktestEndDate={setBacktestEndDate}
+                {tradingMode === TradeMode.BACKTEST && (
+                  <BacktestModeConfig
+                    backtestDataSource={dataSource}
+                    setBacktestDataSource={setDataSource}
+                    backtestTimeRange={timeRange}
+                    setBacktestTimeRange={setTimeRange}
+                    fromExchanges={fromExchanges}
+                    setFromExchanges={setFromExchanges}
+                    initialBalance={initialBalance}
+                    setInitialBalance={setInitialBalance}
+                    leverage={leverage}
+                    setLeverage={setLeverage}
+                    feeRate={feeRate}
+                    setFeeRate={setFeeRate}
+                    playSpeed={playSpeed}
+                    setPlaySpeed={setPlaySpeed}
+                    availableMT5Accounts={availableMT5Accounts}
+                    isLoadingAccounts={isLoadingAccounts}
+                    errorMessage={accountError}
+                    onRefreshAccounts={fetchAccountConfigs}
                   />
-                )} */}
+                )}
 
                 {/* 策略变量配置 - 所有模式都显示，但内容各自独立 */}
                 <div className="space-y-2">

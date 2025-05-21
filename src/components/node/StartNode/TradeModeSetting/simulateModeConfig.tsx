@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { X, Plus, DollarSign, RefreshCw } from 'lucide-react';
-import { AccountItem } from '@/types/start_node';
+import { AccountItem } from '@/types/node/startNode';
 
 interface SimulateAccountProps {
   simulateAccounts: AccountItem[];

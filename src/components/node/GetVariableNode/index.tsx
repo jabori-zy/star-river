@@ -12,9 +12,9 @@ import { Badge } from "@/components/ui/badge";
 import { TradeMode } from "@/types/node";
 import { useStrategyStore } from "@/store/useStrategyStore";
 import { getTradingModeName, getTradingModeColor } from "@/utils/tradingModeHelper";
-import { StrategySysVariable, GetVariableType } from "@/types/getVariableNode";
+import { StrategySysVariable, GetVariableType } from "@/types/node/getVariableNode";
 import GetVariableNodePanel from './panel';
-import { type GetVariableNode, GetVariableConfig } from "@/types/getVariableNode";
+import { type GetVariableNode, GetVariableConfig } from "@/types/node/getVariableNode";
 
 function GetVariableNode({id, data}:NodeProps<GetVariableNode>) {
     

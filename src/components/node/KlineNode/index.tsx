@@ -9,16 +9,16 @@ import {
 } from '@xyflow/react';
 import { Badge } from '@/components/ui/badge';
 import { LineChart, PencilIcon } from 'lucide-react';
-import LiveDataNodePanel from './panel';
+import KlineNodePanel from './panel';
 import { Button } from '@/components/ui/button';
 import { TradeMode } from '@/types/node';
 import { getTradingModeName, getTradingModeColor } from '@/utils/tradingModeHelper';
 import { Drawer } from '@/components/ui/drawer';
 import { useStrategyStore } from '@/store/useStrategyStore';
-import { type LiveDataNode, type LiveDataNodeData } from '@/types/LiveDataNode';
+import { type KlineNode, type KlineNodeData } from '@/types/node/KlineNode';
 
 
-const LiveDataNode = ({ data, id, isConnectable }: NodeProps<LiveDataNode>) => {
+const KlineNode = ({ data, id, isConnectable }: NodeProps<KlineNode>) => {
   const [isEditing, setIsEditing] = useState(false);
   const [showEditButton, setShowEditButton] = useState(false);
   const [nodeName, setNodeName] = useState<string>(data.nodeName || "数据获取节点");
@@ -27,7 +27,7 @@ const LiveDataNode = ({ data, id, isConnectable }: NodeProps<LiveDataNode>) => {
   const tradingMode = strategy!.tradeMode;
   const { setNodes, updateNodeData } = useReactFlow();
 
-  const handleSave = useCallback((newData: LiveDataNodeData) => {
+  const handleSave = useCallback((newData: KlineNodeData) => {
     // 使用React Flow的setNodes来更新节点数据
     console.log("准备更新节点id", id);
     setNodes(nodes => 
@@ -62,7 +62,7 @@ const LiveDataNode = ({ data, id, isConnectable }: NodeProps<LiveDataNode>) => {
     // 如果策略存在，则正常显示面板
     if (strategy) {
       return (
-        <LiveDataNodePanel
+        <KlineNodePanel
           data={data}
           strategy={strategy}
           isEditing={isEditing}
@@ -180,4 +180,4 @@ const LiveDataNode = ({ data, id, isConnectable }: NodeProps<LiveDataNode>) => {
   );
 };
 
-export default LiveDataNode;
+export default KlineNode;

@@ -26,7 +26,7 @@ function updateIndicatorData(
     const seriesId = indicatorSeriesConfig?.id;
     
     if (seriesId) {
-        const newIndicatorPoint = values[values.length - 1] as number[];    
+        const newIndicatorPoint = values[values.length - 1] as number[];
         const series = chart.get(seriesId) as Highcharts.Series;
         
         if (series && series.visible) {
@@ -157,9 +157,9 @@ function SingleKlineChart(lineChartProps: SingleKlineChartProps) {
                 
                 // 根据数据类型调用相应的更新函数
                 if ("indicator_type" in cacheKey) {
-                    updateIndicatorData(chart, cacheKey as IndicatorCacheKey, values as number[][]);
+                    updateIndicatorData(chart, cacheKey as IndicatorCacheKey, values);
                 } else {
-                    updateKlineData(chart, values as number[][]);
+                    updateKlineData(chart, values);
                 }
             }
         }

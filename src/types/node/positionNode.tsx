@@ -1,5 +1,5 @@
 import { Node } from '@xyflow/react';
-import { SelectedAccount } from './strategy';
+import { SelectedAccount } from '@/types/strategy';
 
 export enum PositionOperationType {
   UPDATE = "update", // 更新仓位

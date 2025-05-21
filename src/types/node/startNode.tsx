@@ -1,4 +1,4 @@
-import { StrategyLiveConfig, StrategySimulateConfig, StrategyBacktestConfig } from "./strategy";
+import { StrategyLiveConfig, StrategySimulateConfig, StrategyBacktestConfig } from "@/types/strategy";
 import { Node } from "@xyflow/react";
 
 // 开始节点数据

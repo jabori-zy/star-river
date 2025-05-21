@@ -9,7 +9,7 @@ import {
 } from '@xyflow/react';
 import { Button } from "@/components/ui/button"
 import { PencilIcon, GitFork } from 'lucide-react';
-import { Condition, CaseItem, VarType, LogicalOperator, ComparisonOperator } from "@/types/ifElseNode";
+import { Condition, CaseItem, VarType, LogicalOperator, ComparisonOperator } from "@/types/node/ifElseNode";
 import { TradeMode } from '@/types/node';
 import IfElseNodePanel from './panel';
 import { Badge } from '@/components/ui/badge';

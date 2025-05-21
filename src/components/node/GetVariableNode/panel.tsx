@@ -19,7 +19,7 @@ import {
     GetVariableConfig,
     GetVariableType,
     TimerConfig
-} from '@/types/getVariableNode';
+} from '@/types/node/getVariableNode';
 import {
     DrawerClose,
     DrawerContent,

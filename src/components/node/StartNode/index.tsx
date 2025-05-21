@@ -8,7 +8,7 @@ import StartNodePanel from './panel';
 import { useReactFlow } from '@xyflow/react';
 import { getTradingModeName, getTradingModeColor } from '@/utils/tradingModeHelper';
 import { useStrategyStore } from '@/store/useStrategyStore';
-import { type StartNode } from '@/types/startNode';
+import { type StartNode } from '@/types/node/startNode';
 import { Strategy } from '@/types/strategy';
 
 

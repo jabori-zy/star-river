@@ -8,10 +8,10 @@ export const nodeCategories = [
       color: "from-[#4776E6]/20 to-[#8E54E9]/20 hover:from-[#4776E6]/30 hover:to-[#8E54E9]/30",
       items: [
         {
-          nodeId: "live_data_node",
-          nodeType: "liveDataNode",
-          nodeName: "实时数据",
-          nodeDescription: "实时数据流",
+          nodeId: "kline_node",
+          nodeType: "klineNode",
+          nodeName: "K线节点",
+          nodeDescription: "获取K线数据",
           nodeColor: "from-[#4776E6]/20 to-[#8E54E9]/20 hover:from-[#4776E6]/30 hover:to-[#8E54E9]/30",
         } as NodeItemProps
       ]
@@ -24,7 +24,7 @@ export const nodeCategories = [
         {
           nodeId: "indicator_node",
           nodeType: "indicatorNode",
-          nodeName: "技术指标",
+          nodeName: "指标节点",
           nodeDescription: "技术分析指标",
           nodeColor: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
         } as NodeItemProps
@@ -38,8 +38,8 @@ export const nodeCategories = [
         {
           nodeId: "if_else_node",
           nodeType: "ifElseNode",
-          nodeName: "条件",
-          nodeDescription: "条件",
+          nodeName: "条件节点",
+          nodeDescription: "条件节点",
           nodeColor: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
         } as NodeItemProps
       ]
@@ -66,8 +66,8 @@ export const nodeCategories = [
         {
           nodeId: "position_node",
           nodeType: "positionNode",
-          nodeName: "仓位管理",
-          nodeDescription: "仓位管理",
+          nodeName: "仓位管理节点",
+          nodeDescription: "仓位管理节点",
           nodeColor: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
         } as NodeItemProps
       ]
@@ -80,8 +80,8 @@ export const nodeCategories = [
         {
           nodeId: "get_variable_node",
           nodeType: "getVariableNode",
-          nodeName: "获取变量",
-          nodeDescription: "获取变量",
+          nodeName: "获取变量节点",
+          nodeDescription: "获取变量节点",
           nodeColor: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
         } as NodeItemProps
       ]

@@ -14,7 +14,7 @@ import {
     PositionLiveConfig,
     PositionSimulateConfig,
     PositionBacktestConfig
-} from "@/types/positionNode";
+} from "@/types/node/positionNode";
 import { Badge } from "@/components/ui/badge";
 import { TradeMode } from "@/types/node";
 import { useStrategyStore } from "@/store/useStrategyStore";

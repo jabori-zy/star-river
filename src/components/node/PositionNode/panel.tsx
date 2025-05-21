@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { PositionNode, PositionOperationConfig, PositionOperationType } from "@/types/positionNode";
+import { PositionNode, PositionOperationConfig, PositionOperationType } from "@/types/node/positionNode";
 import { Strategy, SelectedAccount } from "@/types/strategy";
 import { TradeMode } from "@/types/node";
 import {

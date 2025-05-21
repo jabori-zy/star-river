@@ -24,9 +24,33 @@ export interface StrategySimulateConfig {
 }
 
 // 回测交易配置
+// k线节点回测交易 数据来源
+export enum BacktestDataSource {
+  FILE = "file", // 文件
+  EXCHANGE = "exchange" // 交易所
+}
+
+export type TimeRange = {
+  startDate: string;
+  endDate: string;
+}
+
+// 数据源交易所
+export type DataSourceExchange = {
+  id: number;
+  exchange: Exchange;
+  accountName: string;
+}
+
+// 回测交易配置
 export interface StrategyBacktestConfig {
-  backtestStartDate: string;
-  backtestEndDate: string;
+  dataSource: BacktestDataSource;
+  timeRange?: TimeRange;
+  fromExchanges?: Array<DataSourceExchange>; // 数据来源交易所
+  initialBalance: number; // 初始资金
+  leverage: number; // 杠杆倍数
+  feeRate: number; // 手续费率
+  playSpeed: number; // 回放速度
   variables?: StrategyVariable[]; // 回测策略变量
 }
 

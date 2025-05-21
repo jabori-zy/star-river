@@ -4,14 +4,14 @@ import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, Dr
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { CaseItem, VarType } from "@/types/ifElseNode"
+import { CaseItem, VarType } from "@/types/node/ifElseNode"
 import { TradeMode } from "@/types/node"
 import { X, CreditCard } from 'lucide-react'
 import { Node } from '@xyflow/react';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useStrategyStore } from '@/store/useStrategyStore';
 import { Label } from "@/components/ui/label"
-import { IfElseNodeData } from '@/types/ifElseNode';
+import { IfElseNodeData } from '@/types/node/ifElseNode';
 import ConditionEditor from './ConditionEditor';
 
 interface IfElseNodePanelProps {

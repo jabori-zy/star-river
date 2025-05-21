@@ -1,13 +1,13 @@
 import { Node, useReactFlow } from '@xyflow/react';
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { CaseItem, Condition, ComparisonOperator, VarType, LogicalOperator, RightVariable } from "@/types/ifElseNode"
+import { CaseItem, Condition, ComparisonOperator, VarType, LogicalOperator, RightVariable } from "@/types/node/ifElseNode"
 import { v4 as uuidv4 } from 'uuid';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 import { X, Trash2 } from 'lucide-react'
-import { IndicatorNodeData } from '@/types/indicatorNode';
-import { IndicatorValueItem } from '@/types/indicatorValue';
-import { GetVariableNodeData } from '@/types/getVariableNode';
+import { IndicatorNodeData } from '@/types/node/indicatorNode';
+import { IndicatorValueItem } from '@/types/indicator/indicatorValue';
+import { GetVariableNodeData } from '@/types/node/getVariableNode';
 
 // 渲染带清除按钮的选择器组件
 const renderSelectWithClear = (

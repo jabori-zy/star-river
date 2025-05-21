@@ -1,5 +1,5 @@
-import { IndicatorValue } from "./indicatorValue";
-import { IndicatorType } from "./indicator";
+import { IndicatorValue } from "@/types/indicator/indicatorValue";
+import { IndicatorType } from "@/types/indicator";
 
 // 指标类型枚举
 

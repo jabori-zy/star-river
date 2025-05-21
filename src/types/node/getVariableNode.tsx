@@ -1,5 +1,5 @@
 import { Node } from '@xyflow/react';
-import { SelectedAccount } from './strategy';
+import { SelectedAccount } from '@/types/strategy';
 // 策略系统变量
 export enum StrategySysVariable {
     POSITION_NUMBER = "position_number", // 持仓数量

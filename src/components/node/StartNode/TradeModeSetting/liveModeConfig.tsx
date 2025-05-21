@@ -1,38 +1,33 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { X, Plus, DollarSign, RefreshCw, AlertCircle } from 'lucide-react';
+import { X, Plus, RefreshCw, AlertCircle, DollarSign } from 'lucide-react';
 import { SelectedAccount } from '@/types/strategy';
-import axios from 'axios';
 import { Exchange } from '@/types/common';
+import { MT5AccountConfig } from './accountService';
 
 interface LiveAccountProps {
   liveAccounts: SelectedAccount[];
   setLiveAccounts: (accounts: SelectedAccount[]) => void;
+  availableMT5Accounts: MT5AccountConfig[];
+  isLoadingAccounts: boolean;
+  errorMessage: string;
+  onRefreshAccounts: () => Promise<void>;
 }
 
-interface MT5AccountConfig {
-  id: number;
-  account_name: string;
-  exchange: string;
-  login: number;
-  server: string;
-  terminal_path: string;
-  is_available: boolean;
-  created_time: string;
-}
-
-export const LiveAccount = ({ liveAccounts, setLiveAccounts }: LiveAccountProps) => {
-  const [isLoadingAccounts, setIsLoadingAccounts] = useState<boolean>(false);
+export const LiveModeConfig = ({ 
+  liveAccounts, 
+  setLiveAccounts, 
+  availableMT5Accounts, 
+  isLoadingAccounts, 
+  errorMessage, 
+  onRefreshAccounts 
+}: LiveAccountProps) => {
   // 是否锁定账户选择
   const [isLockedSelect, setIsLockedSelect] = useState<boolean>(true);
-  // 从接口获取的所有MT5账户列表
-  const [availableMT5Accounts, setAvailableMT5Accounts] = useState<MT5AccountConfig[]>([]);
-  // 错误提示
-  const [errorMessage, setErrorMessage] = useState<string>("");
   // 本地维护的账户列表 - 仅在内部使用
   const [localAccounts, setLocalAccounts] = useState<SelectedAccount[]>([]);
 
@@ -55,7 +50,6 @@ export const LiveAccount = ({ liveAccounts, setLiveAccounts }: LiveAccountProps)
       exchange: "" 
     };
     setLocalAccounts(prev => [...prev, newAccount as SelectedAccount]);
-    setErrorMessage("");
     
     // 不需要立即同步到父组件，因为新添加的账户id为0，相当于未选择
   };
@@ -67,7 +61,6 @@ export const LiveAccount = ({ liveAccounts, setLiveAccounts }: LiveAccountProps)
     
     // 不再需要自动添加空账户，允许账户数量为0
     setLocalAccounts(newAccounts);
-    setErrorMessage("");
     
     // 同步到父组件
     const validAccounts = newAccounts.filter(acc => acc.id !== 0);
@@ -84,37 +77,6 @@ export const LiveAccount = ({ liveAccounts, setLiveAccounts }: LiveAccountProps)
     const validAccounts = newAccounts.filter(acc => acc.id !== 0);
     setLiveAccounts(validAccounts);
   };
-
-  // 获取实盘账户配置列表
-  const getMT5AccountConfigs = useCallback(async () => {
-    try {
-      const {data} = await axios.get(`http://localhost:3100/get_account_config?exchange=metatrader5`);
-      const mt5ConfigData = data.data || [];
-      console.log("获取到的MT5账户配置:", mt5ConfigData);
-      
-      // 手动添加延迟以展示加载过程
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      setAvailableMT5Accounts(mt5ConfigData);
-    } catch (error) {
-      console.error("获取MT5账户配置失败:", error);
-      setErrorMessage("获取账户列表失败，请稍后重试");
-    }
-  }, []);
-
-  // 点击刷新按钮时获取最新账户列表
-  const handleFetchMT5Accounts = useCallback(async () => {
-    try {
-      if (isLoadingAccounts) return;
-      setIsLoadingAccounts(true);
-      await getMT5AccountConfigs();
-    } catch (error) {
-      console.error("获取实盘账户失败:", error);
-      setErrorMessage("获取账户列表失败，请稍后重试");
-    } finally {
-      setIsLoadingAccounts(false);
-    }
-  }, [isLoadingAccounts, getMT5AccountConfigs]);
 
   // 获取可用的账户选项
   const getAvailableAccountOptions = (currentIndex: number) => {
@@ -143,7 +105,6 @@ export const LiveAccount = ({ liveAccounts, setLiveAccounts }: LiveAccountProps)
         exchange: selectedAccount.exchange as Exchange,
         availableBalance: 0
       });
-      setErrorMessage("");
     }
   };
 
@@ -200,7 +161,7 @@ export const LiveAccount = ({ liveAccounts, setLiveAccounts }: LiveAccountProps)
             className={`h-4 w-4 p-0 absolute right-7 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity`}
             onClick={(e) => {
               e.stopPropagation();
-              updateLocalAccount(index, { 
+              updateLocalAccount(index, {
                 id: 0,
                 accountName: "",
                 exchange: "" as Exchange
@@ -213,11 +174,6 @@ export const LiveAccount = ({ liveAccounts, setLiveAccounts }: LiveAccountProps)
       </div>
     );
   };
-
-  // 组件挂载时加载账户列表
-  useEffect(() => {
-    handleFetchMT5Accounts();
-  }, []);
 
   return (
     <div className="space-y-2">
@@ -255,7 +211,7 @@ export const LiveAccount = ({ liveAccounts, setLiveAccounts }: LiveAccountProps)
             size="sm" 
             className="h-7 w-7"
             disabled={isLoadingAccounts}
-            onClick={handleFetchMT5Accounts}
+            onClick={onRefreshAccounts}
           >
             {isLoadingAccounts ? (
               <svg className="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24">
@@ -352,4 +308,4 @@ export const LiveAccount = ({ liveAccounts, setLiveAccounts }: LiveAccountProps)
   );
 };
 
-export default LiveAccount; 
+export default LiveModeConfig; 

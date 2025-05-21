@@ -1,6 +1,4 @@
 import {Node} from '@xyflow/react'
-import { StartNodeData } from './startNode';
-import { StrategyLiveConfig, StrategySimulateConfig, StrategyBacktestConfig } from './strategy';
 
 // 交易模式枚举
 export enum TradeMode {

@@ -20,7 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { type Node } from '@xyflow/react';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { TradeMode } from '@/types/node';
-import { LiveDataNodeData } from '@/types/LiveDataNode';
+import { KlineNodeData } from '@/types/LiveDataNode';
 import { getIndicatorValue } from '@/utils/getIndicatorValue';
 
 
@@ -90,7 +90,7 @@ const IndicatorNodePanel = ({
   
   useEffect(() => {
     if (sourceNode && sourceNode.type === 'liveDataNode') {
-      const nodeData = sourceNode.data as LiveDataNodeData;
+      const nodeData = sourceNode.data as KlineNodeData;
       if (nodeData.liveConfig) {
         const {symbol, interval } = nodeData.liveConfig;
         const exchange = nodeData.liveConfig.selectedLiveAccount?.exchange;

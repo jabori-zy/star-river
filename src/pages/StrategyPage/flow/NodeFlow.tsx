@@ -21,9 +21,8 @@ import {
 } from '@xyflow/react';
 
 import '@xyflow/react/dist/style.css';
-import DataFetchNode from '@/components/node/DataFetchNode'; // 数据获取节点
 import IndicatorNode from '@/components/node/IndicatorNode'; // 指标节点
-import LiveDataNode from '@/components/node/LiveDataNode'; // 实时数据节点
+import KlineNode from '@/components/node/KlineNode'; // 实时数据节点
 import StartNode from '@/components/node/StartNode'; // 开始节点
 import { DevTools } from '@/components/node/devtools'; // 开发者工具
 import { useDragAndDrop } from '../useDragAndDrop';
@@ -37,9 +36,8 @@ import GetVariableNode from '@/components/node/GetVariableNode';
 
 const nodeTypes = {
   startNode: StartNode,
-  dataFetchNode: DataFetchNode,
   indicatorNode: IndicatorNode,
-  liveDataNode: LiveDataNode,
+  klineNode: KlineNode,
   ifElseNode: IfElseNode,
   orderNode: OrderNode,
   getPositionNumberNode: GetPositionNumberNode,

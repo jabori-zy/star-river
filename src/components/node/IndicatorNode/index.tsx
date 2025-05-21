@@ -12,9 +12,9 @@ import { Drawer } from "@/components/ui/drawer"
 import { PencilIcon, TrendingUp } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import IndicatorNodePanel from './panel';
-import { IndicatorNodeLiveConfig, IndicatorNodeSimulateConfig, IndicatorNodeBacktestConfig } from '@/types/indicatorNode';
+import { IndicatorNodeLiveConfig, IndicatorNodeSimulateConfig, IndicatorNodeBacktestConfig } from '@/types/node/indicatorNode';
 import { IndicatorType } from '@/types/indicator';
-import { IndicatorValue } from '@/types/indicatorValue';
+import { IndicatorValue } from '@/types/indicator/indicatorValue';
 import { TradeMode } from '@/types/node';
 import { useStrategyStore } from '@/store/useStrategyStore';
 import { getTradingModeName, getTradingModeColor } from '@/utils/tradingModeHelper';
