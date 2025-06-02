@@ -14,15 +14,9 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination"
+import { getStrategyList } from "@/service/strategy";
+import { Strategy } from "@/types/strategy";
 
-interface Strategy {
-  id: number;
-  name: string;
-  description: string;
-  status: 'running' | 'paused' | 'error' | 'draft';
-  created_time: string;
-  updated_time: string;
-}
 
 function StrategyListPage() {
   const [open, setOpen] = useState(false);
@@ -32,36 +26,18 @@ function StrategyListPage() {
   const [isLoading, setIsLoading] = useState(false);
   const ITEMS_PER_PAGE = 5;
 
-  const fetchStrategies = async (page: number) => {
-    setIsLoading(true);
-    try {
-      const response = await fetch(`http://localhost:3100/get_strategy_list?page=${page}&strategy_per_page=${ITEMS_PER_PAGE}`
-      );
-
-      if (!response.ok) {
-        throw new Error('获取策略列表失败');
-      }
-
-      const data = await response.json();
-
-      setStrategies(data.data || []);
-      setTotalPages(data.page_num || 1);
-      
-    } catch (err) {
-      toast.error("加载策略列表失败: " + err);
-      setStrategies([]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchStrategies(currentPage);
+    // fetchStrategies(currentPage);
+    getStrategyList(currentPage, ITEMS_PER_PAGE).then(data => {
+      setStrategies(data);
+    });
   }, [currentPage]);
 
   // 添加删除后的回调函数
   const handleStrategyDelete = () => {
-    fetchStrategies(currentPage); // 重新加载当前页数据
+    getStrategyList(currentPage, ITEMS_PER_PAGE).then(data => {
+      setStrategies(data);
+    });
   };
 
   return (
@@ -82,7 +58,9 @@ function StrategyListPage() {
         onOpenChange={setOpen}
         onSuccess={() => {
           setCurrentPage(1); // 重置到第一页
-          fetchStrategies(1); // 重新加载数据
+          getStrategyList(1, ITEMS_PER_PAGE).then(data => {
+            setStrategies(data);
+          });
         }}
       />
       
@@ -100,7 +78,7 @@ function StrategyListPage() {
                   strategyId={strategy.id}
                   strategyName={strategy.name}
                   strategyDescription={strategy.description}
-                  createTime={strategy.created_time}
+                  createTime={strategy.createTime}
                   strategyStatus="running"
                   onDelete={handleStrategyDelete}
                 />

@@ -15,7 +15,7 @@ import { TradeMode } from '@/types/node';
 import { getTradingModeName, getTradingModeColor } from '@/utils/tradingModeHelper';
 import { Drawer } from '@/components/ui/drawer';
 import { useStrategyStore } from '@/store/useStrategyStore';
-import { type KlineNode, type KlineNodeData } from '@/types/node/KlineNode';
+import { type KlineNode, type KlineNodeData } from '@/types/node/klineNode';
 
 
 const KlineNode = ({ data, id, isConnectable }: NodeProps<KlineNode>) => {
@@ -147,14 +147,14 @@ const KlineNode = ({ data, id, isConnectable }: NodeProps<KlineNode>) => {
           <Handle
             type="target"
             position={Position.Left}
-            id="live_data_node_input"
+            id="kline_node_input"
             className="!w-3 !h-3 !border-2 !border-white !bg-blue-400 !top-[22px]"
             isConnectable={isConnectable}
           />
           <Handle
             type="source"
             position={Position.Right}
-            id="live_data_node_output"
+            id="kline_node_output"
             className="!w-3 !h-3 !border-2 !border-white !bg-blue-400 !top-[22px]"
             isConnectable={isConnectable}
           />

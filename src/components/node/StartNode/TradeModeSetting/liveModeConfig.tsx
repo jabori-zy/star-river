@@ -7,12 +7,12 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { X, Plus, RefreshCw, AlertCircle, DollarSign } from 'lucide-react';
 import { SelectedAccount } from '@/types/strategy';
 import { Exchange } from '@/types/common';
-import { MT5AccountConfig } from './accountService';
+import { MT5Account } from '@/types/account';
 
 interface LiveAccountProps {
   liveAccounts: SelectedAccount[];
   setLiveAccounts: (accounts: SelectedAccount[]) => void;
-  availableMT5Accounts: MT5AccountConfig[];
+  availableMT5Accounts: MT5Account[];
   isLoadingAccounts: boolean;
   errorMessage: string;
   onRefreshAccounts: () => Promise<void>;
@@ -101,7 +101,7 @@ export const LiveModeConfig = ({
     if (selectedAccount) {
       updateLocalAccount(index, { 
         id: numericId,
-        accountName: selectedAccount.account_name,
+        accountName: selectedAccount.accountName,
         exchange: selectedAccount.exchange as Exchange,
         availableBalance: 0
       });
@@ -139,9 +139,9 @@ export const LiveModeConfig = ({
             ) : availableOptions.length > 0 ? (
               availableOptions.map(item => (
                 <SelectItem key={item.id} value={item.id.toString()}>
-                  {item.account_name}
+                  {item.accountName}
                   <Badge variant="outline" className="ml-2">
-                    {item.exchange === "metatrader5" ? "MT5" : item.exchange}
+                    {item.exchange}
                   </Badge>
                 </SelectItem>
               ))

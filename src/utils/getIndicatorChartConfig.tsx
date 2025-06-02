@@ -13,10 +13,10 @@ export interface IndicatorSeriesConfig {
 
 // 获取指标图表中的数据系列配置
 export function getIndicatorChartConfig(indicatorCacheKey: IndicatorCacheKey): IndicatorSeriesConfig | null {
-    switch(indicatorCacheKey.indicator_type) {
+    switch(indicatorCacheKey.indicatorType) {
         case IndicatorType.SMA:
             return {
-                id: `sma-${indicatorCacheKey.indicator_config.period}`,
+                id: `sma-${indicatorCacheKey.indicatorConfig.period}`,
                 type: 'line',
                 name: 'SMA',
                 dataGrouping: {

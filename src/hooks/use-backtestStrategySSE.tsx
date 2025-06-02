@@ -1,10 +1,10 @@
 import { useEffect, useRef } from "react";
-import { useStrategyEventStore } from "@/store/useStrategyEventStore";
-import { LiveStrategyEvent } from "@/types/strategyEvent";
+import { useBacktestStrategyDataStore } from "@/store/useBacktestStrategyDataStore";
+import { BacktestStrategyEvent } from "@/types/strategyEvent";
 
-const useStrategyEventSSE = (strategyId: number, enabled: boolean = true) => {
+const useBacktestStrategyEventSSE = (enabled: boolean = true) => {
   const eventSourceRef = useRef<EventSource | null>(null);
-  const { addEvent, clearEvents } = useStrategyEventStore();
+  const { addData, clearData } = useBacktestStrategyDataStore();
 
   useEffect(() => {
     // 如果未启用，则关闭现有连接并返回
@@ -17,19 +17,21 @@ const useStrategyEventSSE = (strategyId: number, enabled: boolean = true) => {
     }
 
     // 创建 SSE 连接
-    const sse = new EventSource("http://localhost:3100/strategy_sse?strategy_id=" + strategyId);
+    const sse = new EventSource("http://localhost:3100/api/v1/sse/strategy/backtest");
     eventSourceRef.current = sse;
 
     // 处理接收到的消息
     sse.onmessage = (event) => {
       try {
-        const strategyEvent = JSON.parse(event.data) as LiveStrategyEvent;
+        const strategyEvent = JSON.parse(event.data) as BacktestStrategyEvent;
         const eventName = strategyEvent.event_name;
         
         // 确保事件名称有效
-        if (eventName === 'strategy-data-update' || eventName === 'node-message-update') {
+        if (eventName === 'backtest-strategy-data-update') {
+            const cacheKeyStr = strategyEvent.cache_key;
+            const data = strategyEvent.data;
           // 将事件添加到对应的存储中
-          addEvent(eventName, strategyEvent);
+          addData(cacheKeyStr, data);
         } else {
           console.warn('未知的事件类型:', eventName);
         }
@@ -57,13 +59,13 @@ const useStrategyEventSSE = (strategyId: number, enabled: boolean = true) => {
         eventSourceRef.current = null;
       }
     };
-  }, [strategyId, enabled, addEvent]);
+  }, [enabled, addData]);
 
   // 返回可用的操作
   return {
-    clearEvents, // 从 store 重新导出清除方法，方便直接使用
+    clearData, // 从 store 重新导出清除方法，方便直接使用
     isConnected: !!eventSourceRef.current,
   };
 };
 
-export default useStrategyEventSSE;
+export default useBacktestStrategyEventSSE;

@@ -8,23 +8,22 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Calendar, BarChart3 } from 'lucide-react';
+import { EmaConfig } from '@/types/indicator/indicatorConfig';
+import { PriceSource } from '@/types/indicator';
 
 interface EMASettingsProps {
-  config: {
-    period: number;
-    priceSource: string;
-  };
-  onConfigChange: (key: string, value: any) => void;
+  config: EmaConfig;
+  onConfigChange: (key: string, value: number | PriceSource) => void;
 }
 
 const EMASettings = ({ config, onConfigChange }: EMASettingsProps) => {
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* 周期设置 */}
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         <div className="flex items-center gap-2">
-          <Calendar className="h-4 w-4 text-muted-foreground" />
-          <Label className="text-sm font-medium">
+          <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+          <Label className="text-xs font-medium">
             周期
           </Label>
         </div>
@@ -34,36 +33,36 @@ const EMASettings = ({ config, onConfigChange }: EMASettingsProps) => {
           onChange={(e) => onConfigChange('period', parseInt(e.target.value))}
           min={1}
           max={500}
-          className="w-full"
+          className="w-full h-8 text-sm"
         />
-        <p className="text-xs text-muted-foreground">
+        <p className="text-[10px] text-muted-foreground">
           设置指数移动平均线的计算周期，数值越大曲线越平滑
         </p>
       </div>
 
       {/* 价格来源 */}
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         <div className="flex items-center gap-2">
-          <BarChart3 className="h-4 w-4 text-muted-foreground" />
-          <Label className="text-sm font-medium">
+          <BarChart3 className="h-3.5 w-3.5 text-muted-foreground" />
+          <Label className="text-xs font-medium">
             价格来源
           </Label>
         </div>
         <Select
           value={config.priceSource}
-          onValueChange={(value) => onConfigChange('priceSource', value)}
+          onValueChange={(value) => onConfigChange('priceSource', value as PriceSource)}
         >
-          <SelectTrigger className="w-full">
+          <SelectTrigger className="w-full h-8 text-sm">
             <SelectValue placeholder="选择价格来源" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="close">收盘价</SelectItem>
-            <SelectItem value="open">开盘价</SelectItem>
-            <SelectItem value="high">最高价</SelectItem>
-            <SelectItem value="low">最低价</SelectItem>
+            <SelectItem value={PriceSource.CLOSE}>收盘价</SelectItem>
+            <SelectItem value={PriceSource.OPEN}>开盘价</SelectItem>
+            <SelectItem value={PriceSource.HIGH}>最高价</SelectItem>
+            <SelectItem value={PriceSource.LOW}>最低价</SelectItem>
           </SelectContent>
         </Select>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-[10px] text-muted-foreground">
           选择用于计算指数移动平均线的价格数据来源
         </p>
       </div>

@@ -4,14 +4,16 @@ import { Button } from "@/components/ui/button"
 import { PlusIcon } from "lucide-react"
 import { AddAccountPanel } from "./AddAccountPanel"
 import { mt5FormConfig } from "./mt5-form-config"
+import { Account } from "@/types/account"
 
 interface AccountsHeaderProps {
   activeTab: string
-  onAddAccount: (accountData: any) => void
+  onAddAccount: (accountData: Partial<Account>) => void
 }
 
 export function AccountsHeader({ activeTab, onAddAccount }: AccountsHeaderProps) {
-  const handleAddAccount = (values: any) => {
+  const handleAddAccount = (values: Partial<Account>) => {
+    console.log("添加账户数据:", values)
     onAddAccount({
       ...values,
       exchange: activeTab

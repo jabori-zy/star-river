@@ -8,14 +8,12 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Calendar, BarChart3, Gauge } from 'lucide-react';
+import { BollConfig } from '@/types/indicator/indicatorConfig';
+import { PriceSource } from '@/types/indicator';
 
 interface BOLLSettingsProps {
-  config: {
-    period: number;
-    stdDev: number;
-    priceSource: string;
-  };
-  onConfigChange: (key: string, value: any) => void;
+  config: BollConfig;
+  onConfigChange: (key: string, value: number | PriceSource) => void;
 }
 
 const BOLLSettings = ({ config, onConfigChange }: BOLLSettingsProps) => {
@@ -74,16 +72,16 @@ const BOLLSettings = ({ config, onConfigChange }: BOLLSettingsProps) => {
         </div>
         <Select
           value={config.priceSource}
-          onValueChange={(value) => onConfigChange('priceSource', value)}
+          onValueChange={(value) => onConfigChange('priceSource', value as PriceSource)}
         >
           <SelectTrigger className="w-full h-8 text-sm">
             <SelectValue placeholder="选择价格来源" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="close">收盘价</SelectItem>
-            <SelectItem value="open">开盘价</SelectItem>
-            <SelectItem value="high">最高价</SelectItem>
-            <SelectItem value="low">最低价</SelectItem>
+            <SelectItem value={PriceSource.CLOSE}>收盘价</SelectItem>
+            <SelectItem value={PriceSource.OPEN}>开盘价</SelectItem>
+            <SelectItem value={PriceSource.HIGH}>最高价</SelectItem>
+            <SelectItem value={PriceSource.LOW}>最低价</SelectItem>
           </SelectContent>
         </Select>
         <p className="text-[10px] text-muted-foreground">

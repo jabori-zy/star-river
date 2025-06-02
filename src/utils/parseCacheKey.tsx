@@ -43,8 +43,8 @@ export function parseCacheKey(cacheKeyStr: string): KlineCacheKey | IndicatorCac
       exchange: parts[1],
       symbol: parts[2],
       interval: parts[3],
-      indicator_type: indicatorType,
-      indicator_config: indicatorConfig
+      indicatorType: indicatorType,
+      indicatorConfig: indicatorConfig
     } as IndicatorCacheKey;
   } else {
     throw new Error(`不支持的缓存键类型: ${type}`);

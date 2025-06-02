@@ -1,8 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { 
     Handle, 
-    type NodeProps, 
-    type Node,
+    type NodeProps,
     Position,
     useNodeConnections,
     useReactFlow
@@ -12,7 +11,7 @@ import { Drawer } from "@/components/ui/drawer"
 import { PencilIcon, TrendingUp } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import IndicatorNodePanel from './panel';
-import { IndicatorNodeLiveConfig, IndicatorNodeSimulateConfig, IndicatorNodeBacktestConfig } from '@/types/node/indicatorNode';
+import { IndicatorNodeData } from '@/types/node/indicatorNode';
 import { IndicatorType } from '@/types/indicator';
 import { IndicatorValue } from '@/types/indicator/indicatorValue';
 import { TradeMode } from '@/types/node';
@@ -23,79 +22,36 @@ function IndicatorNode({id, data, isConnectable}:NodeProps) {
     const [showEditButton, setShowEditButton] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [nodeName, setNodeName] = useState(data.nodeName as string || "指标节点");
-    const [nodeNameEditing, setNodeNameEditing] = useState(false);
     const [indicatorType, setIndicatorType] = useState<IndicatorType>(
         data.indicatorType as IndicatorType || IndicatorType.SMA
     );
-
-    // const { event: messages, clearNodeMessages } = useStrategyEventContext();
     
-    const [indicatorValue, setIndicatorValue] = useState<IndicatorValue | null>(null);
+    const [indicatorValue, setIndicatorValue] = useState<IndicatorValue | null>(
+        data.indicatorValue as IndicatorValue || null
+    );
     
     // 获取当前策略的交易模式
     const { strategy } = useStrategyStore();
     const tradingMode = strategy?.tradeMode || TradeMode.LIVE;
 
-    // useEffect(() => {
-    //     // 获取实时数据节点的消息
-    //     const indicator_node_message = messages[id];
-    //     if (indicator_node_message && indicator_node_message.length > 0) {
-    //         const lastMessage = indicator_node_message.at(-1);
-    //         if (lastMessage && lastMessage.indicator_data && lastMessage.indicator_data.indicator_value) {
-    //             const newValue = lastMessage.indicator_data.indicator_value;
-    //             setIndicatorValue(newValue);
-    //         }
-    //     }
-
-    //     clearNodeMessages(id);
-    // }, [messages, id, clearNodeMessages]);
-
     const connections = useNodeConnections({
         handleType: 'target',
     });
-    const { updateNodeData, getNode } = useReactFlow();
-
-    let sourceNode: Node | undefined;
-    if (connections.length > 0) {
-        sourceNode = getNode(connections[0].source);
-    }
+    const { updateNodeData } = useReactFlow();
 
     const preventDragHandler = (e: React.MouseEvent | React.DragEvent | React.PointerEvent) => {
         e.stopPropagation();
         e.preventDefault();
     };
 
-    const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setNodeName(e.target.value);
-    };
-
-    const saveNodeName = () => {
+    // 保存节点数据
+    const handleSave = (newData: IndicatorNodeData) => {
         updateNodeData(id, {
-            ...data,
-            nodeName: nodeName
-        });
-        setNodeNameEditing(false);
-    }
-
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-        if (e.key === 'Enter') {
-            saveNodeName();
-            setNodeNameEditing(false);
-        }
-    };
-
-    const handleSave = (newData: Record<string, unknown>) => {
-        // 保存节点数据时，如果有新的指标值，则使用新的指标值
-        // 如果没有，则保留现有的指标值（可能来自实时数据更新）
-        const newIndicatorValue = newData.indicatorValue as IndicatorValue || indicatorValue;
-        
-        updateNodeData(id, {
-            ...data,
             ...newData,
             nodeName: nodeName,
             indicatorType: indicatorType,
-            indicatorValue: newIndicatorValue
         });
+        setIndicatorValue(newData.indicatorValue || null);
         setIsEditing(false);
     };
 
@@ -104,6 +60,8 @@ function IndicatorNode({id, data, isConnectable}:NodeProps) {
         switch (indicatorType) {
             case IndicatorType.SMA:
                 return "简单移动平均线";
+            case IndicatorType.EMA:
+                return "指数移动平均线";
             case IndicatorType.BOLL:
                 return "布林带";
             default:
@@ -116,6 +74,8 @@ function IndicatorNode({id, data, isConnectable}:NodeProps) {
         switch (indicatorType) {
             case IndicatorType.SMA:
                 return "text-purple-500";
+            case IndicatorType.EMA:
+                return "text-green-500";
             case IndicatorType.BOLL:
                 return "text-blue-500";
             default:
@@ -123,33 +83,57 @@ function IndicatorNode({id, data, isConnectable}:NodeProps) {
         }
     };
 
-    // 获取当前模式下的配置
-    const getCurrentModeConfig = (): IndicatorNodeLiveConfig | IndicatorNodeSimulateConfig | IndicatorNodeBacktestConfig => {
-        const defaultConfig = {
-            period: 9,
-            priceSource: "close"
-        };
-        
-        switch (tradingMode) {
-            case TradeMode.LIVE:
-                return (data.liveConfig as IndicatorNodeLiveConfig) || defaultConfig;
-            case TradeMode.SIMULATE:
-                return (data.simulateConfig as IndicatorNodeSimulateConfig) || defaultConfig;
-            case TradeMode.BACKTEST:
-                return (data.backtestConfig as IndicatorNodeBacktestConfig) || defaultConfig;
-            default:
-                return defaultConfig;
-        }
-    };
-
     // 显示当前模式下的配置参数
     const renderConfigInfo = () => {
-        const config = getCurrentModeConfig();
+        const nodeData = data as IndicatorNodeData;
+        let period = "未设置";
         
+        switch (tradingMode) {
+            case TradeMode.LIVE: {
+                // 实盘模式显示交易对和时间间隔
+                const liveConfig = nodeData.liveConfig;
+                if (liveConfig?.symbol && liveConfig?.interval) {
+                    return (
+                        <div className="flex items-center justify-between text-xs mt-0.5">
+                            <span className="text-muted-foreground">交易对:</span>
+                            <span className="font-medium">{liveConfig.symbol} / {liveConfig.interval}</span>
+                        </div>
+                    );
+                } else if (liveConfig?.indicatorConfig && 'period' in liveConfig.indicatorConfig) {
+                    period = liveConfig.indicatorConfig.period.toString();
+                }
+                break;
+            }
+            case TradeMode.SIMULATE: {
+                // 模拟模式显示周期等参数
+                const simulateConfig = nodeData.simulateConfig;
+                if (simulateConfig?.indicatorConfig && 'period' in simulateConfig.indicatorConfig) {
+                    period = simulateConfig.indicatorConfig.period.toString();
+                }
+                break;
+            }
+            case TradeMode.BACKTEST: {
+                // 回测模式显示数据源信息
+                const backtestConfig = nodeData.backtestConfig;
+                if (backtestConfig?.exchangeConfig?.symbol && backtestConfig?.exchangeConfig?.interval) {
+                    return (
+                        <div className="flex items-center justify-between text-xs mt-0.5">
+                            <span className="text-muted-foreground">交易对:</span>
+                            <span className="font-medium">{backtestConfig.exchangeConfig.symbol} / {backtestConfig.exchangeConfig.interval}</span>
+                        </div>
+                    );
+                } else if (backtestConfig?.indicatorConfig && 'period' in backtestConfig.indicatorConfig) {
+                    period = backtestConfig.indicatorConfig.period.toString();
+                }
+                break;
+            }
+        }
+        
+        // 默认显示周期信息
         return (
             <div className="flex items-center justify-between text-xs mt-0.5">
                 <span className="text-muted-foreground">周期:</span>
-                <span className="font-medium">{config.period || "未设置"}</span>
+                <span className="font-medium">{period}</span>
             </div>
         );
     };
@@ -159,8 +143,8 @@ function IndicatorNode({id, data, isConnectable}:NodeProps) {
         if (!indicatorValue) return null;
 
         switch (indicatorType) {
-            case IndicatorType.SMA:
-                const smaValue = (indicatorValue as any).sma?.value;
+            case IndicatorType.SMA: {
+                const smaValue = (indicatorValue as { sma?: { value: number } }).sma?.value;
                 return (
                     <div className="flex flex-col gap-1 mt-2">
                         <div className="flex items-center justify-between">
@@ -179,10 +163,37 @@ function IndicatorNode({id, data, isConnectable}:NodeProps) {
                         </div>
                     </div>
                 );
-            case IndicatorType.BOLL:
-                const upperValue = (indicatorValue as any).upper?.value;
-                const middleValue = (indicatorValue as any).middle?.value;
-                const lowerValue = (indicatorValue as any).lower?.value;
+            }
+            case IndicatorType.EMA: {
+                const emaValue = (indicatorValue as { ema?: { value: number } }).ema?.value;
+                return (
+                    <div className="flex flex-col gap-1 mt-2">
+                        <div className="flex items-center justify-between">
+                            <span className="text-xs text-muted-foreground">EMA:</span>
+                            <span className={`text-sm font-medium ${
+                                emaValue ? (
+                                    emaValue > 0 
+                                        ? 'text-green-500' 
+                                        : emaValue < 0 
+                                            ? 'text-red-500' 
+                                            : 'text-gray-500'
+                                ) : 'text-gray-500'
+                            }`}>
+                                {emaValue?.toFixed(2) || '---'}
+                            </span>
+                        </div>
+                    </div>
+                );
+            }
+            case IndicatorType.BOLL: {
+                const bollValue = indicatorValue as { 
+                    upper?: { value: number }; 
+                    middle?: { value: number }; 
+                    lower?: { value: number } 
+                };
+                const upperValue = bollValue.upper?.value;
+                const middleValue = bollValue.middle?.value;
+                const lowerValue = bollValue.lower?.value;
                 return (
                     <div className="flex flex-col gap-1 mt-2">
                         <div className="flex items-center justify-between">
@@ -205,6 +216,7 @@ function IndicatorNode({id, data, isConnectable}:NodeProps) {
                         </div>
                     </div>
                 );
+            }
             default:
                 return null;
         }
@@ -269,35 +281,33 @@ function IndicatorNode({id, data, isConnectable}:NodeProps) {
                 </div>
             </div>
 
-            <Drawer 
-                open={isEditing} 
-                onOpenChange={setIsEditing} 
-                direction="right"
-                modal={false}
-            >
-                <div 
-                    onDragStart={preventDragHandler}
-                    onDrag={preventDragHandler}
-                    onDragEnd={preventDragHandler}
-                    style={{ isolation: 'isolate' }}
+            {strategy && (
+                <Drawer 
+                    open={isEditing} 
+                    onOpenChange={setIsEditing} 
+                    direction="right"
+                    modal={false}
                 >
-                    <IndicatorNodePanel
-                        data={data}
-                        sourceNode={sourceNode}
-                        setIsEditing={setIsEditing}
-                        handleSave={handleSave}
-                        nodeName={nodeName}
-                        nodeNameEditing={nodeNameEditing}
-                        setNodeNameEditing={setNodeNameEditing}
-                        handleNameChange={handleNameChange}
-                        saveNodeName={saveNodeName}
-                        handleKeyDown={handleKeyDown}
-                        indicatorType={indicatorType}
-                        setIndicatorType={setIndicatorType}
-                        tradingMode={tradingMode}
-                    />
-                </div>
-            </Drawer>
+                    <div 
+                        onDragStart={preventDragHandler}
+                        onDrag={preventDragHandler}
+                        onDragEnd={preventDragHandler}
+                        style={{ isolation: 'isolate' }}
+                    >
+                        <IndicatorNodePanel
+                            data={data as IndicatorNodeData}
+                            strategy={strategy}
+                            isEditing={isEditing}
+                            setIsEditing={setIsEditing}
+                            handleSave={handleSave}
+                            nodeName={nodeName}
+                            onNodeNameChange={setNodeName}
+                            indicatorType={indicatorType}
+                            setIndicatorType={setIndicatorType}
+                        />
+                    </div>
+                </Drawer>
+            )}
         </>
     );
 };

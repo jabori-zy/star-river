@@ -55,10 +55,10 @@ export function renderIndicatorItem(indicatorData: IndicatorCacheKey) {
   return (
     <div className="flex items-center gap-1">
       <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
-        {indicatorData.indicator_type}
+        {indicatorData.indicatorType}
       </Badge>
       <Badge variant="outline" className="bg-pink-50 text-pink-700 border-pink-200">
-        {`period=${indicatorData.indicator_config.period}`}
+        {`period=${indicatorData.indicatorConfig.period}`}
       </Badge>
     </div>
   );

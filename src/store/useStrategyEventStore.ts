@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { StrategyEvent } from '@/types/strategyEvent';
+import { LiveStrategyEvent } from '@/types/strategyEvent';
 
 
 // 定义不同事件的类型
@@ -10,10 +10,10 @@ const MAX_CACHE_SIZE = 20;
 
 interface StrategyEventState {
   // 按事件名称存储的事件列表
-  events: Record<EventName, StrategyEvent[]>;
+  events: Record<EventName, LiveStrategyEvent[]>;
   
   // 添加新事件到指定事件类型的缓存中，自动控制缓存大小
-  addEvent: (eventName: EventName, event: StrategyEvent) => void;
+  addEvent: (eventName: EventName, event: LiveStrategyEvent) => void;
   
   // 清空特定事件类型的所有事件
   clearEvents: (eventName: EventName) => void;
@@ -22,10 +22,10 @@ interface StrategyEventState {
   clearAllEvents: () => void;
   
   // 获取指定事件类型的最新事件
-  getLatestEvent: (eventName: EventName) => StrategyEvent | undefined;
+  getLatestEvent: (eventName: EventName) => LiveStrategyEvent | undefined;
 
   // 获取所有的策略事件
-  getAllEvents: () => Record<EventName, StrategyEvent[]>;
+  getAllEvents: () => Record<EventName, LiveStrategyEvent[]>;
 }
 
 export const useStrategyEventStore = create<StrategyEventState>((set, get) => ({

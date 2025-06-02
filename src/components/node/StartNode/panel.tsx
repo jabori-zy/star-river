@@ -18,8 +18,8 @@ import VariableDialog from './variableDialog';
 import VariableItem from './VariableItem';
 import { TimeRange, BacktestDataSource } from '@/types/strategy';
 // 导入账户服务
-import { MT5AccountConfig, getAccountConfigs } from './TradeModeSetting/accountService';
-
+import { getAccountConfigs } from "@/service/account"
+import { MT5Account } from "@/types/account"
 
 interface StartNodePanelProps {
   strategy: Strategy | undefined;
@@ -70,7 +70,7 @@ const StartNodePanel: React.FC<StartNodePanelProps> = ({
   const [editingVariable, setEditingVariable] = useState<StrategyVarType | undefined>(undefined);
 
   // 账户数据获取状态
-  const [availableMT5Accounts, setAvailableMT5Accounts] = useState<MT5AccountConfig[]>([]);
+  const [availableMT5Accounts, setAvailableMT5Accounts] = useState<MT5Account[]>([]);
   const [isLoadingAccounts, setIsLoadingAccounts] = useState<boolean>(false);
   const [accountError, setAccountError] = useState<string>("");
 
@@ -79,7 +79,8 @@ const StartNodePanel: React.FC<StartNodePanelProps> = ({
     try {
       setIsLoadingAccounts(true);
       setAccountError("");
-      const accounts = await getAccountConfigs();
+      const accounts = await getAccountConfigs("metatrader5");
+      // console.log("获取到的MT5账户配置:", accounts);
       setAvailableMT5Accounts(accounts);
     } catch (error) {
       console.error("获取账户配置失败:", error);

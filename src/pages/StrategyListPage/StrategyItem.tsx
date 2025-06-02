@@ -24,7 +24,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
 import { StrategyItemProps } from "@/types/strategy";
-
+import { deleteStrategy } from "@/service/strategy";
 
 
 export function StrategyItem({ strategyId, strategyName, strategyDescription, strategyStatus, createTime, onDelete }: StrategyItemProps) {
@@ -61,9 +61,7 @@ export function StrategyItem({ strategyId, strategyName, strategyDescription, st
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
-      await fetch(`${import.meta.env.VITE_API_URL}/delete_strategy?id=${strategyId}`, {
-        method: 'DELETE',
-      });
+      await deleteStrategy(strategyId)
       toast.success("策略已删除");
       onDelete();
     } catch (error) {

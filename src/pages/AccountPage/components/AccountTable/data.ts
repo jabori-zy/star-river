@@ -13,7 +13,7 @@ const mt5AccountsBase: MT5Account[] = [
     margin: 325.30,
     status: "normal",
     enabled: true,
-    createdTime: "2023-01-10",
+    creatTime: "2023-01-10",
   },
   {
     id: "mt5-489e1d42",
@@ -26,7 +26,7 @@ const mt5AccountsBase: MT5Account[] = [
     margin: 520.45,
     status: "warning",
     enabled: true,
-    createdTime: "2023-01-12",
+    creatTime: "2023-01-12",
   },
   {
     id: "mt5-590a6f52",
@@ -39,7 +39,7 @@ const mt5AccountsBase: MT5Account[] = [
     margin: 750.25,
     status: "normal",
     enabled: true,
-    createdTime: "2023-01-14",
+    creatTime: "2023-01-14",
   },
   {
     id: "mt5-a9f88fdc",
@@ -52,7 +52,7 @@ const mt5AccountsBase: MT5Account[] = [
     margin: 825.50,
     status: "error",
     enabled: false,
-    createdTime: "2023-01-15",
+    creatTime: "2023-01-15",
   },
   {
     id: "mt5-28c6b570",
@@ -65,7 +65,7 @@ const mt5AccountsBase: MT5Account[] = [
     margin: 450.25,
     status: "normal",
     enabled: true,
-    createdTime: "2023-01-17",
+    creatTime: "2023-01-17",
   },
 ]
 
@@ -81,7 +81,7 @@ const binanceAccountsBase: BinanceAccount[] = [
     tradingAllowed: true,
     status: "normal",
     enabled: true,
-    createdTime: "2023-02-10",
+    creatTime: "2023-02-10",
   },
   {
     id: "bnc-489e1d42",
@@ -93,7 +93,7 @@ const binanceAccountsBase: BinanceAccount[] = [
     tradingAllowed: true,
     status: "warning",
     enabled: true,
-    createdTime: "2023-02-12",
+    creatTime: "2023-02-12",
   },
   {
     id: "bnc-590a6f52",
@@ -105,7 +105,7 @@ const binanceAccountsBase: BinanceAccount[] = [
     tradingAllowed: true,
     status: "normal",
     enabled: true,
-    createdTime: "2023-02-14",
+    creatTime: "2023-02-14",
   },
   {
     id: "bnc-a9f88fdc",
@@ -117,7 +117,7 @@ const binanceAccountsBase: BinanceAccount[] = [
     tradingAllowed: false,
     status: "inactive",
     enabled: false,
-    createdTime: "2023-02-15",
+    creatTime: "2023-02-15",
   },
 ]
 
@@ -133,7 +133,7 @@ const okxAccountsBase: OKXAccount[] = [
     availableBalance: 17800.25,
     status: "normal",
     enabled: true,
-    createdTime: "2023-03-10",
+    creatTime: "2023-03-10",
   },
   {
     id: "okx-489e1d42",
@@ -145,7 +145,7 @@ const okxAccountsBase: OKXAccount[] = [
     availableBalance: 9200.50,
     status: "warning",
     enabled: true,
-    createdTime: "2023-03-12",
+    creatTime: "2023-03-12",
   },
   {
     id: "okx-590a6f52",
@@ -157,7 +157,7 @@ const okxAccountsBase: OKXAccount[] = [
     availableBalance: 21500.25,
     status: "error",
     enabled: false,
-    createdTime: "2023-03-14",
+    creatTime: "2023-03-14",
   },
 ]
 
@@ -220,7 +220,7 @@ function generateMT5Accounts(count: number): MT5Account[] {
       margin: parseFloat(randomMargin.toFixed(2)),
       status: randomStatus,
       enabled: Math.random() > 0.2, // 80%概率为true
-      createdTime: randomDate,
+      creatTime: randomDate,
     })
   }
   
@@ -248,7 +248,7 @@ function generateBinanceAccounts(count: number): BinanceAccount[] {
       tradingAllowed: Math.random() > 0.1, // 90%概率为true
       status: randomStatus,
       enabled: Math.random() > 0.2, // 80%概率为true
-      createdTime: randomDate,
+      creatTime: randomDate,
     })
   }
   
@@ -276,7 +276,7 @@ function generateOKXAccounts(count: number): OKXAccount[] {
       availableBalance: parseFloat(randomAvailableBalance.toFixed(2)),
       status: randomStatus,
       enabled: Math.random() > 0.2, // 80%概率为true
-      createdTime: randomDate,
+      creatTime: randomDate,
     })
   }
   

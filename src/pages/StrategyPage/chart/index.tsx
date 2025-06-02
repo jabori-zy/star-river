@@ -108,7 +108,7 @@ export default function StrategyChartContent({ strategyId }: StrategyChartConten
     return getIndicatorOptionsForKline(klineKey, cacheKeys).map(option => {
       // 将指标数据转换为字符串标签
       const indicatorData = option.data;
-      const label = `${indicatorData.indicator_type} (${indicatorData.indicator_config.period})`;
+      const label = `${indicatorData.indicatorType} (${indicatorData.indicatorConfig.period})`;
       return {
         value: option.key,
         label: label
@@ -212,7 +212,7 @@ export default function StrategyChartContent({ strategyId }: StrategyChartConten
     if (!key || !cacheKeys[key]) return key;
     
     const indicatorData = cacheKeys[key] as IndicatorCacheKey;
-    return `${indicatorData.indicator_type} (${indicatorData.indicator_config.period})`;
+    return `${indicatorData.indicatorType} (${indicatorData.indicatorConfig.period})`;
   };
 
   // 保存图表配置

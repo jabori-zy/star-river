@@ -76,6 +76,10 @@ const data = {
         {
           title: "账户",
           url: "/account",
+        },
+        {
+          title: "回测",
+          url: "/backtest",
         }
 
       ],

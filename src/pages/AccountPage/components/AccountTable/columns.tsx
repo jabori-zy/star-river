@@ -28,6 +28,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { startMt5Terminal } from "@/service/account"
+import { deleteAccountConfig } from "@/service/account"
 
 // 格式化日期时间
 const formatDateTime = (dateTimeStr: string) => {
@@ -309,22 +311,23 @@ export const mt5Columns: ColumnDef<MT5Account>[] = [
       const account = row.original
       // 启动客户端
       const handleStartTerminal = async (account_id: number) => {
-        // 调用API启动客户端
-        const requestBody = {
-          account_id: account_id
-        }
-        const {data} = await axios.post(`http://localhost:3100/login_mt5_account`, requestBody, {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        })
-        console.log(data)
+        startMt5Terminal(account_id)
+        // // 调用API启动客户端
+        // const requestBody = {
+        //   account_id: account_id
+        // }
+        // const {data} = await axios.post(`http://localhost:3100/login_mt5_account`, requestBody, {
+        //   headers: {
+        //     'Content-Type': 'application/json'
+        //   }
+        // })
+        // console.log(data)
       }
       // 删除账户
       const handleDeleteAccount = async (id: number) => {
         console.log(`删除账户 ${id}`)
         // 调用API删除账户
-        const {data} = await axios.delete(`http://localhost:3100/delete_account_config?id=${id}`)
+        const {data} = await deleteAccountConfig(id)
         console.log(data)
         // 删除后刷新页面
         window.location.reload()

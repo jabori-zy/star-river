@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner"
-
+import { createStrategy } from "@/service/strategy"
 
 interface CreateStrategyDialogProps {
   open: boolean;
@@ -33,29 +33,28 @@ const CreateStrategyDialog = ({ open, onOpenChange, onSuccess }: CreateStrategyD
     setIsLoading(true);
     
     try {
-      const response = await fetch('http://localhost:3100/create_strategy', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: strategyName.trim(),
-          description: description.trim(),
-          status: 1
-        })
-      });
+      const strategy = await createStrategy(strategyName.trim(), description.trim())
+      // const response = await fetch('http://localhost:3100/create_strategy', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({
+      //     name: strategyName.trim(),
+      //     description: description.trim(),
+      //     status: 1
+      //   })
+      // });
 
-      if (!response.ok) {
-        throw new Error('保存失败');
+      if (!strategy) {
+        throw new Error('创建策略失败');
       }
 
-      const strategyData = await response.json();
-      
       toast.success("创建成功");
 
       navigate("/node", {
         state: { 
-          strategyId: strategyData.data.id,
+          strategyId: strategy.id,
           strategyName: strategyName.trim(),
           description: description.trim()
         }

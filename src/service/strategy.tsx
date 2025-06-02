@@ -9,7 +9,24 @@ import { useStrategyStore } from "@/store/useStrategyStore";
 
 // 正确使用Vite环境变量的方式
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3100';
-console.log("API基础URL:", API_BASE_URL);
+const ROUTER = "strategy"
+const API_VERSION = "api/v1"
+
+const API_URL = `${API_BASE_URL}/${API_VERSION}/${ROUTER}`
+
+
+export async function getStrategyList(page: number, strategy_per_page: number): Promise<Strategy[]> {
+  try {
+    const response = await axios.get(`${API_URL}?page=${page}&strategy_per_page=${strategy_per_page}`);
+    return response.data["data"] as Strategy[];
+  } catch (error) {
+    console.error('获取策略列表错误:', error);
+    throw error;
+  }
+}
+
+
+
 
 interface UpdateOptions {
   onSuccess?: () => void;
@@ -23,8 +40,8 @@ interface UpdateOptions {
  */
 export async function getStrategyById(strategyId: number): Promise<Strategy> {
   try {
-    console.log(`${API_BASE_URL}/get_strategy?id=${strategyId}`);
-    const response = await axios.get(`${API_BASE_URL}/get_strategy?id=${strategyId}`);
+    console.log(`${API_URL}/${strategyId}`);
+    const response = await axios.get(`${API_URL}/${strategyId}`);
     
     if (response.status !== 200) {
       throw new Error(`获取策略失败: ${response.status}`);
@@ -99,22 +116,20 @@ export async function getAllStrategies(): Promise<Strategy[]> {
  * 创建新策略
  */
 export async function createStrategy(
-  strategyData: Omit<Strategy, 'id' | 'createTime' | 'updateTime'>, 
+  strategyName: string,
+  strategyDescription: string,
   options?: UpdateOptions
 ): Promise<Strategy> {
   try {
-    const response = await axios.post(`${API_BASE_URL}/create_strategy`, {
-      name: strategyData.name,
-      description: strategyData.description,
-      is_deleted: strategyData.isDeleted,
-      trade_mode: strategyData.tradeMode,
-      config: strategyData.config,
-      nodes: strategyData.nodes,
-      edges: strategyData.edges,
-      status: strategyData.status,
+    const response = await axios.post(`${API_URL}`, {
+      name: strategyName,
+      description: strategyDescription,
+      status: 1
     });
+
+    console.log("创建策略响应", response);
     
-    if (response.status !== 200) {
+    if (response.status !== 201) {
       throw new Error(`创建策略失败: ${response.status}`);
     }
     
@@ -169,8 +184,7 @@ export async function updateStrategy(
     // console.log("requestBody", requestBody);
     
     // 使用POST方法以匹配组件中的用法
-    const response = await axios.post(`${API_BASE_URL}/update_strategy`, {
-      id: strategyId,
+    const response = await axios.post(`${API_URL}/${strategyId}`, {
       ...requestBody
     });
     
@@ -214,7 +228,7 @@ export async function deleteStrategy(
   options?: UpdateOptions
 ): Promise<boolean> {
   try {
-    const response = await axios.delete(`${API_BASE_URL}/delete_strategy?id=${strategyId}`);
+    const response = await axios.delete(`${API_URL}/${strategyId}`);
     
     if (response.status !== 200) {
       throw new Error(`删除策略失败: ${response.status}`);

@@ -2,8 +2,10 @@
 export interface BaseAccount {
   id: number
   accountName: string
+  exchange: string
   isAvailable: boolean
-  createdTime: string
+  creatTime: string
+  updatedTime: string
 }
 
 // Metatrader5特有属性
@@ -17,7 +19,6 @@ export interface MT5Account extends BaseAccount {
   margin: number | null
   terminalStatus: string
   eaStatus: string
-  
 }
 
 // Binance特有属性

@@ -1,6 +1,7 @@
 import { IndicatorValue } from "@/types/indicator/indicatorValue";
-import { IndicatorType } from "@/types/indicator";
-
+import { IndicatorType, IndicatorConfig } from "@/types/indicator";
+import { TimeRange, BacktestDataSource } from "@/types/strategy";
+import { Exchange } from "@/types/common";
 // 指标类型枚举
 
 
@@ -13,23 +14,37 @@ export type IndicatorParam = {
 
 // 实盘交易指标配置
 export type IndicatorNodeLiveConfig = {
-    period?: number;  // 周期
-    stdDev?: number;  // 标准差倍数（布林带）
-    priceSource?: string;  // 价格来源
+    exchange?: string;  // 交易所
+    symbol?: string;  // 交易对
+    interval?: string;  // 时间周期
+    indicatorConfig: IndicatorConfig; // 指标配置
 }
 
 // 模拟交易指标配置
 export type IndicatorNodeSimulateConfig = {
-    period?: number;  // 周期
-    stdDev?: number;  // 标准差倍数（布林带）
-    priceSource?: string;  // 价格来源
+    indicatorConfig: IndicatorConfig; // 指标配置
 }
 
-// 回测指标配置
+
+export type IndicatorNodeBacktestFileConfig = {
+    filePath: string; // 文件路径
+}
+
+
+// 回测交易 交易所配置
+export type IndicatorNodeBacktestExchangeConfig = {
+    exchange: Exchange; // 交易所
+    symbol: string; // 交易对
+    interval: string; // 时间周期
+    timeRange: TimeRange; // 时间范围
+}
+
+// 指标节点回测模式配置
 export type IndicatorNodeBacktestConfig = {
-    period?: number;  // 周期
-    stdDev?: number;  // 标准差倍数（布林带）
-    priceSource?: string;  // 价格来源
+    dataSource: BacktestDataSource; // 数据来源
+    fileConfig?: IndicatorNodeBacktestFileConfig; // 文件数据源配置
+    exchangeConfig?: IndicatorNodeBacktestExchangeConfig; // 交易所数据源配置
+    indicatorConfig: IndicatorConfig; // 指标配置
 }
 
 // 指标节点数据类型
@@ -40,5 +55,4 @@ export type IndicatorNodeData = {
     liveConfig?: IndicatorNodeLiveConfig;    // 实盘交易配置
     simulateConfig?: IndicatorNodeSimulateConfig;  // 模拟交易配置
     backtestConfig?: IndicatorNodeBacktestConfig;  // 回测交易配置
-
-} 
+}

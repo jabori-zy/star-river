@@ -20,8 +20,8 @@ export type IndicatorCacheKey = {
     exchange: string;
     symbol: string;
     interval: string;
-    indicator_type: IndicatorType;
-    indicator_config: IndicatorConfig;
+    indicatorType: IndicatorType;
+    indicatorConfig: IndicatorConfig;
 }
 
 

@@ -15,7 +15,7 @@ import {
 import DatePickerWithInput from "@/components/ui/date-picker-with-input";
 import { Input } from "@/components/ui/input";
 import SliderWithTick from "@/components/custom/slider-with-tick";
-import { MT5AccountConfig } from './accountService';
+import { MT5Account } from '@/types/account';
 
 interface BacktestAccountProps {
   backtestDataSource: BacktestDataSource;
@@ -32,7 +32,7 @@ interface BacktestAccountProps {
   setFeeRate?: (value: number) => void;
   playSpeed?: number;
   setPlaySpeed?: (value: number) => void;
-  availableMT5Accounts: MT5AccountConfig[];
+  availableMT5Accounts: MT5Account[];
   isLoadingAccounts: boolean;
   errorMessage: string;
   onRefreshAccounts: () => Promise<void>;
@@ -139,7 +139,7 @@ export const BacktestModeConfig = ({
     if (selectedAccount) {
       updateLocalAccount(index, { 
         id: numericId,
-        accountName: selectedAccount.account_name,
+        accountName: selectedAccount.accountName,
         exchange: selectedAccount.exchange as Exchange,
       });
     }
@@ -176,7 +176,7 @@ export const BacktestModeConfig = ({
             ) : availableOptions.length > 0 ? (
               availableOptions.map(item => (
                 <SelectItem key={item.id} value={item.id.toString()}>
-                  {item.account_name}
+                  {item.accountName}
                   <Badge variant="outline" className="ml-2">
                     {item.exchange === "metatrader5" ? "MT5" : item.exchange}
                   </Badge>

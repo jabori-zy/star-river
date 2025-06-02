@@ -69,7 +69,7 @@ const useAccountSSE = () => {
     const [accountEventData, setAccountEventData] = useState<AccountEvent | null>(null);
 
     useEffect(() => {
-        const sse = new EventSource("http://localhost:3100/account_sse");
+        const sse = new EventSource("http://localhost:3100/api/v1/sse/account");
         
         sse.onmessage = (event) => {
             try {

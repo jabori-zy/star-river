@@ -9,10 +9,10 @@ import { Badge } from "@/components/ui/badge"
 import { AccountsHeader } from "./components/AccountsHeader"
 import { Toaster } from "sonner"
 import axios from "axios"
-import { MT5Account } from "@/types/account"
+import { MT5Account, Account } from "@/types/account"
 import useAccountSSE, { AccountInfo } from "@/hooks/use-accountSSE"
 import React from "react"
-import { getAccountConfigByExchange } from "@/service/account"
+import { getAccountConfigs, addAccountConfig } from "@/service/account"
 
 // 定义账户类型
 type AccountType = {
@@ -66,7 +66,8 @@ export default function AccountPage() {
 
   // 获取账户数据
   const getAccountConfig = useCallback(async (exchange: string) => {
-    const accountData = await getAccountConfigByExchange(exchange)
+    const accountData = await getAccountConfigs(exchange)
+    console.log("获取到的账户数据:", accountData)
     if (exchange === "metatrader5") {
       setMt5AccountData(accountData)
     }
@@ -110,7 +111,7 @@ export default function AccountPage() {
               margin: accountUpdateMessage.account_info.info.margin,
               terminalStatus: accountUpdateMessage.account_info.info.terminal_connected ? "connected" : "disconnected",
               eaStatus: accountUpdateMessage.account_info.info.trade_allowed ? "open" : "close",
-              createdTime: accountUpdateMessage.account_info.create_time,
+              creatTime: accountUpdateMessage.account_info.create_time,
               // 其他字段保持不变
             };
           }
@@ -129,11 +130,11 @@ export default function AccountPage() {
     // 根据选中的标签页，获取对应的账户数据
     setActiveTab(value)
     // 根据选中的标签页，获取对应的账户数据
-    getAccountConfigByExchange(value)
+    getAccountConfigs(value)
   }
   
   // 处理添加账户
-  const handleAddMt5Account = (accountData: {
+  const handleAddMt5Account = async (mt5AccountConfig: {
     accountName: string,
     exchange: string,
     login: string,
@@ -141,37 +142,19 @@ export default function AccountPage() {
     server: string,
     terminalPath: string
   }) => {
-    console.log("添加MT5账户数据:", accountData)
-    
-    // 构建请求数据，格式化为正确的 JSON 格式
-    const requestData = {
-      account_name: accountData.accountName,
-      exchange: accountData.exchange,
-      account_config: {
-        login: accountData.login,
-        password: accountData.password,
-        server: accountData.server,
-        terminal_path: accountData.terminalPath
-      }
+    console.log("添加MT5账户数据:", mt5AccountConfig)
+    const accountConfig = {
+      login: mt5AccountConfig.login,
+      password: mt5AccountConfig.password,
+      server: mt5AccountConfig.server,
+      terminal_path: mt5AccountConfig.terminalPath
     }
-    
-    console.log("发送请求数据:", requestData)
-   
-    // 发送 POST 请求，指定 Content-Type 为 application/json
-    axios.post("http://localhost:3100/add_account_config", requestData, {
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    }).then((res) => {
-      // 如果添加成功，则刷新账户数据
-      if (res.data.code === 200) {
-        getAccountConfigByExchange(activeTab)
-        // 刷新页面
-        window.location.reload()
-      }
-    }).catch(error => {
-      console.error("添加账户失败:", error)
-    })
+    const res = await addAccountConfig(mt5AccountConfig.accountName, mt5AccountConfig.exchange, accountConfig)
+    console.log("添加账户配置成功:", res)
+    if (res.code === 200) {
+      // 刷新页面
+      window.location.reload()
+    }
   }
     
   
