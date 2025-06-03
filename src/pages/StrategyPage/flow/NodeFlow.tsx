@@ -33,7 +33,7 @@ import OrderNode from '@/components/node/OrderNode';
 import GetPositionNumberNode from '@/components/node/GetPositionNumberNode';
 import PositionNode from '@/components/node/PositionNode';
 import GetVariableNode from '@/components/node/GetVariableNode';
-
+import ExampleNode from '@/components/node/BaseNode/example';
 const nodeTypes = {
   startNode: StartNode,
   indicatorNode: IndicatorNode,
@@ -43,6 +43,7 @@ const nodeTypes = {
   getPositionNumberNode: GetPositionNumberNode,
   positionNode: PositionNode,
   getVariableNode: GetVariableNode,
+  exampleNode: ExampleNode,
 };
 
 export default function NodeFlow({strategy}:{strategy:Strategy}) {
