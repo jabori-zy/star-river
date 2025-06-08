@@ -15,13 +15,12 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { X } from 'lucide-react';
 import { TradeMode } from "@/types/node";
-import { Strategy } from "@/types/strategy";
-import { type OrderNodeData} from "@/types/orderNode";
+import { Strategy, DataSourceExchange, BacktestDataSource } from "@/types/strategy";
+import { type OrderNodeData} from "@/types/node/orderNode";
 
 interface OrderNodePanelProps {
     data: OrderNodeData['data'];
     strategy: Strategy | undefined;
-    isEditing: boolean;
     setIsEditing: (value: boolean) => void;
     handleSave: (data: OrderNodeData['data']) => void;
     nodeName: string;
@@ -31,7 +30,6 @@ interface OrderNodePanelProps {
 const OrderNodePanel = ({
     data,
     strategy,
-    isEditing,
     setIsEditing,
     handleSave,
     nodeName,
@@ -48,6 +46,11 @@ const OrderNodePanel = ({
     // 策略中的账户
     const strategyLiveAccounts = strategy?.config.liveConfig?.liveAccounts || [];
     const strategySimulateAccounts = strategy?.config.simulateConfig?.simulateAccounts || [];
+    
+    // 策略中的回测数据源交易所和数据源类型
+    const backtestFromExchanges = strategy?.config.backtestConfig?.fromExchanges || [];
+    const backtestDataSource = strategy?.config.backtestConfig?.dataSource;
+    const _backtestTimeRange = strategy?.config.backtestConfig?.timeRange;
 
     // 实盘交易配置
     const [liveSymbol, setLiveSymbol] = useState<string>(data.liveConfig?.orderConfig?.symbol || "BTCUSDT");
@@ -74,13 +77,20 @@ const OrderNodePanel = ({
     );
 
     // 回测交易配置
-    const [backtestSymbol, setBacktestSymbol] = useState<string>(data.backtestConfig?.orderConfig?.symbol || "BTCUSDT");
+    const [backtestSymbol, setBacktestSymbol] = useState<string>(
+        data.backtestConfig?.exchangeConfig?.symbol || data.backtestConfig?.orderConfig?.symbol || "BTCUSDT"
+    );
     const [backtestOrderType, setBacktestOrderType] = useState<string>(data.backtestConfig?.orderConfig?.orderType || "limit");
     const [backtestOrderSide, setBacktestOrderSide] = useState<string>(data.backtestConfig?.orderConfig?.orderSide || "long");
     const [backtestPrice, setBacktestPrice] = useState<number>(data.backtestConfig?.orderConfig?.price || 0);
     const [backtestQuantity, setBacktestQuantity] = useState<number>(data.backtestConfig?.orderConfig?.quantity || 0);
     const [backtestTp, setBacktestTp] = useState<number | null>(data.backtestConfig?.orderConfig?.tp || null);
     const [backtestSl, setBacktestSl] = useState<number | null>(data.backtestConfig?.orderConfig?.sl || null);
+    
+    // 回测数据源交易所选择
+    const [backtestSelectedDataSource, setBacktestSelectedDataSource] = useState<string | undefined>(
+        data.backtestConfig?.exchangeConfig?.selectedDataSource ? JSON.stringify(data.backtestConfig.exchangeConfig.selectedDataSource) : undefined
+    );
 
     // 获取交易模式的描述文本
     const getTradingModeDescription = (mode: TradeMode) => {
@@ -163,8 +173,10 @@ const OrderNodePanel = ({
 
         // 更新回测交易配置
         if (currentTradeMode === TradeMode.BACKTEST || data.backtestConfig) {
+            const selectedDataSourceObj = backtestSelectedDataSource ? JSON.parse(backtestSelectedDataSource) : null;
             updatedData.backtestConfig = {
                 ...data.backtestConfig,
+                dataSource: backtestDataSource || BacktestDataSource.EXCHANGE,
                 orderConfig: {
                     ...data.backtestConfig?.orderConfig,
                     symbol: backtestSymbol,
@@ -176,6 +188,15 @@ const OrderNodePanel = ({
                     sl: backtestSl,
                 }
             };
+
+            // 如果数据源是交易所，则设置exchangeConfig
+            if (backtestDataSource === BacktestDataSource.EXCHANGE && selectedDataSourceObj && _backtestTimeRange) {
+                updatedData.backtestConfig.exchangeConfig = {
+                    selectedDataSource: selectedDataSourceObj,
+                    symbol: backtestSymbol,
+                    timeRange: _backtestTimeRange
+                };
+            }
         }
 
         handleSave(updatedData);
@@ -604,6 +625,49 @@ const OrderNodePanel = ({
                     {/* 回测交易配置 */}
                     {currentTradeMode === TradeMode.BACKTEST && (
                         <>
+                            {/* 回测数据来源显示 */}
+                            <div className="mb-6">
+                                <h3 className="text-sm font-medium text-gray-500 mb-3">回测数据来源</h3>
+                                <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                    <div className="text-sm font-medium text-blue-700">
+                                        {backtestDataSource === BacktestDataSource.FILE ? "数据来源：自定义文件" : "数据来源：交易所"}
+                                    </div>
+                                    <div className="text-xs text-blue-600 mt-1">
+                                        {backtestDataSource === BacktestDataSource.FILE 
+                                            ? "使用用户上传的历史数据文件进行回测" 
+                                            : "使用从交易所获取的历史数据进行回测"}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* 数据源交易所选择 - 仅当数据源为交易所时显示 */}
+                            {backtestDataSource === BacktestDataSource.EXCHANGE && (
+                                <div className="mb-6">
+                                    <h3 className="text-sm font-medium text-gray-500 mb-3">数据源交易所</h3>
+                                    {backtestFromExchanges.length > 0 ? (
+                                        <Select value={backtestSelectedDataSource} onValueChange={setBacktestSelectedDataSource}>
+                                            <SelectTrigger className="h-9">
+                                                <SelectValue placeholder="选择数据源交易所" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {backtestFromExchanges.map((exchange: DataSourceExchange) => (
+                                                    <SelectItem 
+                                                        key={exchange.id} 
+                                                        value={JSON.stringify(exchange)}
+                                                    >
+                                                        {exchange.accountName} ({exchange.exchange})
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    ) : (
+                                        <div className="text-sm text-red-500">
+                                            请先在策略起始节点中配置数据源交易所
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
                             {/* 交易基本信息 */}
                             <div className="mb-6">
                                 <h3 className="text-sm font-medium text-gray-500 mb-3">交易基本信息</h3>
@@ -767,6 +831,16 @@ const OrderNodePanel = ({
                                 </span>
                             </div>
                             
+                            {/* 回测数据来源显示 */}
+                            {currentTradeMode === TradeMode.BACKTEST && (
+                                <div className="flex justify-between">
+                                    <span className="text-gray-500">数据来源:</span>
+                                    <span className="font-medium">
+                                        {backtestDataSource === BacktestDataSource.FILE ? "自定义文件" : "交易所"}
+                                    </span>
+                                </div>
+                            )}
+                            
                             {(currentTradeMode === TradeMode.LIVE && liveSelectedAccount) && (
                                 <div className="flex justify-between">
                                     <span className="text-gray-500">交易所:</span>
@@ -781,6 +855,15 @@ const OrderNodePanel = ({
                                     <span className="text-gray-500">交易所:</span>
                                     <span className="font-medium">
                                         {JSON.parse(simulateSelectedAccount).exchange}
+                                    </span>
+                                </div>
+                            )}
+                            
+                            {(currentTradeMode === TradeMode.BACKTEST && backtestDataSource === BacktestDataSource.EXCHANGE && backtestSelectedDataSource) && (
+                                <div className="flex justify-between">
+                                    <span className="text-gray-500">数据源:</span>
+                                    <span className="font-medium">
+                                        {JSON.parse(backtestSelectedDataSource).exchange}
                                     </span>
                                 </div>
                             )}
@@ -885,6 +968,14 @@ const OrderNodePanel = ({
                                     </span>
                                 </div>
                             ) : null}
+                            {(currentTradeMode === TradeMode.BACKTEST && backtestDataSource === BacktestDataSource.EXCHANGE && backtestSelectedDataSource) && (
+                                <div className="flex justify-between col-span-2 mt-1 pt-1 border-t border-gray-200">
+                                    <span className="text-gray-500">数据源:</span>
+                                    <span className="font-medium">
+                                        {JSON.parse(backtestSelectedDataSource).accountName}
+                                    </span>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

@@ -56,7 +56,7 @@ function GetVariableNode({id, data}:NodeProps<GetVariableNode>) {
         } else if (tradingMode === TradeMode.SIMULATE && data.simulateConfig) {
             return data.simulateConfig.symbol;
         } else if (tradingMode === TradeMode.BACKTEST && data.backtestConfig) {
-            return data.backtestConfig.symbol;
+            return data.backtestConfig.exchangeModeConfig?.symbol;
         }
         return null;
     };

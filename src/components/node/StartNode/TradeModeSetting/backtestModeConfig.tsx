@@ -431,9 +431,9 @@ export const BacktestModeConfig = ({
         <SliderWithTick
           defaultValue={[playSpeed]}
           min={0}
-          max={100}
-          step={10}
-          skipInterval={10}
+          max={20}
+          step={1}
+          skipInterval={2}
           onValueChange={(value) => {
             // 当值为0时，设置为1
             const actualValue = value[0] === 0 ? 1 : value[0];

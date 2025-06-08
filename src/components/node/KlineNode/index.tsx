@@ -3,9 +3,7 @@ import {
     type NodeProps, 
     Handle, 
     Position, 
-    useNodeConnections,
-    useReactFlow,
-    Node
+    useReactFlow
 } from '@xyflow/react';
 import { Badge } from '@/components/ui/badge';
 import { LineChart, PencilIcon } from 'lucide-react';
@@ -25,7 +23,7 @@ const KlineNode = ({ data, id, isConnectable }: NodeProps<KlineNode>) => {
   // const { tradingMode } = useTradingModeStore();
   const { strategy } = useStrategyStore();
   const tradingMode = strategy!.tradeMode;
-  const { setNodes, updateNodeData } = useReactFlow();
+  const { setNodes } = useReactFlow();
 
   const handleSave = useCallback((newData: KlineNodeData) => {
     // 使用React Flow的setNodes来更新节点数据
@@ -39,24 +37,12 @@ const KlineNode = ({ data, id, isConnectable }: NodeProps<KlineNode>) => {
     );
     // 打印节点的数据
     console.log('node data', newData);
-    
-    setIsEditing(false);
   }, [id, setNodes]);
 
   const preventDragHandler = (e: React.MouseEvent | React.DragEvent | React.PointerEvent) => {
     e.stopPropagation();
     e.preventDefault();
   };
-
-  const { getNode } = useReactFlow();
-  const connections = useNodeConnections({
-      handleType: 'target',
-  });
-
-  const sourceNodes = connections
-      .map(connection => getNode(connection.source))
-      .filter((node): node is Node => node !== null);
-
 
   const panel = () => {
     // 如果策略存在，则正常显示面板
@@ -65,7 +51,6 @@ const KlineNode = ({ data, id, isConnectable }: NodeProps<KlineNode>) => {
         <KlineNodePanel
           data={data}
           strategy={strategy}
-          isEditing={isEditing}
           setIsEditing={setIsEditing}
           handleSave={handleSave}
           nodeName={nodeName}
@@ -116,7 +101,7 @@ const KlineNode = ({ data, id, isConnectable }: NodeProps<KlineNode>) => {
                     ? data.liveConfig?.symbol || "未设置"
                     : tradingMode === TradeMode.SIMULATE
                       ? data.simulateConfig?.symbol || "未设置"
-                      : data.backtestConfig?.backtestStartDate || "未设置"
+                      : data.backtestConfig?.exchangeConfig?.symbol || "未设置"
                 }</span>
               </div>
               <div className="flex items-center justify-between">
@@ -126,7 +111,7 @@ const KlineNode = ({ data, id, isConnectable }: NodeProps<KlineNode>) => {
                     ? data.liveConfig?.interval || "未设置"
                     : tradingMode === TradeMode.SIMULATE
                       ? data.simulateConfig?.interval || "未设置"
-                      : data.backtestConfig?.backtestEndDate || "未设置"
+                      : data.backtestConfig?.exchangeConfig?.interval || "未设置"
                 }</span>
               </div>
               

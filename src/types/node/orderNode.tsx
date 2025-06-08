@@ -1,5 +1,5 @@
 import {Node} from '@xyflow/react'
-import { SelectedAccount } from '@/types/strategy';
+import { SelectedAccount, BacktestDataSource, DataSourceExchange, TimeRange } from '@/types/strategy';
 
 export type OrderConfig = {
     symbol: string;
@@ -21,8 +21,19 @@ export type OrderNodeSimulateConfig = {
     selectedSimulateAccount?: SelectedAccount;
 }
 
+
+
+export type OrderNodeBacktestExchangeConfig = {
+  selectedDataSource: DataSourceExchange; // 数据来源交易所
+  symbol: string; // 交易对
+  timeRange: TimeRange; // 时间范围
+}
+
+
 export type OrderNodeBacktestConfig = {
-    orderConfig: OrderConfig;
+  dataSource: BacktestDataSource;
+  exchangeConfig?: OrderNodeBacktestExchangeConfig;
+  orderConfig: OrderConfig;
 }
 
 
