@@ -18,33 +18,21 @@ import {
   type Connection,
   type EdgeChange,
   applyEdgeChanges,
+  Panel,
 } from '@xyflow/react';
-
 import '@xyflow/react/dist/style.css';
-import IndicatorNode from '@/components/node/IndicatorNode'; // 指标节点
-import KlineNode from '@/components/node/KlineNode'; // 实时数据节点
-import StartNode from '@/components/node/StartNode'; // 开始节点
 import { DevTools } from '@/components/node/devtools'; // 开发者工具
 import { useDragAndDrop } from '../useDragAndDrop';
 import { useReactFlow } from '@xyflow/react';
 import { Strategy } from '@/types/strategy';
-import IfElseNode from '@/components/node/IfElseNode';
-import OrderNode from '@/components/node/OrderNode';
-import GetPositionNumberNode from '@/components/node/GetPositionNumberNode';
-import PositionNode from '@/components/node/PositionNode';
-import GetVariableNode from '@/components/node/GetVariableNode';
-import ExampleNode from '@/components/node/BaseNode/example';
-const nodeTypes = {
-  startNode: StartNode,
-  indicatorNode: IndicatorNode,
-  klineNode: KlineNode,
-  ifElseNode: IfElseNode,
-  orderNode: OrderNode,
-  getPositionNumberNode: GetPositionNumberNode,
-  positionNode: PositionNode,
-  getVariableNode: GetVariableNode,
-  exampleNode: ExampleNode,
-};
+import { nodeTypes } from '@/constants/nodeTypes';
+import edgeTypes from '@/constants/edgeTypes';
+import BasePanel from '@/components/node/base/BasePanel';
+
+
+
+
+
 
 export default function NodeFlow({strategy}:{strategy:Strategy}) {
     const [nodes, setNodes] = useNodesState<Node>([]);
@@ -129,15 +117,16 @@ export default function NodeFlow({strategy}:{strategy:Strategy}) {
 
     // 当连接节点时，将会触发onConnect事件
     const onConnect: OnConnect = useCallback(
-        (params: Connection) => {
+        (conn: Connection) => {
           setEdges((eds) => {
             const customEdge: Edge = {
-              ...params,
-              id: `${params.source}.${params.sourceHandle || 'default'}=>${params.target}.${params.targetHandle || 'default'}`,
-              sourceHandle: params.sourceHandle || null,
-              targetHandle: params.targetHandle || null,
-              source: params.source,
-              target: params.target
+              ...conn,
+              id: `${conn.source}.${conn.sourceHandle || 'default'}=>${conn.target}.${conn.targetHandle || 'default'}`,
+              sourceHandle: conn.sourceHandle || null,
+              targetHandle: conn.targetHandle || null,
+              source: conn.source,
+              target: conn.target,
+              type: 'customEdge',
             };
             const newEdges = addEdge(customEdge, eds);
             return newEdges;
@@ -163,6 +152,7 @@ export default function NodeFlow({strategy}:{strategy:Strategy}) {
               onEdgesChange={onEdgesChange}
               onConnect={onConnect}
               nodeTypes={nodeTypes}
+              edgeTypes={edgeTypes}
               onDragOver={onDragOver}
               onDrop={onDrop}
               fitView
@@ -174,6 +164,7 @@ export default function NodeFlow({strategy}:{strategy:Strategy}) {
               <Controls />
               <Background />
               <NodeToolbar />
+              <BasePanel>top-right</BasePanel>
           </ReactFlow>
         </div>
     );

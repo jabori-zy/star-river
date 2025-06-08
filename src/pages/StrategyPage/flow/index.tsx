@@ -23,7 +23,9 @@ export default function StrategyFlowContent({ strategy }: StrategyFlowContentPro
               <NodeList />
             </div>
             <div className="flex-1 h-full border-2 border-gray-200 rounded-lg">
-              {strategy && <NodeFlow strategy={strategy} />}
+              {strategy && 
+              <NodeFlow strategy={strategy} />
+              }
             </div>
           </div>
         </div>

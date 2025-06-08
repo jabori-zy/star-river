@@ -10,6 +10,7 @@ import { getTradingModeName, getTradingModeColor } from '@/utils/tradingModeHelp
 import { useStrategyStore } from '@/store/useStrategyStore';
 import { type StartNode } from '@/types/node/startNode';
 import { Strategy } from '@/types/strategy';
+import BaseNode from '../base/BaseNode';
 
 
 function StartNode({ data, isConnectable, id }: NodeProps<StartNode>) {
