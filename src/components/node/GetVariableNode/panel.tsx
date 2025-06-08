@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/select';
 import { TradeMode } from "@/types/node";
 import { Variable, X, Plus, Trash2, Clock, Filter } from 'lucide-react';
-import { Strategy, SelectedAccount } from '@/types/strategy';
+import { Strategy, SelectedAccount, BacktestDataSource, DataSourceExchange } from '@/types/strategy';
 import { 
     StrategySysVariable,
     GetVariableNodeData, 
@@ -72,9 +72,16 @@ function GetVariableNodePanel({
     const [simulateSymbol, setSimulateSymbol] = useState<string | null>(
         data.simulateConfig?.symbol || null
     );
-    
+
+    // 回测配置
+    const [backtestDataSource] = useState<BacktestDataSource>(
+        data.backtestConfig?.dataSource || BacktestDataSource.EXCHANGE
+    );
+    const [backtestSelectedDataSource, setBacktestSelectedDataSource] = useState<DataSourceExchange | null>(
+        data.backtestConfig?.exchangeModeConfig?.selectedDataSource || null
+    );
     const [backtestSymbol, setBacktestSymbol] = useState<string | null>(
-        data.backtestConfig?.symbol || null
+        data.backtestConfig?.exchangeModeConfig?.symbol || null
     );
 
     // 各交易模式的触发方式和定时配置
@@ -187,6 +194,10 @@ function GetVariableNodePanel({
     useEffect(() => {
         setActiveTab(initialTradingMode);
     }, [initialTradingMode]);
+
+    // 获取策略中的回测数据源交易所和数据源类型
+    const backtestFromExchanges = strategy?.config.backtestConfig?.fromExchanges || [];
+    const _backtestTimeRange = strategy?.config.backtestConfig?.timeRange;
     
     // 获取下一个可用的configId
     const getNextConfigId = (variables: GetVariableConfig[], variableType: string) => {
@@ -321,6 +332,14 @@ function GetVariableNodePanel({
         const { setSymbol } = getActiveGlobalConfig();
         setSymbol(symbol || null);
     };
+
+    // 处理回测数据源交易所选择
+    const handleBacktestDataSourceSelect = (dataSourceStr: string) => {
+        const selectedDataSource = backtestFromExchanges.find(exchange => 
+            JSON.stringify(exchange) === dataSourceStr
+        );
+        setBacktestSelectedDataSource(selectedDataSource || null);
+    };
     
     // 保存配置 (保存所有模式的数据)
     const handleSubmit = () => {
@@ -342,7 +361,12 @@ function GetVariableNodePanel({
                 variables: simulateVariables 
             },
             backtestConfig: { 
-                symbol: backtestSymbol,
+                dataSource: backtestDataSource,
+                exchangeModeConfig: backtestDataSource === BacktestDataSource.EXCHANGE && backtestSelectedDataSource && _backtestTimeRange ? {
+                    selectedDataSource: backtestSelectedDataSource,
+                    symbol: backtestSymbol || "BTCUSDT",
+                    timeRange: _backtestTimeRange
+                } : undefined,
                 getVariableType: backtestGetVariableType,
                 timerConfig: backtestGetVariableType === GetVariableType.TIMER ? backtestTimerConfig : undefined,
                 variables: backtestVariables 
@@ -468,6 +492,54 @@ function GetVariableNodePanel({
                 <ScrollArea className="h-[calc(100vh-22rem)] px-4 py-2">
                     {/* 当前模式的账户和交易对配置 */}
                     <div className="space-y-4 mb-4">
+                        {/* 回测数据来源显示 */}
+                        {activeTab === TradeMode.BACKTEST && (
+                            <div className="space-y-1">
+                                <Label className="text-xs">回测数据来源</Label>
+                                <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                    <div className="text-sm font-medium text-blue-700">
+                                        {backtestDataSource === BacktestDataSource.FILE ? "数据来源：自定义文件" : "数据来源：交易所"}
+                                    </div>
+                                    <div className="text-xs text-blue-600 mt-1">
+                                        {backtestDataSource === BacktestDataSource.FILE 
+                                            ? "使用用户上传的历史数据文件进行回测" 
+                                            : "使用从交易所获取的历史数据进行回测"}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* 数据源交易所选择 - 仅当回测模式且数据源为交易所时显示 */}
+                        {activeTab === TradeMode.BACKTEST && backtestDataSource === BacktestDataSource.EXCHANGE && (
+                            <div className="space-y-1">
+                                <Label className="text-xs">数据源交易所</Label>
+                                {backtestFromExchanges.length > 0 ? (
+                                    <Select 
+                                        value={backtestSelectedDataSource ? JSON.stringify(backtestSelectedDataSource) : ""} 
+                                        onValueChange={handleBacktestDataSourceSelect}
+                                    >
+                                        <SelectTrigger className="h-8">
+                                            <SelectValue placeholder="选择数据源交易所" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {backtestFromExchanges.map((exchange: DataSourceExchange) => (
+                                                <SelectItem 
+                                                    key={exchange.id} 
+                                                    value={JSON.stringify(exchange)}
+                                                >
+                                                    {exchange.accountName} ({exchange.exchange})
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                ) : (
+                                    <div className="text-sm text-red-500">
+                                        请先在策略起始节点中配置数据源交易所
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
                         {/* 账户选择 (仅适用于LIVE和SIMULATE模式) */}
                         {activeTab !== TradeMode.BACKTEST && (
                             <div className="space-y-1">

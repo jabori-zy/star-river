@@ -1,5 +1,7 @@
 import { Node } from '@xyflow/react';
 import { SelectedAccount } from '@/types/strategy';
+import { BacktestDataSource, DataSourceExchange, TimeRange } from '@/types/strategy';
+
 // 策略系统变量
 export enum StrategySysVariable {
     POSITION_NUMBER = "position_number", // 持仓数量
@@ -44,8 +46,21 @@ export type GetVariableNodeSimulateConfig = {
     variables: GetVariableConfig[];
 }
 
+
+
+// 回测配置
+// 回测模式：交易所模式和数据源模式
+export type GetVariableNodeBacktestExchangeModeConfig = {
+    selectedDataSource: DataSourceExchange; // 数据来源交易所
+    symbol: string; // 交易对
+    timeRange: TimeRange; // 时间范围
+  }
+
+
+
 export type GetVariableNodeBacktestConfig = {
-    symbol: string | null; // 交易对
+    dataSource: BacktestDataSource;
+    exchangeModeConfig?: GetVariableNodeBacktestExchangeModeConfig; // 交易所模式配置
     getVariableType: GetVariableType; // 获取变量的方式
     timerConfig?: TimerConfig; // 定时触发的时间间隔配置
     variables: GetVariableConfig[];

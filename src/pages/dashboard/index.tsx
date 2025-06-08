@@ -13,8 +13,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
-import router from "../../router"
-import { RouterProvider } from "react-router";
+import { Outlet } from "react-router";
 
 export default function Dashboard() {
   return (
@@ -43,7 +42,7 @@ export default function Dashboard() {
               </div>
             </header>
             <div className="flex flex-1 flex-col gap-4 p-4 pt-0 min-w-0 overflow-y-auto max-h-[calc(100vh-3rem)]">
-              <RouterProvider router={router} />
+              <Outlet />
             </div>
           </SidebarInset>
           
