@@ -25,12 +25,15 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router";
 import { StrategyItemProps } from "@/types/strategy";
 import { deleteStrategy } from "@/service/strategy";
-
+import useIsSidebarOpenStore from "@/store/useIsSidebarOpenStore";
+import { useSidebar } from "@/components/ui/sidebar";
 
 export function StrategyItem({ strategyId, strategyName, strategyDescription, strategyStatus, createTime, onDelete }: StrategyItemProps) {
   const navigate = useNavigate();
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const { setIsSidebarOpen } = useIsSidebarOpenStore()
+  const { setOpen } = useSidebar()
 
   const statusConfig = {
     running: { label: '运行中', className: 'bg-green-500/10 text-green-500 hover:bg-green-500/20' },
@@ -165,13 +168,19 @@ export function StrategyItem({ strategyId, strategyName, strategyDescription, st
           variant="ghost" 
           size="sm" 
           className="flex items-center gap-2 hover:bg-primary/10 transition-colors group-hover:translate-x-1 duration-200"
-          onClick={() => navigate("/node", {
-            state: { 
-              strategyId,
-              strategyName,
-              strategyDescription
-            }
-          })}
+          onClick={() => {
+            // 点击查看策略时，关闭侧边栏
+            setOpen(false);
+            setIsSidebarOpen(false);
+            // 跳转到策略节点页面
+            navigate("/node", {
+              state: {
+                strategyId,
+                strategyName,
+                strategyDescription,
+              }
+            });
+          }}
         >
           <Eye className="h-4 w-4" />
           查看

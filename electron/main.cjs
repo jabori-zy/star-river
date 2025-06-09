@@ -7,7 +7,9 @@ let backendProcess = null;
 const createWindow = () => {
   const mainWindow = new BrowserWindow({
     width: 1280,
-    height: 720,
+    height: 960,
+    frame: false, // 去除窗口边框和菜单栏
+    titleBarStyle: 'hidden', // 隐藏标题栏
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false
@@ -23,6 +25,8 @@ const createBacktestWindow = () => {
     width: 1200,
     height: 800,
     title: '回测结果',
+    frame: false, // 去除窗口边框和菜单栏
+    titleBarStyle: 'hidden', // 隐藏标题栏
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false
@@ -39,6 +43,32 @@ const createBacktestWindow = () => {
 ipcMain.handle('open-backtest-window', () => {
   createBacktestWindow()
   return true
+})
+
+// 窗口控制IPC处理程序
+ipcMain.handle('minimize-window', () => {
+  const focusedWindow = BrowserWindow.getFocusedWindow()
+  if (focusedWindow) {
+    focusedWindow.minimize()
+  }
+})
+
+ipcMain.handle('maximize-window', () => {
+  const focusedWindow = BrowserWindow.getFocusedWindow()
+  if (focusedWindow) {
+    if (focusedWindow.isMaximized()) {
+      focusedWindow.unmaximize()
+    } else {
+      focusedWindow.maximize()
+    }
+  }
+})
+
+ipcMain.handle('close-window', () => {
+  const focusedWindow = BrowserWindow.getFocusedWindow()
+  if (focusedWindow) {
+    focusedWindow.close()
+  }
 })
 
 const createRustBackend = () => {

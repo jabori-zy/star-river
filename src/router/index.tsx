@@ -1,7 +1,7 @@
 import Login from "../pages/login";
 import StrategyListPage from "../pages/StrategyListPage";
 import { createBrowserRouter } from "react-router";
-import TestPage from "../pages/TestPage";
+import TestPage from "../pages/TestPage/index";
 import StrategyPage from "../pages/StrategyPage";
 import AccountPage from "../pages/AccountPage";
 import BacktestPage from "../pages/BacktestPage";
@@ -24,10 +24,7 @@ const router = createBrowserRouter([
                 path: "strategy",
                 element: <StrategyListPage />,
             },
-            {
-                path: "test",
-                element: <TestPage />,
-            },
+            
             {
                 path: "account",
                 element: <AccountPage />,
@@ -41,6 +38,10 @@ const router = createBrowserRouter([
     {
         path: "/backtest",
         element: <BacktestPage />,
+    },
+    {
+        path: "/test",
+        element: <TestPage />,
     },
 ]);
 
