@@ -6,6 +6,7 @@ import StrategyPage from "../pages/StrategyPage";
 import AccountPage from "../pages/AccountPage";
 import BacktestPage from "../pages/BacktestPage";
 import Dashboard from "../pages/Dashboard";
+import SettingPage from "../pages/SettingPage";
 
 const router = createBrowserRouter([
     {
@@ -28,6 +29,10 @@ const router = createBrowserRouter([
             {
                 path: "account",
                 element: <AccountPage />,
+            },
+            {
+                path: "setting",
+                element: <SettingPage />,
             },
         ]
     },
