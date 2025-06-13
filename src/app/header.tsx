@@ -5,6 +5,7 @@ import useIsSidebarOpenStore from '@/store/useIsSidebarOpenStore'
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Minus, Square, X } from "lucide-react"
 import QuitAppConfitmBox from './quit-app-confitm-box'
+import { useNavigate } from 'react-router'
 
 // 声明electron的require
 const { ipcRenderer } = window.require ? window.require('electron') : { ipcRenderer: null }
@@ -31,12 +32,15 @@ function SidebarTrigger() {
 
 // 路由箭头
 function RouteArrow() {
+  const navigate = useNavigate()
   return (
     <div className="flex items-center gap-0.5"> 
-      <Button variant="ghost" size="icon">
+    {/* 返回 */}
+      <Button variant="ghost" size="icon" onClick={() => { navigate(-1) }}>
         <ChevronLeft />
       </Button>
-      <Button variant="ghost" size="icon">
+      {/* 前进 */}
+      <Button variant="ghost" size="icon" onClick={() => { navigate(1) }}>
         <ChevronRight />
       </Button>
     </div>
