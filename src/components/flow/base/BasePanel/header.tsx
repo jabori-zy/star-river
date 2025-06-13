@@ -6,9 +6,9 @@ import { LucideIcon } from "lucide-react";
 
 interface BasePanelHeaderProps {
     title: string;
+    setTitle: (title: string) => void; // 修改标题
     icon: LucideIcon;
     iconBackgroundColor: string;
-    setTitle: (title: string) => void;
     isEditingTitle: boolean;
     setIsEditingTitle: (isEditingTitle: boolean) => void;
     setIsShow: (isShow: boolean) => void;
@@ -21,7 +21,7 @@ const BasePanelHeader: React.FC<BasePanelHeaderProps> = ({ title, icon: Icon, ic
         // justify-between 两端对齐
         // items-center 垂直居中
         // p-2 内边距
-        <div className="flex justify-between items-center p-1 ">
+        <div className="flex justify-between items-center">
             {/* 标题区域 */}
             {/* 
                 flex-1 占据剩余空间
@@ -54,14 +54,31 @@ const BasePanelHeader: React.FC<BasePanelHeaderProps> = ({ title, icon: Icon, ic
                             className="h-8 text-sm flex-1"
                             placeholder="输入策略名称"
                             autoFocus
-                            onBlur={() => setIsEditingTitle(false)}
+                            onBlur={() => {
+                                // 如果标题为空，设置默认值
+                                if (!title.trim()) {
+                                    setTitle('未命名节点');
+                                }
+                                setIsEditingTitle(false);
+                            }}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    // 如果标题为空，设置默认值
+                                    if (!title.trim()) {
+                                        setTitle('未命名节点');
+                                    }
+                                    setIsEditingTitle(false);
+                                } else if (e.key === 'Escape') {
+                                    setIsEditingTitle(false);
+                                }
+                            }}
                         />
                     ) : (
                         // leading-8 行高
                         // py-1 上下内边距
                         <h3 className="text-md font-bold text-gray-800 leading-8 py-1" 
                         onDoubleClick={() => setIsEditingTitle(true)}
-                        >{ title }</h3>
+                        >{ title || '未命名节点' }</h3>
                     )
                 }
             </div>

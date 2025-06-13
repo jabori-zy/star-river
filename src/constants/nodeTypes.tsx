@@ -1,13 +1,12 @@
-import IfElseNode from '@/components/node/IfElseNode';
-import OrderNode from '@/components/node/OrderNode';
-import GetPositionNumberNode from '@/components/node/GetPositionNumberNode';
-import PositionNode from '@/components/node/PositionNode';
-import GetVariableNode from '@/components/node/GetVariableNode';
-import ExampleNode from '@/components/node/base/BaseNode/example';
-import NewStartNode from '@/components/node/base/BaseNode/newStartNode';
-import IndicatorNode from '@/components/node/IndicatorNode'; // 指标节点
-import KlineNode from '@/components/node/KlineNode'; // 实时数据节点
-import StartNode from '@/components/node/StartNode'; // 开始节点
+import IfElseNode from '@/components/flow/IfElseNode';
+import OrderNode from '@/components/flow/OrderNode';
+import GetPositionNumberNode from '@/components/flow/GetPositionNumberNode';
+import PositionNode from '@/components/flow/PositionNode';
+import GetVariableNode from '@/components/flow/GetVariableNode';
+import NewStartNode from '@/components/flow/node/new-start-node/node';
+import IndicatorNode from '@/components/flow/IndicatorNode'; // 指标节点
+import KlineNode from '@/components/flow/KlineNode'; // 实时数据节点
+import StartNode from '@/components/flow/StartNode'; // 开始节点
 
 
 
@@ -20,6 +19,5 @@ export const nodeTypes = {
     getPositionNumberNode: GetPositionNumberNode,
     positionNode: PositionNode,
     getVariableNode: GetVariableNode,
-    exampleNode: ExampleNode,
     newStartNode: NewStartNode,
   };

@@ -99,7 +99,7 @@ export default function DatePickerWithInput({
         value={getCalendarDate(selectedDate)}
         onChange={typedHandleDateChange}
       >
-        <Label className="text-foreground text-sm font-medium">{label}</Label>
+        {/* <Label className="text-foreground text-sm font-medium">{label}</Label> */}
         <div className="flex">
           <Group className="w-full">
             <DateInput className="pe-9" />

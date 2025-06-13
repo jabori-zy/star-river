@@ -27,7 +27,7 @@ const BaseHandle: React.FC<BaseHandleProps> = ({
     // handle被node遮罩位置的样式
     const maskPosition = type === 'source' ? '!right-[-1.25px]' : '!left-[-1.25px]'
 
-    const handleClassName = `!w-2.5 !h-3.5 !${handleColor} ${maskPosition} ${heightPositionClassName} !rounded-none !z-[-1]`
+    const handleClassName = `!w-2.5 !h-3.5 ${handleColor} ${maskPosition} ${heightPositionClassName} !rounded-none !z-[-1]`
 
     return <Handle {...props} type={type} className={handleClassName} />
 }

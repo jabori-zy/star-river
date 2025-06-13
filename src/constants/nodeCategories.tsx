@@ -8,6 +8,13 @@ export const nodeCategories = [
       color: "from-[#4776E6]/20 to-[#8E54E9]/20 hover:from-[#4776E6]/30 hover:to-[#8E54E9]/30",
       items: [
         {
+          nodeId: "new_start_node",
+          nodeType: "newStartNode",
+          nodeName: "新开始节点",
+          nodeDescription: "新开始节点",
+          nodeColor: "from-[#4776E6]/20 to-[#8E54E9]/20 hover:from-[#4776E6]/30 hover:to-[#8E54E9]/30",
+        } as NodeItemProps,
+        {
           nodeId: "kline_node",
           nodeType: "klineNode",
           nodeName: "K线节点",
@@ -97,6 +104,13 @@ export const nodeCategories = [
           nodeType: "exampleNode",
           nodeName: "示例节点",
           nodeDescription: "示例节点",
+          nodeColor: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
+        } as NodeItemProps,
+        {
+          nodeId: "example1_node",
+          nodeType: "example1Node",
+          nodeName: "示例节点1",
+          nodeDescription: "示例节点1",
           nodeColor: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
         } as NodeItemProps,
 

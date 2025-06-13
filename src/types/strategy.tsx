@@ -1,14 +1,21 @@
 import { Node, Edge } from "@xyflow/react";
-import { TradeMode } from "@/types/node";
 import { Exchange } from "@/types/common";
 import { StrategyChartConfig } from "@/types/strategyChartConfig";
+
+
+
+export enum TradeMode {
+  LIVE = "live",
+  SIMULATE = "simulate",
+  BACKTEST = "backtest"
+}
 
 // 策略已选择的账户
 export type SelectedAccount = {
   id: number;
   exchange: Exchange;
   accountName: string;
-  availableBalance: number;
+  availableBalance?: number;
 }
 
 // 实盘交易配置
@@ -42,11 +49,16 @@ export type DataSourceExchange = {
   accountName: string;
 }
 
+
+export type StrategyBacktestExchangeConfig = {
+  fromExchanges: Array<SelectedAccount>; // 数据来源交易所
+  timeRange: TimeRange; // 时间范围
+}
+
 // 回测交易配置
 export interface StrategyBacktestConfig {
-  dataSource: BacktestDataSource;
-  timeRange?: TimeRange;
-  fromExchanges?: Array<DataSourceExchange>; // 数据来源交易所
+  dataSource: BacktestDataSource; // 数据来源
+  exchangeConfig?: StrategyBacktestExchangeConfig; // 交易所数据源配置
   initialBalance: number; // 初始资金
   leverage: number; // 杠杆倍数
   feeRate: number; // 手续费率

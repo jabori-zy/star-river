@@ -5,6 +5,9 @@ import { StartNodeData } from "./startNode";
 export enum NodeType {
     StartNode = "startNode",
     IndicatorNode = "indicatorNode",
+    NewStartNode = "newStartNode",
+    ExampleNode = 'exampleNode',
+    Example1Node = 'example1Node',
 }
 
 

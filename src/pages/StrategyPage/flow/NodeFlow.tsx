@@ -21,13 +21,14 @@ import {
   Panel,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { DevTools } from '@/components/node/devtools'; // 开发者工具
+import { DevTools } from '@/components/flow/devtools'; // 开发者工具
 import { useDragAndDrop } from '../useDragAndDrop';
 import { useReactFlow } from '@xyflow/react';
 import { Strategy } from '@/types/strategy';
 import { nodeTypes } from '@/constants/nodeTypes';
 import edgeTypes from '@/constants/edgeTypes';
-import BasePanel from '@/components/node/base/BasePanel';
+import BasePanel from '@/components/flow/base/BasePanel';
+import NodePanel from '@/components/flow/NodePanel';
 
 
 
@@ -164,7 +165,8 @@ export default function NodeFlow({strategy}:{strategy:Strategy}) {
               <Controls />
               <Background />
               <NodeToolbar />
-              <BasePanel>top-right</BasePanel>
+              {/* 节点面板 */}
+              <NodePanel />
           </ReactFlow>
         </div>
     );

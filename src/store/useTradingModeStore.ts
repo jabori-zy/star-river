@@ -11,7 +11,7 @@ interface TradingModeState {
 // 创建全局状态管理
 const useTradingModeStore = create<TradingModeState>((set) => ({
   // 默认为模拟交易模式
-  tradingMode: TradeMode.SIMULATE,
+  tradingMode: TradeMode.BACKTEST,
   
   // 更新交易模式
   setTradingMode: (mode: TradeMode) => set({

@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import DatePickerWithInput from "@/components/ui/date-picker-with-input";
 import { Input } from "@/components/ui/input";
-import SliderWithTick from "@/components/custom/slider-with-tick";
+import SliderWithTick from "@/components/slider-with-tick";
 import { MT5Account } from '@/types/account';
 
 interface BacktestAccountProps {

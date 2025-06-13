@@ -3,6 +3,7 @@ import { type NodeProps, useReactFlow } from '@xyflow/react';
 import { type LucideIcon } from 'lucide-react';
 import { BaseHandleProps } from '../BaseHandle';
 import BaseHandle from '../BaseHandle';
+import { useChangeNodeName } from '@/hooks/node/use-change-node-name';
 
 // BaseNode的属性接口
 //这是TypeScript的工具类型，作用是从NodeProps类型中只选择selected属性
@@ -50,6 +51,12 @@ const BaseNode: React.FC<BaseNodeProps> = ({
   // 获取ReactFlow实例
   const { setEdges } = useReactFlow();
 
+  // 使用节点名称管理 hook（只用于数据同步）
+  const { nodeName: currentNodeName } = useChangeNodeName({ 
+    id, 
+    initialNodeName: nodeName 
+  });
+
   // 根据selected状态决定边框样式
   const borderClass = selected 
     ? `${selectedBorderColor} border-2` 
@@ -78,7 +85,7 @@ const BaseNode: React.FC<BaseNodeProps> = ({
   const handleMouseEnter = () => {
     setIsHovered(true);
     
-    console.log(`Mouse enter node ${id}`);
+    // console.log(`Mouse enter node ${id}`);
     
     // 设置所有相关边的_connectedNodeIsHovering状态为true
     setEdges((edges) => 
@@ -100,7 +107,7 @@ const BaseNode: React.FC<BaseNodeProps> = ({
   const handleMouseLeave = () => {
     setIsHovered(false);
     
-    console.log(`Mouse leave node ${id}`);
+    // console.log(`Mouse leave node ${id}`);
     
     // 设置所有相关边的_connectedNodeIsHovering状态为false
     setEdges((edges) => 
@@ -136,8 +143,11 @@ const BaseNode: React.FC<BaseNodeProps> = ({
           )}
           
           {/* 标题文本 */}
-          <div className="text-sm font-bold text-black break-words leading-relaxed">
-            {nodeName}
+          <div 
+            className="text-base font-bold text-black break-words leading-relaxed"
+          >
+            
+            {currentNodeName}
           </div>
         </div>
         {/* 默认的输入输出handle */}

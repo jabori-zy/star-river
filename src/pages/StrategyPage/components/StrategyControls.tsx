@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Save, Play, Square, DollarSign, CreditCard, Calendar } from "lucide-react";
@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select"
 import { Strategy } from "@/types/strategy";
 import { updateStrategy } from "@/service/strategy";
+import useTradingModeStore from "@/store/useTradingModeStore";
 
 // 声明 window.require 类型
 declare global {
@@ -27,7 +28,15 @@ declare global {
 
 // 交易模式选择器组件
 function TradingModeSelector({ strategy, setStrategy }: { strategy: Strategy | undefined, setStrategy: (strategy: Strategy) => void }) {
-  const tradingMode = strategy?.tradeMode;
+
+  const strategyTradingMode = strategy?.tradeMode;
+  const { tradingMode, setTradingMode } = useTradingModeStore();
+
+  useEffect(() => {
+    if (strategyTradingMode) {
+      setTradingMode(strategyTradingMode);
+    }
+  }, [strategyTradingMode, setTradingMode]);
 
   // 获取交易模式图标
   const getTradingModeIcon = (mode: TradeMode | undefined) => {
@@ -77,6 +86,7 @@ function TradingModeSelector({ strategy, setStrategy }: { strategy: Strategy | u
         ...strategy,
         tradeMode: value
       });
+      setTradingMode(value);
     }
   };
 
@@ -84,14 +94,14 @@ function TradingModeSelector({ strategy, setStrategy }: { strategy: Strategy | u
     <div className="flex items-center gap-2">
       <span className="flex text-xs text-muted-foreground">交易模式:</span>
       <Select
-        value={tradingMode}
+        value={strategyTradingMode}
         onValueChange={handleModeChange}
       >
-        <SelectTrigger className={`h-8 w-[130px] ${getTradingModeColor(tradingMode)}`}>
+        <SelectTrigger className={`h-8 w-[130px] ${getTradingModeColor(strategyTradingMode)}`}>
           <SelectValue>
             <div className="flex items-center gap-2 w-full">
-              {getTradingModeIcon(tradingMode)}
-              <span className="text-xs truncate">{getTradingModeName(tradingMode)}</span>
+              {getTradingModeIcon(strategyTradingMode)}
+              <span className="text-xs truncate">{getTradingModeName(strategyTradingMode)}</span>
             </div>
           </SelectValue>
         </SelectTrigger>

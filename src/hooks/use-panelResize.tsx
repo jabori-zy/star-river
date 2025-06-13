@@ -2,12 +2,12 @@
 
 import { useEffect } from "react";
 
-const usePanelResize = (panelRef: React.RefObject<HTMLDivElement | null>) => {
+const useResizePanelHeight = (panelRef: React.RefObject<HTMLDivElement | null>) => {
     useEffect(() => {
         const handleResize = () => {
             const panel = panelRef.current;
             if (panel) {
-                panel.style.height = `${window.innerHeight - 250}px`;
+                panel.style.height = `${window.innerHeight - 260}px`;
             }
         }
         window.addEventListener('resize', handleResize);
@@ -17,4 +17,4 @@ const usePanelResize = (panelRef: React.RefObject<HTMLDivElement | null>) => {
     }, [panelRef]);
 }
 
-export default usePanelResize;
+export default useResizePanelHeight;

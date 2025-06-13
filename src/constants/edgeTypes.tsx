@@ -1,4 +1,4 @@
-import BaseEdge from '@/components/node/base/BaseEdge'
+import BaseEdge from '@/components/flow/base/BaseEdge'
  
  
 const edgeTypes = {
