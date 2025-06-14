@@ -1,5 +1,4 @@
-import { Panel, PanelProps } from '@xyflow/react';
-import useResizePanelHeight from '@/hooks/use-panelResize';
+import { PanelProps } from '@xyflow/react';
 import { ReactElement, useRef, useState, useCallback, useEffect } from 'react';
 import BasePanelHeader from './header';
 import { GripVertical } from 'lucide-react';
@@ -29,10 +28,6 @@ const BasePanel: React.FC<BasePanelProps> = ({
     // 获取ReactFlow实例
     const { updateNodeData, getNodes, setNodes } = useReactFlow();
     
-    // 计算面板高度，使其与flow高度一致
-    const panelHeight = `${window.innerHeight - 260}px`; // 减去一些边距
-    useResizePanelHeight(panelRef);
-
     // 面板标题
     const [panelTitle, setPanelTitle] = useState(data.nodeName || '未命名节点');
 
@@ -44,8 +39,7 @@ const BasePanel: React.FC<BasePanelProps> = ({
     // 监听外部isShow变化，同步内部状态
     useEffect(() => {
         setIsShowPanel(isShow);
-        console.log(id, data);
-    }, [isShow, id, data]);
+    }, [isShow]);
 
     // 监听data.nodeName变化，更新面板标题
     useEffect(() => {
@@ -104,7 +98,7 @@ const BasePanel: React.FC<BasePanelProps> = ({
     const [startWidth, setStartWidth] = useState(0);
     
     // 最小和最大宽度
-    const MIN_WIDTH = 200;
+    const MIN_WIDTH = 350;
     const MAX_WIDTH = 600;
 
     // 开始拖拽缩放
@@ -148,80 +142,76 @@ const BasePanel: React.FC<BasePanelProps> = ({
         };
     }, [isResizing, handleResizeMove, handleResizeEnd]);
 
-    return <Panel position="top-right">
-        {
-            // 是否显示面板
-            isShowPanel && (
-                // 面板容器
+    return (
+        // 是否显示面板
+        isShowPanel && (
+            // 面板容器
+            <div
+                ref={panelRef}
+                className="absolute right-4 top-4 bottom-4 z-50 flex flex-col bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden"
+                style={{ 
+                    width: `${panelWidth}px`
+                }}
+            >
+                {/* 左侧拖拽区域 */}
                 <div
-                    ref={panelRef}
-                    className="flex flex-col bg-white rounded-lg shadow-lg border border-gray-200 relative overflow-hidden"
-                    style={{ 
-                        height: panelHeight,
-                        width: `${panelWidth}px`
+                    className="absolute left-0 top-0 w-2 h-full flex items-center justify-center group"
+                    style={{
+                        zIndex: 10
                     }}
                 >
-                    {/* 左侧拖拽区域 */}
+                    {/* 拖拽图标 */}
+                    {/* 
+                    opacity-0 透明度为0
+                    group-hover:opacity-100 悬停时透明度为100
+                    transition-opacity 过渡效果
+                    cursor-ew-resize 鼠标样式为可拖拽
+                    p-1 内边距
+                    rounded 圆角
+                    bg-gray-100 背景颜色
+                    */}
                     <div
-                        className="absolute left-0 top-0 w-2 h-full flex items-center justify-center group"
-                        style={{
-                            zIndex: 10
-                        }}
+                        className="flex items-center w-10 h-20 opacity-0 group-hover:opacity-100 transition-opacity cursor-ew-resize p-1 rounded bg-gray-100 hover:bg-gray-400"
+                        onMouseDown={handleResizeStart}
                     >
-                        {/* 拖拽图标 */}
-                        {/* 
-                        opacity-0 透明度为0
-                        group-hover:opacity-100 悬停时透明度为100
-                        transition-opacity 过渡效果
-                        cursor-ew-resize 鼠标样式为可拖拽
-                        p-1 内边距
-                        rounded 圆角
-                        bg-gray-100 背景颜色
-                        */}
-                        <div
-                            className="flex items-center w-10 h-20 opacity-0 group-hover:opacity-100 transition-opacity cursor-ew-resize p-1 rounded bg-gray-100 hover:bg-gray-400"
-                            onMouseDown={handleResizeStart}
-                        >
-                            <GripVertical size={14} className="text-black-500" />
-                        </div>
+                        <GripVertical size={14} className="text-black-500" />
                     </div>
-                    
-                    {/* 标题区域 - 固定高度 */}
-                    <div className="flex-shrink-0 p-2 pb-0">
-                        <BasePanelHeader
-                            title={panelTitle}
-                            setTitle={handleSetTitle}
-                            isEditingTitle={isEditingTitle}
-                            setIsEditingTitle={setIsEditingTitle}
-                            setIsShow={handleClosePanel}
-                            icon={settingPanel.icon}
-                            iconBackgroundColor={settingPanel.iconBackgroundColor}
-                        />
-                    </div>
-
-                    {/* 交易模式切换器 - 弹性高度 */}
-                    <div className="flex-1 min-h-0 p-2 pt-4">
-                        <TradeModeSwitcher
-                            settingPanel={settingPanel}
-                            id={id}
-                            data={data}
-                        />
-                    </div>
-                    {/* <div className="w-full mt-2">
-                        <BasePanelFooter 
-                            tradeMode={tradeMode}
-                            onLiveModeSave={onLiveModeSave}
-                            onBacktestModeSave={onBacktestModeSave}
-                            onSimulationModeSave={onSimulationModeSave}
-                            onCancel={onCancel}
-                        />
-                    </div> */}
                 </div>
                 
-            )
-        }
-        
-    </Panel>;
+                {/* 标题区域 - 固定高度 */}
+                <div className="flex-shrink-0 p-2 pb-0">
+                    <BasePanelHeader
+                        title={panelTitle}
+                        setTitle={handleSetTitle}
+                        isEditingTitle={isEditingTitle}
+                        setIsEditingTitle={setIsEditingTitle}
+                        setIsShow={handleClosePanel}
+                        icon={settingPanel.icon}
+                        iconBackgroundColor={settingPanel.iconBackgroundColor}
+                    />
+                </div>
+
+                {/* 交易模式切换器 - 弹性高度 */}
+                <div className="flex-1 min-h-0 p-2 pt-4">
+                    <TradeModeSwitcher
+                        settingPanel={settingPanel}
+                        id={id}
+                        data={data}
+                    />
+                </div>
+                {/* <div className="w-full mt-2">
+                    <BasePanelFooter 
+                        tradeMode={tradeMode}
+                        onLiveModeSave={onLiveModeSave}
+                        onBacktestModeSave={onBacktestModeSave}
+                        onSimulationModeSave={onSimulationModeSave}
+                        onCancel={onCancel}
+                    />
+                </div> */}
+            </div>
+            
+        )
+    );
 };
 
 export default BasePanel;

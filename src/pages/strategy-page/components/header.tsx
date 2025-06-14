@@ -1,19 +1,17 @@
 import { useState, memo } from "react";
-import { useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Check, X } from "lucide-react";
 import { Strategy } from "@/types/strategy";
+import { Check, X } from "lucide-react";
+import { StrategyControl } from "./strategy-control";
 
 interface HeaderProps {
     strategy: Strategy | undefined;
     setStrategy: (strategy: Strategy) => void;
-    children?: React.ReactNode;
 }
 
-function HeaderComponent({ strategy, setStrategy, children }: HeaderProps) {
-  const navigate = useNavigate();
+function HeaderComponent({ strategy, setStrategy }: HeaderProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [tempName, setTempName] = useState(strategy?.name || "");
 
@@ -41,19 +39,9 @@ function HeaderComponent({ strategy, setStrategy, children }: HeaderProps) {
   };
 
   return (
-    <div className="border-b shadow-sm">
+    <div className="shadow-sm">
       <div className="flex h-16 items-center px-6 justify-between">
         <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-2 hover:bg-background"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            返回
-          </Button>
-
           {isEditing ? (
             <div className="flex items-center gap-2">
               <Input
@@ -99,10 +87,9 @@ function HeaderComponent({ strategy, setStrategy, children }: HeaderProps) {
         </div>
 
         <div className="flex items-center gap-3">
-          {/* 此处移除TradingModeSelector、SaveStrategyButton和RunStrategyButton */}
+          {strategy && <StrategyControl strategy={strategy} setStrategy={setStrategy} />}
         </div>
       </div>
-      {children && <div className="px-6 pb-2">{children}</div>}
     </div>
   );
 }
@@ -117,5 +104,5 @@ export const Header = memo(HeaderComponent, (prevProps, nextProps) => {
   
   // 返回 true 表示相等（不需要重新渲染），返回 false 表示需要重新渲染
   // 如果 strategy 名称没有变化且没有 children，则不需要重新渲染
-  return !strategyNameChanged && !prevProps.children && !nextProps.children;
+  return !strategyNameChanged;
 }); 

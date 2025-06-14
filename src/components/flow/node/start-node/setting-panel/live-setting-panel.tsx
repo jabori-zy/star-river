@@ -7,7 +7,7 @@ import { SelectedAccount } from '@/types/strategy';
 import { useLiveConfig } from '@/hooks/node/start-node/use-live-config';
 
 // 新开始节点实时模式设置面板
-export const NewStartNodeLiveSettingPanel: React.FC<SettingProps> = ({ id, data }) => {
+export const StartNodeLiveSettingPanel: React.FC<SettingProps> = ({ id, data }) => {
     // 将data转换为StartNodeData类型
     const startNodeData = data as StartNodeData;
     
@@ -46,4 +46,4 @@ export const NewStartNodeLiveSettingPanel: React.FC<SettingProps> = ({ id, data 
     );
 };
 
-export default NewStartNodeLiveSettingPanel;
+export default StartNodeLiveSettingPanel;

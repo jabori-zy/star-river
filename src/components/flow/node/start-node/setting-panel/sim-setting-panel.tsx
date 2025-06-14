@@ -7,7 +7,7 @@ import { SettingProps } from '@/components/flow/base/BasePanel/setting-panel';
 
 
 // 新开始节点实时模式设置面板
-export const NewStartNodeSimSettingPanel: React.FC<SettingProps> = ({ id, data }) => {
+export const StartNodeSimSettingPanel: React.FC<SettingProps> = ({ id, data }) => {
     console.log(id, data);
 
     return (
@@ -20,4 +20,4 @@ export const NewStartNodeSimSettingPanel: React.FC<SettingProps> = ({ id, data }
 }
 
 
-export default NewStartNodeSimSettingPanel;
+export default StartNodeSimSettingPanel;

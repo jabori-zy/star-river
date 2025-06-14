@@ -25,14 +25,14 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router";
 import { StrategyItemProps } from "@/types/strategy";
 import { deleteStrategy } from "@/service/strategy";
-import useIsSidebarOpenStore from "@/store/useIsSidebarOpenStore";
+import useSidebarToggleStore from "@/store/use-sidebar-toggle-store";
 import { useSidebar } from "@/components/ui/sidebar";
 
 export function StrategyItem({ strategyId, strategyName, strategyDescription, strategyStatus, createTime, onDelete }: StrategyItemProps) {
   const navigate = useNavigate();
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const { setIsSidebarOpen } = useIsSidebarOpenStore()
+  const { setIsSidebarOpen } = useSidebarToggleStore()
   const { setOpen } = useSidebar()
 
   const statusConfig = {
@@ -173,7 +173,7 @@ export function StrategyItem({ strategyId, strategyName, strategyDescription, st
             setOpen(false);
             setIsSidebarOpen(false);
             // 跳转到策略节点页面
-            navigate("/node", {
+            navigate("/strategy", {
               state: {
                 strategyId,
                 strategyName,

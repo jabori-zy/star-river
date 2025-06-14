@@ -20,7 +20,7 @@ export default function Dashboard() {
             <AppSidebar className="pb-12 top-10"/>
             {/* 侧边栏内容，SidebarInset 是侧边栏的容器 */}
             <SidebarInset className="flex flex-1 flex-col min-w-0 overflow-auto ">
-              <div className="flex flex-1 flex-col gap-4 p-4 pt-0 min-w-0 overflow-y-auto max-h-[calc(100vh-3rem)]">
+              <div className="flex flex-1 flex-col pt-0 min-w-0 overflow-y-auto max-h-[calc(100vh-2.5rem)]">
                 <Outlet />
               </div>
             </SidebarInset>

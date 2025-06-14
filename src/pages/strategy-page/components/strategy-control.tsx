@@ -327,15 +327,15 @@ function RunStrategyButton({ strategyId, tradeMode }: { strategyId: number | und
   );
 }
 
-interface StrategyControlsProps {
+interface StrategyControlProps {
   strategy: Strategy;
   setStrategy: (strategy: Strategy) => void;
 }
 
-export function StrategyControls({ strategy, setStrategy }: StrategyControlsProps) {
+export function StrategyControl({ strategy, setStrategy }: StrategyControlProps) {
   const tradeMode = strategy?.tradeMode;
   return (
-    <div className="flex items-center justify-end px-6 py-2 border-b">
+    <div className="flex items-center justify-end px-6 py-2">
       <TradingModeSelector strategy={strategy} setStrategy={setStrategy} />
       <Badge variant="outline" className="font-mono mx-3">
         最后保存: 10:30:25

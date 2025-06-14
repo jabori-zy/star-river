@@ -1,8 +1,8 @@
 import { useCallback, useState, useEffect } from 'react';
 import {
   ReactFlow,
-//   MiniMap,
-  Controls,
+  MiniMap,
+//   Controls,
   Background,
   useNodesState,
   useEdgesState,
@@ -18,17 +18,17 @@ import {
   type Connection,
   type EdgeChange,
   applyEdgeChanges,
-  Panel,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { DevTools } from '@/components/flow/devtools'; // 开发者工具
-import { useDragAndDrop } from '../useDragAndDrop';
+import { useDndNodeStore } from '@/store/use-dnd-node-store';
 import { useReactFlow } from '@xyflow/react';
+import { toast } from 'sonner';
 import { Strategy } from '@/types/strategy';
 import { nodeTypes } from '@/constants/nodeTypes';
 import edgeTypes from '@/constants/edgeTypes';
-import BasePanel from '@/components/flow/base/BasePanel';
 import NodePanel from '@/components/flow/NodePanel';
+import ControlPanel from '@/components/flow/node-controllor';
 
 
 
@@ -38,7 +38,7 @@ import NodePanel from '@/components/flow/NodePanel';
 export default function NodeFlow({strategy}:{strategy:Strategy}) {
     const [nodes, setNodes] = useNodesState<Node>([]);
     const [edges, setEdges] = useEdgesState<Edge>([]);
-    const [nodeItemProp] = useDragAndDrop();
+    const { dragNodeItem, setDragNodeItem } = useDndNodeStore();
     const { screenToFlowPosition } = useReactFlow();
     
     const [nodeIdCounter, setNodeIdCounter] = useState(1);
@@ -74,9 +74,9 @@ export default function NodeFlow({strategy}:{strategy:Strategy}) {
     const onDrop = useCallback((event: React.DragEvent<HTMLDivElement>) => {
         event.preventDefault();
       
-        // console.log("nodeItemType", nodeItemProp);
+        // console.log("nodeItemType", dragNodeItem);
 
-        if (!nodeItemProp) return;
+        if (!dragNodeItem) return;
 
         const position = screenToFlowPosition({
             x: event.clientX,
@@ -84,19 +84,27 @@ export default function NodeFlow({strategy}:{strategy:Strategy}) {
         });
         
         const newNode = {
-            id: `${nodeItemProp.nodeId}_${nodeIdCounter}`,
-            type: nodeItemProp.nodeType,
+            id: `${dragNodeItem.nodeId}_${nodeIdCounter}`,
+            type: dragNodeItem.nodeType,
             position,
             data: {
-                ...(nodeItemProp.nodeData),
+                ...(dragNodeItem.nodeData),
                 strategyId: strategy.id,
-                nodeName: nodeItemProp.nodeName
+                nodeName: dragNodeItem.nodeName
             },
         };
 
         setNodes((nds) => nds.concat(newNode));
         setNodeIdCounter(prev => prev + 1);
-    }, [screenToFlowPosition, nodeItemProp, setNodes, nodeIdCounter, strategy.id]);
+        
+        // 清除拖拽状态
+        setDragNodeItem(null);
+        
+        // 显示成功提示
+        toast(`节点 ${dragNodeItem.nodeName} 已添加`, {
+            duration: 2000
+        });
+    }, [screenToFlowPosition, dragNodeItem, setNodes, nodeIdCounter, strategy.id, setDragNodeItem]);
 
     // 当拖动或者选择节点时，将会触发onNodesChange事件
     const onNodesChange: OnNodesChange = useCallback(
@@ -145,7 +153,7 @@ export default function NodeFlow({strategy}:{strategy:Strategy}) {
     }, [nodes, edges]);
 
     return ( 
-          <div className="flex-1 h-full w-full overflow-hidden">
+          <div className="flex-1 h-full w-full overflow-x-auto">
             <ReactFlow
               nodes={nodes}
               edges={edges}
@@ -161,12 +169,15 @@ export default function NodeFlow({strategy}:{strategy:Strategy}) {
               style={{ backgroundColor: "#F7F9FB", height: "100%" }}
           > 
               <DevTools />
-              {/* <MiniMap /> */}
-              <Controls />
+              <MiniMap position='bottom-left' />
+              {/* <Controls /> */}
+              {/* 背景颜色：深灰色 */}
               <Background />
               <NodeToolbar />
               {/* 节点面板 */}
               <NodePanel />
+              {/* 节点控制面板 */}
+              <ControlPanel />
           </ReactFlow>
         </div>
     );

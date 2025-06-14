@@ -2,13 +2,13 @@
 import { create } from 'zustand';
 
 // 侧边栏是否打开的state
-interface IsSidebarOpenState {
+interface SidebarToggleState {
     isSidebarOpen: boolean;
     setIsSidebarOpen: (isSidebarOpen: boolean) => void;
 }
 
 // 侧边栏是否打开的store
-const useIsSidebarOpenStore = create<IsSidebarOpenState>((set) => ({
+const useSidebarToggleStore = create<SidebarToggleState>((set) => ({
     isSidebarOpen: true,
     setIsSidebarOpen: (isSidebarOpen) => {
         set({ isSidebarOpen })
@@ -16,4 +16,4 @@ const useIsSidebarOpenStore = create<IsSidebarOpenState>((set) => ({
     },
 }))
 
-export default useIsSidebarOpenStore;
+export default useSidebarToggleStore;

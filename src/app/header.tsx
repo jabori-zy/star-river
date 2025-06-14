@@ -1,11 +1,12 @@
 import { SidebarIcon } from "lucide-react"
 import { Button } from '@/components/ui/button'
 import { useSidebar } from '@/components/ui/sidebar'
-import useIsSidebarOpenStore from '@/store/useIsSidebarOpenStore'
+import useSidebarToggleStore from '@/store/use-sidebar-toggle-store'
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Minus, Square, X } from "lucide-react"
 import QuitAppConfitmBox from './quit-app-confitm-box'
 import { useNavigate } from 'react-router'
+import { useHeaderStore } from '@/store/useHeaderStore'
 
 // 声明electron的require
 const { ipcRenderer } = window.require ? window.require('electron') : { ipcRenderer: null }
@@ -22,7 +23,7 @@ declare module 'react' {
 // 侧边栏触发器
 function SidebarTrigger() {
   const { setOpen } = useSidebar()
-  const { isSidebarOpen, setIsSidebarOpen } = useIsSidebarOpenStore()
+  const { isSidebarOpen, setIsSidebarOpen } = useSidebarToggleStore()
   return (
     <Button variant="ghost" size="icon" onClick={() => { setOpen(!isSidebarOpen); setIsSidebarOpen(!isSidebarOpen) }}>
       <SidebarIcon />
@@ -48,9 +49,17 @@ function RouteArrow() {
 }
 
 function AppTitle() {
+  const { centerContent } = useHeaderStore()
+  
   return (
     <div className="flex items-center gap-2">
-      <h1 className="text-lg font-bold">Star River</h1>
+      {centerContent ? (
+        <div className="flex items-center">
+          {centerContent}
+        </div>
+      ) : (
+      <h1 className="text-lg font-bold select-none cursor-default">Star River</h1>
+      )}
     </div>
   )
 }
@@ -115,7 +124,9 @@ export function AppHeader() {
           <RouteArrow />
           
         </div>
-        <AppTitle />
+        <div style={{WebkitAppRegion: 'no-drag'}}>
+          <AppTitle />
+        </div>
         <div className="flex items-center gap-2" style={{WebkitAppRegion: 'no-drag'}}>
           <WindowControl />
         </div>

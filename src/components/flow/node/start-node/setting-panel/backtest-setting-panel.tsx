@@ -13,7 +13,7 @@ import { useBacktestConfig } from '@/hooks/node/start-node/use-backtest-config';
 
 
 // 新开始节点回测模式设置面板
-export const NewStartNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id, data }) => {
+export const StartNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id, data }) => {
     // 将data转换为StartNodeData类型
     const startNodeData = data as StartNodeData;
     
@@ -111,4 +111,4 @@ export const NewStartNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id, d
     );
 };
 
-export default NewStartNodeBacktestSettingPanel;
+export default StartNodeBacktestSettingPanel;

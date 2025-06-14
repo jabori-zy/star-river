@@ -3,6 +3,7 @@ import {
     Bot,
     Settings2,
     SquareTerminal,
+    Play,
   } from "lucide-react"
 
 
@@ -17,7 +18,7 @@ export const sideBarMenu = {
     navMain: [
       {
         title: "策略列表",
-        url: "/strategy",
+        url: "/strategy-list",
         icon: SquareTerminal,
         isActive: true,
       },
@@ -35,6 +36,11 @@ export const sideBarMenu = {
         title: "设置",
         url: "/setting",
         icon: Settings2,
+      },
+      {
+        title: "策略流",
+        url: "/strategy-flow",
+        icon: Play,
       },
     ],
   }

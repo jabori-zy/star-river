@@ -2,7 +2,7 @@ import Login from "../pages/login";
 import StrategyListPage from "../pages/StrategyListPage";
 import { createBrowserRouter } from "react-router";
 import TestPage from "../pages/TestPage/index";
-import StrategyPage from "../pages/StrategyPage";
+import StrategyPage from "../pages/strategy-page";
 import AccountPage from "../pages/AccountPage";
 import BacktestPage from "../pages/BacktestPage";
 import Dashboard from "../pages/Dashboard";
@@ -18,14 +18,13 @@ const router = createBrowserRouter([
                 element: <StrategyListPage />,
             },
             {
-                path: "node",
+                path: "strategy",
                 element: <StrategyPage />,
             },
             {
-                path: "strategy",
+                path: "strategy-list",
                 element: <StrategyListPage />,
             },
-            
             {
                 path: "account",
                 element: <AccountPage />,

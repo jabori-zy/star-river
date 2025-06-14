@@ -8,7 +8,7 @@ import { useState } from 'react';
 import { useReactFlow } from '@xyflow/react';
 
 // 新开始节点模拟模式设置面板
-export const NewStartNodeSimulationSettingPanel: React.FC<SettingProps> = ({ id, data }) => {
+export const StartNodeSimulationSettingPanel: React.FC<SettingProps> = ({ id, data }) => {
     // 将data转换为StartNodeData类型
     const startNodeData = data as StartNodeData;
     
@@ -113,4 +113,4 @@ export const NewStartNodeSimulationSettingPanel: React.FC<SettingProps> = ({ id,
     );
 };
 
-export default NewStartNodeSimulationSettingPanel; 
+export default StartNodeSimulationSettingPanel; 
