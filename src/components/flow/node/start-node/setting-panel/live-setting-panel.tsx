@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { SettingProps } from '@/components/flow/base/BasePanel/setting-panel';
-import { StartNodeData } from '@/types/node/startNode';
+import { StartNodeData } from '@/types/node/start-node';
 import AccountSelector from '../components/account-selector';
 import VariableEditor from '../components/variable-editor';
 import { SelectedAccount } from '@/types/strategy';

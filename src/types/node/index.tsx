@@ -1,20 +1,19 @@
-import { StartNodeData } from "./startNode";
+import { StartNodeData } from "./start-node";
+import { KlineNodeData } from "./kline-node";
 
 
 
 export enum NodeType {
     StartNode = "startNode",
+    KlineNode = "klineNode",
     IndicatorNode = "indicatorNode",
-    NewStartNode = "newStartNode",
-    ExampleNode = 'exampleNode',
-    Example1Node = 'example1Node',
 }
 
 
 
 
 // 所有节点的数据类型的联合类型
-export type NodeData = StartNodeData;
+export type NodeData = StartNodeData | KlineNodeData;
 
 
 

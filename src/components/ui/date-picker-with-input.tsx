@@ -5,7 +5,6 @@ import {
   DatePicker,
   Dialog,
   Group,
-  Label,
   Popover,
   DateValue
 } from "react-aria-components"
@@ -18,12 +17,13 @@ interface DatePickerWithInputProps {
   label?: string;
   value?: string;
   onChange?: (date: string) => void;
+  ariaLabel?: string; // 新增可選的 aria-label 屬性
 }
 
 export default function DatePickerWithInput({ 
-  label = "日期选择器", 
   value = "", 
-  onChange 
+  onChange,
+  ariaLabel = "选择日期" // 默認的 aria-label
 }: DatePickerWithInputProps) {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
     value ? new Date(value) : undefined
@@ -98,6 +98,7 @@ export default function DatePickerWithInput({
         className="*:not-first:mt-2"
         value={getCalendarDate(selectedDate)}
         onChange={typedHandleDateChange}
+        aria-label={ariaLabel}
       >
         {/* <Label className="text-foreground text-sm font-medium">{label}</Label> */}
         <div className="flex">

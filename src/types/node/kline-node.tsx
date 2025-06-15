@@ -2,18 +2,21 @@ import {Node} from '@xyflow/react'
 import { SelectedAccount, DataSourceExchange, TimeRange, BacktestDataSource } from '@/types/strategy';
 
 
+export type SelectedSymbol = {
+    symbol: string; // 交易对
+    interval: string; // 时间周期
+}
+
 // k线节点实盘交易配置
 export type KlineNodeLiveConfig = {
     selectedLiveAccount: SelectedAccount; //选择的账户
-    symbol: string; // 交易对
-    interval: string; // 时间周期
+    selectedSymbols: SelectedSymbol[]; // 选择的交易对(可以多选)
 }
 
 // k线节点模拟交易配置
 export type KlineNodeSimulateConfig = {
     selectedSimulateAccount: SelectedAccount; //选择的账户
-    symbol: string; // 交易对
-    interval: string; // 时间周期
+    selectedSymbols: SelectedSymbol[]; // 选择的交易对(可以多选)
 }
 
 // k线节点回测交易 文件数据源配置
@@ -24,8 +27,7 @@ export type KlineNodeBacktestFileConfig = {
 // k线节点回测交易 交易所数据源配置
 export type KlineNodeBacktestExchangeConfig = {
     selectedDataSource: DataSourceExchange; // 数据来源交易所
-    symbol: string; // 交易对
-    interval: string; // 时间周期
+    selectedSymbols: SelectedSymbol[]; // 选择的交易对(可以多选)
     timeRange: TimeRange; // 时间范围
 }
 
@@ -60,7 +62,4 @@ export type KlineNodeData = {
 
 
 
-export type KlineNode = Node<
-  KlineNodeData,
-  'liveData'
->;
+export type KlineNode = Node<KlineNodeData,'klineNode'>;

@@ -15,6 +15,13 @@ export const nodeCategories = [
           nodeColor: "from-[#4776E6]/20 to-[#8E54E9]/20 hover:from-[#4776E6]/30 hover:to-[#8E54E9]/30",
         } as NodeItemProps,
         {
+          nodeId: "old_kline_node",
+          nodeType: "oldKlineNode",
+          nodeName: "旧K线节点",
+          nodeDescription: "获取K线数据",
+          nodeColor: "from-[#4776E6]/20 to-[#8E54E9]/20 hover:from-[#4776E6]/30 hover:to-[#8E54E9]/30",
+        } as NodeItemProps,
+        {
           nodeId: "kline_node",
           nodeType: "klineNode",
           nodeName: "K线节点",

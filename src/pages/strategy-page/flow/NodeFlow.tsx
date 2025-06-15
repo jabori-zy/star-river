@@ -19,6 +19,7 @@ import {
   type EdgeChange,
   applyEdgeChanges,
 } from '@xyflow/react';
+import { handleNodeChanges } from './on-node-change';
 import '@xyflow/react/dist/style.css';
 import { DevTools } from '@/components/flow/devtools'; // 开发者工具
 import { useDndNodeStore } from '@/store/use-dnd-node-store';
@@ -29,7 +30,7 @@ import { nodeTypes } from '@/constants/nodeTypes';
 import edgeTypes from '@/constants/edgeTypes';
 import NodePanel from '@/components/flow/NodePanel';
 import ControlPanel from '@/components/flow/node-controllor';
-
+import { createValidConnection } from './is-valid-connection';
 
 
 
@@ -42,6 +43,7 @@ export default function NodeFlow({strategy}:{strategy:Strategy}) {
     const { screenToFlowPosition } = useReactFlow();
     
     const [nodeIdCounter, setNodeIdCounter] = useState(1);
+
 
     // 当策略数据变化时更新节点和边
     useEffect(() => {
@@ -109,10 +111,20 @@ export default function NodeFlow({strategy}:{strategy:Strategy}) {
     // 当拖动或者选择节点时，将会触发onNodesChange事件
     const onNodesChange: OnNodesChange = useCallback(
         (changes: NodeChange[]) => {
-          // console.log(changes)
-          setNodes((nds: Node[]) => applyNodeChanges(changes, nds))
+            // 先应用变化，获取更新后的节点状态
+            setNodes((currentNodes: Node[]) => {
+                const newNodes = applyNodeChanges(changes, currentNodes);
+                
+                // 使用抽离的逻辑处理节点变化
+                const updatedNodes = handleNodeChanges(changes, currentNodes, edges);
+                
+                // 如果有节点被更新，则使用更新后的节点，否则使用默认的新节点
+                return updatedNodes !== currentNodes ? 
+                    applyNodeChanges(changes, updatedNodes) : 
+                    newNodes;
+            });
         },
-        [setNodes]
+        [setNodes, edges]
     );
 
     // 当拖动或者选择边时，将会触发onEdgesChange事件
@@ -147,10 +159,10 @@ export default function NodeFlow({strategy}:{strategy:Strategy}) {
     );
 
     // 添加 useEffect 来监听 edges 的变化
-    useEffect(() => {
-        console.log('Current nodes:', nodes);
-        console.log('Current edges:', edges);
-    }, [nodes, edges]);
+    // useEffect(() => {
+    //     console.log('Current nodes:', nodes);
+    //     console.log('Current edges:', edges);
+    // }, [nodes, edges]);
 
     return ( 
           <div className="flex-1 h-full w-full overflow-x-auto">
@@ -164,6 +176,9 @@ export default function NodeFlow({strategy}:{strategy:Strategy}) {
               edgeTypes={edgeTypes}
               onDragOver={onDragOver}
               onDrop={onDrop}
+              isValidConnection={createValidConnection(nodes)}
+            //   onConnectStart={onConnectStart}
+            //   onConnectEnd={onConnectEnd}
               fitView
               fitViewOptions={{ padding: 0.1 }}
               style={{ backgroundColor: "#F7F9FB", height: "100%" }}

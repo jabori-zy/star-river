@@ -25,6 +25,7 @@ const TimeRangeSelector: React.FC<TimeRangeSelectorProps> = ({ timeRange, setTim
                     ...timeRange,
                     startDate: date
                   })}
+                  ariaLabel="选择开始日期"
                 />
               </div>
               <div className="space-y-1">
@@ -32,12 +33,13 @@ const TimeRangeSelector: React.FC<TimeRangeSelectorProps> = ({ timeRange, setTim
                     <Clock className="h-4 w-4 text-muted-foreground" />
                     <span className="font-medium text-sm">结束日期</span>
                 </div>
-                <DatePickerWithInput 
+                <DatePickerWithInput
                   value={timeRange.endDate}
                   onChange={(date: string) => setTimeRange({
                     ...timeRange,
                     endDate: date
                   })}
+                  ariaLabel="选择结束日期"
                 />
               </div>
         </div>

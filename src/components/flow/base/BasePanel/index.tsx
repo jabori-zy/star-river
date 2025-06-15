@@ -61,7 +61,7 @@ const BasePanel: React.FC<BasePanelProps> = ({
 
     // 节点选中状态管理函数，参考 dify 的实现
     const handleNodeSelect = useCallback((nodeId: string, cancelSelection?: boolean) => {
-        console.log('handleNodeSelect', nodeId, cancelSelection);
+        // console.log('handleNodeSelect', nodeId, cancelSelection);
         const nodes = getNodes();
         
         // 使用 map 创建新的节点数组，确保不可变更新

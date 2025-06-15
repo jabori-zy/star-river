@@ -114,7 +114,7 @@ const BaseNode: React.FC<BaseNodeProps> = ({
       edges.map((edge) => {
         // 如果边连接到当前节点，取消_connectedNodeIsHovering状态
         if (edge.source === id || edge.target === id) {
-          console.log(`Setting edge ${edge.id} _connectedNodeIsHovering=false`);
+          // console.log(`Setting edge ${edge.id} _connectedNodeIsHovering=false`);
           return { 
             ...edge, 
             selected: false
@@ -151,8 +151,8 @@ const BaseNode: React.FC<BaseNodeProps> = ({
           </div>
         </div>
         {/* 默认的输入输出handle */}
-        {defaultInputHandle && <BaseHandle {...defaultInputHandle} className="!top-[20px] !right-[-5px]" />}
-        {defaultOutputHandle && <BaseHandle {...defaultOutputHandle} className="!top-[20px] !right-[-5px]" />}
+        {defaultInputHandle && <BaseHandle {...defaultInputHandle}  />}
+        {defaultOutputHandle && <BaseHandle {...defaultOutputHandle}  />}
       </div>
 
       {/* 子内容区域 */}

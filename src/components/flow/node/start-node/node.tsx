@@ -1,7 +1,7 @@
 import BaseNode from "@/components/flow/base/BaseNode";
 import { Play } from "lucide-react";
 import { NodeProps, Position } from "@xyflow/react";
-import { type StartNode } from "@/types/node/startNode";
+import { type StartNode } from "@/types/node/start-node";
 import { BaseHandleProps } from "@/components/flow/base/BaseHandle";
 import { StrategyBacktestConfig, StrategyLiveConfig, TradeMode } from "@/types/strategy";
 import LiveNodeShow from "./components/live-mode-show";

@@ -18,7 +18,7 @@ const LiveNodeShow: React.FC<LiveNodeShowProps> = ({ liveConfig }) => {
             {/* 已选账户展示 */}
             <div className="space-y-2">
                 {
-                    liveConfig.liveAccounts.length === 0 ? (
+                    !liveConfig.liveAccounts || liveConfig.liveAccounts.length === 0 ? (
                         <div className="flex items-center justify-between gap-2 rounded-md">
                             <Label className="text-xm font-bold text-muted-foreground">账户</Label>
                             <span className="text-sm text-red-500"> 未配置 </span>

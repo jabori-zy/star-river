@@ -26,6 +26,7 @@ const NodePanel: React.FC = () => {
         const checkSelectedNodes = () => {
             const nodes = getNodes();
             const selectedNode = nodes.find(node => node.selected);
+            // console.log("selectedNode", selectedNode?.id);
             
             // 如果选中的节点存在，则设置节点id和类型，并显示面板
             if (selectedNode) {
@@ -45,13 +46,14 @@ const NodePanel: React.FC = () => {
         checkSelectedNodes();
 
         // 设置定时器定期检查
-        const interval = setInterval(checkSelectedNodes, 100);
+        const interval = setInterval(checkSelectedNodes, 400);
 
         return () => clearInterval(interval);
     }, [getNodes]);
 
     // 使用useMemo优化性能，获取当前节点的设置面板配置
     const currentPanelConfig = useMemo(() => {
+        // console.log("selectedNodeType", selectedNodeType);
         if (!selectedNodeType) {
             // 返回默认设置面板
             return {
@@ -104,6 +106,7 @@ const NodePanel: React.FC = () => {
 
     return (
         <BasePanel
+            key={selectedNodeId} // 使用selectedNodeId作为key，强制重新渲染
             id={selectedNodeId || ''}
             data={selectedNodeData || {} as NodeData}
             settingPanel={currentPanelConfig}
