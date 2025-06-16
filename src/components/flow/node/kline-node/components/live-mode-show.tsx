@@ -27,7 +27,8 @@ const getIntervalLabel = (interval: string) => {
 };
 
 
-function SymbolItem({ symbol, index }: { symbol: SelectedSymbol, index: number }) {
+function SymbolItem({ symbol }: { symbol: SelectedSymbol }) {
+    console.log("symbol", symbol)
     return (
         <div className="flex items-center justify-between px-2 py-2 bg-gray-100 rounded-md relative">
             <div className="flex items-center gap-2 ">
@@ -39,11 +40,11 @@ function SymbolItem({ symbol, index }: { symbol: SelectedSymbol, index: number }
                 <span className="text-sm text-muted-foreground">{getIntervalLabel(symbol.interval)}</span>
             </div>
             <BaseHandle
-            id={`${symbol.symbol}-${symbol.interval}-${index}`}
-            type="source"
-            position={Position.Right}
-            handleColor="!bg-red-400"
-            className="translate-x-2 -translate-y-0.75"
+                id={symbol.handleId}
+                type="source"
+                position={Position.Right}
+                handleColor="!bg-red-400"
+                className="translate-x-2 -translate-y-0.75"
             />
         </div>
     )
@@ -77,7 +78,7 @@ const LiveModeShow: React.FC<LiveModeShowProps> = ({ liveConfig }) => {
                         </div>
                         <div className="flex flex-col gap-2 mt-2">
                             {selectedSymbols.map((symbol, index) => (
-                                <SymbolItem key={`${symbol.symbol}-${symbol.interval}-${index}`} symbol={symbol} index={index} />
+                                <SymbolItem key={`${symbol.symbol}-${symbol.interval}-${index}`} symbol={symbol} />
                             ))}
                         </div>
                     </div>

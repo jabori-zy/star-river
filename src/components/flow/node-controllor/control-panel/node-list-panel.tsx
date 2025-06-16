@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { NodeItemProps } from '@/types/nodeCategory';
-import { nodeCategories } from '@/constants/nodeCategories';
+import { nodeList } from '@/constants/node-list';
 import { useDndNodeStore } from '@/store/use-dnd-node-store';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -51,28 +51,28 @@ const NodeListPanel: React.FC = () => {
     const filteredCategories = useMemo(() => {
         const lowercasedFilter = searchTerm.trim().toLowerCase();
         if (!lowercasedFilter) {
-            return nodeCategories;
+            return nodeList;
         }
 
-        return nodeCategories
-            .map(category => {
-                const categoryTitleMatches = category.title.toLowerCase().includes(lowercasedFilter);
+        return nodeList
+            .map(item => {
+                const categoryTitleMatches = item.title.toLowerCase().includes(lowercasedFilter);
                 
-                const filteredItems = category.items.filter(item =>
+                const filteredItems = item.items.filter(item =>
                     item.nodeName.toLowerCase().includes(lowercasedFilter)
                 );
 
                 if (categoryTitleMatches) {
-                    return category; 
+                    return item; 
                 }
                 
                 if (filteredItems.length > 0) {
-                    return { ...category, items: filteredItems };
+                    return { ...item, items: filteredItems };
                 }
 
                 return null;
             })
-            .filter((category): category is NonNullable<typeof category> => category !== null);
+            .filter((item): item is NonNullable<typeof item> => item !== null);
     }, [searchTerm]);
 
     return (
@@ -95,14 +95,14 @@ const NodeListPanel: React.FC = () => {
             <ScrollArea className="h-[420px] ">
                 <div className="space-y-3 py-2 pr-2">
                     {filteredCategories.length > 0 ? (
-                        filteredCategories.map((category) => (
-                            <div key={category.title} className="space-y-1">
+                        filteredCategories.map((item) => (
+                            <div key={item.title} className="space-y-1">
                                 <div className="text-xs text-gray-500 px-2 py-1 flex items-center">
-                                    <category.icon className="w-3 h-3 mr-1" />
-                                    {category.title}
+                                    <item.icon className="w-3 h-3 mr-1" />
+                                    {item.title}
                                 </div>
                                 <div className="space-y-1">
-                                    {category.items.map((item) => (
+                                    {item.items.map((item) => (
                                         <NodeItem 
                                             key={item.nodeId}
                                             {...item}

@@ -18,6 +18,7 @@ export interface BaseHandleProps extends HandleProps {
  * @param props 其他属性
  */
 const BaseHandle: React.FC<BaseHandleProps> = ({
+    id,
     type,
     handleColor,
     heightPositionClassName = '!top-[20px]', // 高度样式
@@ -31,7 +32,7 @@ const BaseHandle: React.FC<BaseHandleProps> = ({
 
     const handleClassName = `!w-2.5 !h-3.5 ${handleColor} ${maskPosition} ${heightPositionClassName} !rounded-none !z-[-1] ${className}`
 
-    return <Handle {...props} type={type} className={handleClassName} />
+    return <Handle {...props} type={type} className={handleClassName} id={id} />
 }
 
 

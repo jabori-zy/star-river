@@ -24,6 +24,19 @@ export const useUpdateBacktestConfig = ({ id, initialConfig }: UseUpdateBacktest
   // 统一的状态管理
   const [config, setConfig] = useState<KlineNodeBacktestConfig | undefined>(initialConfig);
   
+  // 生成 handleId 的辅助函数
+  const generateHandleId = useCallback((index: number) => {
+    return `${id}_output${index}`;
+  }, [id]);
+
+  // 为交易对数组添加 handleId
+  const addHandleIds = useCallback((symbols: SelectedSymbol[]): SelectedSymbol[] => {
+    return symbols.map((symbol, index) => ({
+      ...symbol,
+      handleId: generateHandleId(index)
+    }));
+  }, [generateHandleId]);
+
   // 通用的更新函数
   const updateConfig = useCallback((updater: (prev: KlineNodeBacktestConfig | undefined) => KlineNodeBacktestConfig) => {
     setConfig(prevConfig => {
@@ -94,16 +107,19 @@ export const useUpdateBacktestConfig = ({ id, initialConfig }: UseUpdateBacktest
   }, [updateConfig, getDefaultConfig]);
 
   const updateSelectedSymbols = useCallback((selectedSymbols: SelectedSymbol[]) => {
+    // 为交易对添加 handleId
+    const symbolsWithHandleIds = addHandleIds(selectedSymbols);
+    
     updateConfig(prev => ({
       ...getDefaultConfig(prev),
       exchangeConfig: {
         ...prev?.exchangeConfig,
         selectedDataSource: prev?.exchangeConfig?.selectedDataSource || { id: 0, exchange: Exchange.BINANCE, accountName: '' },
-        selectedSymbols,
+        selectedSymbols: symbolsWithHandleIds,
         timeRange: prev?.exchangeConfig?.timeRange || { startDate: "", endDate: "" }
       }
     }));
-  }, [updateConfig, getDefaultConfig]);
+  }, [updateConfig, getDefaultConfig, addHandleIds]);
 
   const updateTimeRange = useCallback((timeRange: TimeRange) => {
     updateConfig(prev => ({

@@ -11,7 +11,7 @@ import { Drawer } from "@/components/ui/drawer"
 import { PencilIcon, TrendingUp } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import IndicatorNodePanel from './panel';
-import { IndicatorNodeData } from '@/types/node/indicatorNode';
+import { type IndicatorNodeData } from '@/types/node/indicator-node';
 import { IndicatorType } from '@/types/indicator';
 import { IndicatorValue } from '@/types/indicator/indicatorValue';
 import { TradeMode } from '@/types/node';

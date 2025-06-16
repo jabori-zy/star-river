@@ -8,6 +8,16 @@ export enum IndicatorType {
     BOLL = "boll",
 }
 
+
+
+export type IndicatorMap = {
+    [IndicatorType.SMA]: SmaConfig;
+    [IndicatorType.EMA]: EmaConfig;
+    [IndicatorType.BOLL]: BollConfig;
+}
+
+
+
 export enum PriceSource {
     CLOSE = "close",
     OPEN = "open",

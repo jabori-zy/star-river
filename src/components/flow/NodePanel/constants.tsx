@@ -1,5 +1,6 @@
 import StartNodeSettingPanel from '../node/start-node/setting-panel';
 import KlineNodeSettingPanel from '../node/kline-node/setting-panel';
+import IndicatorNodeSettingPanel from '../node/indicator-node/setting-panel';
 import { SettingPanelProps } from '../base/BasePanel/trade-mode-switcher';
 import { NodeType } from '@/types/node/index';
 
@@ -9,6 +10,7 @@ import { NodeType } from '@/types/node/index';
  */
 export const PanelComponentMap: Partial<Record<NodeType, SettingPanelProps>> = {
   [NodeType.StartNode]: StartNodeSettingPanel,
-  [NodeType.KlineNode]: KlineNodeSettingPanel
+  [NodeType.KlineNode]: KlineNodeSettingPanel,
+  [NodeType.IndicatorNode]: IndicatorNodeSettingPanel
 };
 

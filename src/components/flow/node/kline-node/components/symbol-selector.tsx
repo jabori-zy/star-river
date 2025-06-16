@@ -143,6 +143,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
         }
 
         const newSymbol: SelectedSymbol = {
+            handleId: '', // handleId 将由 hooks 自动生成
             symbol: upperSymbol,
             interval: symbolInterval
         };

@@ -25,6 +25,19 @@ export const useUpdateLiveConfig = ({
   const [liveConfig, setLiveConfig] = useState<KlineNodeLiveConfig | undefined>(initialLiveConfig);
   const [simulateConfig, setSimulateConfig] = useState<KlineNodeSimulateConfig | undefined>(initialSimulateConfig);
   
+  // 生成 handleId 的辅助函数
+  const generateHandleId = useCallback((index: number) => {
+    return `${id}_output_${index}`;
+  }, [id]);
+
+  // 为交易对数组添加 handleId
+  const addHandleIds = useCallback((symbols: SelectedSymbol[]): SelectedSymbol[] => {
+    return symbols.map((symbol, index) => ({
+      ...symbol,
+      handleId: generateHandleId(index)
+    }));
+  }, [generateHandleId]);
+
   // 实盘配置更新函数
   const updateLiveConfig = useCallback((updater: (prev: KlineNodeLiveConfig | undefined) => KlineNodeLiveConfig) => {
     setLiveConfig(prevConfig => {
@@ -76,11 +89,14 @@ export const useUpdateLiveConfig = ({
   }, [updateLiveConfig, getDefaultLiveConfig]);
 
   const updateLiveSelectedSymbols = useCallback((selectedSymbols: SelectedSymbol[]) => {
+    // 为交易对添加 handleId
+    const symbolsWithHandleIds = addHandleIds(selectedSymbols);
+    
     updateLiveConfig(prev => ({
       ...getDefaultLiveConfig(prev),
-      selectedSymbols
+      selectedSymbols: symbolsWithHandleIds
     }));
-  }, [updateLiveConfig, getDefaultLiveConfig]);
+  }, [updateLiveConfig, getDefaultLiveConfig, addHandleIds]);
 
   // 模拟配置更新方法
   const updateSelectedSimulateAccount = useCallback((selectedSimulateAccount: SelectedAccount) => {
@@ -91,11 +107,14 @@ export const useUpdateLiveConfig = ({
   }, [updateSimulateConfig, getDefaultSimulateConfig]);
 
   const updateSimulateSelectedSymbols = useCallback((selectedSymbols: SelectedSymbol[]) => {
+    // 为交易对添加 handleId
+    const symbolsWithHandleIds = addHandleIds(selectedSymbols);
+    
     updateSimulateConfig(prev => ({
       ...getDefaultSimulateConfig(prev),
-      selectedSymbols
+      selectedSymbols: symbolsWithHandleIds
     }));
-  }, [updateSimulateConfig, getDefaultSimulateConfig]);
+  }, [updateSimulateConfig, getDefaultSimulateConfig, addHandleIds]);
 
   return {
     liveConfig,
