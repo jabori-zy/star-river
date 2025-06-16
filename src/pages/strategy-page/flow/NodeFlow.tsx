@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState, useEffect, useMemo } from 'react';
 import {
   ReactFlow,
   MiniMap,
@@ -44,29 +44,47 @@ export default function NodeFlow({strategy}:{strategy:Strategy}) {
     
     const [nodeIdCounter, setNodeIdCounter] = useState(1);
 
+    // 创建一个唯一的 key 用于强制重新渲染，包含策略ID和交易模式
+    const flowKey = useMemo(() => {
+        return `${strategy.id}-${strategy.tradeMode}`;
+    }, [strategy.id, strategy.tradeMode]);
 
     // 当策略数据变化时更新节点和边
     useEffect(() => {
+        // 清空现有节点和边，确保模式切换时完全重新渲染
+        setNodes([]);
+        setEdges([]);
+        
+        // 重置节点计数器
+        setNodeIdCounter(1);
+        
         if (strategy.nodes?.length > 0) {
-            setNodes(strategy.nodes);
-            setEdges(strategy.edges);
-            // 设置计数器为现有节点数量加1
-            setNodeIdCounter(strategy.nodes.length);
+            // 添加延迟确保清空操作完成
+            setTimeout(() => {
+                setNodes(strategy.nodes);
+                setEdges(strategy.edges || []);
+                // 设置计数器为现有节点数量加1
+                setNodeIdCounter(strategy.nodes.length + 1);
+            }, 0);
         }
         // 如果没有节点和边，则创建一个开始节点
         else {
-            const startNode: Node = {
-                id: 'start_node',
-                type: 'startNode',
-                position: { x: 0, y: 0 },
-                data: {
-                    strategyId: strategy.id,
-                    strategyTitle: strategy.name
-                }
-            };
-            setNodes([startNode]);
+            setTimeout(() => {
+                const startNode: Node = {
+                    id: 'start_node',
+                    type: 'startNode',
+                    position: { x: 0, y: 0 },
+                    data: {
+                        strategyId: strategy.id,
+                        strategyTitle: strategy.name,
+                        tradeMode: strategy.tradeMode // 添加交易模式到节点数据中
+                    }
+                };
+                setNodes([startNode]);
+                setNodeIdCounter(2);
+            }, 0);
         }
-    }, [strategy, setNodes, setEdges]);
+    }, [strategy.id, strategy.tradeMode, strategy.nodes, strategy.edges, strategy.name, setNodes, setEdges]);
 
     const onDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
         event.preventDefault();
@@ -92,7 +110,8 @@ export default function NodeFlow({strategy}:{strategy:Strategy}) {
             data: {
                 ...(dragNodeItem.nodeData),
                 strategyId: strategy.id,
-                nodeName: dragNodeItem.nodeName
+                nodeName: dragNodeItem.nodeName,
+                tradeMode: strategy.tradeMode // 添加交易模式到新节点数据中
             },
         };
 
@@ -106,7 +125,7 @@ export default function NodeFlow({strategy}:{strategy:Strategy}) {
         toast(`节点 ${dragNodeItem.nodeName} 已添加`, {
             duration: 2000
         });
-    }, [screenToFlowPosition, dragNodeItem, setNodes, nodeIdCounter, strategy.id, setDragNodeItem]);
+    }, [screenToFlowPosition, dragNodeItem, setNodes, nodeIdCounter, strategy.id, strategy.tradeMode, setDragNodeItem]);
 
     // 当拖动或者选择节点时，将会触发onNodesChange事件
     const onNodesChange: OnNodesChange = useCallback(
@@ -167,12 +186,14 @@ export default function NodeFlow({strategy}:{strategy:Strategy}) {
     return ( 
           <div className="flex-1 h-full w-full overflow-x-auto">
             <ReactFlow
+              key={flowKey} // 使用 flowKey 强制重新渲染，确保模式切换时组件完全重置
               nodes={nodes}
               edges={edges}
               onNodesChange={onNodesChange}
               onEdgesChange={onEdgesChange}
               onConnect={onConnect}
-              nodeTypes={nodeTypes}
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              nodeTypes={nodeTypes as any} // 临时使用 any 类型来解决类型兼容性问题
               edgeTypes={edgeTypes}
               onDragOver={onDragOver}
               onDrop={onDrop}

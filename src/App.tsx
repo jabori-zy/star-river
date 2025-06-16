@@ -3,6 +3,7 @@ import router from "./router";
 import "./i18n";
 import { useEffect, useState } from "react";
 import useSystemConfigStore from "./store/useSystemConfigStore";
+import { StagewiseToolbar } from "@stagewise/toolbar-react";
 
 function App() {
   const { loadSystemConfig } = useSystemConfigStore();
@@ -32,7 +33,16 @@ function App() {
     );
   }
 
-  return <RouterProvider router={router} />;
+  return (
+    <>
+      <RouterProvider router={router} />
+      <StagewiseToolbar 
+        config={{
+          plugins: []
+        }}
+      />
+    </>
+  );
 }
 
 export default App;

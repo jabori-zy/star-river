@@ -94,14 +94,14 @@ function TradingModeSelector({ strategy, setStrategy }: { strategy: Strategy | u
     <div className="flex items-center gap-2">
       <span className="flex text-xs text-muted-foreground">交易模式:</span>
       <Select
-        value={strategyTradingMode}
+        value={tradingMode}
         onValueChange={handleModeChange}
       >
-        <SelectTrigger className={`h-8 w-[130px] ${getTradingModeColor(strategyTradingMode)}`}>
+        <SelectTrigger className={`h-8 w-[130px] ${getTradingModeColor(tradingMode)}`}>
           <SelectValue>
             <div className="flex items-center gap-2 w-full">
-              {getTradingModeIcon(strategyTradingMode)}
-              <span className="text-xs truncate">{getTradingModeName(strategyTradingMode)}</span>
+              {getTradingModeIcon(tradingMode)}
+              <span className="text-xs truncate">{getTradingModeName(tradingMode)}</span>
             </div>
           </SelectValue>
         </SelectTrigger>
