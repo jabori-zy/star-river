@@ -9,16 +9,9 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { Input } from "@/components/ui/input";
 import { PlusIcon, X, Settings, TrendingUp, BarChart3 } from "lucide-react";
 
-interface SelectedIndicator {
-    id: string;
-    type: IndicatorType;
-    config: IndicatorConfig;
-    name: string;
-}
-
 interface IndicatorSelectorProps {
-    selectedIndicators: SelectedIndicator[];
-    onIndicatorsChange: (indicators: SelectedIndicator[]) => void;
+    selectedIndicators: IndicatorConfig[];
+    onSelectedIndicatorsChange: (indicators: IndicatorConfig[]) => void;
 }
 
 // 指标类型选项
@@ -37,40 +30,55 @@ const PRICE_SOURCE_OPTIONS = [
 ];
 
 const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({ 
-    selectedIndicators, 
-    onIndicatorsChange 
+    selectedIndicators,
+    onSelectedIndicatorsChange 
 }) => {
+    // 确保 selectedIndicators 是数组类型
+    // const indicators = Array.isArray(selectedIndicators) ? selectedIndicators : [];
+    
     // 本地状态管理
-    const [localIndicators, setLocalIndicators] = useState<SelectedIndicator[]>([]);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [editingIndicator, setEditingIndicator] = useState<SelectedIndicator | undefined>(undefined);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editingIndex, setEditingIndex] = useState<number | null>(null);
     const [indicatorType, setIndicatorType] = useState<IndicatorType>(IndicatorType.SMA);
-    const [indicatorName, setIndicatorName] = useState<string>("");
     const [period, setPeriod] = useState<number>(20);
     const [stdDev, setStdDev] = useState<number>(2);
     const [priceSource, setPriceSource] = useState<PriceSource>(PriceSource.CLOSE);
 
-    // 初始化时从props同步到本地状态
-    useEffect(() => {
-        if (selectedIndicators && selectedIndicators.length > 0) {
-            setLocalIndicators([...selectedIndicators]);
-        } else {
-            setLocalIndicators([]);
-        }
-    }, [selectedIndicators]);
+    // 检查指标配置是否已存在（类型+周期+数据源相同）
+    const isIndicatorConfigExists = (type: IndicatorType, period: number, priceSource: PriceSource, excludeIndex?: number) => {
+        return selectedIndicators.some((indicator, index) => {
+            if (excludeIndex !== undefined && index === excludeIndex) {
+                return false; // 排除正在编辑的项
+            }
+            
+            if (indicator.type !== type || indicator.priceSource !== priceSource) {
+                return false;
+            }
+            
+            // 检查周期
+            if (type === IndicatorType.SMA || type === IndicatorType.EMA) {
+                return (indicator as SmaConfig | EmaConfig).period === period;
+            } else if (type === IndicatorType.BOLL) {
+                return (indicator as BollConfig).period === period;
+            }
+            
+            return false;
+        });
+    };
 
     // 每次对话框打开时重置状态
     useEffect(() => {
         if (isDialogOpen) {
-            if (editingIndicator) {
-                setIndicatorType(editingIndicator.type);
-                setIndicatorName(editingIndicator.name);
-                setPriceSource(editingIndicator.config.priceSource);
+            if (isEditing && editingIndex !== null) {
+                const config = selectedIndicators[editingIndex];
+                setIndicatorType(config.type);
+                setPriceSource(config.priceSource);
                 
-                if (editingIndicator.type === IndicatorType.SMA || editingIndicator.type === IndicatorType.EMA) {
-                    setPeriod((editingIndicator.config as SmaConfig | EmaConfig).period);
-                } else if (editingIndicator.type === IndicatorType.BOLL) {
-                    const bollConfig = editingIndicator.config as BollConfig;
+                if (config.type === IndicatorType.SMA || config.type === IndicatorType.EMA) {
+                    setPeriod((config as SmaConfig | EmaConfig).period);
+                } else if (config.type === IndicatorType.BOLL) {
+                    const bollConfig = config as BollConfig;
                     setPeriod(bollConfig.period);
                     setStdDev(bollConfig.stdDev);
                 }
@@ -78,56 +86,47 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
                 resetForm();
             }
         }
-    }, [isDialogOpen, editingIndicator]);
+    }, [isDialogOpen, isEditing, editingIndex, selectedIndicators]);
 
     const resetForm = () => {
         setIndicatorType(IndicatorType.SMA);
-        setIndicatorName("");
         setPeriod(20);
         setStdDev(2);
         setPriceSource(PriceSource.CLOSE);
-    };
-
-    // 同步数据到父组件
-    const syncToParent = (newIndicators: SelectedIndicator[]) => {
-        setLocalIndicators(newIndicators);
-        onIndicatorsChange(newIndicators);
     };
 
     // 根据指标类型创建配置
     const createIndicatorConfig = (type: IndicatorType): IndicatorConfig => {
         switch (type) {
             case IndicatorType.SMA:
-                return { period, priceSource } as SmaConfig;
+                return { type, period, priceSource } as SmaConfig;
             case IndicatorType.EMA:
-                return { period, priceSource } as EmaConfig;
+                return { type, period, priceSource } as EmaConfig;
             case IndicatorType.BOLL:
-                return { period, stdDev, priceSource } as BollConfig;
+                return { type, period, stdDev, priceSource } as BollConfig;
             default:
-                return { period, priceSource } as SmaConfig;
+                return { type, period, priceSource } as SmaConfig;
         }
     };
 
     const handleAddIndicator = () => {
-        setEditingIndicator(undefined);
+        setIsEditing(false);
+        setEditingIndex(null);
         setIsDialogOpen(true);
     };
 
-    const handleEditIndicator = (indicator: SelectedIndicator) => {
-        setEditingIndicator(indicator);
+    const handleEditIndicator = (index: number) => {
+        setIsEditing(true);
+        setEditingIndex(index);
         setIsDialogOpen(true);
     };
 
-    const handleDeleteIndicator = (indicatorToDelete: SelectedIndicator) => {
-        const newIndicators = localIndicators.filter(indicator => 
-            indicator.id !== indicatorToDelete.id
-        );
-        syncToParent(newIndicators);
+    const handleDeleteIndicator = (index: number) => {
+        const updatedIndicators = selectedIndicators.filter((_, i) => i !== index);
+        onSelectedIndicatorsChange(updatedIndicators);
     };
 
     const handleSave = () => {
-        const trimmedName = indicatorName.trim();
-
         if (period <= 0) {
             return;
         }
@@ -136,46 +135,39 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
             return;
         }
 
+        // 检查是否重复（排除正在编辑的项）
+        if (isIndicatorConfigExists(indicatorType, period, priceSource, editingIndex || undefined)) {
+            return;
+        }
+
         const config = createIndicatorConfig(indicatorType);
         
-        const newIndicator: SelectedIndicator = {
-            id: editingIndicator?.id || `${indicatorType}_${Date.now()}`,
-            type: indicatorType,
-            config,
-            name: trimmedName
-        };
-
-        let newIndicators: SelectedIndicator[];
-        
-        if (editingIndicator) {
+        if (isEditing && editingIndex !== null) {
             // 编辑现有指标
-            newIndicators = localIndicators.map(indicator => 
-                indicator.id === editingIndicator.id ? newIndicator : indicator
-            );
+            const updatedIndicators = [...selectedIndicators];
+            updatedIndicators[editingIndex] = config;
+            onSelectedIndicatorsChange(updatedIndicators);
         } else {
             // 添加新指标
-            newIndicators = [...localIndicators, newIndicator];
+            onSelectedIndicatorsChange([...selectedIndicators, config]);
         }
         
-        syncToParent(newIndicators);
         setIsDialogOpen(false);
-        setEditingIndicator(undefined);
     };
 
     const getIndicatorLabel = (type: IndicatorType) => {
         return INDICATOR_OPTIONS.find(option => option.value === type)?.label || type;
     };
 
-    const getConfigDisplay = (indicator: SelectedIndicator) => {
-        const config = indicator.config;
-        switch (indicator.type) {
+    const getConfigDisplay = (config: IndicatorConfig) => {
+        switch (config.type) {
             case IndicatorType.SMA:
             case IndicatorType.EMA:
                 return `周期: ${(config as SmaConfig | EmaConfig).period}`;
-                         case IndicatorType.BOLL: {
-                 const bollConfig = config as BollConfig;
-                 return `周期: ${bollConfig.period}, 标准差: ${bollConfig.stdDev}`;
-             }
+            case IndicatorType.BOLL: {
+                const bollConfig = config as BollConfig;
+                return `周期: ${bollConfig.period}, 标准差: ${bollConfig.stdDev}`;
+            }
             default:
                 return '';
         }
@@ -262,26 +254,25 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
             </div>
             
             <div className="space-y-2">
-                {localIndicators.length === 0 ? (
+                {selectedIndicators.length === 0 ? (
                     <div className="flex items-center justify-center p-4 border border-dashed rounded-md text-muted-foreground text-sm">
                         点击+号添加技术指标
                     </div>
                 ) : (
-                    localIndicators.map((indicator) => (
-                        <div key={indicator.id} className="flex items-center justify-between p-2 border rounded-md bg-background group">
+                    selectedIndicators.map((config, index) => (
+                        <div key={index} className="flex items-center justify-between p-2 border rounded-md bg-background group">
                             <div className="flex items-center gap-2">
                                 <Badge variant="outline" className="h-5 px-1">
-                                    <BarChart3 className="h-3 w-3 mr-1 text-green-500" />
-                                    {indicator.name}
+                                    {config.type}
                                 </Badge>
                                 <div className="flex items-center gap-1">
                                     <span className="text-xs text-muted-foreground">
-                                        {getIndicatorLabel(indicator.type)}
+                                        {getIndicatorLabel(config.type)}
                                     </span>
                                 </div>
                                 <div className="flex items-center gap-1">
                                     <span className="text-xs text-muted-foreground">
-                                        {getConfigDisplay(indicator)}
+                                        {getConfigDisplay(config)}
                                     </span>
                                 </div>
                             </div>
@@ -291,7 +282,7 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
                                         variant="ghost" 
                                         size="icon" 
                                         className="h-6 w-6"
-                                        onClick={() => handleEditIndicator(indicator)}
+                                        onClick={() => handleEditIndicator(index)}
                                     >
                                         <Settings className="h-3 w-3" />
                                     </Button>
@@ -299,7 +290,7 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
                                         variant="ghost" 
                                         size="icon" 
                                         className="h-6 w-6 text-destructive"
-                                        onClick={() => handleDeleteIndicator(indicator)}
+                                        onClick={() => handleDeleteIndicator(index)}
                                     >
                                         <X className="h-3 w-3" />
                                     </Button>
@@ -314,13 +305,12 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
-                        <DialogTitle>{editingIndicator ? '编辑技术指标' : '添加技术指标'}</DialogTitle>
+                        <DialogTitle>{isEditing ? '编辑技术指标' : '添加技术指标'}</DialogTitle>
                         <DialogDescription>
-                            配置技术指标的参数和计算方式。
+                            配置技术指标的参数和计算方式。同一指标类型可以配置不同的周期和数据源。
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
-                        
                         <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="indicator-type" className="text-right">
                                 指标类型
@@ -329,7 +319,7 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
                                 <Select 
                                     value={indicatorType} 
                                     onValueChange={(value: IndicatorType) => setIndicatorType(value)}
-                                    disabled={!!editingIndicator}
+                                    disabled={isEditing}
                                 >
                                     <SelectTrigger id="indicator-type">
                                         <SelectValue placeholder="选择指标类型" />
@@ -338,7 +328,10 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
                                         {INDICATOR_OPTIONS.map((option) => {
                                             const IconComponent = option.icon;
                                             return (
-                                                <SelectItem key={option.value} value={option.value}>
+                                                <SelectItem 
+                                                    key={option.value} 
+                                                    value={option.value}
+                                                >
                                                     <div className="flex items-center">
                                                         <IconComponent className="h-4 w-4 mr-2 text-blue-500" />
                                                         <span>{option.label}</span>
@@ -360,7 +353,12 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
                         >
                             取消
                         </Button>
-                        <Button onClick={handleSave}>保存</Button>
+                        <Button 
+                            onClick={handleSave}
+                            disabled={isIndicatorConfigExists(indicatorType, period, priceSource, editingIndex || undefined)}
+                        >
+                            {isIndicatorConfigExists(indicatorType, period, priceSource, editingIndex || undefined) ? '配置已存在' : '保存'}
+                        </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

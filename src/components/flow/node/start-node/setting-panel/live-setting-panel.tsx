@@ -4,7 +4,7 @@ import { StartNodeData } from '@/types/node/start-node';
 import AccountSelector from '../components/account-selector';
 import VariableEditor from '../components/variable-editor';
 import { SelectedAccount } from '@/types/strategy';
-import { useLiveConfig } from '@/hooks/node/start-node/use-live-config';
+import { useLiveConfig } from '@/hooks/node/start-node/use-update-live-config';
 
 // 新开始节点实时模式设置面板
 export const StartNodeLiveSettingPanel: React.FC<SettingProps> = ({ id, data }) => {
@@ -23,19 +23,13 @@ export const StartNodeLiveSettingPanel: React.FC<SettingProps> = ({ id, data }) 
 
     // 本地UI状态
     const [selectedAccounts, setSelectedAccounts] = useState<SelectedAccount[]>(config?.liveAccounts || []);
-
-    // 处理函数 - 简化为调用 hook 方法并更新本地状态
-    const handleUpdateSelectedAccounts = (accounts: SelectedAccount[]) => {
-        setSelectedAccounts(accounts);
-        updateLiveAccounts(accounts);
-    };
     
     return (
         <div className="p-4 space-y-4">
             <AccountSelector
                 selectedAccounts={selectedAccounts} 
                 setSelectedAccounts={setSelectedAccounts}
-                updateSelectedAccounts={handleUpdateSelectedAccounts}
+                updateSelectedAccounts={updateLiveAccounts}
             />
             
             <VariableEditor

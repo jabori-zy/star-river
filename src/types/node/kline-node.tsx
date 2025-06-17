@@ -10,7 +10,7 @@ export type SelectedSymbol = {
 
 // k线节点实盘交易配置
 export type KlineNodeLiveConfig = {
-    selectedLiveAccount: SelectedAccount; //选择的账户
+    selectedLiveAccount: SelectedAccount | null; //选择的账户
     selectedSymbols: SelectedSymbol[]; // 选择的交易对(可以多选)
 }
 
@@ -27,7 +27,7 @@ export type KlineNodeBacktestFileConfig = {
 
 // k线节点回测交易 交易所数据源配置
 export type KlineNodeBacktestExchangeConfig = {
-    selectedDataSource: DataSourceExchange; // 数据来源交易所
+    selectedDataSource: DataSourceExchange | null; // 数据来源交易所
     selectedSymbols: SelectedSymbol[]; // 选择的交易对(可以多选)
     timeRange: TimeRange; // 时间范围
 }

@@ -1,4 +1,4 @@
-import { NodeChange, Node, Edge, getOutgoers } from '@xyflow/react';
+import { NodeChange, Node, Edge, getOutgoers,  } from '@xyflow/react';
 import { StartNodeData } from '@/types/node/start-node';
 import { KlineNodeData } from '@/types/node/kline-node';
 import { TimeRange, SelectedAccount } from '@/types/strategy';
@@ -130,6 +130,7 @@ export const handleNodeChanges = (
     currentNodes: Node[],
     edges: Edge[]
 ): Node[] => {
+    // 需要更新的节点
     let updatedNodes = currentNodes;
     
     // 检查是否有startNode的数据发生变化

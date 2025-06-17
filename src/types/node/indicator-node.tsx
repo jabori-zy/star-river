@@ -1,4 +1,3 @@
-import { IndicatorValue } from "@/types/indicator/indicatorValue";
 import { IndicatorType, IndicatorConfig } from "@/types/indicator";
 import { TimeRange, BacktestDataSource } from "@/types/strategy";
 import { Exchange } from "@/types/common";
@@ -7,15 +6,18 @@ import { Node } from "@xyflow/react";
 
 // 实盘交易指标配置
 export type IndicatorNodeLiveConfig = {
-    exchange?: string;  // 交易所
-    symbol?: string;  // 交易对
-    interval?: string;  // 时间周期
+    exchange: string | Exchange | null;  // 交易所
+    symbol: string | null; // 交易对
+    interval: string | null;  // 时间周期
     // indicatorConfig: IndicatorConfig; // 指标配置
-    selectedIndicators: Record<IndicatorType, IndicatorConfig>; // 选中的指标
+    selectedIndicators: IndicatorConfig[]; // 选中的指标
 }
 
-// 模拟交易指标配置
+// 模拟交易指标配置  
 export type IndicatorNodeSimulateConfig = {
+    exchange?: string | Exchange;  // 交易所
+    symbol?: string;  // 交易对
+    interval?: string;  // 时间周期
     indicatorConfig: IndicatorConfig; // 指标配置
 }
 
@@ -27,11 +29,11 @@ export type IndicatorNodeBacktestFileConfig = {
 
 // 回测交易 交易所配置
 export type IndicatorNodeBacktestExchangeConfig = {
-    exchange: Exchange; // 交易所
+    exchange: Exchange | string; // 交易所
     symbol: string; // 交易对
     interval: string; // 时间周期
     timeRange: TimeRange; // 时间范围
-    selectedIndicators: Record<IndicatorType, IndicatorConfig>; // 选中的指标
+    selectedIndicators: IndicatorConfig[]; // 选中的指标
 }
 
 // 指标节点回测模式配置

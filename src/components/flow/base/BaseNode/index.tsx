@@ -39,7 +39,7 @@ const BaseNode: React.FC<BaseNodeProps> = ({
   children, // 子内容
   className = '', // 自定义类名
   selected = false, // 是否选中
-  selectedBorderColor = 'border-red-50', // 选中时边框颜色
+  selectedBorderColor = 'border-red-400', // 选中时边框颜色
   iconBackgroundColor = 'bg-red-400', // 图标背景颜色
   defaultInputHandle, // 默认输入handle属性
   defaultOutputHandle, // 默认输出handle属性

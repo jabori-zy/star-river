@@ -1,29 +1,24 @@
 import { useCallback, useState } from 'react';
 import { useReactFlow } from '@xyflow/react';
 import { 
-  KlineNodeLiveConfig, 
-  KlineNodeSimulateConfig,
+  KlineNodeLiveConfig,
   SelectedSymbol 
 } from '@/types/node/kline-node';
 import { SelectedAccount } from '@/types/strategy';
-import { Exchange } from '@/types/common';
 
 interface UseUpdateLiveConfigProps {
   id: string;
   initialLiveConfig?: KlineNodeLiveConfig;
-  initialSimulateConfig?: KlineNodeSimulateConfig;
 }
 
 export const useUpdateLiveConfig = ({ 
   id, 
-  initialLiveConfig, 
-  initialSimulateConfig 
+  initialLiveConfig
 }: UseUpdateLiveConfigProps) => {
   const { updateNodeData } = useReactFlow();
   
   // 统一的状态管理
   const [liveConfig, setLiveConfig] = useState<KlineNodeLiveConfig | undefined>(initialLiveConfig);
-  const [simulateConfig, setSimulateConfig] = useState<KlineNodeSimulateConfig | undefined>(initialSimulateConfig);
   
   // 生成 handleId 的辅助函数
   const generateHandleId = useCallback((index: number) => {
@@ -52,36 +47,25 @@ export const useUpdateLiveConfig = ({
     });
   }, [id, updateNodeData]);
 
-  // 模拟配置更新函数
-  const updateSimulateConfig = useCallback((updater: (prev: KlineNodeSimulateConfig | undefined) => KlineNodeSimulateConfig) => {
-    setSimulateConfig(prevConfig => {
-      const newConfig = updater(prevConfig);
-      
-      // 更新节点数据
-      updateNodeData(id, {
-        simulateConfig: newConfig
-      });
-      
-      return newConfig;
-    });
-  }, [id, updateNodeData]);
-
   // 实盘配置默认值
   const getDefaultLiveConfig = useCallback((prev?: KlineNodeLiveConfig): KlineNodeLiveConfig => ({
-    selectedLiveAccount: prev?.selectedLiveAccount || { id: 0, exchange: Exchange.BINANCE, accountName: '' },
-    selectedSymbols: prev?.selectedSymbols || [],
-    ...prev
-  }), []);
-
-  // 模拟配置默认值
-  const getDefaultSimulateConfig = useCallback((prev?: KlineNodeSimulateConfig): KlineNodeSimulateConfig => ({
-    selectedSimulateAccount: prev?.selectedSimulateAccount || { id: 0, exchange: Exchange.BINANCE, accountName: '' },
-    selectedSymbols: prev?.selectedSymbols || [],
+    selectedLiveAccount: prev?.selectedLiveAccount || null, //默认值为null
+    selectedSymbols: prev?.selectedSymbols || [], //默认值为空数组
     ...prev
   }), []);
 
   // 实盘配置更新方法
-  const updateSelectedLiveAccount = useCallback((selectedLiveAccount: SelectedAccount) => {
+  const setDefaultLiveConfig = useCallback(() => {
+    const defaultConfig = getDefaultLiveConfig();
+    updateLiveConfig(prev => ({
+      ...getDefaultLiveConfig(prev),
+      selectedLiveAccount: defaultConfig.selectedLiveAccount,
+      selectedSymbols: defaultConfig.selectedSymbols
+    }));
+  }, [updateLiveConfig, getDefaultLiveConfig]);
+
+
+  const updateSelectedLiveAccount = useCallback((selectedLiveAccount: SelectedAccount | null) => {
     updateLiveConfig(prev => ({
       ...getDefaultLiveConfig(prev),
       selectedLiveAccount
@@ -98,32 +82,12 @@ export const useUpdateLiveConfig = ({
     }));
   }, [updateLiveConfig, getDefaultLiveConfig, addHandleIds]);
 
-  // 模拟配置更新方法
-  const updateSelectedSimulateAccount = useCallback((selectedSimulateAccount: SelectedAccount) => {
-    updateSimulateConfig(prev => ({
-      ...getDefaultSimulateConfig(prev),
-      selectedSimulateAccount
-    }));
-  }, [updateSimulateConfig, getDefaultSimulateConfig]);
-
-  const updateSimulateSelectedSymbols = useCallback((selectedSymbols: SelectedSymbol[]) => {
-    // 为交易对添加 handleId
-    const symbolsWithHandleIds = addHandleIds(selectedSymbols);
-    
-    updateSimulateConfig(prev => ({
-      ...getDefaultSimulateConfig(prev),
-      selectedSymbols: symbolsWithHandleIds
-    }));
-  }, [updateSimulateConfig, getDefaultSimulateConfig, addHandleIds]);
-
   return {
     liveConfig,
-    simulateConfig,
     // 实盘配置更新方法
+    setDefaultLiveConfig,
     updateSelectedLiveAccount,
     updateLiveSelectedSymbols,
-    // 模拟配置更新方法
-    updateSelectedSimulateAccount,
-    updateSimulateSelectedSymbols
+
   };
 };

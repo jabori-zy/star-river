@@ -2,11 +2,13 @@ import { useCallback, useState } from 'react';
 import { useReactFlow } from '@xyflow/react';
 import { StrategyLiveConfig, SelectedAccount, StrategyVariable } from '@/types/strategy';
 
+// 接口定义
 interface UseLiveConfigProps {
-  id: string;
-  initialConfig?: StrategyLiveConfig;
+  id: string; // 节点ID
+  initialConfig?: StrategyLiveConfig; // 实盘配置
 }
 
+// 自定义hook
 export const useLiveConfig = ({ id, initialConfig }: UseLiveConfigProps) => {
   const { updateNodeData } = useReactFlow();
   
@@ -35,6 +37,7 @@ export const useLiveConfig = ({ id, initialConfig }: UseLiveConfigProps) => {
   }), []);
 
   // 通用的字段更新方法
+  // 类型 K 必须是 StrategyLiveConfig 的属性名之一
   const updateField = useCallback(<K extends keyof StrategyLiveConfig>(
     field: K, 
     value: StrategyLiveConfig[K]
@@ -45,17 +48,26 @@ export const useLiveConfig = ({ id, initialConfig }: UseLiveConfigProps) => {
     }));
   }, [updateConfig, getDefaultConfig]);
 
-  // 具体的更新方法
+  // 设置默认实盘配置
+  const setDefaultLiveConfig = useCallback(() => {
+    const defaultConfig = getDefaultConfig();
+    updateField('liveAccounts', defaultConfig.liveAccounts);
+    updateField('variables', defaultConfig.variables);
+  }, [updateField, getDefaultConfig]);
+
+  // 更新实盘账户
   const updateLiveAccounts = useCallback((accounts: SelectedAccount[]) => {
     updateField('liveAccounts', accounts);
   }, [updateField]);
 
+  // 更新实盘变量
   const updateVariables = useCallback((variables: StrategyVariable[]) => {
     updateField('variables', variables);
   }, [updateField]);
 
   return {
     config,
+    setDefaultLiveConfig,
     updateLiveAccounts,
     updateVariables
   };

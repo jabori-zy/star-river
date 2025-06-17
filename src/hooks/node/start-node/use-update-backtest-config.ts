@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import { useReactFlow } from '@xyflow/react';
 import { StrategyBacktestConfig, SelectedAccount, StrategyVariable, TimeRange, BacktestDataSource } from '@/types/strategy';
+import dayjs from 'dayjs';
 
 interface UseBacktestConfigProps {
   id: string;
@@ -29,8 +30,12 @@ export const useBacktestConfig = ({ id, initialConfig }: UseBacktestConfigProps)
 
   // 默认配置值
   const getDefaultConfig = useCallback((prev?: StrategyBacktestConfig): StrategyBacktestConfig => ({
-    dataSource: prev?.dataSource || BacktestDataSource.FILE,
-    exchangeConfig: prev?.exchangeConfig,
+    dataSource: prev?.dataSource || BacktestDataSource.EXCHANGE,
+    exchangeConfig: prev?.exchangeConfig || {
+      fromExchanges: [],
+      // 默认设置为昨天和前天
+      timeRange: { startDate: dayjs().subtract(2, 'day').format('YYYY-MM-DD'), endDate: dayjs().subtract(1, 'day').format('YYYY-MM-DD') }
+    },
     initialBalance: prev?.initialBalance || 10000,
     leverage: prev?.leverage || 1,
     feeRate: prev?.feeRate || 0.001,
@@ -49,6 +54,14 @@ export const useBacktestConfig = ({ id, initialConfig }: UseBacktestConfigProps)
       [field]: value
     }));
   }, [updateConfig, getDefaultConfig]);
+
+  // 设置默认回测配置
+  const setDefaultBacktestConfig = useCallback(() => {
+    const defaultConfig = getDefaultConfig();
+    updateField('dataSource', defaultConfig.dataSource);
+    updateField('exchangeConfig', defaultConfig.exchangeConfig);
+    updateField('variables', defaultConfig.variables);
+  }, [updateField, getDefaultConfig]);
 
   // 具体的更新方法
   const updateInitialBalance = useCallback((initialBalance: number) => {
@@ -77,12 +90,14 @@ export const useBacktestConfig = ({ id, initialConfig }: UseBacktestConfigProps)
 
   // 复杂字段的更新方法
   const updateSelectedAccounts = useCallback((accounts: SelectedAccount[]) => {
+    const startDate = dayjs().subtract(2, 'day').format('YYYY-MM-DD');
+    const endDate = dayjs().subtract(1, 'day').format('YYYY-MM-DD');
     updateConfig(prev => ({
       ...getDefaultConfig(prev),
       exchangeConfig: {
         ...prev?.exchangeConfig,
         fromExchanges: accounts,
-        timeRange: prev?.exchangeConfig?.timeRange || { startDate: "", endDate: "" }
+        timeRange: prev?.exchangeConfig?.timeRange || { startDate, endDate }
       }
     }));
   }, [updateConfig, getDefaultConfig]);
@@ -99,6 +114,7 @@ export const useBacktestConfig = ({ id, initialConfig }: UseBacktestConfigProps)
 
   return {
     config,
+    setDefaultBacktestConfig,
     updateInitialBalance,
     updateLeverage,
     updateFeeRate,

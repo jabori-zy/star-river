@@ -10,8 +10,9 @@ import { SelectedAccount } from "@/types/strategy";
 
 interface SymbolSelectorProps {
     selectedSymbols: SelectedSymbol[]; // 已选择的交易对
+    selectedDataSource?: SelectedAccount | null; // 已选择的数据源
     onSymbolsChange: (symbols: SelectedSymbol[]) => void; // 交易对变更回调
-    selectedDataSource?: SelectedAccount; // 已选择的数据源
+    
 }
 
 // 时间周期选项

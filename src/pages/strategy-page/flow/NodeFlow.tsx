@@ -18,6 +18,7 @@ import {
   type Connection,
   type EdgeChange,
   applyEdgeChanges,
+  OnEdgesDelete,
 } from '@xyflow/react';
 import { handleNodeChanges } from './on-node-change';
 import '@xyflow/react/dist/style.css';
@@ -30,7 +31,7 @@ import { nodeTypes } from '@/constants/nodeTypes';
 import edgeTypes from '@/constants/edgeTypes';
 import NodePanel from '@/components/flow/NodePanel';
 import ControlPanel from '@/components/flow/node-controllor';
-import { createValidConnection } from './is-valid-connection';
+import useStrategyWorkflow from '@/hooks/flow/use-strategy-workflow';
 
 
 
@@ -39,10 +40,12 @@ import { createValidConnection } from './is-valid-connection';
 export default function NodeFlow({strategy}:{strategy:Strategy}) {
     const [nodes, setNodes] = useNodesState<Node>([]);
     const [edges, setEdges] = useEdgesState<Edge>([]);
+    // 正在拖拽的节点
     const { dragNodeItem, setDragNodeItem } = useDndNodeStore();
     const { screenToFlowPosition } = useReactFlow();
-    
     const [nodeIdCounter, setNodeIdCounter] = useState(1);
+
+    const { checkIsValidConnection } = useStrategyWorkflow();
 
     // 创建一个唯一的 key 用于强制重新渲染，包含策略ID和交易模式
     const flowKey = useMemo(() => {
@@ -77,9 +80,10 @@ export default function NodeFlow({strategy}:{strategy:Strategy}) {
                     data: {
                         strategyId: strategy.id,
                         strategyTitle: strategy.name,
-                        tradeMode: strategy.tradeMode // 添加交易模式到节点数据中
                     }
                 };
+                // 设置默认实盘配置
+
                 setNodes([startNode]);
                 setNodeIdCounter(2);
             }, 0);
@@ -111,7 +115,6 @@ export default function NodeFlow({strategy}:{strategy:Strategy}) {
                 ...(dragNodeItem.nodeData),
                 strategyId: strategy.id,
                 nodeName: dragNodeItem.nodeName,
-                tradeMode: strategy.tradeMode // 添加交易模式到新节点数据中
             },
         };
 
@@ -125,7 +128,7 @@ export default function NodeFlow({strategy}:{strategy:Strategy}) {
         toast(`节点 ${dragNodeItem.nodeName} 已添加`, {
             duration: 2000
         });
-    }, [screenToFlowPosition, dragNodeItem, setNodes, nodeIdCounter, strategy.id, strategy.tradeMode, setDragNodeItem]);
+    }, [screenToFlowPosition, dragNodeItem, setNodes, nodeIdCounter, strategy.id, setDragNodeItem]);
 
     // 当拖动或者选择节点时，将会触发onNodesChange事件
     const onNodesChange: OnNodesChange = useCallback(
@@ -177,6 +180,14 @@ export default function NodeFlow({strategy}:{strategy:Strategy}) {
         [setEdges]
     );
 
+    const onEdgesDelete: OnEdgesDelete = useCallback(
+        (edges: Edge[]) => {
+            // setEdges((eds) => eds.filter((edge) => !edges.includes(edge)));
+            console.log("边已删除", edges);
+        },
+        [setEdges]
+    );
+
     // 添加 useEffect 来监听 edges 的变化
     // useEffect(() => {
     //     // console.log('Current nodes:', nodes);
@@ -197,7 +208,8 @@ export default function NodeFlow({strategy}:{strategy:Strategy}) {
               edgeTypes={edgeTypes}
               onDragOver={onDragOver}
               onDrop={onDrop}
-              isValidConnection={createValidConnection(nodes)}
+              onEdgesDelete={onEdgesDelete}
+              isValidConnection={checkIsValidConnection}
             //   onConnectStart={onConnectStart}
             //   onConnectEnd={onConnectEnd}
               fitView

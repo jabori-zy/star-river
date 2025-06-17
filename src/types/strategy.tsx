@@ -13,7 +13,7 @@ export enum TradeMode {
 // 策略已选择的账户
 export type SelectedAccount = {
   id: number;
-  exchange: Exchange;
+  exchange: string | Exchange;
   accountName: string;
   availableBalance?: number;
 }
@@ -21,13 +21,13 @@ export type SelectedAccount = {
 // 实盘交易配置
 export interface StrategyLiveConfig {
   liveAccounts: Array<SelectedAccount>;
-  variables?: StrategyVariable[]; // 实盘策略变量
+  variables: StrategyVariable[]; // 实盘策略变量
 }
 
 // 模拟交易配置
 export interface StrategySimulateConfig {
   simulateAccounts: Array<SelectedAccount>;
-  variables?: StrategyVariable[]; // 模拟策略变量
+  variables: StrategyVariable[]; // 模拟策略变量
 }
 
 // 回测交易配置
@@ -45,7 +45,7 @@ export type TimeRange = {
 // 数据源交易所
 export type DataSourceExchange = {
   id: number;
-  exchange: Exchange;
+  exchange: Exchange | string;
   accountName: string;
 }
 
@@ -58,12 +58,12 @@ export type StrategyBacktestExchangeConfig = {
 // 回测交易配置
 export interface StrategyBacktestConfig {
   dataSource: BacktestDataSource; // 数据来源
-  exchangeConfig?: StrategyBacktestExchangeConfig; // 交易所数据源配置
+  exchangeConfig: StrategyBacktestExchangeConfig | null; // 交易所数据源配置
   initialBalance: number; // 初始资金
   leverage: number; // 杠杆倍数
   feeRate: number; // 手续费率
   playSpeed: number; // 回放速度
-  variables?: StrategyVariable[]; // 回测策略变量
+  variables: StrategyVariable[]; // 回测策略变量
 }
 
 // 策略变量类型

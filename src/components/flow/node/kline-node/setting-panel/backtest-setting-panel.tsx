@@ -9,6 +9,8 @@ import SymbolSelector from "../components/symbol-selector";
 import { useUpdateBacktestConfig } from "@/hooks/node/kline-node/use-update-backtest-config";
 import { TimeRange } from "@/types/strategy";
 import { Label } from "@/components/ui/label";
+import { NodeDefaultInputHandleId } from "@/types/node/index";
+
 
 const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id, data }) => {
     const klineNodeData = data as KlineNodeData;
@@ -17,12 +19,12 @@ const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id, data }) => 
 
     
     // 当前节点的connection
-    const connections = useNodeConnections({id})
+    const connections = useNodeConnections({id, handleType: 'target', handleId: NodeDefaultInputHandleId.KlineNodeInput})
     // 已连接的start_node
     const [connectedStartNode, setConnectedStartNode] = useState<StartNode | null>(null)
 
     // timeRange
-    const [timeRange, setTimeRange] = useState<TimeRange | null>(null)
+    const [timeRange, setTimeRange] = useState<TimeRange | null>(data?.backtestConfig?.exchangeConfig?.timeRange || null)
 
     // 使用自定义hook管理回测配置
     const {
@@ -31,7 +33,7 @@ const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id, data }) => 
         updateSelectedSymbols
     } = useUpdateBacktestConfig({
         id,
-        initialConfig: klineNodeData.backtestConfig
+        initialBacktestConfig: klineNodeData.backtestConfig
     });
 
     useEffect(() => {
@@ -57,7 +59,7 @@ const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id, data }) => 
 
     return (
         <div className="space-y-4">
-            <DataSourceSelector 
+            <DataSourceSelector
                 startNode={connectedStartNode} 
                 tradeMode={TradeMode.BACKTEST}
                 selectedAccount={backtestConfig?.exchangeConfig?.selectedDataSource}

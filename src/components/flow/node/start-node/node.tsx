@@ -7,14 +7,15 @@ import { StrategyBacktestConfig, StrategyLiveConfig, TradeMode } from "@/types/s
 import LiveNodeShow from "./components/live-mode-show";
 import BacktestNodeShow from "./components/backtest-mode-show";
 import useTradingModeStore from "@/store/useTradingModeStore";
+import { useLiveConfig } from "@/hooks/node/start-node/use-update-live-config";
+import { useBacktestConfig } from "@/hooks/node/start-node/use-update-backtest-config";
 import { useEffect } from "react";
 
 const StartNode: React.FC<NodeProps<StartNode>> = ({id, data, selected, isConnectable}) => {
 
     const { tradingMode } = useTradingModeStore();
-    useEffect(() => {
-        console.log(tradingMode);
-    }, [tradingMode]);
+    const { setDefaultLiveConfig } = useLiveConfig({ id, initialConfig: data?.liveConfig || undefined });
+    const { setDefaultBacktestConfig } = useBacktestConfig({ id, initialConfig: data?.backtestConfig || undefined });
 
     // 节点名称
     const nodeName = data?.nodeName || "策略起点";
@@ -30,6 +31,17 @@ const StartNode: React.FC<NodeProps<StartNode>> = ({id, data, selected, isConnec
         isConnectable: isConnectable,
         handleColor: '!bg-red-400',
     }
+
+    // 设置默认实盘和回测配置 - 只在配置为空时初始化
+    useEffect(() => {
+        // 只有当配置为空或未定义时才设置默认配置
+        if (!data?.liveConfig) {
+            setDefaultLiveConfig();
+        }
+        if (!data?.backtestConfig) {
+            setDefaultBacktestConfig();
+        }
+    }, [setDefaultLiveConfig, setDefaultBacktestConfig, data?.liveConfig, data?.backtestConfig]);
 
     return (
         <BaseNode

@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { SettingProps } from '@/components/flow/base/BasePanel/setting-panel';
-import { StartNodeData } from '@/types/node/startNode';
+import { StartNodeData } from '@/types/node/start-node';
 import AccountSelector from '../components/account-selector';
 import VariableEditor from '../components/variable-editor';
 import { StrategySimulateConfig, SelectedAccount, StrategyVariable } from '@/types/strategy';
@@ -99,7 +99,6 @@ export const StartNodeSimulationSettingPanel: React.FC<SettingProps> = ({ id, da
     return (
         <div className="p-4 space-y-4">
             <AccountSelector 
-                mode="simulation" 
                 selectedAccounts={selectedAccounts} 
                 setSelectedAccounts={setSelectedAccounts}
                 updateSelectedAccounts={handleUpdateSelectedAccounts} 

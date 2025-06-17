@@ -7,16 +7,17 @@ import { useState,useEffect } from "react";
 import { StartNode } from "@/types/node/start-node";
 import SymbolSelector from "../components/symbol-selector";
 import { useUpdateLiveConfig } from "@/hooks/node/kline-node/use-update-live-config";
+import { NodeDefaultInputHandleId } from "@/types/node/index";
 
 const KlineNodeLiveSettingPanel: React.FC<SettingProps> = ({ id, data }) => {
     const klineNodeData = data as KlineNodeData;
 
     const { getNode } = useReactFlow()
 
-    // 已连接的start_node的id
+    // 已连接的start_node
     const [connectedStartNode, setConnectedStartNode] = useState<StartNode | null>(null)
 
-    const connections = useNodeConnections({id})
+    const connections = useNodeConnections({id, handleType: 'target', handleId: NodeDefaultInputHandleId.KlineNodeInput})
 
     // 使用自定义hook管理实盘配置
     const {
@@ -30,6 +31,7 @@ const KlineNodeLiveSettingPanel: React.FC<SettingProps> = ({ id, data }) => {
 
     useEffect(() => {
         if (connections.length === 1) { 
+            // console.log('connections:', connections)
             // 获取已连接的start_node的id
             const startNodeId = connections[0].source
             const startNodeNode = getNode(startNodeId)
@@ -39,8 +41,8 @@ const KlineNodeLiveSettingPanel: React.FC<SettingProps> = ({ id, data }) => {
     
     return (
         <div className="space-y-4">
-            <DataSourceSelector 
-                startNode={connectedStartNode} 
+            <DataSourceSelector
+                startNode={connectedStartNode}
                 tradeMode={TradeMode.LIVE}
                 selectedAccount={liveConfig?.selectedLiveAccount}
                 onAccountChange={updateSelectedLiveAccount}

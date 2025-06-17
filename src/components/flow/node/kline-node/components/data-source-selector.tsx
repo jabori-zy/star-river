@@ -1,25 +1,27 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import { TradeMode, SelectedAccount } from "@/types/strategy";
 import { StartNode, StartNodeData } from "@/types/node/start-node";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 
 interface DataSourceSelectorProps {
-    startNode: StartNode | null; // kline节点只能连接start节点， 所以传入start节点
+    startNode: StartNode | null; // 已连接的start节点
     tradeMode: TradeMode;
-    selectedAccount?: SelectedAccount; // 当前选中的账户
+    selectedAccount?: SelectedAccount | null; // 当前选中的账户
     onAccountChange?: (account: SelectedAccount) => void; // 账户变更回调
 }
 
 // 已选择的账户列表
 const DataSourceSelector: React.FC<DataSourceSelectorProps> = ({
-    startNode, 
+    startNode,
     tradeMode, 
     selectedAccount,
     onAccountChange
 }) => {
     
     const startNodeData = startNode?.data as StartNodeData
+
+
     
     // 根据交易模式获取账户列表
     const accountList = useMemo(() => {
@@ -47,12 +49,6 @@ const DataSourceSelector: React.FC<DataSourceSelectorProps> = ({
             onAccountChange(selectedAcc);
         }
     };
-    
-    useEffect(() => {
-        console.log('startNodeData:', startNodeData)
-        console.log('accountList:', accountList)
-        console.log('selectedAccount:', selectedAccount)
-    }, [startNodeData, accountList, selectedAccount])
 
     return (
         <div className="flex flex-col gap-2">

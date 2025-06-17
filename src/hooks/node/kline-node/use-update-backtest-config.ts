@@ -15,14 +15,14 @@ import { Exchange } from '@/types/common';
 
 interface UseUpdateBacktestConfigProps {
   id: string;
-  initialConfig?: KlineNodeBacktestConfig;
+  initialBacktestConfig?: KlineNodeBacktestConfig;
 }
 
-export const useUpdateBacktestConfig = ({ id, initialConfig }: UseUpdateBacktestConfigProps) => {
+export const useUpdateBacktestConfig = ({ id, initialBacktestConfig }: UseUpdateBacktestConfigProps) => {
   const { updateNodeData } = useReactFlow();
   
   // 统一的状态管理
-  const [config, setConfig] = useState<KlineNodeBacktestConfig | undefined>(initialConfig);
+  const [config, setConfig] = useState<KlineNodeBacktestConfig | undefined>(initialBacktestConfig);
   
   // 生成 handleId 的辅助函数
   const generateHandleId = useCallback((index: number) => {
@@ -70,6 +70,14 @@ export const useUpdateBacktestConfig = ({ id, initialConfig }: UseUpdateBacktest
     }));
   }, [updateConfig, getDefaultConfig]);
 
+
+  const setDefaultBacktestConfig = useCallback(() => {
+    const defaultConfig = getDefaultConfig();
+    updateField('dataSource', defaultConfig.dataSource);
+    updateField('fileConfig', defaultConfig.fileConfig);
+    updateField('exchangeConfig', defaultConfig.exchangeConfig);
+  }, [updateField, getDefaultConfig]);
+
   // 具体的更新方法
   const updateDataSource = useCallback((dataSource: BacktestDataSource) => {
     updateField('dataSource', dataSource);
@@ -94,7 +102,7 @@ export const useUpdateBacktestConfig = ({ id, initialConfig }: UseUpdateBacktest
     updateField('exchangeConfig', exchangeConfig);
   }, [updateField]);
 
-  const updateSelectedDataSource = useCallback((selectedDataSource: DataSourceExchange) => {
+  const updateSelectedDataSource = useCallback((selectedDataSource: DataSourceExchange | null) => {
     updateConfig(prev => ({
       ...getDefaultConfig(prev),
       exchangeConfig: {
@@ -135,6 +143,7 @@ export const useUpdateBacktestConfig = ({ id, initialConfig }: UseUpdateBacktest
 
   return {
     config,
+    setDefaultBacktestConfig,
     updateDataSource,
     updateFileConfig,
     updateFilePath,

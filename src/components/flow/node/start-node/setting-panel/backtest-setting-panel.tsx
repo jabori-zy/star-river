@@ -7,7 +7,7 @@ import { SelectedAccount, TimeRange, BacktestDataSource } from '@/types/strategy
 import DataSourceSelector from '../components/data-source-selector';
 import TimeRangeSelector from '../components/time-range-selector';
 import BacktestStrategySetting from '../components/backtest-strategy-setting';
-import { useBacktestConfig } from '@/hooks/node/start-node/use-backtest-config';
+import { useBacktestConfig } from '@/hooks/node/start-node/use-update-backtest-config';
 
 
 
@@ -37,9 +37,9 @@ export const StartNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id, data
     const [dataSource, setDataSource] = useState<BacktestDataSource>(config?.dataSource || BacktestDataSource.FILE);
     const [selectedAccounts, setSelectedAccounts] = useState<SelectedAccount[]>(config?.exchangeConfig?.fromExchanges || []);
     const [timeRange, setTimeRange] = useState<TimeRange>(config?.exchangeConfig?.timeRange || { startDate: "", endDate: "" });
-    const [initialBalance, setInitialBalance] = useState<number>(config?.initialBalance || 10000);
+    const [initialBalance, setInitialBalance] = useState<number>(config?.initialBalance || 0);
     const [leverage, setLeverage] = useState<number>(config?.leverage || 1);
-    const [feeRate, setFeeRate] = useState<number>(config?.feeRate || 0.001);
+    const [feeRate, setFeeRate] = useState<number>(config?.feeRate || 0);
     const [playSpeed, setPlaySpeed] = useState<number>(config?.playSpeed || 1);
 
 
