@@ -1,7 +1,7 @@
 import { ComparisonSymbol } from "@/types/node/if-else-node";
 import Selector from "@/components/flow/node/if-else-node/components/selector";
 import { SelectItem } from "@/components/ui/select";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 
 interface ComparisonSymbolSelectorProps {
@@ -14,6 +14,11 @@ interface ComparisonSymbolSelectorProps {
 
 const ComparisonSymbolSelector: React.FC<ComparisonSymbolSelectorProps> = ({className,comparisonSymbol,onComparisonSymbolChange}) => {
     const [localComparisonSymbol, setLocalComparisonSymbol] = useState<ComparisonSymbol>(comparisonSymbol);
+
+    // 当传入的comparisonSymbol发生变化时，同步更新本地状态
+    useEffect(() => {
+        setLocalComparisonSymbol(comparisonSymbol);
+    }, [comparisonSymbol]);
 
     const handleComparisonSymbolChange = (value: string) => {
         setLocalComparisonSymbol(value as ComparisonSymbol);

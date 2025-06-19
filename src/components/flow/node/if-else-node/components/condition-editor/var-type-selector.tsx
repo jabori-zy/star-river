@@ -1,7 +1,7 @@
 import { VarType } from "@/types/node/if-else-node";
 import Selector from "@/components/flow/node/if-else-node/components/selector";
 import { SelectItem } from "@/components/ui/select";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface VarTypeSelectorProps {
     className?: string;
@@ -11,6 +11,11 @@ interface VarTypeSelectorProps {
 
 const VarTypeSelector: React.FC<VarTypeSelectorProps> = ({className,varType,onVarTypeChange}) => {
     const [localVarType, setLocalVarType] = useState<VarType>(varType);
+
+    // 当传入的varType发生变化时，同步更新本地状态
+    useEffect(() => {
+        setLocalVarType(varType);
+    }, [varType]);
 
     const handleVarTypeChange = (value: string) => {
         const newValue = value as VarType;

@@ -10,6 +10,7 @@ import { VariableItem } from "../index";
 import { CaseItem, IfElseNodeData } from "@/types/node/if-else-node";
 import { LogicalSymbol } from "@/types/node/if-else-node";
 import { useUpdateBacktestConfig } from "@/hooks/node/if-else-node/use-update-backtest-config";
+import { ReactSortable } from "react-sortablejs";
 
 
 
@@ -140,6 +141,27 @@ const IfElseNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id, data }) =>
         }
     }
 
+    // 处理拖拽排序
+    const handleSortCases = (newList: (CaseItem & { id: number })[]) => {
+        // 保留所有原有数据，只重新设置caseId，确保连续性（1,2,3...）
+        const resetCases = newList.map((c, index) => ({
+            ...c,  // 保留所有原有属性
+            caseId: index + 1  // 只更新caseId
+        }));
+        
+        // 更新本地状态
+        setLocalBacktestCases(resetCases);
+        
+        // 同步更新后的case到配置中
+        updateCases(resetCases);
+    }
+
+    // 为ReactSortable准备的带有id的cases
+    const casesWithId = localBacktestCases.map(caseItem => ({
+        ...caseItem,
+        id: caseItem.caseId
+    }));
+
 
     return (
         <div className="flex flex-col gap-2 ">
@@ -154,17 +176,26 @@ const IfElseNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id, data }) =>
                     onCaseRemove={handleRemoveCase}
                 />
             ) : (
-                localBacktestCases?.map((caseItem) => (
-                    <CaseEditor 
-                        key={caseItem.caseId} 
-                        id={id} 
-                        data={data} 
-                        variableItemList={variableItemList} 
-                        caseItem={caseItem} 
-                        onCaseChange={handleCaseChange} 
-                        onCaseRemove={handleRemoveCase}
-                    />
-                ))
+                <ReactSortable 
+                    list={casesWithId} 
+                    setList={handleSortCases}
+                    handle=".drag-handle"
+                    animation={200}
+                    className="flex flex-col gap-2"
+                >
+                    {casesWithId.map((caseItem) => (
+                        <div key={caseItem.caseId}>
+                            <CaseEditor 
+                                id={id} 
+                                data={data} 
+                                variableItemList={variableItemList} 
+                                caseItem={caseItem} 
+                                onCaseChange={handleCaseChange} 
+                                onCaseRemove={handleRemoveCase}
+                            />
+                        </div>
+                    ))}
+                </ReactSortable>
             )}
             {/* 添加分支按钮 */}
             <div className="px-2">

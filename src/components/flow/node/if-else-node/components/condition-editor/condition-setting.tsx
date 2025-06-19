@@ -1,7 +1,7 @@
 import { ComparisonSymbol, Condition, VarType, Variable } from "@/types/node/if-else-node";
 import { VariableItem } from "../../index"
 import VariableSelector from "./variable-selector";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ComparisonSymbolSelector from "./comparison-symbol-selector";
 import VarTypeSelector from "./var-type-selector";
 
@@ -23,6 +23,11 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({variableItemList,con
 
     // 本地的条件状态，用于编辑时
     const [localCondition, setLocalCondition] = useState<Condition>(condition);
+
+    // 当传入的condition发生变化时，同步更新本地状态
+    useEffect(() => {
+        setLocalCondition(condition);
+    }, [condition]);
 
     // 更新左节点
     const handleUpdateLeftNode = (nodeId: string, nodeName: string) => {

@@ -33,15 +33,25 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
         return `${nodeId}|${handleId}|${valueKey}`;
     };
 
-    // 解析当前value，提取nodeId和variable
+    // 当传入的variable发生变化时，同步更新本地状态
     useEffect(() => {
         if (variable) {
+            // 更新选中的节点ID
+            setSelectedNodeId(variable.nodeId || "");
+            
+            // 更新变量字符串
             if(variable.nodeId && variable.handleId && variable.variable){
                 const variableString = generateOptionValue(variable.nodeId, variable.handleId, variable.variable);
                 setVariableString(variableString);
                 console.log("variableString", variableString);
+            } else {
+                setVariableString("");
             }
-        } 
+        } else {
+            // 如果variable为null，清空状态
+            setSelectedNodeId("");
+            setVariableString("");
+        }
     }, [variable]);
 
     // 处理节点选择

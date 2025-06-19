@@ -1,7 +1,7 @@
 import { NodeData } from "@/types/node/index";
 import ConditionSetting from "./condition-setting";
 import { Button } from "@/components/ui/button";
-import { RefreshCcw, Trash2 } from "lucide-react";
+import { RefreshCcw, Trash2, GripVertical } from "lucide-react";
 import { VariableItem } from "../../index"
 import { CaseItem, Condition, ComparisonSymbol, VarType, LogicalSymbol } from "@/types/node/if-else-node";
 import { useState, useEffect } from "react";
@@ -75,6 +75,7 @@ const CaseEditor: React.FC<CaseEditorProps> = ({variableItemList,caseItem,onCase
             {/* 标题 */}
             <div className="flex flex-row gap-2 items-center h-8 p-2 justify-between">
                 <div className="flex flex-row gap-2 items-center ">
+                    <GripVertical className="w-4 h-4 text-gray-400 drag-handle cursor-grab active:cursor-grabbing"/>
                     <h3 className="text-sm font-bold">{caseItem.caseId === 1 ? `IF${caseItem.caseId}` : `ELIF${caseItem.caseId}`}</h3>
                     <Button variant="ghost" className="w-16 h-6 bg-red-100" onClick={() => handleUpdateLogicalSymbol(localCaseItem.logicalSymbol === LogicalSymbol.AND ? LogicalSymbol.Or : LogicalSymbol.AND)}>
                         <RefreshCcw className="w-2 h-2"/>
