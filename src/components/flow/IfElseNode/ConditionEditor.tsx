@@ -1,11 +1,11 @@
 import { Node, useReactFlow } from '@xyflow/react';
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { CaseItem, Condition, ComparisonOperator, VarType, LogicalOperator, RightVariable } from "@/types/node/ifElseNode"
+import { CaseItem, Condition, ComparisonSymbol, VarType, LogicalSymbol, RightVariable } from "@/types/node/if-else-node"
 import { v4 as uuidv4 } from 'uuid';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 import { X, Trash2 } from 'lucide-react'
-import { IndicatorNodeData } from '@/types/node/indicatorNode';
+import { IndicatorNodeData } from '@/types/node/indicator-node';
 import { IndicatorValueItem } from '@/types/indicator/indicatorValue';
 import { GetVariableNodeData } from '@/types/node/getVariableNode';
 
@@ -324,7 +324,7 @@ const ConditionEditor = ({ cases, setCases, sourceNodes }: ConditionEditorProps)
     const addCase = () => {
         setCases([...cases, {
             caseId: cases.length + 1,
-            logicalOperator: LogicalOperator.and,
+            logicalSymbol: LogicalSymbol.AND,
             conditions: []
         }]);
     };
@@ -347,7 +347,7 @@ const ConditionEditor = ({ cases, setCases, sourceNodes }: ConditionEditorProps)
                             variableName: null,
                             nodeName: null
                         },
-                        comparisonOperator: null,
+                        ComparisonSymbol: null,
                         rightVariable: {
                             varType: VarType.variable,
                             nodeId: null,
@@ -372,10 +372,10 @@ const ConditionEditor = ({ cases, setCases, sourceNodes }: ConditionEditorProps)
         ));
     };
 
-    const setLogicalOperator = (caseId: number, logicalOperator: LogicalOperator) => {
+    const setLogicalOperator = (caseId: number, logicalOperator: LogicalSymbol) => {
         setCases(cases.map(caseItem => 
             caseItem.caseId === caseId 
-                ? { ...caseItem, logicalOperator }
+                ? { ...caseItem, logicalSymbol: logicalOperator }
                 : caseItem
         ));
     };
@@ -396,12 +396,12 @@ const ConditionEditor = ({ cases, setCases, sourceNodes }: ConditionEditorProps)
                                     className="h-6 px-2 text-xs"
                                     onClick={() => setLogicalOperator(
                                         caseItem.caseId, 
-                                        caseItem.logicalOperator === LogicalOperator.and 
-                                            ? LogicalOperator.or 
-                                            : LogicalOperator.and
+                                        caseItem.logicalSymbol === LogicalSymbol.AND 
+                                            ? LogicalSymbol.Or 
+                                            : LogicalSymbol.AND
                                     )}
                                 >
-                                    {caseItem.logicalOperator === LogicalOperator.and ? 'AND' : 'OR'}
+                                    {caseItem.logicalSymbol === LogicalSymbol.AND ? 'AND' : 'OR'}
                                 </Button>
                             )}
                         </div>
@@ -447,12 +447,12 @@ const ConditionEditor = ({ cases, setCases, sourceNodes }: ConditionEditorProps)
                                             getOutputValue(condition.leftVariable?.nodeId ?? null)
                                         )}
                                         {renderSelectWithClear(
-                                            condition.comparisonOperator ?? null,
+                                            condition.ComparisonSymbol ?? null,
                                             (value) => updateCondition(caseItem.caseId, condition.conditionId!, {
-                                                comparisonOperator: value as ComparisonOperator
+                                                ComparisonSymbol: value as ComparisonSymbol
                                             }),
                                             "运算符",
-                                            Object.values(ComparisonOperator).map(op => ({
+                                            Object.values(ComparisonSymbol).map(op => ({
                                                 id: op,
                                                 label: op
                                             })),

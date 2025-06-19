@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { IndicatorItem } from "./index";
 
 interface LiveModeShowProps {
+    id: string;
     data: IndicatorNodeData;
 }
 
@@ -44,11 +45,11 @@ const LiveModeShow: React.FC<LiveModeShowProps> = ({ data }) => {
                             </Badge>
                         </div>
                         <div className="flex flex-col gap-2 mt-2">
-                            {selectedIndicators.map((indicator, index) => (
+                            {selectedIndicators.map((indicator) => (
                                 <IndicatorItem
-                                    key={`${indicator.type}-${index}`}
+                                    key={indicator.handleId}
                                     indicator={indicator}
-                                    handleId={`${indicator.type}-${index}`}
+                                    handleId={indicator.handleId}
                                 />
                             ))}
                         </div>

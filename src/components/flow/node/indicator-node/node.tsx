@@ -1,7 +1,7 @@
 import { NodeProps, Position, useNodeConnections, useReactFlow } from "@xyflow/react";
 import BaseNode from "@/components/flow/base/BaseNode";
 import { Play } from "lucide-react";
-import { type IndicatorNode } from "@/types/node/indicator-node";
+import { type IndicatorNode as IndicatorNodeType } from "@/types/node/indicator-node";
 import { BaseHandleProps } from "@/components/flow/base/BaseHandle";
 import { useEffect, useRef } from "react";
 import { useUpdateLiveConfig } from "@/hooks/node/indicator-node/use-update-live-config";
@@ -13,7 +13,7 @@ import LiveModeShow from "./components/live-mode-show";
 import BacktestModeShow from "./components/backtest-mode-show";
 import { NodeDefaultInputHandleId } from "@/types/node/index";
 
-const IndicatorNode: React.FC<NodeProps<IndicatorNode>> = ({id, data, selected}) => {
+const IndicatorNode: React.FC<NodeProps<IndicatorNodeType>> = ({id, data, selected}) => {
     const nodeName = data?.nodeName || "指标节点";
     const { tradingMode } = useTradingModeStore();
     const { getNode } = useReactFlow();
@@ -140,8 +140,8 @@ const IndicatorNode: React.FC<NodeProps<IndicatorNode>> = ({id, data, selected})
             selected={selected}
             defaultInputHandle={defaultInputHandle}
         >
-            {tradingMode === TradeMode.LIVE && <LiveModeShow data={data} />}
-            {tradingMode === TradeMode.BACKTEST && <BacktestModeShow data={data} />}
+            {tradingMode === TradeMode.LIVE && <LiveModeShow id={id} data={data} />}
+            {tradingMode === TradeMode.BACKTEST && <BacktestModeShow id={id} data={data} />}
         </BaseNode>
     )
 }

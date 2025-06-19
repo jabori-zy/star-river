@@ -10,7 +10,7 @@ import {
   TimeRange 
 } from '@/types/strategy';
 import { Exchange } from '@/types/common';
-import { IndicatorConfig } from '@/types/indicator';
+import { SelectedIndicator } from '@/types/node/indicator-node';
 
 interface UseUpdateBacktestConfigProps {
   id: string;
@@ -83,7 +83,7 @@ export const useUpdateBacktestConfig = ({ id, initialConfig }: UseUpdateBacktest
         symbol: prev?.exchangeConfig?.symbol || '',
         interval: prev?.exchangeConfig?.interval || '',
         timeRange: prev?.exchangeConfig?.timeRange || { startDate: "", endDate: "" },
-        selectedIndicators: prev?.exchangeConfig?.selectedIndicators || [] as IndicatorConfig[]
+        selectedIndicators: prev?.exchangeConfig?.selectedIndicators || [] as SelectedIndicator[]
       }
     }));
   }, [updateConfig, getDefaultConfig]);
@@ -98,7 +98,7 @@ export const useUpdateBacktestConfig = ({ id, initialConfig }: UseUpdateBacktest
         symbol,
         interval,
         timeRange: prev?.exchangeConfig?.timeRange || { startDate: "", endDate: "" },
-        selectedIndicators: prev?.exchangeConfig?.selectedIndicators || [] as IndicatorConfig[]
+        selectedIndicators: prev?.exchangeConfig?.selectedIndicators || [] as SelectedIndicator[]
       }
     }));
   }, [updateConfig, getDefaultConfig]);
@@ -118,7 +118,7 @@ export const useUpdateBacktestConfig = ({ id, initialConfig }: UseUpdateBacktest
         symbol,
         interval,
         timeRange,
-        selectedIndicators: prev?.exchangeConfig?.selectedIndicators || [] as IndicatorConfig[]
+        selectedIndicators: prev?.exchangeConfig?.selectedIndicators || [] as SelectedIndicator[]
       }
     }));
   }, [updateConfig, getDefaultConfig]);
@@ -133,13 +133,13 @@ export const useUpdateBacktestConfig = ({ id, initialConfig }: UseUpdateBacktest
         symbol: prev?.exchangeConfig?.symbol || '',
         interval: prev?.exchangeConfig?.interval || '',
         timeRange,
-        selectedIndicators: prev?.exchangeConfig?.selectedIndicators || [] as IndicatorConfig[]
+        selectedIndicators: prev?.exchangeConfig?.selectedIndicators || [] as SelectedIndicator[]
       }
     }));
   }, [updateConfig, getDefaultConfig]);
 
   // 更新选中的指标
-  const updateSelectedIndicators = useCallback((selectedIndicators: IndicatorConfig[]) => {
+  const updateSelectedIndicators = useCallback((selectedIndicators: SelectedIndicator[]) => {
     updateConfig(prev => ({
       ...getDefaultConfig(prev),
       exchangeConfig: {

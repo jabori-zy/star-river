@@ -58,7 +58,7 @@ const TradeModeSwitcher: React.FC<TradeModeSwitcherProps> = ({ settingPanel, id,
                 h-auto: 高度自适应
             
             */}
-            <TabsList className="flex flex-wrap h-auto gap-1 w-full px-2 flex-shrink-0">
+            <TabsList className="flex flex-wrap h-10 gap-1 w-full px-2 flex-shrink-0">
                 <TabsTrigger value={TradeMode.LIVE}>实时设置</TabsTrigger>
                 <TabsTrigger value={TradeMode.BACKTEST}>回测设置</TabsTrigger>
                 <TabsTrigger value={TradeMode.SIMULATE}>模拟设置</TabsTrigger>

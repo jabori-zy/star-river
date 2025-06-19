@@ -92,7 +92,7 @@ const BasePanel: React.FC<BasePanelProps> = ({
     }, [id, handleNodeSelect]);
     
     // 面板宽度状态
-    const [panelWidth, setPanelWidth] = useState(350);
+    const [panelWidth, setPanelWidth] = useState(424);
     const [isResizing, setIsResizing] = useState(false);
     const [startX, setStartX] = useState(0);
     const [startWidth, setStartWidth] = useState(0);

@@ -3,6 +3,7 @@ import { SelectedAccount, DataSourceExchange, TimeRange, BacktestDataSource } fr
 
 
 export type SelectedSymbol = {
+    symbolId: number; // 交易对id
     handleId: string; // 出口id, 用于连接到其他节点
     symbol: string; // 交易对
     interval: string; // 时间周期

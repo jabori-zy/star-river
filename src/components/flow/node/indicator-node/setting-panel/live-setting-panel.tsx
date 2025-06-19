@@ -52,6 +52,7 @@ const IndicatorNodeLiveSettingPanel: React.FC<SettingProps> = ({ id, data }) => 
             {/* 指标选择器 */}
             {isConnected && liveConfig && (
                 <IndicatorSelector 
+                    id={id}
                     selectedIndicators={liveConfig.selectedIndicators || []}
                     onSelectedIndicatorsChange={updateLiveSelectedIndicators}
                 />

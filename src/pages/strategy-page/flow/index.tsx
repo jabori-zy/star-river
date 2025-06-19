@@ -1,4 +1,4 @@
-import NodeFlow from "./NodeFlow";
+import StrategyFlow from "./strategy-flow";
 import { Strategy } from "@/types/strategy";
 import { ReactFlowProvider } from '@xyflow/react';
 import { useStrategyStore } from "@/store/useStrategyStore";
@@ -16,7 +16,7 @@ export default function StrategyFlowContent({ strategy }: StrategyFlowContentPro
         <div className="flex flex-col h-full w-full">
           <Header strategy={strategy} setStrategy={setStrategy} />
           <div className="flex-1 h-full w-full overflow-hidden">
-            {strategy && <NodeFlow strategy={strategy} />}
+            {strategy && <StrategyFlow strategy={strategy} />}
           </div>
         </div>
     </ReactFlowProvider>

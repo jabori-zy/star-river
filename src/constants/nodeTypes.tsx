@@ -1,4 +1,5 @@
-import IfElseNode from '@/components/flow/IfElseNode';
+import IfElseNodeComponent from '@/components/flow/IfElseNode';
+import IfElseNode from '@/components/flow/node/if-else-node/node';
 import OrderNode from '@/components/flow/OrderNode';
 import GetPositionNumberNode from '@/components/flow/GetPositionNumberNode';
 import PositionNode from '@/components/flow/PositionNode';
@@ -17,9 +18,11 @@ export const nodeTypes = {
     oldStartNode: OldStartNode,
     oldKlineNode: KlineNodeComponent,
     oldIndicatorNode: IndicatorNodeComponent,
+    oldIfElseNode: IfElseNodeComponent,
     
     
     ifElseNode: IfElseNode,
+
     orderNode: OrderNode,
     getPositionNumberNode: GetPositionNumberNode,
     positionNode: PositionNode,

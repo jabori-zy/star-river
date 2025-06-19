@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { useReactFlow } from '@xyflow/react';
 import { IndicatorNodeLiveConfig } from '@/types/node/indicator-node';
-import { IndicatorConfig } from '@/types/indicator';
+import { SelectedIndicator } from '@/types/node/indicator-node';
 
 interface UseUpdateLiveConfigProps {
   id: string;
@@ -74,7 +74,7 @@ export const useUpdateLiveConfig = ({
   }, [updateLiveConfig, getDefaultLiveConfig]);
 
   // 更新实盘选中的指标
-  const updateLiveSelectedIndicators = useCallback((selectedIndicators: IndicatorConfig[]) => {
+  const updateLiveSelectedIndicators = useCallback((selectedIndicators: SelectedIndicator[]) => {
     updateLiveField('selectedIndicators', selectedIndicators);
   }, [updateLiveField]);
 

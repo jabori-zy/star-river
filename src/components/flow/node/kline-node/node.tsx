@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import BaseNode from "@/components/flow/base/BaseNode";
 import { Play } from "lucide-react";
 import { useNodeConnections, NodeProps, Position, useReactFlow } from "@xyflow/react";
-import { type KlineNode } from "@/types/node/kline-node";
+import { type KlineNode as KlineNodeType } from "@/types/node/kline-node";
 import { BaseHandleProps } from "@/components/flow/base/BaseHandle";
 import LiveModeShow from "./components/live-mode-show";
 import BacktestModeShow from "./components/backtest-mode-show";
@@ -17,7 +17,7 @@ import { NodeDefaultInputHandleId } from "@/types/node/index";
 
 
 
-const KlineNode: React.FC<NodeProps<KlineNode>> = ({id, data, selected}) => {
+const KlineNode: React.FC<NodeProps<KlineNodeType>> = ({id, data, selected}) => {
 
     const nodeName = data?.nodeName || "K线节点";
     const { tradingMode } = useTradingModeStore();

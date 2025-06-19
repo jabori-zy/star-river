@@ -1,4 +1,5 @@
 import { SmaConfig, EmaConfig, BollConfig } from "./indicatorConfig";
+import { IndicatorValue } from "./indicatorValue";
 
 export type IndicatorConfig = SmaConfig | EmaConfig | BollConfig;
 
@@ -24,4 +25,6 @@ export enum PriceSource {
     HIGH = "high",
     LOW = "low",
 }
+
+export type { IndicatorValue };
 

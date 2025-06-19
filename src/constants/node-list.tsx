@@ -21,6 +21,7 @@ export const nodeList = [
           nodeDescription: "获取K线数据",
           nodeColor: "from-[#4776E6]/20 to-[#8E54E9]/20 hover:from-[#4776E6]/30 hover:to-[#8E54E9]/30",
         } as NodeItemProps,
+
         {
           nodeId: "kline_node",
           nodeType: "klineNode",
@@ -59,18 +60,26 @@ export const nodeList = [
         } as NodeItemProps
       ]
     },
+
     {
       title: "条件",
       icon: ChevronsUpDown,
       color: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
       items: [
         {
+          nodeId: "old_if_else_node",
+          nodeType: "oldIfElseNode",
+          nodeName: "旧条件节点",
+          nodeDescription: "旧条件节点",
+          nodeColor: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
+        } as NodeItemProps,
+        {
           nodeId: "if_else_node",
           nodeType: "ifElseNode",
           nodeName: "条件节点",
           nodeDescription: "条件节点",
           nodeColor: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
-        } as NodeItemProps
+        } as NodeItemProps,
       ]
     },
     {

@@ -1,7 +1,7 @@
 import BaseNode from "@/components/flow/base/BaseNode";
 import { Play } from "lucide-react";
 import { NodeProps, Position } from "@xyflow/react";
-import { type StartNode } from "@/types/node/start-node";
+import { type StartNode as StartNodeType } from "@/types/node/start-node";
 import { BaseHandleProps } from "@/components/flow/base/BaseHandle";
 import { StrategyBacktestConfig, StrategyLiveConfig, TradeMode } from "@/types/strategy";
 import LiveNodeShow from "./components/live-mode-show";
@@ -11,7 +11,7 @@ import { useLiveConfig } from "@/hooks/node/start-node/use-update-live-config";
 import { useBacktestConfig } from "@/hooks/node/start-node/use-update-backtest-config";
 import { useEffect } from "react";
 
-const StartNode: React.FC<NodeProps<StartNode>> = ({id, data, selected, isConnectable}) => {
+const StartNode: React.FC<NodeProps<StartNodeType>> = ({id, data, selected, isConnectable}) => {
 
     const { tradingMode } = useTradingModeStore();
     const { setDefaultLiveConfig } = useLiveConfig({ id, initialConfig: data?.liveConfig || undefined });

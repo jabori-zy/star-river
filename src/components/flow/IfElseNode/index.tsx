@@ -9,7 +9,7 @@ import {
 } from '@xyflow/react';
 import { Button } from "@/components/ui/button"
 import { PencilIcon, GitFork } from 'lucide-react';
-import { Condition, CaseItem, VarType, LogicalOperator, ComparisonOperator } from "@/types/node/ifElseNode";
+import { Condition, CaseItem, VarType, LogicalSymbol, ComparisonSymbol } from "@/types/node/if-else-node";
 import { TradeMode } from '@/types/node';
 import IfElseNodePanel from './panel';
 import { Badge } from '@/components/ui/badge';
@@ -74,7 +74,7 @@ const IfElseNode = memo(function IfElseNode({ id, data }: NodeProps) {
         if (cases.length === 0) {
             return [{
                 caseId: 1,
-                logicalOperator: LogicalOperator.and,
+                logicalSymbol: LogicalSymbol.AND,
                 conditions: []
             }];
         }
@@ -362,19 +362,19 @@ const IfElseNode = memo(function IfElseNode({ id, data }: NodeProps) {
     };
 
     // 获取比较运算符的颜色
-    const getComparisonOpColor = (op: ComparisonOperator) => {
+    const getComparisonOpColor = (op: ComparisonSymbol) => {
         switch (op) {
-            case ComparisonOperator.equal:
+            case ComparisonSymbol.equal:
                 return "bg-blue-50 text-blue-700 border-blue-100";
-            case ComparisonOperator.notEqual:
+            case ComparisonSymbol.notEqual:
                 return "bg-rose-50 text-rose-700 border-rose-100";
-            case ComparisonOperator.greaterThan:
+            case ComparisonSymbol.greaterThan:
                 return "bg-green-50 text-green-700 border-green-100";
-            case ComparisonOperator.lessThan:
+            case ComparisonSymbol.lessThan:
                 return "bg-orange-50 text-orange-700 border-orange-100";
-            case ComparisonOperator.greaterThanOrEqual:
+            case ComparisonSymbol.greaterThanOrEqual:
                 return "bg-teal-50 text-teal-700 border-teal-100";
-            case ComparisonOperator.lessThanOrEqual:
+            case ComparisonSymbol.lessThanOrEqual:
                 return "bg-purple-50 text-purple-700 border-purple-100";
             default:
                 return "bg-gray-100 text-gray-700 border-gray-200";
@@ -383,7 +383,7 @@ const IfElseNode = memo(function IfElseNode({ id, data }: NodeProps) {
 
     // 格式化条件表达式，返回完整可读的条件
     const formatCondition = (condition: Condition) => {
-        if (!condition.leftVariable || !condition.rightVariable || !condition.comparisonOperator) {
+        if (!condition.leftVariable || !condition.rightVariable || !condition.ComparisonSymbol) {
             return '未完成的条件';
         }
         
@@ -404,7 +404,7 @@ const IfElseNode = memo(function IfElseNode({ id, data }: NodeProps) {
             leftFullName = `${leftNodeName}.<未选择>`;
         }
         
-        const comparisonOp = condition.comparisonOperator;
+        const comparisonOp = condition.ComparisonSymbol;
         const rightVarType = condition.rightVariable.varType;
         
         // 获取右侧信息
@@ -460,9 +460,9 @@ const IfElseNode = memo(function IfElseNode({ id, data }: NodeProps) {
                             if (typeof conditionData === 'string') {
                                 return (
                                     <div key={idx} className="flex items-center gap-1">
-                                        {idx > 0 && caseItem.logicalOperator && (
+                                        {idx > 0 && caseItem.logicalSymbol && (
                                             <Badge variant="outline" className="h-4 px-1 text-[9px] bg-gray-700 text-white hover:bg-gray-700">
-                                                {caseItem.logicalOperator}
+                                                {caseItem.logicalSymbol}
                                             </Badge>
                                         )}
                                         <div className="text-xs text-gray-700 bg-gray-50 px-1.5 py-0.5 rounded border border-gray-200">
@@ -477,9 +477,9 @@ const IfElseNode = memo(function IfElseNode({ id, data }: NodeProps) {
                                     key={idx} 
                                     className={`flex items-center gap-1 whitespace-nowrap ${idx > 0 ? 'ml-4' : ''}`}
                                 >
-                                    {idx > 0 && caseItem.logicalOperator && (
+                                    {idx > 0 && caseItem.logicalSymbol && (
                                         <Badge variant="outline" className="h-4 px-1 text-[9px] bg-gray-700 text-white hover:bg-gray-700 -ml-4">
-                                            {caseItem.logicalOperator}
+                                            {caseItem.logicalSymbol}
                                         </Badge>
                                     )}
                                     
@@ -491,7 +491,7 @@ const IfElseNode = memo(function IfElseNode({ id, data }: NodeProps) {
                                     {/* 比较运算符 */}
                                     <Badge 
                                         variant="outline" 
-                                        className={`h-5 px-1.5 text-[9px] ${getComparisonOpColor(conditionData.comparisonOp as ComparisonOperator)}`}
+                                        className={`h-5 px-1.5 text-[9px] ${getComparisonOpColor(conditionData.comparisonOp as ComparisonSymbol)}`}
                                     >
                                         {conditionData.comparisonOp}
                                     </Badge>

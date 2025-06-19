@@ -50,6 +50,7 @@ const IndicatorNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id, data })
                 )}
             </div>
             <IndicatorSelector 
+                id={id}
                 selectedIndicators={exchangeConfig?.selectedIndicators || []}
                 onSelectedIndicatorsChange={updateSelectedIndicators}
             />

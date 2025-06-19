@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
-import { IndicatorConfig, IndicatorType, PriceSource } from "@/types/indicator";
+import { IndicatorConfig, IndicatorType, PriceSource, IndicatorValue } from "@/types/indicator";
+import { SelectedIndicator } from "@/types/node/indicator-node";
 import { SmaConfig, EmaConfig, BollConfig } from "@/types/indicator/indicatorConfig";
+import { SMAValue, EMAValue, BOLLValue } from "@/types/indicator/indicatorValue";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -10,8 +12,9 @@ import { Input } from "@/components/ui/input";
 import { PlusIcon, X, Settings, TrendingUp, BarChart3 } from "lucide-react";
 
 interface IndicatorSelectorProps {
-    selectedIndicators: IndicatorConfig[];
-    onSelectedIndicatorsChange: (indicators: IndicatorConfig[]) => void;
+    id: string; // 节点ID，用于生成handleId
+    selectedIndicators: SelectedIndicator[];
+    onSelectedIndicatorsChange: (indicators: SelectedIndicator[]) => void;
 }
 
 // 指标类型选项
@@ -30,6 +33,7 @@ const PRICE_SOURCE_OPTIONS = [
 ];
 
 const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({ 
+    id,
     selectedIndicators,
     onSelectedIndicatorsChange 
 }) => {
@@ -95,18 +99,41 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
         setPriceSource(PriceSource.CLOSE);
     };
 
-    // 根据指标类型创建配置
-    const createIndicatorConfig = (type: IndicatorType): IndicatorConfig => {
+    // 根据指标类型创建初始值
+    const createInitialValue = (type: IndicatorType): IndicatorValue => {
         switch (type) {
             case IndicatorType.SMA:
-                return { type, period, priceSource } as SmaConfig;
+                return { sma: 0 } as SMAValue;
             case IndicatorType.EMA:
-                return { type, period, priceSource } as EmaConfig;
+                return { ema: 0 } as EMAValue;
             case IndicatorType.BOLL:
-                return { type, period, stdDev, priceSource } as BollConfig;
+                return { upper: 0, middle: 0, lower: 0 } as BOLLValue;
             default:
-                return { type, period, priceSource } as SmaConfig;
+                return { sma: 0 } as SMAValue;
         }
+    };
+
+    // 根据指标类型创建配置
+    const createIndicatorConfig = (type: IndicatorType, index: number): SelectedIndicator => {
+        const baseConfig: IndicatorConfig = (() => {
+            switch (type) {
+                case IndicatorType.SMA:
+                    return { type, period, priceSource } as SmaConfig;
+                case IndicatorType.EMA:
+                    return { type, period, priceSource } as EmaConfig;
+                case IndicatorType.BOLL:
+                    return { type, period, stdDev, priceSource } as BollConfig;
+                default:
+                    return { type, period, priceSource } as SmaConfig;
+            }
+        })();
+
+        return {
+            ...baseConfig,
+            indicatorId: index + 1,
+            handleId: `${id}_output${index + 1}`,
+            value: createInitialValue(type)
+        };
     };
 
     const handleAddIndicator = () => {
@@ -140,15 +167,18 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
             return;
         }
 
-        const config = createIndicatorConfig(indicatorType);
-        
         if (isEditing && editingIndex !== null) {
-            // 编辑现有指标
+            // 编辑现有指标 - 保持原有的 handleId
+            const config = createIndicatorConfig(indicatorType, editingIndex);
+            // 保持原有的 handleId
+            config.handleId = selectedIndicators[editingIndex].handleId;
             const updatedIndicators = [...selectedIndicators];
             updatedIndicators[editingIndex] = config;
             onSelectedIndicatorsChange(updatedIndicators);
         } else {
-            // 添加新指标
+            // 添加新指标 - 生成新的 handleId
+            const newIndex = selectedIndicators.length;
+            const config = createIndicatorConfig(indicatorType, newIndex);
             onSelectedIndicatorsChange([...selectedIndicators, config]);
         }
         

@@ -37,7 +37,7 @@ import useStrategyWorkflow from '@/hooks/flow/use-strategy-workflow';
 
 
 
-export default function NodeFlow({strategy}:{strategy:Strategy}) {
+export default function StrategyFlow({strategy}:{strategy:Strategy}) {
     const [nodes, setNodes] = useNodesState<Node>([]);
     const [edges, setEdges] = useEdgesState<Edge>([]);
     // 正在拖拽的节点
@@ -189,10 +189,10 @@ export default function NodeFlow({strategy}:{strategy:Strategy}) {
     );
 
     // 添加 useEffect 来监听 edges 的变化
-    // useEffect(() => {
-    //     // console.log('Current nodes:', nodes);
-    //     console.log('Current edges:', edges);
-    // }, [nodes, edges]);
+    useEffect(() => {
+        // console.log('Current nodes:', nodes);
+        // console.log('Current edges:', edges);
+    }, [nodes, edges]);
 
     return ( 
           <div className="flex-1 h-full w-full overflow-x-auto">
