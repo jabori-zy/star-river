@@ -4,6 +4,7 @@ import VariableSelector from "./variable-selector";
 import { useState, useEffect } from "react";
 import ComparisonSymbolSelector from "./comparison-symbol-selector";
 import VarTypeSelector from "./var-type-selector";
+import ConstantInput from "./constant-input";
 
 
 interface ConditionSettingProps {
@@ -103,11 +104,26 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({variableItemList,con
     const handleUpdateRightVarType = (varType: VarType) => {
         const newRightVariable: Variable = {
             varType: varType,
-            nodeId: localCondition.rightVariable?.nodeId || null,
-            handleId: localCondition.rightVariable?.handleId || null,
-            variableId: localCondition.rightVariable?.variableId || null,
-            variable: localCondition.rightVariable?.variable || null,
-            nodeName: localCondition.rightVariable?.nodeName || null,
+            nodeId: null,
+            handleId: null,
+            variableId: null,
+            variable: null,
+            nodeName: null,
+        }
+        const newCondition = {...localCondition, rightVariable: newRightVariable};
+        setLocalCondition(newCondition);
+        // 执行回调，更新条件
+        onConditionChange(newCondition);
+    }
+
+    const handleUpdateRightConstantValue = (value: number) => {
+        const newRightVariable: Variable = {
+            varType: VarType.constant,
+            nodeId: null,
+            handleId: null,
+            variableId: null,
+            variable: value,
+            nodeName: null,
         }
         const newCondition = {...localCondition, rightVariable: newRightVariable};
         setLocalCondition(newCondition);
@@ -145,12 +161,22 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({variableItemList,con
                 </div>
                 <div className="flex flex-col gap-1 px-2 min-h-16">
                     <div className="text-sm font-bold text-left" >右值</div>
+                    {localCondition.rightVariable?.varType === VarType.variable ? (
+
                     <VariableSelector 
                         variableItemList={variableItemList} 
                         variable={localCondition.rightVariable || null}
                         onNodeChange={handleUpdateRightNode}
                         onVariableChange={handleUpdateRightVariable}
                     />
+                    ) : (
+                    <ConstantInput 
+                        className="w-full"
+                        value={localCondition.rightVariable?.variable as number || 0}
+                        onValueChange={handleUpdateRightConstantValue}
+                    />
+                    )}
+
                 </div>
             </div>
             

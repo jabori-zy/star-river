@@ -60,8 +60,8 @@ export enum LogicalSymbol {
 
 // 变量类型
 export enum VarType {
-    variable = 'variable',
-    constant = 'constant',
+    variable = 'variable', // 变量
+    constant = 'constant', // 常量
 }
   
 // 左变量
@@ -70,7 +70,7 @@ export type Variable = {
     nodeId: string | null // 节点id
     handleId: string | null // 变量handleId
     variableId: number | null // 变量id(指标id,K线id)
-    variable: string | null // 变量名称
+    variable: string | number | null // 变量名称, 如果是常量，则值为常量值
     nodeName?: string | null // 节点名称
 }
 

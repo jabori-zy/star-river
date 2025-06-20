@@ -29,7 +29,7 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
     };
 
     // 生成选项value，格式：nodeId|handleId|valueKey
-    const generateOptionValue = (nodeId: string, handleId: string, valueKey: string) => {
+    const generateOptionValue = (nodeId: string, handleId: string, valueKey: string | number) => {
         return `${nodeId}|${handleId}|${valueKey}`;
     };
 
