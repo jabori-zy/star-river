@@ -10,6 +10,7 @@ import IndicatorNodeComponent from '@/components/flow/IndicatorNode'; // 指标�
 import KlineNodeComponent from '@/components/flow/KlineNode'; // 实时数据节点
 import StartNode from '@/components/flow/node/start-node'; // 开始节点
 import KlineNode from '@/components/flow/node/kline-node/node'; // 实时数据节点
+import FuturesOrderNode from '@/components/flow/node/futures-order-node/node'; // 期货订单节点
 
 
 
@@ -21,7 +22,7 @@ export const nodeTypes = {
     oldIfElseNode: IfElseNodeComponent,
     
     
-    ifElseNode: IfElseNode,
+    
 
     orderNode: OrderNode,
     getPositionNumberNode: GetPositionNumberNode,
@@ -30,4 +31,6 @@ export const nodeTypes = {
     startNode: StartNode,
     klineNode: KlineNode,
     indicatorNode: IndicatorNode,
+    ifElseNode: IfElseNode,
+    futuresOrderNode: FuturesOrderNode,
   };

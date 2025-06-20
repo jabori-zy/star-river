@@ -30,7 +30,7 @@ export const StartNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id, data
         updateVariables
     } = useBacktestConfig({
         id,
-        initialConfig: startNodeData.backtestConfig
+        initialConfig: startNodeData.backtestConfig || undefined
     });
 
     // 本地UI状态
