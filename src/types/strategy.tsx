@@ -42,12 +42,12 @@ export type TimeRange = {
   endDate: string;
 }
 
-// 数据源交易所
-export type DataSourceExchange = {
-  id: number;
-  exchange: Exchange | string;
-  accountName: string;
-}
+// // 数据源交易所
+// export type DataSourceExchange = {
+//   id: number;
+//   exchange: Exchange | string;
+//   accountName: string;
+// }
 
 
 export type StrategyBacktestExchangeConfig = {

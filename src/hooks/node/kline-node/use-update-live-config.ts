@@ -49,7 +49,7 @@ export const useUpdateLiveConfig = ({
 
   // 实盘配置默认值
   const getDefaultLiveConfig = useCallback((prev?: KlineNodeLiveConfig): KlineNodeLiveConfig => ({
-    selectedLiveAccount: prev?.selectedLiveAccount || null, //默认值为null
+    selectedAccount: prev?.selectedAccount || null, //默认值为null
     selectedSymbols: prev?.selectedSymbols || [], //默认值为空数组
     ...prev
   }), []);
@@ -59,16 +59,16 @@ export const useUpdateLiveConfig = ({
     const defaultConfig = getDefaultLiveConfig();
     updateLiveConfig(prev => ({
       ...getDefaultLiveConfig(prev),
-      selectedLiveAccount: defaultConfig.selectedLiveAccount,
+      selectedAccount: defaultConfig.selectedAccount,
       selectedSymbols: defaultConfig.selectedSymbols
     }));
   }, [updateLiveConfig, getDefaultLiveConfig]);
 
 
-  const updateSelectedLiveAccount = useCallback((selectedLiveAccount: SelectedAccount | null) => {
+  const updateSelectedAccount = useCallback((selectedAccount: SelectedAccount | null) => {
     updateLiveConfig(prev => ({
       ...getDefaultLiveConfig(prev),
-      selectedLiveAccount
+      selectedAccount
     }));
   }, [updateLiveConfig, getDefaultLiveConfig]);
 
@@ -86,7 +86,7 @@ export const useUpdateLiveConfig = ({
     liveConfig,
     // 实盘配置更新方法
     setDefaultLiveConfig,
-    updateSelectedLiveAccount,
+    updateSelectedAccount,
     updateLiveSelectedSymbols,
 
   };

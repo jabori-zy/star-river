@@ -7,8 +7,8 @@ import {
   SelectedSymbol 
 } from '@/types/node/kline-node';
 import { 
-  BacktestDataSource, 
-  DataSourceExchange, 
+  BacktestDataSource,
+  SelectedAccount,
   TimeRange 
 } from '@/types/strategy';
 import { Exchange } from '@/types/common';
@@ -102,12 +102,12 @@ export const useUpdateBacktestConfig = ({ id, initialBacktestConfig }: UseUpdate
     updateField('exchangeConfig', exchangeConfig);
   }, [updateField]);
 
-  const updateSelectedDataSource = useCallback((selectedDataSource: DataSourceExchange | null) => {
+  const updateSelectedAccount = useCallback((selectedAccount: SelectedAccount | null) => {
     updateConfig(prev => ({
       ...getDefaultConfig(prev),
       exchangeConfig: {
         ...prev?.exchangeConfig,
-        selectedDataSource,
+        selectedAccount: selectedAccount,
         selectedSymbols: prev?.exchangeConfig?.selectedSymbols || [],
         timeRange: prev?.exchangeConfig?.timeRange || { startDate: "", endDate: "" }
       }
@@ -122,7 +122,7 @@ export const useUpdateBacktestConfig = ({ id, initialBacktestConfig }: UseUpdate
       ...getDefaultConfig(prev),
       exchangeConfig: {
         ...prev?.exchangeConfig,
-        selectedDataSource: prev?.exchangeConfig?.selectedDataSource || { id: 0, exchange: Exchange.BINANCE, accountName: '' },
+        selectedAccount: prev?.exchangeConfig?.selectedAccount || { id: 0, exchange: Exchange.BINANCE, accountName: '' },
         selectedSymbols: symbolsWithHandleIds,
         timeRange: prev?.exchangeConfig?.timeRange || { startDate: "", endDate: "" }
       }
@@ -134,7 +134,7 @@ export const useUpdateBacktestConfig = ({ id, initialBacktestConfig }: UseUpdate
       ...getDefaultConfig(prev),
       exchangeConfig: {
         ...prev?.exchangeConfig,
-        selectedDataSource: prev?.exchangeConfig?.selectedDataSource || { id: 0, exchange: Exchange.BINANCE, accountName: '' },
+        selectedAccount: prev?.exchangeConfig?.selectedAccount || { id: 0, exchange: Exchange.BINANCE, accountName: '' },
         selectedSymbols: prev?.exchangeConfig?.selectedSymbols || [],
         timeRange
       }
@@ -148,7 +148,7 @@ export const useUpdateBacktestConfig = ({ id, initialBacktestConfig }: UseUpdate
     updateFileConfig,
     updateFilePath,
     updateExchangeConfig,
-    updateSelectedDataSource,
+    updateSelectedAccount,
     updateSelectedSymbols,
     updateTimeRange
   };

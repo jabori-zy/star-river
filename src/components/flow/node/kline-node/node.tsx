@@ -29,8 +29,8 @@ const KlineNode: React.FC<NodeProps<KlineNodeType>> = ({id, data, selected}) => 
 
     const connections = useNodeConnections({id, handleType: 'target', handleId: NodeDefaultInputHandleId.KlineNodeInput})
 
-    const { updateTimeRange, setDefaultBacktestConfig, updateSelectedDataSource } = useUpdateBacktestConfig({ id, initialBacktestConfig: data?.backtestConfig });
-    const { setDefaultLiveConfig, updateSelectedLiveAccount } = useUpdateLiveConfig({ id, initialLiveConfig: data?.liveConfig });
+    const { updateTimeRange, setDefaultBacktestConfig, updateSelectedAccount: updateBacktestSelectedAccount } = useUpdateBacktestConfig({ id, initialBacktestConfig: data?.backtestConfig });
+    const { setDefaultLiveConfig, updateSelectedAccount: updateLiveSelectedAccount } = useUpdateLiveConfig({ id, initialLiveConfig: data?.liveConfig });
 
     // 1.初始连接时同步时间范围（仅在连接建立时执行一次）
     // 2. 处理断开后，重新连接的情况。
@@ -56,7 +56,7 @@ const KlineNode: React.FC<NodeProps<KlineNodeType>> = ({id, data, selected}) => 
                 }
 
                 // 处理live模式的数据源
-                const liveDataSource = liveConfigRef.current.selectedLiveAccount
+                const liveDataSource = liveConfigRef.current.selectedAccount
                 if (liveDataSource) {
                     // 获取start_node中的交易所列表
                     const liveAccounts = startNodeData.liveConfig?.liveAccounts
@@ -65,13 +65,13 @@ const KlineNode: React.FC<NodeProps<KlineNodeType>> = ({id, data, selected}) => 
                         const isLiveDataSourceInLiveAccounts = liveAccounts.some(account => account.id === liveDataSource.id)
                         if (!isLiveDataSourceInLiveAccounts) {
                             // 如果不在，则清空liveConfig
-                            updateSelectedLiveAccount(null)
+                            updateLiveSelectedAccount(null)
                         }
                     }
                 }
 
                 // 处理backtest模式的数据源
-                const backtestDataSource = backtestConfigRef.current.exchangeConfig?.selectedDataSource
+                const backtestDataSource = backtestConfigRef.current.exchangeConfig?.selectedAccount
                 if (backtestDataSource) {
                     // 获取start_node中的交易所列表
                     const backtestAccounts = startNodeData.backtestConfig?.exchangeConfig?.fromExchanges
@@ -80,13 +80,13 @@ const KlineNode: React.FC<NodeProps<KlineNodeType>> = ({id, data, selected}) => 
                         const isBacktestDataSourceInBacktestAccounts = backtestAccounts.some(account => account.id === backtestDataSource.id)
                         if (!isBacktestDataSourceInBacktestAccounts) {
                             // 如果不在，则清空backtestConfig
-                            updateSelectedDataSource(null)
+                            updateBacktestSelectedAccount(null)
                         }
                     }
                 }
             }
         }
-    }, [connections, getNode, updateTimeRange, updateSelectedDataSource, updateSelectedLiveAccount])
+    }, [connections, getNode, updateTimeRange, updateBacktestSelectedAccount, updateLiveSelectedAccount])
 
     // 初始化时设置默认回测配置
     useEffect(() => {

@@ -22,7 +22,7 @@ const KlineNodeLiveSettingPanel: React.FC<SettingProps> = ({ id, data }) => {
     // 使用自定义hook管理实盘配置
     const {
         liveConfig,
-        updateSelectedLiveAccount,
+        updateSelectedAccount,
         updateLiveSelectedSymbols
     } = useUpdateLiveConfig({
         id,
@@ -44,13 +44,13 @@ const KlineNodeLiveSettingPanel: React.FC<SettingProps> = ({ id, data }) => {
             <DataSourceSelector
                 startNode={connectedStartNode}
                 tradeMode={TradeMode.LIVE}
-                selectedAccount={liveConfig?.selectedLiveAccount}
-                onAccountChange={updateSelectedLiveAccount}
+                selectedAccount={liveConfig?.selectedAccount}
+                onAccountChange={updateSelectedAccount}
             />
             <SymbolSelector
                 selectedSymbols={liveConfig?.selectedSymbols || []}
                 onSymbolsChange={updateLiveSelectedSymbols}
-                selectedDataSource={liveConfig?.selectedLiveAccount}
+                selectedDataSource={liveConfig?.selectedAccount}
             />
         </div>
     )

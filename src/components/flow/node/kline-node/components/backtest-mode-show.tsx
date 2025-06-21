@@ -9,7 +9,7 @@ interface BacktestModeShowProps {
 }
 
 const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ backtestConfig }) => {
-    const selectedDataSource = backtestConfig?.exchangeConfig?.selectedDataSource;
+    const selectedDataSource = backtestConfig?.exchangeConfig?.selectedAccount;
     const selectedSymbols = backtestConfig?.exchangeConfig?.selectedSymbols || [];
     const timeRange = backtestConfig?.exchangeConfig?.timeRange || { startDate: "", endDate: "" };
 

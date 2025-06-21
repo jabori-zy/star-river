@@ -1,6 +1,5 @@
 
 
-
 export enum OrderType {
   LIMIT = 'LIMIT', // 限价单
   MARKET = 'MARKET', // 市价单
@@ -10,9 +9,14 @@ export enum OrderType {
   TAKE_PROFIT_LIMIT = 'TAKE_PROFIT_LIMIT', // 止盈限价单
 }
 
-export enum OrderSide {
+export enum SpotOrderSide {
   BUY = 'BUY', // 买入
   SELL = 'SELL', // 卖出
+}
+
+export enum FuturesOrderSide {
+  LONG = 'LONG', // 做多
+  SHORT = 'SHORT', // 做空
 }
 
 export enum OrderStatus {
@@ -22,11 +26,12 @@ export enum OrderStatus {
 
 
 export type FuturesOrderConfig = {
+    id: number;
     symbol: string;
     orderType: OrderType;
-    orderSide: OrderSide;
+    orderSide: FuturesOrderSide;
     price: number;
     quantity: number;
     tp: number | null;
     sl: number | null;
-  }
+}

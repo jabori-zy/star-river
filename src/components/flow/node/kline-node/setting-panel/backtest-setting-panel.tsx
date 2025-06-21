@@ -24,12 +24,12 @@ const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id, data }) => 
     const [connectedStartNode, setConnectedStartNode] = useState<StartNode | null>(null)
 
     // timeRange
-    const [timeRange, setTimeRange] = useState<TimeRange | null>(data?.backtestConfig?.exchangeConfig?.timeRange || null)
+    const [timeRange, setTimeRange] = useState<TimeRange | null>(klineNodeData?.backtestConfig?.exchangeConfig?.timeRange || null)
 
     // 使用自定义hook管理回测配置
     const {
         config: backtestConfig,
-        updateSelectedDataSource,
+        updateSelectedAccount,
         updateSelectedSymbols
     } = useUpdateBacktestConfig({
         id,
@@ -50,7 +50,7 @@ const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id, data }) => 
 
     // 处理数据源选择（回测模式下选择的是交易所数据源）
     const handleDataSourceChange = (selectedAccount: SelectedAccount) => {
-        updateSelectedDataSource({
+        updateSelectedAccount({
             id: selectedAccount.id,
             exchange: selectedAccount.exchange,
             accountName: selectedAccount.accountName
@@ -62,13 +62,13 @@ const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id, data }) => 
             <DataSourceSelector
                 startNode={connectedStartNode} 
                 tradeMode={TradeMode.BACKTEST}
-                selectedAccount={backtestConfig?.exchangeConfig?.selectedDataSource}
+                selectedAccount={backtestConfig?.exchangeConfig?.selectedAccount}
                 onAccountChange={handleDataSourceChange}
             />
             <SymbolSelector
                 selectedSymbols={backtestConfig?.exchangeConfig?.selectedSymbols || []}
                 onSymbolsChange={updateSelectedSymbols}
-                selectedDataSource={backtestConfig?.exchangeConfig?.selectedDataSource}
+                selectedDataSource={backtestConfig?.exchangeConfig?.selectedAccount}
             />
             <div className="flex items-center justify-between gap-2 bg-gray-100 p-2 rounded-md">
                 <Label className="text-sm font-bold"> 回测时间范围： </Label>

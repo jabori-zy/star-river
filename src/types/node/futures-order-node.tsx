@@ -1,5 +1,5 @@
 import {Node} from '@xyflow/react'
-import { SelectedAccount, BacktestDataSource, DataSourceExchange, TimeRange } from '@/types/strategy';
+import { SelectedAccount, BacktestDataSource, TimeRange } from '@/types/strategy';
 import { FuturesOrderConfig } from '@/types/order';
 
 
@@ -17,9 +17,8 @@ export type FuturesOrderNodeSimulateConfig = {
 
 
 export type FuturesOrderNodeBacktestExchangeConfig = {
-  selectedDataSource: DataSourceExchange; // 数据来源交易所
-  symbol: string; // 交易对
-  timeRange: TimeRange; // 时间范围
+  selectedAccount?: SelectedAccount;
+  timeRange: TimeRange; // 回测时间范围
 }
 
 
@@ -33,8 +32,9 @@ export type FuturesOrderNodeData = {
   nodeName: string; // 节点名称
   // 针对不同交易模式的条件配置
   liveConfig?: FuturesOrderNodeLiveConfig; 
-  simulateConfig?: FuturesOrderNodeSimulateConfig;
   backtestConfig?: FuturesOrderNodeBacktestConfig;
+  simulateConfig?: FuturesOrderNodeSimulateConfig;
+  
 }
 
 export type FuturesOrderNode = Node<FuturesOrderNodeData,'futuresOrderNode'>;

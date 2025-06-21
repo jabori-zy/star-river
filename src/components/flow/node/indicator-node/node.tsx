@@ -62,7 +62,7 @@ const IndicatorNode: React.FC<NodeProps<IndicatorNodeType>> = ({id, data, select
             selectedSymbol = klineNodeData.backtestConfig.exchangeConfig.selectedSymbols.find(
                 symbol => symbol.handleId === sourceHandleId
             ) || null;
-            exchange = klineNodeData.backtestConfig.exchangeConfig?.selectedDataSource?.exchange || null;
+            exchange = klineNodeData.backtestConfig.exchangeConfig?.selectedAccount?.exchange || null;
             timeRange = klineNodeData.backtestConfig.exchangeConfig?.timeRange || null;
         }
 

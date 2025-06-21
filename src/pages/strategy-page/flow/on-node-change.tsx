@@ -98,7 +98,7 @@ export const cleanupInvalidDataSources = (
         const isConnectedKlineNode = connectedKlineNodes.some(kn => kn.id === node.id);
         if (isConnectedKlineNode && node.type === 'klineNode') {
             const klineData = node.data as KlineNodeData;
-            const currentDataSource = klineData.backtestConfig?.exchangeConfig?.selectedDataSource;
+            const currentDataSource = klineData.backtestConfig?.exchangeConfig?.selectedAccount;
             
             // 检查当前数据源是否仍然有效
             if (currentDataSource && !isDataSourceValid(currentDataSource, availableDataSources)) {

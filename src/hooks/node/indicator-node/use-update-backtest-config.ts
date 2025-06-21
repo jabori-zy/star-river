@@ -6,7 +6,6 @@ import {
 } from '@/types/node/indicator-node';
 import { 
   BacktestDataSource, 
-  DataSourceExchange, 
   TimeRange 
 } from '@/types/strategy';
 import { Exchange } from '@/types/common';
@@ -73,36 +72,6 @@ export const useUpdateBacktestConfig = ({ id, initialConfig }: UseUpdateBacktest
     updateField('exchangeConfig', exchangeConfig);
   }, [updateField]);
 
-  // 更新选中的数据源
-  const updateSelectedDataSource = useCallback((selectedDataSource: DataSourceExchange) => {
-    updateConfig(prev => ({
-      ...getDefaultConfig(prev),
-      exchangeConfig: {
-        ...prev?.exchangeConfig,
-        exchange: selectedDataSource.exchange,
-        symbol: prev?.exchangeConfig?.symbol || '',
-        interval: prev?.exchangeConfig?.interval || '',
-        timeRange: prev?.exchangeConfig?.timeRange || { startDate: "", endDate: "" },
-        selectedIndicators: prev?.exchangeConfig?.selectedIndicators || [] as SelectedIndicator[]
-      }
-    }));
-  }, [updateConfig, getDefaultConfig]);
-
-  // 更新symbol和interval
-  const updateSymbolAndInterval = useCallback((symbol: string, interval: string) => {
-    updateConfig(prev => ({
-      ...getDefaultConfig(prev),
-      exchangeConfig: {
-        ...prev?.exchangeConfig,
-        exchange: prev?.exchangeConfig?.exchange || Exchange.BINANCE,
-        symbol,
-        interval,
-        timeRange: prev?.exchangeConfig?.timeRange || { startDate: "", endDate: "" },
-        selectedIndicators: prev?.exchangeConfig?.selectedIndicators || [] as SelectedIndicator[]
-      }
-    }));
-  }, [updateConfig, getDefaultConfig]);
-
   // 更新基础配置（交易所、交易对、时间间隔、时间范围）
   const updateBacktestKlineInfo = useCallback((
     exchange: string,
@@ -160,8 +129,6 @@ export const useUpdateBacktestConfig = ({ id, initialConfig }: UseUpdateBacktest
     // 具体更新方法
     updateDataSource,
     updateExchangeConfig,
-    updateSelectedDataSource,
-    updateSymbolAndInterval,
     updateBacktestKlineInfo,
     updateTimeRange,
     updateSelectedIndicators

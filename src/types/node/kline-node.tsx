@@ -1,5 +1,5 @@
 import {Node} from '@xyflow/react'
-import { SelectedAccount, DataSourceExchange, TimeRange, BacktestDataSource } from '@/types/strategy';
+import { SelectedAccount, TimeRange, BacktestDataSource } from '@/types/strategy';
 
 
 export type SelectedSymbol = {
@@ -11,7 +11,7 @@ export type SelectedSymbol = {
 
 // k线节点实盘交易配置
 export type KlineNodeLiveConfig = {
-    selectedLiveAccount: SelectedAccount | null; //选择的账户
+    selectedAccount: SelectedAccount | null; //选择的账户
     selectedSymbols: SelectedSymbol[]; // 选择的交易对(可以多选)
 }
 
@@ -28,7 +28,7 @@ export type KlineNodeBacktestFileConfig = {
 
 // k线节点回测交易 交易所数据源配置
 export type KlineNodeBacktestExchangeConfig = {
-    selectedDataSource: DataSourceExchange | null; // 数据来源交易所
+    selectedAccount: SelectedAccount | null; // 数据来源账户
     selectedSymbols: SelectedSymbol[]; // 选择的交易对(可以多选)
     timeRange: TimeRange; // 时间范围
 }

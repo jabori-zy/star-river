@@ -20,8 +20,8 @@ const KlineNodeSimSettingPanel: React.FC<SettingProps> = ({ id, data }) => {
     // 使用自定义hook管理模拟配置
     const {
         simulateConfig,
-        updateSelectedSimulateAccount,
-        updateSimulateSelectedSymbols
+        updateSelectedAccount,
+        updateLiveSelectedSymbols
     } = useUpdateLiveConfig({
         id,
         initialSimulateConfig: klineNodeData.simulateConfig
