@@ -9,20 +9,25 @@ import BacktestNodeShow from "./components/backtest-mode-show";
 import useTradingModeStore from "@/store/useTradingModeStore";
 import { useLiveConfig } from "@/hooks/node/start-node/use-update-live-config";
 import { useBacktestConfig } from "@/hooks/node/start-node/use-update-backtest-config";
+import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
 import { useEffect } from "react";
 
 const StartNode: React.FC<NodeProps<StartNodeType>> = ({id, data, selected, isConnectable}) => {
 
     const { tradingMode } = useTradingModeStore();
-    const { setDefaultLiveConfig } = useLiveConfig({ id, initialConfig: data?.liveConfig || undefined });
-    const { setDefaultBacktestConfig } = useBacktestConfig({ id, initialConfig: data?.backtestConfig || undefined });
+    
+    // 从全局状态获取数据
+    const { liveConfig: globalLiveConfig, backtestConfig: globalBacktestConfig } = useStartNodeDataStore();
+    
+    const { setDefaultLiveConfig } = useLiveConfig({ initialConfig: data?.liveConfig || undefined });
+    const { setDefaultBacktestConfig } = useBacktestConfig({ initialConfig: data?.backtestConfig || undefined });
 
     // 节点名称
     const nodeName = data?.nodeName || "策略起点";
-    // 实盘配置
-    const liveConfig = data?.liveConfig || {} as StrategyLiveConfig;
-    // 回测配置
-    const backtestConfig = data?.backtestConfig || {} as StrategyBacktestConfig;
+    // 实盘配置 - 优先使用全局状态数据
+    const liveConfig = globalLiveConfig || data?.liveConfig || {} as StrategyLiveConfig;
+    // 回测配置 - 优先使用全局状态数据
+    const backtestConfig = globalBacktestConfig || data?.backtestConfig || {} as StrategyBacktestConfig;
 
     const defaultOutputHandle: BaseHandleProps = {
         id: 'start_node_output',

@@ -1,25 +1,25 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { SettingProps } from '@/components/flow/base/BasePanel/setting-panel';
 import { StartNodeData } from '@/types/node/start-node';
 import AccountSelector from '../components/account-selector';
 import VariableEditor from '../components/variable-editor';
-import { SelectedAccount, TimeRange, BacktestDataSource } from '@/types/strategy';
+import { BacktestDataSource } from '@/types/strategy';
 import DataSourceSelector from '../components/data-source-selector';
 import TimeRangeSelector from '../components/time-range-selector';
 import BacktestStrategySetting from '../components/backtest-strategy-setting';
 import { useBacktestConfig } from '@/hooks/node/start-node/use-update-backtest-config';
-
-
-
+import { useStartNodeDataStore } from '@/store/use-start-node-data-store';
 
 // 新开始节点回测模式设置面板
-export const StartNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id, data }) => {
+export const StartNodeBacktestSettingPanel: React.FC<SettingProps> = ({ data }) => {
     // 将data转换为StartNodeData类型
     const startNodeData = data as StartNodeData;
     
+    // 从全局状态获取数据
+    const { backtestConfig: globalBacktestConfig } = useStartNodeDataStore();
+    
     // 使用自定义 hook 管理回测配置
     const {
-        config,
         updateInitialBalance,
         updateLeverage, 
         updateFeeRate,
@@ -29,82 +29,56 @@ export const StartNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id, data
         updateTimeRange,
         updateVariables
     } = useBacktestConfig({
-        id,
         initialConfig: startNodeData.backtestConfig || undefined
     });
 
-    // 本地UI状态
-    const [dataSource, setDataSource] = useState<BacktestDataSource>(config?.dataSource || BacktestDataSource.FILE);
-    const [selectedAccounts, setSelectedAccounts] = useState<SelectedAccount[]>(config?.exchangeConfig?.fromExchanges || []);
-    const [timeRange, setTimeRange] = useState<TimeRange>(config?.exchangeConfig?.timeRange || { startDate: "", endDate: "" });
-    const [initialBalance, setInitialBalance] = useState<number>(config?.initialBalance || 0);
-    const [leverage, setLeverage] = useState<number>(config?.leverage || 1);
-    const [feeRate, setFeeRate] = useState<number>(config?.feeRate || 0);
-    const [playSpeed, setPlaySpeed] = useState<number>(config?.playSpeed || 1);
-
-
-    // 处理函数 - 简化为调用 hook 方法并更新本地状态
-    const handleUpdateDataSource = (dataSource: BacktestDataSource) => {
-        setDataSource(dataSource);
-        updateDataSource(dataSource);
-    };
-
-    const handleUpdateSelectedAccounts = (accounts: SelectedAccount[]) => {
-        setSelectedAccounts(accounts);
-        updateSelectedAccounts(accounts);
-    };
-
-    const handleUpdateTimeRange = (timeRange: TimeRange) => {
-        setTimeRange(timeRange);
-        updateTimeRange(timeRange);
-    };
-
-    const handleUpdateInitialBalance = (initialBalance: number) => {
-        setInitialBalance(initialBalance);
-        updateInitialBalance(initialBalance);
-    };
-
-    const handleUpdateLeverage = (leverage: number) => {
-        setLeverage(leverage);
-        updateLeverage(leverage);
-    };
-
-    const handleUpdateFeeRate = (feeRate: number) => {
-        setFeeRate(feeRate);
-        updateFeeRate(feeRate);
-    };
-
-    const handleUpdatePlaySpeed = (playSpeed: number) => {
-        setPlaySpeed(playSpeed);
-        updatePlaySpeed(playSpeed);
-    };
+    // 从全局状态获取所有需要的数据
+    const dataSource = globalBacktestConfig?.dataSource || BacktestDataSource.EXCHANGE;
+    const selectedAccounts = globalBacktestConfig?.exchangeConfig?.fromExchanges || [];
+    const timeRange = globalBacktestConfig?.exchangeConfig?.timeRange || { startDate: "", endDate: "" };
+    const initialBalance = globalBacktestConfig?.initialBalance || 10000;
+    const leverage = globalBacktestConfig?.leverage || 1;
+    const feeRate = globalBacktestConfig?.feeRate || 0.001;
+    const playSpeed = globalBacktestConfig?.playSpeed || 1;
 
     return (
         <div className="p-4 space-y-4">
-            <DataSourceSelector dataSource={dataSource} setDataSource={setDataSource} updateDataSource={handleUpdateDataSource} />
+            <DataSourceSelector 
+                dataSource={dataSource} 
+                setDataSource={() => {}} // 不再需要本地状态设置
+                updateDataSource={updateDataSource} 
+            />
             {/* 根据数据源切换不同的组件 */}
             {dataSource === BacktestDataSource.EXCHANGE && (
                 <div className="space-y-4">
-                    <AccountSelector selectedAccounts={selectedAccounts} setSelectedAccounts={setSelectedAccounts} updateSelectedAccounts={handleUpdateSelectedAccounts} />
-                    <TimeRangeSelector timeRange={timeRange} setTimeRange={handleUpdateTimeRange} />
+                    <AccountSelector 
+                        selectedAccounts={selectedAccounts} 
+                        setSelectedAccounts={() => {}} // 不再需要本地状态设置
+                        updateSelectedAccounts={updateSelectedAccounts} 
+                    />
+                    <TimeRangeSelector 
+                        timeRange={timeRange} 
+                        setTimeRange={updateTimeRange} 
+                    />
                 </div>
             )}
             <BacktestStrategySetting 
                 initialBalance={initialBalance} 
-                setInitialBalance={setInitialBalance} 
-                updateInitialBalance={handleUpdateInitialBalance} 
+                setInitialBalance={() => {}} // 不再需要本地状态设置
+                updateInitialBalance={updateInitialBalance} 
                 leverage={leverage} 
-                setLeverage={setLeverage} 
-                updateLeverage={handleUpdateLeverage} 
+                setLeverage={() => {}} // 不再需要本地状态设置
+                updateLeverage={updateLeverage} 
                 feeRate={feeRate} 
-                setFeeRate={setFeeRate} 
-                updateFeeRate={handleUpdateFeeRate} 
+                setFeeRate={() => {}} // 不再需要本地状态设置
+                updateFeeRate={updateFeeRate} 
                 playSpeed={playSpeed}
-                setPlaySpeed={setPlaySpeed}
-                updatePlaySpeed={handleUpdatePlaySpeed} />
+                setPlaySpeed={() => {}} // 不再需要本地状态设置
+                updatePlaySpeed={updatePlaySpeed} 
+            />
 
             <VariableEditor
-                variables={config?.variables || []}
+                variables={globalBacktestConfig?.variables || []}
                 onVariablesChange={updateVariables}
             />
         </div>
