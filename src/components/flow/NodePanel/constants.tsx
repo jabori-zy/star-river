@@ -5,6 +5,7 @@ import { IfElseNodeSettingPanel } from '../node/if-else-node';
 import { SettingPanelProps } from '../base/BasePanel/trade-mode-switcher';
 import { NodeType } from '@/types/node/index';
 import { FuturesOrderNodeSettingPanel } from '../node/futures-order-node';
+import { PositionManagementNodeSettingPanel } from '../node/position-management-node';
 
 /**
  * 面板组件映射表 - 类似dify的PanelComponentMap
@@ -15,6 +16,7 @@ export const PanelComponentMap: Partial<Record<NodeType, SettingPanelProps>> = {
   [NodeType.KlineNode]: KlineNodeSettingPanel,
   [NodeType.IndicatorNode]: IndicatorNodeSettingPanel,
   [NodeType.IfElseNode]: IfElseNodeSettingPanel,
-  [NodeType.FuturesOrderNode]: FuturesOrderNodeSettingPanel
+  [NodeType.FuturesOrderNode]: FuturesOrderNodeSettingPanel,
+  [NodeType.PositionManagementNode]: PositionManagementNodeSettingPanel
 };
 

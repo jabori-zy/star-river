@@ -9,12 +9,12 @@ import { Button } from "@/components/ui/button"
 import { Drawer } from "@/components/ui/drawer"
 import { PencilIcon, LayoutGrid, Plus } from 'lucide-react';
 import { 
-    type PositionNode, 
-    PositionOperationType,
+    type PositionManagementNode, 
+    PositionOperation,
     PositionLiveConfig,
     PositionSimulateConfig,
     PositionBacktestConfig
-} from "@/types/node/positionNode";
+} from "@/types/node/position-management-node";
 import { Badge } from "@/components/ui/badge";
 import { TradeMode } from "@/types/node";
 import { useStrategyStore } from "@/store/useStrategyStore";
@@ -34,7 +34,7 @@ function isBacktestConfig(config: any): config is PositionBacktestConfig {
     return config && !('selectedLiveAccount' in config) && !('selectedSimulateAccount' in config);
 }
 
-function PositionNode({id, data}:NodeProps<PositionNode>) {
+function PositionNode({id, data}:NodeProps<PositionManagementNode>) {
     
     const [showEditButton, setShowEditButton] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
@@ -50,11 +50,11 @@ function PositionNode({id, data}:NodeProps<PositionNode>) {
         if (tradingMode === TradeMode.LIVE) {
             // 定义默认的实盘配置
             const defaultConfig: PositionLiveConfig = {
-                selectedLiveAccount: null,
+                selectedAccount: null,
                 symbol: null,
                 operations: [{
                     configId: 1,
-                    operationType: PositionOperationType.UPDATE,
+                    positionOperation: PositionOperation.UPDATE,
                     operationName: "更新仓位"
                 }]
             };
@@ -66,7 +66,7 @@ function PositionNode({id, data}:NodeProps<PositionNode>) {
                 symbol: null,
                 operations: [{
                     configId: 1,
-                    operationType: PositionOperationType.UPDATE,
+                    positionOperation: PositionOperation.UPDATE,
                     operationName: "更新仓位"
                 }]
             };
@@ -77,7 +77,7 @@ function PositionNode({id, data}:NodeProps<PositionNode>) {
                 symbol: null,
                 operations: [{
                     configId: 1,
-                    operationType: PositionOperationType.UPDATE,
+                    positionOperation: PositionOperation.UPDATE,
                     operationName: "更新仓位"
                 }]
             };
@@ -90,7 +90,7 @@ function PositionNode({id, data}:NodeProps<PositionNode>) {
             symbol: null,
             operations: [{
                 configId: 1,
-                operationType: PositionOperationType.UPDATE,
+                positionOperation: PositionOperation.UPDATE,
                 operationName: "更新仓位"
             }]
         } as PositionSimulateConfig;
@@ -107,11 +107,11 @@ function PositionNode({id, data}:NodeProps<PositionNode>) {
     };
 
     // 获取操作类型的文字和样式
-    const getOperationTypeInfo = (type: PositionOperationType) => {
+    const getOperationTypeInfo = (type: PositionOperation) => {
         switch (type) {
-            case PositionOperationType.UPDATE:
+            case PositionOperation.UPDATE:
                 return { text: "更新仓位", className: "bg-blue-100 text-blue-800" };
-            case PositionOperationType.CLOSEALL:
+            case PositionOperation.CLOSEALL:
                 return { text: "全部平仓", className: "bg-red-100 text-red-800" };
             default:
                 return { text: "未知操作", className: "bg-gray-100 text-gray-800" };
@@ -152,10 +152,10 @@ function PositionNode({id, data}:NodeProps<PositionNode>) {
                         <div className="px-3 py-2 border-b">
                             <div className="space-y-0.5">
                                 {/* 显示账户信息 (如果有) */}
-                                {isLiveConfig(activeConfig) && activeConfig.selectedLiveAccount && (
+                                {isLiveConfig(activeConfig) && activeConfig.selectedAccount && (
                                     <div className="flex items-center gap-1">
                                         <span className="text-[10px] text-muted-foreground">账户:</span>
-                                        <span className="text-[10px]">{activeConfig.selectedLiveAccount.accountName || "未选择"}</span>
+                                        <span className="text-[10px]">{activeConfig.selectedAccount.accountName || "未选择"}</span>
                                     </div>
                                 )}
                                 
@@ -183,15 +183,15 @@ function PositionNode({id, data}:NodeProps<PositionNode>) {
                                     {/* 操作名称和类型 */}
                                     <div className="flex items-center justify-between mb-1">
                                         <div className="text-xs font-medium">{operation.operationName}</div>
-                                        <Badge variant="outline" className={`text-[10px] h-5 ${getOperationTypeInfo(operation.operationType).className}`}>
-                                            {getOperationTypeInfo(operation.operationType).text}
+                                        <Badge variant="outline" className={`text-[10px] h-5 ${getOperationTypeInfo(operation.positionOperation).className}`}>
+                                            {getOperationTypeInfo(operation.positionOperation).text}
                                         </Badge>
                                     </div>
                                     
                                     {/* 生成与操作类型相关的handle ID */}
                                     {(() => {
                                         // 根据操作类型生成handle ID
-                                        const typeString = operation.operationType === PositionOperationType.UPDATE ? "update" : "closeall";
+                                        const typeString = operation.positionOperation === PositionOperation.UPDATE ? "update" : "closeall";
                                         const handleId = `position_node_${typeString}`;
                                         
                                         return (

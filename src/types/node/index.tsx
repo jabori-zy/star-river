@@ -2,6 +2,7 @@ import { StartNodeData } from "./start-node";
 import { KlineNodeData } from "./kline-node";
 import { IndicatorNodeData } from "./indicator-node";
 import { IfElseNodeData } from "./if-else-node";
+import { PositionManagementNodeData } from "./position-management-node";
 
 
 
@@ -12,6 +13,7 @@ export enum NodeType {
     IndicatorNode = "indicatorNode",
     IfElseNode = "ifElseNode",
     FuturesOrderNode = "futuresOrderNode",
+    PositionManagementNode = "positionManagementNode",
 }
 
 
@@ -33,7 +35,7 @@ export enum NodeDefaultOutputHandleId {
 
 
 // 所有节点的数据类型的联合类型
-export type NodeData = StartNodeData | KlineNodeData | IndicatorNodeData | IfElseNodeData;
+export type NodeData = StartNodeData | KlineNodeData | IndicatorNodeData | IfElseNodeData | PositionManagementNodeData;
 
 
 

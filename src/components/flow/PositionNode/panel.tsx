@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { PositionNode, PositionOperationConfig, PositionOperationType } from "@/types/node/positionNode";
+import { PositionManagementNode, PositionOperationConfig, PositionOperation } from "@/types/node/position-management-node";
 import { Strategy, SelectedAccount } from "@/types/strategy";
 import { TradeMode } from "@/types/node";
 import {
@@ -22,10 +22,10 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Badge } from "@/components/ui/badge";
 
 interface PositionNodePanelProps {
-    data: PositionNode["data"];
+    data: PositionManagementNode["data"];
     strategy: Strategy | null;
     setIsEditing: (value: boolean) => void;
-    handleSave: (updatedData: PositionNode["data"]) => void;
+    handleSave: (updatedData: PositionManagementNode["data"]) => void;
     nodeName: string;
     onNodeNameChange: (name: string) => void;
 }
@@ -52,8 +52,8 @@ function PositionNodePanel({
     };
     
     // 生成操作名称，根据操作类型和已有操作数量生成
-    const generateOperationName = (operationType: PositionOperationType, operations: PositionOperationConfig[]) => {
-        const typeName = operationType === PositionOperationType.UPDATE ? "更新仓位" : "全部平仓";
+    const generateOperationName = (operationType: PositionOperation, operations: PositionOperationConfig[]) => {
+        const typeName = operationType === PositionOperation.UPDATE ? "更新仓位" : "全部平仓";
         
         // 检查是否有重名
         let newName = typeName;
@@ -74,7 +74,7 @@ function PositionNodePanel({
         // 默认添加一个更新仓位操作
         return [{
             configId: 1,
-            operationType: PositionOperationType.UPDATE,
+            operationType: PositionOperation.UPDATE,
             operationName: "更新仓位"
         }];
     };
@@ -172,7 +172,7 @@ function PositionNodePanel({
         if (operations.length === 0) {
             setOperations([{
                 configId: 1,
-                operationType: PositionOperationType.UPDATE,
+                positionOperation: PositionOperation.UPDATE,
                 operationName: "更新仓位"
             }]);
         }
@@ -219,17 +219,17 @@ function PositionNodePanel({
         
         // 检查当前已有的操作类型，选择可用的操作类型
         // 如果已有全部平仓操作，则不应再添加操作
-        if (operations.some(op => op.operationType === PositionOperationType.CLOSEALL)) {
+        if (operations.some(op => op.positionOperation === PositionOperation.CLOSEALL)) {
             return;
         }
         
         // 判断是否有更新仓位操作，如果有则添加全部平仓，否则添加更新仓位
-        const hasUpdateOperation = operations.some(op => op.operationType === PositionOperationType.UPDATE);
-        const operationType = hasUpdateOperation ? PositionOperationType.CLOSEALL : PositionOperationType.UPDATE;
+        const hasUpdateOperation = operations.some(op => op.positionOperation === PositionOperation.UPDATE);
+        const operationType = hasUpdateOperation ? PositionOperation.CLOSEALL : PositionOperation.UPDATE;
         
         const newOperation: PositionOperationConfig = {
             configId: newConfigId,
-            operationType,
+            positionOperation: operationType,
             operationName: generateOperationName(operationType, operations)
         };
         
@@ -244,10 +244,10 @@ function PositionNodePanel({
         const targetOperation = operations.find(op => op.configId === configId);
         
         // 如果是UPDATE类型操作，检查是否是唯一的UPDATE操作
-        if (targetOperation?.operationType === PositionOperationType.UPDATE) {
+        if (targetOperation?.positionOperation === PositionOperation.UPDATE) {
             // 计算UPDATE操作的数量
             const updateOperationsCount = operations.filter(
-                op => op.operationType === PositionOperationType.UPDATE
+                op => op.positionOperation === PositionOperation.UPDATE
             ).length;
             
             // 如果是唯一的UPDATE操作，不允许删除
@@ -269,16 +269,16 @@ function PositionNodePanel({
     };
     
     // 更新操作类型 (作用于当前活动标签页)
-    const updateOperationType = (configId: number, type: PositionOperationType) => {
+    const updateOperationType = (configId: number, type: PositionOperation) => {
         const { operations, setOperations } = getActiveOperationsAndSetter();
         const operation = operations.find(op => op.configId === configId);
-        if (!operation || operation.operationType === type) return;
+        if (!operation || operation.positionOperation === type) return;
 
         // 如果是将UPDATE类型更改为其他类型，需要检查是否是唯一的UPDATE操作
-        if (operation.operationType === PositionOperationType.UPDATE && type !== PositionOperationType.UPDATE) {
+        if (operation.positionOperation === PositionOperation.UPDATE && type !== PositionOperation.UPDATE) {
             // 计算UPDATE操作的数量
             const updateOperationsCount = operations.filter(
-                op => op.operationType === PositionOperationType.UPDATE
+                op => op.positionOperation === PositionOperation.UPDATE
             ).length;
             
             // 如果是唯一的UPDATE操作，不允许修改类型
@@ -297,7 +297,7 @@ function PositionNodePanel({
             if (op.configId === configId) {
                 return { 
                     ...op, 
-                    operationType: type,
+                    positionOperation: type,
                     operationName: shouldUpdateName ? generateOperationName(type, otherOperations) : op.operationName
                 };
             }
@@ -328,13 +328,13 @@ function PositionNodePanel({
             if (operations.length === 0) {
                 return [{
                     configId: 1,
-                    operationType: PositionOperationType.UPDATE,
+                    positionOperation: PositionOperation.UPDATE,
                     operationName: "更新仓位"
                 }];
             }
             
             // 检查是否包含UPDATE操作
-            const hasUpdateOperation = operations.some(op => op.operationType === PositionOperationType.UPDATE);
+            const hasUpdateOperation = operations.some(op => op.positionOperation === PositionOperation.UPDATE);
             
             // 如果不包含UPDATE操作，添加一个
             if (!hasUpdateOperation) {
@@ -343,8 +343,8 @@ function PositionNodePanel({
                     ...operations,
                     {
                         configId: newConfigId,
-                        operationType: PositionOperationType.UPDATE,
-                        operationName: generateOperationName(PositionOperationType.UPDATE, operations)
+                        positionOperation: PositionOperation.UPDATE,
+                        operationName: generateOperationName(PositionOperation.UPDATE, operations)
                     }
                 ];
             }
@@ -378,27 +378,27 @@ function PositionNodePanel({
     
     // 获取操作类型的选项列表
     const operationTypeOptions = [
-        { value: PositionOperationType.UPDATE, label: "更新仓位" },
-        { value: PositionOperationType.CLOSEALL, label: "全部平仓" }
+        { value: PositionOperation.UPDATE, label: "更新仓位" },
+        { value: PositionOperation.CLOSEALL, label: "全部平仓" }
     ];
     
     // 判断操作类型是否已被选择
-    const isOperationTypeUsed = (type: PositionOperationType, currentConfigId: number) => {
+    const isOperationTypeUsed = (type: PositionOperation, currentConfigId: number) => {
         return currentOperations.some(op => 
-            op.operationType === type && op.configId !== currentConfigId
+            op.positionOperation === type && op.configId !== currentConfigId
         );
     };
     
     // 获取可选的操作类型选项（排除当前操作已经选择的类型）
     const getAvailableOperationTypes = (currentConfigId: number) => {
         return operationTypeOptions.filter(option => 
-            !isOperationTypeUsed(option.value as PositionOperationType, currentConfigId)
+            !isOperationTypeUsed(option.value as PositionOperation, currentConfigId)
         );
     };
     
     // 判断是否已存在全部平仓操作
     const hasCloseAllOperation = () => {
-        return currentOperations.some(op => op.operationType === PositionOperationType.CLOSEALL);
+        return currentOperations.some(op => op.positionOperation === PositionOperation.CLOSEALL);
     };
     
     // 判断添加按钮是否应该禁用
@@ -410,14 +410,14 @@ function PositionNodePanel({
     // 判断操作是否可删除
     const isOperationRemovable = (operation: PositionOperationConfig): boolean => {
         // 非UPDATE类型操作总是可以删除
-        if (operation.operationType !== PositionOperationType.UPDATE) {
+        if (operation.positionOperation !== PositionOperation.UPDATE) {
             return true;
         }
         
         // UPDATE类型操作，需要检查是否是唯一的UPDATE操作
         const { operations } = getActiveOperationsAndSetter();
         const updateOperationsCount = operations.filter(
-            op => op.operationType === PositionOperationType.UPDATE
+            op => op.positionOperation === PositionOperation.UPDATE
         ).length;
         
         // 只有当有多个UPDATE操作时，才允许删除
@@ -427,14 +427,14 @@ function PositionNodePanel({
     // 判断操作类型是否可修改
     const isOperationTypeChangeable = (operation: PositionOperationConfig): boolean => {
         // 如果不是UPDATE类型，总是可以修改
-        if (operation.operationType !== PositionOperationType.UPDATE) {
+        if (operation.positionOperation !== PositionOperation.UPDATE) {
             return true;
         }
         
         // 如果是UPDATE类型，检查是否是唯一的UPDATE操作
         const { operations } = getActiveOperationsAndSetter();
         const updateOperationsCount = operations.filter(
-            op => op.operationType === PositionOperationType.UPDATE
+            op => op.positionOperation === PositionOperation.UPDATE
         ).length;
         
         // 只有当有多个UPDATE操作时，才允许修改类型
@@ -584,7 +584,7 @@ function PositionNodePanel({
                                                 <span className="text-sm">{operation.operationName}</span>
                                                 
                                                 <Badge variant="outline" className="ml-auto text-[10px]">
-                                                    {operation.operationType === PositionOperationType.UPDATE ? "更新仓位" : "全部平仓"}
+                                                    {operation.positionOperation === PositionOperation.UPDATE ? "更新仓位" : "全部平仓"}
                                                 </Badge>
                                             </div>
                                         </AccordionTrigger>
@@ -605,8 +605,8 @@ function PositionNodePanel({
                                                 <div className="space-y-1">
                                                     <Label className="text-xs">操作类型</Label>
                                                     <Select 
-                                                        value={operation.operationType} 
-                                                        onValueChange={(value) => updateOperationType(operation.configId, value as PositionOperationType)}
+                                                        value={operation.positionOperation} 
+                                                        onValueChange={(value) => updateOperationType(operation.configId, value as PositionOperation)}
                                                         disabled={!isOperationTypeChangeable(operation)}
                                                     >
                                                         <SelectTrigger className="h-8">
