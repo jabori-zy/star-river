@@ -6,7 +6,7 @@ interface BacktestModeShowProps {
     data: FuturesOrderNodeData;
 }
 
-const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ data }) => {
+const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ id, data }) => {
     // 获取回测模式配置
     const backtestConfig = data.backtestConfig;
 
@@ -30,6 +30,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ data }) => {
             {/* 渲染所有的订单配置 */}
             {backtestConfig.futuresOrderConfigs.map((config) => (
                 <OrderHandleItem
+                    id={id}
                     key={config.id}
                     orderConfig={config}
                 />

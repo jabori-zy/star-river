@@ -1,39 +1,23 @@
 import React from "react";
-import { type FuturesOrderConfig, OrderType, FuturesOrderSide } from "@/types/order";
+import { type FuturesOrderConfig, OrderType, FuturesOrderSide, OrderStatus } from "@/types/order";
 import { Badge } from "@/components/ui/badge";
 import BaseHandle from "@/components/flow/base/BaseHandle";
 import { Position } from "@xyflow/react";
+import { getOrderStatusLabel, getOrderSideLabel, getOrderTypeLabel } from "./utils";
+import { getLimitOrderHandleGroup, getMarketOrderHandleGroup } from "./handle-group";
 
 interface OrderHandleItemProps {
+    id: string;
     orderConfig: FuturesOrderConfig
 }
 
-const getOrderTypeLabel = (type: OrderType) => {
-    const labels = {
-        [OrderType.LIMIT]: '限价',
-        [OrderType.MARKET]: '市价',
-        [OrderType.STOP_LIMIT]: '止损限价',
-        [OrderType.STOP_MARKET]: '止损市价',
-        [OrderType.TAKE_PROFIT]: '止盈',
-        [OrderType.TAKE_PROFIT_LIMIT]: '止盈限价',
-    };
-    return labels[type] || type;
-};
 
-const getOrderSideLabel = (side: FuturesOrderSide) => {
-    const labels = {
-        [FuturesOrderSide.LONG]: '做多',
-        [FuturesOrderSide.SHORT]: '做空',
-    };
-    return labels[side] || side;
-};
-
-const OrderHandleItem: React.FC<OrderHandleItemProps> = ({orderConfig}) => {
+const OrderHandleItem: React.FC<OrderHandleItemProps> = ({id, orderConfig}) => {
 
     const isMarketOrder = orderConfig.orderType === OrderType.MARKET || orderConfig.orderType === OrderType.STOP_MARKET;
 
     return (
-        <div className="flex flex-col gap-1 relative">
+        <div className="flex flex-col gap-1 relative ">
             {/* 标题 */}
             <div className="flex items-center gap-2 pr-2 relative">
                 <Badge 
@@ -48,7 +32,7 @@ const OrderHandleItem: React.FC<OrderHandleItemProps> = ({orderConfig}) => {
                 {
                     orderConfig.orderSide === FuturesOrderSide.LONG ? (
                         <BaseHandle
-                            id={`order-${orderConfig.id}`}
+                            id={`${id}_input${orderConfig.id}`}
                             type="target"
                             position={Position.Left}
                             handleColor="!bg-black-400"
@@ -57,7 +41,7 @@ const OrderHandleItem: React.FC<OrderHandleItemProps> = ({orderConfig}) => {
 
                     ) : (
                         <BaseHandle
-                            id={`order-${orderConfig.id}`}
+                            id={`${id}_input${orderConfig.id}`}
                             type="target"
                             position={Position.Left}
                             handleColor="!bg-red-500"
@@ -69,34 +53,79 @@ const OrderHandleItem: React.FC<OrderHandleItemProps> = ({orderConfig}) => {
             </div>
             
 
-            {/* 订单配置 */}
-            <div className="flex items-center gap-1 p-2 text-xs bg-gray-100 rounded">
-                <Badge variant="outline" className="h-4 px-1 text-xs">
-                    {orderConfig.symbol}
-                </Badge>
-                
-                <span className="text-xs text-muted-foreground">
-                    {getOrderTypeLabel(orderConfig.orderType)}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                    {orderConfig.quantity}
-                </span>
-                {!isMarketOrder && (
-                    <span className="text-xs text-muted-foreground">
-                        @{orderConfig.price}
-                    </span>
-                )}
-                {orderConfig.tp && (
-                    <span className="text-xs text-green-600">
-                        TP:{orderConfig.tp}
-                    </span>
-                )}
-                {orderConfig.sl && (
-                    <span className="text-xs text-red-600">
-                        SL:{orderConfig.sl}
-                    </span>
-                )}
+            <div className="flex flex-row flex-1 gap-1 justify-between">
+                {/* 订单配置 */}
+                <div className="flex flex-1 flex-col gap-2 p-4 text-xs bg-gray-50 rounded">
+                    <div className="flex justify-between">
+                        <span className="text-gray-600">交易对：</span>
+                        <span className="font-medium">{orderConfig.symbol}</span>
+                    </div>
+                    
+                    <div className="flex justify-between">
+                        <span className="text-gray-600">订单类型：</span>
+                        <span className="font-medium">{getOrderTypeLabel(orderConfig.orderType)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                        <span className="text-gray-600">订单方向：</span>
+                        <span className="font-medium">{getOrderSideLabel(orderConfig.orderSide)}</span>
+                    </div>
+                    
+                    <div className="flex justify-between">
+                        <span className="text-gray-600">数量：</span>
+                        <span className="font-medium">{orderConfig.quantity}</span>
+                    </div>
+                    
+                    {!isMarketOrder && (
+                        <div className="flex justify-between">
+                            <span className="text-gray-600">成交价格：</span>
+                            <span className="font-medium">{orderConfig.price}</span>
+                        </div>
+                    )}
+                    
+                    <div className="flex justify-between">
+                        <span className="text-gray-600">止盈：</span>
+                        <span className="font-medium">{orderConfig.tp || '-'}</span>
+                    </div>
+                    
+                    <div className="flex justify-between">
+                        <span className="text-gray-600">止损：</span>
+                        <span className="font-medium">{orderConfig.sl || '-'}</span>
+                    </div>
+                </div>
+                {/* 订单状态 */}
+                <div className="flex flex-col gap-2 items-end">
+                    <div className="text-xs text-muted-foreground">
+                        {getOrderStatusLabel(OrderStatus.CREATED)}
+                    </div>
+                    {!isMarketOrder && (
+                        <div className="text-xs text-muted-foreground">
+                            {getOrderStatusLabel(OrderStatus.PLACED)}
+                        </div>
+                    )}
+                    
+                    <div className="text-xs text-muted-foreground">
+                        {getOrderStatusLabel(OrderStatus.PARTIAL)}
+                    </div>
+                    <div className="text-xs text-green-400">
+                        {getOrderStatusLabel(OrderStatus.FILLED)}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                        {getOrderStatusLabel(OrderStatus.CANCELLED)}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                        {getOrderStatusLabel(OrderStatus.EXPIRED)}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                        {getOrderStatusLabel(OrderStatus.REJECTED)}
+                    </div>
+                    <div className="text-xs text-red-400">
+                        {getOrderStatusLabel(OrderStatus.ERROR)}
+                    </div>
+                </div>
             </div>
+            {/* handle出口 */}
+            {isMarketOrder ? getMarketOrderHandleGroup(id, orderConfig.id) : getLimitOrderHandleGroup(id, orderConfig.id)}
+                
         </div>
     );
 };

@@ -6,7 +6,7 @@ interface LiveModeShowProps {
     data: FuturesOrderNodeData;
 }
 
-const LiveModeShow: React.FC<LiveModeShowProps> = ({ data }) => {
+const LiveModeShow: React.FC<LiveModeShowProps> = ({ id, data }) => {
     // 获取实盘模式配置
     const liveConfig = data.liveConfig;
 
@@ -30,6 +30,7 @@ const LiveModeShow: React.FC<LiveModeShowProps> = ({ data }) => {
             {/* 渲染所有的订单配置 */}
             {liveConfig.futuresOrderConfigs.map((config) => (
                 <OrderHandleItem
+                    id={id}
                     key={config.id}
                     orderConfig={config}
                 />

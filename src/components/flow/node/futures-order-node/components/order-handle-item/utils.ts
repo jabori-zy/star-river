@@ -1,4 +1,4 @@
-import { type FuturesOrderConfig, OrderType, FuturesOrderSide } from "@/types/order";
+import { type FuturesOrderConfig, OrderType, FuturesOrderSide, OrderStatus } from "@/types/order";
 
 export const formatOrderConfig = (config: FuturesOrderConfig): string => {
     const side = config.orderSide === FuturesOrderSide.LONG ? '多' : '空';
@@ -47,3 +47,19 @@ export const getOrderConfigSummary = (configs: FuturesOrderConfig[]): string => 
     if (configs.length === 1) return formatOrderConfig(configs[0]);
     return `${configs.length}个订单配置`;
 }; 
+
+export const getOrderStatusLabel = (status: OrderStatus): string => {
+    const labels = {
+        [OrderStatus.CREATED]: '已创建',
+        [OrderStatus.PLACED]: '已挂单',
+        [OrderStatus.PARTIAL]: '部分成交',
+        [OrderStatus.FILLED]: '全部成交',
+        [OrderStatus.CANCELLED]: '已取消',
+        [OrderStatus.EXPIRED]: '已过期',
+        [OrderStatus.REJECTED]: '已拒绝',
+        [OrderStatus.ERROR]: '错误',
+    };
+    return labels[status] || status;
+};
+
+

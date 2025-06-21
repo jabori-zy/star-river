@@ -20,8 +20,14 @@ export enum FuturesOrderSide {
 }
 
 export enum OrderStatus {
-  PENDING = 'PENDING', // 待执行
-  EXECUTED = 'EXECUTED', // 已执行
+  CREATED = 'CREATED', // 已创建
+  PLACED = 'PLACED', // 已挂单
+  PARTIAL = 'PARTIAL', // 部分成交
+  FILLED = 'FILLED', // 已执行
+  CANCELLED = 'CANCELLED', // 已取消
+  EXPIRED = 'EXPIRED', // 已过期
+  REJECTED = 'REJECTED', // 已拒绝
+  ERROR = 'ERROR', // 错误
 }
 
 
