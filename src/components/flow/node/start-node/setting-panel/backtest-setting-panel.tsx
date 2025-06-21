@@ -11,7 +11,7 @@ import { useBacktestConfig } from '@/hooks/node/start-node/use-update-backtest-c
 import { useStartNodeDataStore } from '@/store/use-start-node-data-store';
 
 // 新开始节点回测模式设置面板
-export const StartNodeBacktestSettingPanel: React.FC<SettingProps> = ({ data }) => {
+export const StartNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id, data }) => {
     // 将data转换为StartNodeData类型
     const startNodeData = data as StartNodeData;
     
@@ -29,7 +29,8 @@ export const StartNodeBacktestSettingPanel: React.FC<SettingProps> = ({ data }) 
         updateTimeRange,
         updateVariables
     } = useBacktestConfig({
-        initialConfig: startNodeData.backtestConfig || undefined
+        initialConfig: startNodeData.backtestConfig || undefined,
+        nodeId: id
     });
 
     // 从全局状态获取所有需要的数据

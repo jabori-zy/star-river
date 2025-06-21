@@ -7,7 +7,7 @@ import { useLiveConfig } from '@/hooks/node/start-node/use-update-live-config';
 import { useStartNodeDataStore } from '@/store/use-start-node-data-store';
 
 // 新开始节点实时模式设置面板
-export const StartNodeLiveSettingPanel: React.FC<SettingProps> = ({ data }) => {
+export const StartNodeLiveSettingPanel: React.FC<SettingProps> = ({ id, data }) => {
     // 将data转换为StartNodeData类型
     const startNodeData = data as StartNodeData;
     
@@ -19,7 +19,8 @@ export const StartNodeLiveSettingPanel: React.FC<SettingProps> = ({ data }) => {
         updateLiveAccounts,
         updateVariables
     } = useLiveConfig({
-        initialConfig: startNodeData.liveConfig || undefined
+        initialConfig: startNodeData.liveConfig || undefined,
+        nodeId: id
     });
     
     return (

@@ -1,12 +1,17 @@
 import { useCallback, useEffect } from 'react';
 import { StrategyBacktestConfig, SelectedAccount, StrategyVariable, TimeRange, BacktestDataSource } from '@/types/strategy';
 import { useStartNodeDataStore } from '@/store/use-start-node-data-store';
+import { useReactFlow } from '@xyflow/react';
 
 interface UseBacktestConfigProps {
   initialConfig?: StrategyBacktestConfig;
+  nodeId?: string; // 节点ID，用于同步节点数据
 }
 
-export const useBacktestConfig = ({ initialConfig }: UseBacktestConfigProps) => {
+export const useBacktestConfig = ({ initialConfig, nodeId }: UseBacktestConfigProps) => {
+  
+  // 获取ReactFlow实例
+  const { setNodes } = useReactFlow();
   
   // 获取全局状态store的方法和数据
   const {
@@ -35,38 +40,79 @@ export const useBacktestConfig = ({ initialConfig }: UseBacktestConfigProps) => 
     setGlobalDefaultBacktestConfig();
   }, [setGlobalDefaultBacktestConfig]);
 
-  // 具体的更新方法 - 直接调用全局状态方法
+  // 辅助函数：同步节点数据
+  const syncToNode = useCallback((updateFn: (config: StrategyBacktestConfig) => StrategyBacktestConfig) => {
+    if (nodeId) {
+      setTimeout(() => {
+        setNodes(nodes => 
+          nodes.map(node => 
+            node.id === nodeId 
+              ? { 
+                  ...node, 
+                  data: { 
+                    ...node.data,
+                    backtestConfig: updateFn(node.data.backtestConfig || {} as StrategyBacktestConfig)
+                  } 
+                }
+              : node
+          )
+        );
+      }, 0);
+    }
+  }, [nodeId, setNodes]);
+
+  // 具体的更新方法 - 直接调用全局状态方法并同步节点
   const updateInitialBalance = useCallback((initialBalance: number) => {
     updateGlobalInitialBalance(initialBalance);
-  }, [updateGlobalInitialBalance]);
+    syncToNode(config => ({ ...config, initialBalance }));
+  }, [updateGlobalInitialBalance, syncToNode]);
 
   const updateLeverage = useCallback((leverage: number) => {
     updateGlobalLeverage(leverage);
-  }, [updateGlobalLeverage]);
+    syncToNode(config => ({ ...config, leverage }));
+  }, [updateGlobalLeverage, syncToNode]);
 
   const updateFeeRate = useCallback((feeRate: number) => {
     updateGlobalFeeRate(feeRate);
-  }, [updateGlobalFeeRate]);
+    syncToNode(config => ({ ...config, feeRate }));
+  }, [updateGlobalFeeRate, syncToNode]);
 
   const updatePlaySpeed = useCallback((playSpeed: number) => {
     updateGlobalPlaySpeed(playSpeed);
-  }, [updateGlobalPlaySpeed]);
+    syncToNode(config => ({ ...config, playSpeed }));
+  }, [updateGlobalPlaySpeed, syncToNode]);
 
   const updateDataSource = useCallback((dataSource: BacktestDataSource) => {
     updateGlobalDataSource(dataSource);
-  }, [updateGlobalDataSource]);
+    syncToNode(config => ({ ...config, dataSource }));
+  }, [updateGlobalDataSource, syncToNode]);
 
   const updateVariables = useCallback((variables: StrategyVariable[]) => {
     updateGlobalBacktestVariables(variables);
-  }, [updateGlobalBacktestVariables]);
+    syncToNode(config => ({ ...config, variables }));
+  }, [updateGlobalBacktestVariables, syncToNode]);
 
   const updateSelectedAccounts = useCallback((accounts: SelectedAccount[]) => {
     updateGlobalBacktestAccounts(accounts);
-  }, [updateGlobalBacktestAccounts]);
+    syncToNode(config => ({ 
+      ...config, 
+      exchangeConfig: {
+        ...config.exchangeConfig,
+        fromExchanges: accounts
+      }
+    }));
+  }, [updateGlobalBacktestAccounts, syncToNode]);
 
   const updateTimeRange = useCallback((timeRange: TimeRange) => {
     updateGlobalTimeRange(timeRange);
-  }, [updateGlobalTimeRange]);
+    syncToNode(config => ({ 
+      ...config, 
+      exchangeConfig: {
+        ...config.exchangeConfig,
+        timeRange
+      }
+    }));
+  }, [updateGlobalTimeRange, syncToNode]);
 
   return {
     config,

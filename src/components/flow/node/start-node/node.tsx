@@ -1,6 +1,6 @@
 import BaseNode from "@/components/flow/base/BaseNode";
 import { Play } from "lucide-react";
-import { NodeProps, Position } from "@xyflow/react";
+import { NodeProps, Position, useReactFlow } from "@xyflow/react";
 import { type StartNode as StartNodeType } from "@/types/node/start-node";
 import { BaseHandleProps } from "@/components/flow/base/BaseHandle";
 import { StrategyBacktestConfig, StrategyLiveConfig, TradeMode } from "@/types/strategy";
@@ -16,11 +16,20 @@ const StartNode: React.FC<NodeProps<StartNodeType>> = ({id, data, selected, isCo
 
     const { tradingMode } = useTradingModeStore();
     
+    // 获取ReactFlow实例以更新节点数据
+    const { setNodes } = useReactFlow();
+    
     // 从全局状态获取数据
     const { liveConfig: globalLiveConfig, backtestConfig: globalBacktestConfig } = useStartNodeDataStore();
     
-    const { setDefaultLiveConfig } = useLiveConfig({ initialConfig: data?.liveConfig || undefined });
-    const { setDefaultBacktestConfig } = useBacktestConfig({ initialConfig: data?.backtestConfig || undefined });
+    const { setDefaultLiveConfig } = useLiveConfig({ 
+        initialConfig: data?.liveConfig || undefined,
+        nodeId: id 
+    });
+    const { setDefaultBacktestConfig } = useBacktestConfig({ 
+        initialConfig: data?.backtestConfig || undefined,
+        nodeId: id 
+    });
 
     // 节点名称
     const nodeName = data?.nodeName || "策略起点";
@@ -47,6 +56,28 @@ const StartNode: React.FC<NodeProps<StartNodeType>> = ({id, data, selected, isCo
             setDefaultBacktestConfig();
         }
     }, [setDefaultLiveConfig, setDefaultBacktestConfig, data?.liveConfig, data?.backtestConfig]);
+
+    // 关键：监听全局状态变化，同步到节点data
+    useEffect(() => {
+        // 只有当全局状态存在时才同步到节点
+        if (globalLiveConfig || globalBacktestConfig) {
+            setNodes(nodes => 
+                nodes.map(node => 
+                    node.id === id 
+                        ? { 
+                            ...node, 
+                            data: { 
+                                ...node.data,
+                                // 如果全局状态存在，则更新对应的配置
+                                ...(globalLiveConfig && { liveConfig: globalLiveConfig }),
+                                ...(globalBacktestConfig && { backtestConfig: globalBacktestConfig })
+                            } 
+                        }
+                        : node
+                )
+            );
+        }
+    }, [id, globalLiveConfig, globalBacktestConfig, setNodes]);
 
     return (
         <BaseNode
