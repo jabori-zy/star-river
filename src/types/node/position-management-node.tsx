@@ -11,6 +11,7 @@ export enum PositionOperation {
 // 仓位操作配置
 export type PositionOperationConfig = {
   positionOperationId: number; // 配置ID
+  symbol: string | null; // 交易对(可以不配置)
   positionOperation: PositionOperation; // 操作类型
   positionOperationName: string; // 操作名称
 }
@@ -18,21 +19,18 @@ export type PositionOperationConfig = {
 // 实盘仓位管理配置
 export type PositionLiveConfig = {
   selectedAccount: SelectedAccount | null; // 账户选择
-  symbol: string | null; // 交易对(可以不配置)
   positionOperations: PositionOperationConfig[]; // 操作列表
 }
 
 // 模拟仓位管理配置
 export type PositionSimulateConfig = {
   selectedAccount: SelectedAccount | null; // 模拟账户选择
-  symbol: string | null; // 交易对(可以不配置)
   positionOperations: PositionOperationConfig[]; // 操作列表
 }
 
 // 回测仓位管理配置
 export type PositionBacktestConfig = {
   selectedAccount: SelectedAccount | null; // 回测账户选择
-  symbol: string | null; // 交易对(可以不配置)
   positionOperations: PositionOperationConfig[]; // 操作列表
 }
 

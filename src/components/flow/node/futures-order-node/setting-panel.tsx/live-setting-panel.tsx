@@ -62,7 +62,7 @@ const FuturesOrderNodeLiveSettingPanel: React.FC<SettingProps> = ({ id, data }) 
     return (
         <div className="flex flex-col gap-2">
 
-            <div className="flex flex-col items-start justify-start gap-2">
+            <div className="flex flex-col items-start justify-start gap-2 p-2">
                 <label className="text-sm font-bold text-gray-700">
                     交易账户
                 </label>
@@ -73,7 +73,7 @@ const FuturesOrderNodeLiveSettingPanel: React.FC<SettingProps> = ({ id, data }) 
                 />
             </div>
 
-            <div>
+            <div className="p-2">
                 <FuturesOrderSetting
                     orderConfigs={orderConfigs}
                     onOrderConfigsChange={handleOrderConfigsChange}

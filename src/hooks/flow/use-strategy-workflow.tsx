@@ -8,7 +8,8 @@ const NodeSupportConnectionMap: Record<NodeType, NodeType[]> = {
     [NodeType.KlineNode]: [NodeType.IndicatorNode,NodeType.IfElseNode],
     [NodeType.IndicatorNode]: [NodeType.IfElseNode],
     [NodeType.IfElseNode]: [NodeType.FuturesOrderNode],
-    [NodeType.FuturesOrderNode]: [NodeType.IfElseNode],
+    [NodeType.FuturesOrderNode]: [NodeType.IfElseNode,NodeType.PositionManagementNode],
+    [NodeType.PositionManagementNode]: [NodeType.IfElseNode],
 }
 
 
@@ -35,7 +36,7 @@ const useStrategyWorkflow = () => {
         if (supportedConnections && supportedConnections.includes(targetNode.type as NodeType)) {
             return true
         }
-        return true
+        return false
     }
 
 
