@@ -11,7 +11,7 @@ import { useLiveConfig } from "@/hooks/node/start-node/use-update-live-config";
 import { useBacktestConfig } from "@/hooks/node/start-node/use-update-backtest-config";
 import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
 import { useEffect } from "react";
-import { NodeDefaultOutputHandleId } from "@/types/node/index";
+import { getNodeDefaultOutputHandleId, NodeType } from "@/types/node/index";
 
 
 const StartNode: React.FC<NodeProps<StartNodeType>> = ({id, data, selected, isConnectable}) => {
@@ -41,7 +41,7 @@ const StartNode: React.FC<NodeProps<StartNodeType>> = ({id, data, selected, isCo
     const backtestConfig = globalBacktestConfig || data?.backtestConfig || {} as StrategyBacktestConfig;
 
     const defaultOutputHandle: BaseHandleProps = {
-        id: NodeDefaultOutputHandleId.StartNodeOutput,
+        id: getNodeDefaultOutputHandleId(id, NodeType.StartNode),
         type: 'source',
         position: Position.Right,
         isConnectable: isConnectable,

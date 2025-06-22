@@ -9,7 +9,7 @@ import SymbolSelector from "../components/symbol-selector";
 import { useUpdateBacktestConfig } from "@/hooks/node/kline-node/use-update-backtest-config";
 import { TimeRange } from "@/types/strategy";
 import { Label } from "@/components/ui/label";
-import { NodeDefaultInputHandleId } from "@/types/node/index";
+import { getNodeDefaultInputHandleId, NodeType } from "@/types/node/index";
 
 
 const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id, data }) => {
@@ -19,7 +19,7 @@ const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id, data }) => 
 
     
     // 当前节点的connection
-    const connections = useNodeConnections({id, handleType: 'target', handleId: NodeDefaultInputHandleId.KlineNodeInput})
+    const connections = useNodeConnections({id, handleType: 'target', handleId: getNodeDefaultInputHandleId(id, NodeType.KlineNode)})
     // 已连接的start_node
     const [connectedStartNode, setConnectedStartNode] = useState<StartNode | null>(null)
 

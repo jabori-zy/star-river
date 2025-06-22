@@ -1,5 +1,5 @@
 import { ComparisonSymbol, Condition, VarType, Variable } from "@/types/node/if-else-node";
-import { VariableItem } from "../../index"
+import { VariableItem } from "@/hooks/flow/use-strategy-workflow"
 import VariableSelector from "./variable-selector";
 import { useState, useEffect } from "react";
 import ComparisonSymbolSelector from "./comparison-symbol-selector";

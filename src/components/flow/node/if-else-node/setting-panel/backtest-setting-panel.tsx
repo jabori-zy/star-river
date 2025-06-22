@@ -2,19 +2,14 @@ import { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
 import CaseEditor from "../components/condition-editor/case-editor";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { useCallback, useEffect, useState } from "react";
-import { useNodeConnections, useReactFlow } from "@xyflow/react";
-import { NodeType } from "@/types/node/index";
-import { IndicatorNodeData } from "@/types/node/indicator-node";
-import { VariableItem } from "../index";
+import { useEffect, useState } from "react";
+import { useNodeConnections } from "@xyflow/react";
 import { CaseItem, IfElseNodeData } from "@/types/node/if-else-node";
 import { LogicalSymbol } from "@/types/node/if-else-node";
 import { useUpdateBacktestConfig } from "@/hooks/node/if-else-node/use-update-backtest-config";
 import { ReactSortable } from "react-sortablejs";
-import { KlineNodeData } from "@/types/node/kline-node";
-import { VariableNodeData } from "@/types/node/variable-node";
-
-
+import useStrategyWorkflow, { VariableItem } from "@/hooks/flow/use-strategy-workflow";
+import { TradeMode } from "@/types/strategy";
 
 const IfElseNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id, data }) => {
 
@@ -22,110 +17,18 @@ const IfElseNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id, data }) =>
 
     const [localBacktestCases, setLocalBacktestCases] = useState<CaseItem[]>(ifElseNodeData?.backtestConfig?.cases || []);
 
-    const { getNode } = useReactFlow();
     const { updateCase, removeCase, updateCases } = useUpdateBacktestConfig({ id, initialConfig: ifElseNodeData?.backtestConfig });
+    const { getConnectedNodeVariables } = useStrategyWorkflow();
 
     // 获取所有连接
     const connections = useNodeConnections({id, handleType: 'target'});
     const [variableItemList, setVariableItemList] = useState<VariableItem[]>([]);
 
-    // 获取连接节点的变量信息
-    const getConnectedNodeVariables = useCallback(() => {
-        // 创建临时变量列表，避免在循环中多次setState
-        const tempVariableItemList: VariableItem[] = [];
-        
-        for (const connection of connections) {
-            // 获取连接的节点
-            const nodeId = connection.source;
-            // 获取source HandleId
-            
-            const node = getNode(nodeId);
-            if (node) {
-                // 节点类型
-                const nodeType = node.type;
-                const sourceHandleId = connection.sourceHandle!;
-                // 如果是指标节点，则获取selectedIndicators
-                if (nodeType === NodeType.IndicatorNode) {
-                    const indicatorNodeData = node.data as IndicatorNodeData;
-                    const indicatorNodeBacktestConfig = indicatorNodeData.backtestConfig;
-                    const selectedIndicators = indicatorNodeBacktestConfig?.exchangeConfig?.selectedIndicators;
-                    // 找到selectedIndicators中handleId为sourceHandleId的指标
-                    const selectedIndicator = selectedIndicators?.find(indicator => indicator.handleId === sourceHandleId);
-                    // console.log('selectedIndicator:', selectedIndicator)
-                    if (selectedIndicator) {
-                        // 在临时列表中查找是否已经存在该节点
-                        const existingItem = tempVariableItemList.find(item => item.nodeId === nodeId);
-                        if (existingItem) {
-                            // 如果已存在，则添加到variables中
-                            existingItem.variables.push(selectedIndicator);
-                        } else {
-                            // 如果不存在，则创建新项
-                            tempVariableItemList.push({
-                                nodeId: nodeId,
-                                nodeName: indicatorNodeData.nodeName,
-                                nodeType: nodeType,
-                                variables: [selectedIndicator]
-                            });
-                        }
-                    }
-                }
-                // 如果是K线节点，则获取selectedSymbols
-                else if (nodeType === NodeType.KlineNode) {
-                    const klineNodeData = node.data as KlineNodeData;
-                    const klineNodeBacktestConfig = klineNodeData.backtestConfig;
-                    const selectedSymbols = klineNodeBacktestConfig?.exchangeConfig?.selectedSymbols;
-                    // 找到selectedSymbols中handleId为sourceHandleId的symbol
-                    const selectedSymbol = selectedSymbols?.find(symbol => symbol.handleId === sourceHandleId);
-                    console.log('selectedSymbol:', selectedSymbol)
-                    if (selectedSymbol) {
-                        // 在临时列表中查找是否已经存在该节点
-                        const existingItem = tempVariableItemList.find(item => item.nodeId === nodeId);
-                        if (existingItem) {
-                            // 如果已存在，则添加到variables中
-                            existingItem.variables.push(selectedSymbol);
-                        } else {
-                            // 如果不存在，则创建新项
-                            tempVariableItemList.push({
-                                nodeId: nodeId,
-                                nodeName: klineNodeData.nodeName,
-                                nodeType: nodeType,
-                                variables: [selectedSymbol]
-                            });
-                        }
-                    }
-                }
-                else if (nodeType == NodeType.VariableNode) {
-                    const variableNodeData = node.data as VariableNodeData;
-                    const variableConfigs = variableNodeData.backtestConfig?.variableConfigs;
-                    const variableConfig = variableConfigs?.find(config => config.handleId === sourceHandleId);
-                    console.log('variableConfig:', variableConfig)
-                    if (variableConfig) {
-                        const existingItem = tempVariableItemList.find(item => item.nodeId === nodeId);
-                        if (existingItem) {
-                            // 如果已存在，则添加到variables中
-                            existingItem.variables.push(variableConfig);
-                        } else {
-                            // 如果不存在，则创建新项
-                            tempVariableItemList.push({
-                                nodeId: nodeId,
-                                nodeName: variableNodeData.nodeName,
-                                nodeType: nodeType,
-                                variables: [variableConfig]
-                            });
-                        }
-                    }
-                }
-            }
-        }
-        
-        return tempVariableItemList;
-    }, [connections, getNode]);
-
     useEffect(() => {
         // 获取连接节点的变量并更新状态
-        const variables = getConnectedNodeVariables();
+        const variables = getConnectedNodeVariables(connections, TradeMode.BACKTEST);
         setVariableItemList(variables);
-    }, [connections, getNode, getConnectedNodeVariables]);
+    }, [connections, getConnectedNodeVariables]);
 
     // 更新case
     const handleCaseChange = (caseItem: CaseItem) => {

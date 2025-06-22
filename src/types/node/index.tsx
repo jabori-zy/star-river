@@ -17,19 +17,57 @@ export enum NodeType {
     VariableNode = "variableNode",
 }
 
-// 默认入口
-export enum NodeDefaultInputHandleId {
-    KlineNodeInput = 'kline_node_default_input',
-    IndicatorNodeInput = 'indicator_node_default_input',
-    IfElseNodeInput = 'if_else_node_default_input'
+
+
+export const getNodeDefaultInputHandleId = (id: string, nodeType: NodeType) => {
+    switch (nodeType) {
+        case NodeType.IndicatorNode:
+            return `${id}_default_input`;
+        case NodeType.IfElseNode:
+            return `${id}_default_input`;
+        case NodeType.FuturesOrderNode:
+            return `${id}_default_input`;
+        case NodeType.PositionManagementNode:
+            return `${id}_default_input`;
+        case NodeType.VariableNode:
+            return `${id}_default_input`;
+        case NodeType.KlineNode:
+            return `${id}_default_input`;
+        case NodeType.StartNode:
+            return `${id}_default_input`;
+    }
 }
 
-// 默认出口
-export enum NodeDefaultOutputHandleId {
-    StartNodeOutput = 'start_node_default_output',
-    KlineNodeOutput = 'kline_node_default_output',
-    IndicatorNodeOutput = 'indicator_node_default_output',
-    IfElseNodeOutput = 'if_else_node_else_output', // 将else作为默认出口
+
+
+
+export const getNodeDefaultOutputHandleId = (id: string, nodeType: NodeType) => {
+    switch (nodeType) {
+        case NodeType.IndicatorNode:
+            return `${id}_default_output`;
+        case NodeType.IfElseNode:
+            return `${id}_default_output`;
+        case NodeType.FuturesOrderNode:
+            return `${id}_default_output`;
+        case NodeType.PositionManagementNode:
+            return `${id}_default_output`;
+        case NodeType.VariableNode:
+            return `${id}_default_output`;
+        case NodeType.KlineNode:
+            return `${id}_default_output`;
+        case NodeType.StartNode:
+            return `${id}_default_output`;
+    }
+}
+
+export const isDefaultInputHandleId = (handleId: string) => {
+    // 默认输入出口的handleId格式为：${id}_default_input
+    return handleId.endsWith("_default_input");
+}
+
+export const isDefaultOutputHandleId = (handleId: string) => {
+    // 默认输入出口的handleId格式为：${id}_default_output
+    return handleId.endsWith("_default_output");
 }
 
 

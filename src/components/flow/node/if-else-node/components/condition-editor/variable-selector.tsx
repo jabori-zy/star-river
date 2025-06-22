@@ -1,6 +1,6 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup, SelectLabel, SelectSeparator } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { VariableItem } from "../../index";
+import { VariableItem } from "@/hooks/flow/use-strategy-workflow";
 import { SelectedIndicator } from "@/types/node/indicator-node";
 import { SelectedSymbol } from "@/types/node/kline-node";
 import { VariableConfig } from "@/types/node/variable-node";

@@ -12,7 +12,7 @@ import { KlineNodeLiveConfig, KlineNodeBacktestConfig } from "@/types/node/kline
 import { useUpdateBacktestConfig } from "@/hooks/node/kline-node/use-update-backtest-config";
 import { StartNodeData } from "@/types/node/start-node";
 import { useUpdateLiveConfig } from "@/hooks/node/kline-node/use-update-live-config";
-import { NodeDefaultInputHandleId } from "@/types/node/index";
+import { getNodeDefaultInputHandleId, NodeType } from "@/types/node/index";
 
 
 
@@ -27,7 +27,7 @@ const KlineNode: React.FC<NodeProps<KlineNodeType>> = ({id, data, selected}) => 
     // 回测配置
     const backtestConfig = data?.backtestConfig || {} as KlineNodeBacktestConfig;
 
-    const connections = useNodeConnections({id, handleType: 'target', handleId: NodeDefaultInputHandleId.KlineNodeInput})
+    const connections = useNodeConnections({id, handleType: 'target', handleId: getNodeDefaultInputHandleId(id, NodeType.KlineNode)})
 
     const { updateTimeRange, setDefaultBacktestConfig, updateSelectedAccount: updateBacktestSelectedAccount } = useUpdateBacktestConfig({ id, initialBacktestConfig: data?.backtestConfig });
     const { setDefaultLiveConfig, updateSelectedAccount: updateLiveSelectedAccount } = useUpdateLiveConfig({ id, initialLiveConfig: data?.liveConfig });
@@ -103,7 +103,7 @@ const KlineNode: React.FC<NodeProps<KlineNodeType>> = ({id, data, selected}) => 
 
     // 默认输入
     const defaultInputHandle: BaseHandleProps = {
-        id: NodeDefaultInputHandleId.KlineNodeInput,
+        id: getNodeDefaultInputHandleId(id, NodeType.KlineNode),
         type: 'target',
         position: Position.Left,
         handleColor: '!bg-red-400',

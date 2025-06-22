@@ -2,7 +2,7 @@ import { NodeData } from "@/types/node/index";
 import ConditionSetting from "./condition-setting";
 import { Button } from "@/components/ui/button";
 import { RefreshCcw, Trash2, GripVertical } from "lucide-react";
-import { VariableItem } from "../../index"
+import { VariableItem } from "@/hooks/flow/use-strategy-workflow"
 import { CaseItem, Condition, ComparisonSymbol, VarType, LogicalSymbol } from "@/types/node/if-else-node";
 import { useState, useEffect } from "react";
 

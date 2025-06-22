@@ -11,7 +11,7 @@ import { TradeMode } from "@/types/strategy";
 import { KlineNodeData, SelectedSymbol } from "@/types/node/kline-node";
 import LiveModeShow from "./components/live-mode-show";
 import BacktestModeShow from "./components/backtest-mode-show";
-import { NodeDefaultInputHandleId } from "@/types/node/index";
+import { getNodeDefaultInputHandleId, getNodeDefaultOutputHandleId, NodeType } from "@/types/node/index";
 
 const IndicatorNode: React.FC<NodeProps<IndicatorNodeType>> = ({id, data, selected}) => {
     const nodeName = data?.nodeName || "指标节点";
@@ -46,7 +46,7 @@ const IndicatorNode: React.FC<NodeProps<IndicatorNodeType>> = ({id, data, select
             selectedSymbol = klineNodeData.liveConfig.selectedSymbols.find(
                 symbol => symbol.handleId === sourceHandleId
             ) || null;
-            exchange = klineNodeData.liveConfig.selectedLiveAccount?.exchange || null;
+            exchange = klineNodeData.liveConfig.selectedAccount?.exchange || null;
         }
 
         // 如果live配置没有，尝试从simulate配置获取
@@ -126,11 +126,20 @@ const IndicatorNode: React.FC<NodeProps<IndicatorNodeType>> = ({id, data, select
     }, [setDefaultLiveConfig, setDefaultBacktestConfig, data?.liveConfig, data?.backtestConfig]);
 
     const defaultInputHandle: BaseHandleProps = {
-        id: NodeDefaultInputHandleId.IndicatorNodeInput,
+        id: getNodeDefaultInputHandleId(id, NodeType.IndicatorNode),
         type: 'target',
         position: Position.Left,
         handleColor: '!bg-red-400',
     }
+
+    const defaultOutputHandle: BaseHandleProps = {
+        id: getNodeDefaultOutputHandleId(id, NodeType.IndicatorNode),
+        type: 'source',
+        position: Position.Right,
+        handleColor: '!bg-red-400',
+    }
+
+
 
     return (
         <BaseNode
@@ -139,6 +148,7 @@ const IndicatorNode: React.FC<NodeProps<IndicatorNodeType>> = ({id, data, select
             icon={Play}
             selected={selected}
             defaultInputHandle={defaultInputHandle}
+            defaultOutputHandle={defaultOutputHandle}
         >
             {tradingMode === TradeMode.LIVE && <LiveModeShow id={id} data={data} />}
             {tradingMode === TradeMode.BACKTEST && <BacktestModeShow id={id} data={data} />}

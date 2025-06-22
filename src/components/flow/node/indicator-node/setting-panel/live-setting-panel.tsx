@@ -8,11 +8,11 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Activity } from 'lucide-react';
 import IndicatorSelector from "@/components/flow/node/indicator-node/components/indicator-selector";
-import { NodeDefaultInputHandleId } from "@/types/node/index";
+import { getNodeDefaultInputHandleId, NodeType } from "@/types/node/index";
 
 const IndicatorNodeLiveSettingPanel: React.FC<SettingProps> = ({ id, data }) => {
     const indicatorNodeData = data as IndicatorNodeData;
-    const connections = useNodeConnections({ id, handleType: 'target', handleId: NodeDefaultInputHandleId.IndicatorNodeInput });
+    const connections = useNodeConnections({ id, handleType: 'target', handleId: getNodeDefaultInputHandleId(id, NodeType.IndicatorNode) });
     const [isConnected, setIsConnected] = useState(false);
 
     const liveConfig = indicatorNodeData.liveConfig;

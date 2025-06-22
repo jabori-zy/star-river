@@ -1,4 +1,4 @@
-import { NodeProps } from "@xyflow/react";
+import { NodeProps, Position } from "@xyflow/react";
 import { type VariableNode as VariableNodeType } from "@/types/node/variable-node";
 import BaseNode from "@/components/flow/base/BaseNode";
 import { Play } from "lucide-react";
@@ -7,6 +7,9 @@ import LiveModeShow from "./components/node-show/live-mode-show";
 import SimulateModeShow from "./components/node-show/simulate-mode-show";
 import useTradingModeStore from "@/store/useTradingModeStore";
 import { TradeMode } from "@/types/strategy";
+import { BaseHandleProps } from "@/components/flow/base/BaseHandle";
+import {getNodeDefaultOutputHandleId, NodeType } from "@/types/node/index";
+
 
 const VariableNode: React.FC<NodeProps<VariableNodeType>> = ({ id, data, selected }) => {
     const nodeName = data.nodeName || "变量节点";
@@ -27,6 +30,13 @@ const VariableNode: React.FC<NodeProps<VariableNodeType>> = ({ id, data, selecte
         }
     };
 
+    const defaultOutputHandle: BaseHandleProps = {
+        type: "source",
+        position: Position.Right,
+        id: getNodeDefaultOutputHandleId(id, NodeType.VariableNode),
+        handleColor: '!bg-red-400'
+    }
+
     return (
         <BaseNode
             id={id}
@@ -34,6 +44,7 @@ const VariableNode: React.FC<NodeProps<VariableNodeType>> = ({ id, data, selecte
             icon={Play}
             selected={selected}
             selectedBorderColor="border-red-400"
+            defaultOutputHandle={defaultOutputHandle}
         >
             {renderModeShow()}
         </BaseNode>
