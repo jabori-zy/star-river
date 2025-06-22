@@ -53,9 +53,7 @@ const DataSourceSelector: React.FC<DataSourceSelectorProps> = ({
     return (
         <div className="flex flex-col gap-2">
             <label className="text-sm font-bold text-gray-700">
-                {tradeMode === TradeMode.LIVE ? '数据源账户' : 
-                 tradeMode === TradeMode.BACKTEST ? '数据来源交易所' : 
-                 '模拟账户'}
+                数据源
             </label>
             
             <Select 

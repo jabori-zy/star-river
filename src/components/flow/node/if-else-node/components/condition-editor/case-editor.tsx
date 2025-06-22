@@ -96,12 +96,13 @@ const CaseEditor: React.FC<CaseEditorProps> = ({variableItemList,caseItem,onCase
             {localCaseItem?.conditions?.length >0 && (
                 localCaseItem?.conditions?.map((condition, index) => (
                     <div className="flex flex-row">
-                        <ConditionSetting key={index} variableItemList={variableItemList} condition={condition} onConditionChange={handleUpdateCondition} />
-                        <div className="pt-2 pr-2">
-                            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-red-500 p-1 h-6 w-6" onClick={() => handleRemoveCondition(condition.conditionId)}>
-                                <Trash2 className="w-2 h-2"/>
-                            </Button>
-                        </div>
+                        <ConditionSetting 
+                            key={index} 
+                            variableItemList={variableItemList} 
+                            condition={condition} 
+                            onConditionChange={handleUpdateCondition}
+                            onConditionRemove={handleRemoveCondition}
+                            />
                     </div>
                 ))
             )}

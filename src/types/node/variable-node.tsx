@@ -25,6 +25,7 @@ export type TimerConfig = {
 
 export type VariableConfig = {
     configId: number;
+    handleId: string;
     symbol: string | null; // 交易对
     getVariableType: GetVariableType; // 获取变量的方式
     timerConfig?: TimerConfig; // 定时触发的时间间隔配置
@@ -61,7 +62,7 @@ export type VariableNodeBacktestConfig = {
 
 export type VariableNodeData = {
     strategyId: number;
-    nodeName: string | null;
+    nodeName: string;
     liveConfig?: VariableNodeLiveConfig;
     simulateConfig?: VariableNodeSimulateConfig;
     backtestConfig?: VariableNodeBacktestConfig;

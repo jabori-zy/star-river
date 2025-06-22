@@ -1,17 +1,17 @@
 import { IfElseNodeData } from "@/types/node/if-else-node";
-import { IfElseCaseItem, ElseCaseItem } from "./case-handle-item/index";
+import { IfElseCaseItem, ElseCaseItem } from "../case-handle-item";
 
-interface BacktestModeShowProps {
+interface LiveModeShowProps {
     id: string;
     data: IfElseNodeData;
 }
 
-const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ id, data }) => {
+const LiveModeShow: React.FC<LiveModeShowProps> = ({ id, data }) => {
     // 获取回测模式配置
-    const backtestConfig = data.backtestConfig;
+    const liveConfig = data.liveConfig;
     
     // 如果没有配置或者没有cases，显示提示信息
-    if (!backtestConfig || !backtestConfig.cases || backtestConfig.cases.length === 0) {
+    if (!liveConfig || !liveConfig.cases || liveConfig.cases.length === 0) {
         return (
             <div className="text-sm text-muted-foreground p-2 text-center">
                 暂无条件配置
@@ -22,7 +22,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ id, data }) => {
     return (
         <div className="space-y-2">
             {/* 渲染所有的条件case */}
-            {backtestConfig.cases.map((caseItem) => (
+            {liveConfig.cases.map((caseItem) => (
                 <IfElseCaseItem
                     key={caseItem.caseId}
                     caseItem={caseItem}
@@ -38,4 +38,4 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ id, data }) => {
     );
 };
 
-export default BacktestModeShow;
+export default LiveModeShow;

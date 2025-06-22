@@ -8,21 +8,6 @@ export const nodeList = [
       color: "from-[#4776E6]/20 to-[#8E54E9]/20 hover:from-[#4776E6]/30 hover:to-[#8E54E9]/30",
       items: [
         {
-          nodeId: "old_start_node",
-          nodeType: "oldStartNode",
-          nodeName: "旧开始节点",
-          nodeDescription: "旧开始节点",
-          nodeColor: "from-[#4776E6]/20 to-[#8E54E9]/20 hover:from-[#4776E6]/30 hover:to-[#8E54E9]/30",
-        } as NodeItemProps,
-        {
-          nodeId: "old_kline_node",
-          nodeType: "oldKlineNode",
-          nodeName: "旧K线节点",
-          nodeDescription: "获取K线数据",
-          nodeColor: "from-[#4776E6]/20 to-[#8E54E9]/20 hover:from-[#4776E6]/30 hover:to-[#8E54E9]/30",
-        } as NodeItemProps,
-
-        {
           nodeId: "kline_node",
           nodeType: "klineNode",
           nodeName: "K线节点",
@@ -36,7 +21,6 @@ export const nodeList = [
           nodeDescription: "开始节点",
           nodeColor: "from-[#4776E6]/20 to-[#8E54E9]/20 hover:from-[#4776E6]/30 hover:to-[#8E54E9]/30",
         } as NodeItemProps,
-        
       ]
     },
     {
@@ -44,13 +28,6 @@ export const nodeList = [
       icon: Sigma,
       color: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
       items: [
-        {
-          nodeId: "old_indicator_node",
-          nodeType: "oldIndicatorNode",
-          nodeName: "旧指标节点",
-          nodeDescription: "技术分析指标",
-          nodeColor: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
-        } as NodeItemProps,
         {
           nodeId: "indicator_node",
           nodeType: "indicatorNode",
@@ -67,13 +44,6 @@ export const nodeList = [
       color: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
       items: [
         {
-          nodeId: "old_if_else_node",
-          nodeType: "oldIfElseNode",
-          nodeName: "旧条件节点",
-          nodeDescription: "旧条件节点",
-          nodeColor: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
-        } as NodeItemProps,
-        {
           nodeId: "if_else_node",
           nodeType: "ifElseNode",
           nodeName: "条件节点",
@@ -87,13 +57,6 @@ export const nodeList = [
       icon: ChevronsUpDown,
       color: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
       items: [
-        {
-          nodeId: "order_node",
-          nodeType: "orderNode",
-          nodeName: "订单节点",
-          nodeDescription: "订单节点",
-          nodeColor: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
-        } as NodeItemProps,
         {
           nodeId: "futures_order_node",
           nodeType: "futuresOrderNode",
@@ -109,13 +72,6 @@ export const nodeList = [
       color: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
       items: [
         {
-          nodeId: "position_node",
-          nodeType: "positionNode",
-          nodeName: "仓位管理节点",
-          nodeDescription: "仓位管理节点",
-          nodeColor: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
-        } as NodeItemProps,
-        {
           nodeId: "position_management_node",
           nodeType: "positionManagementNode",
           nodeName: "仓位管理节点",
@@ -129,13 +85,6 @@ export const nodeList = [
       icon: ChevronsUpDown,
       color: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
       items: [
-        {
-          nodeId: "get_variable_node",
-          nodeType: "getVariableNode",
-          nodeName: "获取变量节点",
-          nodeDescription: "获取变量节点",
-          nodeColor: "from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
-        } as NodeItemProps,
         {
           nodeId: "variable_node",
           nodeType: "variableNode",

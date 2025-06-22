@@ -43,6 +43,7 @@ const VariableNodeLiveSettingPanel: React.FC<SettingProps> = ({ id, data }) => {
                 onAccountChange={handleAccountChange}
             />
             <VariableSetting
+                id={id}
                 variableConfigs={config?.variableConfigs || []}
                 onVariableConfigsChange={handleVariableConfigsChange}
             />

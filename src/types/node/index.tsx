@@ -17,19 +17,19 @@ export enum NodeType {
     VariableNode = "variableNode",
 }
 
-
+// 默认入口
 export enum NodeDefaultInputHandleId {
-    StartNodeInput = 'start_node_input',
-    KlineNodeInput = 'kline_node_input',
-    IndicatorNodeInput = 'indicator_node_input',
-    IfElseNodeInput = 'if_else_node_input'
+    KlineNodeInput = 'kline_node_default_input',
+    IndicatorNodeInput = 'indicator_node_default_input',
+    IfElseNodeInput = 'if_else_node_default_input'
 }
 
+// 默认出口
 export enum NodeDefaultOutputHandleId {
-    StartNodeOutput = 'start_node_output',
-    KlineNodeOutput = 'kline_node_output',
-    IndicatorNodeOutput = 'indicator_node_output',
-    IfElseNodeOutput = 'if_else_node_else_output',
+    StartNodeOutput = 'start_node_default_output',
+    KlineNodeOutput = 'kline_node_default_output',
+    IndicatorNodeOutput = 'indicator_node_default_output',
+    IfElseNodeOutput = 'if_else_node_else_output', // 将else作为默认出口
 }
 
 

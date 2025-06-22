@@ -4,13 +4,15 @@ import { NodeProps, Position, useReactFlow } from "@xyflow/react";
 import { type StartNode as StartNodeType } from "@/types/node/start-node";
 import { BaseHandleProps } from "@/components/flow/base/BaseHandle";
 import { StrategyBacktestConfig, StrategyLiveConfig, TradeMode } from "@/types/strategy";
-import LiveNodeShow from "./components/live-mode-show";
-import BacktestNodeShow from "./components/backtest-mode-show";
+import LiveNodeShow from "./components/node-show/live-mode-show";
+import BacktestNodeShow from "./components/node-show/backtest-mode-show";
 import useTradingModeStore from "@/store/useTradingModeStore";
 import { useLiveConfig } from "@/hooks/node/start-node/use-update-live-config";
 import { useBacktestConfig } from "@/hooks/node/start-node/use-update-backtest-config";
 import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
 import { useEffect } from "react";
+import { NodeDefaultOutputHandleId } from "@/types/node/index";
+
 
 const StartNode: React.FC<NodeProps<StartNodeType>> = ({id, data, selected, isConnectable}) => {
 
@@ -39,7 +41,7 @@ const StartNode: React.FC<NodeProps<StartNodeType>> = ({id, data, selected, isCo
     const backtestConfig = globalBacktestConfig || data?.backtestConfig || {} as StrategyBacktestConfig;
 
     const defaultOutputHandle: BaseHandleProps = {
-        id: 'start_node_output',
+        id: NodeDefaultOutputHandleId.StartNodeOutput,
         type: 'source',
         position: Position.Right,
         isConnectable: isConnectable,

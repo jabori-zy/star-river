@@ -11,6 +11,8 @@ import { CaseItem, IfElseNodeData } from "@/types/node/if-else-node";
 import { LogicalSymbol } from "@/types/node/if-else-node";
 import { useUpdateBacktestConfig } from "@/hooks/node/if-else-node/use-update-backtest-config";
 import { ReactSortable } from "react-sortablejs";
+import { KlineNodeData } from "@/types/node/kline-node";
+import { VariableNodeData } from "@/types/node/variable-node";
 
 
 
@@ -63,6 +65,52 @@ const IfElseNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id, data }) =>
                                 nodeName: indicatorNodeData.nodeName,
                                 nodeType: nodeType,
                                 variables: [selectedIndicator]
+                            });
+                        }
+                    }
+                }
+                // 如果是K线节点，则获取selectedSymbols
+                else if (nodeType === NodeType.KlineNode) {
+                    const klineNodeData = node.data as KlineNodeData;
+                    const klineNodeBacktestConfig = klineNodeData.backtestConfig;
+                    const selectedSymbols = klineNodeBacktestConfig?.exchangeConfig?.selectedSymbols;
+                    // 找到selectedSymbols中handleId为sourceHandleId的symbol
+                    const selectedSymbol = selectedSymbols?.find(symbol => symbol.handleId === sourceHandleId);
+                    console.log('selectedSymbol:', selectedSymbol)
+                    if (selectedSymbol) {
+                        // 在临时列表中查找是否已经存在该节点
+                        const existingItem = tempVariableItemList.find(item => item.nodeId === nodeId);
+                        if (existingItem) {
+                            // 如果已存在，则添加到variables中
+                            existingItem.variables.push(selectedSymbol);
+                        } else {
+                            // 如果不存在，则创建新项
+                            tempVariableItemList.push({
+                                nodeId: nodeId,
+                                nodeName: klineNodeData.nodeName,
+                                nodeType: nodeType,
+                                variables: [selectedSymbol]
+                            });
+                        }
+                    }
+                }
+                else if (nodeType == NodeType.VariableNode) {
+                    const variableNodeData = node.data as VariableNodeData;
+                    const variableConfigs = variableNodeData.backtestConfig?.variableConfigs;
+                    const variableConfig = variableConfigs?.find(config => config.handleId === sourceHandleId);
+                    console.log('variableConfig:', variableConfig)
+                    if (variableConfig) {
+                        const existingItem = tempVariableItemList.find(item => item.nodeId === nodeId);
+                        if (existingItem) {
+                            // 如果已存在，则添加到variables中
+                            existingItem.variables.push(variableConfig);
+                        } else {
+                            // 如果不存在，则创建新项
+                            tempVariableItemList.push({
+                                nodeId: nodeId,
+                                nodeName: variableNodeData.nodeName,
+                                nodeType: nodeType,
+                                variables: [variableConfig]
                             });
                         }
                     }
@@ -164,7 +212,7 @@ const IfElseNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id, data }) =>
 
 
     return (
-        <div className="flex flex-col gap-2 ">
+        <div className="flex flex-col gap-2">
             {/* 如果cases为空，则传一个空的case */}
             {(!localBacktestCases || localBacktestCases.length === 0) ? (
                 <CaseEditor 

@@ -33,7 +33,7 @@ export const useUpdateBacktestConfig = ({ id, initialBacktestConfig }: UseUpdate
   const addHandleIds = useCallback((symbols: SelectedSymbol[]): SelectedSymbol[] => {
     return symbols.map((symbol, index) => ({
       ...symbol,
-      handleId: generateHandleId(index)
+      handleId: generateHandleId(index + 1)
     }));
   }, [generateHandleId]);
 

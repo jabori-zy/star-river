@@ -143,10 +143,22 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
             return;
         }
 
+        // 列表长度
+        const listLength = localSymbols.length;
+
         const newSymbol: SelectedSymbol = {
-            handleId: '', // handleId 将由 hooks 自动生成
+            symbolId: listLength + 1, // 使用时间戳作为临时ID
+            handleId: `kline_node_output_${listLength + 1}`, // handleId 将由 hooks 自动生成
             symbol: upperSymbol,
-            interval: symbolInterval
+            interval: symbolInterval,
+            klineValue: {
+                timestamp: 0,
+                open: 0,
+                high: 0,
+                low: 0,
+                close: 0,
+                volume: 0
+            }
         };
 
         let newSymbols: SelectedSymbol[];
@@ -232,7 +244,10 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 
             {/* 添加/编辑交易对对话框 */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="sm:max-w-[425px]">
+                <DialogContent 
+                    className="sm:max-w-[425px]"
+                    onOpenAutoFocus={(e) => e.preventDefault()}
+                >
                     <DialogHeader>
                         <DialogTitle>{editingSymbol ? '编辑交易对' : '添加交易对'}</DialogTitle>
                         <DialogDescription>

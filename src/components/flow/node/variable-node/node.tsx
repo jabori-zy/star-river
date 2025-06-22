@@ -2,9 +2,9 @@ import { NodeProps } from "@xyflow/react";
 import { type VariableNode as VariableNodeType } from "@/types/node/variable-node";
 import BaseNode from "@/components/flow/base/BaseNode";
 import { Play } from "lucide-react";
-import BacktestModeShow from "./components/show/backtest-mode-show";
-import LiveModeShow from "./components/show/live-mode-show";
-import SimulateModeShow from "./components/show/simulate-mode-show";
+import BacktestModeShow from "./components/node-show/backtest-mode-show";
+import LiveModeShow from "./components/node-show/live-mode-show";
+import SimulateModeShow from "./components/node-show/simulate-mode-show";
 import useTradingModeStore from "@/store/useTradingModeStore";
 import { TradeMode } from "@/types/strategy";
 

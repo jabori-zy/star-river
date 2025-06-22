@@ -6,11 +6,13 @@ import VariableConfigItem from "./variable-config-item";
 import VariableConfigDialog from "./variable-config-dialog";
 
 interface VariableSettingProps {
+    id: string;
     variableConfigs: VariableConfig[];
     onVariableConfigsChange: (variableConfigs: VariableConfig[]) => void;
 }
 
 const VariableSetting: React.FC<VariableSettingProps> = ({ 
+    id,
     variableConfigs,
     onVariableConfigsChange 
 }) => {
@@ -51,7 +53,7 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
         );
     };
 
-    const handleSave = (variableConfig: VariableConfig) => {
+    const handleSave = (id: string, variableConfig: VariableConfig) => {
         // 检查唯一性
         if (!checkUniqueness(
             variableConfig.symbol || null, 
@@ -72,7 +74,8 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
             // 新增变量时，设置id为当前列表长度+1
             const newVariableConfig = {
                 ...variableConfig,
-                configId: variableConfigs.length + 1
+                configId: variableConfigs.length + 1,
+                handleId: `${id}_output${variableConfigs.length + 1}`
             };
             onVariableConfigsChange([...variableConfigs, newVariableConfig]);
         }
@@ -112,6 +115,7 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
             </div>
 
             <VariableConfigDialog
+                id={id}
                 isOpen={isDialogOpen}
                 isEditing={isEditing}
                 editingConfig={editingIndex !== null ? variableConfigs[editingIndex] : undefined}

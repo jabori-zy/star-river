@@ -12,16 +12,18 @@ import SymbolSelector from "./symbol-selector";
 import { getVariableLabel, generateVariableName, isDuplicateConfig } from "./utils";
 
 interface VariableConfigDialogProps {
+    id: string; // 节点id
     isOpen: boolean;
     isEditing: boolean;
     editingConfig?: VariableConfig;
     onOpenChange: (open: boolean) => void;
-    onSave: (config: VariableConfig) => void;
+    onSave: (id: string, config: VariableConfig) => void;
     existingConfigs: VariableConfig[];
     editingIndex: number | null;
 }
 
 const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
+    id,
     isOpen,
     isEditing,
     editingConfig,
@@ -110,6 +112,7 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 
         const variableConfig: VariableConfig = {
             configId: editingConfig?.configId || 0, // 编辑时保持原有id，新增时由主组件设置
+            handleId: editingConfig?.handleId || '',
             symbol: symbol || null,
             getVariableType: triggerType,
             timerConfig,
@@ -118,7 +121,7 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
             variableValue: 0 // 默认值，实际运行时会更新
         };
 
-        onSave(variableConfig);
+        onSave(id, variableConfig);
         onOpenChange(false);
     };
 

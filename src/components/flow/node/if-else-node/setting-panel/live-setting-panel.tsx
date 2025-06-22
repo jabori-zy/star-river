@@ -11,6 +11,8 @@ import { CaseItem, IfElseNodeData } from "@/types/node/if-else-node";
 import { LogicalSymbol } from "@/types/node/if-else-node";
 import { useUpdateLiveConfig } from "@/hooks/node/if-else-node/use-update-live-config";
 import { ReactSortable } from "react-sortablejs";
+import { KlineNodeData } from "@/types/node/kline-node";
+
 
 const IfElseNodeLiveSettingPanel: React.FC<SettingProps> = ({ id, data }) => {
 
@@ -61,6 +63,30 @@ const IfElseNodeLiveSettingPanel: React.FC<SettingProps> = ({ id, data }) => {
                                 nodeName: indicatorNodeData.nodeName,
                                 nodeType: nodeType,
                                 variables: [selectedIndicator]
+                            });
+                        }
+                    }
+                }
+                // 如果是K线节点，则获取selectedSymbols
+                else if (nodeType === NodeType.KlineNode) {
+                    const klineNodeData = node.data as KlineNodeData;
+                    const klineNodeLiveConfig = klineNodeData.liveConfig;
+                    const selectedSymbols = klineNodeLiveConfig?.selectedSymbols;
+                    // 找到selectedSymbols中handleId为sourceHandleId的symbol
+                    const selectedSymbol = selectedSymbols?.find(symbol => symbol.handleId === sourceHandleId);
+                    if (selectedSymbol) {
+                        // 在临时列表中查找是否已经存在该节点
+                        const existingItem = tempVariableItemList.find(item => item.nodeId === nodeId);
+                        if (existingItem) {
+                            // 如果已存在，则添加到variables中
+                            existingItem.variables.push(selectedSymbol);
+                        } else {
+                            // 如果不存在，则创建新项
+                            tempVariableItemList.push({
+                                nodeId: nodeId,
+                                nodeName: klineNodeData.nodeName,
+                                nodeType: nodeType,
+                                variables: [selectedSymbol]
                             });
                         }
                     }

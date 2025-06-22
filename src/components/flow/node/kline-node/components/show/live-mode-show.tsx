@@ -1,17 +1,21 @@
 import React from "react";
-import {KlineNodeBacktestConfig} from "@/types/node/kline-node"
+import {KlineNodeLiveConfig} from "@/types/node/kline-node"
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { SymbolItem } from "./index";
+import { SymbolItem } from "../index";
 
-interface BacktestModeShowProps {
-    backtestConfig: KlineNodeBacktestConfig;
+interface LiveModeShowProps {
+    liveConfig: KlineNodeLiveConfig;
 }
 
-const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ backtestConfig }) => {
-    const selectedDataSource = backtestConfig?.exchangeConfig?.selectedAccount;
-    const selectedSymbols = backtestConfig?.exchangeConfig?.selectedSymbols || [];
-    const timeRange = backtestConfig?.exchangeConfig?.timeRange || { startDate: "", endDate: "" };
+
+
+
+const LiveModeShow: React.FC<LiveModeShowProps> = ({ liveConfig }) => {
+    const selectedAccount = liveConfig.selectedAccount;
+    const selectedSymbols = liveConfig.selectedSymbols || [];
+
+    
 
     return (
         <div className="space-y-2">
@@ -39,9 +43,9 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ backtestConfig }) =
                 )}
             </div>
 
-            {/* 数据源展示 */}
+            {/* 账户展示 */}
             <div className="space-y-2">
-                {!selectedDataSource || !selectedDataSource.accountName ? (
+                {!selectedAccount || !selectedAccount.accountName ? (
                     <div className="flex items-center justify-between gap-2 rounded-md">
                         <Label className="text-xm font-bold text-muted-foreground">数据源</Label>
                         <span className="text-sm text-red-500">未配置</span>
@@ -50,19 +54,13 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ backtestConfig }) =
                     <div>
                         <Label className="text-xm font-bold text-muted-foreground">数据源</Label>
                         <div className="flex items-center gap-2 bg-gray-100 p-2 rounded-md mt-1">
-                            <span className="text-xs">{selectedDataSource.accountName} ({selectedDataSource.exchange})</span>
+                            <span className="text-xs">{selectedAccount.accountName} ({selectedAccount.exchange})</span>
                         </div>
                     </div>
                 )}
-            </div>
-            <div className="flex flex-col gap-2">
-                <Label className="text-xm font-bold text-muted-foreground">回测时间范围</Label>
-                <div className="flex items-center gap-2 bg-gray-100 p-2 rounded-md mt-1">
-                    <span className="text-xs">{timeRange.startDate} ~ {timeRange.endDate}</span>
-                </div>
             </div>
         </div>
     )
 }
 
-export default BacktestModeShow;
+export default LiveModeShow;

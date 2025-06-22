@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import {
   ReactFlow,
   MiniMap,
@@ -25,7 +25,6 @@ import '@xyflow/react/dist/style.css';
 import { DevTools } from '@/components/flow/devtools'; // 开发者工具
 import { useDndNodeStore } from '@/store/use-dnd-node-store';
 import { useReactFlow } from '@xyflow/react';
-import { toast } from 'sonner';
 import { Strategy } from '@/types/strategy';
 import { nodeTypes } from '@/constants/nodeTypes';
 import edgeTypes from '@/constants/edgeTypes';
@@ -43,7 +42,7 @@ export default function StrategyFlow({strategy}:{strategy:Strategy}) {
     // 正在拖拽的节点
     const { dragNodeItem, setDragNodeItem } = useDndNodeStore();
     const { screenToFlowPosition } = useReactFlow();
-    const [nodeIdCounter, setNodeIdCounter] = useState(1);
+
 
     const { checkIsValidConnection } = useStrategyWorkflow();
 
@@ -58,16 +57,14 @@ export default function StrategyFlow({strategy}:{strategy:Strategy}) {
         setNodes([]);
         setEdges([]);
         
-        // 重置节点计数器
-        setNodeIdCounter(1);
+
         
         if (strategy.nodes?.length > 0) {
             // 添加延迟确保清空操作完成
             setTimeout(() => {
                 setNodes(strategy.nodes);
                 setEdges(strategy.edges || []);
-                // 设置计数器为现有节点数量加1
-                setNodeIdCounter(strategy.nodes.length + 1);
+
             }, 0);
         }
         // 如果没有节点和边，则创建一个开始节点
@@ -79,13 +76,12 @@ export default function StrategyFlow({strategy}:{strategy:Strategy}) {
                     position: { x: 0, y: 0 },
                     data: {
                         strategyId: strategy.id,
-                        strategyTitle: strategy.name,
+                        nodeName: "策略起点",
                     }
                 };
                 // 设置默认实盘配置
 
                 setNodes([startNode]);
-                setNodeIdCounter(2);
             }, 0);
         }
     }, [strategy.id, strategy.tradeMode, strategy.nodes, strategy.edges, strategy.name, setNodes, setEdges]);
@@ -107,28 +103,30 @@ export default function StrategyFlow({strategy}:{strategy:Strategy}) {
             y: event.clientY,
         });
         
-        const newNode = {
-            id: `${dragNodeItem.nodeId}_${nodeIdCounter}`,
-            type: dragNodeItem.nodeType,
-            position,
-            data: {
-                ...(dragNodeItem.nodeData),
-                strategyId: strategy.id,
-                nodeName: dragNodeItem.nodeName,
-            },
-        };
+        // 使用函数式状态更新，基于当前节点数量生成唯一ID和名称
+        setNodes((currentNodes) => {
+            // 生成基于时间戳和节点数量的唯一ID，避免重复
+            const nodeCount = currentNodes.length;
+            const uniqueId = `${dragNodeItem.nodeId}_${nodeCount + 1}`;
+            
+            const newNode = {
+                id: uniqueId,
+                type: dragNodeItem.nodeType,
+                position,
+                data: {
+                    ...(dragNodeItem.nodeData),
+                    strategyId: strategy.id,
+                    nodeName: `${dragNodeItem.nodeName}${nodeCount + 1}`,
+                },
+            };
 
-        setNodes((nds) => nds.concat(newNode));
-        setNodeIdCounter(prev => prev + 1);
+            return currentNodes.concat(newNode);
+        });
+
         
         // 清除拖拽状态
         setDragNodeItem(null);
-        
-        // 显示成功提示
-        toast(`节点 ${dragNodeItem.nodeName} 已添加`, {
-            duration: 2000
-        });
-    }, [screenToFlowPosition, dragNodeItem, setNodes, nodeIdCounter, strategy.id, setDragNodeItem]);
+    }, [screenToFlowPosition, dragNodeItem, setNodes, strategy.id, setDragNodeItem]);
 
     // 当拖动或者选择节点时，将会触发onNodesChange事件
     const onNodesChange: OnNodesChange = useCallback(
@@ -185,13 +183,13 @@ export default function StrategyFlow({strategy}:{strategy:Strategy}) {
             // setEdges((eds) => eds.filter((edge) => !edges.includes(edge)));
             console.log("边已删除", edges);
         },
-        [setEdges]
+        []
     );
 
     // 添加 useEffect 来监听 edges 的变化
     useEffect(() => {
         // console.log('Current nodes:', nodes);
-        console.log('Current edges:', edges);
+        // console.log('Current edges:', edges);
     }, [nodes, edges]);
 
     return ( 

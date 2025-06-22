@@ -5,12 +5,14 @@ import { useState, useEffect } from "react";
 import ComparisonSymbolSelector from "./comparison-symbol-selector";
 import VarTypeSelector from "./var-type-selector";
 import ConstantInput from "./constant-input";
-
+import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
 
 interface ConditionSettingProps {
     variableItemList: VariableItem[];
     condition: Condition;
     onConditionChange: (condition: Condition) => void;
+    onConditionRemove: (conditionId: number) => void;
     // updateCondition: (caseId: number, conditionId: number, condition: Condition) => void; // 更新条件
 }
 
@@ -20,7 +22,7 @@ interface ConditionSettingProps {
 
 
 
-const ConditionSetting: React.FC<ConditionSettingProps> = ({variableItemList,condition,onConditionChange}) => {
+const ConditionSetting: React.FC<ConditionSettingProps> = ({variableItemList,condition,onConditionChange,onConditionRemove}) => {
 
     // 本地的条件状态，用于编辑时
     const [localCondition, setLocalCondition] = useState<Condition>(condition);
@@ -134,11 +136,15 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({variableItemList,con
 
 
     return (
-        <div className="flex flex-row p-2 w-full">
-            {/* 条件编辑 */}
-            <div className="flex flex-col px-2 rounded-md bg-gray-100 w-full">
+        <div className="flex flex-row justify-between px-2 rounded-md bg-gray-100 w-full">
+            <div className="flex flex-col flex-1">
                 <div className="flex flex-col gap-1 p-2 min-h-16">
-                    <div className="text-sm font-bold text-left" >左值</div>
+                    <div className="flex flex-row justify-between" >
+                        <span className="text-sm font-bold text-left">左值</span>
+                        <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-red-500 p-1 h-6 w-6" onClick={() => onConditionRemove(condition.conditionId)}>
+                            <Trash2 className="w-2 h-2"/>
+                        </Button>
+                    </div>
                     {/* 左边变量选择器 */}
                     <VariableSelector 
                         variableItemList={variableItemList} 

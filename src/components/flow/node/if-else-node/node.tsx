@@ -9,8 +9,8 @@ import { TradeMode } from "@/types/strategy";
 import { BaseHandleProps } from "@/components/flow/base/BaseHandle";
 import { NodeDefaultInputHandleId } from "@/types/node/index";
 import { useUpdateBacktestConfig } from "@/hooks/node/if-else-node/use-update-backtest-config";
-import BacktestModeShow from "./components/backtest-mode-show";
-import LiveModeShow from "./components/live-mode-show";
+import BacktestModeShow from "./components/node-show/backtest-mode-show";
+import LiveModeShow from "./components/node-show/live-mode-show";
 
 
 const IfElseNode: React.FC<NodeProps<IfElseNodeType>> = ({id, data, selected}) => {

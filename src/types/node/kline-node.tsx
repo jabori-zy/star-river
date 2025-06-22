@@ -7,6 +7,7 @@ export type SelectedSymbol = {
     handleId: string; // 出口id, 用于连接到其他节点
     symbol: string; // 交易对
     interval: string; // 时间周期
+    klineValue: KlineData;
 }
 
 // k线节点实盘交易配置
@@ -57,7 +58,6 @@ export type KlineNodeData = {
     liveConfig?: KlineNodeLiveConfig; // 实盘交易配置。三个配置中，只有一个有效，可以共存
     simulateConfig?: KlineNodeSimulateConfig; // 模拟交易配置
     backtestConfig?: KlineNodeBacktestConfig; // 回测交易配置
-    klineData: KlineData; // 蜡烛图数据, 只保存最新的一条
 
 }
 
