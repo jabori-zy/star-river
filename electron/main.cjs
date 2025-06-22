@@ -6,8 +6,8 @@ let backendProcess = null;
 
 const createWindow = () => {
   const mainWindow = new BrowserWindow({
-    width: 1280,
-    height: 960,
+    width: 1600,
+    height: 1080,
     frame: false, // 去除窗口边框和菜单栏
     titleBarStyle: 'hidden', // 隐藏标题栏
     webPreferences: {

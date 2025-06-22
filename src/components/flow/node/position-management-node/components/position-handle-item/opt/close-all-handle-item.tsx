@@ -27,7 +27,7 @@ export function CloseAllHandleItem({ id,operationConfig }: CloseAllHandleItemPro
                     type="target"
                     position={Position.Left}
                     handleColor="!bg-black"
-                    className="-translate-x-2 -translate-y-2.5"
+                    className="-translate-x-2 -translate-y-3"
                 />
             </div>
 

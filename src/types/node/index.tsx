@@ -14,6 +14,7 @@ export enum NodeType {
     IfElseNode = "ifElseNode",
     FuturesOrderNode = "futuresOrderNode",
     PositionManagementNode = "positionManagementNode",
+    VariableNode = "variableNode",
 }
 
 

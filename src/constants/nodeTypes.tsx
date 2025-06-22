@@ -12,6 +12,7 @@ import StartNode from '@/components/flow/node/start-node'; // 开始节点
 import KlineNode from '@/components/flow/node/kline-node/node'; // 实时数据节点
 import FuturesOrderNode from '@/components/flow/node/futures-order-node/node'; // 期货订单节点
 import PositionManagementNode from '@/components/flow/node/position-management-node/node';
+import VariableNode from '@/components/flow/node/variable-node/node';
 
 
 
@@ -35,4 +36,5 @@ export const nodeTypes = {
     ifElseNode: IfElseNode,
     futuresOrderNode: FuturesOrderNode,
     positionManagementNode: PositionManagementNode,
+    variableNode: VariableNode,
   };

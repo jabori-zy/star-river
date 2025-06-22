@@ -29,7 +29,7 @@ import { toast } from 'sonner';
 import { Strategy } from '@/types/strategy';
 import { nodeTypes } from '@/constants/nodeTypes';
 import edgeTypes from '@/constants/edgeTypes';
-import NodePanel from '@/components/flow/NodePanel';
+import NodePanel from '@/components/flow/node-panel';
 import ControlPanel from '@/components/flow/node-controllor';
 import useStrategyWorkflow from '@/hooks/flow/use-strategy-workflow';
 

@@ -4,12 +4,13 @@ import { NodeType } from "@/types/node/index"
 
 
 const NodeSupportConnectionMap: Record<NodeType, NodeType[]> = {
-    [NodeType.StartNode]: [NodeType.KlineNode,NodeType.IfElseNode],
-    [NodeType.KlineNode]: [NodeType.IndicatorNode,NodeType.IfElseNode],
-    [NodeType.IndicatorNode]: [NodeType.IfElseNode],
-    [NodeType.IfElseNode]: [NodeType.FuturesOrderNode],
-    [NodeType.FuturesOrderNode]: [NodeType.IfElseNode,NodeType.PositionManagementNode],
-    [NodeType.PositionManagementNode]: [NodeType.IfElseNode],
+    [NodeType.StartNode]: [NodeType.KlineNode,NodeType.IfElseNode,NodeType.VariableNode],
+    [NodeType.KlineNode]: [NodeType.IndicatorNode,NodeType.IfElseNode, NodeType.VariableNode],
+    [NodeType.IndicatorNode]: [NodeType.IfElseNode, NodeType.VariableNode],
+    [NodeType.IfElseNode]: [NodeType.FuturesOrderNode, NodeType.VariableNode],
+    [NodeType.FuturesOrderNode]: [NodeType.IfElseNode,NodeType.PositionManagementNode, NodeType.VariableNode],
+    [NodeType.PositionManagementNode]: [NodeType.IfElseNode, NodeType.VariableNode],
+    [NodeType.VariableNode]: [NodeType.IfElseNode],
 }
 
 

@@ -12,14 +12,14 @@ import {
 } from '@/components/ui/select';
 import { TradeMode } from "@/types/node";
 import { Variable, X, Plus, Trash2, Clock, Filter } from 'lucide-react';
-import { Strategy, SelectedAccount, BacktestDataSource, DataSourceExchange } from '@/types/strategy';
+import { Strategy, SelectedAccount, BacktestDataSource } from '@/types/strategy';
 import { 
     StrategySysVariable,
     GetVariableNodeData, 
     GetVariableConfig,
     GetVariableType,
     TimerConfig
-} from '@/types/node/getVariableNode';
+} from '@/types/node/variable-node';
 import {
     DrawerClose,
     DrawerContent,
