@@ -22,7 +22,7 @@ const PositionManagementNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id
     } = useUpdateBacktestConfig({ id, initialConfig: positionNodeData?.backtestConfig});
 
     // 可选的账户列表
-    const [accountList, setAccountList] = useState<SelectedAccount[]>(startNodeBacktestConfig?.exchangeConfig?.fromExchanges || []);
+    const [accountList, setAccountList] = useState<SelectedAccount[]>(startNodeBacktestConfig?.exchangeModeConfig?.selectedAccounts || []);
     // 当前选中的账户
     const [selectedAccount, setSelectedAccount] = useState<SelectedAccount | null>(
         config?.selectedAccount || null
@@ -35,7 +35,7 @@ const PositionManagementNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id
 
     // 当开始节点的回测配置变化时，更新可选的账户列表
     useEffect(() => {
-        setAccountList(startNodeBacktestConfig?.exchangeConfig?.fromExchanges || []);
+        setAccountList(startNodeBacktestConfig?.exchangeModeConfig?.selectedAccounts || []);
     }, [startNodeBacktestConfig]);
 
     // 当config变化时，同步更新本地状态
@@ -70,6 +70,7 @@ const PositionManagementNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id
 
             <div className="p-2">
                 <OperationSetting
+                    nodeId={id}
                     operationConfigs={operationConfigs}
                     onOperationConfigsChange={handleOperationConfigsChange}
                 />

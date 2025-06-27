@@ -45,19 +45,20 @@ interface StartNodeDataActions {
 
 // 默认配置生成函数
 const createDefaultLiveConfig = (): StrategyLiveConfig => ({
-  liveAccounts: [],
+  selectedAccounts: [],
   variables: []
 });
 
 const createDefaultBacktestConfig = (): StrategyBacktestConfig => ({
   dataSource: BacktestDataSource.EXCHANGE,
-  exchangeConfig: {
-    fromExchanges: [],
+  exchangeModeConfig: {
+    selectedAccounts: [],
     timeRange: { 
       startDate: dayjs().subtract(2, 'day').format('YYYY-MM-DD'), 
       endDate: dayjs().subtract(1, 'day').format('YYYY-MM-DD') 
     }
   },
+  fileModeConfig: null,
   initialBalance: 10000,
   leverage: 1,
   feeRate: 0.001,
@@ -66,7 +67,7 @@ const createDefaultBacktestConfig = (): StrategyBacktestConfig => ({
 });
 
 // 创建zustand store
-export const useStartNodeDataStore = create<StartNodeDataState & StartNodeDataActions>((set, get) => ({
+export const useStartNodeDataStore = create<StartNodeDataState & StartNodeDataActions>((set) => ({
   // === 初始状态 ===
   liveConfig: null,
   backtestConfig: null,
@@ -85,10 +86,10 @@ export const useStartNodeDataStore = create<StartNodeDataState & StartNodeDataAc
     set(state => ({
       liveConfig: state.liveConfig ? {
         ...state.liveConfig,
-        liveAccounts: accounts
+        selectedAccounts: accounts
       } : {
         ...createDefaultLiveConfig(),
-        liveAccounts: accounts
+        selectedAccounts: accounts
       }
     }));
   },
@@ -184,9 +185,9 @@ export const useStartNodeDataStore = create<StartNodeDataState & StartNodeDataAc
       return {
         backtestConfig: {
           ...currentConfig,
-          exchangeConfig: {
-            fromExchanges: accounts,
-            timeRange: currentConfig.exchangeConfig?.timeRange || { startDate, endDate }
+          exchangeModeConfig: {
+            selectedAccounts: accounts,
+            timeRange: currentConfig.exchangeModeConfig?.timeRange || { startDate, endDate }
           }
         }
       };
@@ -200,8 +201,8 @@ export const useStartNodeDataStore = create<StartNodeDataState & StartNodeDataAc
       return {
         backtestConfig: {
           ...currentConfig,
-          exchangeConfig: {
-            fromExchanges: currentConfig.exchangeConfig?.fromExchanges || [],
+          exchangeModeConfig: {
+            selectedAccounts: currentConfig.exchangeModeConfig?.selectedAccounts || [],
             timeRange
           }
         }

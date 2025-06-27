@@ -124,7 +124,7 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({variableItemList,con
             nodeId: null,
             handleId: null,
             variableId: null,
-            variable: value,
+            variable: value.toString(),
             nodeName: null,
         }
         const newCondition = {...localCondition, rightVariable: newRightVariable};

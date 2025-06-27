@@ -72,14 +72,14 @@ export function UpdateHandleItem({ id,operationConfig }: UpdateHandleItemProps) 
             {/* handle出口 */}
             <div className="flex flex-row gap-1">
                 <BaseHandle
-                    id={`${id}_update_success_output${operationConfig.positionOperationId}`}
+                    id={`${id}_${operationConfig.positionOperation}_success_output${operationConfig.positionOperationId}`}
                     type="source"
                     position={Position.Right}
                     handleColor="!bg-green-400"
                     className="translate-x-2 translate-y-4"
                 />
                 <BaseHandle
-                    id={`${id}_update_failed_output${operationConfig.positionOperationId}`}
+                    id={`${id}_${operationConfig.positionOperation}_failed_output${operationConfig.positionOperationId}`}
                     type="source"
                     position={Position.Right}
                     handleColor="!bg-red-400"

@@ -32,7 +32,8 @@ export enum OrderStatus {
 
 
 export type FuturesOrderConfig = {
-    id: number;
+    orderConfigId: number;
+    inputHandleId: string;
     symbol: string;
     orderType: OrderType;
     orderSide: FuturesOrderSide;

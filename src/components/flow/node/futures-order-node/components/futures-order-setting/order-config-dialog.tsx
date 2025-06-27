@@ -69,8 +69,9 @@ const OrderConfigDialog: React.FC<OrderConfigDialogProps> = ({
         }
 
         const orderConfig: FuturesOrderConfig = {
-            id: editingConfig?.id || 0, // 编辑时保持原有id，新增时由主组件设置
-            symbol: symbol.trim().toUpperCase(),
+            orderConfigId: editingConfig?.orderConfigId || 0, // 编辑时保持原有id，新增时由主组件设置为正确的值
+            inputHandleId: editingConfig?.inputHandleId || '', // 编辑时保持原有inputHandleId，新增时由主组件设置
+            symbol: symbol.trim(),
             orderType,
             orderSide,
             price,

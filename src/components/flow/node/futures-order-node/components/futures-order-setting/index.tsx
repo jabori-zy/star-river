@@ -6,11 +6,13 @@ import OrderConfigItem from "./order-config-item";
 import OrderConfigDialog from "./order-config-dialog";
 
 interface FuturesOrderSettingProps {
+    nodeId: string;
     orderConfigs: FuturesOrderConfig[];
     onOrderConfigsChange: (orderConfigs: FuturesOrderConfig[]) => void;
 }
 
 const FuturesOrderSetting: React.FC<FuturesOrderSettingProps> = ({ 
+    nodeId,
     orderConfigs,
     onOrderConfigsChange 
 }) => {
@@ -36,7 +38,8 @@ const FuturesOrderSetting: React.FC<FuturesOrderSettingProps> = ({
             .filter((_, i) => i !== index)
             .map((order, newIndex) => ({
                 ...order,
-                id: newIndex + 1 // 重新分配id，保持连续性
+                orderConfigId: newIndex + 1, // 重新分配orderConfigId，保持连续性
+                inputHandleId: `${nodeId}_input${newIndex + 1}` // 重新分配inputHandleId
             }));
         onOrderConfigsChange(updatedOrders);
     };
@@ -47,10 +50,12 @@ const FuturesOrderSetting: React.FC<FuturesOrderSettingProps> = ({
             updatedOrders[editingIndex] = orderConfig;
             onOrderConfigsChange(updatedOrders);
         } else {
-            // 新增订单时，设置id为当前列表长度+1
+            // 新增订单时，设置orderConfigId和inputHandleId
+            const newOrderConfigId = orderConfigs.length + 1;
             const newOrderConfig = {
                 ...orderConfig,
-                id: orderConfigs.length + 1
+                orderConfigId: newOrderConfigId,
+                inputHandleId: `${nodeId}_input${newOrderConfigId}`
             };
             onOrderConfigsChange([...orderConfigs, newOrderConfig]);
         }

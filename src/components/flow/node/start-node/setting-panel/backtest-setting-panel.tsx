@@ -35,8 +35,8 @@ export const StartNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id, data
 
     // 从全局状态获取所有需要的数据
     const dataSource = globalBacktestConfig?.dataSource || BacktestDataSource.EXCHANGE;
-    const selectedAccounts = globalBacktestConfig?.exchangeConfig?.fromExchanges || [];
-    const timeRange = globalBacktestConfig?.exchangeConfig?.timeRange || { startDate: "", endDate: "" };
+    const selectedAccounts = globalBacktestConfig?.exchangeModeConfig?.selectedAccounts || [];
+    const timeRange = globalBacktestConfig?.exchangeModeConfig?.timeRange || { startDate: "", endDate: "" };
     const initialBalance = globalBacktestConfig?.initialBalance || 10000;
     const leverage = globalBacktestConfig?.leverage || 1;
     const feeRate = globalBacktestConfig?.feeRate || 0.001;

@@ -38,7 +38,8 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
             .filter((_, i) => i !== index)
             .map((variable, newIndex) => ({
                 ...variable,
-                configId: newIndex + 1 // 重新分配id，保持连续性
+                configId: newIndex + 1, // 重新分配id，保持连续性
+                inputHandleId: `${id}_input${newIndex + 1}`
             }));
         onVariableConfigsChange(updatedVariables);
     };
@@ -75,7 +76,7 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
             const newVariableConfig = {
                 ...variableConfig,
                 configId: variableConfigs.length + 1,
-                handleId: `${id}_output${variableConfigs.length + 1}`
+                inputHandleId: `${id}_input${variableConfigs.length + 1}`
             };
             onVariableConfigsChange([...variableConfigs, newVariableConfig]);
         }

@@ -6,11 +6,13 @@ import OperationConfigItem from "./operation-config-item";
 import OperationConfigDialog from "./operation-config-dialog";
 
 interface OperationSettingProps {
+    nodeId: string;
     operationConfigs: PositionOperationConfig[];
     onOperationConfigsChange: (operationConfigs: PositionOperationConfig[]) => void;
 }
 
 const OperationSetting: React.FC<OperationSettingProps> = ({ 
+    nodeId,
     operationConfigs,
     onOperationConfigsChange 
 }) => {
@@ -36,7 +38,8 @@ const OperationSetting: React.FC<OperationSettingProps> = ({
             .filter((_, i) => i !== index)
             .map((operation, newIndex) => ({
                 ...operation,
-                positionOperationId: newIndex + 1 // 重新分配id，保持连续性
+                positionOperationId: newIndex + 1, // 重新分配id，保持连续性
+                inputHandleId: `${nodeId}_input${newIndex + 1}` // 重新分配inputHandleId
             }));
         onOperationConfigsChange(updatedOperations);
     };
@@ -67,10 +70,12 @@ const OperationSetting: React.FC<OperationSettingProps> = ({
             updatedOperations[editingIndex] = operationConfig;
             onOperationConfigsChange(updatedOperations);
         } else {
-            // 新增操作时，设置id为当前列表长度+1
+            // 新增操作时，设置positionOperationId和inputHandleId
+            const newOperationId = operationConfigs.length + 1;
             const newOperationConfig = {
                 ...operationConfig,
-                positionOperationId: operationConfigs.length + 1
+                positionOperationId: newOperationId,
+                inputHandleId: `${nodeId}_input${newOperationId}`
             };
             onOperationConfigsChange([...operationConfigs, newOperationConfig]);
         }

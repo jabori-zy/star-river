@@ -20,13 +20,13 @@ export type SelectedAccount = {
 
 // 实盘交易配置
 export interface StrategyLiveConfig {
-  liveAccounts: Array<SelectedAccount>;
+  selectedAccounts: Array<SelectedAccount>; // 已选账户
   variables: StrategyVariable[]; // 实盘策略变量
 }
 
 // 模拟交易配置
 export interface StrategySimulateConfig {
-  simulateAccounts: Array<SelectedAccount>;
+  selectedAccounts: Array<SelectedAccount>; // 已选账户
   variables: StrategyVariable[]; // 模拟策略变量
 }
 
@@ -49,16 +49,22 @@ export type TimeRange = {
 //   accountName: string;
 // }
 
+// 回测交易所模式设置
+export type StrategyBacktestExchangeModeConfig = {
+  selectedAccounts: Array<SelectedAccount>; // 数据来源交易所
+  timeRange: TimeRange; // 时间范围
+}
 
-export type StrategyBacktestExchangeConfig = {
-  fromExchanges: Array<SelectedAccount>; // 数据来源交易所
+export type StrategyBacktestFileModeConfig = {
+  filePath: string; // 文件路径
   timeRange: TimeRange; // 时间范围
 }
 
 // 回测交易配置
 export interface StrategyBacktestConfig {
   dataSource: BacktestDataSource; // 数据来源
-  exchangeConfig: StrategyBacktestExchangeConfig | null; // 交易所数据源配置
+  exchangeModeConfig?: StrategyBacktestExchangeModeConfig | null; //交易所模式设置
+  fileModeConfig?: StrategyBacktestFileModeConfig | null; //文件模式设置
   initialBalance: number; // 初始资金
   leverage: number; // 杠杆倍数
   feeRate: number; // 手续费率

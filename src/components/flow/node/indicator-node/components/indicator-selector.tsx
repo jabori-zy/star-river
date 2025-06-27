@@ -56,15 +56,15 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
                 return false; // 排除正在编辑的项
             }
             
-            if (indicator.type !== type || indicator.priceSource !== priceSource) {
+            if (indicator.indicatorConfig.type !== type || indicator.indicatorConfig.priceSource !== priceSource) {
                 return false;
             }
             
             // 检查周期
             if (type === IndicatorType.SMA || type === IndicatorType.EMA) {
-                return (indicator as SmaConfig | EmaConfig).period === period;
+                return (indicator.indicatorConfig as SmaConfig | EmaConfig).period === period;
             } else if (type === IndicatorType.BOLL) {
-                return (indicator as BollConfig).period === period;
+                return (indicator.indicatorConfig as BollConfig).period === period;
             }
             
             return false;
@@ -75,7 +75,7 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
     useEffect(() => {
         if (isDialogOpen) {
             if (isEditing && editingIndex !== null) {
-                const config = selectedIndicators[editingIndex];
+                const config = selectedIndicators[editingIndex].indicatorConfig;
                 setIndicatorType(config.type);
                 setPriceSource(config.priceSource);
                 
@@ -129,9 +129,9 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
         })();
 
         return {
-            ...baseConfig,
             indicatorId: index + 1,
             handleId: `${id}_output${index + 1}`,
+            indicatorConfig: baseConfig,
             value: createInitialValue(type)
         };
     };
@@ -293,16 +293,16 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
                         <div key={index} className="flex items-center justify-between p-2 border rounded-md bg-background group">
                             <div className="flex items-center gap-2">
                                 <Badge variant="outline" className="h-5 px-1">
-                                    {config.type}
+                                    {config.indicatorConfig.type}
                                 </Badge>
                                 <div className="flex items-center gap-1">
                                     <span className="text-xs text-muted-foreground">
-                                        {getIndicatorLabel(config.type)}
+                                        {getIndicatorLabel(config.indicatorConfig.type)}
                                     </span>
                                 </div>
                                 <div className="flex items-center gap-1">
                                     <span className="text-xs text-muted-foreground">
-                                        {getConfigDisplay(config)}
+                                        {getConfigDisplay(config.indicatorConfig)}
                                     </span>
                                 </div>
                             </div>

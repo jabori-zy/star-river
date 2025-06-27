@@ -50,10 +50,10 @@ export function IndicatorItem({ indicator, handleId }: IndicatorItemProps) {
                 {/* flex-1 表示占满剩余空间 */}
                 <div className="flex flex-col gap-1 flex-1">
                     <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium">{getIndicatorLabel(indicator.type)}</span>
+                        <span className="text-sm font-medium">{getIndicatorLabel(indicator.indicatorConfig.type)}</span>
                     </div>
                     <div className="text-xs text-muted-foreground">
-                        {getIndicatorParams(indicator)} | {getPriceSourceLabel(indicator.priceSource)}
+                        {getIndicatorParams(indicator.indicatorConfig)} | {getPriceSourceLabel(indicator.indicatorConfig.priceSource)}
                     </div>
                 </div>
                 <div className="text-xs text-muted-foreground font-bold">

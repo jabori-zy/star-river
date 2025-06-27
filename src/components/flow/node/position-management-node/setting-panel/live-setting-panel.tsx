@@ -22,7 +22,7 @@ const PositionManagementNodeLiveSettingPanel: React.FC<SettingProps> = ({ id, da
     } = useUpdateLiveConfig({ id, initialConfig: positionNodeData?.liveConfig});
 
     // 可选的账户列表
-    const [accountList, setAccountList] = useState<SelectedAccount[]>(startNodeLiveConfig?.liveAccounts || []);
+    const [accountList, setAccountList] = useState<SelectedAccount[]>(startNodeLiveConfig?.selectedAccounts || []);
     // 当前选中的账户
     const [selectedAccount, setSelectedAccount] = useState<SelectedAccount | null>(
         config?.selectedAccount || null
@@ -35,7 +35,7 @@ const PositionManagementNodeLiveSettingPanel: React.FC<SettingProps> = ({ id, da
 
     // 当开始节点的实盘配置变化时，更新可选的账户列表
     useEffect(() => {
-        setAccountList(startNodeLiveConfig?.liveAccounts || []);
+        setAccountList(startNodeLiveConfig?.selectedAccounts || []);
     }, [startNodeLiveConfig]);
 
     // 当config变化时，同步更新本地状态
@@ -70,6 +70,7 @@ const PositionManagementNodeLiveSettingPanel: React.FC<SettingProps> = ({ id, da
 
             <div className="p-2">
                 <OperationSetting
+                    nodeId={id}
                     operationConfigs={operationConfigs}
                     onOperationConfigsChange={handleOperationConfigsChange}
                 />

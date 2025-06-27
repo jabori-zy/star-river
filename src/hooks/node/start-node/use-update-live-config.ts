@@ -37,7 +37,7 @@ export const useLiveConfig = ({ initialConfig, nodeId }: UseLiveConfigProps) => 
   }, [setGlobalDefaultLiveConfig]);
 
   // 更新实盘账户 - 同时更新节点数据
-  const updateLiveAccounts = useCallback((accounts: SelectedAccount[]) => {
+  const updateSelectedAccounts = useCallback((accounts: SelectedAccount[]) => {
     updateGlobalLiveAccounts(accounts);
     
     // 如果提供了nodeId，同步更新节点数据
@@ -52,7 +52,7 @@ export const useLiveConfig = ({ initialConfig, nodeId }: UseLiveConfigProps) => 
                     ...node.data,
                     liveConfig: {
                       ...(node.data.liveConfig || {}),
-                      liveAccounts: accounts
+                      selectedAccounts: accounts
                     }
                   } 
                 }
@@ -93,7 +93,7 @@ export const useLiveConfig = ({ initialConfig, nodeId }: UseLiveConfigProps) => 
   return {
     config,
     setDefaultLiveConfig,
-    updateLiveAccounts,
+    updateSelectedAccounts,
     updateVariables
   };
 }; 

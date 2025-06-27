@@ -6,7 +6,7 @@ import { FuturesOrderConfig } from '@/types/order';
 
 export type FuturesOrderNodeLiveConfig = {
     futuresOrderConfigs: FuturesOrderConfig[];
-    selectedLiveAccount?: SelectedAccount;
+    selectedAccount?: SelectedAccount;
 }
 
 export type FuturesOrderNodeSimulateConfig = {
@@ -16,7 +16,7 @@ export type FuturesOrderNodeSimulateConfig = {
 
 
 
-export type FuturesOrderNodeBacktestExchangeConfig = {
+export type FuturesOrderNodeBacktestExchangeModeConfig = {
   selectedAccount?: SelectedAccount;
   timeRange: TimeRange; // 回测时间范围
 }
@@ -24,7 +24,7 @@ export type FuturesOrderNodeBacktestExchangeConfig = {
 
 export type FuturesOrderNodeBacktestConfig = {
   dataSource: BacktestDataSource;
-  exchangeConfig?: FuturesOrderNodeBacktestExchangeConfig;
+  exchangeModeConfig?: FuturesOrderNodeBacktestExchangeModeConfig;
   futuresOrderConfigs: FuturesOrderConfig[];
 }
 

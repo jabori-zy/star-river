@@ -1,35 +1,83 @@
 import { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
 import { IndicatorNodeData } from "@/types/node/indicator-node";
-import { useNodeConnections } from "@xyflow/react";
+import { useReactFlow, useNodeConnections } from "@xyflow/react";
 import { useEffect, useState } from "react";
 import { useUpdateBacktestConfig } from "@/hooks/node/indicator-node/use-update-backtest-config";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, Activity, Calendar } from 'lucide-react';
+import { Activity } from 'lucide-react';
 import IndicatorSelector from "@/components/flow/node/indicator-node/components/indicator-selector";
-import { getNodeDefaultInputHandleId, NodeType } from "@/types/node/index";
+import { getNodeDefaultInputHandleId, isDefaultOutputHandleId, NodeType } from "@/types/node/index";
+import { KlineNodeData } from "@/types/node/kline-node";
+import { SelectedSymbol } from "@/types/node/kline-node";
+import SymbolSelector from "../components/symbol-selector";
 
 const IndicatorNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id, data }) => {
     const indicatorNodeData = data as IndicatorNodeData;
     const connections = useNodeConnections({ id, handleType: 'target', handleId: getNodeDefaultInputHandleId(id, NodeType.IndicatorNode) });
     const [isConnected, setIsConnected] = useState(false);
 
-    const exchangeConfig = indicatorNodeData.backtestConfig?.exchangeConfig
+    // 交易对列表
+    const [localSymbolList, setLocalSymbolList] = useState<SelectedSymbol[]>([]);
+
+    const { getNode } = useReactFlow();
+
+    // 
+    const exchangeModeConfig = indicatorNodeData.backtestConfig?.exchangeModeConfig
 
     // 使用自定义hook管理指标配置
     const {
-        updateSelectedIndicators
+        updateSelectedIndicators,
+        updateSelectedSymbol,
+        updateSelectedAccount
     } = useUpdateBacktestConfig({
         id,
         initialConfig: indicatorNodeData.backtestConfig
     });
 
     useEffect(() => {
-        console.log('connections:', connections)
         const hasConnection = connections.length === 1;
         setIsConnected(hasConnection);
-    }, [connections]);
+        for (const connection of connections) {
+            const sourceNodeId = connection.source;
+            const sourceHandleId = connection.sourceHandle!;
+            // 判断是否是默认输出句柄
+            const isDefaultOutput = isDefaultOutputHandleId(sourceHandleId);
+            const node = getNode(sourceNodeId);
+            // 如果节点不存在，则跳过
+            if (!node) continue;
+
+            const nodeType = node.type as NodeType;
+
+            // 如果不是k线节点，则跳过
+            if (nodeType !== NodeType.KlineNode) continue;
+
+            const klineNodeData = node.data as KlineNodeData;
+            const selectedAccount = klineNodeData.backtestConfig?.exchangeModeConfig?.selectedAccount;
+            if (selectedAccount) {
+                updateSelectedAccount(selectedAccount);
+            }
+
+            const selectedSymbols = klineNodeData.backtestConfig?.exchangeModeConfig?.selectedSymbols;
+            // 如果是默认Handle,则加载所有的symbol
+            if (isDefaultOutput) {
+                // 默认输出：添加所有K线变量
+                if (selectedSymbols) {
+                    setLocalSymbolList(selectedSymbols);
+                }
+            } else {
+                const selectedSymbol = selectedSymbols?.find((symbol: SelectedSymbol) => symbol.handleId === sourceHandleId);
+                if (selectedSymbol) {
+                    setLocalSymbolList([selectedSymbol]);
+                }
+            }
+            
+        }
+    }, [connections, getNode, updateSelectedAccount, updateSelectedIndicators, updateSelectedSymbol]);
+
+    const handleSymbolChange = (symbol: SelectedSymbol) => {
+        updateSelectedSymbol(symbol);
+    }
 
     return (
         <div className="space-y-4">
@@ -49,83 +97,16 @@ const IndicatorNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id, data })
                     </Badge>
                 )}
             </div>
+            <SymbolSelector
+                symbolList={localSymbolList}
+                selectedSymbol={exchangeModeConfig?.selectedSymbol || null}
+                onSymbolChange={handleSymbolChange}
+            />
             <IndicatorSelector 
                 id={id}
-                selectedIndicators={exchangeConfig?.selectedIndicators || []}
+                selectedIndicators={exchangeModeConfig?.selectedIndicators || []}
                 onSelectedIndicatorsChange={updateSelectedIndicators}
             />
-
-            {/* 配置信息显示 */}
-            {exchangeConfig && isConnected ? (
-                <div className="space-y-3">
-                    <Label className="text-sm font-medium">从K线节点获取的配置信息</Label>
-                    
-                    {/* 交易所信息 */}
-                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-md">
-                        <span className="text-sm text-muted-foreground">交易所:</span>
-                        <span className="text-sm font-medium">
-                            {exchangeConfig.exchange || '未配置'}
-                        </span>
-                    </div>
-
-                    {/* 交易对信息 */}
-                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-md">
-                        <span className="text-sm text-muted-foreground">交易对:</span>
-                        <span className="text-sm font-medium">
-                            {exchangeConfig.symbol || '未配置'}
-                        </span>
-                    </div>
-
-                    {/* 时间周期信息 */}
-                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-md">
-                        <span className="text-sm text-muted-foreground">时间周期:</span>
-                        <span className="text-sm font-medium">
-                            {exchangeConfig.interval || '未配置'}
-                        </span>
-                    </div>
-
-                    {/* 时间范围信息 */}
-                    {exchangeConfig.timeRange && (
-                        <div className="space-y-2">
-                            <Label className="flex items-center gap-2 text-sm font-medium">
-                                <Calendar className="h-4 w-4 text-muted-foreground" />
-                                回测时间范围
-                            </Label>
-                            <div className="grid grid-cols-2 gap-2">
-                                <div className="p-3 bg-gray-50 rounded-md">
-                                    <div className="text-xs text-muted-foreground mb-1">开始时间</div>
-                                    <div className="text-sm font-medium">
-                                        {exchangeConfig.timeRange.startDate || '未配置'}
-                                    </div>
-                                </div>
-                                <div className="p-3 bg-gray-50 rounded-md">
-                                    <div className="text-xs text-muted-foreground mb-1">结束时间</div>
-                                    <div className="text-sm font-medium">
-                                        {exchangeConfig.timeRange.endDate || '未配置'}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </div>
-            ) : (
-                <Alert>
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>
-                        请先连接到K线节点以获取回测配置信息
-                    </AlertDescription>
-                </Alert>
-            )}
-
-            {/* 指标配置提示 */}
-            {exchangeConfig && Object.keys(exchangeConfig.selectedIndicators || {}).length === 0 && (
-                <Alert>
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>
-                        请在指标设置中选择要计算的指标
-                    </AlertDescription>
-                </Alert>
-            )}
         </div>
     );
 };

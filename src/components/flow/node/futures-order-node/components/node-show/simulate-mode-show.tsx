@@ -30,7 +30,7 @@ const SimulateModeShow: React.FC<SimulateModeShowProps> = ({ data }) => {
             {/* 渲染所有的订单配置 */}
             {simulateConfig.futuresOrderConfigs.map((config) => (
                 <OrderHandleItem
-                    key={config.id}
+                    key={config.orderId}
                     orderConfig={config}
                 />
             ))}

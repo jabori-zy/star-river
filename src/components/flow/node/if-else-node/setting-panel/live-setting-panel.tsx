@@ -93,11 +93,12 @@ const IfElseNodeLiveSettingPanel: React.FC<SettingProps> = ({ id, data }) => {
     }
 
     // 处理拖拽排序
-    const handleSortCases = (newList: (CaseItem & { id: number })[]) => {
-        // 保留所有原有数据，只重新设置caseId，确保连续性（1,2,3...）
+    const handleSortCases = (newList: CaseItem[]) => {
+        // 只保留CaseItem应有的字段，过滤掉ReactSortable添加的内部字段
         const resetCases = newList.map((c, index) => ({
-            ...c,  // 保留所有原有属性
-            caseId: index + 1  // 只更新caseId
+            caseId: index + 1,  // 重新设置caseId，确保连续性（1,2,3...）
+            logicalSymbol: c.logicalSymbol,
+            conditions: c.conditions
         }));
         
         // 更新本地状态

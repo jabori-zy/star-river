@@ -2,10 +2,11 @@ import { useCallback, useState, useEffect } from 'react';
 import { useReactFlow } from '@xyflow/react';
 import { 
   FuturesOrderNodeBacktestConfig,
-  FuturesOrderNodeBacktestExchangeConfig
+  FuturesOrderNodeBacktestExchangeModeConfig
 } from '@/types/node/futures-order-node';
 import { FuturesOrderConfig } from '@/types/order';
 import { BacktestDataSource, TimeRange } from '@/types/strategy';
+import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
 
 interface UseUpdateBacktestConfigProps {
   id: string;
@@ -44,12 +45,20 @@ export const useUpdateBacktestConfig = ({ id, initialConfig }: UseUpdateBacktest
   }, [id, updateNodeData, getNode]);
 
   // 默认配置值
-  const getDefaultConfig = useCallback((prev?: FuturesOrderNodeBacktestConfig): FuturesOrderNodeBacktestConfig => ({
-    dataSource: prev?.dataSource || BacktestDataSource.EXCHANGE,
-    exchangeConfig: prev?.exchangeConfig,
-    futuresOrderConfigs: prev?.futuresOrderConfigs || [],
-    ...prev
-  }), []);
+  const getDefaultConfig = useCallback((prev?: FuturesOrderNodeBacktestConfig): FuturesOrderNodeBacktestConfig => {
+    const { backtestConfig: startNodeBacktestConfig } = useStartNodeDataStore.getState();
+    const timeRange = startNodeBacktestConfig?.exchangeModeConfig?.timeRange;
+    console.log('获取默认配置', timeRange);
+
+    return {
+      dataSource: prev?.dataSource || BacktestDataSource.EXCHANGE,
+      exchangeModeConfig: {
+        ...prev?.exchangeModeConfig,
+        timeRange: timeRange || { startDate: "", endDate: "" }
+      },
+      futuresOrderConfigs: prev?.futuresOrderConfigs || []
+    };
+  }, []);
 
   // 通用的字段更新方法
   const updateField = useCallback(<K extends keyof FuturesOrderNodeBacktestConfig>(
@@ -80,16 +89,16 @@ export const useUpdateBacktestConfig = ({ id, initialConfig }: UseUpdateBacktest
       ...prev,
       dataSource: prev?.dataSource || BacktestDataSource.EXCHANGE,
       futuresOrderConfigs: prev?.futuresOrderConfigs || [],
-      exchangeConfig: {
-        ...prev?.exchangeConfig,
+      exchangeModeConfig: {
+        ...prev?.exchangeModeConfig,
         timeRange: timeRange
       }
     }));
   }, [updateConfig]);
 
   // 更新交易所配置
-  const updateExchangeConfig = useCallback((exchangeConfig: FuturesOrderNodeBacktestExchangeConfig) => {
-    updateField('exchangeConfig', exchangeConfig);
+  const updateExchangeModeConfig = useCallback((exchangeModeConfig: FuturesOrderNodeBacktestExchangeModeConfig) => {
+    updateField('exchangeModeConfig', exchangeModeConfig);
   }, [updateField]);
 
   // 更新订单配置列表
@@ -151,7 +160,7 @@ export const useUpdateBacktestConfig = ({ id, initialConfig }: UseUpdateBacktest
     setDefaultBacktestConfig,
     updateDataSource,
     updateTimeRange,
-    updateExchangeConfig,
+    updateExchangeModeConfig,
     updateFuturesOrderConfigs,
     
     // 订单配置管理方法

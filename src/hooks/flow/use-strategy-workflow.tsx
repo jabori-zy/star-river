@@ -6,6 +6,7 @@ import { KlineNodeData, SelectedSymbol } from "@/types/node/kline-node"
 import { VariableNodeData, VariableConfig } from "@/types/node/variable-node"
 import { TradeMode } from "@/types/strategy"
 import { isDefaultOutputHandleId } from "@/types/node/index"
+import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
 
 // 定义变量项类型，用于存储节点变量信息
 export interface VariableItem {
@@ -43,17 +44,6 @@ const useStrategyWorkflow = () => {
     const {getNode, getNodeConnections} = useReactFlow()
 
     /**
-     * 根据交易模式获取节点配置
-     * @param nodeData 节点数据
-     * @param tradeMode 交易模式（实盘/回测）
-     * @returns 对应模式的配置信息
-     */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const getConfigByTradeMode = useCallback((nodeData: any, tradeMode: TradeMode) => {
-        return tradeMode === TradeMode.LIVE ? nodeData.liveConfig : nodeData.backtestConfig;
-    }, []);
-
-    /**
      * 向变量列表中添加或更新变量项
      * @param variableList 当前变量列表
      * @param nodeId 节点ID
@@ -73,7 +63,7 @@ const useStrategyWorkflow = () => {
         
         if (existingItem) {
             // 检查是否已存在相同handleId的变量，避免重复添加
-            const existingVariable = existingItem.variables.find(v => v.handleId === variable.handleId);
+            const existingVariable = existingItem.variables.find(v => v.outputHandleId === variable.outputHandleId);
             if (!existingVariable) {
                 existingItem.variables.push(variable);
             }
@@ -151,10 +141,9 @@ const useStrategyWorkflow = () => {
             if (nodeType === NodeType.IndicatorNode) {
                 // 处理指标节点
                 const indicatorNodeData = node.data as IndicatorNodeData;
-                const config = getConfigByTradeMode(indicatorNodeData, tradeMode);
                 const selectedIndicators = tradeMode === TradeMode.LIVE 
-                    ? config?.selectedIndicators 
-                    : config?.exchangeConfig?.selectedIndicators as SelectedIndicator[];
+                    ? indicatorNodeData?.liveConfig?.selectedIndicators 
+                    : indicatorNodeData?.backtestConfig?.exchangeModeConfig?.selectedIndicators;
 
                 if (isDefaultOutput) {
                     // 默认输出：添加所有指标变量
@@ -174,10 +163,9 @@ const useStrategyWorkflow = () => {
             else if (nodeType === NodeType.KlineNode) {
                 // 处理K线节点
                 const klineNodeData = node.data as KlineNodeData;
-                const config = getConfigByTradeMode(klineNodeData, tradeMode);
                 const selectedSymbols = tradeMode === TradeMode.LIVE 
-                    ? config?.selectedSymbols 
-                    : config?.exchangeConfig?.selectedSymbols as SelectedSymbol[];
+                    ? klineNodeData?.liveConfig?.selectedSymbols 
+                    : klineNodeData?.backtestConfig?.exchangeModeConfig?.selectedSymbols;
 
                 if (isDefaultOutput) {
                     // 默认输出：添加所有K线变量
@@ -198,8 +186,9 @@ const useStrategyWorkflow = () => {
                 // 处理变量节点
                 const variableNodeData = node.data as VariableNodeData;
                 console.log("variableNodeData", variableNodeData);
-                const config = getConfigByTradeMode(variableNodeData, tradeMode);
-                const variableConfigs = config?.variableConfigs as VariableConfig[];
+                const variableConfigs = tradeMode === TradeMode.LIVE 
+                    ? variableNodeData?.liveConfig?.variableConfigs 
+                    : variableNodeData?.backtestConfig?.variableConfigs;
 
                 if (isDefaultOutput) {
                     // 默认输出：添加所有变量配置
@@ -209,7 +198,7 @@ const useStrategyWorkflow = () => {
                 } else {
                     // 特定输出：只添加匹配的变量配置
                     const variableConfig = variableConfigs?.find((config: VariableConfig) => 
-                        config.handleId === sourceHandleId
+                        config.inputHandleId === sourceHandleId
                     );
                     if (variableConfig) {
                         addOrUpdateVariableItem(tempVariableItemList, node.id, variableNodeData.nodeName, NodeType.VariableNode, variableConfig);
@@ -219,11 +208,19 @@ const useStrategyWorkflow = () => {
         }
         
         return tempVariableItemList;
-    }, [getNode, getConfigByTradeMode, addOrUpdateVariableItem]);
+    }, [getNode, addOrUpdateVariableItem]);
+
+
+    // 获取回测模式的时间范围
+    const getBacktestTimeRange = useCallback(() => {
+        const backtestConfig = useStartNodeDataStore.getState().backtestConfig;
+        return backtestConfig?.exchangeModeConfig?.timeRange;
+    }, [])
 
     return {
         checkIsValidConnection,
-        getConnectedNodeVariables
+        getConnectedNodeVariables,
+        getBacktestTimeRange
     }
 }
 

@@ -7,7 +7,7 @@ export type SelectedSymbol = {
     handleId: string; // 出口id, 用于连接到其他节点
     symbol: string; // 交易对
     interval: string; // 时间周期
-    klineValue: KlineData;
+    klineValue?: KlineData;
 }
 
 // k线节点实盘交易配置
@@ -18,17 +18,17 @@ export type KlineNodeLiveConfig = {
 
 // k线节点模拟交易配置
 export type KlineNodeSimulateConfig = {
-    selectedSimulateAccount: SelectedAccount; //选择的账户
+    selectedAccount: SelectedAccount; //选择的账户
     selectedSymbols: SelectedSymbol[]; // 选择的交易对(可以多选)
 }
 
 // k线节点回测交易 文件数据源配置
-export type KlineNodeBacktestFileConfig = {
+export type KlineNodeBacktestFileModeConfig = {
     filePath: string; // 文件路径
 }
 
 // k线节点回测交易 交易所数据源配置
-export type KlineNodeBacktestExchangeConfig = {
+export type KlineNodeBacktestExchangeModeConfig = {
     selectedAccount: SelectedAccount | null; // 数据来源账户
     selectedSymbols: SelectedSymbol[]; // 选择的交易对(可以多选)
     timeRange: TimeRange; // 时间范围
@@ -37,8 +37,8 @@ export type KlineNodeBacktestExchangeConfig = {
 // k线节点回测交易 配置
 export type KlineNodeBacktestConfig = {
     dataSource: BacktestDataSource; // 数据来源
-    fileConfig?: KlineNodeBacktestFileConfig; // 文件数据源配置
-    exchangeConfig?: KlineNodeBacktestExchangeConfig; // 交易所数据源配置
+    fileModeConfig?: KlineNodeBacktestFileModeConfig; // 文件数据源配置
+    exchangeModeConfig?: KlineNodeBacktestExchangeModeConfig; // 交易所数据源配置
 }
 
 

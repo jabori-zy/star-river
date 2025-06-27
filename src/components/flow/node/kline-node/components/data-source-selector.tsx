@@ -29,11 +29,11 @@ const DataSourceSelector: React.FC<DataSourceSelectorProps> = ({
         
         switch (tradeMode) {
             case TradeMode.LIVE:
-                return startNodeData.liveConfig?.liveAccounts || [];
+                return startNodeData.liveConfig?.selectedAccounts || [];
             case TradeMode.BACKTEST:
-                return startNodeData.backtestConfig?.exchangeConfig?.fromExchanges || [];
+                return startNodeData.backtestConfig?.exchangeModeConfig?.selectedAccounts || [];
             case TradeMode.SIMULATE:
-                return startNodeData.simulateConfig?.simulateAccounts || [];
+                return startNodeData.simulateConfig?.selectedAccounts || [];
             default:
                 return [];
         }

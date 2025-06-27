@@ -10,21 +10,8 @@ interface SymbolSelectorProps {
 
 // 常用交易对选项
 const SYMBOL_OPTIONS = [
-    { value: 'BTCUSDT', label: 'BTC/USDT'},
-    { value: 'ETHUSDT', label: 'ETH/USDT'},
-    { value: 'BNBUSDT', label: 'BNB/USDT'},
-    { value: 'ADAUSDT', label: 'ADA/USDT'},
-    { value: 'SOLUSDT', label: 'SOL/USDT'},
-    { value: 'XRPUSDT', label: 'XRP/USDT'},
-    { value: 'DOTUSDT', label: 'DOT/USDT'},
-    { value: 'AVAXUSDT', label: 'AVAX/USDT'},
-    { value: 'MATICUSDT', label: 'MATIC/USDT'},
-    { value: 'LINKUSDT', label: 'LINK/USDT'},
-    { value: 'UNIUSDT', label: 'UNI/USDT'},
-    { value: 'AAVEUSDT', label: 'AAVE/USDT'},
-    { value: 'COMPUSDT', label: 'COMP/USDT'},
-    { value: 'MKRUSDT', label: 'MKR/USDT'},
-    { value: 'SUSHIUSDT', label: 'SUSHI/USDT'},
+    { value: 'BTCUSDm', label: 'BTC/USDT'},
+    { value: 'ETHUSDm', label: 'ETH/USDT'},
 ];
 
 const SymbolSelector: React.FC<SymbolSelectorProps> = ({

@@ -31,7 +31,7 @@ const LiveModeShow: React.FC<LiveModeShowProps> = ({ id, data }) => {
             {liveConfig.futuresOrderConfigs.map((config) => (
                 <OrderHandleItem
                     id={id}
-                    key={config.id}
+                    key={config.orderId}
                     orderConfig={config}
                 />
             ))}

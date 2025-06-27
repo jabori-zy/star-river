@@ -16,7 +16,7 @@ export const StartNodeLiveSettingPanel: React.FC<SettingProps> = ({ id, data }) 
     
     // 使用自定义 hook 管理实时配置
     const {
-        updateLiveAccounts,
+        updateSelectedAccounts,
         updateVariables
     } = useLiveConfig({
         initialConfig: startNodeData.liveConfig || undefined,
@@ -26,9 +26,9 @@ export const StartNodeLiveSettingPanel: React.FC<SettingProps> = ({ id, data }) 
     return (
         <div className="p-4 space-y-4">
             <AccountSelector
-                selectedAccounts={globalLiveConfig?.liveAccounts || []} 
+                selectedAccounts={globalLiveConfig?.selectedAccounts || []} 
                 setSelectedAccounts={() => {}} // 不再需要本地状态设置
-                updateSelectedAccounts={updateLiveAccounts}
+                updateSelectedAccounts={updateSelectedAccounts}
             />
             
             <VariableEditor

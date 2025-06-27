@@ -30,12 +30,12 @@ const TIME_INTERVALS = [
 
 const Symbols = [
     {
-        value: 'BTC/USDT',
-        label: 'BTC/USDT',
+        value: 'BTCUSDm',
+        label: 'BTC/USDm',
     },
     {
-        value: 'ETH/USDT',
-        label: 'ETH/USDT',
+        value: 'ETHUSDm',
+        label: 'ETH/USDm',
     }
 ]
 
@@ -98,16 +98,16 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
             return false;
         }
         
-        const symbolRegex = /^[A-Z0-9]+\/[A-Z0-9]+$/;
-        if (!symbolRegex.test(symbol.toUpperCase())) {
-            setNameError("交易对格式不正确，应为 BTC/USDT 格式");
-            return false;
-        }
+        // const symbolRegex = /^[A-Z0-9]+\/[A-Z0-9]+$/;
+        // if (!symbolRegex.test(symbol.toUpperCase())) {
+        //     setNameError("交易对格式不正确，应为 BTC/USDT 格式");
+        //     return false;
+        // }
         
         const exists = localSymbols.some(s => 
-            s.symbol === symbol.toUpperCase() && 
+            s.symbol === symbol && 
             s.interval === interval && 
-            !(editingSymbol && editingSymbol.symbol === symbol.toUpperCase() && editingSymbol.interval === interval)
+            !(editingSymbol && editingSymbol.symbol === symbol && editingSymbol.interval === interval)
         );
         
         if (exists) {
@@ -138,8 +138,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
     };
 
     const handleSave = () => {
-        const upperSymbol = symbolName.toUpperCase();
-        if (!validateSymbol(upperSymbol, symbolInterval)) {
+        if (!validateSymbol(symbolName, symbolInterval)) {
             return;
         }
 
@@ -149,7 +148,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
         const newSymbol: SelectedSymbol = {
             symbolId: listLength + 1, // 使用时间戳作为临时ID
             handleId: `kline_node_output_${listLength + 1}`, // handleId 将由 hooks 自动生成
-            symbol: upperSymbol,
+            symbol: symbolName,
             interval: symbolInterval,
             klineValue: {
                 timestamp: 0,
@@ -265,7 +264,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
                                     onValueChange={(value) => {
                                         setSymbolName(value);
                                         if (value.trim()) {
-                                            validateSymbol(value.toUpperCase(), symbolInterval);
+                                            validateSymbol(value, symbolInterval);
                                         }
                                     }}
                                 >
@@ -279,7 +278,6 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
                                         {Symbols.map((symbol) => (
                                             <SelectItem key={symbol.value} value={symbol.value}>
                                                 <div className="flex items-center">
-                                                    <TrendingUp className="h-4 w-4 mr-2 text-blue-500" />
                                                     <span>{symbol.label}</span>
                                                 </div>
                                             </SelectItem>
@@ -310,7 +308,6 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
                                         {TIME_INTERVALS.map((interval) => (
                                             <SelectItem key={interval.value} value={interval.value}>
                                                 <div className="flex items-center">
-                                                    <Clock className="h-4 w-4 mr-2 text-blue-500" />
                                                     <span>{interval.label}</span>
                                                 </div>
                                             </SelectItem>

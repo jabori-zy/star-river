@@ -10,7 +10,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ id, data }) => {
     // 获取回测模式配置
     const backtestConfig = data.backtestConfig;
 
-    const exchangeName = backtestConfig?.exchangeConfig?.selectedAccount?.exchange;
+    const exchangeName = backtestConfig?.exchangeModeConfig?.selectedAccount?.exchange;
     
     // 如果没有配置或者没有订单配置，显示提示信息
     if (!backtestConfig || !backtestConfig.futuresOrderConfigs || backtestConfig.futuresOrderConfigs.length === 0) {
@@ -31,7 +31,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ id, data }) => {
             {backtestConfig.futuresOrderConfigs.map((config) => (
                 <OrderHandleItem
                     id={id}
-                    key={config.id}
+                    key={config.orderConfigId}
                     orderConfig={config}
                 />
             ))}

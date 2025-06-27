@@ -18,15 +18,15 @@ const FuturesOrderNodeLiveSettingPanel: React.FC<SettingProps> = ({ id, data }) 
     // 使用hooks管理节点数据更新
     const { 
         config,
-        updateSelectedLiveAccount,
+        updateSelectedAccount,
         updateFuturesOrderConfigs,
     } = useUpdateLiveConfig({ id, initialConfig: futuresOrderNodeData?.liveConfig});
 
     // 可选的账户列表
-    const [accountList, setAccountList] = useState<SelectedAccount[]>(startNodeLiveConfig?.liveAccounts || []);
+    const [accountList, setAccountList] = useState<SelectedAccount[]>(startNodeLiveConfig?.selectedAccounts || []);
     // 当前选中的账户
     const [selectedAccount, setSelectedAccount] = useState<SelectedAccount | null>(
-        config?.selectedLiveAccount || null
+        config?.selectedAccount || null
     );
 
     // 当前的订单配置 - 从config中获取，保持同步
@@ -36,13 +36,13 @@ const FuturesOrderNodeLiveSettingPanel: React.FC<SettingProps> = ({ id, data }) 
 
     // 当开始节点的实盘配置变化时，更新可选的账户列表
     useEffect(() => {
-        setAccountList(startNodeLiveConfig?.liveAccounts || []);
+        setAccountList(startNodeLiveConfig?.selectedAccounts || []);
     }, [startNodeLiveConfig]);
 
     // 当config变化时，同步更新本地状态
     useEffect(() => {
         if (config) {
-            setSelectedAccount(config.selectedLiveAccount || null);
+            setSelectedAccount(config.selectedAccount || null);
             setOrderConfigs(config.futuresOrderConfigs || []);
         }
     }, [config]);
@@ -50,7 +50,7 @@ const FuturesOrderNodeLiveSettingPanel: React.FC<SettingProps> = ({ id, data }) 
     // 处理账户选择变更
     const handleAccountChange = (account: SelectedAccount) => {
         setSelectedAccount(account);
-        updateSelectedLiveAccount(account);
+        updateSelectedAccount(account);
     }
 
     // 处理订单配置变更
@@ -75,6 +75,7 @@ const FuturesOrderNodeLiveSettingPanel: React.FC<SettingProps> = ({ id, data }) 
 
             <div className="p-2">
                 <FuturesOrderSetting
+                    nodeId={id}
                     orderConfigs={orderConfigs}
                     onOrderConfigsChange={handleOrderConfigsChange}
                 />

@@ -45,7 +45,7 @@ export const useUpdateLiveConfig = ({ id, initialConfig }: UseUpdateLiveConfigPr
   // 默认配置值
   const getDefaultConfig = useCallback((prev?: FuturesOrderNodeLiveConfig): FuturesOrderNodeLiveConfig => ({
     futuresOrderConfigs: prev?.futuresOrderConfigs || [],
-    selectedLiveAccount: prev?.selectedLiveAccount,
+    selectedAccount: prev?.selectedAccount,
     ...prev
   }), []);
 
@@ -67,8 +67,8 @@ export const useUpdateLiveConfig = ({ id, initialConfig }: UseUpdateLiveConfigPr
   }, [updateConfig, getDefaultConfig]);
 
   // 更新选中的实盘账户
-  const updateSelectedLiveAccount = useCallback((selectedLiveAccount: SelectedAccount) => {
-    updateField('selectedLiveAccount', selectedLiveAccount);
+  const updateSelectedAccount = useCallback((selectedAccount: SelectedAccount) => {
+    updateField('selectedAccount', selectedAccount);
   }, [updateField]);
 
   // 更新订单配置列表
@@ -125,7 +125,7 @@ export const useUpdateLiveConfig = ({ id, initialConfig }: UseUpdateLiveConfigPr
     
     // 基础配置方法
     setDefaultLiveConfig,
-    updateSelectedLiveAccount,
+    updateSelectedAccount,
     updateFuturesOrderConfigs,
     
     // 订单配置管理方法

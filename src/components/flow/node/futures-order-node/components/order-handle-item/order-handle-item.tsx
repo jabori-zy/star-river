@@ -27,12 +27,12 @@ const OrderHandleItem: React.FC<OrderHandleItemProps> = ({id, orderConfig}) => {
                     {getOrderSideLabel(orderConfig.orderSide)}
                 </Badge>
                 <div className="text-xs font-bold text-muted-foreground"> 
-                    Order{orderConfig.id}
+                    Order{orderConfig.orderConfigId}
                 </div>
                 {
                     orderConfig.orderSide === FuturesOrderSide.LONG ? (
                         <BaseHandle
-                            id={`${id}_input${orderConfig.id}`}
+                            id={`${id}_input${orderConfig.orderConfigId}`}
                             type="target"
                             position={Position.Left}
                             handleColor="!bg-black-400"
@@ -41,7 +41,7 @@ const OrderHandleItem: React.FC<OrderHandleItemProps> = ({id, orderConfig}) => {
 
                     ) : (
                         <BaseHandle
-                            id={`${id}_input${orderConfig.id}`}
+                            id={`${id}_input${orderConfig.orderConfigId}`}
                             type="target"
                             position={Position.Left}
                             handleColor="!bg-red-500"
@@ -124,7 +124,7 @@ const OrderHandleItem: React.FC<OrderHandleItemProps> = ({id, orderConfig}) => {
                 </div>
             </div>
             {/* handle出口 */}
-            {isMarketOrder ? getMarketOrderHandleGroup(id, orderConfig.id) : getLimitOrderHandleGroup(id, orderConfig.id)}
+            {isMarketOrder ? getMarketOrderHandleGroup(id, orderConfig.orderConfigId) : getLimitOrderHandleGroup(id, orderConfig.orderConfigId)}
                 
         </div>
     );

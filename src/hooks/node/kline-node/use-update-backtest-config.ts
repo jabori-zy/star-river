@@ -2,8 +2,8 @@ import { useCallback, useState } from 'react';
 import { useReactFlow } from '@xyflow/react';
 import { 
   KlineNodeBacktestConfig, 
-  KlineNodeBacktestExchangeConfig,
-  KlineNodeBacktestFileConfig,
+  KlineNodeBacktestExchangeModeConfig,
+  KlineNodeBacktestFileModeConfig,
   SelectedSymbol 
 } from '@/types/node/kline-node';
 import { 
@@ -12,6 +12,7 @@ import {
   TimeRange 
 } from '@/types/strategy';
 import { Exchange } from '@/types/common';
+import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
 
 interface UseUpdateBacktestConfigProps {
   id: string;
@@ -52,12 +53,20 @@ export const useUpdateBacktestConfig = ({ id, initialBacktestConfig }: UseUpdate
   }, [id, updateNodeData]);
 
   // 默认配置值
-  const getDefaultConfig = useCallback((prev?: KlineNodeBacktestConfig): KlineNodeBacktestConfig => ({
+  const getDefaultConfig = useCallback((prev?: KlineNodeBacktestConfig): KlineNodeBacktestConfig => {
+    const { backtestConfig: startNodeBacktestConfig } = useStartNodeDataStore.getState();
+    const timeRange = startNodeBacktestConfig?.exchangeModeConfig?.timeRange;
+    console.log('获取默认配置', timeRange);
+    return {
     dataSource: prev?.dataSource || BacktestDataSource.EXCHANGE,
-    fileConfig: prev?.fileConfig,
-    exchangeConfig: prev?.exchangeConfig,
-    ...prev
-  }), []);
+    fileModeConfig: prev?.fileModeConfig,
+      exchangeModeConfig: {
+        selectedAccount: prev?.exchangeModeConfig?.selectedAccount || null,
+        selectedSymbols: prev?.exchangeModeConfig?.selectedSymbols || [],
+        timeRange: timeRange || { startDate: "", endDate: "" }
+      }
+    };
+  }, []);
 
   // 通用的字段更新方法
   const updateField = useCallback(<K extends keyof KlineNodeBacktestConfig>(
@@ -74,8 +83,8 @@ export const useUpdateBacktestConfig = ({ id, initialBacktestConfig }: UseUpdate
   const setDefaultBacktestConfig = useCallback(() => {
     const defaultConfig = getDefaultConfig();
     updateField('dataSource', defaultConfig.dataSource);
-    updateField('fileConfig', defaultConfig.fileConfig);
-    updateField('exchangeConfig', defaultConfig.exchangeConfig);
+    updateField('fileModeConfig', defaultConfig.fileModeConfig);
+    updateField('exchangeModeConfig', defaultConfig.exchangeModeConfig);
   }, [updateField, getDefaultConfig]);
 
   // 具体的更新方法
@@ -84,32 +93,32 @@ export const useUpdateBacktestConfig = ({ id, initialBacktestConfig }: UseUpdate
   }, [updateField]);
 
   // 更新文件配置
-  const updateFileConfig = useCallback((fileConfig: KlineNodeBacktestFileConfig) => {
-    updateField('fileConfig', fileConfig);
+  const updateFileModeConfig = useCallback((fileModeConfig: KlineNodeBacktestFileModeConfig) => {
+    updateField('fileModeConfig', fileModeConfig);
   }, [updateField]);
 
   const updateFilePath = useCallback((filePath: string) => {
     updateConfig(prev => ({
       ...getDefaultConfig(prev),
-      fileConfig: {
+      fileModeConfig: {
         filePath
       }
     }));
   }, [updateConfig, getDefaultConfig]);
 
   // 更新交易所配置
-  const updateExchangeConfig = useCallback((exchangeConfig: KlineNodeBacktestExchangeConfig) => {
-    updateField('exchangeConfig', exchangeConfig);
+  const updateExchangeModeConfig = useCallback((exchangeModeConfig: KlineNodeBacktestExchangeModeConfig) => {
+    updateField('exchangeModeConfig', exchangeModeConfig);
   }, [updateField]);
 
   const updateSelectedAccount = useCallback((selectedAccount: SelectedAccount | null) => {
     updateConfig(prev => ({
       ...getDefaultConfig(prev),
-      exchangeConfig: {
-        ...prev?.exchangeConfig,
+      exchangeModeConfig: {
+        ...prev?.exchangeModeConfig,
         selectedAccount: selectedAccount,
-        selectedSymbols: prev?.exchangeConfig?.selectedSymbols || [],
-        timeRange: prev?.exchangeConfig?.timeRange || { startDate: "", endDate: "" }
+        selectedSymbols: prev?.exchangeModeConfig?.selectedSymbols || [],
+        timeRange: prev?.exchangeModeConfig?.timeRange || { startDate: "", endDate: "" }
       }
     }));
   }, [updateConfig, getDefaultConfig]);
@@ -120,11 +129,11 @@ export const useUpdateBacktestConfig = ({ id, initialBacktestConfig }: UseUpdate
     
     updateConfig(prev => ({
       ...getDefaultConfig(prev),
-      exchangeConfig: {
-        ...prev?.exchangeConfig,
-        selectedAccount: prev?.exchangeConfig?.selectedAccount || { id: 0, exchange: Exchange.BINANCE, accountName: '' },
+      exchangeModeConfig: {
+        ...prev?.exchangeModeConfig,
+        selectedAccount: prev?.exchangeModeConfig?.selectedAccount || { id: 0, exchange: Exchange.BINANCE, accountName: '' },
         selectedSymbols: symbolsWithHandleIds,
-        timeRange: prev?.exchangeConfig?.timeRange || { startDate: "", endDate: "" }
+        timeRange: prev?.exchangeModeConfig?.timeRange || { startDate: "", endDate: "" }
       }
     }));
   }, [updateConfig, getDefaultConfig, addHandleIds]);
@@ -132,10 +141,10 @@ export const useUpdateBacktestConfig = ({ id, initialBacktestConfig }: UseUpdate
   const updateTimeRange = useCallback((timeRange: TimeRange) => {
     updateConfig(prev => ({
       ...getDefaultConfig(prev),
-      exchangeConfig: {
-        ...prev?.exchangeConfig,
-        selectedAccount: prev?.exchangeConfig?.selectedAccount || { id: 0, exchange: Exchange.BINANCE, accountName: '' },
-        selectedSymbols: prev?.exchangeConfig?.selectedSymbols || [],
+      exchangeModeConfig: {
+        ...prev?.exchangeModeConfig,
+        selectedAccount: prev?.exchangeModeConfig?.selectedAccount || { id: 0, exchange: Exchange.BINANCE, accountName: '' },
+        selectedSymbols: prev?.exchangeModeConfig?.selectedSymbols || [],
         timeRange
       }
     }));
@@ -145,9 +154,9 @@ export const useUpdateBacktestConfig = ({ id, initialBacktestConfig }: UseUpdate
     config,
     setDefaultBacktestConfig,
     updateDataSource,
-    updateFileConfig,
+    updateFileModeConfig,
     updateFilePath,
-    updateExchangeConfig,
+    updateExchangeModeConfig,
     updateSelectedAccount,
     updateSelectedSymbols,
     updateTimeRange

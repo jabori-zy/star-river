@@ -24,8 +24,8 @@ const AccountSelector: React.FC<AccountSelectorProps> = ({
 
     // 可选的账户列表
     const [accountList, setAccountList] = useState<SelectedAccount[]>(
-        tradeMode === TradeMode.BACKTEST ? startNodeBacktestConfig?.exchangeConfig?.fromExchanges || [] : 
-        tradeMode === TradeMode.LIVE ? startNodeLiveConfig?.liveAccounts || [] : []
+        tradeMode === TradeMode.BACKTEST ? startNodeBacktestConfig?.exchangeModeConfig?.selectedAccounts || [] : 
+        tradeMode === TradeMode.LIVE ? startNodeLiveConfig?.selectedAccounts || [] : []
     );
 
 
@@ -34,9 +34,9 @@ const AccountSelector: React.FC<AccountSelectorProps> = ({
 
     useEffect(() => {
         if (tradeMode === TradeMode.BACKTEST) {
-            setAccountList(startNodeBacktestConfig?.exchangeConfig?.fromExchanges || [])
+            setAccountList(startNodeBacktestConfig?.exchangeModeConfig?.selectedAccounts || [])
         } else if (tradeMode === TradeMode.LIVE) {
-            setAccountList(startNodeLiveConfig?.liveAccounts || [])
+            setAccountList(startNodeLiveConfig?.selectedAccounts || [])
         }
         if (selectedAccount) {
             setLocalSelectedAccount(selectedAccount)

@@ -8,6 +8,17 @@ interface UseBacktestConfigProps {
   nodeId?: string; // 节点ID，用于同步节点数据
 }
 
+const defaultBacktestConfig: StrategyBacktestConfig = {
+  dataSource: BacktestDataSource.EXCHANGE,
+  exchangeModeConfig: null,
+  fileModeConfig: null,
+  initialBalance: 10000,
+  leverage: 1,
+  feeRate: 0.001,
+  playSpeed: 1,
+  variables: []
+};
+
 export const useBacktestConfig = ({ initialConfig, nodeId }: UseBacktestConfigProps) => {
   
   // 获取ReactFlow实例
@@ -51,7 +62,7 @@ export const useBacktestConfig = ({ initialConfig, nodeId }: UseBacktestConfigPr
                   ...node, 
                   data: { 
                     ...node.data,
-                    backtestConfig: updateFn(node.data.backtestConfig || {} as StrategyBacktestConfig)
+                    backtestConfig: updateFn((node.data.backtestConfig ?? defaultBacktestConfig) as StrategyBacktestConfig)
                   } 
                 }
               : node
@@ -96,9 +107,9 @@ export const useBacktestConfig = ({ initialConfig, nodeId }: UseBacktestConfigPr
     updateGlobalBacktestAccounts(accounts);
     syncToNode(config => ({ 
       ...config, 
-      exchangeConfig: {
-        ...config.exchangeConfig,
-        fromExchanges: accounts
+      exchangeModeConfig: {
+        selectedAccounts: accounts,
+        timeRange: config.exchangeModeConfig?.timeRange || { startDate: '', endDate: '' }
       }
     }));
   }, [updateGlobalBacktestAccounts, syncToNode]);
@@ -107,8 +118,8 @@ export const useBacktestConfig = ({ initialConfig, nodeId }: UseBacktestConfigPr
     updateGlobalTimeRange(timeRange);
     syncToNode(config => ({ 
       ...config, 
-      exchangeConfig: {
-        ...config.exchangeConfig,
+      exchangeModeConfig: {
+        selectedAccounts: config.exchangeModeConfig?.selectedAccounts || [],
         timeRange
       }
     }));

@@ -11,6 +11,7 @@ export enum PositionOperation {
 // 仓位操作配置
 export type PositionOperationConfig = {
   positionOperationId: number; // 配置ID
+  inputHandleId: string; // 输入handleId
   symbol: string | null; // 交易对(可以不配置)
   positionOperation: PositionOperation; // 操作类型
   positionOperationName: string; // 操作名称

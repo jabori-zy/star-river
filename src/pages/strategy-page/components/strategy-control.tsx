@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Save, Play, Square, DollarSign, CreditCard, Calendar } from "lucide-react";
 import { useReactFlow } from '@xyflow/react';
-import { TradeMode } from "@/types/node";
+import { TradeMode } from "@/types/strategy";
 import {
   Select,
   SelectContent,

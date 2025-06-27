@@ -149,8 +149,8 @@ export const handleNodeChanges = (
                 const newTimeRange = newStartData?.backtestConfig?.exchangeConfig?.timeRange;
                 
                 // 检查数据源列表是否发生变化
-                const oldDataSources = oldStartData?.backtestConfig?.exchangeConfig?.fromExchanges;
-                const newDataSources = newStartData?.backtestConfig?.exchangeConfig?.fromExchanges;
+                const oldDataSources = oldStartData?.backtestConfig?.exchangeConfig?.selectAccount;
+                const newDataSources = newStartData?.backtestConfig?.exchangeConfig?.selectAccount;
                 
                 let hasChanges = false;
                 

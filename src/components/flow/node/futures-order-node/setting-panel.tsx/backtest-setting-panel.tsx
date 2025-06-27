@@ -19,15 +19,15 @@ const FuturesOrderNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id, data
     // 使用hooks管理节点数据更新
     const { 
         config,
-        updateExchangeConfig,
+        updateExchangeModeConfig,
         updateFuturesOrderConfigs,
     } = useUpdateBacktestConfig({ id, initialConfig: futuresOrderNodeData?.backtestConfig});
 
     // 可选的账户列表
-    const [accountList, setAccountList] = useState<SelectedAccount[]>(startNodeBacktestConfig?.exchangeConfig?.fromExchanges || []);
+    const [accountList, setAccountList] = useState<SelectedAccount[]>(startNodeBacktestConfig?.exchangeModeConfig?.selectedAccounts || []);
     // 当前选中的账户
     const [selectedAccount, setSelectedAccount] = useState<SelectedAccount | null>(
-        config?.exchangeConfig?.selectedAccount || null
+        config?.exchangeModeConfig?.selectedAccount || null
     );
 
     // 当前的订单配置 - 从config中获取，保持同步
@@ -37,13 +37,13 @@ const FuturesOrderNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id, data
 
     // 当开始节点的回测配置变化时，更新可选的账户列表和时间范围
     useEffect(() => {
-        setAccountList(startNodeBacktestConfig?.exchangeConfig?.fromExchanges || []);
+        setAccountList(startNodeBacktestConfig?.exchangeModeConfig?.selectedAccounts || []);
     }, [startNodeBacktestConfig]);
 
     // 当config变化时，同步更新本地状态
     useEffect(() => {
         if (config) {
-            setSelectedAccount(config.exchangeConfig?.selectedAccount || null);
+            setSelectedAccount(config.exchangeModeConfig?.selectedAccount || null);
             setOrderConfigs(config.futuresOrderConfigs || []);
         }
     }, [config]);
@@ -55,10 +55,10 @@ const FuturesOrderNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id, data
         // 更新exchangeConfig
         const newExchangeConfig = {
             selectedAccount: account,
-            timeRange: config?.exchangeConfig?.timeRange || { startDate: '', endDate: '' }
+            timeRange: config?.exchangeModeConfig?.timeRange || { startDate: '', endDate: '' }
         };
         
-        updateExchangeConfig(newExchangeConfig);
+        updateExchangeModeConfig(newExchangeConfig);
     }
 
     // 处理订单配置变更
@@ -83,6 +83,7 @@ const FuturesOrderNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id, data
 
             <div className="p-2">
                 <FuturesOrderSetting
+                    nodeId={id}
                     orderConfigs={orderConfigs}
                     onOrderConfigsChange={handleOrderConfigsChange}
                 />

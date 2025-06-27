@@ -2,14 +2,17 @@ import { useCallback, useState } from 'react';
 import { useReactFlow } from '@xyflow/react';
 import { 
   IndicatorNodeBacktestConfig,
-  IndicatorNodeBacktestExchangeConfig
+  IndicatorNodeBacktestExchangeModeConfig,
+  SelectedIndicator
 } from '@/types/node/indicator-node';
 import { 
-  BacktestDataSource, 
-  TimeRange 
+  BacktestDataSource,
+  SelectedAccount,
+  TimeRange
 } from '@/types/strategy';
-import { Exchange } from '@/types/common';
-import { SelectedIndicator } from '@/types/node/indicator-node';
+import { SelectedSymbol } from '@/types/node/kline-node';
+import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
+
 
 interface UseUpdateBacktestConfigProps {
   id: string;
@@ -37,12 +40,21 @@ export const useUpdateBacktestConfig = ({ id, initialConfig }: UseUpdateBacktest
   }, [id, updateNodeData]);
 
   // 默认配置值
-  const getDefaultConfig = useCallback((prev?: IndicatorNodeBacktestConfig): IndicatorNodeBacktestConfig => ({
-    dataSource: prev?.dataSource || BacktestDataSource.EXCHANGE,
-    fileConfig: prev?.fileConfig,
-    exchangeConfig: prev?.exchangeConfig,
-    ...prev
-  }), []);
+  const getDefaultConfig = useCallback((prev?: IndicatorNodeBacktestConfig): IndicatorNodeBacktestConfig => {
+    const { backtestConfig: startNodeBacktestConfig } = useStartNodeDataStore.getState();
+    const timeRange = startNodeBacktestConfig?.exchangeModeConfig?.timeRange;
+    console.log('获取默认配置', timeRange);
+    return {
+      dataSource: prev?.dataSource || BacktestDataSource.EXCHANGE,
+      fileModeConfig: prev?.fileModeConfig,
+      exchangeModeConfig: {
+        selectedAccount: prev?.exchangeModeConfig?.selectedAccount || null,
+        selectedSymbol: prev?.exchangeModeConfig?.selectedSymbol || null,
+        selectedIndicators: prev?.exchangeModeConfig?.selectedIndicators || [],
+        timeRange: timeRange || { startDate: "", endDate: "" }
+      }
+    };
+  }, []);
 
   // 通用的字段更新方法
   const updateField = useCallback(<K extends keyof IndicatorNodeBacktestConfig>(
@@ -57,10 +69,8 @@ export const useUpdateBacktestConfig = ({ id, initialConfig }: UseUpdateBacktest
 
   const setDefaultBacktestConfig = useCallback(() => {
     const defaultConfig = getDefaultConfig();
-    updateField('dataSource', defaultConfig.dataSource);
-    updateField('fileConfig', defaultConfig.fileConfig);
-    updateField('exchangeConfig', defaultConfig.exchangeConfig);
-  }, [updateField, getDefaultConfig]);
+    updateConfig(() => defaultConfig);
+  }, [updateConfig, getDefaultConfig]);
 
   // 更新数据源
   const updateDataSource = useCallback((dataSource: BacktestDataSource) => {
@@ -68,58 +78,80 @@ export const useUpdateBacktestConfig = ({ id, initialConfig }: UseUpdateBacktest
   }, [updateField]);
 
   // 更新交易所配置
-  const updateExchangeConfig = useCallback((exchangeConfig: IndicatorNodeBacktestExchangeConfig) => {
-    updateField('exchangeConfig', exchangeConfig);
+  const updateExchangeConfig = useCallback((exchangeConfig: IndicatorNodeBacktestExchangeModeConfig) => {
+    updateField('exchangeModeConfig', exchangeConfig);
   }, [updateField]);
 
-  // 更新基础配置（交易所、交易对、时间间隔、时间范围）
-  const updateBacktestKlineInfo = useCallback((
-    exchange: string,
-    symbol: string,
-    interval: string,
-    timeRange: TimeRange
-  ) => {
-    updateConfig(prev => ({
-      ...getDefaultConfig(prev),
-      exchangeConfig: {
-        ...prev?.exchangeConfig,
-        exchange: exchange as Exchange,
-        symbol,
-        interval,
-        timeRange,
-        selectedIndicators: prev?.exchangeConfig?.selectedIndicators || [] as SelectedIndicator[]
-      }
-    }));
+  // 更新选中的账户
+  const updateSelectedAccount = useCallback((selectedAccount: SelectedAccount | null) => {
+    updateConfig(prev => {
+      const baseConfig = getDefaultConfig(prev);
+      return {
+        ...baseConfig,
+        exchangeModeConfig: {
+          selectedAccount,
+          selectedSymbol: baseConfig.exchangeModeConfig?.selectedSymbol || null,
+          selectedIndicators: baseConfig.exchangeModeConfig?.selectedIndicators || [],
+          timeRange: baseConfig.exchangeModeConfig?.timeRange || { startDate: "", endDate: "" }
+        }
+      };
+    });
   }, [updateConfig, getDefaultConfig]);
 
-  // 更新时间范围
-  const updateTimeRange = useCallback((timeRange: TimeRange) => {
-    updateConfig(prev => ({
-      ...getDefaultConfig(prev),
-      exchangeConfig: {
-        ...prev?.exchangeConfig,
-        exchange: prev?.exchangeConfig?.exchange || Exchange.BINANCE,
-        symbol: prev?.exchangeConfig?.symbol || '',
-        interval: prev?.exchangeConfig?.interval || '',
-        timeRange,
-        selectedIndicators: prev?.exchangeConfig?.selectedIndicators || [] as SelectedIndicator[]
-      }
-    }));
+  // 更新选中的交易对
+  const updateSelectedSymbol = useCallback((selectedSymbol: SelectedSymbol | null) => {
+    updateConfig(prev => {
+      const baseConfig = getDefaultConfig(prev);
+      return {
+        ...baseConfig,
+        exchangeModeConfig: {
+          selectedAccount: baseConfig.exchangeModeConfig?.selectedAccount || null,
+          selectedSymbol,
+          selectedIndicators: baseConfig.exchangeModeConfig?.selectedIndicators || [],
+          timeRange: baseConfig.exchangeModeConfig?.timeRange || { startDate: "", endDate: "" }
+        }
+      };
+    });
   }, [updateConfig, getDefaultConfig]);
 
   // 更新选中的指标
   const updateSelectedIndicators = useCallback((selectedIndicators: SelectedIndicator[]) => {
-    updateConfig(prev => ({
-      ...getDefaultConfig(prev),
-      exchangeConfig: {
-        ...prev?.exchangeConfig,
-        exchange: prev?.exchangeConfig?.exchange || Exchange.BINANCE,
-        symbol: prev?.exchangeConfig?.symbol || '',
-        interval: prev?.exchangeConfig?.interval || '',
-        timeRange: prev?.exchangeConfig?.timeRange || { startDate: "", endDate: "" },
-        selectedIndicators
+    updateConfig(prev => {
+      const baseConfig = getDefaultConfig(prev);
+      return {
+        ...baseConfig,
+        exchangeModeConfig: {
+          selectedAccount: baseConfig.exchangeModeConfig?.selectedAccount || null,
+          selectedSymbol: baseConfig.exchangeModeConfig?.selectedSymbol || null,
+          selectedIndicators,
+          timeRange: baseConfig.exchangeModeConfig?.timeRange || { startDate: "", endDate: "" }
+        }
+      };
+    });
+  }, [updateConfig, getDefaultConfig]);
+
+  const updateTimeRange = useCallback((timeRange: TimeRange) => {
+    console.log('updateTimeRange', timeRange);
+    updateConfig(prev => {
+      // 检查是否需要更新，避免无意义的重复更新
+      const currentTimeRange = prev?.exchangeModeConfig?.timeRange;
+      if (currentTimeRange && 
+          currentTimeRange.startDate === timeRange.startDate && 
+          currentTimeRange.endDate === timeRange.endDate) {
+        return prev || getDefaultConfig();
       }
-    }));
+
+      const baseConfig = getDefaultConfig(prev);
+      return {
+        ...baseConfig,
+        exchangeModeConfig: {
+          selectedAccount: baseConfig.exchangeModeConfig?.selectedAccount || null,
+          selectedSymbol: baseConfig.exchangeModeConfig?.selectedSymbol || null,
+          selectedIndicators: baseConfig.exchangeModeConfig?.selectedIndicators || [],
+          timeRange
+        }
+      };
+    });
   }, [updateConfig, getDefaultConfig]);
 
   return {
@@ -129,8 +161,9 @@ export const useUpdateBacktestConfig = ({ id, initialConfig }: UseUpdateBacktest
     // 具体更新方法
     updateDataSource,
     updateExchangeConfig,
-    updateBacktestKlineInfo,
-    updateTimeRange,
-    updateSelectedIndicators
+    updateSelectedAccount,
+    updateSelectedSymbol,
+    updateSelectedIndicators,
+    updateTimeRange
   };
 }; 

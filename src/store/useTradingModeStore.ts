@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { TradeMode } from '@/types/node';
+import { TradeMode } from '@/types/strategy';
 
 interface TradingModeState {
   // 当前交易模式

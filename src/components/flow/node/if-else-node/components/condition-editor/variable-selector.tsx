@@ -96,7 +96,7 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
     const handleVariableChange = (variableValue: string) => {
         const [nodeId, handleId, valueKey] = variableValue.split('|');
         const selectedNode = variableItemList.find(item => item.nodeId === nodeId);
-        const selectedVar = selectedNode?.variables.find(v => v.handleId === handleId);
+        const selectedVar = selectedNode?.variables.find(v => v.outputHandleId === handleId);
 
         let variableId = 0;
         if (selectedVar) {
@@ -174,7 +174,7 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
                             >
                                 <div className="flex items-center justify-between w-full gap-1">
                                         <Badge variant="outline" className="flex items-center justify-center text-[10px] leading-none py-1 border-gray-400 rounded-sm">
-                                            {variable.indicatorId} | {variable.type.toUpperCase()}
+                                            {variable.indicatorId} | {variable.indicatorConfig.type.toUpperCase()}
                                         </Badge>
 
                                     <span className="font-medium text-gray-900 text-right">{varName}</span>
@@ -263,8 +263,8 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
                 variableItems.push(
                     <SelectItem 
                         className="text-xs font-normal py-2 px-3 hover:bg-purple-50 focus:bg-purple-50" 
-                        key={`${variable.handleId}_${variable.variable}`}
-                        value={generateOptionValue(selectedNodeId, variable.handleId, variable.variable)}
+                        key={`${variable.inputHandleId}_${variable.variable}`}
+                        value={generateOptionValue(selectedNodeId, variable.inputHandleId, variable.variable)}
                         textValue={`${variable.variableName} • ${variable.variable}`}
                     >
                         <div className="flex items-center justify-between w-full gap-2">

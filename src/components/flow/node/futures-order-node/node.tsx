@@ -25,7 +25,7 @@ const FuturesOrderNode: React.FC<NodeProps<FuturesOrderNodeType>> = ({id, data, 
     } = useStartNodeDataStore();
 
     // 回测模式的hooks
-    const { updateTimeRange } = useUpdateBacktestConfig({ 
+    const { updateTimeRange } = useUpdateBacktestConfig({
         id, 
         initialConfig: data?.backtestConfig
     });
@@ -47,7 +47,7 @@ const FuturesOrderNode: React.FC<NodeProps<FuturesOrderNodeType>> = ({id, data, 
     // 回测模式特有的时间范围同步逻辑
     useEffect(() => {
         if (tradingMode === TradeMode.BACKTEST) {
-            const newTimeRange = startNodeBacktestConfig?.exchangeConfig?.timeRange;
+            const newTimeRange = startNodeBacktestConfig?.exchangeModeConfig?.timeRange;
             if (newTimeRange && 
                 JSON.stringify(newTimeRange) !== JSON.stringify(lastTimeRangeRef.current)) {
                 lastTimeRangeRef.current = newTimeRange;

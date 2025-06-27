@@ -112,7 +112,7 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 
         const variableConfig: VariableConfig = {
             configId: editingConfig?.configId || 0, // 编辑时保持原有id，新增时由主组件设置
-            handleId: editingConfig?.handleId || '',
+            inputHandleId: editingConfig?.inputHandleId || '',
             symbol: symbol || null,
             getVariableType: triggerType,
             timerConfig,
