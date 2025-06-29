@@ -1,10 +1,17 @@
 import { useEffect, useRef } from "react";
-import { useBacktestStrategyDataStore } from "@/store/useBacktestStrategyDataStore";
-import { BacktestStrategyEvent } from "@/types/strategyEvent";
+import { useBacktestStrategyMarketDataStore } from "@/store/useBacktestStrategyDataStore";
+import { BacktestStrategyEvent } from "@/types/strategy-event/backtest-strategy-event";
+import { BACKTESET_STRATEGY_SSE_URL } from "./index";
+
+
+const supportBacktestEvents = [
+    "kline-update",
+]
 
 const useBacktestStrategyEventSSE = (enabled: boolean = true) => {
+  console.log("useBacktestStrategyEventSSE", enabled);
   const eventSourceRef = useRef<EventSource | null>(null);
-  const { addData, clearData } = useBacktestStrategyDataStore();
+  const { addMarketData, clearMarketData } = useBacktestStrategyMarketDataStore();
 
   useEffect(() => {
     // 如果未启用，则关闭现有连接并返回
@@ -17,21 +24,25 @@ const useBacktestStrategyEventSSE = (enabled: boolean = true) => {
     }
 
     // 创建 SSE 连接
-    const sse = new EventSource("http://localhost:3100/api/v1/sse/strategy/backtest");
+    const sse = new EventSource(BACKTESET_STRATEGY_SSE_URL);
     eventSourceRef.current = sse;
 
     // 处理接收到的消息
     sse.onmessage = (event) => {
       try {
         const strategyEvent = JSON.parse(event.data) as BacktestStrategyEvent;
-        const eventName = strategyEvent.event_name;
+        console.log("strategyEvent", strategyEvent);
+        const eventName = strategyEvent.event;
         
         // 确保事件名称有效
-        if (eventName === 'backtest-strategy-data-update') {
-            const cacheKeyStr = strategyEvent.cache_key;
-            const data = strategyEvent.data;
-          // 将事件添加到对应的存储中
-          addData(cacheKeyStr, data);
+        if (supportBacktestEvents.includes(eventName)) {
+          if (eventName === "kline-update") {
+            // 将事件添加到对应的存储中
+            const cacheKeyStr = strategyEvent.klineCacheKey;
+            const data = strategyEvent.kline;
+            addMarketData(cacheKeyStr, data);
+          }
+            
         } else {
           console.warn('未知的事件类型:', eventName);
         }
@@ -59,11 +70,11 @@ const useBacktestStrategyEventSSE = (enabled: boolean = true) => {
         eventSourceRef.current = null;
       }
     };
-  }, [enabled, addData]);
+  }, [enabled, addMarketData]);
 
   // 返回可用的操作
   return {
-    clearData, // 从 store 重新导出清除方法，方便直接使用
+    clearMarketData, // 从 store 重新导出清除方法，方便直接使用
     isConnected: !!eventSourceRef.current,
   };
 };

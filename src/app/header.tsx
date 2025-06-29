@@ -4,7 +4,7 @@ import { useSidebar } from '@/components/ui/sidebar'
 import useSidebarToggleStore from '@/store/use-sidebar-toggle-store'
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Minus, Square, X } from "lucide-react"
-import QuitAppConfitmBox from './quit-app-confitm-box'
+import QuitConfirmBox from '../quit-confirm-box'
 import { useNavigate } from 'react-router'
 import { useHeaderStore } from '@/store/useHeaderStore'
 
@@ -89,11 +89,16 @@ function WindowControl() {
         <Square className="w-3 h-3" />
       </Button>
       {/* 关闭 - 使用确认框包装 */}
-      <QuitAppConfitmBox>
+      <QuitConfirmBox
+        title="确认退出"
+        description="确认退出应用吗？所有未保存的更改可能会丢失。"
+        confirmText="确认"
+        cancelText="取消"
+      >
         <Button variant="ghost" size="icon" className="hover:text-red-400">
           <X className="w-3 h-3" />
         </Button>
-      </QuitAppConfitmBox>
+      </QuitConfirmBox>
     </div>
   )
 }

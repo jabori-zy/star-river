@@ -6,7 +6,7 @@ import { Observable } from "rxjs";
 import { binanceSocketClient } from "./binanceSocketClient";
 import { useState, useRef, useCallback } from "react";
 import { SciChartReact, SciChartNestedOverview, TResolvedReturnType } from "scichart-react";
-import { useBacktestStrategyDataStore } from "@/store/useBacktestStrategyDataStore";
+import { useBacktestStrategyMarketDataStore } from "@/store/useBacktestStrategyDataStore";
 import { useEffect } from "react";
 
 export type TRealtimePriceBar = {
@@ -43,8 +43,8 @@ export const drawChart = () => async (rootElement: string | HTMLDivElement) => {
 
 
 export default function RealtimeTickingStockCharts() {
-    const latestKlineData = useBacktestStrategyDataStore(
-        state => state.getLatestData('history_kline|metatrader5(Exness-MT5Trial5)|BTCUSDm|1m|2025-05-30|2025-05-31')
+    const latestKlineData = useBacktestStrategyMarketDataStore(
+        state => state.getLatestMarketData('history_kline|metatrader5(Exness-MT5Trial5)|BTCUSDm|1m|2025-05-30|2025-05-31')
     );
 
     // 处理数据更新
@@ -86,11 +86,11 @@ export default function RealtimeTickingStockCharts() {
                     //     subscription.unsubscribe();
                     // };
                 }}
-                style={{ display: "flex", flexDirection: "column", width: "100%", flex: "auto" }}
-                innerContainerProps={{ style: { flexBasis: "80%", flexGrow: 1, flexShrink: 1 } }}
+                style={{ display: "flex", flexDirection: "column", width: "100%", height: "100%" }}
+                innerContainerProps={{ style: { flex: "1", minHeight: 0 } }}
             >
                 <SciChartNestedOverview
-                    style={{ flexBasis: "3%", flexGrow: 1, flexShrink: 1 }}
+                    style={{ height: "72px", flexShrink: 0 }}
                     options={sciChartOverview}
                 />
             </SciChartReact>

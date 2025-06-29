@@ -20,7 +20,7 @@ const createWindow = () => {
 }
 
 // 创建回测窗口
-const createBacktestWindow = () => {
+const createBacktestWindow = (strategyId) => {
   const backtestWindow = new BrowserWindow({
     width: 1200,
     height: 800,
@@ -33,15 +33,18 @@ const createBacktestWindow = () => {
     }
   })
 
-  // 加载 backtest 页面
-  backtestWindow.loadURL('http://localhost:5173/backtest')
+  // 加载 backtest 页面，如果提供了strategyId则包含在URL中
+  const backtestUrl = strategyId 
+    ? `http://localhost:5173/backtest/${strategyId}`
+    : 'http://localhost:5173/backtest'
+  backtestWindow.loadURL(backtestUrl)
   
   return backtestWindow
 }
 
 // 监听来自渲染进程的消息
-ipcMain.handle('open-backtest-window', () => {
-  createBacktestWindow()
+ipcMain.handle('open-backtest-window', (event, strategyId) => {
+  createBacktestWindow(strategyId)
   return true
 })
 

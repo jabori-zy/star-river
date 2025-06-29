@@ -1,5 +1,6 @@
 import {Node} from '@xyflow/react'
 import { SelectedAccount, TimeRange, BacktestDataSource } from '@/types/strategy';
+import { Kline } from '@/types/kline';
 
 
 export type SelectedSymbol = {
@@ -7,7 +8,7 @@ export type SelectedSymbol = {
     handleId: string; // 出口id, 用于连接到其他节点
     symbol: string; // 交易对
     interval: string; // 时间周期
-    klineValue?: KlineData;
+    klineValue?: Kline;
 }
 
 // k线节点实盘交易配置

@@ -4,6 +4,7 @@ import "./i18n";
 import { useEffect, useState } from "react";
 import useSystemConfigStore from "./store/useSystemConfigStore";
 import { StagewiseToolbar } from "@stagewise/toolbar-react";
+import { Toaster } from "@/components/ui/sonner";
 
 function App() {
   const { loadSystemConfig } = useSystemConfigStore();
@@ -39,6 +40,19 @@ function App() {
       <StagewiseToolbar 
         config={{
           plugins: []
+        }}
+      />
+      <Toaster 
+        position="top-center" 
+        toastOptions={{
+          style: {
+            textAlign: 'center',
+            padding: '12px 12px',
+            maxWidth: '300px'
+          },
+          classNames: {
+            toast: 'flex justify-center items-center text-center'
+          }
         }}
       />
     </>

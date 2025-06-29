@@ -20,7 +20,7 @@ declare global {
   interface Window {
     require?: (module: string) => {
       ipcRenderer?: {
-        invoke: (channel: string) => Promise<unknown>;
+        invoke: (channel: string, ...args: unknown[]) => Promise<unknown>;
       };
     };
   }
@@ -256,11 +256,12 @@ function RunStrategyButton({ strategyId, tradeMode }: { strategyId: number | und
             // Electron 环境：打开新窗口
             const electronModule = window.require('electron');
             if (electronModule && electronModule.ipcRenderer) {
-              await electronModule.ipcRenderer.invoke('open-backtest-window');
+              await electronModule.ipcRenderer.invoke('open-backtest-window', strategyId);
             }
           } else {
             // 浏览器环境：打开新标签页
-            window.open('/backtest', '_blank', 'width=1200,height=800');
+            const backtestUrl = `/backtest/${strategyId}`;
+            window.open(backtestUrl, '_blank', 'width=1200,height=800');
           }
         } catch (error) {
           console.error('打开回测窗口失败:', error);

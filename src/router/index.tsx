@@ -4,7 +4,7 @@ import { createBrowserRouter } from "react-router";
 import TestPage from "../pages/TestPage/index";
 import StrategyPage from "../pages/strategy-page";
 import AccountPage from "../pages/AccountPage";
-import BacktestPage from "../pages/BacktestPage";
+import BacktestPage from "../pages/backtest-page";
 import Dashboard from "../pages/Dashboard";
 import SettingPage from "../pages/SettingPage";
 
@@ -40,7 +40,7 @@ const router = createBrowserRouter([
         element: <Login />,
     },
     {
-        path: "/backtest",
+        path: "/backtest/:strategyId?",
         element: <BacktestPage />,
     },
     {

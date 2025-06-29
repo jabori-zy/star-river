@@ -2,13 +2,15 @@ import { Strategy } from "@/types/strategy";
 import { toast } from "sonner";
 import axios from "axios";
 import { useStrategyStore } from "@/store/useStrategyStore";
+import { TradeMode } from "@/types/strategy";
+import { API_BASE_URL } from "./index";
+import { BacktestStrategyChartConfig } from "@/types/chart/backtest-chart";
 
 /**
  * 策略相关API服务
  */
 
 // 正确使用Vite环境变量的方式
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3100';
 const ROUTER = "strategy"
 const API_VERSION = "api/v1"
 
@@ -264,13 +266,42 @@ export async function deleteStrategy(
 /**
  * 获取策略订阅的缓存键
  */
-export async function getStrategyCacheKeys(strategyId: number): Promise<string[]> {
+export async function getStrategyCacheKeys(strategyId: number, tradeMode: TradeMode): Promise<string[]> {
   try {
-    const response = await axios.get(`${API_BASE_URL}/get_strategy_cache_keys?strategy_id=${strategyId}`);
+    const response = await axios.get(`${API_URL}/${strategyId}/cache-keys?trade_mode=${tradeMode}`);
     console.log("response", response.data["data"]);
     return response.data["data"];
   } catch (error) {
     console.error('获取策略订阅的缓存键错误:', error);
+    throw error;
+  }
+}
+
+
+export async function updateBacktestStrategyChartConfig(strategyId: number, chartConfig: BacktestStrategyChartConfig) {
+  try {
+    // /api/v1/strategy/backtest/{strategy_id}/chart_config
+    const requestBody = {
+      backtest_chart_config: chartConfig
+    };
+    const response = await axios.post(`${API_URL}/backtest/${strategyId}/chart_config`, requestBody);
+    return response.data;
+  } catch (error) {
+    console.error('更新策略图表配置错误:', error);
+    throw error;
+  }
+}
+
+export async function getBacktestStrategyChartConfig(strategyId: number): Promise<BacktestStrategyChartConfig> {
+  try {
+    // /api/v1/strategy/backtest/{strategy_id}/chart_config
+    const response = await axios.get(`${API_URL}/backtest/${strategyId}/chart_config`);
+    if (response.status !== 200) {
+      throw new Error(`获取策略图表配置失败: ${response.status}`);
+    }
+    return response.data["data"];
+  } catch (error) {
+    console.error('获取策略图表配置错误:', error);
     throw error;
   }
 }
