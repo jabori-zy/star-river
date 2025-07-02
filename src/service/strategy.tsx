@@ -6,11 +6,7 @@ import { TradeMode } from "@/types/strategy";
 import { API_BASE_URL } from "./index";
 import { BacktestStrategyChartConfig } from "@/types/chart/backtest-chart";
 
-/**
- * 策略相关API服务
- */
 
-// 正确使用Vite环境变量的方式
 const ROUTER = "strategy"
 const API_VERSION = "api/v1"
 

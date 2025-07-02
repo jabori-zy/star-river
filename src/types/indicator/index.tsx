@@ -7,6 +7,7 @@ export enum IndicatorType {
     SMA = "sma",
     EMA = "ema",
     BOLL = "boll",
+    MACD = "macd",
 }
 
 

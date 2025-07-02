@@ -34,7 +34,8 @@ export interface AppThemeBase {
 }
 
 export class SciChart2022AppTheme implements AppThemeBase {
-    SciChartJsTheme = new SciChartJSLightTheme();
+    // SciChartJsTheme = new SciChartJSLightTheme();
+    SciChartJsTheme = new SciChartJsNavyTheme();
 
     // General colors
     ForegroundColor = "#FFFFFF";

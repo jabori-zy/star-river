@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import AddChartButton from "../add-chart-button";
 import LayoutControl from "../layout-control";
 import { BacktestStrategyChartConfig, LayoutMode } from "@/types/chart/backtest-chart";
+import { playOne } from "@/service/strategy-control/backtest-strategy-control";
 
 
 interface BacktestControlProps {
@@ -40,7 +41,7 @@ const BacktestControl: React.FC<BacktestControlProps> = ({
                 <Button variant="outline" onClick={() => setIsRunning(!isRunning)}>
                     {isRunning ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
                 </Button>
-                <Button variant="outline" disabled={isRunning}>
+                <Button variant="outline" disabled={isRunning} onClick={() => playOne(strategyId)}>
                     <ArrowRightToLine className="w-4 h-4" />
                 </Button>
             </div>

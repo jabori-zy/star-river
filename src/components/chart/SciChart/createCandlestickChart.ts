@@ -52,21 +52,14 @@ import {
 
 import { appTheme } from "./theme";
 import { VolumePaletteProvider } from "./volumePaletteProvider";
-
-export type TPriceBar = {
-    date: number;
-    open: number;
-    high: number;
-    low: number;
-    close: number;
-    volume: number;
-};
+import { Kline } from "@/types/kline";
 
 // rootElement是HTML div元素
 
 export const createCandlestickChart = async (rootElement: string | HTMLDivElement) => {
-    // 使用group，将所有图表组合在一起
-    const verticalGroup = new SciChartVerticalGroup();
+
+    // 添加K线图
+    
 
     // 创建SciChartSurface
     const { sciChartSurface, wasmContext } = await SciChartSurface.create(rootElement, {
@@ -215,6 +208,10 @@ export const createCandlestickChart = async (rootElement: string | HTMLDivElemen
             crosshairStrokeThickness: 0.5,
             tooltipLegendTemplate: getTooltipLegendTemplate,
         })
+        
+
+        // 将chartSurface添加到group中
+
     );
 
     // 添加一条水平线注释，显示最新价格
@@ -230,32 +227,32 @@ export const createCandlestickChart = async (rootElement: string | HTMLDivElemen
 
 
     // 更新最新价格注释的位置和颜色
-    const updateLatestPriceAnnotation = (priceBar: TPriceBar) => {
+    const updateLatestPriceAnnotation = (kline: Kline) => {
         latestPriceAnnotation.isHidden = false;
-        latestPriceAnnotation.y1 = priceBar.close;
-        latestPriceAnnotation.stroke = priceBar.close > priceBar.open ? appTheme.VividGreen : appTheme.MutedRed;
+        latestPriceAnnotation.y1 = kline.close;
+        latestPriceAnnotation.stroke = kline.close > kline.open ? appTheme.VividGreen : appTheme.MutedRed;
         latestPriceAnnotation.axisLabelFill = latestPriceAnnotation.stroke;
     };
 
 
     // 设置蜡烛图数据
-    const setData = (symbolName: string, priceBars: TPriceBar[]) => {
-        console.log(`createCandlestickChart(): Setting data for ${symbolName}, ${priceBars.length} candles`);
+    const setData = (symbolName: string, klines: Kline[]) => {
+        console.log(`createCandlestickChart(): Setting data for ${symbolName}, ${klines.length} candles`);
 
-        // 将 TPriceBar 映射为 scichart 期望的结构化数组
+        // 将 Kline 映射为 scichart 期望的结构化数组
         const xValues: number[] = [];
         const openValues: number[] = [];
         const highValues: number[] = [];
         const lowValues: number[] = [];
         const closeValues: number[] = [];
         const volumeValues: number[] = [];
-        priceBars.forEach((priceBar: TPriceBar) => {
-            xValues.push(priceBar.date);
-            openValues.push(priceBar.open);
-            highValues.push(priceBar.high);
-            lowValues.push(priceBar.low);
-            closeValues.push(priceBar.close);
-            volumeValues.push(priceBar.volume);
+        klines.forEach((kline: Kline) => {
+            xValues.push(kline.timestamp);
+            openValues.push(kline.open);
+            highValues.push(kline.high);
+            lowValues.push(kline.low);
+            closeValues.push(kline.close);
+            volumeValues.push(kline.volume);
         });
 
 
@@ -269,7 +266,7 @@ export const createCandlestickChart = async (rootElement: string | HTMLDivElemen
         candleDataSeries.dataSeriesName = symbolName;
 
         // 更新最新价格注释
-        updateLatestPriceAnnotation(priceBars[priceBars.length - 1]);
+        updateLatestPriceAnnotation(klines[klines.length - 1]);
     };
 
         // 回测相关的配置
@@ -292,9 +289,9 @@ export const createCandlestickChart = async (rootElement: string | HTMLDivElemen
             }
         };
 
-    // 处理新交易
-    const onNewTrade = (priceBar: TPriceBar) => {
-        const timestamp = priceBar.date / 1000;
+    // 处理新数据
+    const onNewTrade = (kline: Kline) => {
+        const timestamp = kline.timestamp;
         
         // 记录第一根K线的时间戳
         if (firstCandleTimestamp === null) {
@@ -303,21 +300,21 @@ export const createCandlestickChart = async (rootElement: string | HTMLDivElemen
         // 判断当前是否有数据
         if (candleDataSeries.count() === 0) {
             // 没有数据，直接添加
-            candleDataSeries.append(priceBar.date / 1000, priceBar.open, priceBar.high, priceBar.low, priceBar.close);
-            volumeDataSeries.append(priceBar.date / 1000, priceBar.volume);
+            candleDataSeries.append(kline.timestamp, kline.open, kline.high, kline.low, kline.close);
+            volumeDataSeries.append(kline.timestamp, kline.volume);
         } else {
             // 有数据，判断是否是新的蜡烛
             const currentIndex = candleDataSeries.count() - 1;
             
             const getLatestCandleDate = candleDataSeries.getNativeXValues().get(currentIndex);
-            if (priceBar.date / 1000 === getLatestCandleDate) {
+            if (kline.timestamp === getLatestCandleDate) {
                 // 情况是交易所发送一个已经在图表上的蜡烛，更新它
-                candleDataSeries.update(currentIndex, priceBar.open, priceBar.high, priceBar.low, priceBar.close);
-                volumeDataSeries.update(currentIndex, priceBar.volume);
+                candleDataSeries.update(currentIndex, kline.open, kline.high, kline.low, kline.close);
+                volumeDataSeries.update(currentIndex, kline.volume);
             } else {
                 // 情况是交易所发送一个新的蜡烛，追加它
-                candleDataSeries.append(priceBar.date / 1000, priceBar.open, priceBar.high, priceBar.low, priceBar.close);
-                volumeDataSeries.append(priceBar.date / 1000, priceBar.volume);
+                candleDataSeries.append(kline.timestamp, kline.open, kline.high, kline.low, kline.close);
+                volumeDataSeries.append(kline.timestamp, kline.volume);
 
                 const candleCount = candleDataSeries.count();
                 // 视图控制逻辑
@@ -342,7 +339,7 @@ export const createCandlestickChart = async (rootElement: string | HTMLDivElemen
                 // 最新蜡烛是否在视图中？
                 // if (xAxis.visibleRange.max > getLatestCandleDate) {
                 //     // 如果是，则将x轴移动一个蜡烛
-                //     const dateDifference = priceBar.date / 1000 - getLatestCandleDate;
+                //     const dateDifference = kline.date / 1000 - getLatestCandleDate;
                 //     const shiftedRange = new NumberRange(
                 //         xAxis.visibleRange.min + dateDifference,
                 //         xAxis.visibleRange.max + dateDifference
@@ -353,7 +350,7 @@ export const createCandlestickChart = async (rootElement: string | HTMLDivElemen
             }
         }
         // 更新最新价格线注释
-        updateLatestPriceAnnotation(priceBar);
+        updateLatestPriceAnnotation(kline);
     };
 
 

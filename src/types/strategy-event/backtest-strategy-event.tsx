@@ -1,4 +1,7 @@
 import {CacheKeyStr} from "@/types/cache";
+import { Kline } from "@/types/kline";
+import { IndicatorValue } from "@/types/indicator";
+
 
 
 
@@ -20,7 +23,7 @@ export type LiveStrategyEvent = {
 //     timestamp: number;
 // }
 
-export type BacktestStrategyEvent = klineUpdateEvent;
+export type BacktestStrategyEvent = klineUpdateEvent | indicatorUpdateEvent;
 
 
 export type BaseEventProps = {
@@ -37,5 +40,13 @@ export type klineUpdateEvent = BaseEventProps & {
     fromNodeHandleId: string;
     klineCacheIndex: number;
     klineCacheKey: CacheKeyStr;
-    kline: number[];
+    kline: Kline[];
+}
+
+export type indicatorUpdateEvent = BaseEventProps & {
+    fromNodeId: string;
+    fromNodeName: string;
+    fromNodeHandleId: string;
+    indicatorCacheKey: CacheKeyStr;
+    indicatorSeries: IndicatorValue[];
 }

@@ -1,5 +1,8 @@
-import RealtimeTickingStockCharts from "@/components/chart/SciChart";
+// import RealtimeTickingStockCharts from "@/components/chart/SciChart";
 import { Ellipsis, Trash2 } from "lucide-react";
+import StockCharts from "@/components/chart/SciChart/stock-charts";
+import SyncMultiChart from "@/components/chart/Demo";
+import RealtimeTickingStockCharts from "@/components/chart/SciChart";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -36,7 +39,16 @@ export default function ChartCard({ chartConfig, onDelete }: ChartCardProps) {
                 </DropdownMenu>
             </div>
             <div className="w-full h-full overflow-hidden  bg-white" >
-                <RealtimeTickingStockCharts />
+                {/* <RealtimeTickingStockCharts 
+                    chartId={chartConfig.id} 
+                    klineCacheKeyStr={chartConfig.klineCacheKeyStr} 
+                    indicatorCacheKeyStrs={chartConfig.indicatorCacheKeyStrs} /> */}
+                <StockCharts 
+                    chartId={chartConfig.id} 
+                    klineKeyStr={chartConfig.klineCacheKeyStr}
+                    indicatorKeyStrs={chartConfig.indicatorCacheKeyStrs} 
+                />
+
             </div>
 
         </div>

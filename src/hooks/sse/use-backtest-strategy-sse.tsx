@@ -1,17 +1,22 @@
 import { useEffect, useRef } from "react";
-import { useBacktestStrategyMarketDataStore } from "@/store/useBacktestStrategyDataStore";
-import { BacktestStrategyEvent } from "@/types/strategy-event/backtest-strategy-event";
+import { useBacktestStrategyMarketDataStore } from "@/store/use-backtest-strategy-data-store";
+import { BacktestStrategyEvent, indicatorUpdateEvent, klineUpdateEvent } from "@/types/strategy-event/backtest-strategy-event";
 import { BACKTESET_STRATEGY_SSE_URL } from "./index";
+import { useBacktestIndicatorDataStore } from "@/store/backtest-replay-store/use-backtest-indicator-store";
+import { useBacktestKlineDataStore } from "@/store/backtest-replay-store/use-backtest-kline-store";
 
 
 const supportBacktestEvents = [
     "kline-update",
+    "indicator-update"
 ]
 
 const useBacktestStrategyEventSSE = (enabled: boolean = true) => {
-  console.log("useBacktestStrategyEventSSE", enabled);
+  // console.log("useBacktestStrategyEventSSE", enabled);
   const eventSourceRef = useRef<EventSource | null>(null);
   const { addMarketData, clearMarketData } = useBacktestStrategyMarketDataStore();
+  const { addIndicatorData, clearIndicatorData } = useBacktestIndicatorDataStore();
+  const { addKlineData, clearKlineData } = useBacktestKlineDataStore();
 
   useEffect(() => {
     // 如果未启用，则关闭现有连接并返回
@@ -31,16 +36,26 @@ const useBacktestStrategyEventSSE = (enabled: boolean = true) => {
     sse.onmessage = (event) => {
       try {
         const strategyEvent = JSON.parse(event.data) as BacktestStrategyEvent;
-        console.log("strategyEvent", strategyEvent);
+        // console.log("strategyEvent", strategyEvent);
         const eventName = strategyEvent.event;
         
         // 确保事件名称有效
         if (supportBacktestEvents.includes(eventName)) {
           if (eventName === "kline-update") {
             // 将事件添加到对应的存储中
-            const cacheKeyStr = strategyEvent.klineCacheKey;
-            const data = strategyEvent.kline;
+
+            const cacheKeyStr = (strategyEvent as klineUpdateEvent).klineCacheKey;
+            const data = (strategyEvent as klineUpdateEvent).kline;
             addMarketData(cacheKeyStr, data);
+            addKlineData(cacheKeyStr, data);
+          }
+          if (eventName === "indicator-update") {
+            // 将事件添加到对应的存储中
+            const cacheKeyStr = (strategyEvent as indicatorUpdateEvent).indicatorCacheKey;
+            const data = (strategyEvent as indicatorUpdateEvent).indicatorSeries;
+            console.log("添加新指标数据", cacheKeyStr, data);
+            addMarketData(cacheKeyStr, data);
+            addIndicatorData(cacheKeyStr, data);
           }
             
         } else {
