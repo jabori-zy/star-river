@@ -251,6 +251,7 @@ const initTestChart = async (rootElement: string | HTMLDivElement, indicatorKeyS
         drawMajorBands: false,
         drawMajorGridLines: false,
         drawMinorGridLines: false,
+        cursorLabelFormat: ENumericFormat.Date_DDMMHHMM,
         // autoRange: EAutoRange.Always,
     });
     sciChartSurface.xAxes.add(xAxis);
@@ -354,7 +355,7 @@ const initTestChart = async (rootElement: string | HTMLDivElement, indicatorKeyS
         new ZoomPanModifier({ enableZoom: true }),
         new MouseWheelZoomModifier(),
         new CursorModifier({
-            crosshairStroke: appTheme.Gray,
+            crosshairStroke: appTheme.Black,
             axisLabelFill: appTheme.Black,
             //设置宽度
             crosshairStrokeThickness: 0.5,
@@ -363,6 +364,8 @@ const initTestChart = async (rootElement: string | HTMLDivElement, indicatorKeyS
         new RolloverModifier({
             modifierGroup: "cursorGroup",
             showTooltip: false,
+            rolloverLineStroke: appTheme.Black,
+            rolloverLineStrokeThickness: 0.5,
             tooltipLegendTemplate: getRolloverLegendTemplate,
         })
     );
