@@ -392,18 +392,12 @@ const initTestChart = async (rootElement: string | HTMLDivElement, indicatorKeyS
         firstDataTimestamp = updatedContext.firstDataTimestamp;
     };
 
-    const setIndicatorName = () => {
-        // 预留给将来的功能扩展
-    };
-
     return {
         sciChartSurface,
         wasmContext,
         controls: {
             onNewData,
-            setIndicatorName,
             getDataSeries: () => dataSeries,
-            getRenderableSeries: () => renderableSeries,
             getIndicatorConfig: () => indicatorChartConfig
         }
     };

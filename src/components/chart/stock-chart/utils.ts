@@ -94,7 +94,7 @@ export const getRolloverLegendTemplate = (seriesInfos: SeriesInfo[], _svgAnnotat
     seriesInfos.forEach((seriesInfo, index) => {
         const y = 20 + index * 20;
         const textColor = seriesInfo.stroke;
-        let legendText = seriesInfo.formattedYValue;
+        let legendText = `Time=${new Date(seriesInfo.xValue * 1000).toLocaleString()} value=${seriesInfo.formattedYValue}`;
         if (seriesInfo.dataSeriesType === EDataSeriesType.Ohlc) {
             const o = seriesInfo as OhlcSeriesInfo;
             legendText = `Time=${new Date(o.xValue * 1000).toLocaleString()} Open=${o.formattedOpenValue} High=${o.formattedHighValue} Low=${o.formattedLowValue} Close=${o.formattedCloseValue}`;

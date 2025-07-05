@@ -5,18 +5,24 @@ import { BacktestStrategyChartConfig } from '@/types/chart/backtest-chart';
 
 interface ChartContainerProps {
   strategyChartConfig: BacktestStrategyChartConfig;
+  strategyId: number;
   children?: React.ReactNode;
   onDelete: (chartId: number) => void;
+  onUpdate: (chartId: number, klineCacheKeyStr: string, chartName: string) => void;
+  onAddIndicator: (chartId: number, indicatorKey: string) => void;
 }
 
-export default function ChartContainer({ strategyChartConfig, children, onDelete }: ChartContainerProps) {
+export default function ChartContainer({ strategyChartConfig, strategyId, children, onDelete, onUpdate, onAddIndicator }: ChartContainerProps) {
   // 如果有children，使用children；否则根据strategyChartConfig.charts生成ChartCard
   const chartElements = children ? React.Children.toArray(children) : 
     strategyChartConfig.charts.map((chartConfig) => (
       <ChartCard 
         key={chartConfig.id} 
         chartConfig={chartConfig} 
+        strategyId={strategyId}
         onDelete={onDelete} 
+        onUpdate={onUpdate}
+        onAddIndicator={onAddIndicator}
       />
     ));
 

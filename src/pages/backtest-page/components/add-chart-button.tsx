@@ -1,8 +1,7 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, PlusCircle } from "lucide-react";
-import ChartConfigDialog from "./chart-config-dialog";
+import { BacktestStrategyChartConfig } from "@/types/chart/backtest-chart";
 
 interface AddChartButtonProps {
     onAddChart: (klineCacheKeyStr: string, indicatorCacheKeyStrs: string[], chartName: string) => void;
@@ -10,6 +9,7 @@ interface AddChartButtonProps {
     alertMessage?: string;
     disabled?: boolean;
     strategyId?: number;
+    strategyChartConfig: BacktestStrategyChartConfig;
 }
 
 const AddChartButton = ({ 
@@ -17,18 +17,27 @@ const AddChartButton = ({
     showAlert = false, 
     alertMessage = "", 
     disabled = false,
-    strategyId = 1 // 默认策略ID，应该从props传入
+    strategyId = 1,
+    strategyChartConfig
 }: AddChartButtonProps) => {
-    const [dialogOpen, setDialogOpen] = useState(false);
 
-    // 打开添加图表对话框
-    const openAddChartDialog = () => {
-        setDialogOpen(true);
-    };
+    // 处理添加图表
+    const handleAddChart = () => {
+        if (strategyChartConfig.charts.length === 0) {
+            // 如果没有图表，显示错误或提示
+            console.warn('没有可复制的图表配置');
+            return;
+        }
 
-    // 处理图表配置确认
-    const handleChartConfigConfirm = (klineCacheKeyStr: string, indicatorCacheKeyStrs: string[], chartName: string) => {
-        onAddChart(klineCacheKeyStr, indicatorCacheKeyStrs, chartName);
+        // 复制最后一个图表的配置
+        const lastChart = strategyChartConfig.charts[strategyChartConfig.charts.length - 1];
+        const newChartName = `${lastChart.chartName}`;
+        
+        onAddChart(
+            lastChart.klineCacheKeyStr,
+            lastChart.indicatorCacheKeyStrs,
+            newChartName
+        );
     };
 
     return (
@@ -44,21 +53,13 @@ const AddChartButton = ({
                 <Button 
                     variant="outline" 
                     className="flex items-center gap-1" 
-                    onClick={openAddChartDialog}
-                    disabled={disabled}
+                    onClick={handleAddChart}
+                    disabled={disabled || strategyChartConfig.charts.length === 0}
                 >
                     <PlusCircle className="h-4 w-4" />
                     添加图表
                 </Button>
             </div>
-
-            {/* 图表配置对话框 */}
-            <ChartConfigDialog
-                open={dialogOpen}
-                onOpenChange={setDialogOpen}
-                onConfirm={handleChartConfigConfirm}
-                strategyId={strategyId}
-            />
         </>
     );
 };

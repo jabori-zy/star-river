@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router";
 import useBacktestStrategySSE from "../../hooks/sse/use-backtest-strategy-sse";
 import BacktestWindowHeader from "../../components/backtest/backtest-window-header";
@@ -11,6 +11,10 @@ import { AlertCircle, ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getBacktestStrategyChartConfig, updateBacktestStrategyChartConfig } from "@/service/strategy";
 import { toast } from "sonner";
+import { getStrategyCacheKeys } from "@/service/strategy";
+import { TradeMode } from "@/types/strategy";
+import { BacktestKlineCacheKey, BacktestIndicatorCacheKey } from "@/types/cache";
+import { parseCacheKey } from "@/utils/parseCacheKey";
 
 export default function BacktestPage() {
     const navigate = useNavigate();
@@ -48,17 +52,51 @@ export default function BacktestPage() {
             console.log('从后端获取的配置:', config);
             
             // 如果后端返回的配置有效，则使用后端配置，否则使用默认配置
-            if (config && config.charts) {
+            if (config && config.charts && config.charts.length > 0) {
                 setStrategyChartConfig({
                     charts: config.charts || [],
                     layout: config.layout || 'vertical'
                 });
             } else {
-                // 使用默认配置
-                setStrategyChartConfig({
-                    charts: [],
-                    layout: 'vertical'
-                });
+                // 图表配置为空，尝试自动创建默认图表
+                const cacheKeys = await fetchCacheKeys();
+                if (cacheKeys) {
+                    // 过滤出kline key（BacktestKlineCacheKey没有indicatorType属性）
+                    const klineKeys = Object.keys(cacheKeys).filter(key => {
+                        const parsedKey = cacheKeys[key];
+                        return !('indicatorType' in parsedKey);
+                    });
+                    
+                    if (klineKeys.length > 0) {
+                        // 使用第一个kline key创建默认图表
+                        const firstKlineKey = klineKeys[0];
+                        const klineData = cacheKeys[firstKlineKey] as BacktestKlineCacheKey;
+                        const defaultChart = {
+                            id: 1,
+                            chartName: `${klineData.symbol} ${klineData.interval}`,
+                            klineCacheKeyStr: firstKlineKey,
+                            indicatorCacheKeyStrs: []
+                        };
+                        
+                        setStrategyChartConfig({
+                            charts: [defaultChart],
+                            layout: 'vertical'
+                        });
+                        console.log('自动创建默认图表:', defaultChart);
+                    } else {
+                        // 没有kline key，使用空配置
+                        setStrategyChartConfig({
+                            charts: [],
+                            layout: 'vertical'
+                        });
+                    }
+                } else {
+                    // 无法获取缓存键，使用空配置
+                    setStrategyChartConfig({
+                        charts: [],
+                        layout: 'vertical'
+                    });
+                }
             }
             setConfigLoaded(true);
         } catch (error) {
@@ -99,6 +137,25 @@ export default function BacktestPage() {
             setIsSaving(false);
         }
     };
+
+    // 获取策略缓存键
+    const fetchCacheKeys = useCallback(async () => {
+        try {
+            if (!strategyId) return;
+            const keys = await getStrategyCacheKeys(strategyId, TradeMode.BACKTEST);
+            const parsedKeyMap: Record<string, BacktestKlineCacheKey | BacktestIndicatorCacheKey> = {};
+            
+            keys.forEach(keyString => {
+                parsedKeyMap[keyString] = parseCacheKey(keyString) as BacktestKlineCacheKey | BacktestIndicatorCacheKey;
+            });
+            console.log("parsedKeyMap", parsedKeyMap);
+            return parsedKeyMap;
+
+        } catch (error) {
+            console.error('获取策略缓存键失败:', error);
+            return {};
+        }
+    }, [strategyId]);
 
     // 监听路径变化
     useEffect(() => {
@@ -194,6 +251,30 @@ export default function BacktestPage() {
         }));
     };
 
+    // 更新图表的kline配置
+    const onUpdateChart = (chartId: number, klineCacheKeyStr: string, chartName: string) => {
+        setStrategyChartConfig(prev => ({
+            ...prev,
+            charts: prev.charts.map(chart => 
+                chart.id === chartId 
+                    ? { ...chart, klineCacheKeyStr, chartName, indicatorCacheKeyStrs: [] }
+                    : chart
+            )
+        }));
+    };
+
+    // 添加指标到图表
+    const onAddIndicator = (chartId: number, indicatorKey: string) => {
+        setStrategyChartConfig(prev => ({
+            ...prev,
+            charts: prev.charts.map(chart => 
+                chart.id === chartId 
+                    ? { ...chart, indicatorCacheKeyStrs: [...chart.indicatorCacheKeyStrs, indicatorKey] }
+                    : chart
+            )
+        }));
+    };
+
     return (
         <div className="h-screen flex flex-col overflow-hidden bg-gray-100">
             <BacktestWindowHeader strategyName={`策略 ${strategyId} 回测`} />
@@ -205,13 +286,23 @@ export default function BacktestPage() {
                     <AddChartButton 
                         onAddChart={addCharts} 
                         strategyId={strategyId}
+                        strategyChartConfig={strategyChartConfig}
+                        showAlert={true}
+                        alertMessage="当前没有图表，请先从策略页面添加初始图表配置"
+                        disabled={true}
                     />
                 </div>
                 
             ) : (
                 <div className="flex flex-col h-full overflow-hidden">
                     <div className="flex-1 overflow-hidden m-2 rounded-lg border border-border shadow-md bg-white">
-                        <ChartContainer strategyChartConfig={strategyChartConfig} onDelete={onDelete} />
+                        <ChartContainer 
+                            strategyChartConfig={strategyChartConfig} 
+                            strategyId={strategyId!}
+                            onDelete={onDelete} 
+                            onUpdate={onUpdateChart}
+                            onAddIndicator={onAddIndicator}
+                        />
                     </div>
                     <div className="flex items-center p-2 bg-white border-t">
                         <BacktestControl 

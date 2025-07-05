@@ -1,11 +1,11 @@
-import { SciChartReact, TResolvedReturnType } from "scichart-react";
-import { AxisBase2D, SciChartSurface } from "scichart";
+import { SciChartReact, TResolvedReturnType} from "scichart-react";
+import { AxisBase2D, SciChartSurface, XyDataSeries } from "scichart";
 import initIndicatorChart from "./init-indicator-chart";
-import { useBacktestStrategyMarketDataStore } from "@/store/use-backtest-strategy-data-store";
 import { useEffect, useRef } from "react";
 import { IndicatorValue } from "@/types/indicator";
 import { Button } from "@/components/ui/button";
 import { useBacktestIndicatorDataStore } from "@/store/backtest-replay-store/use-backtest-indicator-store";
+import { IndicatorChartConfig } from "@/types/indicator/indicator-chart-config";
 
 interface IndicatorChartProps {
     indicatorKeyStr: string;
@@ -22,10 +22,8 @@ export default function IndicatorChart({ indicatorKeyStr, indicatorName, addSurf
 
     const chartControlsRef = useRef<{
         onNewData: (data: IndicatorValue) => void;
-        setIndicatorName: (name: string) => void;
-        getDataSeries: () => any[];
-        getRenderableSeries: () => any[];
-        getIndicatorConfig: () => any;
+        getDataSeries: () => XyDataSeries[];
+        getIndicatorConfig: () => IndicatorChartConfig;
     }>(undefined);  
 
     useEffect(() => {
@@ -56,9 +54,6 @@ export default function IndicatorChart({ indicatorKeyStr, indicatorName, addSurf
                     const { sciChartSurface, controls } = initResult;
                     chartControlsRef.current = controls;
                     // 设置指标名称
-                    if (controls.setIndicatorName) {
-                        controls.setIndicatorName(indicatorName);
-                    }
                     addSurfaceToGroup(sciChartSurface);
                     addAxis(sciChartSurface.xAxes.get(0));
                 }}

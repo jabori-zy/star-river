@@ -54,6 +54,7 @@ export const initKlineChart = async (rootElement: string | HTMLDivElement, kline
         drawMajorGridLines: false,
         drawMinorGridLines: false,
         drawLabels: false,
+        cursorLabelFormat: ENumericFormat.Date_DDMMHHMM, // 设置光标标签格式
         // autoRange: EAutoRange.Always,
     });
     sciChartSurface.xAxes.add(xAxis);
@@ -227,15 +228,19 @@ export const initKlineChart = async (rootElement: string | HTMLDivElement, kline
         new ZoomPanModifier({ enableZoom: true }),
         new MouseWheelZoomModifier(),
         new CursorModifier({
-            crosshairStroke: appTheme.Gray,
+            crosshairStroke: appTheme.Black,
             axisLabelFill: appTheme.Black,
             //设置宽度
             crosshairStrokeThickness: 0.5,
+            showAxisLabels: true, // 显示x轴的标签
             // tooltipLegendTemplate: getCursorTooltipLegendTemplate,
         }),
         new RolloverModifier({
+            rolloverLineStroke: appTheme.Black,
+            rolloverLineStrokeThickness: 0.5,
             modifierGroup: "cursorGroup",
             showTooltip: false,
+
             tooltipLegendTemplate: getRolloverLegendTemplate,
         })
     );

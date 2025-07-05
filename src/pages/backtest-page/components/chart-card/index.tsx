@@ -1,9 +1,10 @@
 // import RealtimeTickingStockCharts from "@/components/chart/SciChart";
-import { Ellipsis, Trash2 } from "lucide-react";
+import { Ellipsis, Trash2, Search, ChartSpline } from "lucide-react";
 import StockCharts from "@/components/chart/stock-chart";
-import StockChart from "@/components/chart/stock-chart-new";
+// import StockChart from "@/components/chart/stock-chart-new";
 // import SyncMultiChart from "@/components/chart/Demo";
 // import RealtimeTickingStockCharts from "@/components/chart/SciChart";
+import { Button } from "@/components/ui/button";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -11,22 +12,56 @@ import {
     DropdownMenuTrigger,
   } from "@/components/ui/dropdown-menu"
 import { BacktestChart } from "@/types/chart/backtest-chart";
+import SymbolListDialog from "../symbol-list-dialog";
+import IndicatorListDialog from "../indicator-list-dialog";
+import { useState } from "react";
 
 interface ChartCardProps {
     chartConfig: BacktestChart;
+    strategyId: number;
     onDelete: (chartId: number) => void;
+    onUpdate: (chartId: number, klineCacheKeyStr: string, chartName: string) => void;
+    onAddIndicator: (chartId: number, indicatorKey: string) => void;
 }
 
+export default function ChartCard({ chartConfig, strategyId, onDelete, onUpdate, onAddIndicator }: ChartCardProps) {
+    const [isSymbolDialogOpen, setIsSymbolDialogOpen] = useState(false);
+    const [isIndicatorDialogOpen, setIsIndicatorDialogOpen] = useState(false);
 
+    // 处理kline选择
+    const handleKlineSelect = (klineCacheKeyStr: string, chartName: string) => {
+        onUpdate(chartConfig.id, klineCacheKeyStr, chartName);
+    };
 
-export default function ChartCard({ chartConfig, onDelete }: ChartCardProps) {
+    // 处理指标添加
+    const handleIndicatorAdd = (indicatorKey: string) => {
+        onAddIndicator(chartConfig.id, indicatorKey);
+    };
+
     return (
         <div className="flex flex-col h-full overflow-hidden">
-            
             <div className="flex items-center justify-between px-2 mb-2">
-                <div className="text-sm font-medium">
-                    {chartConfig.chartName}
+                <div className="flex flex-row items-center gap-2">
+                    <Button 
+                        className="flex flex-row items-center gap-2 text-sm font-medium" 
+                        variant="ghost"
+                        onClick={() => setIsSymbolDialogOpen(true)}
+                    >
+                        <Search className="w-4 h-4 text-gray-500" />
+                        {chartConfig.chartName}
+                    </Button>
+                    {/* 纵向的分界线 */}
+                    <div className="w-[1px] h-4 bg-gray-300" />
+                    <Button 
+                        className="flex flex-row items-center gap-2 text-sm font-medium" 
+                        variant="ghost"
+                        onClick={() => setIsIndicatorDialogOpen(true)}
+                    >
+                        <ChartSpline className="w-4 h-4 text-gray-500" />
+                        指标
+                    </Button>
                 </div>
+                
                 <DropdownMenu>
                     <DropdownMenuTrigger>
                         <Ellipsis />
@@ -45,9 +80,26 @@ export default function ChartCard({ chartConfig, onDelete }: ChartCardProps) {
                     klineKeyStr={chartConfig.klineCacheKeyStr}
                     indicatorKeyStrs={chartConfig.indicatorCacheKeyStrs} 
                 />
-                {/* <StockChart /> */}
             </div>
+
+            {/* Symbol选择Dialog */}
+            <SymbolListDialog
+                open={isSymbolDialogOpen}
+                onOpenChange={setIsSymbolDialogOpen}
+                strategyId={strategyId}
+                selectedKlineCacheKeyStr={chartConfig.klineCacheKeyStr}
+                onKlineSelect={handleKlineSelect}
+            />
+
+            {/* Indicator添加Dialog */}
+            <IndicatorListDialog
+                open={isIndicatorDialogOpen}
+                onOpenChange={setIsIndicatorDialogOpen}
+                strategyId={strategyId}
+                selectedKlineCacheKeyStr={chartConfig.klineCacheKeyStr}
+                selectedIndicatorKeys={chartConfig.indicatorCacheKeyStrs}
+                onIndicatorAdd={handleIndicatorAdd}
+            />
         </div>
-        
     )
 }

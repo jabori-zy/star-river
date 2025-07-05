@@ -57,6 +57,7 @@ const BacktestControl: React.FC<BacktestControlProps> = ({
                 <AddChartButton 
                     onAddChart={onAddChart} 
                     strategyId={strategyId}
+                    strategyChartConfig={strategyChartConfig}
                 />
                 <Button variant="default" onClick={onSaveChart} disabled={isSaving}>
                     {isSaving ? (
