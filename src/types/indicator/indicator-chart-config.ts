@@ -3,6 +3,7 @@ import { IndicatorValue} from "./indicatorValue";
 import { parseCacheKey } from "@/utils/parseCacheKey";
 import { IndicatorCacheKey } from "@/types/cache";
 
+
 // 数据系列类型
 export enum SeriesType {
     LINE = "line",
@@ -32,7 +33,7 @@ export interface IndicatorChartConfig {
 export const INDICATOR_CHART_CONFIG_MAP: Record<IndicatorType, IndicatorChartConfig> = {
     [IndicatorType.SMA]: {
         name: "SMA",
-        isInMainChart: true,
+        isInMainChart: false,
         seriesConfigs: [
             { name: "SMA", type: SeriesType.LINE, color: "#FF6B6B", strokeThickness: 2, indicatorValueKey: "sma" as keyof IndicatorValue }
         ],

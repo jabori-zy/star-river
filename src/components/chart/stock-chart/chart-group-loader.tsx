@@ -14,7 +14,7 @@ export const ChartGroupLoader = (props: TDivProps & { onInit?: (chartInitResults
                 setIsInitialized(true);
             }}
         >
-            <div {...props}>
+            <div {...props} className={`w-full h-full flex flex-col ${props.className || ''}`}>
                 {props.children}
                 {!isInitialized ? <DefaultFallback /> : null}
             </div>

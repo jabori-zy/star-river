@@ -46,7 +46,7 @@ export const useBacktestIndicatorDataStore = create<BacktestIndicatorDataState>(
       // 直接添加新数据到末尾
       newData = [...currentData, ...data];
     }
-    console.log("indicatorData", state.indicatorData);
+    // console.log("indicatorData", state.indicatorData);
     
     return {
       indicatorData: {

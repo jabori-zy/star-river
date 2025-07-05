@@ -1,6 +1,5 @@
 import { 
     SciChartSurface,
-    DateTimeNumericAxis,
     NumericAxis,
     NumberRange,
     ENumericFormat,
@@ -16,75 +15,35 @@ import {
     MouseWheelZoomModifier,
     CursorModifier,
     EAutoRange,
-    SeriesInfo,
-    CursorTooltipSvgAnnotation,
-    EDataSeriesType,
-    OhlcSeriesInfo,
-    easing,
     EAxisAlignment,
     IRenderableSeries,
-    ESeriesType,
-    FastMountainRenderableSeries,
-    GradientParams,
-    Point,
     RolloverModifier,
     FastLineRenderableSeries,
+    HorizontalLineAnnotation,
+    DateTimeNumericAxis,
+    EResamplingMode
 } from "scichart";
 import { appTheme } from "../theme";
 import { Kline } from "@/types/kline";
 import { VolumePaletteProvider } from "./volumePaletteProvider";
 import { getIndicatorChartConfig } from "@/types/indicator/indicator-chart-config";
 import { IndicatorValue } from "@/types/indicator";
+import { parseCacheKey } from "@/utils/parseCacheKey";
+import { KlineCacheKey } from "@/types/cache";
+import { getRolloverLegendTemplate, processKlineData, KlineUpdateContext } from "../utils";
+import { KlineInterval } from "@/types/kline";
+import { SciChartDefaults } from "scichart";
 
-
-// export const drawKlineChart = () => async (rootElement: string | HTMLDivElement) => {
-//     const { sciChartSurface, controls } = await initKlineChart(rootElement);
-
-//     const endDate = new Date(Date.now());
-//     const startDate = new Date();
-//     startDate.setMinutes(endDate.getMinutes() - 300);
-
-//     return { 
-//         sciChartSurface, 
-//         controls 
-//     };
-// }; 
-
-
-// 重写标准工具提示
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const getTooltipLegendTemplate = (seriesInfos: SeriesInfo[], _svgAnnotation: CursorTooltipSvgAnnotation) => {
-    let outputSvgString = "";
-
-    // 遍历seriesInfos，它由SciChart提供。这个包含关于系列的信息
-    seriesInfos.forEach((seriesInfo, index) => {
-        const y = 20 + index * 20;
-        const textColor = seriesInfo.stroke;
-        let legendText = seriesInfo.formattedYValue;
-        let separator = ":";
-        if (seriesInfo.dataSeriesType === EDataSeriesType.Ohlc) {
-            const o = seriesInfo as OhlcSeriesInfo;
-            legendText = `Open=${o.formattedOpenValue} High=${o.formattedHighValue} Low=${o.formattedLowValue} Close=${o.formattedCloseValue}`;
-        }
-        if (seriesInfo.dataSeriesType === EDataSeriesType.Xyz) {
-            legendText = "";
-            separator = "";
-        }
-        outputSvgString += `<text x="8" y="${y}" font-size="13" font-family="Verdana" fill="${textColor}">
-            ${seriesInfo.seriesName}${separator} ${legendText}
-        </text>`;
-    });
-
-    return `<svg width="100%" height="100%">
-                ${outputSvgString}
-            </svg>`;
-};
+SciChartDefaults.debugDisableResampling = false;
+SciChartDefaults.performanceWarnings = false
 
 
 
 
+export const initKlineChart = async (rootElement: string | HTMLDivElement, klineKeyStr: string, mainChartIndicatorKeyStrs: string[]) => {
 
-export const initKlineChart = async (rootElement: string | HTMLDivElement, mainChartIndicatorKeyStrs: string[]) => {
+    const klineKey = parseCacheKey(klineKeyStr) as KlineCacheKey;
+
     const { sciChartSurface, wasmContext } = await SciChartSurface.create(rootElement, {
         theme: appTheme.SciChartJsTheme,
     });
@@ -93,9 +52,22 @@ export const initKlineChart = async (rootElement: string | HTMLDivElement, mainC
     const xAxis = new DateTimeNumericAxis(wasmContext, {
         drawMajorBands: false,
         drawMajorGridLines: false,
-        drawMinorGridLines: false
+        drawMinorGridLines: false,
+        drawLabels: false,
+        // autoRange: EAutoRange.Always,
     });
     sciChartSurface.xAxes.add(xAxis);
+
+    // 订阅x轴范围变化事件，实时打印x轴范围
+    xAxis.visibleRangeChanged.subscribe((args) => {
+        if (args && args.visibleRange) {
+            const minTimestamp = args.visibleRange.min;
+            const maxTimestamp = args.visibleRange.max;
+            const minDate = new Date(minTimestamp * 1000).toLocaleString();
+            const maxDate = new Date(maxTimestamp * 1000).toLocaleString();
+            console.log(`x轴范围变化: ${minDate} - ${maxDate} (${minTimestamp} - ${maxTimestamp})`);
+        }
+    });
 
     // 添加价格类型的Y轴
     const yAxis = new NumericAxis(wasmContext, {
@@ -112,6 +84,15 @@ export const initKlineChart = async (rootElement: string | HTMLDivElement, mainC
     });
     sciChartSurface.yAxes.add(yAxis);
 
+    // 订阅y轴范围变化事件，实时打印y轴范围
+    yAxis.visibleRangeChanged.subscribe((args) => {
+        if (args && args.visibleRange) {
+            const minPrice = args.visibleRange.min;
+            const maxPrice = args.visibleRange.max;
+            console.log(`y轴范围变化: ${minPrice.toFixed(2)} - ${maxPrice.toFixed(2)}`);
+        }
+    });
+
     // 添加成交量Y轴
     const Y_AXIS_VOLUME_ID = "Y_AXIS_VOLUME_ID";
     const volumeAxis = new NumericAxis(wasmContext, {
@@ -124,15 +105,24 @@ export const initKlineChart = async (rootElement: string | HTMLDivElement, mainC
     sciChartSurface.yAxes.add(volumeAxis);
 
     // 添加蜡烛图
-    const candleDataSeries = new OhlcDataSeries(wasmContext);
+    const candleDataSeries = new OhlcDataSeries(wasmContext, {
+        dataSeriesName: klineKey.symbol + "/" + klineKey.interval,
+    });
+
+
     const candlestickSeries = new FastCandlestickRenderableSeries(wasmContext, {
         dataSeries: candleDataSeries,
-        stroke: appTheme.ForegroundColor, // used by cursorModifier below
+        stroke: appTheme.Black, // used by cursorModifier below
         strokeThickness: 1,
-        brushUp: appTheme.VividGreen,
-        brushDown: appTheme.Black,
+        // brushUp: appTheme.VividGreen,
+        // brushDown: appTheme.Black,
+        // strokeUp: appTheme.Black,
+        // strokeDown: appTheme.Black,
+        brushUp: appTheme.MutedRed,
+        brushDown: appTheme.MutedGreen,
         strokeUp: appTheme.Black,
         strokeDown: appTheme.Black,
+        resamplingMode: EResamplingMode.None,
     });
 
     sciChartSurface.renderableSeries.add(candlestickSeries);
@@ -143,13 +133,14 @@ export const initKlineChart = async (rootElement: string | HTMLDivElement, mainC
     sciChartSurface.renderableSeries.add(
         new FastColumnRenderableSeries(wasmContext, {
             dataSeries: volumeDataSeries,
+            stroke: appTheme.Black,
             strokeThickness: 0,
             // This is how we get volume to scale - on a hidden YAxis
             yAxisId: Y_AXIS_VOLUME_ID,
             // This is how we colour volume bars red or green
             paletteProvider: new VolumePaletteProvider(
                 candleDataSeries,
-                appTheme.VividGreen + "77",
+                appTheme.MutedGreen + "77",
                 appTheme.MutedRed + "77"
             ),
         })
@@ -167,7 +158,7 @@ export const initKlineChart = async (rootElement: string | HTMLDivElement, mainC
             console.log("indicatorChartConfig", indicatorKeyStr, indicatorChartConfig);
             if (indicatorChartConfig) {
                 const indicatorDataSeries = new XyDataSeries(wasmContext, { dataSeriesName: indicatorChartConfig.name + index });
-                console.log("indicatorDataSeries", indicatorDataSeries);
+                // console.log("indicatorDataSeries", indicatorDataSeries);
                 
                 // 建立直接映射关系
                 indicatorDataSeriesMap.set(indicatorKeyStr, indicatorDataSeries);
@@ -186,7 +177,7 @@ export const initKlineChart = async (rootElement: string | HTMLDivElement, mainC
 
 
     const onNewIndicatorData = (newIndicators: Record<string, IndicatorValue>) => {
-        console.log("onNewIndicatorData", newIndicators);
+        // console.log("onNewIndicatorData", newIndicators);
         Object.entries(newIndicators).forEach(([indicatorKeyStr, indicatorData]) => {
             const indicatorChartConfig = getIndicatorChartConfig(indicatorKeyStr);
             if (indicatorChartConfig) {
@@ -195,7 +186,7 @@ export const initKlineChart = async (rootElement: string | HTMLDivElement, mainC
                 if (indicatorDataSeries) {
                     const value = indicatorData[indicatorChartConfig.seriesConfigs[0].indicatorValueKey];
                     if (value !== undefined && value !== null) {
-                        const timestamp = indicatorData.timestamp;
+                        const timestamp = indicatorData.timestamp / 1000;
                         
                         // 参考K线的更新方式：判断是新数据还是更新现有数据
                         if (indicatorDataSeries.count() === 0) {
@@ -240,16 +231,28 @@ export const initKlineChart = async (rootElement: string | HTMLDivElement, mainC
             axisLabelFill: appTheme.Black,
             //设置宽度
             crosshairStrokeThickness: 0.5,
-            tooltipLegendTemplate: getTooltipLegendTemplate,
+            // tooltipLegendTemplate: getCursorTooltipLegendTemplate,
         }),
         new RolloverModifier({
             modifierGroup: "cursorGroup",
             showTooltip: false,
-            // tooltipLegendTemplate: getTooltipLegendTemplate,
+            tooltipLegendTemplate: getRolloverLegendTemplate,
         })
     );
 
+    // 添加一条水平线注释，显示最新价格
+    const latestPriceAnnotation = new HorizontalLineAnnotation({
+        isHidden: true,
+        strokeDashArray: [2, 2],
+        strokeThickness: 1,
+        axisFontSize: 13,
+        axisLabelStroke: appTheme.ForegroundColor,
+        showLabel: true,
+    });
+    sciChartSurface.annotations.add(latestPriceAnnotation);
+
     
+
 
     const setData = (symbolName: string, klines: Kline[]) => {
         console.log(`createCandlestickChart(): Setting data for ${symbolName}, ${klines.length} candles`);
@@ -286,87 +289,36 @@ export const initKlineChart = async (rootElement: string | HTMLDivElement, mainC
 
 
     // 回测相关的配置
-    const MAX_VISIBLE_CANDLES = 400; // 最多显示1000根K线
+    const MAX_VISIBLE_CANDLES = 500; // 最多显示500根K线
     let firstCandleTimestamp: number | null = null; // 第一根K线的时间戳
-    const candleInterval: number = 60; // K线间隔（秒），默认1分钟，需要根据实际情况调整
-
-    // 计算合适的X轴范围
-    const calculateXAxisRange = (candleCount: number, latestTimestamp: number) => {
-        if (candleCount <= MAX_VISIBLE_CANDLES) {
-            // 如果K线数量少于最大显示数量，从第一根K线开始显示
-            const startTime = firstCandleTimestamp || latestTimestamp;
-            const endTime = startTime + (MAX_VISIBLE_CANDLES * candleInterval);
-            return new NumberRange(startTime, endTime);
-        } else {
-            // 如果K线数量超过最大显示数量，显示最新的1000根
-            const startTime = latestTimestamp - ((MAX_VISIBLE_CANDLES - 1) * candleInterval);
-            const endTime = latestTimestamp + (50 * candleInterval); // 右侧留一些空间
-            return new NumberRange(startTime, endTime);
-        }
-    };
+    const candleInterval: number = KlineInterval[klineKey.interval as keyof typeof KlineInterval]; // K线间隔（秒），默认1分钟，需要根据实际情况调整
+    
+    // 记录第一根K线的价格范围
+    let firstKlineHighPrice: number | null = null;
+    let firstKlineLowPrice: number | null = null;
 
     const onNewKlineData = (kline: Kline) => {
-        console.log(`onNewTrade(): ${kline.timestamp}`);
-        const timestamp = kline.timestamp;
+        // 构建K线更新上下文
+        const context: KlineUpdateContext = {
+            candleDataSeries,
+            volumeDataSeries,
+            xAxis,
+            yAxis,
+            latestPriceAnnotation,
+            candleInterval,
+            maxVisibleCandles: MAX_VISIBLE_CANDLES,
+            firstCandleTimestamp,
+            firstKlineHighPrice,
+            firstKlineLowPrice,
+        };
         
-        // 记录第一根K线的时间戳
-        if (firstCandleTimestamp === null) {
-            firstCandleTimestamp = timestamp;
-        }
-        // 判断当前是否有数据
-        if (candleDataSeries.count() === 0) {
-            // 没有数据，直接添加
-            candleDataSeries.append(kline.timestamp, kline.open, kline.high, kline.low, kline.close);
-            volumeDataSeries.append(kline.timestamp, kline.volume);
-        } else {
-            // 有数据，判断是否是新的蜡烛
-            const currentIndex = candleDataSeries.count() - 1;
-            
-            const getLatestCandleDate = candleDataSeries.getNativeXValues().get(currentIndex);
-            if (kline.timestamp === getLatestCandleDate) {
-                // 情况是交易所发送一个已经在图表上的蜡烛，更新它
-                candleDataSeries.update(currentIndex, kline.open, kline.high, kline.low, kline.close);
-                volumeDataSeries.update(currentIndex, kline.volume);
-            } else {
-                // 情况是交易所发送一个新的蜡烛，追加它
-                candleDataSeries.append(kline.timestamp, kline.open, kline.high, kline.low, kline.close);
-                volumeDataSeries.append(kline.timestamp, kline.volume);
-
-                const candleCount = candleDataSeries.count();
-                // 视图控制逻辑
-                if (candleCount <= MAX_VISIBLE_CANDLES) {
-                    // K线数量未超过最大显示数量
-                    const currentRange = xAxis.visibleRange;
-                    
-                    // 检查新K线是否接近右边界，如果是则扩展显示范围
-                    if (timestamp > currentRange.max - (10 * candleInterval)) {
-                        const newRange = new NumberRange(
-                            currentRange.min,
-                            currentRange.max + (50 * candleInterval)
-                        );
-                        xAxis.animateVisibleRange(newRange, 200, easing.inOutQuad);
-                    }
-                } else {
-                    // K线数量超过最大显示数量，开始滚动显示最新的1000根
-                    const newRange = calculateXAxisRange(candleCount, timestamp);
-                    xAxis.animateVisibleRange(newRange, 200, easing.inOutQuad);
-                }
-                // #region ExampleA
-                // 最新蜡烛是否在视图中？
-                // if (xAxis.visibleRange.max > getLatestCandleDate) {
-                //     // 如果是，则将x轴移动一个蜡烛
-                //     const dateDifference = kline.date / 1000 - getLatestCandleDate;
-                //     const shiftedRange = new NumberRange(
-                //         xAxis.visibleRange.min + dateDifference,
-                //         xAxis.visibleRange.max + dateDifference
-                //     );
-                //     xAxis.animateVisibleRange(shiftedRange, 250, easing.inOutQuad);
-                // }
-                // #endregion
-            }
-        }
-        // 更新最新价格线注释
-        // updateLatestPriceAnnotation(kline);
+        // 使用工具函数处理K线数据
+        const updatedContext = processKlineData(kline, context);
+        
+        // 更新局部变量
+        firstCandleTimestamp = updatedContext.firstCandleTimestamp;
+        firstKlineHighPrice = updatedContext.firstKlineHighPrice;
+        firstKlineLowPrice = updatedContext.firstKlineLowPrice;
     };
 
     // 设置X轴范围
@@ -419,26 +371,5 @@ export const initKlineChart = async (rootElement: string | HTMLDivElement, mainC
 
 
 
-// 重写渲染系列以在scichart概览中显示
-const getOverviewSeries = (defaultSeries: IRenderableSeries) => {
-    if (defaultSeries.type === ESeriesType.CandlestickSeries) {
-        // Swap the default candlestick series on the overview chart for a mountain series. Same data
-        // 将scichart概览图上的默认蜡烛图系列替换为山峰系列。相同数据
-        console.log(`getOverviewSeries(): ${defaultSeries.dataSeries.count()}`);
-        return new FastMountainRenderableSeries(defaultSeries.parentSurface.webAssemblyContext2D, {
-            dataSeries: defaultSeries.dataSeries,
-            fillLinearGradient: new GradientParams(new Point(0, 0), new Point(0, 1), [
-                { color: appTheme.VividSkyBlue + "77", offset: 0 },
-                { color: "Transparent", offset: 1 },
-            ]),
-            stroke: appTheme.VividSkyBlue,
-        });
-    }
-    // 隐藏所有其他系列
-    return undefined;
-};
 
-export const sciChartOverview = {
-    theme: appTheme.SciChartJsTheme,
-    transformRenderableSeries: getOverviewSeries,
-};
+

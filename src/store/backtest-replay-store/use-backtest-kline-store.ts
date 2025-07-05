@@ -46,7 +46,7 @@ export const useBacktestKlineDataStore = create<BacktestKlineDataState>((set, ge
       // 直接添加新数据到末尾
       newData = [...currentData, ...data];
     }
-    console.log("klineData", state.klineData);
+    // console.log("klineData", state.klineData);
     
     return {
       klineData: {

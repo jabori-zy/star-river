@@ -6,10 +6,11 @@ import { useBacktestStrategyMarketDataStore } from "@/store/useBacktestStrategyD
 import { Kline } from "@/types/kline";
 import { AxisSynchroniser } from "./axis-synchroniser";
 import { initKlineChart } from "./kline-chart/init-kline-chart";
-import initTestChart from "./test-chart/init-test-chart";
+import initTestChart from "./indicator-chart/init-test-chart";
 import KlineChart from "./kline-chart";
-import TestChart from "./test-chart";
+import IndicatorChart from "./indicator-chart";
 import { getIndicatorChartConfig } from "@/types/indicator/indicator-chart-config";
+import { drawOverview } from "./utils";
 
 interface StockChartsProps {
     chartId: number;
@@ -25,12 +26,6 @@ export default function StockCharts({ chartId, klineKeyStr, indicatorKeyStrs }: 
     const verticalGroupRef = useRef<SciChartVerticalGroup>(new SciChartVerticalGroup());
     const axisSynchroniserRef = React.useRef<AxisSynchroniser>(new AxisSynchroniser(new NumberRange(200, 500)));
 
-    const chartControlsRef = useRef<{
-        setData: (symbolName: string, kline: Kline[]) => void;
-        onNewTrade: (newKline: Kline) => void;
-        setXRange: (startDate: Date, endDate: Date) => void;
-    }>(undefined);
-
     const handleAddAxis = (axis: AxisBase2D) => {
         axisSynchroniserRef.current.addAxis(axis);
     }
@@ -44,23 +39,11 @@ export default function StockCharts({ chartId, klineKeyStr, indicatorKeyStrs }: 
     // 子图指标
     const subChartIndicatorKeyStrs = indicatorKeyStrs.filter(indicatorKeyStr => !getIndicatorChartConfig(indicatorKeyStr)?.isInMainChart);
 
-    console.log("mainChartIndicatorKeyStrs", mainChartIndicatorKeyStrs);
+    // console.log("mainChartIndicatorKeyStrs", mainChartIndicatorKeyStrs);
 
     return (
-        <ChartGroupLoader onInit={() => {}}>
-            <div>
-                {/*The panel hosting the price chart*/}
-                {/* <SciChartReact
-                    initChart={initKlineChart}
-                    style={{ flexBasis: 400, flexGrow: 0, flexShrink: 1 }}
-                    onInit={(initResult: TResolvedReturnType<typeof initKlineChart>) => {
-                        const { sciChartSurface, controls } = initResult;
-                        setMainChart(sciChartSurface);
-                        chartControlsRef.current = controls;
-                        axisSynchroniserRef.current.addAxis(sciChartSurface.xAxes.get(0));
-                        verticalGroupRef.current.addSurfaceToGroup(sciChartSurface);
-                    }}
-                /> */}
+        <div className="w-full h-full flex flex-col overflow-hidden">
+            <ChartGroupLoader onInit={() => {}}>
                 <KlineChart
                     chartId={chartId}
                     klineKeyStr={klineKeyStr}
@@ -69,9 +52,12 @@ export default function StockCharts({ chartId, klineKeyStr, indicatorKeyStrs }: 
                     addAxis={handleAddAxis}
                     addSurfaceToGroup={handleAddSurfaceToGroup}
                 />
+                {/* 分界线 用于分割主图和子图 宽度为1px 颜色为gray-500 */}
+                <div className="w-full h-1 bg-gray-500" />
+
                 {/*动态渲染指标子图*/}
                 {subChartIndicatorKeyStrs.map((indicatorKeyStr, index) => (
-                    <TestChart
+                    <IndicatorChart
                         key={`indicator-${index}-${indicatorKeyStr}`}
                         indicatorKeyStr={indicatorKeyStr}
                         indicatorName={`指标${index + 1}`}
@@ -79,25 +65,16 @@ export default function StockCharts({ chartId, klineKeyStr, indicatorKeyStrs }: 
                         addAxis={handleAddAxis}
                     />
                 ))}
-                {/* <SciChartReact
-                    initChart={initTestChart}
-                    style={{ flexBasis: 100, flexGrow: 1, flexShrink: 1 }}
-                    onInit={(initResult: TResolvedReturnType<typeof initTestChart>) => {
-                        const { sciChartSurface } = initResult;
-                        verticalGroupRef.current.addSurfaceToGroup(sciChartSurface);
-                        axisSynchroniserRef.current.addAxis(sciChartSurface.xAxes.get(0));
-                    }}
-                /> */}
                 {/* Panel hosting the overview control */}
                 {/* <div style={{ flexBasis: "70px" }}>
                     {mainChart ? (
                         <SciChartReact
-                            initChart={createChart.drawOverview(mainChart)}
+                            initChart={drawOverview(mainChart)}
                             style={{ width: "100%", height: "100%" }}
                         />
                     ) : null}
                 </div> */}
-            </div>
-        </ChartGroupLoader>
+            </ChartGroupLoader>
+        </div>
     );
 }

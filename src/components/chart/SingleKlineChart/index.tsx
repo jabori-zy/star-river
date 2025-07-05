@@ -122,7 +122,7 @@ function SingleKlineChart(lineChartProps: SingleKlineChartProps) {
                 for (const indicatorCacheKey of lineChartProps.indicatorCacheKeys) {
                     const indicatorData = await getInitialChartData(indicatorCacheKey);
                     indicatorDataMap[indicatorCacheKey] = indicatorData;
-                    console.log("indicatorDataMap", indicatorDataMap);
+                    // console.log("indicatorDataMap", indicatorDataMap);
                 }
             }
 

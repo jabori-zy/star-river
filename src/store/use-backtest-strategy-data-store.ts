@@ -47,7 +47,7 @@ export const useBacktestStrategyMarketDataStore = create<BacktestStrategyMarketD
       // 直接添加新事件到末尾
       newData = [...currentData, ...data];
     }
-    console.log("marketData", state.marketData);
+    // console.log("marketData", state.marketData);
     
     return {
       marketData: {

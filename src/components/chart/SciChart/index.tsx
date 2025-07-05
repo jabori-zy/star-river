@@ -9,7 +9,7 @@ import { SciChartReact, SciChartNestedOverview, TResolvedReturnType } from "scic
 import { useBacktestStrategyMarketDataStore } from "@/store/useBacktestStrategyDataStore";
 import { useEffect } from "react";
 import { Kline } from "@/types/kline";
-import { drawKlineChart } from "./kline-chart/init-kline-chart";
+import { drawKlineChart } from "../stock-chart/kline-chart/init-kline-chart";
 
 interface RealtimeTickingStockChartsProps {
     chartId: number;
