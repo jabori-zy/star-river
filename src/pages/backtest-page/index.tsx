@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router";
 import useBacktestStrategySSE from "../../hooks/sse/use-backtest-strategy-sse";
 import BacktestWindowHeader from "../../components/backtest/backtest-window-header";
@@ -9,15 +9,24 @@ import AddChartButton from "./components/add-chart-button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getBacktestStrategyChartConfig, updateBacktestStrategyChartConfig } from "@/service/strategy";
+import { getBacktestStrategyChartConfig, updateBacktestStrategyChartConfig, stopStrategy } from "@/service/strategy";
 import { toast } from "sonner";
 import { getStrategyCacheKeys } from "@/service/strategy";
-import { TradeMode } from "@/types/strategy";
 import { BacktestKlineCacheKey, BacktestIndicatorCacheKey } from "@/types/cache";
 import { parseCacheKey } from "@/utils/parseCacheKey";
+import { play, pause, stop, playOne } from "@/service/strategy-control/backtest-strategy-control";
+import { useBacktestKlineDataStore } from "@/store/backtest-replay-store/use-backtest-kline-store";
+import { useBacktestIndicatorDataStore } from "@/store/backtest-replay-store/use-backtest-indicator-store";
 
 export default function BacktestPage() {
     const navigate = useNavigate();
+    
+    // 获取store的清空方法
+    const { clearAllKlineData } = useBacktestKlineDataStore();
+    const { clearAllIndicatorData } = useBacktestIndicatorDataStore();
+    
+    // 创建ref来获取ChartContainer的清空方法
+    const chartContainerRef = useRef<{ clearAllChartData: () => void }>(null);
     
     // 从URL路径获取strategyId参数
     const getStrategyIdFromPath = (): number | null => {
@@ -42,10 +51,11 @@ export default function BacktestPage() {
     
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isSaving, setIsSaving] = useState<boolean>(false);
+    const [isRunning, setIsRunning] = useState<boolean>(false); // 是否正在回测
     const [configLoaded, setConfigLoaded] = useState<boolean>(false);
 
     // 从后端获取图表配置
-    const loadChartConfig = async (strategyId: number) => {
+    const loadChartConfig = useCallback(async (strategyId: number) => {
         try {
             setIsLoading(true);
             const config = await getBacktestStrategyChartConfig(strategyId);
@@ -114,7 +124,7 @@ export default function BacktestPage() {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, []);
 
     // 保存图表配置到后端
     const saveChartConfig = async () => {
@@ -142,7 +152,7 @@ export default function BacktestPage() {
     const fetchCacheKeys = useCallback(async () => {
         try {
             if (!strategyId) return;
-            const keys = await getStrategyCacheKeys(strategyId, TradeMode.BACKTEST);
+            const keys = await getStrategyCacheKeys(strategyId);
             const parsedKeyMap: Record<string, BacktestKlineCacheKey | BacktestIndicatorCacheKey> = {};
             
             keys.forEach(keyString => {
@@ -178,11 +188,26 @@ export default function BacktestPage() {
             setConfigLoaded(false);
             loadChartConfig(strategyId);
         }
-    }, [strategyId]);
+    }, [strategyId, loadChartConfig]);
 
     useEffect(() => {
         console.log('当前图表配置:', strategyChartConfig);
     }, [strategyChartConfig]);
+
+    // 处理退出确认
+    const handleQuit = async () => {
+        try {
+            if (strategyId) {
+                console.log('正在停止策略...');
+                await stopStrategy(strategyId);
+                console.log('策略已停止');
+            }
+            return true; // 返回 true 表示可以关闭窗口
+        } catch (error) {
+            console.error('停止策略失败:', error);
+            return true; // 即使失败也关闭窗口
+        }
+    };
 
     // 如果没有提供有效的strategyId，显示错误页面
     if (!isValidStrategyId) {
@@ -210,7 +235,7 @@ export default function BacktestPage() {
     if (isLoading || !configLoaded) {
         return (
             <div className="h-screen flex flex-col overflow-hidden bg-gray-100">
-                <BacktestWindowHeader strategyName={`策略 ${strategyId} 回测`} />
+                <BacktestWindowHeader strategyName={`策略 ${strategyId} 回测`} onQuit={handleQuit} />
                 <div className="flex items-center justify-center h-full">
                     <div className="flex flex-col items-center gap-4">
                         <Loader2 className="h-8 w-8 animate-spin" />
@@ -275,9 +300,33 @@ export default function BacktestPage() {
         }));
     };
 
+    // 播放策略
+    const onPlay = () => {
+        setIsRunning(true);
+        play(strategyId);
+    };
+    const onPause = () => {
+        setIsRunning(false);
+        pause(strategyId);
+    };
+    const onStop = () => {
+        setIsRunning(false);
+        stop(strategyId);
+        // 清空所有图表和store数据，回到初始状态
+        clearAllKlineData();
+        clearAllIndicatorData();
+        // 调用图表的清空方法
+        if (chartContainerRef.current) {
+            chartContainerRef.current.clearAllChartData();
+        }
+    };
+    const onPlayOne = () => {
+        playOne(strategyId);
+    };
+
     return (
         <div className="h-screen flex flex-col overflow-hidden bg-gray-100">
-            <BacktestWindowHeader strategyName={`策略 ${strategyId} 回测`} />
+            <BacktestWindowHeader strategyName={`策略 ${strategyId} 回测`} onQuit={handleQuit} />
 
             {/* 回测窗口内容 */}
             {/* 如果图表数量为0，则显示添加图表按钮 */}
@@ -297,6 +346,7 @@ export default function BacktestPage() {
                 <div className="flex flex-col h-full overflow-hidden">
                     <div className="flex-1 overflow-hidden m-2 rounded-lg border border-border shadow-md bg-white">
                         <ChartContainer 
+                            ref={chartContainerRef}
                             strategyChartConfig={strategyChartConfig} 
                             strategyId={strategyId!}
                             onDelete={onDelete} 
@@ -312,6 +362,11 @@ export default function BacktestPage() {
                             onAddChart={addCharts} 
                             onSaveChart={saveChartConfig}
                             isSaving={isSaving}
+                            isRunning={isRunning}
+                            onPlay={onPlay}
+                            onPlayOne={onPlayOne}
+                            onPause={onPause}
+                            onStop={onStop}
                         />
                     </div>
                 </div>

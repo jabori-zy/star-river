@@ -365,11 +365,19 @@ export const initKlineChart = async (rootElement: string | HTMLDivElement, kline
         }
     };
 
+    const clearChartData = () => {
+        candleDataSeries.clear();
+        volumeDataSeries.clear();
+        indicatorDataSeriesMap.forEach((indicatorDataSeries) => {
+            indicatorDataSeries.clear();
+        });
+    }
+
 
     return {
         wasmContext, 
         sciChartSurface,
-        controls: { setData, onNewKlineData, setXRange, onNewIndicatorData, setIndicatorData },
+        controls: { setData, onNewKlineData, setXRange, onNewIndicatorData, setIndicatorData, clearChartData },
     };
 }
 

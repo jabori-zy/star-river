@@ -14,6 +14,7 @@ import {
 import { Strategy } from "@/types/strategy";
 import { updateStrategy } from "@/service/strategy";
 import useTradingModeStore from "@/store/useTradingModeStore";
+import { initStrategy } from "@/service/strategy";
 
 // 声明 window.require 类型
 declare global {
@@ -198,16 +199,16 @@ function SaveStrategyButton({ strategy }: { strategy: Strategy}) {
   );
 }
 
-// 初始化策略
-function requestInitStrategy(strategyId: number | undefined) {
-  fetch('http://localhost:3100/init_strategy', {
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    method: 'POST',
-    body: JSON.stringify({ "strategy_id": strategyId })
-  });
-}
+// // 初始化策略
+// function requestInitStrategy(strategyId: number | undefined) {
+//   fetch('http://localhost:3100/init_strategy', {
+//     headers: {
+//       'Content-Type': 'application/json'
+//     },
+//     method: 'POST',
+//     body: JSON.stringify({ "strategy_id": strategyId })
+//   });
+// }
 
 // 运行策略
 function requestRunStrategy(strategyId: number | undefined) {
@@ -268,8 +269,10 @@ function RunStrategyButton({ strategyId, tradeMode }: { strategyId: number | und
         }
       }
       
-      // 初始化策略
-      requestInitStrategy(strategyId);
+      if (strategyId) {
+        // 初始化策略
+        initStrategy(strategyId as number);
+      }
       // 运行策略
       requestRunStrategy(strategyId);
       // 设置为运行状态

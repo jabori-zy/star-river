@@ -1,10 +1,10 @@
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Pause, Play, ArrowRightToLine, Square, Save, Loader2 } from "lucide-react";
-import React, { useState } from "react";
+import React from "react";
 import AddChartButton from "../add-chart-button";
 import LayoutControl from "../layout-control";
 import { BacktestStrategyChartConfig, LayoutMode } from "@/types/chart/backtest-chart";
-import { playOne } from "@/service/strategy-control/backtest-strategy-control";
 
 
 interface BacktestControlProps {
@@ -13,6 +13,11 @@ interface BacktestControlProps {
     updateLayout: (layout: LayoutMode) => void;
     onAddChart: (klineCacheKeyStr: string, indicatorCacheKeyStrs: string[], chartName: string) => void;
     onSaveChart: () => void;
+    isRunning: boolean;
+    onPlay: () => void;
+    onPlayOne: () => void;
+    onPause: () => void;
+    onStop: () => void;
     isSaving?: boolean;
 }
 
@@ -23,10 +28,13 @@ const BacktestControl: React.FC<BacktestControlProps> = ({
     updateLayout, 
     onAddChart, 
     onSaveChart, 
-    isSaving = false 
+    isSaving = false,
+    isRunning,
+    onPlay,
+    onPlayOne,
+    onPause,
+    onStop
 }) => {
-
-    const [isRunning, setIsRunning] = useState(false);
 
     return (
         <div className="flex items-center w-full ">
@@ -34,17 +42,52 @@ const BacktestControl: React.FC<BacktestControlProps> = ({
             <div className="flex-1"></div>
             
             {/* 播放控制器 - 居中 */}
-            <div className="flex items-center gap-2">
-                <Button variant="outline">
-                    <Square className="w-4 h-4" />
-                </Button>
-                <Button variant="outline" onClick={() => setIsRunning(!isRunning)}>
-                    {isRunning ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-                </Button>
-                <Button variant="outline" disabled={isRunning} onClick={() => playOne(strategyId)}>
-                    <ArrowRightToLine className="w-4 h-4" />
-                </Button>
-            </div>
+            <TooltipProvider>
+                <div className="flex items-center gap-2">
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="outline" disabled={isRunning} onClick={() => {
+                                onStop();
+                            }}>
+                                <Square className="w-4 h-4" />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>重置回测</p>
+                        </TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="outline" onClick={() => {
+                                // 如果正在运行，则暂停
+                                if (isRunning) {
+                                    onPause();
+                                } else {
+                                    // 如果正在暂停，则播放
+                                    onPlay();
+                                }
+                            }}>
+                                {isRunning ? 
+                                <Pause className="w-4 h-4" /> : 
+                                <Play className="w-4 h-4" />}
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>{isRunning ? '暂停' : '播放'}</p>
+                        </TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="outline" disabled={isRunning} onClick={() => onPlayOne()}>
+                                <ArrowRightToLine className="w-4 h-4" />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>下一根K线</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </div>
+            </TooltipProvider>
             
             {/* 图表按钮 - 居右 */}
             <div className="flex-1 flex items-center gap-2 justify-end">

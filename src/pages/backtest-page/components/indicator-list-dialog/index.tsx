@@ -10,7 +10,6 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BacktestKlineCacheKey, BacktestIndicatorCacheKey } from "@/types/cache";
 import { getStrategyCacheKeys } from "@/service/strategy";
-import { TradeMode } from "@/types/strategy";
 import { parseCacheKey } from "@/utils/parseCacheKey";
 
 interface IndicatorListDialogProps {
@@ -45,7 +44,7 @@ export default function IndicatorListDialog({
     const fetchCacheKeys = useCallback(async () => {
         setLoading(true);
         try {
-            const keys = await getStrategyCacheKeys(strategyId, TradeMode.BACKTEST);
+            const keys = await getStrategyCacheKeys(strategyId);
             const parsedKeyMap: Record<string, BacktestKlineCacheKey | BacktestIndicatorCacheKey> = {};
             
             keys.forEach(keyString => {

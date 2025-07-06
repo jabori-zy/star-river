@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BacktestKlineCacheKey, BacktestIndicatorCacheKey } from "@/types/cache";
 import { getStrategyCacheKeys } from "@/service/strategy";
-import { TradeMode } from "@/types/strategy";
 import { parseCacheKey } from "@/utils/parseCacheKey";
 
 interface SymbolListDialogProps {
@@ -34,7 +33,7 @@ export default function SymbolListDialog({
     const fetchKlineOptions = useCallback(async () => {
         setLoading(true);
         try {
-            const keys = await getStrategyCacheKeys(strategyId, TradeMode.BACKTEST);
+            const keys = await getStrategyCacheKeys(strategyId);
             const parsedKeyMap: Record<string, BacktestKlineCacheKey | BacktestIndicatorCacheKey> = {};
             
             keys.forEach(keyString => {

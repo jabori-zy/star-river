@@ -1,7 +1,7 @@
 import { SciChartReact, TResolvedReturnType} from "scichart-react";
 import { AxisBase2D, SciChartSurface, XyDataSeries } from "scichart";
 import initIndicatorChart from "./init-indicator-chart";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useImperativeHandle, forwardRef } from "react";
 import { IndicatorValue } from "@/types/indicator";
 import { Button } from "@/components/ui/button";
 import { useBacktestIndicatorDataStore } from "@/store/backtest-replay-store/use-backtest-indicator-store";
@@ -14,7 +14,11 @@ interface IndicatorChartProps {
     addAxis: (axis: AxisBase2D) => void;
 }
 
-export default function IndicatorChart({ indicatorKeyStr, indicatorName, addSurfaceToGroup, addAxis }: IndicatorChartProps) {
+interface IndicatorChartRef {
+    clearChartData: () => void;
+}
+
+const IndicatorChart = forwardRef<IndicatorChartRef, IndicatorChartProps>(({ indicatorKeyStr, indicatorName, addSurfaceToGroup, addAxis }, ref) => {
 
     const latestIndicatorData = useBacktestIndicatorDataStore(
         state => state.getLatestIndicatorData(indicatorKeyStr) as IndicatorValue   
@@ -24,7 +28,17 @@ export default function IndicatorChart({ indicatorKeyStr, indicatorName, addSurf
         onNewData: (data: IndicatorValue) => void;
         getDataSeries: () => XyDataSeries[];
         getIndicatorConfig: () => IndicatorChartConfig;
-    }>(undefined);  
+        clearChartData: () => void;
+    }>(undefined);
+
+    // 暴露清空方法给父组件
+    useImperativeHandle(ref, () => ({
+        clearChartData: () => {
+            if (chartControlsRef.current) {
+                chartControlsRef.current.clearChartData();
+            }
+        }
+    }));  
 
     useEffect(() => {
         // 如果最新指标数据为空，则不进行更新
@@ -60,4 +74,8 @@ export default function IndicatorChart({ indicatorKeyStr, indicatorName, addSurf
             />
         </div>
     );
-}
+});
+
+IndicatorChart.displayName = 'IndicatorChart';
+
+export default IndicatorChart;

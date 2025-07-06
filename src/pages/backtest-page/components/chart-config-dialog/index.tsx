@@ -14,7 +14,6 @@ import { getStrategyCacheKeys } from "@/service/strategy";
 import { parseCacheKey } from "@/utils/parseCacheKey";
 import { KlineCacheKey, BacktestKlineCacheKey, BacktestIndicatorCacheKey } from "@/types/cache";
 import { BacktestChart } from "@/types/chart/backtest-chart";
-import { TradeMode } from "@/types/strategy";
 import KlineSelector from "./kline-selector";
 import IndicatorSelector from "./indicator-selector";
 
@@ -44,7 +43,7 @@ const ChartConfigDialog = ({ open, onOpenChange, onConfirm, strategyId }: ChartC
     const fetchCacheKeys = useCallback(async () => {
         setLoading(true);
         try {
-            const keys = await getStrategyCacheKeys(strategyId, TradeMode.BACKTEST);
+            const keys = await getStrategyCacheKeys(strategyId);
             const parsedKeyMap: Record<string, BacktestKlineCacheKey | BacktestIndicatorCacheKey> = {};
             
             keys.forEach(keyString => {

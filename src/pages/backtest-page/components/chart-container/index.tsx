@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useImperativeHandle, forwardRef } from 'react';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import ChartCard from "../chart-card";
 import { BacktestStrategyChartConfig } from '@/types/chart/backtest-chart';
@@ -12,12 +12,35 @@ interface ChartContainerProps {
   onAddIndicator: (chartId: number, indicatorKey: string) => void;
 }
 
-export default function ChartContainer({ strategyChartConfig, strategyId, children, onDelete, onUpdate, onAddIndicator }: ChartContainerProps) {
+interface ChartContainerRef {
+  clearAllChartData: () => void;
+}
+
+const ChartContainer = forwardRef<ChartContainerRef, ChartContainerProps>(({ strategyChartConfig, strategyId, children, onDelete, onUpdate, onAddIndicator }, ref) => {
+  // 创建ref来存储所有ChartCard的引用
+  const chartCardRefs = useRef<{ clearChartData: () => void }[]>([]);
+
+  // 暴露清空方法给父组件
+  useImperativeHandle(ref, () => ({
+    clearAllChartData: () => {
+      chartCardRefs.current.forEach(chartRef => {
+        if (chartRef) {
+          chartRef.clearChartData();
+        }
+      });
+    }
+  }));
+
   // 如果有children，使用children；否则根据strategyChartConfig.charts生成ChartCard
   const chartElements = children ? React.Children.toArray(children) : 
-    strategyChartConfig.charts.map((chartConfig) => (
+    strategyChartConfig.charts.map((chartConfig, index) => (
       <ChartCard 
         key={chartConfig.id} 
+        ref={(el) => {
+          if (el) {
+            chartCardRefs.current[index] = el;
+          }
+        }}
         chartConfig={chartConfig} 
         strategyId={strategyId}
         onDelete={onDelete} 
@@ -99,7 +122,11 @@ export default function ChartContainer({ strategyChartConfig, strategyId, childr
       </ResizablePanelGroup>
     </div>
   );
-}
+});
+
+ChartContainer.displayName = 'ChartContainer';
+
+export default ChartContainer;
 
 // 网格布局渲染函数
 function renderGridLayout(chartElements: React.ReactNode[], chartCount: number, layoutMode: 'grid' | 'grid-alt') {

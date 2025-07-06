@@ -14,7 +14,7 @@ import {
 import { BacktestChart } from "@/types/chart/backtest-chart";
 import SymbolListDialog from "../symbol-list-dialog";
 import IndicatorListDialog from "../indicator-list-dialog";
-import { useState } from "react";
+import { useState, useRef, useImperativeHandle, forwardRef } from "react";
 
 interface ChartCardProps {
     chartConfig: BacktestChart;
@@ -24,9 +24,23 @@ interface ChartCardProps {
     onAddIndicator: (chartId: number, indicatorKey: string) => void;
 }
 
-export default function ChartCard({ chartConfig, strategyId, onDelete, onUpdate, onAddIndicator }: ChartCardProps) {
+interface ChartCardRef {
+    clearChartData: () => void;
+}
+
+const ChartCard = forwardRef<ChartCardRef, ChartCardProps>(({ chartConfig, strategyId, onDelete, onUpdate, onAddIndicator }, ref) => {
     const [isSymbolDialogOpen, setIsSymbolDialogOpen] = useState(false);
     const [isIndicatorDialogOpen, setIsIndicatorDialogOpen] = useState(false);
+    const stockChartsRef = useRef<{ clearChartData: () => void }>(null);
+
+    // 暴露清空方法给父组件
+    useImperativeHandle(ref, () => ({
+        clearChartData: () => {
+            if (stockChartsRef.current) {
+                stockChartsRef.current.clearChartData();
+            }
+        }
+    }));
 
     // 处理kline选择
     const handleKlineSelect = (klineCacheKeyStr: string, chartName: string) => {
@@ -76,6 +90,7 @@ export default function ChartCard({ chartConfig, strategyId, onDelete, onUpdate,
             </div>
             <div className="flex-1 w-full overflow-hidden bg-gray-50" >
                 <StockCharts
+                    ref={stockChartsRef}
                     chartId={chartConfig.id} 
                     klineKeyStr={chartConfig.klineCacheKeyStr}
                     indicatorKeyStrs={chartConfig.indicatorCacheKeyStrs} 
@@ -101,5 +116,9 @@ export default function ChartCard({ chartConfig, strategyId, onDelete, onUpdate,
                 onIndicatorAdd={handleIndicatorAdd}
             />
         </div>
-    )
-}
+    );
+});
+
+ChartCard.displayName = 'ChartCard';
+
+export default ChartCard;

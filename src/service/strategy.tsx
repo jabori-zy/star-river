@@ -2,7 +2,6 @@ import { Strategy } from "@/types/strategy";
 import { toast } from "sonner";
 import axios from "axios";
 import { useStrategyStore } from "@/store/useStrategyStore";
-import { TradeMode } from "@/types/strategy";
 import { API_BASE_URL } from "./index";
 import { BacktestStrategyChartConfig } from "@/types/chart/backtest-chart";
 
@@ -262,9 +261,9 @@ export async function deleteStrategy(
 /**
  * 获取策略订阅的缓存键
  */
-export async function getStrategyCacheKeys(strategyId: number, tradeMode: TradeMode): Promise<string[]> {
+export async function getStrategyCacheKeys(strategyId: number): Promise<string[]> {
   try {
-    const response = await axios.get(`${API_URL}/${strategyId}/cache-keys?trade_mode=${tradeMode}`);
+    const response = await axios.get(`${API_URL}/${strategyId}/cache-keys`);
     console.log("response", response.data["data"]);
     return response.data["data"];
   } catch (error) {
@@ -298,6 +297,34 @@ export async function getBacktestStrategyChartConfig(strategyId: number): Promis
     return response.data["data"];
   } catch (error) {
     console.error('获取策略图表配置错误:', error);
+    throw error;
+  }
+}
+
+
+export async function initStrategy(strategyId: number) {
+  try {
+    const response = await axios.post(`${API_URL}/${strategyId}/init`);
+    if (response.status !== 200) {
+      throw new Error(`初始化策略失败: ${response.status}`);
+    }
+    return response.data["data"];
+  } catch (error) {
+    console.error('初始化策略错误:', error);
+    throw error;
+  }
+}
+
+
+export async function stopStrategy(strategyId: number) {
+  try {
+    const response = await axios.post(`${API_URL}/${strategyId}/stop`);
+    if (response.status !== 200) {
+      throw new Error(`停止策略失败: ${response.status}`);
+    }
+    return response.data["data"];
+  } catch (error) {
+    console.error('停止策略错误:', error);
     throw error;
   }
 }

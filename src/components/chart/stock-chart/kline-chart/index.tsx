@@ -1,6 +1,6 @@
 import { SciChartReact, TResolvedReturnType } from "scichart-react";
 import { AxisBase2D, SciChartSurface } from "scichart";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useImperativeHandle, forwardRef } from "react";
 import { initKlineChart } from "./init-kline-chart";
 import { Kline } from "@/types/kline";
 import { IndicatorValue } from "@/types/indicator";
@@ -17,8 +17,11 @@ interface KlineChartProps {
     addSurfaceToGroup: (surface: SciChartSurface) => void;
 }
 
+interface KlineChartRef {
+    clearChartData: () => void;
+}
 
-export default function KlineChart({ klineKeyStr, indicatorKeyStrs, setMainChart, addAxis, addSurfaceToGroup }: KlineChartProps) {
+const KlineChart = forwardRef<KlineChartRef, KlineChartProps>(({ klineKeyStr, indicatorKeyStrs, setMainChart, addAxis, addSurfaceToGroup }, ref) => {
     
     const latestKline = useBacktestKlineDataStore(
         state => state.getLatestKlineData(klineKeyStr) as Kline
@@ -26,10 +29,20 @@ export default function KlineChart({ klineKeyStr, indicatorKeyStrs, setMainChart
 
     const chartControlsRef = useRef<{
         setData: (symbolName: string, kline: Kline[]) => void;
-        onNewKlineData: (newKline: Kline) => void;
         setXRange: (startDate: Date, endDate: Date) => void;
+        onNewKlineData: (newKline: Kline) => void;
         onNewIndicatorData: (newIndicators: Record<string, IndicatorValue>) => void;   
+        clearChartData: () => void;
     }>(undefined);
+
+    // 暴露清空方法给父组件
+    useImperativeHandle(ref, () => ({
+        clearChartData: () => {
+            if (chartControlsRef.current) {
+                chartControlsRef.current.clearChartData();
+            }
+        }
+    }));
 
     // 使用 useRef 包装 indicatorKeyStrs，避免依赖项警告
     const indicatorKeyStrsRef = useRef<string[]>(indicatorKeyStrs);
@@ -100,4 +113,8 @@ export default function KlineChart({ klineKeyStr, indicatorKeyStrs, setMainChart
             />
         </div>
     );
-}
+});
+
+KlineChart.displayName = 'KlineChart';
+
+export default KlineChart;

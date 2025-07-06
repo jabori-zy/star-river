@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron')
+const { app, BrowserWindow, ipcMain, globalShortcut } = require('electron')
 const { spawn } = require('child_process')
 const path = require('path')
 
@@ -17,6 +17,44 @@ const createWindow = () => {
   })
 
   mainWindow.loadURL('http://localhost:5173/')
+  
+  // 开发环境自动打开控制台
+  if (process.env.NODE_ENV !== 'production') {
+    mainWindow.webContents.openDevTools()
+    
+    // 开发环境启用右键菜单
+    mainWindow.webContents.on('context-menu', (e, params) => {
+      const { Menu, MenuItem } = require('electron')
+      const menu = new Menu()
+      
+      // 添加开发者工具菜单项
+      menu.append(new MenuItem({
+        label: '检查元素',
+        click: () => {
+          mainWindow.webContents.inspectElement(params.x, params.y)
+        }
+      }))
+      
+      menu.append(new MenuItem({
+        label: '打开开发者工具',
+        click: () => {
+          mainWindow.webContents.openDevTools()
+        }
+      }))
+      
+      menu.append(new MenuItem({ type: 'separator' }))
+      
+      menu.append(new MenuItem({
+        label: '刷新',
+        accelerator: 'CmdOrCtrl+R',
+        click: () => {
+          mainWindow.webContents.reload()
+        }
+      }))
+      
+      menu.popup({ window: mainWindow })
+    })
+  }
 }
 
 // 创建回测窗口
@@ -38,6 +76,44 @@ const createBacktestWindow = (strategyId) => {
     ? `http://localhost:5173/backtest/${strategyId}`
     : 'http://localhost:5173/backtest'
   backtestWindow.loadURL(backtestUrl)
+  
+  // 开发环境自动打开控制台
+  if (process.env.NODE_ENV !== 'production') {
+    backtestWindow.webContents.openDevTools()
+    
+    // 开发环境启用右键菜单
+    backtestWindow.webContents.on('context-menu', (e, params) => {
+      const { Menu, MenuItem } = require('electron')
+      const menu = new Menu()
+      
+      // 添加开发者工具菜单项
+      menu.append(new MenuItem({
+        label: '检查元素',
+        click: () => {
+          backtestWindow.webContents.inspectElement(params.x, params.y)
+        }
+      }))
+      
+      menu.append(new MenuItem({
+        label: '打开开发者工具',
+        click: () => {
+          backtestWindow.webContents.openDevTools()
+        }
+      }))
+      
+      menu.append(new MenuItem({ type: 'separator' }))
+      
+      menu.append(new MenuItem({
+        label: '刷新',
+        accelerator: 'CmdOrCtrl+R',
+        click: () => {
+          backtestWindow.webContents.reload()
+        }
+      }))
+      
+      menu.popup({ window: backtestWindow })
+    })
+  }
   
   return backtestWindow
 }
@@ -102,6 +178,27 @@ const createRustBackend = () => {
 app.whenReady().then(() => {
   createWindow()
 
+  // 开发环境注册全局快捷键
+  if (process.env.NODE_ENV !== 'production') {
+    // 注册 F12 快捷键打开开发者工具
+    globalShortcut.register('F12', () => {
+      const focusedWindow = BrowserWindow.getFocusedWindow()
+      if (focusedWindow) {
+        focusedWindow.webContents.toggleDevTools()
+      }
+    })
+    
+    // 注册 Ctrl+Shift+I 快捷键打开开发者工具
+    globalShortcut.register('CommandOrControl+Shift+I', () => {
+      const focusedWindow = BrowserWindow.getFocusedWindow()
+      if (focusedWindow) {
+        focusedWindow.webContents.toggleDevTools()
+      }
+    })
+    
+    console.log('开发环境快捷键已注册：F12 或 Ctrl+Shift+I 打开开发者工具')
+  }
+
   // 判断环境模式
   if (process.env.NODE_ENV === 'production') { // 如果是生产模式
     createRustBackend() // 启动后端服务
@@ -109,6 +206,15 @@ app.whenReady().then(() => {
 })
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit()
+  if (process.platform !== 'darwin') {
+    // 清理全局快捷键
+    globalShortcut.unregisterAll()
+    app.quit()
+  }
+})
+
+app.on('will-quit', () => {
+  // 清理全局快捷键
+  globalShortcut.unregisterAll()
 })
 

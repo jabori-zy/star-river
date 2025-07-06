@@ -395,13 +395,20 @@ const initTestChart = async (rootElement: string | HTMLDivElement, indicatorKeyS
         firstDataTimestamp = updatedContext.firstDataTimestamp;
     };
 
+    const clearChartData = () => {
+        dataSeries.forEach((dataSeries) => {
+            dataSeries.clear();
+        });
+    }
+
     return {
         sciChartSurface,
         wasmContext,
         controls: {
             onNewData,
             getDataSeries: () => dataSeries,
-            getIndicatorConfig: () => indicatorChartConfig
+            getIndicatorConfig: () => indicatorChartConfig,
+            clearChartData
         }
     };
 }

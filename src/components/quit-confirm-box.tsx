@@ -10,25 +10,17 @@ import {
     AlertDialogTrigger,
   } from "@/components/ui/alert-dialog"
 
-// 声明electron的require
-const { ipcRenderer } = window.require ? window.require('electron') : { ipcRenderer: null }
-
 interface QuitConfirmBoxProps {
   title: string;
   description: string;
   confirmText: string;
   cancelText: string;
+  onConfirm: () => void | Promise<void>;
   children: React.ReactNode;  // 触发器内容
 }
 
 // 退出应用二次确认框
-const QuitConfirmBox = ({ title, description, confirmText, cancelText, children }: QuitConfirmBoxProps) => {
-    const handleConfirmQuit = () => {
-        if (ipcRenderer) {
-            ipcRenderer.invoke('close-window')
-        }
-    }
-
+const QuitConfirmBox = ({ title, description, confirmText, cancelText, onConfirm, children }: QuitConfirmBoxProps) => {
     return (
         <AlertDialog>
             <AlertDialogTrigger asChild>
@@ -43,7 +35,7 @@ const QuitConfirmBox = ({ title, description, confirmText, cancelText, children 
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                 <AlertDialogCancel>{cancelText}</AlertDialogCancel>
-                <AlertDialogAction onClick={handleConfirmQuit} className="bg-red-500 hover:bg-red-600">
+                <AlertDialogAction onClick={onConfirm} className="bg-red-500 hover:bg-red-600">
                     {confirmText}
                 </AlertDialogAction>
                 </AlertDialogFooter>

@@ -1,6 +1,6 @@
 import { SciChartSurface, SciChartVerticalGroup, NumberRange, AxisBase2D } from "scichart";
 import { SciChartReact } from "scichart-react";
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useImperativeHandle, forwardRef } from "react";
 import { ChartGroupLoader } from "./chart-group-loader";
 import { AxisSynchroniser } from "./axis-synchroniser";
 import KlineChart from "./kline-chart";
@@ -15,12 +15,36 @@ interface StockChartsProps {
     indicatorKeyStrs: string[];
 }
 
-export default function StockCharts({ chartId, klineKeyStr, indicatorKeyStrs }: StockChartsProps) {
+interface StockChartsRef {
+    clearChartData: () => void;
+}
+
+const StockCharts = forwardRef<StockChartsRef, StockChartsProps>(({ chartId, klineKeyStr, indicatorKeyStrs }, ref) => {
     const [mainChart, setMainChart] = useState<SciChartSurface>();
 
     // 图表组
     const verticalGroupRef = useRef<SciChartVerticalGroup>(new SciChartVerticalGroup());
     const axisSynchroniserRef = React.useRef<AxisSynchroniser>(new AxisSynchroniser(new NumberRange(200, 500)));
+    
+    // 创建ref来获取子组件的清空方法
+    const klineChartRef = useRef<{ clearChartData: () => void }>(null);
+    const indicatorChartRefs = useRef<{ clearChartData: () => void }[]>([]);
+
+    // 暴露清空方法给父组件
+    useImperativeHandle(ref, () => ({
+        clearChartData: () => {
+            // 清空K线图
+            if (klineChartRef.current) {
+                klineChartRef.current.clearChartData();
+            }
+            // 清空所有指标图
+            indicatorChartRefs.current.forEach(indicatorChartRef => {
+                if (indicatorChartRef) {
+                    indicatorChartRef.clearChartData();
+                }
+            });
+        }
+    }));
 
     const handleAddAxis = (axis: AxisBase2D) => {
         axisSynchroniserRef.current.addAxis(axis);
@@ -65,6 +89,7 @@ export default function StockCharts({ chartId, klineKeyStr, indicatorKeyStrs }: 
                 <ChartGroupLoader onInit={() => {}}>
                     <div className="flex-1">
                         <KlineChart
+                            ref={klineChartRef}
                             chartId={chartId}
                             klineKeyStr={klineKeyStr}
                             indicatorKeyStrs={mainChartIndicatorKeyStrs}
@@ -82,9 +107,9 @@ export default function StockCharts({ chartId, klineKeyStr, indicatorKeyStrs }: 
                             />
                         ) : null}
                     </div>
-                </ChartGroupLoader>
-            </div>
-        );
+                            </ChartGroupLoader>
+        </div>
+    );
     }
 
     // 有子图时，使用ResizablePanelGroup
@@ -96,6 +121,7 @@ export default function StockCharts({ chartId, klineKeyStr, indicatorKeyStrs }: 
                         {/* 主图 */}
                         <ResizablePanel defaultSize={mainChartSize} minSize={30}>
                             <KlineChart
+                                ref={klineChartRef}
                                 chartId={chartId}
                                 klineKeyStr={klineKeyStr}
                                 indicatorKeyStrs={mainChartIndicatorKeyStrs}
@@ -111,6 +137,11 @@ export default function StockCharts({ chartId, klineKeyStr, indicatorKeyStrs }: 
                                 <ResizableHandle withHandle />
                                 <ResizablePanel defaultSize={subChartSize} minSize={10}>
                                     <IndicatorChart
+                                        ref={(el) => {
+                                            if (el) {
+                                                indicatorChartRefs.current[index] = el;
+                                            }
+                                        }}
                                         indicatorKeyStr={indicatorKeyStr}
                                         indicatorName={`指标${index + 1}`}
                                         addSurfaceToGroup={handleAddSurfaceToGroup}
@@ -133,4 +164,8 @@ export default function StockCharts({ chartId, klineKeyStr, indicatorKeyStrs }: 
             </ChartGroupLoader>
         </div>
     );
-}
+});
+
+StockCharts.displayName = 'StockCharts';
+
+export default StockCharts;

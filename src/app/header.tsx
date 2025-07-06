@@ -4,7 +4,7 @@ import { useSidebar } from '@/components/ui/sidebar'
 import useSidebarToggleStore from '@/store/use-sidebar-toggle-store'
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Minus, Square, X } from "lucide-react"
-import QuitConfirmBox from '../quit-confirm-box'
+import QuitConfirmBox from '@/components/quit-confirm-box'
 import { useNavigate } from 'react-router'
 import { useHeaderStore } from '@/store/useHeaderStore'
 
@@ -77,6 +77,12 @@ function WindowControl() {
       ipcRenderer.invoke('maximize-window')
     }
   }
+
+  const handleConfirmQuit = () => {
+    if (ipcRenderer) {
+        ipcRenderer.invoke('close-window')
+    }
+}
   
   return (
     <div className="flex items-center gap-0.5">
@@ -94,6 +100,7 @@ function WindowControl() {
         description="确认退出应用吗？所有未保存的更改可能会丢失。"
         confirmText="确认"
         cancelText="取消"
+        onConfirm={handleConfirmQuit}
       >
         <Button variant="ghost" size="icon" className="hover:text-red-400">
           <X className="w-3 h-3" />

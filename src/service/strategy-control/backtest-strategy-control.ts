@@ -26,3 +26,43 @@ export async function playOne(strategyId: number) {
         throw error;
     }
 }
+
+export async function play(strategyId: number) {
+    try {
+        console.log("play", strategyId);
+        const response = await axios.post(`${API_URL}/${strategyId}/play`);
+        if (response.status !== 200) {
+            throw new Error(`play error: ${response.status}`);
+        }
+        return response.data["data"];
+    } catch (error) {
+        console.error('play error:', error);
+        throw error;
+    }
+}
+
+export async function pause(strategyId: number) {
+    try {
+        const response = await axios.post(`${API_URL}/${strategyId}/pause`);
+        if (response.status !== 200) {
+            throw new Error(`pause error: ${response.status}`);
+        }
+        return response.data["data"];
+    } catch (error) {
+        console.error('pause error:', error);
+        throw error;
+    }
+}
+
+export async function stop(strategyId: number) {
+    try {
+        const response = await axios.post(`${API_URL}/${strategyId}/reset`);
+        if (response.status !== 200) {
+            throw new Error(`reset error: ${response.status}`);
+        }
+        return response.data["data"];
+    } catch (error) {
+        console.error('reset error:', error);
+        throw error;
+    }
+}
