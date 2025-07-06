@@ -7,7 +7,7 @@ import { SelectedSymbol } from "./kline-node";
 // 选中的指标, 用于连接到其他节点, 扩展IndicatorConfig
 export type SelectedIndicator =  {
     indicatorId: number; // 指标id
-    handleId: string; // 出口id, 用于连接到其他节点
+    outputHandleId: string; // 出口id, 用于连接到其他节点
     indicatorConfig: IndicatorConfig;
     value: IndicatorValue;
 }

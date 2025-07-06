@@ -47,9 +47,9 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ data }) => {
                         <div className="flex flex-col gap-2 mt-2">
                             {exchangeModeConfig.selectedIndicators.map((indicator) => (
                                 <IndicatorItem
-                                    key={indicator.handleId}
+                                    key={indicator.outputHandleId}
                                     indicator={indicator}
-                                    handleId={indicator.handleId}
+                                    handleId={indicator.outputHandleId}
                                 />
                             ))}
                         </div>

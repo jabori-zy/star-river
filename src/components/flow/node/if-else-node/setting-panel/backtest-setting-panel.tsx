@@ -26,7 +26,9 @@ const IfElseNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id, data }) =>
 
     useEffect(() => {
         // 获取连接节点的变量并更新状态
+        console.log("connections", connections);
         const variables = getConnectedNodeVariables(connections, TradeMode.BACKTEST);
+        console.log("变量列表", variables);
         setVariableItemList(variables);
     }, [connections, getConnectedNodeVariables]);
 

@@ -168,8 +168,8 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
                         groupItems.push(
                             <SelectItem
                                 className="text-xs font-normal py-2" 
-                                key={`${variable.handleId}_${varName}`}
-                                value={generateOptionValue(selectedNodeId, variable.handleId, varName)}
+                                key={`${variable.outputHandleId}_${varName}`}
+                                value={generateOptionValue(selectedNodeId, variable.outputHandleId, varName)}
                                 textValue={`指标${variable.indicatorId} • ${varName}`}
                             >
                                 <div className="flex items-center justify-between w-full gap-1">
@@ -221,8 +221,8 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
                     klineItems.push(
                         <SelectItem 
                             className="text-xs font-normal py-2 px-3 hover:bg-green-50 focus:bg-green-50" 
-                            key={`${variable.handleId}_${field}`}
-                            value={generateOptionValue(selectedNodeId, variable.handleId, field)}
+                            key={`${variable.outputHandleId}_${field}`}
+                            value={generateOptionValue(selectedNodeId, variable.outputHandleId, field)}
                             textValue={`${variable.symbol} ${variable.interval} • ${field}`}
                         >
                             <div className="flex items-center justify-between w-full gap-2">

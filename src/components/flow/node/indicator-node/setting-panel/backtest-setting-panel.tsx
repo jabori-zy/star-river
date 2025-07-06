@@ -66,7 +66,7 @@ const IndicatorNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id, data })
                     setLocalSymbolList(selectedSymbols);
                 }
             } else {
-                const selectedSymbol = selectedSymbols?.find((symbol: SelectedSymbol) => symbol.handleId === sourceHandleId);
+                const selectedSymbol = selectedSymbols?.find((symbol: SelectedSymbol) => symbol.outputHandleId === sourceHandleId);
                 if (selectedSymbol) {
                     setLocalSymbolList([selectedSymbol]);
                 }

@@ -62,7 +62,7 @@ const useStrategyWorkflow = () => {
         const existingItem = variableList.find(item => item.nodeId === nodeId);
         
         if (existingItem) {
-            // 检查是否已存在相同handleId的变量，避免重复添加
+            // 检查是否已存在相同outputHandleId的变量，避免重复添加
             const existingVariable = existingItem.variables.find(v => v.outputHandleId === variable.outputHandleId);
             if (!existingVariable) {
                 existingItem.variables.push(variable);
@@ -153,7 +153,7 @@ const useStrategyWorkflow = () => {
                 } else {
                     // 特定输出：只添加匹配的指标变量
                     const selectedIndicator = selectedIndicators?.find((indicator: SelectedIndicator) => 
-                        indicator.handleId === sourceHandleId
+                        indicator.outputHandleId === sourceHandleId
                     );
                     if (selectedIndicator) {
                         addOrUpdateVariableItem(tempVariableItemList, node.id, indicatorNodeData.nodeName, NodeType.IndicatorNode, selectedIndicator);
@@ -175,7 +175,7 @@ const useStrategyWorkflow = () => {
                 } else {
                     // 特定输出：只添加匹配的K线变量
                     const selectedSymbol = selectedSymbols?.find((symbol: SelectedSymbol) => 
-                        symbol.handleId === sourceHandleId
+                        symbol.outputHandleId === sourceHandleId
                     );
                     if (selectedSymbol) {
                         addOrUpdateVariableItem(tempVariableItemList, node.id, klineNodeData.nodeName, NodeType.KlineNode, selectedSymbol);

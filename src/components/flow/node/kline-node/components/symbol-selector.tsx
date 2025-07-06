@@ -147,7 +147,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 
         const newSymbol: SelectedSymbol = {
             symbolId: listLength + 1, // 使用时间戳作为临时ID
-            handleId: `kline_node_output_${listLength + 1}`, // handleId 将由 hooks 自动生成
+            outputHandleId: `kline_node_output_${listLength + 1}`, // handleId 将由 hooks 自动生成
             symbol: symbolName,
             interval: symbolInterval,
             klineValue: {

@@ -33,7 +33,7 @@ export function SymbolItem({ symbol }: { symbol: SelectedSymbol }) {
                 <span className="text-sm text-muted-foreground">{getIntervalLabel(symbol.interval)}</span>
             </div>
             <BaseHandle
-                id={symbol.handleId}
+                id={symbol.outputHandleId}
                 type="source"
                 position={Position.Right}
                 handleColor="!bg-red-400"

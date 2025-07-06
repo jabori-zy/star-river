@@ -26,6 +26,7 @@ export type TimerConfig = {
 export type VariableConfig = {
     configId: number;
     inputHandleId: string;
+    outputHandleId: string;
     symbol: string | null; // 交易对
     getVariableType: GetVariableType; // 获取变量的方式
     timerConfig?: TimerConfig; // 定时触发的时间间隔配置

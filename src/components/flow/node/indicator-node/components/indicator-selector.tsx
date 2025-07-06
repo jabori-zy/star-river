@@ -130,7 +130,7 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
 
         return {
             indicatorId: index + 1,
-            handleId: `${id}_output${index + 1}`,
+            outputHandleId: `${id}_output${index + 1}`,
             indicatorConfig: baseConfig,
             value: createInitialValue(type)
         };
@@ -171,7 +171,7 @@ const IndicatorSelector: React.FC<IndicatorSelectorProps> = ({
             // 编辑现有指标 - 保持原有的 handleId
             const config = createIndicatorConfig(indicatorType, editingIndex);
             // 保持原有的 handleId
-            config.handleId = selectedIndicators[editingIndex].handleId;
+            config.outputHandleId = selectedIndicators[editingIndex].outputHandleId;
             const updatedIndicators = [...selectedIndicators];
             updatedIndicators[editingIndex] = config;
             onSelectedIndicatorsChange(updatedIndicators);
