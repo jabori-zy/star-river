@@ -1,21 +1,25 @@
 import { useEffect, useRef } from "react";
-import { useBacktestStrategyMarketDataStore } from "@/store/use-backtest-strategy-data-store";
-import { BacktestStrategyEvent, indicatorUpdateEvent, klineUpdateEvent } from "@/types/strategy-event/backtest-strategy-event";
+import { BacktestStrategyEvent, indicatorUpdateEvent, klineUpdateEvent, FuturesOrderFilledEvent } from "@/types/strategy-event/backtest-strategy-event";
 import { BACKTESET_STRATEGY_SSE_URL } from "./index";
 import { useBacktestIndicatorDataStore } from "@/store/backtest-replay-store/use-backtest-indicator-store";
 import { useBacktestKlineDataStore } from "@/store/backtest-replay-store/use-backtest-kline-store";
+import { useBacktestOrderDataStore } from "@/store/backtest-replay-store/use-backtest-order-store";
 
 
 const supportBacktestEvents = [
     "kline-update",
-    "indicator-update"
+    "indicator-update",
+    "futures-order_created",
+    "futures-order-filled",
+    
 ]
 
 const useBacktestStrategyEventSSE = (enabled: boolean = true) => {
   // console.log("useBacktestStrategyEventSSE", enabled);
   const eventSourceRef = useRef<EventSource | null>(null);
-  const { addIndicatorData, clearIndicatorData } = useBacktestIndicatorDataStore();
-  const { addKlineData, clearKlineData } = useBacktestKlineDataStore();
+  const { addIndicatorData } = useBacktestIndicatorDataStore();
+  const { addKlineData } = useBacktestKlineDataStore();
+  const { addSingleOrder, getAllOrderData } = useBacktestOrderDataStore();
 
   useEffect(() => {
     // 如果未启用，则关闭现有连接并返回
@@ -53,6 +57,11 @@ const useBacktestStrategyEventSSE = (enabled: boolean = true) => {
             const data = (strategyEvent as indicatorUpdateEvent).indicatorSeries;
             // console.log("添加新指标数据", cacheKeyStr, data);
             addIndicatorData(cacheKeyStr, data);
+          }
+          if (eventName === "futures-order-filled") {
+            const data = (strategyEvent as FuturesOrderFilledEvent).futuresOrder;
+            addSingleOrder(data.exchange, data.symbol, data);
+            console.log("所有订单数据", getAllOrderData());
           }
             
         } else {

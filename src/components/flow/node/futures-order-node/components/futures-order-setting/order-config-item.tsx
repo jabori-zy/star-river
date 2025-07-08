@@ -31,8 +31,10 @@ const OrderConfigItem: React.FC<OrderConfigItemProps> = ({
 
     const getOrderSideLabel = (side: FuturesOrderSide) => {
         const labels = {
-            [FuturesOrderSide.LONG]: '做多',
-            [FuturesOrderSide.SHORT]: '做空',
+            [FuturesOrderSide.OPEN_LONG]: '做多',
+            [FuturesOrderSide.OPEN_SHORT]: '做空',
+            [FuturesOrderSide.CLOSE_LONG]: '平多',
+            [FuturesOrderSide.CLOSE_SHORT]: '平空',
         };
         return labels[side] || side;
     };
@@ -46,7 +48,7 @@ const OrderConfigItem: React.FC<OrderConfigItemProps> = ({
                     {config.symbol}
                 </Badge>
                 <Badge 
-                    variant={config.orderSide === FuturesOrderSide.LONG ? "default" : "destructive"} 
+                    variant={config.orderSide === FuturesOrderSide.OPEN_LONG || config.orderSide === FuturesOrderSide.CLOSE_LONG ? "default" : "destructive"} 
                     className="h-5 px-1 text-xs"
                 >
                     {getOrderSideLabel(config.orderSide)}

@@ -1,6 +1,7 @@
 import {CacheKeyStr} from "@/types/cache";
 import { Kline } from "@/types/kline";
 import { IndicatorValue } from "@/types/indicator";
+import { VirtualOrder } from "@/types/order/virtual-order";
 
 
 
@@ -23,7 +24,7 @@ export type LiveStrategyEvent = {
 //     timestamp: number;
 // }
 
-export type BacktestStrategyEvent = klineUpdateEvent | indicatorUpdateEvent;
+export type BacktestStrategyEvent = klineUpdateEvent | indicatorUpdateEvent | FuturesOrderFilledEvent;
 
 
 export type BaseEventProps = {
@@ -31,22 +32,23 @@ export type BaseEventProps = {
     event_type: string;
     event: string;
     timestamp: number;
+    fromNodeId: string;
+    fromNodeName: string;
+    fromNodeHandleId: string;
 }
 
 
 export type klineUpdateEvent = BaseEventProps & {
-    fromNodeId: string;
-    fromNodeName: string;
-    fromNodeHandleId: string;
     klineCacheIndex: number;
     klineCacheKey: CacheKeyStr;
     kline: Kline[];
 }
 
 export type indicatorUpdateEvent = BaseEventProps & {
-    fromNodeId: string;
-    fromNodeName: string;
-    fromNodeHandleId: string;
     indicatorCacheKey: CacheKeyStr;
     indicatorSeries: IndicatorValue[];
+}
+
+export type FuturesOrderFilledEvent = BaseEventProps & {
+    futuresOrder: VirtualOrder;
 }

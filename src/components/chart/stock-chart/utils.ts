@@ -341,6 +341,8 @@ export const processKlineData = (
     
     // 更新最新价格线注释
     updateLatestPriceAnnotation(latestPriceAnnotation, kline);
+
+    
     
     return updatedContext;
 };

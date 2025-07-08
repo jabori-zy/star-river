@@ -1,7 +1,7 @@
 import { type FuturesOrderConfig, OrderType, FuturesOrderSide, OrderStatus } from "@/types/order";
 
 export const formatOrderConfig = (config: FuturesOrderConfig): string => {
-    const side = config.orderSide === FuturesOrderSide.LONG ? '多' : '空';
+    const side = config.orderSide === FuturesOrderSide.OPEN_LONG ? '多' : '空';
     const type = getOrderTypeLabel(config.orderType);
     const isMarketOrder = config.orderType === OrderType.MARKET || config.orderType === OrderType.STOP_MARKET;
     
@@ -36,8 +36,8 @@ export const getOrderTypeLabel = (type: OrderType): string => {
 
 export const getOrderSideLabel = (side: FuturesOrderSide): string => {
     const labels = {
-        [FuturesOrderSide.LONG]: '多',
-        [FuturesOrderSide.SHORT]: '空',
+        [FuturesOrderSide.OPEN_LONG]: '多',
+        [FuturesOrderSide.OPEN_SHORT]: '空',
     };
     return labels[side] || side;
 };

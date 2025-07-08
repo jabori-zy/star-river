@@ -21,7 +21,10 @@ import {
     FastLineRenderableSeries,
     HorizontalLineAnnotation,
     DateTimeNumericAxis,
-    EResamplingMode
+    EResamplingMode,
+    AnnotationHoverModifier,
+    TTargetsSelector,
+    IAnnotation
 } from "scichart";
 import { appTheme } from "../theme";
 import { Kline } from "@/types/kline";
@@ -33,6 +36,8 @@ import { KlineCacheKey } from "@/types/cache";
 import { getRolloverLegendTemplate, processKlineData, KlineUpdateContext } from "../utils";
 import { KlineInterval } from "@/types/kline";
 import { SciChartDefaults } from "scichart";
+import { TradeAnnotation } from "../trade-marker-modifier";
+import { VirtualOrder } from "@/types/order/virtual-order";
 
 SciChartDefaults.debugDisableResampling = false;
 SciChartDefaults.performanceWarnings = false
@@ -66,7 +71,7 @@ export const initKlineChart = async (rootElement: string | HTMLDivElement, kline
             const maxTimestamp = args.visibleRange.max;
             const minDate = new Date(minTimestamp * 1000).toLocaleString();
             const maxDate = new Date(maxTimestamp * 1000).toLocaleString();
-            console.log(`x轴范围变化: ${minDate} - ${maxDate} (${minTimestamp} - ${maxTimestamp})`);
+            // console.log(`x轴范围变化: ${minDate} - ${maxDate} (${minTimestamp} - ${maxTimestamp})`);
         }
     });
 
@@ -90,7 +95,7 @@ export const initKlineChart = async (rootElement: string | HTMLDivElement, kline
         if (args && args.visibleRange) {
             const minPrice = args.visibleRange.min;
             const maxPrice = args.visibleRange.max;
-            console.log(`y轴范围变化: ${minPrice.toFixed(2)} - ${maxPrice.toFixed(2)}`);
+            // console.log(`y轴范围变化: ${minPrice.toFixed(2)} - ${maxPrice.toFixed(2)}`);
         }
     });
 
@@ -177,7 +182,7 @@ export const initKlineChart = async (rootElement: string | HTMLDivElement, kline
     }
 
 
-    const onNewIndicatorData = (newIndicators: Record<string, IndicatorValue>) => {
+    const onNewIndicator = (newIndicators: Record<string, IndicatorValue>) => {
         // console.log("onNewIndicatorData", newIndicators);
         Object.entries(newIndicators).forEach(([indicatorKeyStr, indicatorData]) => {
             const indicatorChartConfig = getIndicatorChartConfig(indicatorKeyStr);
@@ -244,12 +249,20 @@ export const initKlineChart = async (rootElement: string | HTMLDivElement, kline
             tooltipLegendTemplate: getRolloverLegendTemplate,
         })
     );
+    const targetsSelector: TTargetsSelector<IAnnotation> = (modifer) => {
+        return modifer.getAllTargets().filter((t) => "quantity" in t);
+    };
+    sciChartSurface.chartModifiers.add(
+        new AnnotationHoverModifier({
+            targets: targetsSelector,
+        })
+    );
 
     // 添加一条水平线注释，显示最新价格
     const latestPriceAnnotation = new HorizontalLineAnnotation({
         isHidden: true,
         strokeDashArray: [2, 2],
-        strokeThickness: 1,
+        strokeThickness: 2,
         axisFontSize: 13,
         axisLabelStroke: appTheme.ForegroundColor,
         showLabel: true,
@@ -302,7 +315,7 @@ export const initKlineChart = async (rootElement: string | HTMLDivElement, kline
     let firstKlineHighPrice: number | null = null;
     let firstKlineLowPrice: number | null = null;
 
-    const onNewKlineData = (kline: Kline) => {
+    const onNewKline = (kline: Kline) => {
         // 构建K线更新上下文
         const context: KlineUpdateContext = {
             candleDataSeries,
@@ -319,12 +332,25 @@ export const initKlineChart = async (rootElement: string | HTMLDivElement, kline
         
         // 使用工具函数处理K线数据
         const updatedContext = processKlineData(kline, context);
-        
+
         // 更新局部变量
         firstCandleTimestamp = updatedContext.firstCandleTimestamp;
         firstKlineHighPrice = updatedContext.firstKlineHighPrice;
         firstKlineLowPrice = updatedContext.firstKlineLowPrice;
     };
+
+    const onNewOrder = (order: VirtualOrder) => {
+        console.log("onNewOrder", order);
+        const orderTimestamp = new Date(order.createTime).getTime() / 1000;
+        sciChartSurface.annotations.add(new TradeAnnotation(
+            orderTimestamp,
+            true,
+            order.quantity,
+            order.openPrice,
+            order.openPrice,
+            order.openPrice
+        ));
+    }
 
     // 设置X轴范围
     const setXRange = (startDate: Date, endDate: Date) => {
@@ -371,13 +397,14 @@ export const initKlineChart = async (rootElement: string | HTMLDivElement, kline
         indicatorDataSeriesMap.forEach((indicatorDataSeries) => {
             indicatorDataSeries.clear();
         });
+        sciChartSurface.annotations.clear();
     }
 
 
     return {
-        wasmContext, 
+        wasmContext,
         sciChartSurface,
-        controls: { setData, onNewKlineData, setXRange, onNewIndicatorData, setIndicatorData, clearChartData },
+        controls: { setData, onNewKline, onNewIndicator, onNewOrder, setXRange, setIndicatorData, clearChartData },
     };
 }
 

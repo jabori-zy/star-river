@@ -26,7 +26,7 @@ const OrderConfigDialog: React.FC<OrderConfigDialogProps> = ({
     // 表单状态
     const [symbol, setSymbol] = React.useState<string>('');
     const [orderType, setOrderType] = React.useState<OrderType>(OrderType.LIMIT);
-    const [orderSide, setOrderSide] = React.useState<FuturesOrderSide>(FuturesOrderSide.LONG);
+    const [orderSide, setOrderSide] = React.useState<FuturesOrderSide>(FuturesOrderSide.OPEN_LONG);
     const [price, setPrice] = React.useState<number>(0);
     const [quantity, setQuantity] = React.useState<number>(0);
     const [tp, setTp] = React.useState<number | null>(null);
@@ -52,7 +52,7 @@ const OrderConfigDialog: React.FC<OrderConfigDialogProps> = ({
     const resetForm = () => {
         setSymbol('');
         setOrderType(OrderType.LIMIT);
-        setOrderSide(FuturesOrderSide.LONG);
+        setOrderSide(FuturesOrderSide.OPEN_LONG);
         setPrice(0);
         setQuantity(0);
         setTp(null);

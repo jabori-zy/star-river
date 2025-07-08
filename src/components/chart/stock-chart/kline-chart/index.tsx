@@ -6,6 +6,10 @@ import { Kline } from "@/types/kline";
 import { IndicatorValue } from "@/types/indicator";
 import { useBacktestKlineDataStore } from "@/store/backtest-replay-store/use-backtest-kline-store";
 import { useBacktestIndicatorDataStore } from "@/store/backtest-replay-store/use-backtest-indicator-store";
+import { VirtualOrder } from "@/types/order/virtual-order";
+import { useBacktestOrderDataStore } from "@/store/backtest-replay-store/use-backtest-order-store";
+import { parseCacheKey } from "@/utils/parseCacheKey";
+import { BacktestKlineCacheKey } from "@/types/cache";
 
 
 interface KlineChartProps {
@@ -23,6 +27,9 @@ interface KlineChartRef {
 
 const KlineChart = forwardRef<KlineChartRef, KlineChartProps>(({ klineKeyStr, indicatorKeyStrs, setMainChart, addAxis, addSurfaceToGroup }, ref) => {
     
+
+    let klineKey = parseCacheKey(klineKeyStr) as BacktestKlineCacheKey;
+
     const latestKline = useBacktestKlineDataStore(
         state => state.getLatestKlineData(klineKeyStr) as Kline
     );
@@ -30,8 +37,9 @@ const KlineChart = forwardRef<KlineChartRef, KlineChartProps>(({ klineKeyStr, in
     const chartControlsRef = useRef<{
         setData: (symbolName: string, kline: Kline[]) => void;
         setXRange: (startDate: Date, endDate: Date) => void;
-        onNewKlineData: (newKline: Kline) => void;
-        onNewIndicatorData: (newIndicators: Record<string, IndicatorValue>) => void;   
+        onNewKline: (newKline: Kline) => void;
+        onNewIndicator: (newIndicators: Record<string, IndicatorValue>) => void;
+        onNewOrder: (newOrder: VirtualOrder) => void;  
         clearChartData: () => void;
     }>(undefined);
 
@@ -74,18 +82,26 @@ const KlineChart = forwardRef<KlineChartRef, KlineChartProps>(({ klineKeyStr, in
             console.log(`准备调用 onNewKlineData，K线时间戳: ${latestKline.timestamp}, 价格: ${latestKline.close}`);
             
             // 直接在 effect 内获取最新的指标数据，使用 ref 来获取最新的 indicatorKeyStrs
-            const store = useBacktestIndicatorDataStore.getState();
+            const indicatorStore = useBacktestIndicatorDataStore.getState();
             const latestIndicatorData: Record<string, IndicatorValue> = {};
             
             indicatorKeyStrsRef.current.forEach(indicatorKeyStr => {
-                const data = store.getLatestIndicatorData(indicatorKeyStr) as IndicatorValue;
+                const data = indicatorStore.getLatestIndicatorData(indicatorKeyStr) as IndicatorValue;
                 if (data) {
                     latestIndicatorData[indicatorKeyStr] = data;
                 }
             });
             
-            chartControlsRef.current.onNewKlineData(latestKline);
-            chartControlsRef.current.onNewIndicatorData(latestIndicatorData);
+            chartControlsRef.current.onNewKline(latestKline);
+            chartControlsRef.current.onNewIndicator(latestIndicatorData);
+
+            const orderStore = useBacktestOrderDataStore.getState();
+            const latestOrder = orderStore.getLatestOrder(klineKey.exchange, klineKey.symbol);
+            if (latestOrder) {
+                chartControlsRef.current.onNewOrder(latestOrder);
+            }
+
+            
         }
     }, [latestKline]); // 只依赖 latestKline，不会再有警告
     

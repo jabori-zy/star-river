@@ -21,7 +21,7 @@ const OrderHandleItem: React.FC<OrderHandleItemProps> = ({id, orderConfig}) => {
             {/* 标题 */}
             <div className="flex items-center gap-2 pr-2 relative">
                 <Badge 
-                    variant={orderConfig.orderSide === FuturesOrderSide.LONG ? "default" : "destructive"} 
+                    variant={orderConfig.orderSide === FuturesOrderSide.OPEN_LONG ? "default" : "destructive"} 
                     className="h-4 px-1 text-xs rounded-sm"
                 >
                     {getOrderSideLabel(orderConfig.orderSide)}
@@ -30,7 +30,7 @@ const OrderHandleItem: React.FC<OrderHandleItemProps> = ({id, orderConfig}) => {
                     Order{orderConfig.orderConfigId}
                 </div>
                 {
-                    orderConfig.orderSide === FuturesOrderSide.LONG ? (
+                    orderConfig.orderSide === FuturesOrderSide.OPEN_LONG ? (
                         <BaseHandle
                             id={`${id}_input${orderConfig.orderConfigId}`}
                             type="target"

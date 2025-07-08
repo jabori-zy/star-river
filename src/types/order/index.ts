@@ -15,8 +15,10 @@ export enum SpotOrderSide {
 }
 
 export enum FuturesOrderSide {
-  LONG = 'LONG', // 做多
-  SHORT = 'SHORT', // 做空
+  OPEN_LONG = 'OPEN_LONG', // 做多
+  OPEN_SHORT = 'OPEN_SHORT', // 做空
+  CLOSE_LONG = 'CLOSE_LONG', // 平多
+  CLOSE_SHORT = 'CLOSE_SHORT', // 平空
 }
 
 export enum OrderStatus {
