@@ -20,6 +20,7 @@ export class TradeAnnotation extends CustomAnnotation {
     public quantity: number;    // 交易数量
     public price: number;       // 交易价格
     public change: number;      // 价格变化/盈亏
+    public createTime: string;  // 成交时间
 
     private priceAnnotation: CustomAnnotation | null = null; // 价格标注
     private tooltipAnnotation: TextAnnotation | null = null; // 提示标注
@@ -65,7 +66,8 @@ export class TradeAnnotation extends CustomAnnotation {
                 text: `
                 交易量: ${this.quantity} 
                 <tspan x="0" dy="1.2em">价格: ${this.price.toFixed(3)}</tspan> 
-                <tspan x="0" dy="1.2em">备注：123</tspan>`,
+                <tspan x="0" dy="1.2em">备注：123</tspan>
+                <tspan x="0" dy="1.2em">成交时间：${this.createTime}</tspan>`,
             });
             console.log("this.x1, this.y1, x2", this.x1, this.y1, x2);
             
@@ -96,7 +98,8 @@ export class TradeAnnotation extends CustomAnnotation {
         quantity: number,
         tradePrice: number,
         markerPrice: number,
-        change: number
+        change: number,
+        createTime: string
     ) {
         // 调用父类构造函数，设置基本标注属性
         super({
@@ -113,6 +116,7 @@ export class TradeAnnotation extends CustomAnnotation {
         this.quantity = quantity;
         this.price = tradePrice;
         this.change = change;
+        this.createTime = createTime;
         
         // 绑定悬停事件处理方法的上下文
         this.onHover = this.onHover.bind(this);

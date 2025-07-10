@@ -1,6 +1,8 @@
 // import RealtimeTickingStockCharts from "@/components/chart/SciChart";
 import { Ellipsis, Trash2, Search, ChartSpline } from "lucide-react";
 import StockCharts from "@/components/chart/stock-chart";
+// import KlineChartWithObservable from "@/components/chart/stock-chart/kline-chart/kline-chart-with-observable";
+import ObservableTestExample from "@/components/chart/stock-chart/kline-chart/observable-test-example";
 // import StockChart from "@/components/chart/stock-chart-new";
 // import SyncMultiChart from "@/components/chart/Demo";
 // import RealtimeTickingStockCharts from "@/components/chart/SciChart";
@@ -95,6 +97,11 @@ const ChartCard = forwardRef<ChartCardRef, ChartCardProps>(({ chartConfig, strat
                     klineKeyStr={chartConfig.klineCacheKeyStr}
                     indicatorKeyStrs={chartConfig.indicatorCacheKeyStrs} 
                 />
+                {/* <ObservableTestExample
+                    klineKeyStr={chartConfig.klineCacheKeyStr}
+                    indicatorKeyStrs={chartConfig.indicatorCacheKeyStrs} 
+                /> */}
+
             </div>
 
             {/* Symbol选择Dialog */}

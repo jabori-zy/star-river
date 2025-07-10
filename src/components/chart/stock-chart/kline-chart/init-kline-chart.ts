@@ -183,7 +183,7 @@ export const initKlineChart = async (rootElement: string | HTMLDivElement, kline
 
 
     const onNewIndicator = (newIndicators: Record<string, IndicatorValue>) => {
-        // console.log("onNewIndicatorData", newIndicators);
+        console.log("新指标数据", newIndicators);
         Object.entries(newIndicators).forEach(([indicatorKeyStr, indicatorData]) => {
             const indicatorChartConfig = getIndicatorChartConfig(indicatorKeyStr);
             if (indicatorChartConfig) {
@@ -348,7 +348,8 @@ export const initKlineChart = async (rootElement: string | HTMLDivElement, kline
             order.quantity,
             order.openPrice,
             order.openPrice,
-            order.openPrice
+            order.openPrice,
+            order.createTime
         ));
     }
 
