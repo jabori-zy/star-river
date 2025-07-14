@@ -1,14 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import Dialog from "@/components/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import { BacktestKlineCacheKey, BacktestIndicatorCacheKey } from "@/types/cache";
 import { getStrategyCacheKeys } from "@/service/strategy";
 import { parseCacheKey } from "@/utils/parseCacheKey";
@@ -44,10 +37,6 @@ export default function IndicatorListDialog({
 
     // 选中的指标缓存键
     const [selectedIndicatorKey, setSelectedIndicatorKey] = useState<string | undefined>(undefined);
-
-    // 主图和副图的勾选状态
-    const [isMainChartChecked, setIsMainChartChecked] = useState<boolean>(false);
-    const [isSubChartChecked, setIsSubChartChecked] = useState<boolean>(false);
 
     const [isSelectOpen, setIsSelectOpen] = useState(false);
 
@@ -105,62 +94,32 @@ export default function IndicatorListDialog({
         if (open) {
             fetchCacheKeys();
             setSelectedIndicatorKey(""); // 重置选择
-            setIsMainChartChecked(false);
-            setIsSubChartChecked(false);
         }
     }, [open, fetchCacheKeys]);
 
-    // 当选择指标变化时，根据指标类型设置默认勾选状态
-    useEffect(() => {
-        if (selectedIndicatorKey && cacheKeys[selectedIndicatorKey]) {
-            const indicatorData = cacheKeys[selectedIndicatorKey] as BacktestIndicatorCacheKey;
-            const indicatorConfig = INDICATOR_CHART_CONFIG_MAP[indicatorData.indicatorType];
-            
-            if (indicatorConfig) {
-                // 根据配置的 isInMainChart 设置默认勾选
-                setIsMainChartChecked(indicatorConfig.isInMainChart);
-                setIsSubChartChecked(!indicatorConfig.isInMainChart);
-            }
-        } else {
-            // 重置勾选状态
-            setIsMainChartChecked(false);
-            setIsSubChartChecked(false);
-        }
-    }, [selectedIndicatorKey, cacheKeys]);
-
     // 处理添加指标
     const handleAddIndicator = () => {
-        if (selectedIndicatorKey && (isMainChartChecked || isSubChartChecked)) {
+        if (selectedIndicatorKey) {
             const indicatorData = cacheKeys[selectedIndicatorKey] as BacktestIndicatorCacheKey;
             const indicatorConfig = INDICATOR_CHART_CONFIG_MAP[indicatorData.indicatorType];
-            
-            if (indicatorConfig) {
-                // 根据勾选状态添加指标配置
-                const configs: Record<string, IndicatorChartConfig> = {};
-                
-                // 根据选择添加到主图或副图
-                configs[selectedIndicatorKey] = {
-                    ...indicatorConfig,
-                    isInMainChart: isMainChartChecked
-                };
 
-                console.log("configs", configs);
-                
+            if (indicatorConfig) {
+                // 添加指标配置到副图
                 const subChartId = chartConfig.subChartConfigs.length + 1;
 
                 // 添加到主图
-                if (isMainChartChecked) {
-                    onMainChartIndicatorAdd(chartConfig.id, selectedIndicatorKey, configs[selectedIndicatorKey]);
+                if (indicatorConfig.isInMainChart) {
+                    onMainChartIndicatorAdd(chartConfig.id, selectedIndicatorKey, indicatorConfig);
                 } else {
                     // 添加到副图
                     onSubChartIndicatorAdd(chartConfig.id, {
                         mainChartId: chartConfig.id,
                         subChartId: subChartId,
-                        indicatorChartConfigs: configs,
+                        indicatorChartConfigs: {[selectedIndicatorKey]: indicatorConfig},
                     });
                 }
             }
-            
+
             onOpenChange(false);
         }
     };
@@ -168,8 +127,6 @@ export default function IndicatorListDialog({
     // 处理取消
     const handleCancel = () => {
         setSelectedIndicatorKey("");
-        setIsMainChartChecked(false);
-        setIsSubChartChecked(false);
         onOpenChange(false);
     };
 
@@ -182,120 +139,78 @@ export default function IndicatorListDialog({
     );
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[500px]">
-                <DialogHeader>
-                    <DialogTitle>添加指标</DialogTitle>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                    {loading ? (
-                        <div className="flex items-center justify-center py-8">
-                            <div className="text-sm text-gray-500">正在加载指标数据...</div>
-                        </div>
-                    ) : (
-                        <>
-                            {availableIndicatorOptions.length > 0 ? (
-                                <div className="grid gap-4">
-                                    <div>
-                                        <label className="text-sm font-medium mb-2 block">选择指标</label>
-                                        <Select
-                                            value={selectedIndicatorKey}
-                                            onValueChange={(value) => {
-                                                setIsSelectOpen(false);
-                                                setSelectedIndicatorKey(value);
+        <Dialog
+            isOpen={open}
+            onClose={handleCancel}
+            title="添加指标"
+            onSave={handleAddIndicator}
+            onCancel={handleCancel}
+            saveText="添加指标"
+            cancelText="取消"
+            saveDisabled={!selectedIndicatorKey}
+            className="w-full max-w-sm"
+        >
+            <div className="flex flex-col gap-4 py-4 px-4">
+                {loading ? (
+                    <div className="flex items-center justify-center py-8">
+                        <div className="text-sm text-gray-500">正在加载指标数据...</div>
+                    </div>
+                ) : (
+                    <>
+                        {availableIndicatorOptions.length > 0 ? (
+                            <div className="flex flex-col gap-4">
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-sm font-medium">选择指标</label>
+                                    <Select
+                                        value={selectedIndicatorKey}
+                                        onValueChange={(value) => {
+                                            setIsSelectOpen(false);
+                                            setSelectedIndicatorKey(value);
+                                        }}
+                                        open={isSelectOpen}
+                                        onOpenChange={(open) => {
+                                            setIsSelectOpen(open);
+                                        }}
+                                    >
+                                        <SelectTrigger className="w-full">
+                                            <SelectValue placeholder="选择要添加的指标">
+                                                {selectedIndicatorKey && cacheKeys[selectedIndicatorKey] && 
+                                                    renderIndicatorOption({
+                                                        key: selectedIndicatorKey,
+                                                        label: "",
+                                                        data: cacheKeys[selectedIndicatorKey] as BacktestIndicatorCacheKey
+                                                    })}
+                                            </SelectValue>
+                                        </SelectTrigger>
+                                        <SelectContent
+                                            className="max-h-[200px] overflow-y-auto min-w-[300px] max-w-[400px]"
+                                            onCloseAutoFocus={(e) => {
+                                                e.preventDefault();
                                             }}
-                                            open={isSelectOpen}
-                                            onOpenChange={(open) => {
-                                                setIsSelectOpen(open);
+                                            onPointerDownOutside={() => {
+                                                setIsSelectOpen(false);
                                             }}
                                         >
-                                            <SelectTrigger className="w-full">
-                                                <SelectValue placeholder="选择要添加的指标">
-                                                    {selectedIndicatorKey && cacheKeys[selectedIndicatorKey] && 
-                                                        renderIndicatorOption({
-                                                            key: selectedIndicatorKey,
-                                                            label: "",
-                                                            data: cacheKeys[selectedIndicatorKey] as BacktestIndicatorCacheKey
-                                                        })}
-                                                </SelectValue>
-                                            </SelectTrigger>
-                                            <SelectContent
-                                                onCloseAutoFocus={(e) => {
-                                                    e.preventDefault();
-                                                }}
-                                                onPointerDownOutside={() => {
-                                                    setIsSelectOpen(false);
-                                                }}
-                                            >
-                                                {availableIndicatorOptions.map((option) => (
-                                                    <SelectItem key={option.key} value={option.key}>
-                                                        {renderIndicatorOption(option)}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    
-                                    {selectedIndicatorKey && (
-                                        <div className="border rounded-lg p-4 bg-gray-50">
-                                            <div className="flex items-center space-x-6">
-                                                <div className="flex items-center space-x-2">
-                                                    <Checkbox
-                                                        id="main-chart"
-                                                        checked={isMainChartChecked}
-                                                        onCheckedChange={(checked) => {
-                                                            if (checked) {
-                                                                setIsMainChartChecked(true);
-                                                                setIsSubChartChecked(false);
-                                                            }
-                                                        }}
-                                                    />
-                                                    <label htmlFor="main-chart" className="text-sm font-medium">
-                                                        添加到主图
-                                                    </label>
-                                                </div>
-                                                <div className="flex items-center space-x-2">
-                                                    <Checkbox
-                                                        id="sub-chart"
-                                                        checked={isSubChartChecked}
-                                                        onCheckedChange={(checked) => {
-                                                            if (checked) {
-                                                                setIsSubChartChecked(true);
-                                                                setIsMainChartChecked(false);
-                                                            }
-                                                        }}
-                                                    />
-                                                    <label htmlFor="sub-chart" className="text-sm font-medium">
-                                                        添加到副图
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
+                                            {availableIndicatorOptions.map((option) => (
+                                                <SelectItem key={option.key} value={option.key}>
+                                                    {renderIndicatorOption(option)}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
                                 </div>
-                            ) : (
-                                <div className="text-center py-8 text-gray-500">
-                                    {chartConfig.klineChartConfig.klineCacheKeyStr 
-                                        ? "该交易对暂无可用指标"
-                                        : "请先选择交易对"
-                                    }
-                                </div>
-                            )}
-                        </>
-                    )}
-                </div>
-                <div className="flex justify-end gap-2">
-                    <Button variant="outline" onClick={handleCancel}>
-                        取消
-                    </Button>
-                    <Button 
-                        onClick={handleAddIndicator}
-                        disabled={!selectedIndicatorKey || (!isMainChartChecked && !isSubChartChecked)}
-                    >
-                        添加指标
-                    </Button>
-                </div>
-            </DialogContent>
+                            </div>
+                        ) : (
+                            <div className="flex items-center justify-center py-8 text-gray-500">
+                                {chartConfig.klineChartConfig.klineCacheKeyStr 
+                                    ? "该交易对暂无可用指标"
+                                    : "请先选择交易对"
+                                }
+                            </div>
+                        )}
+                    </>
+                )}
+            </div>
         </Dialog>
     );
 }

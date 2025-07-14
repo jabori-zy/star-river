@@ -55,29 +55,32 @@ const ChartEditDialog = ({
             onCancel={handleCancel}
             saveText="保存设置"
             cancelText="取消"
+            className="w-full max-w-4xl min-w-[800px] max-h-[80vh] min-h-[600px]"
             contentClassName="flex"
         >
-            {/* 左侧菜单 */}
-            <Menu
-                mode={mode}
-                selectedMenu={selectedMenu}
-                onMenuSelect={handleMenuSelect}
-            />
+            <div className="flex border-b border-gray-200 border-t ">
+                {/* 左侧菜单 */}
+                <Menu
+                    mode={mode}
+                    selectedMenu={selectedMenu}
+                    onMenuSelect={handleMenuSelect}
+                />
 
-            {/* 右侧编辑窗口 */}
-            <div className="flex-1 flex flex-col overflow-hidden">
-                <div className="p-6 flex-1 overflow-y-auto">
-                    {selectedMenu === "kline" && mode === "main" && klineChartConfig && (
-                        <KlineEditor klineChartConfig={klineChartConfig} />
-                    )}
+                {/* 右侧编辑窗口 */}
+                <div className="flex-1 flex flex-col overflow-hidden">
+                    <div className="p-6 flex-1 overflow-y-auto">
+                        {selectedMenu === "kline" && mode === "main" && klineChartConfig && (
+                            <KlineEditor klineChartConfig={klineChartConfig} />
+                        )}
 
-                    {selectedMenu === "indicator" && (
-                        <IndicatorEditor
-                            mode={mode}
-                            klineChartConfig={klineChartConfig}
-                            subChartConfigs={subChartConfigs}
-                        />
-                    )}
+                        {selectedMenu === "indicator" && (
+                            <IndicatorEditor
+                                mode={mode}
+                                klineChartConfig={klineChartConfig}
+                                subChartConfigs={subChartConfigs}
+                            />
+                        )}
+                    </div>
                 </div>
             </div>
         </Dialog>

@@ -14,7 +14,7 @@ import ChartEditButton from "../chart-edit-button";
 import ChartEditDialog from "../components/chart-edit-dialog";
 interface KlineChartProps {
     klineChartConfig: KlineChartConfig;
-    setMainChart: (sciChartSurface: SciChartSurface) => void;
+    setMainChart?: (sciChartSurface: SciChartSurface) => void;
     addAxis: (axis: AxisBase2D) => void;
     addSurfaceToGroup: (surface: SciChartSurface) => void;
     enabled?: boolean; // 是否启用Observable数据流,

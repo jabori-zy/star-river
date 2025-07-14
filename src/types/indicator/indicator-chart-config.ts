@@ -29,7 +29,7 @@ import { IndicatorChartConfig } from "../chart";
 export const INDICATOR_CHART_CONFIG_MAP: Record<IndicatorType, IndicatorChartConfig> = {
     [IndicatorType.SMA]: {
         name: "SMA",
-        isInMainChart: false,
+        isInMainChart: true,
         seriesConfigs: [
             { name: "SMA", type: SeriesType.LINE, color: "#FF6B6B", strokeThickness: 2, indicatorValueKey: "sma" as keyof IndicatorValue }
         ],

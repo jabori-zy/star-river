@@ -14,6 +14,7 @@ interface DialogProps {
     showFooter?: boolean;
     className?: string;
     contentClassName?: string;
+    saveDisabled?: boolean;
 }
 
 const Dialog = ({
@@ -27,7 +28,8 @@ const Dialog = ({
     cancelText = "取消",
     showFooter = true,
     className = "",
-    contentClassName = ""
+    contentClassName = "",
+    saveDisabled = false
 }: DialogProps) => {
     if (!isOpen) return null;
 
@@ -54,9 +56,9 @@ const Dialog = ({
             />
 
             {/* Dialog 内容 */}
-            <div className={`relative bg-white rounded-lg shadow-xl w-full max-w-3xl min-w-[200px] max-h-[80vh] min-h-[600px] mx-4 flex flex-col ${className}`}>
+            <div className={`relative bg-white rounded-lg shadow-xl mx-4 flex flex-col ${className}`}>
                 {/* 标题栏 */}
-                <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                <div className="flex items-center justify-between py-2 px-4">
                     <h2 className="text-xl font-semibold text-gray-900">
                         {title}
                     </h2>
@@ -77,7 +79,7 @@ const Dialog = ({
 
                 {/* 底部按钮 */}
                 {showFooter && (
-                    <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50 rounded-b-lg">
+                    <div className="flex items-center justify-end gap-3 py-2 px-4">
                         <Button
                             variant="outline"
                             onClick={handleCancel}
@@ -87,6 +89,7 @@ const Dialog = ({
                         </Button>
                         <Button
                             onClick={handleSave}
+                            disabled={saveDisabled}
                             className="px-6"
                         >
                             {saveText}

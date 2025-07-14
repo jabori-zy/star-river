@@ -1,12 +1,12 @@
 import { SciChartSurface, SciChartVerticalGroup, NumberRange, AxisBase2D } from "scichart";
-import { SciChartReact } from "scichart-react";
+// import { SciChartReact } from "scichart-react";
 import React, { useRef, useState, useImperativeHandle, forwardRef } from "react";
 import { ChartGroupLoader } from "./chart-group-loader";
 import { AxisSynchroniser } from "./axis-synchroniser";
 import KlineChart from "./kline-chart";
 import IndicatorChart from "./indicator-chart";
 // import { getIndicatorChartConfig } from "@/types/indicator/indicator-chart-config";
-import { drawOverview } from "./utils";
+// import { drawOverview } from "./utils";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { BacktestChart } from "@/types/chart/backtest-chart";
 
@@ -20,7 +20,7 @@ interface StockChartsRef {
 }
 
 const StockCharts = forwardRef<StockChartsRef, StockChartsProps>(({ chartConfig, onDeleteSubChart }, ref) => {
-    const [mainChart, setMainChart] = useState<SciChartSurface>();
+    // const [mainChart, setMainChart] = useState<SciChartSurface>();
 
     // 图表组
     const verticalGroupRef = useRef<SciChartVerticalGroup>(new SciChartVerticalGroup());
@@ -90,7 +90,7 @@ const StockCharts = forwardRef<StockChartsRef, StockChartsProps>(({ chartConfig,
                     <div className="flex-1">
                         <KlineChart
                             ref={klineChartRef}
-                            setMainChart={setMainChart}
+                            // setMainChart={setMainChart}
                             addAxis={handleAddAxis}
                             addSurfaceToGroup={handleAddSurfaceToGroup}
                             klineChartConfig={chartConfig.klineChartConfig}
@@ -121,7 +121,7 @@ const StockCharts = forwardRef<StockChartsRef, StockChartsProps>(({ chartConfig,
                             <KlineChart
                                 ref={klineChartRef}
                                 klineChartConfig={chartConfig.klineChartConfig}
-                                setMainChart={setMainChart}
+                                // setMainChart={setMainChart}
                                 addAxis={handleAddAxis}
                                 addSurfaceToGroup={handleAddSurfaceToGroup}
                                 
