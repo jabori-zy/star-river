@@ -1,4 +1,4 @@
-import React, { useRef, useImperativeHandle, forwardRef } from "react";
+import React, { useRef, useImperativeHandle, forwardRef, useState } from "react";
 import { SciChartReact, TResolvedReturnType } from "scichart-react";
 import { AxisBase2D, SciChartSurface } from "scichart";
 import { initKlineChart } from "./init-kline-chart";
@@ -9,8 +9,9 @@ import { createKlineStreamForCacheKey, createIndicatorStreamForCacheKey, createO
 import { parseCacheKey } from "@/utils/parseCacheKey";
 import { BacktestKlineCacheKey } from "@/types/cache";
 import { Subscription } from "rxjs";
-import { KlineChartConfig } from "@/types/chart";
+import { KlineChartConfig, SubChartConfig } from "@/types/chart";
 import ChartEditButton from "../chart-edit-button";
+import ChartEditDialog from "../components/chart-edit-dialog";
 interface KlineChartProps {
     klineChartConfig: KlineChartConfig;
     setMainChart: (sciChartSurface: SciChartSurface) => void;
@@ -35,6 +36,25 @@ const KlineChart = forwardRef<KlineChartRef, KlineChartProps>(
             onNewOrder: (newOrder: VirtualOrder) => void;
             clearChartData: () => void;
         }>(undefined);
+
+        // 指标编辑器状态
+        const [isEditorOpen, setIsEditorOpen] = useState(false);
+
+        // 处理编辑按钮点击
+        const handleEdit = () => {
+            setIsEditorOpen(true);
+        };
+
+        // 处理编辑器关闭
+        const handleEditorClose = () => {
+            setIsEditorOpen(false);
+        };
+
+        // 处理编辑器保存
+        const handleEditorSave = (config: KlineChartConfig | SubChartConfig | SubChartConfig[]) => {
+            console.log("保存主图配置:", config);
+            // TODO: 实现配置保存逻辑
+        };
 
         // 暴露清空方法给父组件
         useImperativeHandle(ref, () => ({
@@ -113,7 +133,7 @@ const KlineChart = forwardRef<KlineChartRef, KlineChartProps>(
         return (
             <div className="w-full h-full flex flex-col overflow-hidden relative group">
                 <div className="absolute top-2 right-20 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                    <ChartEditButton isMainChart={true} onEdit={() => {}}/>
+                    <ChartEditButton isMainChart={true} onEdit={handleEdit}/>
                 </div>
                 <SciChartReact
                     key={`${klineChartConfig.klineCacheKeyStr}-${Object.keys(klineChartConfig.indicatorChartConfig).join('-')}`}
@@ -140,6 +160,15 @@ const KlineChart = forwardRef<KlineChartRef, KlineChartProps>(
                             });
                         };
                     }}
+                />
+
+                {/* 图表编辑对话框 */}
+                <ChartEditDialog
+                    isOpen={isEditorOpen}
+                    onClose={handleEditorClose}
+                    mode="main"
+                    klineChartConfig={klineChartConfig}
+                    onSave={handleEditorSave}
                 />
             </div>
         );

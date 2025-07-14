@@ -1,13 +1,14 @@
-import React, { useRef, useImperativeHandle, forwardRef } from "react";
+import React, { useRef, useImperativeHandle, forwardRef, useState } from "react";
 import { SciChartReact, TResolvedReturnType } from "scichart-react";
 import { AxisBase2D, SciChartSurface, XyDataSeries } from "scichart";
 import { Subscription } from "rxjs";
 import initIndicatorChart from "./init-indicator-chart";
 import { IndicatorValue } from "@/types/indicator";
-import { IndicatorChartConfig } from "@/types/chart";
+import { IndicatorChartConfig, KlineChartConfig } from "@/types/chart";
 import { createIndicatorStreamForCacheKey } from "@/hooks/obs/backtest-strategy-data-obs";
 import { SubChartConfig } from "@/types/chart";
 import ChartEditButton from "../chart-edit-button";
+import ChartEditDialog from "../components/chart-edit-dialog";
 
 interface IndicatorChartProps {
     enabled?: boolean; // 是否启用Observable数据流
@@ -31,6 +32,25 @@ const IndicatorChart = forwardRef<IndicatorChartRef, IndicatorChartProps>(
             getIndicatorConfig: () => IndicatorChartConfig;
             clearChartData: () => void;
         }>(undefined);
+
+        // 指标编辑器状态
+        const [isEditorOpen, setIsEditorOpen] = useState(false);
+
+        // 处理编辑按钮点击
+        const handleEdit = () => {
+            setIsEditorOpen(true);
+        };
+
+        // 处理编辑器关闭
+        const handleEditorClose = () => {
+            setIsEditorOpen(false);
+        };
+
+        // 处理编辑器保存
+        const handleEditorSave = (config: SubChartConfig | SubChartConfig[] | KlineChartConfig) => {
+            console.log("保存子图配置:", config);
+            // TODO: 实现配置保存逻辑
+        };
 
         // 暴露清空方法给父组件
         useImperativeHandle(ref, () => ({
@@ -76,10 +96,10 @@ const IndicatorChart = forwardRef<IndicatorChartRef, IndicatorChartProps>(
             <div className="w-full h-full flex flex-col overflow-hidden relative group">
                 {/* 悬浮时显示的按钮组 */}
                 <div className="absolute top-2 right-20 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                    <ChartEditButton 
+                    <ChartEditButton
                         isMainChart={false}
-                        onEdit={() => {}} 
-                        subChartId={1} 
+                        onEdit={handleEdit}
+                        subChartId={subChartConfig.subChartId}
                         onDeleteSubChart={onDeleteSubChart} />
                 </div>
 
@@ -106,6 +126,15 @@ const IndicatorChart = forwardRef<IndicatorChartRef, IndicatorChartProps>(
                             }
                         };
                     }}
+                />
+
+                {/* 图表编辑对话框 */}
+                <ChartEditDialog
+                    isOpen={isEditorOpen}
+                    onClose={handleEditorClose}
+                    mode="sub"
+                    subChartConfigs={[subChartConfig]}
+                    onSave={handleEditorSave}
                 />
             </div>
         );
