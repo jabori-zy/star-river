@@ -4,23 +4,26 @@ import { AxisBase2D, SciChartSurface, XyDataSeries } from "scichart";
 import { Subscription } from "rxjs";
 import initIndicatorChart from "./init-indicator-chart";
 import { IndicatorValue } from "@/types/indicator";
-import { IndicatorChartConfig } from "@/types/indicator/indicator-chart-config";
+import { IndicatorChartConfig } from "@/types/chart";
 import { createIndicatorStreamForCacheKey } from "@/hooks/obs/backtest-strategy-data-obs";
+import { SubChartConfig } from "@/types/chart";
+import ChartEditButton from "../chart-edit-button";
 
-interface IndicatorChartWithObservableProps {
-    indicatorKeyStr: string;
-    indicatorName: string;
+interface IndicatorChartProps {
+    enabled?: boolean; // 是否启用Observable数据流
+    subChartConfig: SubChartConfig
     addSurfaceToGroup: (surface: SciChartSurface) => void;
     addAxis: (axis: AxisBase2D) => void;
-    enabled?: boolean; // 是否启用Observable数据流
+    onDeleteSubChart: (subChartId: number) => void;
+    
 }
 
 interface IndicatorChartRef {
     clearChartData: () => void;
 }
 
-const IndicatorChartWithObservable = forwardRef<IndicatorChartRef, IndicatorChartWithObservableProps>(
-    ({ indicatorKeyStr, indicatorName, addSurfaceToGroup, addAxis, enabled = true }, ref) => {
+const IndicatorChart = forwardRef<IndicatorChartRef, IndicatorChartProps>(
+    ({ addSurfaceToGroup, addAxis, enabled = true, subChartConfig, onDeleteSubChart }, ref) => {
         
         const chartControlsRef = useRef<{
             onNewData: (data: IndicatorValue) => void;
@@ -38,15 +41,19 @@ const IndicatorChartWithObservable = forwardRef<IndicatorChartRef, IndicatorChar
             }
         }));
 
+        const  indicatorChartConfig = Object.values(subChartConfig.indicatorChartConfigs)[0];
+        const indicatorCacheKeyStr = Object.keys(subChartConfig.indicatorChartConfigs)[0];
+
         // 创建图表初始化函数 - 参考官网示例的方式
         const initChart = React.useCallback(async (rootElement: string | HTMLDivElement) => {
             // 初始化图表
-            const { sciChartSurface, controls } = await initIndicatorChart(rootElement, indicatorKeyStr, indicatorName);
+            const { sciChartSurface, controls } = await initIndicatorChart(rootElement, indicatorChartConfig);
             
             // 订阅指标数据流 - 类似官网示例中的 obs.subscribe()
             let subscription: Subscription | null = null;
             if (enabled) {
-                const obs = createIndicatorStreamForCacheKey(indicatorKeyStr, enabled);
+
+                const obs = createIndicatorStreamForCacheKey(indicatorCacheKeyStr, enabled);
                 subscription = obs.subscribe((indicatorData: IndicatorValue[]) => {
                     console.log(`=== 收到指标数据流更新 ===`);
                     console.log(`数据长度: ${indicatorData.length}`);
@@ -63,14 +70,24 @@ const IndicatorChartWithObservable = forwardRef<IndicatorChartRef, IndicatorChar
             }
             
             return { sciChartSurface, controls, subscription };
-        }, [indicatorKeyStr, indicatorName, enabled]);
+        }, [indicatorCacheKeyStr, indicatorChartConfig, enabled]);
 
         return (
-            <div className="w-full h-full flex flex-col overflow-hidden">
+            <div className="w-full h-full flex flex-col overflow-hidden relative group">
+                {/* 悬浮时显示的按钮组 */}
+                <div className="absolute top-2 right-20 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    <ChartEditButton 
+                        isMainChart={false}
+                        onEdit={() => {}} 
+                        subChartId={1} 
+                        onDeleteSubChart={onDeleteSubChart} />
+                </div>
+
+                {/* 图表区域 - 占据全部空间 */}
                 <SciChartReact
-                    key={`indicator-${indicatorKeyStr}`}
+                    key={`indicator-${indicatorCacheKeyStr}`}
                     initChart={initChart}
-                    style={{ flexBasis: 200, flexGrow: 1, flexShrink: 1 }}
+                    style={{ width: '100%', height: '100%' }}
                     onInit={(initResult: TResolvedReturnType<typeof initChart>) => {
                         const { sciChartSurface, controls, subscription } = initResult;
                         chartControlsRef.current = controls;
@@ -95,6 +112,6 @@ const IndicatorChartWithObservable = forwardRef<IndicatorChartRef, IndicatorChar
     }
 );
 
-IndicatorChartWithObservable.displayName = 'IndicatorChartWithObservable';
+IndicatorChart.displayName = 'IndicatorChartWithObservable';
 
-export default IndicatorChartWithObservable;
+export default IndicatorChart;

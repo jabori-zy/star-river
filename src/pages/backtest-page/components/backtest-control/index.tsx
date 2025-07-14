@@ -2,16 +2,17 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Pause, Play, ArrowRightToLine, Square, Save, Loader2 } from "lucide-react";
 import React from "react";
-import AddChartButton from "../add-chart-button";
+import AddChartButton from "./add-chart-button";
 import LayoutControl from "../layout-control";
-import { BacktestStrategyChartConfig, LayoutMode } from "@/types/chart/backtest-chart";
+import { BacktestStrategyChartConfig } from "@/types/chart/backtest-chart";
+import { LayoutMode } from "@/types/chart";
 
 
 interface BacktestControlProps {
     strategyId: number;
     strategyChartConfig: BacktestStrategyChartConfig;
     updateLayout: (layout: LayoutMode) => void;
-    onAddChart: (klineCacheKeyStr: string, indicatorCacheKeyStrs: string[], chartName: string) => void;
+    onAddChart: (klineCacheKeyStr: string, chartName: string) => void;
     onSaveChart: () => void;
     isRunning: boolean;
     onPlay: () => void;
@@ -23,7 +24,6 @@ interface BacktestControlProps {
 
 
 const BacktestControl: React.FC<BacktestControlProps> = ({ 
-    strategyId, 
     strategyChartConfig, 
     updateLayout, 
     onAddChart, 
@@ -99,7 +99,6 @@ const BacktestControl: React.FC<BacktestControlProps> = ({
                 )}
                 <AddChartButton 
                     onAddChart={onAddChart} 
-                    strategyId={strategyId}
                     strategyChartConfig={strategyChartConfig}
                 />
                 <Button variant="default" onClick={onSaveChart} disabled={isSaving}>

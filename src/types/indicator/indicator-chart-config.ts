@@ -1,32 +1,28 @@
 import { IndicatorType } from ".";
-import { IndicatorValue} from "./indicatorValue";
+import { IndicatorValue} from "./indicator-value";
 import { parseCacheKey } from "@/utils/parseCacheKey";
 import { IndicatorCacheKey } from "@/types/cache";
+import { SeriesType } from "../chart";
+import { IndicatorChartConfig } from "../chart";
 
-
-// 数据系列类型
-export enum SeriesType {
-    LINE = "line",
-    COLUMN = "column",
-    MOUNTAIN = "mountain"
-}
 
 // 单个数据系列配置
-export interface SeriesConfig {
-    name: string; // 数据系列名称
-    type: SeriesType; // 数据系列类型
-    color?: string; // 数据系列颜色
-    strokeThickness?: number; // 数据系列线宽
-    indicatorValueKey: keyof IndicatorValue; // 指标值的键名
-}
+// export interface SeriesConfig {
+//     name: string; // 数据系列名称
+//     type: SeriesType; // 数据系列类型
+//     color?: string; // 数据系列颜色
+//     strokeThickness?: number; // 数据系列线宽
+//     indicatorValueKey: keyof IndicatorValue; // 指标值的键名
+// }
+
+
 
 // 指标图表配置
-export interface IndicatorChartConfig {
-    name: string; // 指标名称
-    isInMainChart: boolean; // 默认在主图中，还是子图中
-    seriesConfigs: SeriesConfig[];
-    dataFormat: string; // 描述数据格式，如 "[timestamp, value]" 或 "[timestamp, upper, middle, lower]"
-}
+// export interface IndicatorChartConfig {
+//     name: string; // 指标名称
+//     isInMainChart: boolean; // 默认在主图中，还是子图中
+//     seriesConfigs: IndicatorSeriesConfig[];
+// }
 
 
 // 指标配置映射
@@ -37,7 +33,6 @@ export const INDICATOR_CHART_CONFIG_MAP: Record<IndicatorType, IndicatorChartCon
         seriesConfigs: [
             { name: "SMA", type: SeriesType.LINE, color: "#FF6B6B", strokeThickness: 2, indicatorValueKey: "sma" as keyof IndicatorValue }
         ],
-        dataFormat: "[timestamp, sma]"
     },
     
     [IndicatorType.EMA]: {
@@ -46,7 +41,6 @@ export const INDICATOR_CHART_CONFIG_MAP: Record<IndicatorType, IndicatorChartCon
         seriesConfigs: [
             { name: "MA", type: SeriesType.LINE, color: "#4ECDC4", strokeThickness: 2, indicatorValueKey: "ema" as keyof IndicatorValue }
         ],
-        dataFormat: "[timestamp, ma_value]"
     },
     
     [IndicatorType.BOLL]: {
@@ -57,7 +51,6 @@ export const INDICATOR_CHART_CONFIG_MAP: Record<IndicatorType, IndicatorChartCon
             { name: "中轨", type: SeriesType.LINE, color: "#4ECDC4", strokeThickness: 2, indicatorValueKey: "middle" as keyof IndicatorValue },
             { name: "下轨", type: SeriesType.LINE, color: "#FF6B6B", strokeThickness: 1, indicatorValueKey: "lower" as keyof IndicatorValue }
         ],
-        dataFormat: "[timestamp, upper, middle, lower]"
     },
     
     [IndicatorType.MACD]: {
@@ -68,7 +61,6 @@ export const INDICATOR_CHART_CONFIG_MAP: Record<IndicatorType, IndicatorChartCon
             { name: "信号线", type: SeriesType.LINE, color: "#4ECDC4", strokeThickness: 2, indicatorValueKey: "signal" as keyof IndicatorValue },
             { name: "柱状图", type: SeriesType.COLUMN, color: "#45B7D1", indicatorValueKey: "histogram" as keyof IndicatorValue }
         ],
-        dataFormat: "[timestamp, macd_line, signal_line, histogram]"
     }
 };
 

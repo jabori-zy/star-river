@@ -5,21 +5,21 @@ import { ChartGroupLoader } from "./chart-group-loader";
 import { AxisSynchroniser } from "./axis-synchroniser";
 import KlineChart from "./kline-chart";
 import IndicatorChart from "./indicator-chart";
-import { getIndicatorChartConfig } from "@/types/indicator/indicator-chart-config";
+// import { getIndicatorChartConfig } from "@/types/indicator/indicator-chart-config";
 import { drawOverview } from "./utils";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
+import { BacktestChart } from "@/types/chart/backtest-chart";
 
 interface StockChartsProps {
-    chartId: number;
-    klineKeyStr: string;
-    indicatorKeyStrs: string[];
+    chartConfig: BacktestChart;
+    onDeleteSubChart: (subChartId: number) => void;
 }
 
 interface StockChartsRef {
     clearChartData: () => void;
 }
 
-const StockCharts = forwardRef<StockChartsRef, StockChartsProps>(({ chartId, klineKeyStr, indicatorKeyStrs }, ref) => {
+const StockCharts = forwardRef<StockChartsRef, StockChartsProps>(({ chartConfig, onDeleteSubChart }, ref) => {
     const [mainChart, setMainChart] = useState<SciChartSurface>();
 
     // 图表组
@@ -55,13 +55,13 @@ const StockCharts = forwardRef<StockChartsRef, StockChartsProps>(({ chartId, kli
     }
 
     // 主图指标
-    const mainChartIndicatorKeyStrs = indicatorKeyStrs.filter(indicatorKeyStr => getIndicatorChartConfig(indicatorKeyStr)?.isInMainChart);
+    // const mainChartIndicatorKeyStrs = indicatorKeyStrs.filter(indicatorKeyStr => getIndicatorChartConfig(indicatorKeyStr)?.isInMainChart);
     // 子图指标
-    const subChartIndicatorKeyStrs = indicatorKeyStrs.filter(indicatorKeyStr => !getIndicatorChartConfig(indicatorKeyStr)?.isInMainChart);
+    // const subChartIndicatorKeyStrs = indicatorKeyStrs.filter(indicatorKeyStr => !getIndicatorChartConfig(indicatorKeyStr)?.isInMainChart);
 
     // 计算各个图表的高度占比
     const calculateChartSizes = () => {
-        const subChartCount = subChartIndicatorKeyStrs.length;
+        const subChartCount = chartConfig.subChartConfigs.length;
         
         if (subChartCount === 0) {
             // 只有主图，占满100%
@@ -83,31 +83,29 @@ const StockCharts = forwardRef<StockChartsRef, StockChartsProps>(({ chartId, kli
     const { mainChartSize, subChartSize } = calculateChartSizes();
 
     // 当只有一个k线图时，不需要分界线
-    if (subChartIndicatorKeyStrs.length === 0) {
+    if (chartConfig.subChartConfigs.length === 0) {
         return (
             <div className="w-full h-full flex flex-col overflow-hidden">
                 <ChartGroupLoader onInit={() => {}}>
                     <div className="flex-1">
                         <KlineChart
                             ref={klineChartRef}
-                            chartId={chartId}
-                            klineKeyStr={klineKeyStr}
-                            indicatorKeyStrs={mainChartIndicatorKeyStrs}
                             setMainChart={setMainChart}
                             addAxis={handleAddAxis}
                             addSurfaceToGroup={handleAddSurfaceToGroup}
+                            klineChartConfig={chartConfig.klineChartConfig}
                         />
                     </div>
                     {/* Panel hosting the overview control */}
-                    <div style={{ flexBasis: "70px" }}>
+                    {/* <div style={{ flexBasis: "70px" }}>
                         {mainChart ? (
                             <SciChartReact
                                 initChart={drawOverview(mainChart)}
                                 style={{ width: "100%", height: "100%" }}
                             />
                         ) : null}
-                    </div>
-                            </ChartGroupLoader>
+                    </div> */}
+                </ChartGroupLoader>
         </div>
     );
     }
@@ -122,18 +120,17 @@ const StockCharts = forwardRef<StockChartsRef, StockChartsProps>(({ chartId, kli
                         <ResizablePanel defaultSize={mainChartSize} minSize={30}>
                             <KlineChart
                                 ref={klineChartRef}
-                                chartId={chartId}
-                                klineKeyStr={klineKeyStr}
-                                indicatorKeyStrs={mainChartIndicatorKeyStrs}
+                                klineChartConfig={chartConfig.klineChartConfig}
                                 setMainChart={setMainChart}
                                 addAxis={handleAddAxis}
                                 addSurfaceToGroup={handleAddSurfaceToGroup}
+                                
                             />
                         </ResizablePanel>
 
                         {/* 子图 */}
-                        {subChartIndicatorKeyStrs.map((indicatorKeyStr, index) => (
-                            <React.Fragment key={`indicator-${index}-${indicatorKeyStr}`}>
+                        {chartConfig.subChartConfigs.map((subChartConfig, index) => (
+                            <React.Fragment key={`indicator-${index}-${subChartConfig.mainChartId}`}>
                                 <ResizableHandle withHandle />
                                 <ResizablePanel defaultSize={subChartSize} minSize={10}>
                                     <IndicatorChart
@@ -142,10 +139,10 @@ const StockCharts = forwardRef<StockChartsRef, StockChartsProps>(({ chartId, kli
                                                 indicatorChartRefs.current[index] = el;
                                             }
                                         }}
-                                        indicatorKeyStr={indicatorKeyStr}
-                                        indicatorName={`指标${index + 1}`}
+                                        subChartConfig={subChartConfig}
                                         addSurfaceToGroup={handleAddSurfaceToGroup}
                                         addAxis={handleAddAxis}
+                                        onDeleteSubChart={onDeleteSubChart}
                                     />
                                 </ResizablePanel>
                             </React.Fragment>
@@ -153,14 +150,14 @@ const StockCharts = forwardRef<StockChartsRef, StockChartsProps>(({ chartId, kli
                     </ResizablePanelGroup>
                 </div>
                 {/* Panel hosting the overview control */}
-                <div style={{ flexBasis: "70px" }}>
+                {/* <div style={{ flexBasis: "70px" }}>
                     {mainChart ? (
                         <SciChartReact
                             initChart={drawOverview(mainChart)}
                             style={{ width: "100%", height: "100%" }}
                         />
                     ) : null}
-                </div>
+                </div> */}
             </ChartGroupLoader>
         </div>
     );

@@ -4,11 +4,9 @@ import { AlertCircle, PlusCircle } from "lucide-react";
 import { BacktestStrategyChartConfig } from "@/types/chart/backtest-chart";
 
 interface AddChartButtonProps {
-    onAddChart: (klineCacheKeyStr: string, indicatorCacheKeyStrs: string[], chartName: string) => void;
+    onAddChart: (klineCacheKeyStr: string, chartName: string) => void;
     showAlert?: boolean;
     alertMessage?: string;
-    disabled?: boolean;
-    strategyId?: number;
     strategyChartConfig: BacktestStrategyChartConfig;
 }
 
@@ -16,8 +14,6 @@ const AddChartButton = ({
     onAddChart, 
     showAlert = false, 
     alertMessage = "", 
-    disabled = false,
-    strategyId = 1,
     strategyChartConfig
 }: AddChartButtonProps) => {
 
@@ -34,8 +30,7 @@ const AddChartButton = ({
         const newChartName = `${lastChart.chartName}`;
         
         onAddChart(
-            lastChart.klineCacheKeyStr,
-            lastChart.indicatorCacheKeyStrs,
+            lastChart.klineChartConfig.klineCacheKeyStr,
             newChartName
         );
     };
@@ -54,7 +49,6 @@ const AddChartButton = ({
                     variant="outline" 
                     className="flex items-center gap-1" 
                     onClick={handleAddChart}
-                    disabled={disabled || strategyChartConfig.charts.length === 0}
                 >
                     <PlusCircle className="h-4 w-4" />
                     添加图表

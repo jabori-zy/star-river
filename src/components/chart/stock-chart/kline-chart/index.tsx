@@ -9,23 +9,23 @@ import { createKlineStreamForCacheKey, createIndicatorStreamForCacheKey, createO
 import { parseCacheKey } from "@/utils/parseCacheKey";
 import { BacktestKlineCacheKey } from "@/types/cache";
 import { Subscription } from "rxjs";
-
-interface KlineChartWithObservableProps {
-    chartId: number;
-    klineKeyStr: string;
-    indicatorKeyStrs: string[];
+import { KlineChartConfig } from "@/types/chart";
+import ChartEditButton from "../chart-edit-button";
+interface KlineChartProps {
+    klineChartConfig: KlineChartConfig;
     setMainChart: (sciChartSurface: SciChartSurface) => void;
     addAxis: (axis: AxisBase2D) => void;
     addSurfaceToGroup: (surface: SciChartSurface) => void;
-    enabled?: boolean; // 是否启用Observable数据流
+    enabled?: boolean; // 是否启用Observable数据流,
+    
 }
 
 interface KlineChartRef {
     clearChartData: () => void;
 }
 
-const KlineChart = forwardRef<KlineChartRef, KlineChartWithObservableProps>(
-    ({ klineKeyStr, indicatorKeyStrs, setMainChart, addAxis, addSurfaceToGroup, enabled = true }, ref) => {
+const KlineChart = forwardRef<KlineChartRef, KlineChartProps>(
+    ({ klineChartConfig, setMainChart, addAxis, addSurfaceToGroup, enabled = true }, ref) => {
 
         const chartControlsRef = useRef<{
             setData: (symbolName: string, kline: Kline[]) => void;
@@ -48,16 +48,16 @@ const KlineChart = forwardRef<KlineChartRef, KlineChartWithObservableProps>(
         // 创建图表初始化函数 - 参考官网示例的方式
         const initChart = React.useCallback(async (rootElement: string | HTMLDivElement) => {
             // 初始化图表
-            const { sciChartSurface, controls } = await initKlineChart(rootElement, klineKeyStr, indicatorKeyStrs);
+            const { sciChartSurface, controls } = await initKlineChart(rootElement, klineChartConfig);
 
             // 解析K线缓存键获取交易所和交易对信息
-            const klineKey = parseCacheKey(klineKeyStr) as BacktestKlineCacheKey;
+            const klineKey = parseCacheKey(klineChartConfig.klineCacheKeyStr) as BacktestKlineCacheKey;
 
             // 订阅K线、指标和订单数据流 - 独立订阅，各自更新
             const subscriptions: Subscription[] = [];
             if (enabled) {
                 // 1. 订阅K线数据流
-                const klineStream = createKlineStreamForCacheKey(klineKeyStr, enabled);
+                const klineStream = createKlineStreamForCacheKey(klineChartConfig.klineCacheKeyStr, enabled);
                 const klineSubscription = klineStream.subscribe((klineData: Kline[]) => {
                     console.log(`=== 收到K线数据流更新 ===`);
                     console.log(`K线数据长度: ${klineData.length}`);
@@ -73,8 +73,10 @@ const KlineChart = forwardRef<KlineChartRef, KlineChartWithObservableProps>(
                 subscriptions.push(klineSubscription);
 
                 // 2. 订阅指标数据流 - 每个指标独立订阅
-                indicatorKeyStrs.forEach(indicatorKeyStr => {
+                console.log("指标配置: ", klineChartConfig.indicatorChartConfig);
+                Object.keys(klineChartConfig.indicatorChartConfig).forEach((indicatorKeyStr) => {
                     const indicatorStream = createIndicatorStreamForCacheKey(indicatorKeyStr, enabled);
+                    console.log("指标key: ", indicatorKeyStr, "指标数据流: ", indicatorStream);
                     const indicatorSubscription = indicatorStream.subscribe((indicatorData: IndicatorValue[]) => {
                         console.log(`=== 收到指标数据流更新: ${indicatorKeyStr} ===`);
                         console.log(`指标数据长度: ${indicatorData.length}`);
@@ -106,12 +108,15 @@ const KlineChart = forwardRef<KlineChartRef, KlineChartWithObservableProps>(
             }
 
             return { sciChartSurface, controls, subscriptions };
-        }, [klineKeyStr, indicatorKeyStrs, enabled]);
+        }, [klineChartConfig, enabled]);
 
         return (
-            <div className="w-full h-full flex flex-col overflow-hidden">
+            <div className="w-full h-full flex flex-col overflow-hidden relative group">
+                <div className="absolute top-2 right-20 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    <ChartEditButton isMainChart={true} onEdit={() => {}}/>
+                </div>
                 <SciChartReact
-                    key={`${klineKeyStr}-${indicatorKeyStrs.join('-')}`}
+                    key={`${klineChartConfig.klineCacheKeyStr}-${Object.keys(klineChartConfig.indicatorChartConfig).join('-')}`}
                     initChart={initChart}
                     style={{ flexBasis: 200, flexGrow: 1, flexShrink: 1 }}
                     onInit={(initResult: TResolvedReturnType<typeof initChart>) => {

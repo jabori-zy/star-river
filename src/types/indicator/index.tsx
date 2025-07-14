@@ -1,5 +1,5 @@
 import { SmaConfig, EmaConfig, BollConfig } from "./indicatorConfig";
-import { IndicatorValue } from "./indicatorValue";
+import { IndicatorValue } from "./indicator-value";
 
 export type IndicatorConfig = SmaConfig | EmaConfig | BollConfig;
 

@@ -38,6 +38,7 @@ import { KlineInterval } from "@/types/kline";
 import { SciChartDefaults } from "scichart";
 import { TradeAnnotation } from "../trade-marker-modifier";
 import { VirtualOrder } from "@/types/order/virtual-order";
+import { KlineChartConfig } from "@/types/chart";
 
 SciChartDefaults.debugDisableResampling = false;
 SciChartDefaults.performanceWarnings = false
@@ -45,9 +46,12 @@ SciChartDefaults.performanceWarnings = false
 
 
 
-export const initKlineChart = async (rootElement: string | HTMLDivElement, klineKeyStr: string, mainChartIndicatorKeyStrs: string[]) => {
+export const initKlineChart = async (
+    rootElement: string | HTMLDivElement,
+    klineChartConfig: KlineChartConfig
+) => {
 
-    const klineKey = parseCacheKey(klineKeyStr) as KlineCacheKey;
+    const klineKey = parseCacheKey(klineChartConfig.klineCacheKeyStr) as KlineCacheKey;
 
     const { sciChartSurface, wasmContext } = await SciChartSurface.create(rootElement, {
         theme: appTheme.SciChartJsTheme,
@@ -158,9 +162,8 @@ export const initKlineChart = async (rootElement: string | HTMLDivElement, kline
     
     // 添加主图的指标
     // 如果主图指标不为空，则添加主图指标
-    if (mainChartIndicatorKeyStrs.length > 0) {
-        mainChartIndicatorKeyStrs.forEach((indicatorKeyStr, index) => {
-            const indicatorChartConfig = getIndicatorChartConfig(indicatorKeyStr);
+    if (Object.keys(klineChartConfig.indicatorChartConfig).length > 0) {
+        Object.entries(klineChartConfig.indicatorChartConfig).forEach(([indicatorKeyStr, indicatorChartConfig], index) => {
             console.log("indicatorChartConfig", indicatorKeyStr, indicatorChartConfig);
             if (indicatorChartConfig) {
                 const indicatorDataSeries = new XyDataSeries(wasmContext, { dataSeriesName: indicatorChartConfig.name + index });

@@ -25,12 +25,12 @@ import {
 import { appTheme } from "../theme";
 import { 
     SeriesType, 
-    SeriesConfig,
-    IndicatorChartConfig
-} from "@/types/indicator/indicator-chart-config";
-import { parseCacheKey } from "@/utils/parseCacheKey";
-import { IndicatorCacheKey } from "@/types/cache";
-import { INDICATOR_CHART_CONFIG_MAP } from "@/types/indicator/indicator-chart-config";
+    IndicatorChartConfig,
+    SeriesConfig
+} from "@/types/chart";
+// import { parseCacheKey } from "@/utils/parseCacheKey";
+// import { IndicatorCacheKey } from "@/types/cache";
+// import { INDICATOR_CHART_CONFIG_MAP } from "@/types/indicator/indicator-chart-config";
 import { IndicatorValue } from "@/types/indicator";
 import { getRolloverLegendTemplate } from "../utils";
 import { SciChartDefaults } from "scichart";
@@ -233,16 +233,16 @@ const processIndicatorData = (
     return updatedContext;
 };
 
-const initTestChart = async (rootElement: string | HTMLDivElement, indicatorKeyStr: string) => {
-    console.log("initTestChart", indicatorKeyStr);
+const initTestChart = async (rootElement: string | HTMLDivElement, indicatorChartConfig: IndicatorChartConfig) => {
+    // console.log("initTestChart", indicatorKeyStr);
     
     const { sciChartSurface, wasmContext } = await SciChartSurface.create(rootElement, {
         theme: appTheme.SciChartJsTheme,
     });
 
     // 根据缓存键获取指标配置
-    const indicatorKey = parseCacheKey(indicatorKeyStr) as IndicatorCacheKey;
-    const indicatorChartConfig = INDICATOR_CHART_CONFIG_MAP[indicatorKey.indicatorType];
+    // const indicatorKey = parseCacheKey(indicatorKeyStr) as IndicatorCacheKey;
+    // const indicatorChartConfig = INDICATOR_CHART_CONFIG_MAP[indicatorKey.indicatorType];
     console.log("指标的图表配置", indicatorChartConfig);
     const indicatorName = indicatorChartConfig?.name || "未知指标";
 

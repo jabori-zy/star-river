@@ -2,7 +2,6 @@
 import { Ellipsis, Trash2, Search, ChartSpline } from "lucide-react";
 import StockCharts from "@/components/chart/stock-chart";
 // import KlineChartWithObservable from "@/components/chart/stock-chart/kline-chart/kline-chart-with-observable";
-import ObservableTestExample from "@/components/chart/stock-chart/kline-chart/observable-test-example";
 // import StockChart from "@/components/chart/stock-chart-new";
 // import SyncMultiChart from "@/components/chart/Demo";
 // import RealtimeTickingStockCharts from "@/components/chart/SciChart";
@@ -14,23 +13,26 @@ import {
     DropdownMenuTrigger,
   } from "@/components/ui/dropdown-menu"
 import { BacktestChart } from "@/types/chart/backtest-chart";
-import SymbolListDialog from "../symbol-list-dialog";
-import IndicatorListDialog from "../indicator-list-dialog";
+import SymbolListDialog from "./symbol-list-dialog";
+import IndicatorListDialog from "./indicator-list-dialog";
 import { useState, useRef, useImperativeHandle, forwardRef } from "react";
+import { IndicatorChartConfig, SubChartConfig } from "@/types/chart";
 
 interface ChartCardProps {
     chartConfig: BacktestChart;
     strategyId: number;
     onDelete: (chartId: number) => void;
     onUpdate: (chartId: number, klineCacheKeyStr: string, chartName: string) => void;
-    onAddIndicator: (chartId: number, indicatorKey: string) => void;
+    onAddMainChartIndicator: (chartId: number, indicatorKeyStr: string, indicatorChartConfig: IndicatorChartConfig) => void;
+    onAddSubChartIndicator: (chartId: number, subChartConfig: SubChartConfig) => void;
+    onDeleteSubChart: (subChartId: number) => void;
 }
 
 interface ChartCardRef {
     clearChartData: () => void;
 }
 
-const ChartCard = forwardRef<ChartCardRef, ChartCardProps>(({ chartConfig, strategyId, onDelete, onUpdate, onAddIndicator }, ref) => {
+const ChartCard = forwardRef<ChartCardRef, ChartCardProps>(({ chartConfig, strategyId, onDelete, onUpdate, onAddMainChartIndicator, onAddSubChartIndicator, onDeleteSubChart }, ref) => {
     const [isSymbolDialogOpen, setIsSymbolDialogOpen] = useState(false);
     const [isIndicatorDialogOpen, setIsIndicatorDialogOpen] = useState(false);
     const stockChartsRef = useRef<{ clearChartData: () => void }>(null);
@@ -50,8 +52,12 @@ const ChartCard = forwardRef<ChartCardRef, ChartCardProps>(({ chartConfig, strat
     };
 
     // 处理指标添加
-    const handleIndicatorAdd = (indicatorKey: string) => {
-        onAddIndicator(chartConfig.id, indicatorKey);
+    const handleMainChartIndicatorAdd = (chartId: number, indicatorKeyStr: string, indicatorChartConfig: IndicatorChartConfig) => {
+        onAddMainChartIndicator(chartId, indicatorKeyStr, indicatorChartConfig);
+    };
+
+    const handleSubChartIndicatorAdd = (chartId: number, subChartConfig: SubChartConfig) => {
+        onAddSubChartIndicator(chartId, subChartConfig);
     };
 
     return (
@@ -93,15 +99,9 @@ const ChartCard = forwardRef<ChartCardRef, ChartCardProps>(({ chartConfig, strat
             <div className="flex-1 w-full overflow-hidden bg-gray-50" >
                 <StockCharts
                     ref={stockChartsRef}
-                    chartId={chartConfig.id} 
-                    klineKeyStr={chartConfig.klineCacheKeyStr}
-                    indicatorKeyStrs={chartConfig.indicatorCacheKeyStrs} 
+                    chartConfig={chartConfig}
+                    onDeleteSubChart={onDeleteSubChart}
                 />
-                {/* <ObservableTestExample
-                    klineKeyStr={chartConfig.klineCacheKeyStr}
-                    indicatorKeyStrs={chartConfig.indicatorCacheKeyStrs} 
-                /> */}
-
             </div>
 
             {/* Symbol选择Dialog */}
@@ -109,18 +109,17 @@ const ChartCard = forwardRef<ChartCardRef, ChartCardProps>(({ chartConfig, strat
                 open={isSymbolDialogOpen}
                 onOpenChange={setIsSymbolDialogOpen}
                 strategyId={strategyId}
-                selectedKlineCacheKeyStr={chartConfig.klineCacheKeyStr}
                 onKlineSelect={handleKlineSelect}
             />
 
             {/* Indicator添加Dialog */}
             <IndicatorListDialog
+                chartConfig={chartConfig}
                 open={isIndicatorDialogOpen}
                 onOpenChange={setIsIndicatorDialogOpen}
                 strategyId={strategyId}
-                selectedKlineCacheKeyStr={chartConfig.klineCacheKeyStr}
-                selectedIndicatorKeys={chartConfig.indicatorCacheKeyStrs}
-                onIndicatorAdd={handleIndicatorAdd}
+                onMainChartIndicatorAdd={handleMainChartIndicatorAdd}
+                onSubChartIndicatorAdd={handleSubChartIndicatorAdd}
             />
         </div>
     );

@@ -2,6 +2,7 @@ import React, { useRef, useImperativeHandle, forwardRef } from 'react';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import ChartCard from "../chart-card";
 import { BacktestStrategyChartConfig } from '@/types/chart/backtest-chart';
+import { IndicatorChartConfig, SubChartConfig } from '@/types/chart';
 
 interface ChartContainerProps {
   strategyChartConfig: BacktestStrategyChartConfig;
@@ -9,14 +10,16 @@ interface ChartContainerProps {
   children?: React.ReactNode;
   onDelete: (chartId: number) => void;
   onUpdate: (chartId: number, klineCacheKeyStr: string, chartName: string) => void;
-  onAddIndicator: (chartId: number, indicatorKey: string) => void;
+  onAddMainChartIndicator: (chartId: number, indicatorKeyStr: string, indicatorChartConfig: IndicatorChartConfig) => void;
+  onAddSubChartIndicator: (chartId: number, subChartConfig: SubChartConfig) => void;
+  onDeleteSubChart: (subChartId: number) => void;
 }
 
 interface ChartContainerRef {
   clearAllChartData: () => void;
 }
 
-const ChartContainer = forwardRef<ChartContainerRef, ChartContainerProps>(({ strategyChartConfig, strategyId, children, onDelete, onUpdate, onAddIndicator }, ref) => {
+const ChartContainer = forwardRef<ChartContainerRef, ChartContainerProps>(({ strategyChartConfig, strategyId, children, onDelete, onUpdate, onAddMainChartIndicator, onAddSubChartIndicator, onDeleteSubChart }, ref) => {
   // 创建ref来存储所有ChartCard的引用
   const chartCardRefs = useRef<{ clearChartData: () => void }[]>([]);
 
@@ -45,7 +48,9 @@ const ChartContainer = forwardRef<ChartContainerRef, ChartContainerProps>(({ str
         strategyId={strategyId}
         onDelete={onDelete} 
         onUpdate={onUpdate}
-        onAddIndicator={onAddIndicator}
+        onAddMainChartIndicator={onAddMainChartIndicator}
+        onAddSubChartIndicator={onAddSubChartIndicator}
+        onDeleteSubChart={onDeleteSubChart}
       />
     ));
 

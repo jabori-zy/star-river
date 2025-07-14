@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import SingleKlineChart from "@/components/chart/SingleKlineChart";
+// import SingleKlineChart from "@/components/chart/SingleKlineChart";
 import { Edit, Trash2 } from "lucide-react";
 
 interface ChartCardProps {
@@ -45,7 +45,7 @@ export default function ChartCard({
         </div>
       </div>
       
-      <div className="p-4">
+      {/* <div className="p-4">
         {hasKlineData ? (
           <SingleKlineChart
             id={`strategy_${id}`}
@@ -57,7 +57,7 @@ export default function ChartCard({
             <p className="text-gray-500">请选择K线数据</p>
           </div>
         )}
-      </div>
+      </div> */}
     </div>
   );
 } 

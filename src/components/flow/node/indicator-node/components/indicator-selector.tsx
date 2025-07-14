@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { IndicatorConfig, IndicatorType, PriceSource, IndicatorValue } from "@/types/indicator";
 import { SelectedIndicator } from "@/types/node/indicator-node";
 import { SmaConfig, EmaConfig, BollConfig } from "@/types/indicator/indicatorConfig";
-import { SMAValue, EMAValue, BOLLValue } from "@/types/indicator/indicatorValue";
+import { SMAValue, EMAValue, BOLLValue } from "@/types/indicator/indicator-value";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
