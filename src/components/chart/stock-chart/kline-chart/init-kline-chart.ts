@@ -40,6 +40,7 @@ import { SciChartDefaults } from "scichart";
 import { TradeAnnotation } from "../trade-marker-modifier";
 import { VirtualOrder } from "@/types/order/virtual-order";
 import { KlineChartConfig } from "@/types/chart";
+import { BacktestIndicatorKey } from "@/types/symbol-key";
 
 SciChartDefaults.debugDisableResampling = false;
 SciChartDefaults.performanceWarnings = false
@@ -166,10 +167,11 @@ export const initKlineChart = async (
     // 添加主图的指标
     // 如果主图指标不为空，则添加主图指标
     if (Object.keys(klineChartConfig.indicatorChartConfig).length > 0) {
-        Object.entries(klineChartConfig.indicatorChartConfig).forEach(([indicatorKeyStr, indicatorChartConfig], index) => {
+        Object.entries(klineChartConfig.indicatorChartConfig).forEach(([indicatorKeyStr, indicatorChartConfig]) => {
             console.log("indicatorChartConfig", indicatorKeyStr, indicatorChartConfig);
             if (indicatorChartConfig) {
-                const indicatorDataSeries = new XyDataSeries(wasmContext, { dataSeriesName: indicatorChartConfig.name + index });
+                const indicatorKey = parseKey(indicatorKeyStr) as BacktestIndicatorKey;
+                const indicatorDataSeries = new XyDataSeries(wasmContext, { dataSeriesName: indicatorKey.indicatorType.toUpperCase() + ":" + indicatorKey.indicatorConfig.period});
                 // console.log("indicatorDataSeries", indicatorDataSeries);
                 
                 // 建立直接映射关系
@@ -376,7 +378,7 @@ export const initKlineChart = async (
         console.log(`setIndicatorData(): Setting data for ${indicatorKeyStr}, ${indicatorValues.length} values`);
         
         const indicatorDataSeries = indicatorDataSeriesMap.get(indicatorKeyStr);
-        const indicatorChartConfig = getIndicatorChartConfig(indicatorKeyStr);
+        const indicatorChartConfig = klineChartConfig.indicatorChartConfig[indicatorKeyStr];
         
         if (indicatorDataSeries && indicatorChartConfig) {
             // 清除现有数据
@@ -389,7 +391,7 @@ export const initKlineChart = async (
             indicatorValues.forEach((indicatorValue) => {
                 const value = indicatorValue[indicatorChartConfig.seriesConfigs[0].indicatorValueKey];
                 if (value !== undefined && value !== null) {
-                    xValues.push(indicatorValue.timestamp);
+                    xValues.push(indicatorValue.timestamp / 1000);
                     yValues.push(value);
                 }
             });

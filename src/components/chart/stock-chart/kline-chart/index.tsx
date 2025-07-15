@@ -80,8 +80,17 @@ const KlineChart = forwardRef<KlineChartRef, KlineChartProps>(
 
             if (initialKlines && initialKlines.length > 0) {
                 controls.setKlineData(klineKey.symbol + "/" + klineKey.interval, initialKlines);
-                controls.setXRange(initialKlines[0].timestamp / 1000, initialKlines[initialKlines.length - 1].timestamp / 1000);
+                
             }
+
+            for (const indicatorKeyStr of Object.keys(klineChartConfig.indicatorChartConfig)) {
+                const indicatorValue = await getInitialChartData(indicatorKeyStr, playIndex, null) as IndicatorValue[];
+                if (indicatorValue && indicatorValue.length > 0) {
+                    console.log("indicatorValue: ", indicatorValue);
+                    controls.setIndicatorData(indicatorKeyStr, indicatorValue);
+                }
+            }
+            controls.setXRange(initialKlines[0].timestamp / 1000, initialKlines[initialKlines.length - 1].timestamp / 1000);
 
             // 订阅K线、指标和订单数据流 - 独立订阅，各自更新
             const subscriptions: Subscription[] = [];
