@@ -51,7 +51,7 @@ export const initKlineChart = async (
     klineChartConfig: KlineChartConfig
 ) => {
 
-    const klineKey = parseKey(klineChartConfig.klineCacheKeyStr) as KlineKey;
+    const klineKey = parseKey(klineChartConfig.klineKeyStr) as KlineKey;
 
     const { sciChartSurface, wasmContext } = await SciChartSurface.create(rootElement, {
         theme: appTheme.SciChartJsTheme,
@@ -69,15 +69,15 @@ export const initKlineChart = async (
     sciChartSurface.xAxes.add(xAxis);
 
     // 订阅x轴范围变化事件，实时打印x轴范围
-    xAxis.visibleRangeChanged.subscribe((args) => {
-        if (args && args.visibleRange) {
-            const minTimestamp = args.visibleRange.min;
-            const maxTimestamp = args.visibleRange.max;
-            const minDate = new Date(minTimestamp * 1000).toLocaleString();
-            const maxDate = new Date(maxTimestamp * 1000).toLocaleString();
-            // console.log(`x轴范围变化: ${minDate} - ${maxDate} (${minTimestamp} - ${maxTimestamp})`);
-        }
-    });
+    // xAxis.visibleRangeChanged.subscribe((args) => {
+    //     if (args && args.visibleRange) {
+    //         const minTimestamp = args.visibleRange.min;
+    //         const maxTimestamp = args.visibleRange.max;
+    //         const minDate = new Date(minTimestamp * 1000).toLocaleString();
+    //         const maxDate = new Date(maxTimestamp * 1000).toLocaleString();
+    //         // console.log(`x轴范围变化: ${minDate} - ${maxDate} (${minTimestamp} - ${maxTimestamp})`);
+    //     }
+    // });
 
     // 添加价格类型的Y轴
     const yAxis = new NumericAxis(wasmContext, {
@@ -95,13 +95,13 @@ export const initKlineChart = async (
     sciChartSurface.yAxes.add(yAxis);
 
     // 订阅y轴范围变化事件，实时打印y轴范围
-    yAxis.visibleRangeChanged.subscribe((args) => {
-        if (args && args.visibleRange) {
-            const minPrice = args.visibleRange.min;
-            const maxPrice = args.visibleRange.max;
-            // console.log(`y轴范围变化: ${minPrice.toFixed(2)} - ${maxPrice.toFixed(2)}`);
-        }
-    });
+    // yAxis.visibleRangeChanged.subscribe((args) => {
+    //     if (args && args.visibleRange) {
+    //         const minPrice = args.visibleRange.min;
+    //         const maxPrice = args.visibleRange.max;
+    //         // console.log(`y轴范围变化: ${minPrice.toFixed(2)} - ${maxPrice.toFixed(2)}`);
+    //     }
+    // });
 
     // 添加成交量Y轴
     const Y_AXIS_VOLUME_ID = "Y_AXIS_VOLUME_ID";

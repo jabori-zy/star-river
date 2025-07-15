@@ -26,7 +26,7 @@ interface KlineChartRef {
 }
 
 const KlineChart = forwardRef<KlineChartRef, KlineChartProps>(
-    ({ klineChartConfig, setMainChart, addAxis, addSurfaceToGroup, enabled = true }, ref) => {
+    ({ klineChartConfig, addAxis, addSurfaceToGroup, enabled = true }, ref) => {
 
         const chartControlsRef = useRef<{
             setData: (symbolName: string, kline: Kline[]) => void;
@@ -71,13 +71,13 @@ const KlineChart = forwardRef<KlineChartRef, KlineChartProps>(
             const { sciChartSurface, controls } = await initKlineChart(rootElement, klineChartConfig);
 
             // 解析K线缓存键获取交易所和交易对信息
-            const klineKey = parseKey(klineChartConfig.klineCacheKeyStr) as BacktestKlineKey;
+            const klineKey = parseKey(klineChartConfig.klineKeyStr) as BacktestKlineKey;
 
             // 订阅K线、指标和订单数据流 - 独立订阅，各自更新
             const subscriptions: Subscription[] = [];
             if (enabled) {
                 // 1. 订阅K线数据流
-                const klineStream = createKlineStreamFromKey(klineChartConfig.klineCacheKeyStr, enabled);
+                const klineStream = createKlineStreamFromKey(klineChartConfig.klineKeyStr, enabled);
                 const klineSubscription = klineStream.subscribe((klineData: Kline[]) => {
                     console.log(`=== 收到K线数据流更新 ===`);
                     console.log(`K线数据长度: ${klineData.length}`);
@@ -136,12 +136,12 @@ const KlineChart = forwardRef<KlineChartRef, KlineChartProps>(
                     <ChartEditButton isMainChart={true} onEdit={handleEdit}/>
                 </div>
                 <SciChartReact
-                    key={`${klineChartConfig.klineCacheKeyStr}-${Object.keys(klineChartConfig.indicatorChartConfig).join('-')}`}
+                    key={`${klineChartConfig.klineKeyStr}-${Object.keys(klineChartConfig.indicatorChartConfig).join('-')}`}
                     initChart={initChart}
                     style={{ flexBasis: 200, flexGrow: 1, flexShrink: 1 }}
                     onInit={(initResult: TResolvedReturnType<typeof initChart>) => {
                         const { sciChartSurface, controls, subscriptions } = initResult;
-                        setMainChart(sciChartSurface);
+                        // setMainChart(sciChartSurface);
                         chartControlsRef.current = controls;
 
                         addAxis(sciChartSurface.xAxes.get(0));
