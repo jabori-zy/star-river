@@ -99,10 +99,8 @@ export default function BacktestPage() {
                         const defaultChart = {
                             id: 1,
                             chartName: `${klineData.symbol} ${klineData.interval}`,
-                            klineCacheKeyStr: firstKlineKey,
-                            indicatorCacheKeyStrs: [],
                             klineChartConfig: {
-                                klineCacheKeyStr: firstKlineKey,
+                                klineKeyStr: firstKlineKey,
                                 upColor: '#FF0000',
                                 downColor: '#0000FF',
                                 indicatorChartConfig: {},
@@ -252,7 +250,7 @@ export default function BacktestPage() {
                 id: chartId,
                 chartName: chartName,
                 klineChartConfig: {
-                    klineCacheKeyStr: klineCacheKeyStr,
+                    klineKeyStr: klineCacheKeyStr,
                     upColor: '#FF0000',
                     downColor: '#0000FF',
                     indicatorChartConfig: {},

@@ -66,3 +66,16 @@ export async function stop(strategyId: number) {
         throw error;
     }
 }
+
+export async function get_play_index(strategyId: number) {
+    try {
+        const response = await axios.get(`${API_URL}/${strategyId}/play-index`);
+        if (response.status !== 200) {
+            throw new Error(`get_play_index error: ${response.status}`);
+        }
+        return response.data["data"]["play_index"];
+    } catch (error) {
+        console.error('get_play_index error:', error);
+        throw error;
+    }
+}

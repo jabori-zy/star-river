@@ -61,9 +61,9 @@ export default function IndicatorListDialog({
 
     // 计算可添加的指标选项（允许多次添加）
     const availableIndicatorOptions = useMemo((): IndicatorOption[] => {
-        if (!chartConfig.klineChartConfig.klineCacheKeyStr || !cacheKeys[chartConfig.klineChartConfig.klineCacheKeyStr]) return [];
+        if (!chartConfig.klineChartConfig.klineKeyStr || !cacheKeys[chartConfig.klineChartConfig.klineKeyStr]) return [];
         
-        const selectedKlineCacheKey = cacheKeys[chartConfig.klineChartConfig.klineCacheKeyStr] as BacktestKlineKey;
+        const selectedKlineCacheKey = cacheKeys[chartConfig.klineChartConfig.klineKeyStr] as BacktestKlineKey;
         const options: IndicatorOption[] = [];
         
         Object.entries(cacheKeys).forEach(([key, value]) => {
@@ -87,7 +87,7 @@ export default function IndicatorListDialog({
         });
         
         return options;
-    }, [cacheKeys, chartConfig.klineChartConfig.klineCacheKeyStr]);
+    }, [cacheKeys, chartConfig.klineChartConfig.klineKeyStr]);
 
     // 当dialog打开时获取缓存数据并重置选择
     useEffect(() => {
@@ -202,7 +202,7 @@ export default function IndicatorListDialog({
                             </div>
                         ) : (
                             <div className="flex items-center justify-center py-8 text-gray-500">
-                                {chartConfig.klineChartConfig.klineCacheKeyStr 
+                                {chartConfig.klineChartConfig.klineKeyStr 
                                     ? "该交易对暂无可用指标"
                                     : "请先选择交易对"
                                 }

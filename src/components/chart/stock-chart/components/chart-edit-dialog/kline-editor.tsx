@@ -15,7 +15,7 @@ const KlineEditor = ({ klineChartConfig }: KlineEditorProps) => {
                             K线缓存键
                         </label>
                         <div className="text-sm text-gray-600 bg-white p-2 rounded border">
-                            {klineChartConfig.klineCacheKeyStr}
+                            {klineChartConfig.klineKeyStr}
                         </div>
                     </div>
                     <div>

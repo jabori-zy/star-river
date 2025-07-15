@@ -1,6 +1,7 @@
 import { Key, KlineKey, IndicatorKey, BacktestKlineKey, BacktestIndicatorKey } from "../types/symbol-key";
 import { IndicatorConfig, IndicatorType } from "../types/indicator";
 import { SmaConfig } from "@/types/indicator/indicatorConfig";
+import { KlineInterval } from "@/types/kline";
 
 /**
  * 解析缓存键字符串为相应类型
@@ -13,7 +14,7 @@ export function parseKey(keyStr: string): Key {
     return {
       exchange: parts[1],
       symbol: parts[2],
-      interval: parts[3]
+      interval: parts[3] as unknown as KlineInterval
     } as KlineKey;
   } 
   
@@ -44,7 +45,7 @@ export function parseKey(keyStr: string): Key {
     return {
       exchange: parts[1],
       symbol: parts[2],
-      interval: parts[3],
+      interval: parts[3] as unknown as KlineInterval,
       indicatorType: indicatorType,
       indicatorConfig: indicatorConfig
     } as IndicatorKey;
@@ -55,7 +56,7 @@ export function parseKey(keyStr: string): Key {
     return {
       exchange: parts[1],
       symbol: parts[2],
-      interval: parts[3],
+      interval: parts[3] as unknown as KlineInterval,
       startTime: parts[4],
       endTime: parts[5]
     } as BacktestKlineKey;
@@ -89,7 +90,7 @@ export function parseKey(keyStr: string): Key {
     return {
       exchange: parts[1],
       symbol: parts[2],
-      interval: parts[3],
+      interval: parts[3] as unknown as KlineInterval,
       indicatorType: indicatorType,
       indicatorConfig: indicatorConfig,
       startTime: parts[5],

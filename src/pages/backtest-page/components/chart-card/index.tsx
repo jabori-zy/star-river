@@ -99,6 +99,7 @@ const ChartCard = forwardRef<ChartCardRef, ChartCardProps>(({ chartConfig, strat
             <div className="flex-1 w-full overflow-hidden bg-gray-50" >
                 <StockCharts
                     ref={stockChartsRef}
+                    strategyId={strategyId}
                     chartConfig={chartConfig}
                     onDeleteSubChart={onDeleteSubChart}
                 />

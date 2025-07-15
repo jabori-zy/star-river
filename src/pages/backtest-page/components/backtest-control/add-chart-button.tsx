@@ -30,7 +30,7 @@ const AddChartButton = ({
         const newChartName = `${lastChart.chartName}`;
         
         onAddChart(
-            lastChart.klineChartConfig.klineCacheKeyStr,
+            lastChart.klineChartConfig.klineKeyStr,
             newChartName
         );
     };

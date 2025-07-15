@@ -1,4 +1,5 @@
 import { IndicatorConfig, IndicatorType } from "./indicator";
+import { KlineInterval } from "./kline";
 
 
 export type Key = KlineKey | IndicatorKey | BacktestKlineKey | BacktestIndicatorKey;
@@ -19,13 +20,13 @@ export type BacktestIndicatorKeyStr = string;
 export type KlineKey = {
     exchange: string;
     symbol: string;
-    interval: string;
+    interval: KlineInterval;
 }
 
 export type BacktestKlineKey = {
     exchange: string;
     symbol: string;
-    interval: string;
+    interval: KlineInterval;
     startTime: string;
     endTime: string;
 }
@@ -33,7 +34,7 @@ export type BacktestKlineKey = {
 export type IndicatorKey = {
     exchange: string;
     symbol: string;
-    interval: string;
+    interval: KlineInterval;
     indicatorType: IndicatorType;
     indicatorConfig: IndicatorConfig;
 }
@@ -41,7 +42,7 @@ export type IndicatorKey = {
 export type BacktestIndicatorKey = {
     exchange: string;
     symbol: string;
-    interval: string;
+    interval: KlineInterval;
     indicatorType: IndicatorType;
     indicatorConfig: IndicatorConfig;
     startTime: string;

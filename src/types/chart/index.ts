@@ -23,7 +23,7 @@ export type SeriesConfig = {
 
 
 export type KlineChartConfig = {
-    klineCacheKeyStr: KeyStr; // 蜡烛图缓存key
+    klineKeyStr: KeyStr; // 蜡烛图缓存key
     upColor?: string; // 上涨颜色
     downColor?: string; // 下跌颜色
     indicatorChartConfig: Record<KeyStr, IndicatorChartConfig>; // 指标图表配置映射 indicatorCacheKeyStr -> IndicatorChartConfig
