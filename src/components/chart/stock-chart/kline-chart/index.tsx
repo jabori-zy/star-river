@@ -12,7 +12,10 @@ import { Subscription } from "rxjs";
 import { KlineChartConfig, SubChartConfig } from "@/types/chart";
 import ChartEditButton from "../chart-edit-button";
 import ChartEditDialog from "../components/chart-edit-dialog";
+import { getInitialChartData } from "@/service/chart";
+
 interface KlineChartProps {
+    playIndex: number,
     klineChartConfig: KlineChartConfig;
     setMainChart?: (sciChartSurface: SciChartSurface) => void;
     addAxis: (axis: AxisBase2D) => void;
@@ -26,11 +29,11 @@ interface KlineChartRef {
 }
 
 const KlineChart = forwardRef<KlineChartRef, KlineChartProps>(
-    ({ klineChartConfig, addAxis, addSurfaceToGroup, enabled = true }, ref) => {
+    ({ playIndex, klineChartConfig, addAxis, addSurfaceToGroup, enabled = true }, ref) => {
 
         const chartControlsRef = useRef<{
-            setData: (symbolName: string, kline: Kline[]) => void;
-            setXRange: (startDate: Date, endDate: Date) => void;
+            setKlineData: (symbolName: string, kline: Kline[]) => void;
+            setXRange: (start: number, end: number) => void;
             onNewKline: (newKline: Kline) => void;
             onNewIndicator: (newIndicators: Record<string, IndicatorValue>) => void;
             onNewOrder: (newOrder: VirtualOrder) => void;
@@ -72,6 +75,13 @@ const KlineChart = forwardRef<KlineChartRef, KlineChartProps>(
 
             // 解析K线缓存键获取交易所和交易对信息
             const klineKey = parseKey(klineChartConfig.klineKeyStr) as BacktestKlineKey;
+
+            const initialKlines = await getInitialChartData(klineChartConfig.klineKeyStr, playIndex, null) as Kline[];
+
+            if (initialKlines && initialKlines.length > 0) {
+                controls.setKlineData(klineKey.symbol + "/" + klineKey.interval, initialKlines);
+                controls.setXRange(initialKlines[0].timestamp / 1000, initialKlines[initialKlines.length - 1].timestamp / 1000);
+            }
 
             // 订阅K线、指标和订单数据流 - 独立订阅，各自更新
             const subscriptions: Subscription[] = [];
@@ -128,7 +138,7 @@ const KlineChart = forwardRef<KlineChartRef, KlineChartProps>(
             }
 
             return { sciChartSurface, controls, subscriptions };
-        }, [klineChartConfig, enabled]);
+        }, [klineChartConfig, enabled, playIndex]);
 
         return (
             <div className="w-full h-full flex flex-col overflow-hidden relative group">
@@ -136,7 +146,7 @@ const KlineChart = forwardRef<KlineChartRef, KlineChartProps>(
                     <ChartEditButton isMainChart={true} onEdit={handleEdit}/>
                 </div>
                 <SciChartReact
-                    key={`${klineChartConfig.klineKeyStr}-${Object.keys(klineChartConfig.indicatorChartConfig).join('-')}`}
+                    key={`${klineChartConfig.klineKeyStr}-${Object.keys(klineChartConfig.indicatorChartConfig).join('-')}-${playIndex}`}
                     initChart={initChart}
                     style={{ flexBasis: 200, flexGrow: 1, flexShrink: 1 }}
                     onInit={(initResult: TResolvedReturnType<typeof initChart>) => {

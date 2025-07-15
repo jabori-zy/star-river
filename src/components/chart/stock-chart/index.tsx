@@ -1,6 +1,6 @@
 import { SciChartSurface, SciChartVerticalGroup, NumberRange, AxisBase2D } from "scichart";
 // import { SciChartReact } from "scichart-react";
-import React, { useRef, useState, useImperativeHandle, forwardRef } from "react";
+import React, { useRef, useState, useImperativeHandle, forwardRef, useEffect, useCallback } from "react";
 import { ChartGroupLoader } from "./chart-group-loader";
 import { AxisSynchroniser } from "./axis-synchroniser";
 import KlineChart from "./kline-chart";
@@ -9,8 +9,10 @@ import IndicatorChart from "./indicator-chart";
 // import { drawOverview } from "./utils";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { BacktestChart } from "@/types/chart/backtest-chart";
+import { get_play_index } from "@/service/strategy-control/backtest-strategy-control";
 
 interface StockChartsProps {
+    strategyId: number;
     chartConfig: BacktestChart;
     onDeleteSubChart: (subChartId: number) => void;
 }
@@ -19,7 +21,7 @@ interface StockChartsRef {
     clearChartData: () => void;
 }
 
-const StockCharts = forwardRef<StockChartsRef, StockChartsProps>(({ chartConfig, onDeleteSubChart }, ref) => {
+const StockCharts = forwardRef<StockChartsRef, StockChartsProps>(({ strategyId, chartConfig, onDeleteSubChart }, ref) => {
     // const [mainChart, setMainChart] = useState<SciChartSurface>();
 
     // 图表组
@@ -29,6 +31,18 @@ const StockCharts = forwardRef<StockChartsRef, StockChartsProps>(({ chartConfig,
     // 创建ref来获取子组件的清空方法
     const klineChartRef = useRef<{ clearChartData: () => void }>(null);
     const indicatorChartRefs = useRef<{ clearChartData: () => void }[]>([]);
+
+    const [playIndex, setPlayIndex] = useState(0);
+
+    const getPlayIndex = useCallback(() => {
+        get_play_index(strategyId).then((playIndex) => {
+            setPlayIndex(playIndex);
+        });
+    }, [strategyId]);
+
+    useEffect(() => {
+        getPlayIndex();
+    }, [getPlayIndex]);
 
     // 暴露清空方法给父组件
     useImperativeHandle(ref, () => ({
@@ -94,6 +108,7 @@ const StockCharts = forwardRef<StockChartsRef, StockChartsProps>(({ chartConfig,
                             addAxis={handleAddAxis}
                             addSurfaceToGroup={handleAddSurfaceToGroup}
                             klineChartConfig={chartConfig.klineChartConfig}
+                            playIndex={playIndex}
                         />
                     </div>
                     {/* Panel hosting the overview control */}
@@ -124,7 +139,7 @@ const StockCharts = forwardRef<StockChartsRef, StockChartsProps>(({ chartConfig,
                                 // setMainChart={setMainChart}
                                 addAxis={handleAddAxis}
                                 addSurfaceToGroup={handleAddSurfaceToGroup}
-                                
+                                playIndex={playIndex}
                             />
                         </ResizablePanel>
 

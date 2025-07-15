@@ -24,7 +24,8 @@ import {
     EResamplingMode,
     AnnotationHoverModifier,
     TTargetsSelector,
-    IAnnotation
+    IAnnotation,
+    easing
 } from "scichart";
 import { appTheme } from "../theme";
 import { Kline } from "@/types/kline";
@@ -52,6 +53,8 @@ export const initKlineChart = async (
 ) => {
 
     const klineKey = parseKey(klineChartConfig.klineKeyStr) as KlineKey;
+
+    const chartInterval = klineKey.interval;
 
     const { sciChartSurface, wasmContext } = await SciChartSurface.create(rootElement, {
         theme: appTheme.SciChartJsTheme,
@@ -275,7 +278,7 @@ export const initKlineChart = async (
     
 
 
-    const setData = (symbolName: string, klines: Kline[]) => {
+    const setKlineData = (symbolName: string, klines: Kline[]) => {
         console.log(`createCandlestickChart(): Setting data for ${symbolName}, ${klines.length} candles`);
 
         // 将 Kline 映射为 scichart 期望的结构化数组
@@ -286,7 +289,7 @@ export const initKlineChart = async (
         const closeValues: number[] = [];
         const volumeValues: number[] = [];
         klines.forEach((kline: Kline) => {
-            xValues.push(kline.timestamp);
+            xValues.push(kline.timestamp / 1000);
             openValues.push(kline.open);
             highValues.push(kline.high);
             lowValues.push(kline.low);
@@ -312,7 +315,7 @@ export const initKlineChart = async (
     // 回测相关的配置
     const MAX_VISIBLE_CANDLES = 500; // 最多显示500根K线
     let firstCandleTimestamp: number | null = null; // 第一根K线的时间戳
-    const candleInterval: number = KlineInterval[klineKey.interval as keyof typeof KlineInterval]; // K线间隔（秒），默认1分钟，需要根据实际情况调整
+    const candleInterval: number = KlineInterval[klineKey.interval as unknown as keyof typeof KlineInterval]; // K线间隔（秒），默认1分钟，需要根据实际情况调整
     
     // 记录第一根K线的价格范围
     let firstKlineHighPrice: number | null = null;
@@ -357,9 +360,15 @@ export const initKlineChart = async (
     }
 
     // 设置X轴范围
-    const setXRange = (startDate: Date, endDate: Date) => {
-        console.log(`createCandlestickChart(): Setting chart range to ${startDate} - ${endDate}`);
-        xAxis.visibleRange = new NumberRange(startDate.getTime() / 1000, endDate.getTime() / 1000);
+    const setXRange = (start: number, end: number) => {
+        const dateDifference = 10 * KlineInterval[chartInterval as unknown as keyof typeof KlineInterval];
+        console.log("dateDifference", dateDifference);
+        const range = new NumberRange(start - dateDifference, end + dateDifference);
+        console.log(`createCandlestickChart(): Setting chart range to ${new Date((start - dateDifference) * 1000).toLocaleString()} - ${new Date((end + dateDifference) * 1000).toLocaleString()}`);
+        xAxis.visibleRange = range;
+        xAxis.animateVisibleRange(range, 10, easing.inOutQuad, () => {
+            console.log("x轴调整完成");
+        });
     };
 
     // 批量设置指标数据
@@ -408,7 +417,7 @@ export const initKlineChart = async (
     return {
         wasmContext,
         sciChartSurface,
-        controls: { setData, onNewKline, onNewIndicator, onNewOrder, setXRange, setIndicatorData, clearChartData },
+        controls: { setKlineData, onNewKline, onNewIndicator, onNewOrder, setXRange, setIndicatorData, clearChartData },
     };
 }
 
