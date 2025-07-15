@@ -1,28 +1,28 @@
 import { IndicatorConfig, IndicatorType } from "./indicator";
 
 
-export type CacheKey = KlineCacheKey | IndicatorCacheKey | BacktestKlineCacheKey | BacktestIndicatorCacheKey;
+export type Key = KlineKey | IndicatorKey | BacktestKlineKey | BacktestIndicatorKey;
 
-export type CacheKeyStr = KlineCacheKeyStr | IndicatorCacheKeyStr | BacktestKlineCacheKeyStr | BacktestIndicatorCacheKeyStr;
+export type KeyStr = KlineKeyStr | IndicatorKeyStr | BacktestKlineKeyStr | BacktestIndicatorKeyStr;
 
-export type KlineCacheKeyStr = string;
+export type KlineKeyStr = string;
 
-export type IndicatorCacheKeyStr = string;
+export type IndicatorKeyStr = string;
 
-export type BacktestKlineCacheKeyStr = string;
+export type BacktestKlineKeyStr = string;
 
-export type BacktestIndicatorCacheKeyStr = string;
-
-
+export type BacktestIndicatorKeyStr = string;
 
 
-export type KlineCacheKey = {
+
+
+export type KlineKey = {
     exchange: string;
     symbol: string;
     interval: string;
 }
 
-export type BacktestKlineCacheKey = {
+export type BacktestKlineKey = {
     exchange: string;
     symbol: string;
     interval: string;
@@ -30,7 +30,7 @@ export type BacktestKlineCacheKey = {
     endTime: string;
 }
 
-export type IndicatorCacheKey = {
+export type IndicatorKey = {
     exchange: string;
     symbol: string;
     interval: string;
@@ -38,7 +38,7 @@ export type IndicatorCacheKey = {
     indicatorConfig: IndicatorConfig;
 }
 
-export type BacktestIndicatorCacheKey = {
+export type BacktestIndicatorKey = {
     exchange: string;
     symbol: string;
     interval: string;

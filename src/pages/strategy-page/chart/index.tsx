@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
 import { getStrategyCacheKeys } from "@/service/strategy";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { parseCacheKey } from "@/utils/parseCacheKey";
-import { KlineCacheKey, IndicatorCacheKey } from "@/types/cache";
+import { parseKey } from "@/utils/parse-key";
+import { KlineKey, IndicatorKey } from "@/types/symbol-key";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import {
@@ -41,7 +41,7 @@ export interface StrategyChartContentProps {
 }
 
 export default function StrategyChartContent({ strategyId }: StrategyChartContentProps) {
-  const [cacheKeys, setCacheKeys] = useState<Record<string, KlineCacheKey | IndicatorCacheKey>>({});
+  const [cacheKeys, setCacheKeys] = useState<Record<string, KlineKey | IndicatorKey>>({});
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   
@@ -73,10 +73,10 @@ export default function StrategyChartContent({ strategyId }: StrategyChartConten
 
     // 获取策略缓存键
     getStrategyCacheKeys(strategyId).then((keys) => {
-      const parsedKeyMap: Record<string, KlineCacheKey | IndicatorCacheKey> = {};
+      const parsedKeyMap: Record<string, KlineKey | IndicatorKey> = {};
       
       keys.forEach(keyString => {
-        parsedKeyMap[keyString] = parseCacheKey(keyString);
+        parsedKeyMap[keyString] = parseKey(keyString);
       });
       
       setCacheKeys(parsedKeyMap);
@@ -87,13 +87,13 @@ export default function StrategyChartContent({ strategyId }: StrategyChartConten
 
   // 计算k线选项
   const klineOptions = useMemo(() => {
-    const options: { key: string; data: KlineCacheKey }[] = [];
+    const options: { key: string; data: KlineKey }[] = [];
     
     Object.entries(cacheKeys).forEach(([key, value]) => {
       if (key.startsWith("kline|")) {
         options.push({
           key,
-          data: value as KlineCacheKey
+          data: value as KlineKey
         });
       }
     });
@@ -211,7 +211,7 @@ export default function StrategyChartContent({ strategyId }: StrategyChartConten
   const getIndicatorLabel = (key: string): string => {
     if (!key || !cacheKeys[key]) return key;
     
-    const indicatorData = cacheKeys[key] as IndicatorCacheKey;
+    const indicatorData = cacheKeys[key] as IndicatorKey;
     return `${indicatorData.indicatorType} (${indicatorData.indicatorConfig.period})`;
   };
 
@@ -255,7 +255,7 @@ export default function StrategyChartContent({ strategyId }: StrategyChartConten
         ) : (
           <div className="h-full flex flex-col gap-6 pb-6">
             {strategyChartConfig.map((chartConfig) => {
-              const klineCacheKey = parseCacheKey(chartConfig.klineKeyStr);
+              const klineCacheKey = parseKey(chartConfig.klineKeyStr);
               const currentKlineKeys = chartConfig.klineKeyStr;
               const currentIndicatorKeys = chartConfig.indicatorKeyStrs || [];
               
@@ -296,7 +296,7 @@ export default function StrategyChartContent({ strategyId }: StrategyChartConten
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="选择K线">
                     {tempChartConfig.klineKeyStr && cacheKeys[tempChartConfig.klineKeyStr] && 
-                      renderKlineItem(cacheKeys[tempChartConfig.klineKeyStr] as KlineCacheKey)}
+                      renderKlineItem(cacheKeys[tempChartConfig.klineKeyStr] as KlineKey)}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>

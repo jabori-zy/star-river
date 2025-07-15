@@ -47,13 +47,13 @@ const useBacktestStrategyEventSSE = (enabled: boolean = true) => {
           if (eventName === "kline-update") {
             // 将事件添加到对应的存储中
 
-            const cacheKeyStr = (strategyEvent as klineUpdateEvent).klineCacheKey;
+            const cacheKeyStr = (strategyEvent as klineUpdateEvent).klineKey;
             const data = (strategyEvent as klineUpdateEvent).kline;
             addKlineData(cacheKeyStr, data);
           }
           if (eventName === "indicator-update") {
             // 将事件添加到对应的存储中
-            const cacheKeyStr = (strategyEvent as indicatorUpdateEvent).indicatorCacheKey;
+            const cacheKeyStr = (strategyEvent as indicatorUpdateEvent).indicatorKey;
             const data = (strategyEvent as indicatorUpdateEvent).indicatorSeries;
             // console.log("添加新指标数据", cacheKeyStr, data);
             addIndicatorData(cacheKeyStr, data);

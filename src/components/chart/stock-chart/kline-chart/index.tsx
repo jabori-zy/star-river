@@ -5,9 +5,9 @@ import { initKlineChart } from "./init-kline-chart";
 import { Kline } from "@/types/kline";
 import { IndicatorValue } from "@/types/indicator";
 import { VirtualOrder } from "@/types/order/virtual-order";
-import { createKlineStreamForCacheKey, createIndicatorStreamForCacheKey, createOrderStreamForSymbol } from "@/hooks/obs/backtest-strategy-data-obs";
-import { parseCacheKey } from "@/utils/parseCacheKey";
-import { BacktestKlineCacheKey } from "@/types/cache";
+import { createKlineStreamFromKey, createIndicatorStreamFromKey, createOrderStreamForSymbol } from "@/hooks/obs/backtest-strategy-data-obs";
+import { parseKey } from "@/utils/parse-key";
+import { BacktestKlineKey } from "@/types/symbol-key";
 import { Subscription } from "rxjs";
 import { KlineChartConfig, SubChartConfig } from "@/types/chart";
 import ChartEditButton from "../chart-edit-button";
@@ -71,13 +71,13 @@ const KlineChart = forwardRef<KlineChartRef, KlineChartProps>(
             const { sciChartSurface, controls } = await initKlineChart(rootElement, klineChartConfig);
 
             // 解析K线缓存键获取交易所和交易对信息
-            const klineKey = parseCacheKey(klineChartConfig.klineCacheKeyStr) as BacktestKlineCacheKey;
+            const klineKey = parseKey(klineChartConfig.klineCacheKeyStr) as BacktestKlineKey;
 
             // 订阅K线、指标和订单数据流 - 独立订阅，各自更新
             const subscriptions: Subscription[] = [];
             if (enabled) {
                 // 1. 订阅K线数据流
-                const klineStream = createKlineStreamForCacheKey(klineChartConfig.klineCacheKeyStr, enabled);
+                const klineStream = createKlineStreamFromKey(klineChartConfig.klineCacheKeyStr, enabled);
                 const klineSubscription = klineStream.subscribe((klineData: Kline[]) => {
                     console.log(`=== 收到K线数据流更新 ===`);
                     console.log(`K线数据长度: ${klineData.length}`);
@@ -95,7 +95,7 @@ const KlineChart = forwardRef<KlineChartRef, KlineChartProps>(
                 // 2. 订阅指标数据流 - 每个指标独立订阅
                 console.log("指标配置: ", klineChartConfig.indicatorChartConfig);
                 Object.keys(klineChartConfig.indicatorChartConfig).forEach((indicatorKeyStr) => {
-                    const indicatorStream = createIndicatorStreamForCacheKey(indicatorKeyStr, enabled);
+                    const indicatorStream = createIndicatorStreamFromKey(indicatorKeyStr, enabled);
                     console.log("指标key: ", indicatorKeyStr, "指标数据流: ", indicatorStream);
                     const indicatorSubscription = indicatorStream.subscribe((indicatorData: IndicatorValue[]) => {
                         console.log(`=== 收到指标数据流更新: ${indicatorKeyStr} ===`);

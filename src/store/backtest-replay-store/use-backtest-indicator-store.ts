@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { CacheKeyStr } from '@/types/cache';
+import { KeyStr } from '@/types/symbol-key';
 import { IndicatorValue } from '@/types/indicator';
 
 // 定义缓存大小常量
@@ -8,22 +8,22 @@ const MAX_CACHE_SIZE = 20;
 // 回测指标数据存储
 interface BacktestIndicatorDataState {
   // 按数据的缓存键存储的指标数据列表
-  indicatorData: Record<CacheKeyStr, IndicatorValue[]>;
+  indicatorData: Record<KeyStr, IndicatorValue[]>;
   
   // 添加新指标数据到指定的缓存key中，自动控制缓存大小
-  addIndicatorData: (cacheKey: CacheKeyStr, data: IndicatorValue[]) => void;
+  addIndicatorData: (cacheKey: KeyStr, data: IndicatorValue[]) => void;
   
   // 清空特定缓存key的所有指标数据
-  clearIndicatorData: (cacheKey: CacheKeyStr) => void;
+  clearIndicatorData: (cacheKey: KeyStr) => void;
   
   // 清空所有指标数据
   clearAllIndicatorData: () => void;
   
   // 获取指定缓存key的最新指标数据
-  getLatestIndicatorData: (cacheKey: CacheKeyStr) => IndicatorValue | undefined;
+  getLatestIndicatorData: (cacheKey: KeyStr) => IndicatorValue | undefined;
 
   // 获取所有的缓存key的指标数据
-  getAllIndicatorData: () => Record<CacheKeyStr, IndicatorValue[]>;
+  getAllIndicatorData: () => Record<KeyStr, IndicatorValue[]>;
 }
 
 export const useBacktestIndicatorDataStore = create<BacktestIndicatorDataState>((set, get) => ({

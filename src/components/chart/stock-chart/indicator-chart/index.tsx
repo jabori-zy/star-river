@@ -5,7 +5,7 @@ import { Subscription } from "rxjs";
 import initIndicatorChart from "./init-indicator-chart";
 import { IndicatorValue } from "@/types/indicator";
 import { IndicatorChartConfig, KlineChartConfig } from "@/types/chart";
-import { createIndicatorStreamForCacheKey } from "@/hooks/obs/backtest-strategy-data-obs";
+import { createIndicatorStreamFromKey } from "@/hooks/obs/backtest-strategy-data-obs";
 import { SubChartConfig } from "@/types/chart";
 import ChartEditButton from "../chart-edit-button";
 import ChartEditDialog from "../components/chart-edit-dialog";
@@ -73,7 +73,7 @@ const IndicatorChart = forwardRef<IndicatorChartRef, IndicatorChartProps>(
             let subscription: Subscription | null = null;
             if (enabled) {
 
-                const obs = createIndicatorStreamForCacheKey(indicatorCacheKeyStr, enabled);
+                const obs = createIndicatorStreamFromKey(indicatorCacheKeyStr, enabled);
                 subscription = obs.subscribe((indicatorData: IndicatorValue[]) => {
                     console.log(`=== 收到指标数据流更新 ===`);
                     console.log(`数据长度: ${indicatorData.length}`);

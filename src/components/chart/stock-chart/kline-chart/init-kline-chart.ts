@@ -31,8 +31,8 @@ import { Kline } from "@/types/kline";
 import { VolumePaletteProvider } from "./volumePaletteProvider";
 import { getIndicatorChartConfig } from "@/types/indicator/indicator-chart-config";
 import { IndicatorValue } from "@/types/indicator";
-import { parseCacheKey } from "@/utils/parseCacheKey";
-import { KlineCacheKey } from "@/types/cache";
+import { parseKey } from "@/utils/parse-key";
+import { KlineKey } from "@/types/symbol-key";
 import { getRolloverLegendTemplate, processKlineData, KlineUpdateContext } from "../utils";
 import { KlineInterval } from "@/types/kline";
 import { SciChartDefaults } from "scichart";
@@ -51,7 +51,7 @@ export const initKlineChart = async (
     klineChartConfig: KlineChartConfig
 ) => {
 
-    const klineKey = parseCacheKey(klineChartConfig.klineCacheKeyStr) as KlineCacheKey;
+    const klineKey = parseKey(klineChartConfig.klineCacheKeyStr) as KlineKey;
 
     const { sciChartSurface, wasmContext } = await SciChartSurface.create(rootElement, {
         theme: appTheme.SciChartJsTheme,

@@ -1,4 +1,4 @@
-import {CacheKeyStr} from "@/types/cache";
+import {KeyStr} from "@/types/symbol-key";
 import { Kline } from "@/types/kline";
 import { IndicatorValue } from "@/types/indicator";
 import { VirtualOrder } from "@/types/order/virtual-order";
@@ -10,7 +10,7 @@ export type LiveStrategyEvent = {
     channel: string;
     event_name: string;
     strategy_id: number;
-    data: Record<CacheKeyStr, number[][]>;
+    data: Record<KeyStr, number[][]>;
     timestamp: number;
 }
 
@@ -40,12 +40,12 @@ export type BaseEventProps = {
 
 export type klineUpdateEvent = BaseEventProps & {
     klineCacheIndex: number;
-    klineCacheKey: CacheKeyStr;
+    klineKey: KeyStr;
     kline: Kline[];
 }
 
 export type indicatorUpdateEvent = BaseEventProps & {
-    indicatorCacheKey: CacheKeyStr;
+    indicatorKey: KeyStr;
     indicatorSeries: IndicatorValue[];
 }
 

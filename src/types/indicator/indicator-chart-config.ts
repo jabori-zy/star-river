@@ -1,7 +1,7 @@
 import { IndicatorType } from ".";
 import { IndicatorValue} from "./indicator-value";
-import { parseCacheKey } from "@/utils/parseCacheKey";
-import { IndicatorCacheKey } from "@/types/cache";
+import { parseKey } from "@/utils/parse-key";
+import { IndicatorKey } from "@/types/symbol-key";
 import { SeriesType } from "../chart";
 import { IndicatorChartConfig } from "../chart";
 
@@ -89,7 +89,7 @@ export function getIndicatorConfig(indicatorType: IndicatorType): IndicatorChart
 
 // 从缓存键获取指标配置
 export function getIndicatorChartConfig(cacheKeyStr: string): IndicatorChartConfig | null {
-    const indicatorKey = parseCacheKey(cacheKeyStr) as IndicatorCacheKey;
+    const indicatorKey = parseKey(cacheKeyStr) as IndicatorKey;
     if (!indicatorKey) return null;
     return INDICATOR_CHART_CONFIG_MAP[indicatorKey.indicatorType];
 } 

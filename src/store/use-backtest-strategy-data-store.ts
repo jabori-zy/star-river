@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { CacheKeyStr } from '@/types/cache';
+import { KeyStr } from '@/types/symbol-key';
 import { Kline } from '@/types/kline';
 import { IndicatorValue } from '@/types/indicator';
 
@@ -9,22 +9,22 @@ const MAX_CACHE_SIZE = 20;
 // 回测策略数据存储
 interface BacktestStrategyMarketDataState {
   // 按数据的缓存键存储的数据列表
-  marketData: Record<CacheKeyStr, (Kline | IndicatorValue)[]>;
+  marketData: Record<KeyStr, (Kline | IndicatorValue)[]>;
   
   // 添加新数据到指定的缓存key中，自动控制缓存大小
-  addMarketData: (cacheKey: CacheKeyStr, data: (Kline | IndicatorValue)[]) => void;
+  addMarketData: (cacheKey: KeyStr, data: (Kline | IndicatorValue)[]) => void;
   
   // 清空特定缓存key的所有数据
-  clearMarketData: (cacheKey: CacheKeyStr) => void;
+  clearMarketData: (cacheKey: KeyStr) => void;
   
   // 清空所有数据
   clearAllMarketData: () => void;
   
   // 获取指定缓存key的最新数据
-  getLatestMarketData: (cacheKey: CacheKeyStr) => Kline | IndicatorValue | undefined;
+  getLatestMarketData: (cacheKey: KeyStr) => Kline | IndicatorValue | undefined;
 
   // 获取所有的缓存key的数据
-  getAllMarketData: () => Record<CacheKeyStr, (Kline | IndicatorValue)[]>;
+  getAllMarketData: () => Record<KeyStr, (Kline | IndicatorValue)[]>;
 }
 
 export const useBacktestStrategyMarketDataStore = create<BacktestStrategyMarketDataState>((set, get) => ({

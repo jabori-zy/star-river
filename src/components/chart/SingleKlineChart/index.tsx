@@ -4,22 +4,22 @@ import { useRef, useEffect, useState } from "react";
 import useChartResize from "@/hooks/use-chartResize";
 import { getInitialChartData } from "@/service/chart";
 import { useStrategyEventStore } from "@/store/useStrategyEventStore"
-import { IndicatorCacheKeyStr, KlineCacheKeyStr, IndicatorCacheKey } from "@/types/cache";
-import { parseCacheKey } from "@/utils/parseCacheKey";
+import { IndicatorKeyStr, KlineKeyStr, IndicatorKey } from "@/types/symbol-key";
+import { parseKey } from "@/utils/parse-key";
 import { getIndicatorChartConfig } from "@/utils/getIndicatorChartConfig";
 import { getBaseChartOptions, createChartOptions } from "./options";
 
 interface SingleKlineChartProps extends HighchartsReact.Props {
     id: string; // 唯一标识
     // chartTitle: string; // 图表标题
-    klineCacheKey: KlineCacheKeyStr; // k线缓存键，只能有一个
-    indicatorCacheKeys: IndicatorCacheKeyStr[]; // 指标缓存键， 可以有多个，周期必须与k线缓存键的周期一致。
+    klineCacheKey: KlineKeyStr; // k线缓存键，只能有一个
+    indicatorCacheKeys: IndicatorKeyStr[]; // 指标缓存键， 可以有多个，周期必须与k线缓存键的周期一致。
 }
 
 // 更新指标数据的函数
 function updateIndicatorData(
     chart: Highcharts.Chart, 
-    cacheKey: IndicatorCacheKey, 
+    cacheKey: IndicatorKey, 
     values: number[][]
 ): void {
     const indicatorSeriesConfig = getIndicatorChartConfig(cacheKey);
@@ -116,7 +116,7 @@ function SingleKlineChart(lineChartProps: SingleKlineChartProps) {
             // console.log("initial_kline", initial_kline);
             
             // 判断指标缓存键的个数
-            const indicatorDataMap: Record<IndicatorCacheKeyStr, []> = {};
+            const indicatorDataMap: Record<IndicatorKeyStr, []> = {};
             if (lineChartProps.indicatorCacheKeys.length > 0) {
                 console.log("指标缓存键：", lineChartProps.indicatorCacheKeys);
                 for (const indicatorCacheKey of lineChartProps.indicatorCacheKeys) {
@@ -153,11 +153,11 @@ function SingleKlineChart(lineChartProps: SingleKlineChartProps) {
         if (chart && newValues) {
             // 遍历newValues(Record<CacheKeyStr, []>)
             for (const [cacheKeyStr, values] of Object.entries(newValues)) {
-                const cacheKey = parseCacheKey(cacheKeyStr);
+                const cacheKey = parseKey(cacheKeyStr);
                 
                 // 根据数据类型调用相应的更新函数
                 if ("indicator_type" in cacheKey) {
-                    updateIndicatorData(chart, cacheKey as IndicatorCacheKey, values);
+                    updateIndicatorData(chart, cacheKey as IndicatorKey, values);
                 } else {
                     updateKlineData(chart, values);
                 }

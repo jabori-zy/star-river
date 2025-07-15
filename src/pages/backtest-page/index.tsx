@@ -12,8 +12,8 @@ import { Button } from "@/components/ui/button";
 import { getBacktestStrategyChartConfig, updateBacktestStrategyChartConfig, stopStrategy } from "@/service/strategy";
 import { toast } from "sonner";
 import { getStrategyCacheKeys } from "@/service/strategy";
-import { BacktestKlineCacheKey, BacktestIndicatorCacheKey } from "@/types/cache";
-import { parseCacheKey } from "@/utils/parseCacheKey";
+import { BacktestKlineKey, BacktestIndicatorKey } from "@/types/symbol-key";
+import { parseKey } from "@/utils/parse-key";
 import { play, pause, stop, playOne } from "@/service/strategy-control/backtest-strategy-control";
 import { IndicatorChartConfig, SubChartConfig } from "@/types/chart";
 
@@ -55,10 +55,10 @@ export default function BacktestPage() {
         try {
             if (!strategyId) return;
             const keys = await getStrategyCacheKeys(strategyId);
-            const parsedKeyMap: Record<string, BacktestKlineCacheKey | BacktestIndicatorCacheKey> = {};
+            const parsedKeyMap: Record<string, BacktestKlineKey | BacktestIndicatorKey> = {};
             
             keys.forEach(keyString => {
-                parsedKeyMap[keyString] = parseCacheKey(keyString) as BacktestKlineCacheKey | BacktestIndicatorCacheKey;
+                parsedKeyMap[keyString] = parseKey(keyString) as BacktestKlineKey | BacktestIndicatorKey;
             });
             console.log("parsedKeyMap", parsedKeyMap);
             return parsedKeyMap;
@@ -95,7 +95,7 @@ export default function BacktestPage() {
                     if (klineKeys.length > 0) {
                         // 使用第一个kline key创建默认图表
                         const firstKlineKey = klineKeys[0];
-                        const klineData = cacheKeys[firstKlineKey] as BacktestKlineCacheKey;
+                        const klineData = cacheKeys[firstKlineKey] as BacktestKlineKey;
                         const defaultChart = {
                             id: 1,
                             chartName: `${klineData.symbol} ${klineData.interval}`,

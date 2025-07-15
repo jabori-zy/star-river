@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { CacheKeyStr } from '@/types/cache';
+import { KeyStr } from '@/types/symbol-key';
 import { Kline } from '@/types/kline';
 
 // 定义缓存大小常量
@@ -8,22 +8,22 @@ const MAX_CACHE_SIZE = 20;
 // 回测K线数据存储
 interface BacktestKlineDataState {
   // 按数据的缓存键存储的K线数据列表
-  klineData: Record<CacheKeyStr, Kline[]>;
+  klineData: Record<KeyStr, Kline[]>;
   
   // 添加新K线数据到指定的缓存key中，自动控制缓存大小
-  addKlineData: (cacheKey: CacheKeyStr, data: Kline[]) => void;
+  addKlineData: (cacheKey: KeyStr, data: Kline[]) => void;
   
   // 清空特定缓存key的所有K线数据
-  clearKlineData: (cacheKey: CacheKeyStr) => void;
+  clearKlineData: (cacheKey: KeyStr) => void;
   
   // 清空所有K线数据
   clearAllKlineData: () => void;
   
   // 获取指定缓存key的最新K线数据
-  getLatestKlineData: (cacheKey: CacheKeyStr) => Kline | undefined;
+  getLatestKlineData: (cacheKey: KeyStr) => Kline | undefined;
 
   // 获取所有的缓存key的K线数据
-  getAllKlineData: () => Record<CacheKeyStr, Kline[]>;
+  getAllKlineData: () => Record<KeyStr, Kline[]>;
 }
 
 export const useBacktestKlineDataStore = create<BacktestKlineDataState>((set, get) => ({

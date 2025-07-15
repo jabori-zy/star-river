@@ -11,8 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { getStrategyCacheKeys } from "@/service/strategy";
-import { parseCacheKey } from "@/utils/parseCacheKey";
-import { KlineCacheKey, BacktestKlineCacheKey, BacktestIndicatorCacheKey } from "@/types/cache";
+import { parseKey } from "@/utils/parse-key";
+import { KlineKey, BacktestKlineKey, BacktestIndicatorKey } from "@/types/symbol-key";
 import { BacktestChart } from "@/types/chart/backtest-chart";
 import KlineSelector from "./kline-selector";
 import IndicatorSelector from "./indicator-selector";
@@ -27,7 +27,7 @@ interface ChartConfigDialogProps {
 const ChartConfigDialog = ({ open, onOpenChange, onConfirm, strategyId }: ChartConfigDialogProps) => {
 
     // 缓存键
-    const [cacheKeys, setCacheKeys] = useState<Record<string, BacktestKlineCacheKey | BacktestIndicatorCacheKey>>({});
+    const [cacheKeys, setCacheKeys] = useState<Record<string, BacktestKlineKey | BacktestIndicatorKey>>({});
     const [tempChartConfig, setTempChartConfig] = useState<BacktestChart>({
         id: 0,
         chartName: "",
@@ -44,10 +44,10 @@ const ChartConfigDialog = ({ open, onOpenChange, onConfirm, strategyId }: ChartC
         setLoading(true);
         try {
             const keys = await getStrategyCacheKeys(strategyId);
-            const parsedKeyMap: Record<string, BacktestKlineCacheKey | BacktestIndicatorCacheKey> = {};
+            const parsedKeyMap: Record<string, BacktestKlineKey | BacktestIndicatorKey> = {};
             
             keys.forEach(keyString => {
-                parsedKeyMap[keyString] = parseCacheKey(keyString) as BacktestKlineCacheKey | BacktestIndicatorCacheKey;
+                parsedKeyMap[keyString] = parseKey(keyString) as BacktestKlineKey | BacktestIndicatorKey;
             });
             console.log("parsedKeyMap", parsedKeyMap);
             return parsedKeyMap;
@@ -105,7 +105,7 @@ const ChartConfigDialog = ({ open, onOpenChange, onConfirm, strategyId }: ChartC
             if (key === 'klineCacheKeyStr' && value && cacheKeys[value as string]) {
                 const isDefaultName = prev?.chartName.startsWith('图表');
                 if (isDefaultName) {
-                    const klineData = cacheKeys[value as string] as KlineCacheKey;
+                    const klineData = cacheKeys[value as string] as KlineKey;
                     newConfig.chartName = `${klineData.symbol} ${klineData.interval}`;
                 }
             }

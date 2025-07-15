@@ -1,4 +1,4 @@
-import { IndicatorCacheKey } from "@/types/cache";
+import { IndicatorKey } from "@/types/symbol-key";
 import { IndicatorType } from "@/types/indicator";
 
 export interface IndicatorSeriesConfig {
@@ -12,7 +12,7 @@ export interface IndicatorSeriesConfig {
 
 
 // 获取指标图表中的数据系列配置
-export function getIndicatorChartConfig(indicatorCacheKey: IndicatorCacheKey): IndicatorSeriesConfig | null {
+export function getIndicatorChartConfig(indicatorCacheKey: IndicatorKey): IndicatorSeriesConfig | null {
     switch(indicatorCacheKey.indicatorType) {
         case IndicatorType.SMA:
             return {

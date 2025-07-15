@@ -1,20 +1,20 @@
-import { KlineCacheKey, IndicatorCacheKey } from "@/types/cache";
+import { KlineKey, IndicatorKey } from "@/types/symbol-key";
 import { Badge } from "@/components/ui/badge";
-import { parseCacheKey } from "@/utils/parseCacheKey";
+import { parseKey } from "@/utils/parse-key";
 
 // 获取特定K线对应的指标选项
 export function getIndicatorOptionsForKline(
   klineKey: string,
-  cacheKeys: Record<string, KlineCacheKey | IndicatorCacheKey>
+  cacheKeys: Record<string, KlineKey | IndicatorKey>
 ) {
   if (!klineKey) return [];
   
-  const selectedKlineData = cacheKeys[klineKey] as KlineCacheKey;
-  const options: { key: string; data: IndicatorCacheKey }[] = [];
+  const selectedKlineData = cacheKeys[klineKey] as KlineKey;
+  const options: { key: string; data: IndicatorKey }[] = [];
   
   Object.entries(cacheKeys).forEach(([key, value]) => {
     if (key.startsWith("indicator|")) {
-      const indicatorData = value as IndicatorCacheKey;
+      const indicatorData = value as IndicatorKey;
       
       // 确保交易所、交易对和时间周期完全一致
       if (
@@ -34,7 +34,7 @@ export function getIndicatorOptionsForKline(
 }
 
 // 渲染K线项，将交易所、交易对、时间周期分别用Badge包裹
-export function renderKlineItem(klineData: KlineCacheKey) {
+export function renderKlineItem(klineData: KlineKey) {
   return (
     <div className="flex items-center gap-1">
       <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
@@ -51,7 +51,7 @@ export function renderKlineItem(klineData: KlineCacheKey) {
 }
 
 // 渲染指标项，使用单独的Badge
-export function renderIndicatorItem(indicatorData: IndicatorCacheKey) {
+export function renderIndicatorItem(indicatorData: IndicatorKey) {
   return (
     <div className="flex items-center gap-1">
       <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
@@ -71,7 +71,7 @@ export function getChartTitle(
   
   if (!klineKeyStr) return "图表";
 
-  const klineCacheKey = parseCacheKey(klineKeyStr);
+  const klineCacheKey = parseKey(klineKeyStr);
   return `${klineCacheKey.symbol} - ${klineCacheKey.interval}`;
 
   

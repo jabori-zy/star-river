@@ -5,7 +5,7 @@ import { BACKTESET_STRATEGY_SSE_URL } from "../sse/index";
 import { Kline } from "@/types/kline";
 import { IndicatorValue } from "@/types/indicator";
 import { VirtualOrder } from "@/types/order/virtual-order";
-import { CacheKeyStr } from "@/types/cache";
+import { KeyStr } from "@/types/symbol-key";
 
 // SSE连接状态
 export enum SSEConnectionState {
@@ -67,13 +67,13 @@ class BacktestStrategyDataObservableService {
 
     /**
      * 为特定缓存键创建过滤后的K线数据流
-     * @param cacheKey 缓存键
+     * @param keyStr 缓存键
      * @param enabled 是否启用
      * @returns 过滤后的K线数据流
      */
-    createKlineStreamForCacheKey(cacheKey: CacheKeyStr, enabled: boolean = true): Observable<Kline[]> {
+    createKlineStreamFromKey(keyStr: KeyStr, enabled: boolean = true): Observable<Kline[]> {
         return this.createKlineStream(enabled).pipe(
-            filter(event => event.klineCacheKey === cacheKey),
+            filter(event => event.klineKey === keyStr),
             map(event => event.kline),
             share()
         );
@@ -112,13 +112,13 @@ class BacktestStrategyDataObservableService {
 
     /**
      * 为特定缓存键创建过滤后的指标数据流
-     * @param cacheKey 缓存键
+     * @param keyStr 缓存键
      * @param enabled 是否启用
      * @returns 过滤后的指标数据流
      */
-    createIndicatorStreamForCacheKey(cacheKey: CacheKeyStr, enabled: boolean = true): Observable<IndicatorValue[]> {
+    createIndicatorStreamFromKey(keyStr: KeyStr, enabled: boolean = true): Observable<IndicatorValue[]> {
         return this.createIndicatorStream(enabled).pipe(
-            filter(event => event.indicatorCacheKey === cacheKey),
+            filter(event => event.indicatorKey === keyStr),
             map(event => event.indicatorSeries),
             share()
         );
@@ -295,15 +295,15 @@ export default backtestStrategyDataObservableService;
 export const createKlineStream = (enabled: boolean = true) =>
     backtestStrategyDataObservableService.createKlineStream(enabled);
 
-export const createKlineStreamForCacheKey = (cacheKey: CacheKeyStr, enabled: boolean = true) =>
-    backtestStrategyDataObservableService.createKlineStreamForCacheKey(cacheKey, enabled);
+export const createKlineStreamFromKey = (keyStr: KeyStr, enabled: boolean = true) =>
+    backtestStrategyDataObservableService.createKlineStreamFromKey(keyStr, enabled);
 
 // 指标相关
 export const createIndicatorStream = (enabled: boolean = true) =>
     backtestStrategyDataObservableService.createIndicatorStream(enabled);
 
-export const createIndicatorStreamForCacheKey = (cacheKey: CacheKeyStr, enabled: boolean = true) =>
-    backtestStrategyDataObservableService.createIndicatorStreamForCacheKey(cacheKey, enabled);
+export const createIndicatorStreamFromKey = (keyStr: KeyStr, enabled: boolean = true) =>
+    backtestStrategyDataObservableService.createIndicatorStreamFromKey(keyStr, enabled);
 
 // 订单相关
 export const createOrderStream = (enabled: boolean = true) =>

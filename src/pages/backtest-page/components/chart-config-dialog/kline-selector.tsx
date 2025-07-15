@@ -1,10 +1,10 @@
 import { useMemo, useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { BacktestKlineCacheKey, BacktestIndicatorCacheKey } from "@/types/cache";
+import { BacktestKlineKey, BacktestIndicatorKey } from "@/types/symbol-key";
 
 interface KlineSelectorProps {
-    cacheKeys: Record<string, BacktestKlineCacheKey | BacktestIndicatorCacheKey>;
+    cacheKeys: Record<string, BacktestKlineKey | BacktestIndicatorKey>;
     selectedKlineCacheKey: string | null;
     onKlineChange: (klineCacheKey: string) => void;
     loading: boolean;
@@ -21,13 +21,13 @@ const KlineSelector = ({
     
     // 计算K线选项
     const klineOptions = useMemo(() => {
-        const options: { key: string; data: BacktestKlineCacheKey }[] = [];
+        const options: { key: string; data: BacktestKlineKey }[] = [];
         
         Object.entries(cacheKeys).forEach(([key, value]) => {
             if (key.startsWith("backtest_kline|")) {
                 options.push({
                     key,
-                    data: value as BacktestKlineCacheKey
+                    data: value as BacktestKlineKey
                 });
             }
         });
@@ -36,7 +36,7 @@ const KlineSelector = ({
     }, [cacheKeys]);
 
     // 渲染K线项目
-    const renderKlineItem = (klineCacheKey: BacktestKlineCacheKey) => (
+    const renderKlineItem = (klineCacheKey: BacktestKlineKey) => (
         <div className="flex items-center gap-2">
             <Badge variant="outline">{klineCacheKey.exchange}</Badge>
                 <span className="font-medium">{klineCacheKey.symbol}</span>
@@ -63,7 +63,7 @@ const KlineSelector = ({
                 <SelectTrigger className="w-full">
                     <SelectValue placeholder="选择K线">
                         {selectedKlineCacheKey && cacheKeys[selectedKlineCacheKey] && 
-                            renderKlineItem(cacheKeys[selectedKlineCacheKey] as BacktestKlineCacheKey)}
+                            renderKlineItem(cacheKeys[selectedKlineCacheKey] as BacktestKlineKey)}
                     </SelectValue>
                 </SelectTrigger>
                 <SelectContent
@@ -78,7 +78,7 @@ const KlineSelector = ({
                 >
                     {klineOptions.map((option) => (
                         <SelectItem key={option.key} value={option.key}>
-                            {renderKlineItem(option.data as BacktestKlineCacheKey)}
+                            {renderKlineItem(option.data as BacktestKlineKey)}
                         </SelectItem>
                     ))}
                 </SelectContent>

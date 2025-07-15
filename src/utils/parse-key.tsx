@@ -1,12 +1,12 @@
-import { CacheKey, KlineCacheKey, IndicatorCacheKey, BacktestKlineCacheKey, BacktestIndicatorCacheKey } from "../types/cache";
+import { Key, KlineKey, IndicatorKey, BacktestKlineKey, BacktestIndicatorKey } from "../types/symbol-key";
 import { IndicatorConfig, IndicatorType } from "../types/indicator";
 import { SmaConfig } from "@/types/indicator/indicatorConfig";
 
 /**
  * 解析缓存键字符串为相应类型
  */
-export function parseCacheKey(cacheKeyStr: string): CacheKey {
-  const parts = cacheKeyStr.split("|");
+export function parseKey(keyStr: string): Key {
+  const parts = keyStr.split("|");
   const type = parts[0];
 
   if (type === "kline") {
@@ -14,7 +14,7 @@ export function parseCacheKey(cacheKeyStr: string): CacheKey {
       exchange: parts[1],
       symbol: parts[2],
       interval: parts[3]
-    } as KlineCacheKey;
+    } as KlineKey;
   } 
   
   else if (type === "indicator") {
@@ -47,7 +47,7 @@ export function parseCacheKey(cacheKeyStr: string): CacheKey {
       interval: parts[3],
       indicatorType: indicatorType,
       indicatorConfig: indicatorConfig
-    } as IndicatorCacheKey;
+    } as IndicatorKey;
   } 
   else if (type === "backtest_kline") {
     // backtest_kline|metatrader5(Exness-MT5Trial5)|BTCUSDm|15m|2025-06-22|2025-06-24
@@ -58,7 +58,7 @@ export function parseCacheKey(cacheKeyStr: string): CacheKey {
       interval: parts[3],
       startTime: parts[4],
       endTime: parts[5]
-    } as BacktestKlineCacheKey;
+    } as BacktestKlineKey;
   }
 
   else if (type === "backtest_indicator") {
@@ -94,7 +94,7 @@ export function parseCacheKey(cacheKeyStr: string): CacheKey {
       indicatorConfig: indicatorConfig,
       startTime: parts[5],
       endTime: parts[6]
-    } as BacktestIndicatorCacheKey;
+    } as BacktestIndicatorKey;
     
   }
   

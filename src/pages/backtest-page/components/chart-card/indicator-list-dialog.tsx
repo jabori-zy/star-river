@@ -2,9 +2,9 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import Dialog from "@/components/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { BacktestKlineCacheKey, BacktestIndicatorCacheKey } from "@/types/cache";
+import { BacktestKlineKey, BacktestIndicatorKey } from "@/types/symbol-key";
 import { getStrategyCacheKeys } from "@/service/strategy";
-import { parseCacheKey } from "@/utils/parseCacheKey";
+import { parseKey } from "@/utils/parse-key";
 import { SubChartConfig, IndicatorChartConfig } from "@/types/chart";
 import { INDICATOR_CHART_CONFIG_MAP } from "@/types/indicator/indicator-chart-config";
 import { BacktestChart } from "@/types/chart/backtest-chart";
@@ -21,7 +21,7 @@ interface IndicatorListDialogProps {
 interface IndicatorOption {
     key: string;
     label: string;
-    data: BacktestIndicatorCacheKey;
+    data: BacktestIndicatorKey;
 }
 
 export default function IndicatorListDialog({
@@ -32,7 +32,7 @@ export default function IndicatorListDialog({
     onMainChartIndicatorAdd,
     onSubChartIndicatorAdd
 }: IndicatorListDialogProps) {
-    const [cacheKeys, setCacheKeys] = useState<Record<string, BacktestKlineCacheKey | BacktestIndicatorCacheKey>>({});
+    const [cacheKeys, setCacheKeys] = useState<Record<string, BacktestKlineKey | BacktestIndicatorKey>>({});
     const [loading, setLoading] = useState(false);
 
     // 选中的指标缓存键
@@ -45,10 +45,10 @@ export default function IndicatorListDialog({
         setLoading(true);
         try {
             const keys = await getStrategyCacheKeys(strategyId);
-            const parsedKeyMap: Record<string, BacktestKlineCacheKey | BacktestIndicatorCacheKey> = {};
+            const parsedKeyMap: Record<string, BacktestKlineKey | BacktestIndicatorKey> = {};
             
             keys.forEach(keyString => {
-                parsedKeyMap[keyString] = parseCacheKey(keyString) as BacktestKlineCacheKey | BacktestIndicatorCacheKey;
+                parsedKeyMap[keyString] = parseKey(keyString) as BacktestKlineKey | BacktestIndicatorKey;
             });
             
             setCacheKeys(parsedKeyMap);
@@ -63,12 +63,12 @@ export default function IndicatorListDialog({
     const availableIndicatorOptions = useMemo((): IndicatorOption[] => {
         if (!chartConfig.klineChartConfig.klineCacheKeyStr || !cacheKeys[chartConfig.klineChartConfig.klineCacheKeyStr]) return [];
         
-        const selectedKlineCacheKey = cacheKeys[chartConfig.klineChartConfig.klineCacheKeyStr] as BacktestKlineCacheKey;
+        const selectedKlineCacheKey = cacheKeys[chartConfig.klineChartConfig.klineCacheKeyStr] as BacktestKlineKey;
         const options: IndicatorOption[] = [];
         
         Object.entries(cacheKeys).forEach(([key, value]) => {
             if (key.startsWith("backtest_indicator|")) {
-                const indicatorData = value as BacktestIndicatorCacheKey;
+                const indicatorData = value as BacktestIndicatorKey;
                 
                 // 确保交易所、交易对和时间周期完全一致（移除已添加的指标过滤）
                 if (
@@ -100,7 +100,7 @@ export default function IndicatorListDialog({
     // 处理添加指标
     const handleAddIndicator = () => {
         if (selectedIndicatorKey) {
-            const indicatorData = cacheKeys[selectedIndicatorKey] as BacktestIndicatorCacheKey;
+            const indicatorData = cacheKeys[selectedIndicatorKey] as BacktestIndicatorKey;
             const indicatorConfig = INDICATOR_CHART_CONFIG_MAP[indicatorData.indicatorType];
 
             if (indicatorConfig) {
@@ -178,7 +178,7 @@ export default function IndicatorListDialog({
                                                     renderIndicatorOption({
                                                         key: selectedIndicatorKey,
                                                         label: "",
-                                                        data: cacheKeys[selectedIndicatorKey] as BacktestIndicatorCacheKey
+                                                        data: cacheKeys[selectedIndicatorKey] as BacktestIndicatorKey
                                                     })}
                                             </SelectValue>
                                         </SelectTrigger>

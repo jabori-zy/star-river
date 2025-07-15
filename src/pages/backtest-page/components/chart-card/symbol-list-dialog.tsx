@@ -7,9 +7,9 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { BacktestKlineCacheKey, BacktestIndicatorCacheKey } from "@/types/cache";
+import { BacktestKlineKey, BacktestIndicatorKey } from "@/types/symbol-key";
 import { getStrategyCacheKeys } from "@/service/strategy";
-import { parseCacheKey } from "@/utils/parseCacheKey";
+import { parseKey } from "@/utils/parse-key";
 
 interface SymbolListDialogProps {
     open: boolean;
@@ -26,7 +26,7 @@ export default function SymbolListDialog({
     selectedKlineCacheKeyStr,
     onKlineSelect
 }: SymbolListDialogProps) {
-    const [klineOptions, setKlineOptions] = useState<{ key: string; data: BacktestKlineCacheKey }[]>([]);
+    const [klineOptions, setKlineOptions] = useState<{ key: string; data: BacktestKlineKey }[]>([]);
     const [loading, setLoading] = useState(false);
 
     // 获取可用的kline数据
@@ -34,19 +34,19 @@ export default function SymbolListDialog({
         setLoading(true);
         try {
             const keys = await getStrategyCacheKeys(strategyId);
-            const parsedKeyMap: Record<string, BacktestKlineCacheKey | BacktestIndicatorCacheKey> = {};
+            const parsedKeyMap: Record<string, BacktestKlineKey | BacktestIndicatorKey> = {};
             
             keys.forEach(keyString => {
-                parsedKeyMap[keyString] = parseCacheKey(keyString) as BacktestKlineCacheKey | BacktestIndicatorCacheKey;
+                parsedKeyMap[keyString] = parseKey(keyString) as BacktestKlineKey | BacktestIndicatorKey;
             });
 
             // 过滤出kline选项
-            const options: { key: string; data: BacktestKlineCacheKey }[] = [];
+            const options: { key: string; data: BacktestKlineKey }[] = [];
             Object.entries(parsedKeyMap).forEach(([key, value]) => {
                 if (key.startsWith("backtest_kline|")) {
                     options.push({
                         key,
-                        data: value as BacktestKlineCacheKey
+                        data: value as BacktestKlineKey
                     });
                 }
             });
@@ -79,7 +79,7 @@ export default function SymbolListDialog({
     };
 
     // 渲染kline项目
-    const renderKlineItem = (klineCacheKey: BacktestKlineCacheKey) => (
+    const renderKlineItem = (klineCacheKey: BacktestKlineKey) => (
         <div className="flex items-center gap-2">
             <Badge variant="outline">{klineCacheKey.exchange}</Badge>
             <span className="font-medium">{klineCacheKey.symbol}</span>

@@ -1,7 +1,7 @@
-import { parseCacheKey } from "@/utils/parseCacheKey";
+import { parseKey } from "@/utils/parse-key";
 import { getIndicatorChartConfig } from "@/utils/getIndicatorChartConfig";
 import * as Highcharts from "highcharts/highstock";
-import { IndicatorCacheKey, IndicatorCacheKeyStr, KlineCacheKey, KlineCacheKeyStr } from "@/types/cache";
+import { IndicatorKey, IndicatorKeyStr, KlineKey, KlineKeyStr } from "@/types/symbol-key";
 
 // 获取基础图表配置（无数据）
 export function getBaseChartOptions(): Highcharts.Options {
@@ -98,10 +98,10 @@ export function getBaseChartOptions(): Highcharts.Options {
 }
 
 // 设置K线数据
-export function setKlineData(options: Highcharts.Options, klineData: number[][], klineCacheKeyStr: KlineCacheKeyStr): Highcharts.Options {
+export function setKlineData(options: Highcharts.Options, klineData: number[][], klineCacheKeyStr: KlineKeyStr): Highcharts.Options {
     const newOptions = { ...options };
 
-    const klineCacheKey = parseCacheKey(klineCacheKeyStr) as KlineCacheKey;
+    const klineCacheKey = parseKey(klineCacheKeyStr) as KlineKey;
     const symbol = klineCacheKey.symbol;
     
     // 检查是否已存在K线系列
@@ -177,7 +177,7 @@ export function setKlineData(options: Highcharts.Options, klineData: number[][],
 }
 
 // 设置指标数据
-export function setIndicatorData(options: Highcharts.Options, indicatorData: Record<IndicatorCacheKeyStr, number[][]>): Highcharts.Options {
+export function setIndicatorData(options: Highcharts.Options, indicatorData: Record<IndicatorKeyStr, number[][]>): Highcharts.Options {
     const newOptions = { ...options };
     if (!newOptions.series) {
         newOptions.series = [];
@@ -186,7 +186,7 @@ export function setIndicatorData(options: Highcharts.Options, indicatorData: Rec
     // 循环indicatorData，将指标数据添加到options中
     Object.keys(indicatorData).forEach(key => {
         // 将string类型的key转换为IndicatorCacheKey类型
-        const indicatorCacheKey = parseCacheKey(key) as IndicatorCacheKey;
+        const indicatorCacheKey = parseKey(key) as IndicatorKey;
         // 获取指标图表中的数据系列配置
         const indicatorSeriesConfig = getIndicatorChartConfig(indicatorCacheKey);
         
@@ -217,9 +217,9 @@ export function setIndicatorData(options: Highcharts.Options, indicatorData: Rec
 
 // 图表配置工厂函数
 export function createChartOptions(
-    klineCacheKey: KlineCacheKeyStr,
+    klineCacheKey: KlineKeyStr,
     initialKlineData: number[][], 
-    initialIndicatorData: Record<IndicatorCacheKeyStr, number[][]>
+    initialIndicatorData: Record<IndicatorKeyStr, number[][]>
 ): Highcharts.Options {
     let options = getBaseChartOptions();
     

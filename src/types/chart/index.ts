@@ -1,5 +1,5 @@
 import { IndicatorValue } from "../indicator/indicator-value";
-import {CacheKeyStr} from "@/types/cache";
+import {KeyStr} from "@/types/symbol-key";
 
 export type LayoutMode = "vertical" | "horizontal" | "grid" | "grid-alt";
 
@@ -23,10 +23,10 @@ export type SeriesConfig = {
 
 
 export type KlineChartConfig = {
-    klineCacheKeyStr: CacheKeyStr; // 蜡烛图缓存key
+    klineCacheKeyStr: KeyStr; // 蜡烛图缓存key
     upColor?: string; // 上涨颜色
     downColor?: string; // 下跌颜色
-    indicatorChartConfig: Record<CacheKeyStr, IndicatorChartConfig>; // 指标图表配置映射 indicatorCacheKeyStr -> IndicatorChartConfig
+    indicatorChartConfig: Record<KeyStr, IndicatorChartConfig>; // 指标图表配置映射 indicatorCacheKeyStr -> IndicatorChartConfig
 }
 
 
@@ -43,5 +43,5 @@ export type IndicatorChartConfig = {
 export type SubChartConfig = {
     mainChartId: number; // 所属的主图id
     subChartId: number; // 子图id
-    indicatorChartConfigs: Record<CacheKeyStr, IndicatorChartConfig>;
+    indicatorChartConfigs: Record<KeyStr, IndicatorChartConfig>;
 }
