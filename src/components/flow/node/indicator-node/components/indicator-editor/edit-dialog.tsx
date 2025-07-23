@@ -73,11 +73,12 @@ const EditDialog: React.FC<EditDialogProps> = ({
 
     // 获取指标类型选项（从配置中生成）
     const getIndicatorOptions = (): IndicatorOption[] => {
-        return Object.entries(indicatorSelectorConfig).map(([type, config]) => ({
+        const options = Object.entries(indicatorSelectorConfig).map(([type, config]) => ({
             value: type as IndicatorType,
             label: config.indicatorShowName,
             icon: type === IndicatorType.BBANDS ? BarChart3 : TrendingUp
         }));
+        return options;
     };
 
     // 获取当前指标的配置
@@ -121,18 +122,7 @@ const EditDialog: React.FC<EditDialogProps> = ({
         });
     };
 
-    // 初始化表单数据
-    const initializeFormData = useCallback((): void => {
-        const config = getCurrentConfig();
-        const initialData: Partial<FormData> = {};
-        
-        config.params.forEach(field => {
-            const fieldName = field.name;
-            initialData[fieldName] = field.defaultValue as FormDataValue || '';
-        });
-        
-        setFormData(initialData);
-    }, [getCurrentConfig]);
+
 
     // 每次对话框打开时重置状态
     useEffect(() => {
@@ -151,17 +141,31 @@ const EditDialog: React.FC<EditDialogProps> = ({
                 setFormData(newFormData);
             } else {
                 setIndicatorType(IndicatorType.SMA);
-                initializeFormData();
+                // 直接初始化表单数据，避免依赖initializeFormData
+                const config = indicatorSelectorConfig[IndicatorType.SMA];
+                const initialData: Partial<FormData> = {};
+                config.params.forEach(field => {
+                    const fieldName = field.name;
+                    initialData[fieldName] = field.defaultValue as FormDataValue || '';
+                });
+                setFormData(initialData);
             }
         }
-    }, [isOpen, isEditing, editingIndex, selectedIndicators, initializeFormData]);
+    }, [isOpen, isEditing, editingIndex, selectedIndicators]);
 
     // 当指标类型改变时，重新初始化表单数据
     useEffect(() => {
         if (isOpen && !isEditing) {
-            initializeFormData();
+            // 直接初始化表单数据，避免依赖initializeFormData
+            const config = indicatorSelectorConfig[indicatorType];
+            const initialData: Partial<FormData> = {};
+            config.params.forEach(field => {
+                const fieldName = field.name;
+                initialData[fieldName] = field.defaultValue as FormDataValue || '';
+            });
+            setFormData(initialData);
         }
-    }, [indicatorType, isOpen, isEditing, initializeFormData]);
+    }, [indicatorType, isOpen, isEditing]);
 
     // 根据指标类型创建初始值
     const createInitialValue = (type: IndicatorType): IndicatorValue => {
@@ -289,21 +293,19 @@ const EditDialog: React.FC<EditDialogProps> = ({
 
         if (type === 'number') {
             return (
-                <div key={name} className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor={name} className="text-right">
+                <div key={name} className="grid gap-2">
+                    <Label htmlFor={name} className="text-left">
                         {label}{required && <span className="text-red-500">*</span>}
                     </Label>
-                    <div className="col-span-3">
-                        <Input
-                            id={name}
-                            type="number"
-                            value={isNumber(value) ? value : ''}
-                            onChange={(e) => handleFieldChange(name, Number(e.target.value))}
-                            min={String(name) === 'stdDev' ? 0.1 : 1}
-                            step={String(name) === 'stdDev' ? 0.1 : 1}
-                            placeholder={`输入${label}`}
-                        />
-                    </div>
+                    <Input
+                        id={name}
+                        type="number"
+                        value={isNumber(value) ? value : ''}
+                        onChange={(e) => handleFieldChange(name, Number(e.target.value))}
+                        min={String(name) === 'stdDev' ? 0.1 : 1}
+                        step={String(name) === 'stdDev' ? 0.1 : 1}
+                        placeholder={`输入${label}`}
+                    />
                 </div>
             );
         }
@@ -312,27 +314,25 @@ const EditDialog: React.FC<EditDialogProps> = ({
             const options = getSelectOptions(name);
 
             return (
-                <div key={name} className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor={name} className="text-right">
+                <div key={name} className="grid gap-2">
+                    <Label htmlFor={name} className="text-left">
                         {label}{required && <span className="text-red-500">*</span>}
                     </Label>
-                    <div className="col-span-3">
-                        <Select 
-                            value={String(value)} 
-                            onValueChange={(newValue) => handleFieldChange(name, newValue as FormDataValue)}
-                        >
-                            <SelectTrigger id={name}>
-                                <SelectValue placeholder={`选择${label}`} />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {options.map((option) => (
-                                    <SelectItem key={String(option.value)} value={String(option.value)}>
-                                        {option.label}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
+                    <Select 
+                        value={String(value)} 
+                        onValueChange={(newValue) => handleFieldChange(name, newValue as FormDataValue)}
+                    >
+                        <SelectTrigger id={name}>
+                            <SelectValue placeholder={`选择${label}`} />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {options.map((option) => (
+                                <SelectItem key={String(option.value)} value={String(option.value)}>
+                                    {option.label}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                 </div>
             );
         }
@@ -350,21 +350,24 @@ const EditDialog: React.FC<EditDialogProps> = ({
                     </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="indicator-type" className="text-right">
-                            指标类型<span className="text-red-500">*</span>
+                    <div className="grid gap-2">
+                        <Label htmlFor="indicator-type" className="text-left">
+                            指标<span className="text-red-500">*</span>
                         </Label>
-                        <div className="col-span-3">
-                            <Select 
-                                value={indicatorType} 
-                                onValueChange={(value: IndicatorType) => setIndicatorType(value)}
-                                disabled={isEditing}
-                            >
-                                <SelectTrigger id="indicator-type">
-                                    <SelectValue placeholder="选择指标类型" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {getIndicatorOptions().map((option) => {
+                        <Select 
+                            value={indicatorType} 
+                            onValueChange={(value: string) => {
+                                setIndicatorType(value as IndicatorType);
+                            }}
+                            disabled={isEditing}
+                        >
+                            <SelectTrigger id="indicator-type">
+                                <SelectValue placeholder="选择指标类型" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {(() => {
+                                    const options = getIndicatorOptions();
+                                    return options.map((option) => {
                                         const IconComponent = option.icon;
                                         return (
                                             <SelectItem 
@@ -377,14 +380,17 @@ const EditDialog: React.FC<EditDialogProps> = ({
                                                 </div>
                                             </SelectItem>
                                         );
-                                    })}
-                                </SelectContent>
-                            </Select>
-                        </div>
+                                    });
+                                })()}
+                            </SelectContent>
+                        </Select>
                     </div>
                     
                     {/* 动态渲染当前指标类型的表单字段 */}
-                    {getCurrentConfig().params.map(field => renderFormField(field))}
+                    {(() => {
+                        const config = getCurrentConfig();
+                        return config.params.map(field => renderFormField(field));
+                    })()}
                 </div>
                 <DialogFooter>
                     <Button 

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { IndicatorConfig, IndicatorType } from "@/types/indicator";
+import { IndicatorConfig } from "@/types/indicator";
 import { SelectedIndicator } from "@/types/node/indicator-node";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -52,16 +52,16 @@ const IndicatorEditor: React.FC<IndicatorEditorProps> = ({
         }
     };
 
-    const getIndicatorLabel = (type: IndicatorType) => {
-        const labels: Record<IndicatorType, string> = {
-            [IndicatorType.SMA]: 'SMA (简单移动平均)',
-            [IndicatorType.EMA]: 'EMA (指数移动平均)',
-            [IndicatorType.BBANDS]: 'BOLL (布林带)',
-            [IndicatorType.MA]: 'MA (移动平均)',
-            [IndicatorType.MACD]: 'MACD (指数平滑移动平均)',
-        };
-        return labels[type] || type;
-    };
+    // const getIndicatorLabel = (type: IndicatorType) => {
+    //     const labels: Record<IndicatorType, string> = {
+    //         [IndicatorType.SMA]: 'SMA (简单移动平均)',
+    //         [IndicatorType.EMA]: 'EMA (指数移动平均)',
+    //         [IndicatorType.BBANDS]: 'BOLL (布林带)',
+    //         [IndicatorType.MA]: 'MA (移动平均)',
+    //         [IndicatorType.MACD]: 'MACD (指数平滑移动平均)',
+    //     };
+    //     return labels[type] || type;
+    // };
 
     const getConfigDisplay = (config: IndicatorConfig) => {
         const display = getIndicatorConfigDisplay(config);
