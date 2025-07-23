@@ -27,6 +27,14 @@ import { IndicatorChartConfig } from "../chart";
 
 // 指标配置映射
 export const INDICATOR_CHART_CONFIG_MAP: Record<IndicatorType, IndicatorChartConfig> = {
+    [IndicatorType.MA]:{
+        name: "MA",
+        isInMainChart: true,
+        seriesConfigs: [
+            {name: "SMA", type: SeriesType.LINE, color: "#FF6B6B", strokeThickness: 2, indicatorValueKey: "ma" as keyof IndicatorValue }
+        ]
+
+    },
     [IndicatorType.SMA]: {
         name: "SMA",
         isInMainChart: true,
@@ -43,7 +51,7 @@ export const INDICATOR_CHART_CONFIG_MAP: Record<IndicatorType, IndicatorChartCon
         ],
     },
     
-    [IndicatorType.BOLL]: {
+    [IndicatorType.BBANDS]: {
         name: "布林带",
         isInMainChart: true,
         seriesConfigs: [

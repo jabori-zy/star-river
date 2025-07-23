@@ -1,41 +1,66 @@
 import BaseHandle from "@/components/flow/base/BaseHandle";
 import { Position } from "@xyflow/react";
-import { IndicatorConfig, IndicatorType } from "@/types/indicator";
+import { IndicatorConfig, IndicatorType, PriceSource, MAType } from "@/types/indicator";
 import { SelectedIndicator } from "@/types/node/indicator-node";
+import { indicatorSelectorConfig } from "@/types/indicator/indicator-selector-config";
 import { Badge } from "@/components/ui/badge";
 
-// 获取指标类型的中文标签
-const getIndicatorLabel = (type: IndicatorType) => {
-    const indicatorMap: Record<IndicatorType, string> = {
-        [IndicatorType.SMA]: '简单移动平均线',
-        [IndicatorType.EMA]: '指数移动平均线',
-        [IndicatorType.BOLL]: '布林带',
-    };
-    return indicatorMap[type] || type;
+// 价格源选项映射
+const PRICE_SOURCE_LABELS: Record<PriceSource, string> = {
+    [PriceSource.CLOSE]: '收盘价',
+    [PriceSource.OPEN]: '开盘价',
+    [PriceSource.HIGH]: '最高价',
+    [PriceSource.LOW]: '最低价',
+};
+
+// MA类型选项映射
+const MA_TYPE_LABELS: Record<MAType, string> = {
+    [MAType.SMA]: 'SMA',
+    [MAType.EMA]: 'EMA',
+    [MAType.WMA]: 'WMA',
+    [MAType.DEMA]: 'DEMA',
+    [MAType.TEMA]: 'TEMA',
+    [MAType.TRIMA]: 'TRIMA',
+    [MAType.KAMA]: 'KAMA',
+    [MAType.MANA]: 'MANA',
+    [MAType.T3]: 'T3',
+};
+
+// 从配置获取指标类型的显示标签
+const getIndicatorLabel = (type: IndicatorType): string => {
+    return indicatorSelectorConfig[type]?.indicatorShowName || type;
 };
 
 // 获取价格源的中文标签
-const getPriceSourceLabel = (priceSource: string) => {
-    const priceSourceMap: Record<string, string> = {
-        'close': '收盘价',
-        'open': '开盘价',
-        'high': '最高价',
-        'low': '最低价',
-    };
-    return priceSourceMap[priceSource] || priceSource;
+const getPriceSourceLabel = (priceSource: PriceSource): string => {
+    return PRICE_SOURCE_LABELS[priceSource] || priceSource;
 };
 
-// 获取指标参数显示文本
+// 根据配置动态获取指标参数显示文本
 const getIndicatorParams = (indicator: IndicatorConfig): string => {
-    switch (indicator.type) {
-        case IndicatorType.SMA:
-        case IndicatorType.EMA:
-            return `周期:${indicator.period}`;
-        case IndicatorType.BOLL:
-            return `周期:${indicator.period}, 标准差:${indicator.stdDev}`;
-        default:
-            return '';
-    }
+    const config = indicatorSelectorConfig[indicator.type];
+    if (!config) return '';
+    
+    // 获取数字类型和选择字段（排除价格源）并构建显示文本
+    const displayFields = config.params.filter(field => 
+        field.type === 'number' || 
+        (field.type === 'select' && (field.name as string) !== 'priceSource') // 价格源单独显示
+    );
+    const paramParts = displayFields.map(field => {
+        const value = (indicator as Record<string, unknown>)[field.name];
+        if ((field.name as string) === 'maType') {
+            const maTypeLabel = MA_TYPE_LABELS[value as MAType] || value;
+            return `${field.label}:${maTypeLabel}`;
+        }
+        // 对于其他选择字段，直接显示值
+        if (field.type === 'select') {
+            return `${field.label}:${value}`;
+        }
+        // 数字字段
+        return `${field.label}:${value}`;
+    });
+    
+    return paramParts.join(' | ');
 };
 
 interface IndicatorItemProps {

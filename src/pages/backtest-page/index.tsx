@@ -56,6 +56,7 @@ export default function BacktestPage() {
             if (!strategyId) return;
             const keys = await getStrategyCacheKeys(strategyId);
             const parsedKeyMap: Record<string, BacktestKlineKey | BacktestIndicatorKey> = {};
+            console.log("keys", keys);
             
             keys.forEach(keyString => {
                 parsedKeyMap[keyString] = parseKey(keyString) as BacktestKlineKey | BacktestIndicatorKey;

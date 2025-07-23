@@ -14,7 +14,7 @@ import {
   } from "@/components/ui/dropdown-menu"
 import { BacktestChart } from "@/types/chart/backtest-chart";
 import SymbolListDialog from "./symbol-list-dialog";
-import IndicatorListDialog from "./indicator-list-dialog";
+import AddIndicatorDialog from "./add-indicator-dialog";
 import { useState, useRef, useImperativeHandle, forwardRef } from "react";
 import { IndicatorChartConfig, SubChartConfig } from "@/types/chart";
 
@@ -114,7 +114,7 @@ const ChartCard = forwardRef<ChartCardRef, ChartCardProps>(({ chartConfig, strat
             />
 
             {/* Indicator添加Dialog */}
-            <IndicatorListDialog
+            <AddIndicatorDialog
                 chartConfig={chartConfig}
                 open={isIndicatorDialogOpen}
                 onOpenChange={setIsIndicatorDialogOpen}

@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Activity } from 'lucide-react';
-import IndicatorSelector from "@/components/flow/node/indicator-node/components/indicator-selector";
+import IndicatorEditor from "@/components/flow/node/indicator-node/components/indicator-editor";
 import { getNodeDefaultInputHandleId, NodeType } from "@/types/node/index";
 
 const IndicatorNodeLiveSettingPanel: React.FC<SettingProps> = ({ id, data }) => {
@@ -51,7 +51,7 @@ const IndicatorNodeLiveSettingPanel: React.FC<SettingProps> = ({ id, data }) => 
 
             {/* 指标选择器 */}
             {isConnected && liveConfig && (
-                <IndicatorSelector 
+                <IndicatorEditor 
                     id={id}
                     selectedIndicators={liveConfig.selectedIndicators || []}
                     onSelectedIndicatorsChange={updateLiveSelectedIndicators}

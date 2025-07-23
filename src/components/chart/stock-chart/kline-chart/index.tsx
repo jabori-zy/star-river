@@ -70,27 +70,35 @@ const KlineChart = forwardRef<KlineChartRef, KlineChartProps>(
 
         // 创建图表初始化函数 - 参考官网示例的方式
         const initChart = React.useCallback(async (rootElement: string | HTMLDivElement) => {
+            console.log("play_index: ", playIndex);
             // 初始化图表
             const { sciChartSurface, controls } = await initKlineChart(rootElement, klineChartConfig);
 
             // 解析K线缓存键获取交易所和交易对信息
             const klineKey = parseKey(klineChartConfig.klineKeyStr) as BacktestKlineKey;
 
-            const initialKlines = await getInitialChartData(klineChartConfig.klineKeyStr, playIndex, null) as Kline[];
 
-            if (initialKlines && initialKlines.length > 0) {
-                controls.setKlineData(klineKey.symbol + "/" + klineKey.interval, initialKlines);
-                
-            }
-
-            for (const indicatorKeyStr of Object.keys(klineChartConfig.indicatorChartConfig)) {
-                const indicatorValue = await getInitialChartData(indicatorKeyStr, playIndex, null) as IndicatorValue[];
-                if (indicatorValue && indicatorValue.length > 0) {
-                    console.log("indicatorValue: ", indicatorValue);
-                    controls.setIndicatorData(indicatorKeyStr, indicatorValue);
+            // 如果playIndex大于-1，则获取初始数据， -1代表还未开始
+            if (playIndex > -1) {
+                const initialKlines = await getInitialChartData(klineChartConfig.klineKeyStr, playIndex, null) as Kline[];
+                if (initialKlines && initialKlines.length > 0) {
+                    controls.setKlineData(klineKey.symbol + "/" + klineKey.interval, initialKlines);
+                    
                 }
+
+                for (const indicatorKeyStr of Object.keys(klineChartConfig.indicatorChartConfig)) {
+                    const indicatorValue = await getInitialChartData(indicatorKeyStr, playIndex, null) as IndicatorValue[];
+                    if (indicatorValue && indicatorValue.length > 0) {
+                        console.log("indicatorValue: ", indicatorValue);
+                        controls.setIndicatorData(indicatorKeyStr, indicatorValue);
+                    }
+                }
+                controls.setXRange(initialKlines[0].timestamp / 1000, initialKlines[initialKlines.length - 1].timestamp / 1000);
             }
-            controls.setXRange(initialKlines[0].timestamp / 1000, initialKlines[initialKlines.length - 1].timestamp / 1000);
+
+            
+
+            
 
             // 订阅K线、指标和订单数据流 - 独立订阅，各自更新
             const subscriptions: Subscription[] = [];

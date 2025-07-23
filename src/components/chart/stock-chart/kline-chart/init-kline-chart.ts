@@ -191,7 +191,6 @@ export const initKlineChart = async (
 
 
     const onNewIndicator = (newIndicators: Record<string, IndicatorValue>) => {
-        console.log("新指标数据", newIndicators);
         Object.entries(newIndicators).forEach(([indicatorKeyStr, indicatorData]) => {
             const indicatorChartConfig = getIndicatorChartConfig(indicatorKeyStr);
             if (indicatorChartConfig) {
@@ -199,7 +198,8 @@ export const initKlineChart = async (
                 const indicatorDataSeries = indicatorDataSeriesMap.get(indicatorKeyStr);
                 if (indicatorDataSeries) {
                     const value = indicatorData[indicatorChartConfig.seriesConfigs[0].indicatorValueKey];
-                    if (value !== undefined && value !== null) {
+                    console.log("indicator_value", value);
+                    if (value !== undefined && value !== null && value !== 0) {
                         const timestamp = indicatorData.timestamp / 1000;
                         
                         // 参考K线的更新方式：判断是新数据还是更新现有数据

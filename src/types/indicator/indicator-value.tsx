@@ -1,3 +1,13 @@
+
+export type IndicatorValue = MAValue | SMAValue | EMAValue | BBandsValue | MACDValue;
+
+
+export type MAValue = {
+    timestamp: number;
+    ma: number;
+}
+
+
 export type SMAValue = {
     timestamp: number;
     sma: number;
@@ -8,7 +18,7 @@ export type EMAValue = {
     ema: number;
 }
 
-export type BOLLValue = {
+export type BBandsValue = {
     timestamp: number;
     upper: number;
     middle: number;
@@ -22,4 +32,4 @@ export type MACDValue = {
     histogram: number;
 }
 
-export type IndicatorValue = SMAValue | EMAValue | BOLLValue | MACDValue;
+

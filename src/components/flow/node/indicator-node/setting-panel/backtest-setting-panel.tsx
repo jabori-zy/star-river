@@ -6,7 +6,7 @@ import { useUpdateBacktestConfig } from "@/hooks/node/indicator-node/use-update-
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Activity } from 'lucide-react';
-import IndicatorSelector from "@/components/flow/node/indicator-node/components/indicator-selector";
+import IndicatorEditor from "@/components/flow/node/indicator-node/components/indicator-editor";
 import { getNodeDefaultInputHandleId, isDefaultOutputHandleId, NodeType } from "@/types/node/index";
 import { KlineNodeData } from "@/types/node/kline-node";
 import { SelectedSymbol } from "@/types/node/kline-node";
@@ -102,7 +102,7 @@ const IndicatorNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id, data })
                 selectedSymbol={exchangeModeConfig?.selectedSymbol || null}
                 onSymbolChange={handleSymbolChange}
             />
-            <IndicatorSelector 
+            <IndicatorEditor 
                 id={id}
                 selectedIndicators={exchangeModeConfig?.selectedIndicators || []}
                 onSelectedIndicatorsChange={updateSelectedIndicators}

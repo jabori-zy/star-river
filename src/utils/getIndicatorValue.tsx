@@ -10,7 +10,7 @@ export function getIndicatorValue(indicatorType: IndicatorType){
                     value: 0
                 }
             } as SMAValue;
-        case IndicatorType.BOLL:
+        case IndicatorType.BBANDS:
             return {
                 upper: {
                     showName: "上轨",

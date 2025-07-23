@@ -1,6 +1,6 @@
 import { Key, KlineKey, IndicatorKey, BacktestKlineKey, BacktestIndicatorKey } from "../types/symbol-key";
-import { IndicatorConfig, IndicatorType } from "../types/indicator";
-import { SmaConfig } from "@/types/indicator/indicatorConfig";
+import { IndicatorConfig, IndicatorType, MAType, PriceSource } from "../types/indicator";
+import { MAConfig } from "@/types/indicator/indicator-config";
 import { KlineInterval } from "@/types/kline";
 
 /**
@@ -9,6 +9,7 @@ import { KlineInterval } from "@/types/kline";
 export function parseKey(keyStr: string): Key {
   const parts = keyStr.split("|");
   const type = parts[0];
+  console.log("key_type", type);
 
   if (type === "kline") {
     return {
@@ -22,22 +23,26 @@ export function parseKey(keyStr: string): Key {
     // 处理指标配置参数
     const indicatorConfigStr = parts[4]; // 如 "sma(period=9)"
     const indicatorType = indicatorConfigStr.split("(")[0] as IndicatorType;
+    console.log(indicatorType);
     
     let indicatorConfig: IndicatorConfig;
     
-    if (indicatorType === IndicatorType.SMA) {
+    if (indicatorType === IndicatorType.MA) {
       // 解析SMA配置
       const paramStr = indicatorConfigStr.match(/\((.*?)\)/)?.[1] || "";
       const params = new Map<string, string>();
       
       paramStr.split(",").forEach(param => {
         const [key, value] = param.split("=");
-        params.set(key, value);
+        params.set(key.trim(), value.trim());
       });
       
       indicatorConfig = {
-        period: parseInt(params.get("period") || "0")
-      } as SmaConfig;
+        timePeriod: parseInt(params.get("time_period") || "0"),
+        maType: params.get("ma_type") as MAType,
+        priceSource: params.get("price_source") as PriceSource
+      } as MAConfig;
+      console.log(indicatorConfig);
     } else {
       throw new Error(`不支持的指标类型: ${indicatorType}`);
     }
@@ -70,19 +75,24 @@ export function parseKey(keyStr: string): Key {
     
     let indicatorConfig: IndicatorConfig;
     
-    if (indicatorType === IndicatorType.SMA) {
-      // 解析SMA配置
+    if (indicatorType === IndicatorType.MA) {
+      // 解析MA配置
       const paramStr = indicatorConfigStr.match(/\((.*?)\)/)?.[1] || "";
       const params = new Map<string, string>();
       
       paramStr.split(",").forEach(param => {
         const [key, value] = param.split("=");
-        params.set(key, value);
+        params.set(key.trim(), value.trim());
       });
-      
+
+      console.log("params", params);
       indicatorConfig = {
-        period: parseInt(params.get("period") || "0")
-      } as SmaConfig;
+        type: indicatorType,
+        maType: params.get("ma_type") as MAType,
+        timePeriod: parseInt(params.get("time_period") || "0"), 
+        priceSource: params.get("price_source") as PriceSource
+      } as MAConfig;
+      console.log("indicatorConfig", indicatorConfig);
     } else {
       throw new Error(`不支持的指标类型: ${indicatorType}`);
     }
