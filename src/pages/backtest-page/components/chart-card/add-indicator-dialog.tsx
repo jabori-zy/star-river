@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
-import Dialog from "@/components/dialog";
 import { BacktestIndicatorKey } from "@/types/symbol-key";
 import { parseKey } from "@/utils/parse-key";
 import { SubChartConfig, IndicatorChartConfig } from "@/types/chart";
 import { INDICATOR_CHART_CONFIG_MAP } from "@/types/indicator/indicator-chart-config";
 import { BacktestChart } from "@/types/chart/backtest-chart";
 import IndicatorSelector from "@/components/indicator-selector";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 
 interface IndicatorListDialogProps {
     open: boolean;
@@ -69,35 +71,49 @@ export default function AddIndicatorDialog({
     };
 
     return (
-        <Dialog
-            isOpen={open}
-            onClose={handleCancel}
-            title="添加指标"
-            onSave={handleAddIndicator}
-            onCancel={handleCancel}
-            saveText="添加指标"
-            cancelText="取消"
-            saveDisabled={!selectedIndicatorKey}
-            className="w-full max-w-sm"
-        >
-            <div className="flex flex-col gap-4 py-4 px-4">
-                {chartConfig.klineChartConfig.klineKeyStr ? (
-                    <div className="flex flex-col gap-2">
-                        <label className="text-sm font-medium">选择指标</label>
-                        <IndicatorSelector
-                            klineKeyStr={chartConfig.klineChartConfig.klineKeyStr}
-                            selectedIndicatorKey={selectedIndicatorKey}
-                            onIndicatorSelect={setSelectedIndicatorKey}
-                            strategyId={strategyId}
-                            placeholder="选择要添加的指标"
-                        />
-                    </div>
-                ) : (
-                    <div className="flex items-center justify-center py-8 text-gray-500">
-                        请先选择交易对
-                    </div>
-                )}
-            </div>
+        <Dialog open={open} onOpenChange={onOpenChange} modal={false}>
+            <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                    <DialogTitle>添加指标</DialogTitle>
+                    <DialogDescription>
+                        选择要添加到图表的技术指标。指标可以添加到主图或副图中。
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                    {chartConfig.klineChartConfig.klineKeyStr ? (
+                        <div className="grid gap-2">
+                            <Label htmlFor="indicator-selector" className="text-left">
+                                选择指标
+                            </Label>
+                            <IndicatorSelector
+                                klineKeyStr={chartConfig.klineChartConfig.klineKeyStr}
+                                selectedIndicatorKey={selectedIndicatorKey}
+                                onIndicatorSelect={setSelectedIndicatorKey}
+                                strategyId={strategyId}
+                                placeholder="选择要添加的指标"
+                            />
+                        </div>
+                    ) : (
+                        <div className="flex items-center justify-center py-8 text-gray-500">
+                            请先选择交易对
+                        </div>
+                    )}
+                </div>
+                <DialogFooter>
+                    <Button 
+                        variant="outline" 
+                        onClick={handleCancel}
+                    >
+                        取消
+                    </Button>
+                    <Button 
+                        onClick={handleAddIndicator}
+                        disabled={!selectedIndicatorKey}
+                    >
+                        添加指标
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
         </Dialog>
     );
 }

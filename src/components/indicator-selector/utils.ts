@@ -1,5 +1,5 @@
 import { IndicatorConfig } from "@/types/indicator";
-import { indicatorSelectorConfig } from "@/types/indicator/indicator-selector-config";
+import { indicatorParamsConfigMap } from "@/types/indicator/indicator-params-config";
 
 export interface IndicatorOption {
     key: string;
@@ -13,7 +13,7 @@ export interface IndicatorOption {
 // 根据配置动态获取指标参数显示文本
 export const getIndicatorConfigDisplay = (indicatorConfig: IndicatorConfig): string => {
     const indicatorType = indicatorConfig.type;
-    const config = indicatorSelectorConfig[indicatorType as keyof typeof indicatorSelectorConfig];
+    const config = indicatorParamsConfigMap[indicatorType as keyof typeof indicatorParamsConfigMap];
     if (!config) return '';
     
     // 获取数字类型和选择字段（排除价格源）并构建显示文本

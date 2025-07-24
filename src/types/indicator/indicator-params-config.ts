@@ -9,7 +9,7 @@ export type IndicatorParams = {
     required: boolean;
 }
 
-export type IndicatorSelectorConfig = {
+export type IndicatorParamsConfig = {
     indicatorShowName: string;
     params: IndicatorParams[];
 }
@@ -17,7 +17,7 @@ export type IndicatorSelectorConfig = {
 
 
 
-export const indicatorSelectorConfig: Record<IndicatorType, IndicatorSelectorConfig> = {
+export const indicatorParamsConfigMap: Record<IndicatorType, IndicatorParamsConfig> = {
     [IndicatorType.MA]: {
         indicatorShowName: "MA",
         params: [

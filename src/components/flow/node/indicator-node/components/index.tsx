@@ -2,7 +2,7 @@ import BaseHandle from "@/components/flow/base/BaseHandle";
 import { Position } from "@xyflow/react";
 import { IndicatorConfig, IndicatorType, PriceSource, MAType } from "@/types/indicator";
 import { SelectedIndicator } from "@/types/node/indicator-node";
-import { indicatorSelectorConfig } from "@/types/indicator/indicator-selector-config";
+import { indicatorParamsConfigMap } from "@/types/indicator/indicator-params-config";
 import { Badge } from "@/components/ui/badge";
 
 // 价格源选项映射
@@ -28,7 +28,7 @@ const MA_TYPE_LABELS: Record<MAType, string> = {
 
 // 从配置获取指标类型的显示标签
 const getIndicatorLabel = (type: IndicatorType): string => {
-    return indicatorSelectorConfig[type]?.indicatorShowName || type;
+    return indicatorParamsConfigMap[type]?.indicatorShowName || type;
 };
 
 // 获取价格源的中文标签
@@ -38,7 +38,7 @@ const getPriceSourceLabel = (priceSource: PriceSource): string => {
 
 // 根据配置动态获取指标参数显示文本
 const getIndicatorParams = (indicator: IndicatorConfig): string => {
-    const config = indicatorSelectorConfig[indicator.type];
+    const config = indicatorParamsConfigMap[indicator.type];
     if (!config) return '';
     
     // 获取数字类型和选择字段（排除价格源）并构建显示文本

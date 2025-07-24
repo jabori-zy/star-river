@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { IndicatorConfig, IndicatorType, PriceSource, IndicatorValue, MAType } from "@/types/indicator";
 import { SelectedIndicator } from "@/types/node/indicator-node";
 import { SMAConfig, EMAConfig, BBandsConfig, MAConfig, MACDConfig } from "@/types/indicator/indicator-config";
@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { TrendingUp, BarChart3 } from "lucide-react";
-import { indicatorSelectorConfig, IndicatorParams } from "@/types/indicator/indicator-selector-config";
+import { indicatorParamsConfigMap, IndicatorParams } from "@/types/indicator/indicator-params-config";
 
 interface EditDialogProps {
     isOpen: boolean;
@@ -73,17 +73,16 @@ const EditDialog: React.FC<EditDialogProps> = ({
 
     // 获取指标类型选项（从配置中生成）
     const getIndicatorOptions = (): IndicatorOption[] => {
-        const options = Object.entries(indicatorSelectorConfig).map(([type, config]) => ({
+        return Object.entries(indicatorParamsConfigMap).map(([type, config]) => ({
             value: type as IndicatorType,
             label: config.indicatorShowName,
             icon: type === IndicatorType.BBANDS ? BarChart3 : TrendingUp
         }));
-        return options;
     };
 
     // 获取当前指标的配置
     const getCurrentConfig = useCallback(() => {
-        return indicatorSelectorConfig[indicatorType];
+        return indicatorParamsConfigMap[indicatorType];
     }, [indicatorType]);
 
     // 类型守卫：检查值是否为数字
@@ -133,7 +132,7 @@ const EditDialog: React.FC<EditDialogProps> = ({
                 
                 // 设置表单数据
                 const newFormData: Partial<FormData> = {};
-                const selectorConfig = indicatorSelectorConfig[config.type];
+                const selectorConfig = indicatorParamsConfigMap[config.type];
                 selectorConfig.params.forEach(field => {
                     const fieldName = field.name;
                     newFormData[fieldName] = getConfigValue(config, fieldName) || field.defaultValue as FormDataValue || '';
@@ -142,7 +141,7 @@ const EditDialog: React.FC<EditDialogProps> = ({
             } else {
                 setIndicatorType(IndicatorType.SMA);
                 // 直接初始化表单数据，避免依赖initializeFormData
-                const config = indicatorSelectorConfig[IndicatorType.SMA];
+                const config = indicatorParamsConfigMap[IndicatorType.SMA];
                 const initialData: Partial<FormData> = {};
                 config.params.forEach(field => {
                     const fieldName = field.name;
@@ -157,7 +156,7 @@ const EditDialog: React.FC<EditDialogProps> = ({
     useEffect(() => {
         if (isOpen && !isEditing) {
             // 直接初始化表单数据，避免依赖initializeFormData
-            const config = indicatorSelectorConfig[indicatorType];
+            const config = indicatorParamsConfigMap[indicatorType];
             const initialData: Partial<FormData> = {};
             config.params.forEach(field => {
                 const fieldName = field.name;
@@ -341,8 +340,11 @@ const EditDialog: React.FC<EditDialogProps> = ({
     };
 
     return (
-        <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-[425px]">
+        <Dialog open={isOpen} onOpenChange={onClose} modal={false}>
+            <DialogContent
+                className="sm:max-w-[425px]"
+                onOpenAutoFocus={(e) => e.preventDefault()} // 防止自动聚焦，避免 aria-hidden 警告
+            >
                 <DialogHeader>
                     <DialogTitle>{isEditing ? '编辑技术指标' : '添加技术指标'}</DialogTitle>
                     <DialogDescription>
