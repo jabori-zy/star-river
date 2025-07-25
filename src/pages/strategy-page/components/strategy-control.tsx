@@ -1,16 +1,24 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Save, Play, Square, DollarSign, CreditCard, Calendar } from "lucide-react";
-import { useReactFlow } from '@xyflow/react';
+import {
+	Loader2,
+	Save,
+	Play,
+	Square,
+	DollarSign,
+	CreditCard,
+	Calendar,
+} from "lucide-react";
+import { useReactFlow } from "@xyflow/react";
 import { TradeMode } from "@/types/strategy";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import { Strategy } from "@/types/strategy";
 import { updateStrategy } from "@/service/strategy";
 import useTradingModeStore from "@/store/useTradingModeStore";
@@ -18,185 +26,200 @@ import { initStrategy } from "@/service/strategy";
 
 // 声明 window.require 类型
 declare global {
-  interface Window {
-    require?: (module: string) => {
-      ipcRenderer?: {
-        invoke: (channel: string, ...args: unknown[]) => Promise<unknown>;
-      };
-    };
-  }
+	interface Window {
+		require?: (module: string) => {
+			ipcRenderer?: {
+				invoke: (channel: string, ...args: unknown[]) => Promise<unknown>;
+			};
+		};
+	}
 }
 
 // 交易模式选择器组件
-function TradingModeSelector({ strategy, setStrategy }: { strategy: Strategy | undefined, setStrategy: (strategy: Strategy) => void }) {
+function TradingModeSelector({
+	strategy,
+	setStrategy,
+}: {
+	strategy: Strategy | undefined;
+	setStrategy: (strategy: Strategy) => void;
+}) {
+	const strategyTradingMode = strategy?.tradeMode;
+	const { tradingMode, setTradingMode } = useTradingModeStore();
 
-  const strategyTradingMode = strategy?.tradeMode;
-  const { tradingMode, setTradingMode } = useTradingModeStore();
+	useEffect(() => {
+		if (strategyTradingMode) {
+			setTradingMode(strategyTradingMode);
+		}
+	}, [strategyTradingMode, setTradingMode]);
 
-  useEffect(() => {
-    if (strategyTradingMode) {
-      setTradingMode(strategyTradingMode);
-    }
-  }, [strategyTradingMode, setTradingMode]);
+	// 获取交易模式图标
+	const getTradingModeIcon = (mode: TradeMode | undefined) => {
+		switch (mode) {
+			case TradeMode.LIVE:
+				return <DollarSign className="h-4 w-4 text-green-500" />;
+			case TradeMode.SIMULATE:
+				return <CreditCard className="h-4 w-4 text-blue-500" />;
+			case TradeMode.BACKTEST:
+				return <Calendar className="h-4 w-4 text-purple-500" />;
+			default:
+				return null;
+		}
+	};
 
-  // 获取交易模式图标
-  const getTradingModeIcon = (mode: TradeMode | undefined) => {
-    switch (mode) {
-      case TradeMode.LIVE:
-        return <DollarSign className="h-4 w-4 text-green-500" />;
-      case TradeMode.SIMULATE:
-        return <CreditCard className="h-4 w-4 text-blue-500" />;
-      case TradeMode.BACKTEST:
-        return <Calendar className="h-4 w-4 text-purple-500" />;
-      default:
-        return null;
-    }
-  };
+	// 交易模式名称
+	const getTradingModeName = (mode: TradeMode | undefined) => {
+		switch (mode) {
+			case TradeMode.LIVE:
+				return "实盘交易";
+			case TradeMode.SIMULATE:
+				return "模拟交易";
+			case TradeMode.BACKTEST:
+				return "回测交易";
+			default:
+				return "";
+		}
+	};
 
-  // 交易模式名称
-  const getTradingModeName = (mode: TradeMode | undefined) => {
-    switch (mode) {
-      case TradeMode.LIVE:
-        return "实盘交易";
-      case TradeMode.SIMULATE:
-        return "模拟交易";
-      case TradeMode.BACKTEST:
-        return "回测交易";
-      default:
-        return "";
-    }
-  };
+	// 交易模式颜色
+	const getTradingModeColor = (mode: TradeMode | undefined) => {
+		switch (mode) {
+			case TradeMode.LIVE:
+				return "text-green-500 border-green-200";
+			case TradeMode.SIMULATE:
+				return "text-blue-500 border-blue-200";
+			case TradeMode.BACKTEST:
+				return "text-purple-500 border-purple-200";
+			default:
+				return "";
+		}
+	};
 
-  // 交易模式颜色
-  const getTradingModeColor = (mode: TradeMode | undefined) => {
-    switch (mode) {
-      case TradeMode.LIVE:
-        return "text-green-500 border-green-200";
-      case TradeMode.SIMULATE:
-        return "text-blue-500 border-blue-200";
-      case TradeMode.BACKTEST:
-        return "text-purple-500 border-purple-200";
-      default:
-        return "";
-    }
-  };
+	const handleModeChange = (value: TradeMode) => {
+		if (strategy && strategy.id) {
+			setStrategy({
+				...strategy,
+				tradeMode: value,
+			});
+			setTradingMode(value);
+		}
+	};
 
-  const handleModeChange = (value: TradeMode) => {
-    if (strategy && strategy.id) {
-      setStrategy({
-        ...strategy,
-        tradeMode: value
-      });
-      setTradingMode(value);
-    }
-  };
-
-  return (
-    <div className="flex items-center gap-2">
-      <span className="flex text-xs text-muted-foreground">交易模式:</span>
-      <Select
-        value={tradingMode}
-        onValueChange={handleModeChange}
-      >
-        <SelectTrigger className={`h-8 w-[130px] ${getTradingModeColor(tradingMode)}`}>
-          <SelectValue>
-            <div className="flex items-center gap-2 w-full">
-              {getTradingModeIcon(tradingMode)}
-              <span className="text-xs truncate">{getTradingModeName(tradingMode)}</span>
-            </div>
-          </SelectValue>
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value={TradeMode.LIVE} className="flex items-center gap-2">
-            <div className="flex items-center gap-2">
-              <DollarSign className="h-4 w-4 text-green-500" />
-              <span>实盘交易</span>
-            </div>
-          </SelectItem>
-          <SelectItem value={TradeMode.SIMULATE} className="flex items-center gap-2">
-            <div className="flex items-center gap-2">
-              <CreditCard className="h-4 w-4 text-blue-500" />
-              <span>模拟交易</span>
-            </div>
-          </SelectItem>
-          <SelectItem value={TradeMode.BACKTEST} className="flex items-center gap-2">
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-purple-500" />
-              <span>回测交易</span>
-            </div>
-          </SelectItem>
-        </SelectContent>
-      </Select>
-    </div>
-  );
+	return (
+		<div className="flex items-center gap-2">
+			<span className="flex text-xs text-muted-foreground">交易模式:</span>
+			<Select value={tradingMode} onValueChange={handleModeChange}>
+				<SelectTrigger
+					className={`h-8 w-[130px] ${getTradingModeColor(tradingMode)}`}
+				>
+					<SelectValue>
+						<div className="flex items-center gap-2 w-full">
+							{getTradingModeIcon(tradingMode)}
+							<span className="text-xs truncate">
+								{getTradingModeName(tradingMode)}
+							</span>
+						</div>
+					</SelectValue>
+				</SelectTrigger>
+				<SelectContent>
+					<SelectItem
+						value={TradeMode.LIVE}
+						className="flex items-center gap-2"
+					>
+						<div className="flex items-center gap-2">
+							<DollarSign className="h-4 w-4 text-green-500" />
+							<span>实盘交易</span>
+						</div>
+					</SelectItem>
+					<SelectItem
+						value={TradeMode.SIMULATE}
+						className="flex items-center gap-2"
+					>
+						<div className="flex items-center gap-2">
+							<CreditCard className="h-4 w-4 text-blue-500" />
+							<span>模拟交易</span>
+						</div>
+					</SelectItem>
+					<SelectItem
+						value={TradeMode.BACKTEST}
+						className="flex items-center gap-2"
+					>
+						<div className="flex items-center gap-2">
+							<Calendar className="h-4 w-4 text-purple-500" />
+							<span>回测交易</span>
+						</div>
+					</SelectItem>
+				</SelectContent>
+			</Select>
+		</div>
+	);
 }
 
 // 保存策略按钮组件
-function SaveStrategyButton({ strategy }: { strategy: Strategy}) {
-  // console.log("保存策略按钮组件", strategy);
-  const [isSaving, setIsSaving] = useState(false);
-  const reactFlowInstance = useReactFlow();
+function SaveStrategyButton({ strategy }: { strategy: Strategy }) {
+	// console.log("保存策略按钮组件", strategy);
+	const [isSaving, setIsSaving] = useState(false);
+	const reactFlowInstance = useReactFlow();
 
-  // 保存策略
-  const handleSaveStrategy = async () => {
-    const nodes = reactFlowInstance.getNodes();
-    const edges = reactFlowInstance.getEdges();
+	// 保存策略
+	const handleSaveStrategy = async () => {
+		const nodes = reactFlowInstance.getNodes();
+		const edges = reactFlowInstance.getEdges();
 
-    // 根据策略模式获取正确的TradeMode枚举值
-    let tradeMode = TradeMode.BACKTEST; // 默认值
-    if (strategy?.tradeMode === TradeMode.LIVE) {
-      tradeMode = TradeMode.LIVE;
-    } else if (strategy?.tradeMode === TradeMode.SIMULATE) {
-      tradeMode = TradeMode.SIMULATE;
-    }
+		// 根据策略模式获取正确的TradeMode枚举值
+		let tradeMode = TradeMode.BACKTEST; // 默认值
+		if (strategy?.tradeMode === TradeMode.LIVE) {
+			tradeMode = TradeMode.LIVE;
+		} else if (strategy?.tradeMode === TradeMode.SIMULATE) {
+			tradeMode = TradeMode.SIMULATE;
+		}
 
-    const strategyData = {
-      id: strategy?.id,
-      name: strategy?.name,
-      description: strategy?.description,
-      config: strategy?.config,
-      tradeMode, // 使用枚举值
-      status: 1,
-      nodes,
-      edges
-    };
+		const strategyData = {
+			id: strategy?.id,
+			name: strategy?.name,
+			description: strategy?.description,
+			config: strategy?.config,
+			tradeMode, // 使用枚举值
+			status: 1,
+			nodes,
+			edges,
+		};
 
-    setIsSaving(true);
+		setIsSaving(true);
 
-    try {
-      // 使用service方法替代直接fetch调用
-      await updateStrategy(strategy?.id as number, strategyData, {
-        showToast: true,
-        onFinally: () => {
-          setTimeout(() => {
-            setIsSaving(false);
-          }, 1000);
-        }
-      });
-    } catch (err) {
-      // 错误处理已在service中完成
-      console.error('保存策略时出错:', err);
-    }
-  };
+		try {
+			// 使用service方法替代直接fetch调用
+			await updateStrategy(strategy?.id as number, strategyData, {
+				showToast: true,
+				onFinally: () => {
+					setTimeout(() => {
+						setIsSaving(false);
+					}, 1000);
+				},
+			});
+		} catch (err) {
+			// 错误处理已在service中完成
+			console.error("保存策略时出错:", err);
+		}
+	};
 
-  return (
-    <Button
-      variant="outline"
-      size="sm"
-      className="flex items-center gap-2 min-w-[100px] font-medium
+	return (
+		<Button
+			variant="outline"
+			size="sm"
+			className="flex items-center gap-2 min-w-[100px] font-medium
         border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400
         transition-all duration-200"
-      onClick={handleSaveStrategy}
-      disabled={isSaving}
-    >
-      {isSaving ? (
-        <Loader2 className="h-4 w-4 animate-spin" />
-      ) : (
-        <Save className="h-4 w-4" />
-      )}
-      {isSaving ? "保存中" : "保存策略"}
-    </Button>
-  );
+			onClick={handleSaveStrategy}
+			disabled={isSaving}
+		>
+			{isSaving ? (
+				<Loader2 className="h-4 w-4 animate-spin" />
+			) : (
+				<Save className="h-4 w-4" />
+			)}
+			{isSaving ? "保存中" : "保存策略"}
+		</Button>
+	);
 }
 
 // // 初始化策略
@@ -212,142 +235,150 @@ function SaveStrategyButton({ strategy }: { strategy: Strategy}) {
 
 // 运行策略
 function requestRunStrategy(strategyId: number | undefined) {
-  fetch('http://localhost:3100/run_strategy', {
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    method: 'POST',
-    body: JSON.stringify({ "strategy_id": strategyId })
-  });
+	fetch("http://localhost:3100/run_strategy", {
+		headers: {
+			"Content-Type": "application/json",
+		},
+		method: "POST",
+		body: JSON.stringify({ strategy_id: strategyId }),
+	});
 }
 
 // 停止策略
 function requestStopStrategy(strategyId: number | undefined) {
-  fetch('http://localhost:3100/stop_strategy', {
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    method: 'POST',
-    body: JSON.stringify({ "strategy_id": strategyId })
-  });
+	fetch("http://localhost:3100/stop_strategy", {
+		headers: {
+			"Content-Type": "application/json",
+		},
+		method: "POST",
+		body: JSON.stringify({ strategy_id: strategyId }),
+	});
 }
 
-
-
 // 运行策略按钮组件
-function RunStrategyButton({ strategyId, tradeMode }: { strategyId: number | undefined, tradeMode: TradeMode }) {
-  // 策略是否正在运行
-  const [isRunning, setIsRunning] = useState(false);
+function RunStrategyButton({
+	strategyId,
+	tradeMode,
+}: {
+	strategyId: number | undefined;
+	tradeMode: TradeMode;
+}) {
+	// 策略是否正在运行
+	const [isRunning, setIsRunning] = useState(false);
 
-  const handleRun = async () => {
-    //如果策略是运行状态
-    if (isRunning) {
-      // 停止策略
-      requestStopStrategy(strategyId);
-      // 设置为停止状态
-      setIsRunning(false);
-    } 
-    //如果是停止状态
-    else {
-      // 如果是回测模式，打开新窗口
-      if (tradeMode === TradeMode.BACKTEST) {
-        try {
-          // 检查是否在 Electron 环境中
-          if (window.require) {
-            // Electron 环境：打开新窗口
-            const electronModule = window.require('electron');
-            if (electronModule && electronModule.ipcRenderer) {
-              await electronModule.ipcRenderer.invoke('open-backtest-window', strategyId);
-            }
-          } else {
-            // 浏览器环境：打开新标签页
-            const backtestUrl = `/backtest/${strategyId}`;
-            window.open(backtestUrl, '_blank', 'width=1200,height=800');
-          }
-        } catch (error) {
-          console.error('打开回测窗口失败:', error);
-        }
-      }
-      
-      if (strategyId) {
-        // 初始化策略
-        initStrategy(strategyId as number);
-      }
-      // 运行策略
-      requestRunStrategy(strategyId);
-      // 设置为运行状态
-      setIsRunning(true);
-    }
-  };
+	const handleRun = async () => {
+		//如果策略是运行状态
+		if (isRunning) {
+			// 停止策略
+			requestStopStrategy(strategyId);
+			// 设置为停止状态
+			setIsRunning(false);
+		}
+		//如果是停止状态
+		else {
+			// 如果是回测模式，打开新窗口
+			if (tradeMode === TradeMode.BACKTEST) {
+				try {
+					// 检查是否在 Electron 环境中
+					if (window.require) {
+						// Electron 环境：打开新窗口
+						const electronModule = window.require("electron");
+						if (electronModule && electronModule.ipcRenderer) {
+							await electronModule.ipcRenderer.invoke(
+								"open-backtest-window",
+								strategyId,
+							);
+						}
+					} else {
+						// 浏览器环境：打开新标签页
+						const backtestUrl = `/backtest/${strategyId}`;
+						window.open(backtestUrl, "_blank", "width=1200,height=800");
+					}
+				} catch (error) {
+					console.error("打开回测窗口失败:", error);
+				}
+			}
 
-  return (
-    <Button
-      variant={isRunning ? "destructive" : "default"}
-      size="sm"
-      className="flex items-center gap-2 min-w-[90px]"
-      onClick={handleRun}
-    >
-      {tradeMode === TradeMode.LIVE ? (
-        // 实盘模式
-        isRunning ? (
-          <>
-            <Square className="h-4 w-4" />
-            停止策略
-          </>
-        ) : (
-          <>
-            <Play className="h-4 w-4" />
-            开始策略
-          </>
-        )
-      ) : tradeMode === TradeMode.BACKTEST ? (
-        // 回测模式
-        isRunning ? (
-          <>
-            <Square className="h-4 w-4" />
-            停止回测
-          </>
-        ) : (
-          <>
-            <Play className="h-4 w-4" />
-            开始回测
-          </>
-        )
-      ) : (
-        // 模拟模式或其他模式
-        isRunning ? (
-          <>
-            <Square className="h-4 w-4" />
-            停止
-          </>
-        ) : (
-          <>
-            <Play className="h-4 w-4" />
-            运行
-          </>
-        )
-      )}
-    </Button>
-  );
+			if (strategyId) {
+				// 初始化策略
+				initStrategy(strategyId as number);
+			}
+			// 运行策略
+			requestRunStrategy(strategyId);
+			// 设置为运行状态
+			setIsRunning(true);
+		}
+	};
+
+	return (
+		<Button
+			variant={isRunning ? "destructive" : "default"}
+			size="sm"
+			className="flex items-center gap-2 min-w-[90px]"
+			onClick={handleRun}
+		>
+			{tradeMode === TradeMode.LIVE ? (
+				// 实盘模式
+				isRunning ? (
+					<>
+						<Square className="h-4 w-4" />
+						停止策略
+					</>
+				) : (
+					<>
+						<Play className="h-4 w-4" />
+						开始策略
+					</>
+				)
+			) : tradeMode === TradeMode.BACKTEST ? (
+				// 回测模式
+				isRunning ? (
+					<>
+						<Square className="h-4 w-4" />
+						停止回测
+					</>
+				) : (
+					<>
+						<Play className="h-4 w-4" />
+						开始回测
+					</>
+				)
+			) : // 模拟模式或其他模式
+			isRunning ? (
+				<>
+					<Square className="h-4 w-4" />
+					停止
+				</>
+			) : (
+				<>
+					<Play className="h-4 w-4" />
+					运行
+				</>
+			)}
+		</Button>
+	);
 }
 
 interface StrategyControlProps {
-  strategy: Strategy;
-  setStrategy: (strategy: Strategy) => void;
+	strategy: Strategy;
+	setStrategy: (strategy: Strategy) => void;
 }
 
-export function StrategyControl({ strategy, setStrategy }: StrategyControlProps) {
-  const tradeMode = strategy?.tradeMode;
-  return (
-    <div className="flex items-center justify-end px-6 py-2">
-      <TradingModeSelector strategy={strategy} setStrategy={setStrategy} />
-      <Badge variant="outline" className="font-mono mx-3">
-        最后保存: 10:30:25
-      </Badge>
-      <SaveStrategyButton strategy={strategy} />
-      <div className="ml-3">
-        <RunStrategyButton strategyId={strategy?.id} tradeMode={tradeMode} />
-      </div>
-    </div>
-  );
-} 
+export function StrategyControl({
+	strategy,
+	setStrategy,
+}: StrategyControlProps) {
+	const tradeMode = strategy?.tradeMode;
+	return (
+		<div className="flex items-center justify-end px-6 py-2">
+			<TradingModeSelector strategy={strategy} setStrategy={setStrategy} />
+			<Badge variant="outline" className="font-mono mx-3">
+				最后保存: 10:30:25
+			</Badge>
+			<SaveStrategyButton strategy={strategy} />
+			<div className="ml-3">
+				<RunStrategyButton strategyId={strategy?.id} tradeMode={tradeMode} />
+			</div>
+		</div>
+	);
+}

@@ -1,12 +1,12 @@
-import { create } from 'zustand';
-import { Strategy } from '@/types/strategy';
+import { create } from "zustand";
+import { Strategy } from "@/types/strategy";
 
 interface StrategyState {
-  strategy: Strategy | undefined;
-  setStrategy: (strategy: Strategy) => void;
+	strategy: Strategy | undefined;
+	setStrategy: (strategy: Strategy) => void;
 }
 
 export const useStrategyStore = create<StrategyState>((set) => ({
-  strategy: undefined,
-  setStrategy: (strategy: Strategy) => set({ strategy: strategy }),
+	strategy: undefined,
+	setStrategy: (strategy: Strategy) => set({ strategy: strategy }),
 }));

@@ -1,8 +1,7 @@
-import BaseEdge from '@/components/flow/base/BaseEdge'
- 
- 
+import BaseEdge from "@/components/flow/base/BaseEdge";
+
 const edgeTypes = {
-  'customEdge': BaseEdge
-}
+	customEdge: BaseEdge,
+};
 
 export default edgeTypes;

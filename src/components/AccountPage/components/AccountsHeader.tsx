@@ -1,64 +1,67 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { PlusIcon } from "lucide-react"
-import { AddAccountPanel } from "./AddAccountPanel"
-import { mt5FormConfig } from "./mt5-form-config"
-import { Account } from "@/types/account"
+import { Button } from "@/components/ui/button";
+import { PlusIcon } from "lucide-react";
+import { AddAccountPanel } from "./AddAccountPanel";
+import { mt5FormConfig } from "./mt5-form-config";
+import { Account } from "@/types/account";
 
 interface AccountsHeaderProps {
-  activeTab: string
-  onAddAccount: (accountData: Partial<Account>) => void
+	activeTab: string;
+	onAddAccount: (accountData: Partial<Account>) => void;
 }
 
-export function AccountsHeader({ activeTab, onAddAccount }: AccountsHeaderProps) {
-  const handleAddAccount = (values: Partial<Account>) => {
-    console.log("添加账户数据:", values)
-    onAddAccount({
-      ...values,
-      exchange: activeTab
-    })
-  }
+export function AccountsHeader({
+	activeTab,
+	onAddAccount,
+}: AccountsHeaderProps) {
+	const handleAddAccount = (values: Partial<Account>) => {
+		console.log("添加账户数据:", values);
+		onAddAccount({
+			...values,
+			exchange: activeTab,
+		});
+	};
 
-  const getAddButtonConfig = () => {
-    switch (activeTab) {
-      case "metatrader5":
-        return {
-          formConfig: mt5FormConfig,
-          label: "添加MT5账户"
-        }
-      case "binance":
-        return {
-          formConfig: mt5FormConfig, // 暂时使用MT5配置
-          label: "添加Binance账户"
-        }
-      case "okx":
-        return {
-          formConfig: mt5FormConfig, // 暂时使用MT5配置
-          label: "添加OKX账户"
-        }
-      default:
-        return {
-          formConfig: mt5FormConfig,
-          label: "添加账户"
-        }
-    }
-  }
+	const getAddButtonConfig = () => {
+		switch (activeTab) {
+			case "metatrader5":
+				return {
+					formConfig: mt5FormConfig,
+					label: "添加MT5账户",
+				};
+			case "binance":
+				return {
+					formConfig: mt5FormConfig, // 暂时使用MT5配置
+					label: "添加Binance账户",
+				};
+			case "okx":
+				return {
+					formConfig: mt5FormConfig, // 暂时使用MT5配置
+					label: "添加OKX账户",
+				};
+			default:
+				return {
+					formConfig: mt5FormConfig,
+					label: "添加账户",
+				};
+		}
+	};
 
-  const { formConfig, label } = getAddButtonConfig()
+	const { formConfig, label } = getAddButtonConfig();
 
-  return (
-    <div className="flex items-center justify-end mb-4">
-      <AddAccountPanel
-        {...formConfig}
-        onSubmit={handleAddAccount}
-        trigger={
-          <Button variant="outline" size="sm">
-            <PlusIcon className="mr-2 h-4 w-4" />
-            <span>{label}</span>
-          </Button>
-        }
-      />
-    </div>
-  )
-} 
+	return (
+		<div className="flex items-center justify-end mb-4">
+			<AddAccountPanel
+				{...formConfig}
+				onSubmit={handleAddAccount}
+				trigger={
+					<Button variant="outline" size="sm">
+						<PlusIcon className="mr-2 h-4 w-4" />
+						<span>{label}</span>
+					</Button>
+				}
+			/>
+		</div>
+	);
+}

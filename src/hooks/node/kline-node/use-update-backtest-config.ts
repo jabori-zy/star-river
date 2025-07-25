@@ -1,164 +1,223 @@
-import { useCallback, useState } from 'react';
-import { useReactFlow } from '@xyflow/react';
-import { 
-  KlineNodeBacktestConfig, 
-  KlineNodeBacktestExchangeModeConfig,
-  KlineNodeBacktestFileModeConfig,
-  SelectedSymbol 
-} from '@/types/node/kline-node';
-import { 
-  BacktestDataSource,
-  SelectedAccount,
-  TimeRange 
-} from '@/types/strategy';
-import { Exchange } from '@/types/common';
+import { useCallback, useState } from "react";
+import { useReactFlow } from "@xyflow/react";
+import {
+	KlineNodeBacktestConfig,
+	KlineNodeBacktestExchangeModeConfig,
+	KlineNodeBacktestFileModeConfig,
+	SelectedSymbol,
+} from "@/types/node/kline-node";
+import {
+	BacktestDataSource,
+	SelectedAccount,
+	TimeRange,
+} from "@/types/strategy";
+import { Exchange } from "@/types/common";
 import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
 
 interface UseUpdateBacktestConfigProps {
-  id: string;
-  initialBacktestConfig?: KlineNodeBacktestConfig;
+	id: string;
+	initialBacktestConfig?: KlineNodeBacktestConfig;
 }
 
-export const useUpdateBacktestConfig = ({ id, initialBacktestConfig }: UseUpdateBacktestConfigProps) => {
-  const { updateNodeData } = useReactFlow();
-  
-  // 统一的状态管理
-  const [config, setConfig] = useState<KlineNodeBacktestConfig | undefined>(initialBacktestConfig);
-  
-  // 生成 handleId 的辅助函数
-  const generateHandleId = useCallback((index: number) => {
-    return `${id}_output${index}`;
-  }, [id]);
+export const useUpdateBacktestConfig = ({
+	id,
+	initialBacktestConfig,
+}: UseUpdateBacktestConfigProps) => {
+	const { updateNodeData } = useReactFlow();
 
-  // 为交易对数组添加 handleId
-  const addHandleIds = useCallback((symbols: SelectedSymbol[]): SelectedSymbol[] => {
-    return symbols.map((symbol, index) => ({
-      ...symbol,
-      handleId: generateHandleId(index + 1)
-    }));
-  }, [generateHandleId]);
+	// 统一的状态管理
+	const [config, setConfig] = useState<KlineNodeBacktestConfig | undefined>(
+		initialBacktestConfig,
+	);
 
-  // 通用的更新函数
-  const updateConfig = useCallback((updater: (prev: KlineNodeBacktestConfig | undefined) => KlineNodeBacktestConfig) => {
-    setConfig(prevConfig => {
-      const newConfig = updater(prevConfig);
-      
-      // 更新节点数据
-      updateNodeData(id, {
-        backtestConfig: newConfig
-      });
-      
-      return newConfig;
-    });
-  }, [id, updateNodeData]);
+	// 生成 handleId 的辅助函数
+	const generateHandleId = useCallback(
+		(index: number) => {
+			return `${id}_output${index}`;
+		},
+		[id],
+	);
 
-  // 默认配置值
-  const getDefaultConfig = useCallback((prev?: KlineNodeBacktestConfig): KlineNodeBacktestConfig => {
-    const { backtestConfig: startNodeBacktestConfig } = useStartNodeDataStore.getState();
-    const timeRange = startNodeBacktestConfig?.exchangeModeConfig?.timeRange;
-    console.log('获取默认配置', timeRange);
-    return {
-    dataSource: prev?.dataSource || BacktestDataSource.EXCHANGE,
-    fileModeConfig: prev?.fileModeConfig,
-      exchangeModeConfig: {
-        selectedAccount: prev?.exchangeModeConfig?.selectedAccount || null,
-        selectedSymbols: prev?.exchangeModeConfig?.selectedSymbols || [],
-        timeRange: timeRange || { startDate: "", endDate: "" }
-      }
-    };
-  }, []);
+	// 为交易对数组添加 handleId
+	const addHandleIds = useCallback(
+		(symbols: SelectedSymbol[]): SelectedSymbol[] => {
+			return symbols.map((symbol, index) => ({
+				...symbol,
+				handleId: generateHandleId(index + 1),
+			}));
+		},
+		[generateHandleId],
+	);
 
-  // 通用的字段更新方法
-  const updateField = useCallback(<K extends keyof KlineNodeBacktestConfig>(
-    field: K, 
-    value: KlineNodeBacktestConfig[K]
-  ) => {
-    updateConfig(prev => ({
-      ...getDefaultConfig(prev),
-      [field]: value
-    }));
-  }, [updateConfig, getDefaultConfig]);
+	// 通用的更新函数
+	const updateConfig = useCallback(
+		(
+			updater: (
+				prev: KlineNodeBacktestConfig | undefined,
+			) => KlineNodeBacktestConfig,
+		) => {
+			setConfig((prevConfig) => {
+				const newConfig = updater(prevConfig);
 
+				// 更新节点数据
+				updateNodeData(id, {
+					backtestConfig: newConfig,
+				});
 
-  const setDefaultBacktestConfig = useCallback(() => {
-    const defaultConfig = getDefaultConfig();
-    updateField('dataSource', defaultConfig.dataSource);
-    updateField('fileModeConfig', defaultConfig.fileModeConfig);
-    updateField('exchangeModeConfig', defaultConfig.exchangeModeConfig);
-  }, [updateField, getDefaultConfig]);
+				return newConfig;
+			});
+		},
+		[id, updateNodeData],
+	);
 
-  // 具体的更新方法
-  const updateDataSource = useCallback((dataSource: BacktestDataSource) => {
-    updateField('dataSource', dataSource);
-  }, [updateField]);
+	// 默认配置值
+	const getDefaultConfig = useCallback(
+		(prev?: KlineNodeBacktestConfig): KlineNodeBacktestConfig => {
+			const { backtestConfig: startNodeBacktestConfig } =
+				useStartNodeDataStore.getState();
+			const timeRange = startNodeBacktestConfig?.exchangeModeConfig?.timeRange;
+			console.log("获取默认配置", timeRange);
+			return {
+				dataSource: prev?.dataSource || BacktestDataSource.EXCHANGE,
+				fileModeConfig: prev?.fileModeConfig,
+				exchangeModeConfig: {
+					selectedAccount: prev?.exchangeModeConfig?.selectedAccount || null,
+					selectedSymbols: prev?.exchangeModeConfig?.selectedSymbols || [],
+					timeRange: timeRange || { startDate: "", endDate: "" },
+				},
+			};
+		},
+		[],
+	);
 
-  // 更新文件配置
-  const updateFileModeConfig = useCallback((fileModeConfig: KlineNodeBacktestFileModeConfig) => {
-    updateField('fileModeConfig', fileModeConfig);
-  }, [updateField]);
+	// 通用的字段更新方法
+	const updateField = useCallback(
+		<K extends keyof KlineNodeBacktestConfig>(
+			field: K,
+			value: KlineNodeBacktestConfig[K],
+		) => {
+			updateConfig((prev) => ({
+				...getDefaultConfig(prev),
+				[field]: value,
+			}));
+		},
+		[updateConfig, getDefaultConfig],
+	);
 
-  const updateFilePath = useCallback((filePath: string) => {
-    updateConfig(prev => ({
-      ...getDefaultConfig(prev),
-      fileModeConfig: {
-        filePath
-      }
-    }));
-  }, [updateConfig, getDefaultConfig]);
+	const setDefaultBacktestConfig = useCallback(() => {
+		const defaultConfig = getDefaultConfig();
+		updateField("dataSource", defaultConfig.dataSource);
+		updateField("fileModeConfig", defaultConfig.fileModeConfig);
+		updateField("exchangeModeConfig", defaultConfig.exchangeModeConfig);
+	}, [updateField, getDefaultConfig]);
 
-  // 更新交易所配置
-  const updateExchangeModeConfig = useCallback((exchangeModeConfig: KlineNodeBacktestExchangeModeConfig) => {
-    updateField('exchangeModeConfig', exchangeModeConfig);
-  }, [updateField]);
+	// 具体的更新方法
+	const updateDataSource = useCallback(
+		(dataSource: BacktestDataSource) => {
+			updateField("dataSource", dataSource);
+		},
+		[updateField],
+	);
 
-  const updateSelectedAccount = useCallback((selectedAccount: SelectedAccount | null) => {
-    updateConfig(prev => ({
-      ...getDefaultConfig(prev),
-      exchangeModeConfig: {
-        ...prev?.exchangeModeConfig,
-        selectedAccount: selectedAccount,
-        selectedSymbols: prev?.exchangeModeConfig?.selectedSymbols || [],
-        timeRange: prev?.exchangeModeConfig?.timeRange || { startDate: "", endDate: "" }
-      }
-    }));
-  }, [updateConfig, getDefaultConfig]);
+	// 更新文件配置
+	const updateFileModeConfig = useCallback(
+		(fileModeConfig: KlineNodeBacktestFileModeConfig) => {
+			updateField("fileModeConfig", fileModeConfig);
+		},
+		[updateField],
+	);
 
-  const updateSelectedSymbols = useCallback((selectedSymbols: SelectedSymbol[]) => {
-    // 为交易对添加 handleId
-    const symbolsWithHandleIds = addHandleIds(selectedSymbols);
-    
-    updateConfig(prev => ({
-      ...getDefaultConfig(prev),
-      exchangeModeConfig: {
-        ...prev?.exchangeModeConfig,
-        selectedAccount: prev?.exchangeModeConfig?.selectedAccount || { id: 0, exchange: Exchange.BINANCE, accountName: '' },
-        selectedSymbols: symbolsWithHandleIds,
-        timeRange: prev?.exchangeModeConfig?.timeRange || { startDate: "", endDate: "" }
-      }
-    }));
-  }, [updateConfig, getDefaultConfig, addHandleIds]);
+	const updateFilePath = useCallback(
+		(filePath: string) => {
+			updateConfig((prev) => ({
+				...getDefaultConfig(prev),
+				fileModeConfig: {
+					filePath,
+				},
+			}));
+		},
+		[updateConfig, getDefaultConfig],
+	);
 
-  const updateTimeRange = useCallback((timeRange: TimeRange) => {
-    updateConfig(prev => ({
-      ...getDefaultConfig(prev),
-      exchangeModeConfig: {
-        ...prev?.exchangeModeConfig,
-        selectedAccount: prev?.exchangeModeConfig?.selectedAccount || { id: 0, exchange: Exchange.BINANCE, accountName: '' },
-        selectedSymbols: prev?.exchangeModeConfig?.selectedSymbols || [],
-        timeRange
-      }
-    }));
-  }, [updateConfig, getDefaultConfig]);
+	// 更新交易所配置
+	const updateExchangeModeConfig = useCallback(
+		(exchangeModeConfig: KlineNodeBacktestExchangeModeConfig) => {
+			updateField("exchangeModeConfig", exchangeModeConfig);
+		},
+		[updateField],
+	);
 
-  return {
-    config,
-    setDefaultBacktestConfig,
-    updateDataSource,
-    updateFileModeConfig,
-    updateFilePath,
-    updateExchangeModeConfig,
-    updateSelectedAccount,
-    updateSelectedSymbols,
-    updateTimeRange
-  };
+	const updateSelectedAccount = useCallback(
+		(selectedAccount: SelectedAccount | null) => {
+			updateConfig((prev) => ({
+				...getDefaultConfig(prev),
+				exchangeModeConfig: {
+					...prev?.exchangeModeConfig,
+					selectedAccount: selectedAccount,
+					selectedSymbols: prev?.exchangeModeConfig?.selectedSymbols || [],
+					timeRange: prev?.exchangeModeConfig?.timeRange || {
+						startDate: "",
+						endDate: "",
+					},
+				},
+			}));
+		},
+		[updateConfig, getDefaultConfig],
+	);
+
+	const updateSelectedSymbols = useCallback(
+		(selectedSymbols: SelectedSymbol[]) => {
+			// 为交易对添加 handleId
+			const symbolsWithHandleIds = addHandleIds(selectedSymbols);
+
+			updateConfig((prev) => ({
+				...getDefaultConfig(prev),
+				exchangeModeConfig: {
+					...prev?.exchangeModeConfig,
+					selectedAccount: prev?.exchangeModeConfig?.selectedAccount || {
+						id: 0,
+						exchange: Exchange.BINANCE,
+						accountName: "",
+					},
+					selectedSymbols: symbolsWithHandleIds,
+					timeRange: prev?.exchangeModeConfig?.timeRange || {
+						startDate: "",
+						endDate: "",
+					},
+				},
+			}));
+		},
+		[updateConfig, getDefaultConfig, addHandleIds],
+	);
+
+	const updateTimeRange = useCallback(
+		(timeRange: TimeRange) => {
+			updateConfig((prev) => ({
+				...getDefaultConfig(prev),
+				exchangeModeConfig: {
+					...prev?.exchangeModeConfig,
+					selectedAccount: prev?.exchangeModeConfig?.selectedAccount || {
+						id: 0,
+						exchange: Exchange.BINANCE,
+						accountName: "",
+					},
+					selectedSymbols: prev?.exchangeModeConfig?.selectedSymbols || [],
+					timeRange,
+				},
+			}));
+		},
+		[updateConfig, getDefaultConfig],
+	);
+
+	return {
+		config,
+		setDefaultBacktestConfig,
+		updateDataSource,
+		updateFileModeConfig,
+		updateFilePath,
+		updateExchangeModeConfig,
+		updateSelectedAccount,
+		updateSelectedSymbols,
+		updateTimeRange,
+	};
 };

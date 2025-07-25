@@ -1,4 +1,3 @@
-import KlineNode from './node';
-
+import KlineNode from "./node";
 
 export default KlineNode;

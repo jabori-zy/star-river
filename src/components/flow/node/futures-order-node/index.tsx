@@ -1,8 +1,4 @@
-import FuturesOrderNode from './node';
-import FuturesOrderNodeSettingPanel from './panel';
-
-
-
-
+import FuturesOrderNode from "./node";
+import FuturesOrderNodeSettingPanel from "./panel";
 
 export { FuturesOrderNode, FuturesOrderNodeSettingPanel };

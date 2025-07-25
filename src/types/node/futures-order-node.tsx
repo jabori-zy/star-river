@@ -1,40 +1,38 @@
-import {Node} from '@xyflow/react'
-import { SelectedAccount, BacktestDataSource, TimeRange } from '@/types/strategy';
-import { FuturesOrderConfig } from '@/types/order';
-
-
+import { Node } from "@xyflow/react";
+import {
+	SelectedAccount,
+	BacktestDataSource,
+	TimeRange,
+} from "@/types/strategy";
+import { FuturesOrderConfig } from "@/types/order";
 
 export type FuturesOrderNodeLiveConfig = {
-    futuresOrderConfigs: FuturesOrderConfig[];
-    selectedAccount?: SelectedAccount;
-}
+	futuresOrderConfigs: FuturesOrderConfig[];
+	selectedAccount?: SelectedAccount;
+};
 
 export type FuturesOrderNodeSimulateConfig = {
-    futuresOrderConfigs: FuturesOrderConfig[];
-    selectedSimulateAccount?: SelectedAccount;
-}
-
-
+	futuresOrderConfigs: FuturesOrderConfig[];
+	selectedSimulateAccount?: SelectedAccount;
+};
 
 export type FuturesOrderNodeBacktestExchangeModeConfig = {
-  selectedAccount?: SelectedAccount;
-  timeRange: TimeRange; // 回测时间范围
-}
-
+	selectedAccount?: SelectedAccount;
+	timeRange: TimeRange; // 回测时间范围
+};
 
 export type FuturesOrderNodeBacktestConfig = {
-  dataSource: BacktestDataSource;
-  exchangeModeConfig?: FuturesOrderNodeBacktestExchangeModeConfig;
-  futuresOrderConfigs: FuturesOrderConfig[];
-}
+	dataSource: BacktestDataSource;
+	exchangeModeConfig?: FuturesOrderNodeBacktestExchangeModeConfig;
+	futuresOrderConfigs: FuturesOrderConfig[];
+};
 
 export type FuturesOrderNodeData = {
-  nodeName: string; // 节点名称
-  // 针对不同交易模式的条件配置
-  liveConfig?: FuturesOrderNodeLiveConfig; 
-  backtestConfig?: FuturesOrderNodeBacktestConfig;
-  simulateConfig?: FuturesOrderNodeSimulateConfig;
-  
-}
+	nodeName: string; // 节点名称
+	// 针对不同交易模式的条件配置
+	liveConfig?: FuturesOrderNodeLiveConfig;
+	backtestConfig?: FuturesOrderNodeBacktestConfig;
+	simulateConfig?: FuturesOrderNodeSimulateConfig;
+};
 
-export type FuturesOrderNode = Node<FuturesOrderNodeData,'futuresOrderNode'>;
+export type FuturesOrderNode = Node<FuturesOrderNodeData, "futuresOrderNode">;

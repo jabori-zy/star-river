@@ -1,12 +1,12 @@
-import { create } from 'zustand';
-import { NodeItemProps } from '@/types/nodeCategory';
+import { create } from "zustand";
+import { NodeItemProps } from "@/types/nodeCategory";
 
 interface DragAndDropState {
-  dragNodeItem: NodeItemProps | null;
-  setDragNodeItem: (nodeItem: NodeItemProps | null) => void;
+	dragNodeItem: NodeItemProps | null;
+	setDragNodeItem: (nodeItem: NodeItemProps | null) => void;
 }
 
 export const useDndNodeStore = create<DragAndDropState>((set) => ({
-  dragNodeItem: null,
-  setDragNodeItem: (nodeItem) => set({ dragNodeItem: nodeItem }),
+	dragNodeItem: null,
+	setDragNodeItem: (nodeItem) => set({ dragNodeItem: nodeItem }),
 }));

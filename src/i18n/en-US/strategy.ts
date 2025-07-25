@@ -1,9 +1,9 @@
 const translation = {
-    strategyTitle: "Strategy",
-    strategyControl: {
-        start: "Start",
-        stop: "Stop",
-    }
-}
+	strategyTitle: "Strategy",
+	strategyControl: {
+		start: "Start",
+		stop: "Stop",
+	},
+};
 
 export default translation;

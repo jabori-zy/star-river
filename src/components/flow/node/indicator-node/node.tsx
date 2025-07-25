@@ -10,77 +10,89 @@ import useTradingModeStore from "@/store/useTradingModeStore";
 import { TradeMode } from "@/types/strategy";
 import LiveModeShow from "./components/live-mode-show";
 import BacktestModeShow from "./components/backtest-mode-show";
-import { getNodeDefaultInputHandleId, getNodeDefaultOutputHandleId, NodeType } from "@/types/node/index";
+import {
+	getNodeDefaultInputHandleId,
+	getNodeDefaultOutputHandleId,
+	NodeType,
+} from "@/types/node/index";
 import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
 
+const IndicatorNode: React.FC<NodeProps<IndicatorNodeType>> = ({
+	id,
+	data,
+	selected,
+}) => {
+	const nodeName = data?.nodeName || "指标节点";
+	const { tradingMode } = useTradingModeStore();
+	// 直接订阅 store 状态变化
+	const { backtestConfig: startNodeBacktestConfig } = useStartNodeDataStore();
 
-const IndicatorNode: React.FC<NodeProps<IndicatorNodeType>> = ({id, data, selected}) => {
-    const nodeName = data?.nodeName || "指标节点";
-    const { tradingMode } = useTradingModeStore();
-    // 直接订阅 store 状态变化
-    const { backtestConfig: startNodeBacktestConfig } = useStartNodeDataStore();
+	// 使用分离的hooks
+	const { setDefaultLiveConfig } = useUpdateLiveConfig({
+		id,
+		initialLiveConfig: data?.liveConfig,
+	});
 
+	const { setDefaultBacktestConfig, updateTimeRange } = useUpdateBacktestConfig(
+		{
+			id,
+			initialConfig: data?.backtestConfig,
+		},
+	);
 
-    // 使用分离的hooks
-    const { setDefaultLiveConfig } = useUpdateLiveConfig({
-        id,
-        initialLiveConfig: data?.liveConfig
-    });
+	// 监听开始节点的时间范围变化
+	useEffect(() => {
+		const timeRange = startNodeBacktestConfig?.exchangeModeConfig?.timeRange;
+		if (timeRange) {
+			updateTimeRange(timeRange);
+		}
+	}, [startNodeBacktestConfig?.exchangeModeConfig?.timeRange, updateTimeRange]);
 
-    const { setDefaultBacktestConfig, updateTimeRange } = useUpdateBacktestConfig({
-        id,
-        initialConfig: data?.backtestConfig
-    });
+	// 初始化时设置默认配置
+	useEffect(() => {
+		if (!data?.liveConfig) {
+			setDefaultLiveConfig();
+		}
+		// 如果回测节点没有配置，则设置默认配置
+		if (!data?.backtestConfig) {
+			setDefaultBacktestConfig();
+		}
+	}, [
+		setDefaultLiveConfig,
+		setDefaultBacktestConfig,
+		data.liveConfig,
+		data.backtestConfig,
+	]);
 
+	const defaultInputHandle: BaseHandleProps = {
+		id: getNodeDefaultInputHandleId(id, NodeType.IndicatorNode),
+		type: "target",
+		position: Position.Left,
+		handleColor: "!bg-red-400",
+	};
 
-    // 监听开始节点的时间范围变化
-    useEffect(() => {
-        const timeRange = startNodeBacktestConfig?.exchangeModeConfig?.timeRange;
-        if (timeRange) {
-            updateTimeRange(timeRange)
-        }
-    }, [startNodeBacktestConfig?.exchangeModeConfig?.timeRange, updateTimeRange])
+	const defaultOutputHandle: BaseHandleProps = {
+		id: getNodeDefaultOutputHandleId(id, NodeType.IndicatorNode),
+		type: "source",
+		position: Position.Right,
+		handleColor: "!bg-red-400",
+	};
 
-    // 初始化时设置默认配置
-    useEffect(() => {
-        if (!data?.liveConfig) {
-            setDefaultLiveConfig();
-        }
-        // 如果回测节点没有配置，则设置默认配置
-        if (!data?.backtestConfig) {
-            setDefaultBacktestConfig();
-        }
-    }, [setDefaultLiveConfig, setDefaultBacktestConfig, data.liveConfig, data.backtestConfig]);
-
-    const defaultInputHandle: BaseHandleProps = {
-        id: getNodeDefaultInputHandleId(id, NodeType.IndicatorNode),
-        type: 'target',
-        position: Position.Left,
-        handleColor: '!bg-red-400',
-    }
-
-    const defaultOutputHandle: BaseHandleProps = {
-        id: getNodeDefaultOutputHandleId(id, NodeType.IndicatorNode),
-        type: 'source',
-        position: Position.Right,
-        handleColor: '!bg-red-400',
-    }
-
-
-
-    return (
-        <BaseNode
-            id={id}
-            nodeName={nodeName}
-            icon={Play}
-            selected={selected}
-            defaultInputHandle={defaultInputHandle}
-            defaultOutputHandle={defaultOutputHandle}
-        >
-            {tradingMode === TradeMode.LIVE && <LiveModeShow id={id} data={data} />}
-            {tradingMode === TradeMode.BACKTEST && <BacktestModeShow id={id} data={data} />}
-        </BaseNode>
-    )
-}
+	return (
+		<BaseNode
+			id={id}
+			nodeName={nodeName}
+			icon={Play}
+			selected={selected}
+			defaultInputHandle={defaultInputHandle}
+			defaultOutputHandle={defaultOutputHandle}
+		>
+			{tradingMode === TradeMode.LIVE && <LiveModeShow id={id} data={data} />}
+			{tradingMode === TradeMode.BACKTEST && (
+				<BacktestModeShow id={id} data={data} />
+			)}
+		</BaseNode>
+	);
+};
 
 export default IndicatorNode;
