@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { BacktestIndicatorKey } from "@/types/symbol-key";
+import { IndicatorKey } from "@/types/symbol-key";
 import { parseKey } from "@/utils/parse-key";
 import { SubChartConfig, IndicatorChartConfig } from "@/types/chart";
 import { INDICATOR_CHART_CONFIG_MAP } from "@/types/indicator/indicator-chart-config";
@@ -58,7 +58,7 @@ export default function AddIndicatorDialog({
 			// 解析指标数据
 			const indicatorData = parseKey(
 				selectedIndicatorKey,
-			) as BacktestIndicatorKey;
+			) as IndicatorKey;
 			const indicatorConfig =
 				INDICATOR_CHART_CONFIG_MAP[indicatorData.indicatorType];
 

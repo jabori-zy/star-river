@@ -16,7 +16,7 @@ import {
 	createOrderStreamForSymbol,
 } from "@/hooks/obs/backtest-strategy-data-obs";
 import { parseKey } from "@/utils/parse-key";
-import { BacktestKlineKey } from "@/types/symbol-key";
+import { KlineKey } from "@/types/symbol-key";
 import { Subscription } from "rxjs";
 import { KlineChartConfig, SubChartConfig } from "@/types/chart";
 import ChartEditButton from "../chart-edit-button";
@@ -93,7 +93,7 @@ const KlineChart = forwardRef<KlineChartRef, KlineChartProps>(
 				// 解析K线缓存键获取交易所和交易对信息
 				const klineKey = parseKey(
 					klineChartConfig.klineKeyStr,
-				) as BacktestKlineKey;
+				) as KlineKey;
 
 				// 如果playIndex大于-1，则获取初始数据， -1代表还未开始
 				if (playIndex > -1) {

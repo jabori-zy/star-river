@@ -33,7 +33,7 @@ import type { IndicatorValue } from "@/types/indicator";
 import { getIndicatorChartConfig } from "@/types/indicator/indicator-chart-config";
 import { type Kline, KlineInterval } from "@/types/kline";
 import type { VirtualOrder } from "@/types/order/virtual-order";
-import type { BacktestIndicatorKey, KlineKey } from "@/types/symbol-key";
+import type { IndicatorKey, KlineKey } from "@/types/symbol-key";
 import { parseKey } from "@/utils/parse-key";
 import { appTheme } from "../theme";
 import { TradeAnnotation } from "../trade-marker-modifier";
@@ -177,7 +177,7 @@ export const initKlineChart = async (
 				if (indicatorChartConfig) {
 					const indicatorKey = parseKey(
 						indicatorKeyStr,
-					) as BacktestIndicatorKey;
+					) as IndicatorKey;
 					const indicatorDataSeries = new XyDataSeries(wasmContext, {
 						dataSeriesName:
 							indicatorKey.indicatorType.toUpperCase() +

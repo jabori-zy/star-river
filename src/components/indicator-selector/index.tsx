@@ -9,8 +9,8 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import {
-	BacktestKlineKey,
-	BacktestIndicatorKey,
+	KlineKey,
+	IndicatorKey,
 	Key,
 } from "@/types/symbol-key";
 import { getStrategyCacheKeys } from "@/service/strategy";
@@ -42,7 +42,7 @@ export default function IndicatorSelector({
 	// 解析K线指标键
 	const klineConfig = useMemo(() => {
 		try {
-			return parseKey(klineKeyStr) as BacktestKlineKey;
+			return parseKey(klineKeyStr) as KlineKey;
 		} catch {
 			return null;
 		}
@@ -75,8 +75,8 @@ export default function IndicatorSelector({
 		const options: IndicatorOption[] = [];
 
 		Object.entries(keys).forEach(([key, value]) => {
-			if (key.startsWith("backtest_indicator|")) {
-				const indicatorData = value as BacktestIndicatorKey;
+			if (key.startsWith("indicator|")) {
+				const indicatorData = value as IndicatorKey;
 				console.log("indicatorData", indicatorData);
 
 				// 确保交易所、交易对和时间周期完全一致

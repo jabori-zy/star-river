@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { BacktestKlineKey, BacktestIndicatorKey } from "@/types/symbol-key";
+import { KlineKey, IndicatorKey } from "@/types/symbol-key";
 import { getStrategyCacheKeys } from "@/service/strategy";
 import { parseKey } from "@/utils/parse-key";
 
@@ -27,7 +27,7 @@ export default function SymbolListDialog({
 	onKlineSelect,
 }: SymbolListDialogProps) {
 	const [klineOptions, setKlineOptions] = useState<
-		{ key: string; data: BacktestKlineKey }[]
+		{ key: string; data: KlineKey }[]
 	>([]);
 	const [loading, setLoading] = useState(false);
 
@@ -38,22 +38,22 @@ export default function SymbolListDialog({
 			const keys = await getStrategyCacheKeys(strategyId);
 			const parsedKeyMap: Record<
 				string,
-				BacktestKlineKey | BacktestIndicatorKey
+				KlineKey | IndicatorKey
 			> = {};
 
 			keys.forEach((keyString) => {
 				parsedKeyMap[keyString] = parseKey(keyString) as
-					| BacktestKlineKey
-					| BacktestIndicatorKey;
+					| KlineKey
+					| IndicatorKey;
 			});
 
 			// 过滤出kline选项
-			const options: { key: string; data: BacktestKlineKey }[] = [];
+			const options: { key: string; data: KlineKey }[] = [];
 			Object.entries(parsedKeyMap).forEach(([key, value]) => {
 				if (key.startsWith("backtest_kline|")) {
 					options.push({
 						key,
-						data: value as BacktestKlineKey,
+						data: value as KlineKey,
 					});
 				}
 			});
@@ -88,7 +88,7 @@ export default function SymbolListDialog({
 	};
 
 	// 渲染kline项目
-	const renderKlineItem = (klineCacheKey: BacktestKlineKey) => (
+	const renderKlineItem = (klineCacheKey: KlineKey) => (
 		<div className="flex items-center gap-2">
 			<Badge variant="outline">{klineCacheKey.exchange}</Badge>
 			<span className="font-medium">{klineCacheKey.symbol}</span>

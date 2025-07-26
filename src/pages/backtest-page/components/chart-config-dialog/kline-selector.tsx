@@ -7,10 +7,10 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { BacktestKlineKey, BacktestIndicatorKey } from "@/types/symbol-key";
+import { KlineKey, IndicatorKey } from "@/types/symbol-key";
 
 interface KlineSelectorProps {
-	cacheKeys: Record<string, BacktestKlineKey | BacktestIndicatorKey>;
+	cacheKeys: Record<string, KlineKey | IndicatorKey>;
 	selectedKlineCacheKey: string | null;
 	onKlineChange: (klineCacheKey: string) => void;
 	loading: boolean;
@@ -26,13 +26,13 @@ const KlineSelector = ({
 
 	// 计算K线选项
 	const klineOptions = useMemo(() => {
-		const options: { key: string; data: BacktestKlineKey }[] = [];
+		const options: { key: string; data: KlineKey }[] = [];
 
 		Object.entries(cacheKeys).forEach(([key, value]) => {
 			if (key.startsWith("backtest_kline|")) {
 				options.push({
 					key,
-					data: value as BacktestKlineKey,
+					data: value as KlineKey,
 				});
 			}
 		});
@@ -41,7 +41,7 @@ const KlineSelector = ({
 	}, [cacheKeys]);
 
 	// 渲染K线项目
-	const renderKlineItem = (klineCacheKey: BacktestKlineKey) => (
+	const renderKlineItem = (klineCacheKey: KlineKey) => (
 		<div className="flex items-center gap-2">
 			<Badge variant="outline">{klineCacheKey.exchange}</Badge>
 			<span className="font-medium">{klineCacheKey.symbol}</span>
@@ -70,7 +70,7 @@ const KlineSelector = ({
 						{selectedKlineCacheKey &&
 							cacheKeys[selectedKlineCacheKey] &&
 							renderKlineItem(
-								cacheKeys[selectedKlineCacheKey] as BacktestKlineKey,
+								cacheKeys[selectedKlineCacheKey] as KlineKey,
 							)}
 					</SelectValue>
 				</SelectTrigger>
@@ -86,7 +86,7 @@ const KlineSelector = ({
 				>
 					{klineOptions.map((option) => (
 						<SelectItem key={option.key} value={option.key}>
-							{renderKlineItem(option.data as BacktestKlineKey)}
+							{renderKlineItem(option.data as KlineKey)}
 						</SelectItem>
 					))}
 				</SelectContent>

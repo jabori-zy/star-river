@@ -14,8 +14,8 @@ import { getStrategyCacheKeys } from "@/service/strategy";
 import { parseKey } from "@/utils/parse-key";
 import {
 	KlineKey,
-	BacktestKlineKey,
-	BacktestIndicatorKey,
+	KlineKey,
+	IndicatorKey,
 } from "@/types/symbol-key";
 import { BacktestChart } from "@/types/chart/backtest-chart";
 import KlineSelector from "./kline-selector";
@@ -40,7 +40,7 @@ const ChartConfigDialog = ({
 }: ChartConfigDialogProps) => {
 	// 缓存键
 	const [cacheKeys, setCacheKeys] = useState<
-		Record<string, BacktestKlineKey | BacktestIndicatorKey>
+		Record<string, KlineKey | IndicatorKey>
 	>({});
 	const [tempChartConfig, setTempChartConfig] = useState<BacktestChart>({
 		id: 0,
@@ -60,13 +60,13 @@ const ChartConfigDialog = ({
 			const keys = await getStrategyCacheKeys(strategyId);
 			const parsedKeyMap: Record<
 				string,
-				BacktestKlineKey | BacktestIndicatorKey
+				KlineKey | IndicatorKey
 			> = {};
 
 			keys.forEach((keyString) => {
 				parsedKeyMap[keyString] = parseKey(keyString) as
-					| BacktestKlineKey
-					| BacktestIndicatorKey;
+					| KlineKey
+					| IndicatorKey;
 			});
 			console.log("parsedKeyMap", parsedKeyMap);
 			return parsedKeyMap;

@@ -1,9 +1,9 @@
 import { useMemo } from "react";
 import MultipleSelector, { Option } from "@/components/ui/multi-select";
-import { BacktestKlineKey, BacktestIndicatorKey } from "@/types/symbol-key";
+import { KlineKey, IndicatorKey } from "@/types/symbol-key";
 
 interface IndicatorSelectorProps {
-	cacheKeys: Record<string, BacktestKlineKey | BacktestIndicatorKey>;
+	cacheKeys: Record<string, KlineKey | IndicatorKey>;
 	selectedKlineCacheKeyStr: string;
 	selectedIndicatorKeys: string[];
 	onIndicatorChange: (indicatorKeys: string[]) => void;
@@ -21,13 +21,13 @@ const IndicatorSelector = ({
 
 		const selectedKlineCacheKey = cacheKeys[
 			selectedKlineCacheKeyStr
-		] as BacktestKlineKey;
+		] as KlineKey;
 
 		const options: Option[] = [];
 
 		Object.entries(cacheKeys).forEach(([key, value]) => {
-			if (key.startsWith("backtest_indicator|")) {
-				const indicatorData = value as BacktestIndicatorKey;
+			if (key.startsWith("indicator|")) {
+				const indicatorData = value as IndicatorKey;
 
 				// 确保交易所、交易对和时间周期完全一致
 				if (
@@ -52,7 +52,7 @@ const IndicatorSelector = ({
 		return selectedIndicatorKeys.map((key) => ({
 			value: key,
 			label: cacheKeys[key]
-				? `${(cacheKeys[key] as BacktestIndicatorKey).indicatorType.toUpperCase()} (${(cacheKeys[key] as BacktestIndicatorKey).indicatorConfig.period})`
+				? `${(cacheKeys[key] as IndicatorKey).indicatorType.toUpperCase()} (${(cacheKeys[key] as IndicatorKey).indicatorConfig.period})`
 				: key,
 		}));
 	}, [selectedIndicatorKeys, cacheKeys]);

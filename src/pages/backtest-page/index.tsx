@@ -23,8 +23,8 @@ import type {
 } from "@/types/chart";
 import type { BacktestStrategyChartConfig } from "@/types/chart/backtest-chart";
 import type {
-	BacktestIndicatorKey,
-	BacktestKlineKey,
+	IndicatorKey,
+	KlineKey,
 } from "@/types/symbol-key";
 import { parseKey } from "@/utils/parse-key";
 import BacktestWindowHeader from "../../components/backtest/backtest-window-header";
@@ -74,14 +74,14 @@ export default function BacktestPage() {
 			const keys = await getStrategyCacheKeys(strategyId);
 			const parsedKeyMap: Record<
 				string,
-				BacktestKlineKey | BacktestIndicatorKey
+				KlineKey | IndicatorKey
 			> = {};
 			console.log("keys", keys);
 
 			keys.forEach((keyString) => {
 				parsedKeyMap[keyString] = parseKey(keyString) as
-					| BacktestKlineKey
-					| BacktestIndicatorKey;
+					| KlineKey
+					| IndicatorKey;
 			});
 			console.log("parsedKeyMap", parsedKeyMap);
 			return parsedKeyMap;
@@ -118,7 +118,7 @@ export default function BacktestPage() {
 						if (klineKeys.length > 0) {
 							// 使用第一个kline key创建默认图表
 							const firstKlineKey = klineKeys[0];
-							const klineData = cacheKeys[firstKlineKey] as BacktestKlineKey;
+							const klineData = cacheKeys[firstKlineKey] as KlineKey;
 							const defaultChart = {
 								id: 1,
 								chartName: `${klineData.symbol} ${klineData.interval}`,
