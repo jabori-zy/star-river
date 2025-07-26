@@ -1,31 +1,31 @@
-import {
-	SciChartSurface,
-	SciChartVerticalGroup,
-	NumberRange,
-	AxisBase2D,
-} from "scichart";
 // import { SciChartReact } from "scichart-react";
 import React, {
+	forwardRef,
+	useCallback,
+	useEffect,
+	useImperativeHandle,
 	useRef,
 	useState,
-	useImperativeHandle,
-	forwardRef,
-	useEffect,
-	useCallback,
 } from "react";
-import { ChartGroupLoader } from "./chart-group-loader";
-import { AxisSynchroniser } from "./axis-synchroniser";
-import KlineChart from "./kline-chart";
-import IndicatorChart from "./indicator-chart";
+import {
+	type AxisBase2D,
+	NumberRange,
+	type SciChartSurface,
+	SciChartVerticalGroup,
+} from "scichart";
 // import { getIndicatorChartConfig } from "@/types/indicator/indicator-chart-config";
 // import { drawOverview } from "./utils";
 import {
-	ResizablePanelGroup,
-	ResizablePanel,
 	ResizableHandle,
+	ResizablePanel,
+	ResizablePanelGroup,
 } from "@/components/ui/resizable";
-import { BacktestChart } from "@/types/chart/backtest-chart";
 import { get_play_index } from "@/service/strategy-control/backtest-strategy-control";
+import type { BacktestChart } from "@/types/chart/backtest-chart";
+import { AxisSynchroniser } from "./axis-synchroniser";
+import { ChartGroupLoader } from "./chart-group-loader";
+import IndicatorChart from "./indicator-chart";
+import KlineChart from "./kline-chart";
 
 interface StockChartsProps {
 	strategyId: number;

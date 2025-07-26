@@ -1,41 +1,49 @@
-import { IndicatorConfig } from "@/types/indicator";
-import { indicatorParamsConfigMap } from "@/types/indicator/indicator-params-config";
+import { type IndicatorType, MAType } from "@/types/indicator";
+import { getIndicatorConfig } from "@/types/indicator/indicator-config-new";
 
 export interface IndicatorOption {
 	key: string;
 	label: string;
 	indicatorType: string;
-	indicatorConfig: IndicatorConfig;
+	indicatorConfig: Record<string, unknown>;
 }
 
-// 根据配置动态获取指标参数显示文本
-export const getIndicatorConfigDisplay = (
-	indicatorConfig: IndicatorConfig,
-): string => {
-	const indicatorType = indicatorConfig.type;
-	const config =
-		indicatorParamsConfigMap[
-			indicatorType as keyof typeof indicatorParamsConfigMap
-		];
-	if (!config) return "";
+// MA类型标签映射
+const MA_TYPE_LABELS: Record<MAType, string> = {
+	[MAType.SMA]: "SMA",
+	[MAType.EMA]: "EMA",
+	[MAType.WMA]: "WMA",
+	[MAType.DEMA]: "DEMA",
+	[MAType.TEMA]: "TEMA",
+	[MAType.TRIMA]: "TRIMA",
+	[MAType.KAMA]: "KAMA",
+	[MAType.MANA]: "MANA",
+	[MAType.T3]: "T3",
+};
 
-	// 获取数字类型和选择字段（排除价格源）并构建显示文本
-	const displayFields = config.params.filter(
-		(field) =>
-			field.type === "number" ||
-			(field.type === "select" && (field.name as string) !== "priceSource"), // 价格源不显示
-	);
-	const paramParts = displayFields.map((field) => {
-		const value = (indicatorConfig as Record<string, unknown>)[field.name];
-		if ((field.name as string) === "maType") {
-			return `${field.label}:${value}`;
+// 根据新的配置结构获取指标参数显示文本
+export const getIndicatorConfigDisplay = (
+	indicatorConfig: Record<string, unknown>,
+	indicatorType?: string,
+): string => {
+	if (!indicatorType) return "";
+	
+	const configInstance = getIndicatorConfig(indicatorType as IndicatorType);
+	if (!configInstance) return "";
+
+	// 构建显示文本（排除价格源，不显示）
+	const paramParts: string[] = [];
+	
+	Object.entries(configInstance.params).forEach(([key, param]) => {
+		const value = indicatorConfig[key];
+		if (value !== undefined && key !== "priceSource") {
+			if (key === "maType") {
+				const maTypeLabel = MA_TYPE_LABELS[value as MAType] || value;
+				paramParts.push(`${param.label}:${maTypeLabel}`);
+			} else {
+				paramParts.push(`${param.label}:${value}`);
+			}
 		}
-		// 对于其他选择字段，直接显示值
-		if (field.type === "select") {
-			return `${field.label}:${value}`;
-		}
-		// 数字字段
-		return `${field.label}:${value}`;
 	});
 
 	return paramParts.join(" | ");

@@ -87,6 +87,7 @@ export default function IndicatorSelector({
 				) {
 					const configDisplay = getIndicatorConfigDisplay(
 						indicatorData.indicatorConfig,
+						indicatorData.indicatorType,
 					);
 					const label = `${indicatorData.indicatorType.toUpperCase()} (${configDisplay})`;
 					options.push({
@@ -112,7 +113,7 @@ export default function IndicatorSelector({
 	// 渲染指标选项
 	const renderIndicatorOption = (option: IndicatorOption) => {
 		console.log(option);
-		const configDisplay = getIndicatorConfigDisplay(option.indicatorConfig);
+		const configDisplay = getIndicatorConfigDisplay(option.indicatorConfig, option.indicatorType);
 		console.log(configDisplay);
 		return (
 			<div className="flex items-center gap-2">

@@ -23,6 +23,8 @@ npx biome format --write .
 4. 检查整个项目格式（不写入）
 npx biome format .
 
+npx biome check src/types/node/indicator-node.tsx
+
 {
   "scripts": {
     "format": "biome format --write .",

@@ -1,30 +1,36 @@
-import { useState, useEffect, useCallback, useRef } from "react";
-import { useNavigate } from "react-router";
-import useBacktestStrategySSE from "../../hooks/sse/use-backtest-strategy-sse";
-import BacktestWindowHeader from "../../components/backtest/backtest-window-header";
-import BacktestControl from "./components/backtest-control";
-import ChartContainer from "./components/chart-container";
-import { BacktestStrategyChartConfig } from "@/types/chart/backtest-chart";
-import { LayoutMode } from "@/types/chart";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, ArrowLeft, Loader2 } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router";
+import { toast } from "sonner";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
 	getBacktestStrategyChartConfig,
-	updateBacktestStrategyChartConfig,
+	getStrategyCacheKeys,
 	stopStrategy,
+	updateBacktestStrategyChartConfig,
 } from "@/service/strategy";
-import { toast } from "sonner";
-import { getStrategyCacheKeys } from "@/service/strategy";
-import { BacktestKlineKey, BacktestIndicatorKey } from "@/types/symbol-key";
-import { parseKey } from "@/utils/parse-key";
 import {
-	play,
 	pause,
-	stop,
+	play,
 	playOne,
+	stop,
 } from "@/service/strategy-control/backtest-strategy-control";
-import { IndicatorChartConfig, SubChartConfig } from "@/types/chart";
+import type {
+	IndicatorChartConfig,
+	LayoutMode,
+	SubChartConfig,
+} from "@/types/chart";
+import type { BacktestStrategyChartConfig } from "@/types/chart/backtest-chart";
+import type {
+	BacktestIndicatorKey,
+	BacktestKlineKey,
+} from "@/types/symbol-key";
+import { parseKey } from "@/utils/parse-key";
+import BacktestWindowHeader from "../../components/backtest/backtest-window-header";
+import useBacktestStrategySSE from "../../hooks/sse/use-backtest-strategy-sse";
+import BacktestControl from "./components/backtest-control";
+import ChartContainer from "./components/chart-container";
 
 export default function BacktestPage() {
 	const navigate = useNavigate();
@@ -38,7 +44,7 @@ export default function BacktestPage() {
 		const match = path.match(/\/backtest\/(\d+)/);
 		if (match && match[1]) {
 			const id = parseInt(match[1], 10);
-			return !isNaN(id) && id > 0 ? id : null;
+			return !Number.isNaN(id) && id > 0 ? id : null;
 		}
 		return null;
 	};
@@ -418,7 +424,7 @@ export default function BacktestPage() {
 					<ChartContainer
 						ref={chartContainerRef}
 						strategyChartConfig={chartConfig}
-						strategyId={strategyId!}
+						strategyId={strategyId}
 						onDelete={onDelete}
 						onUpdate={onUpdateChart}
 						onAddMainChartIndicator={onAddMainChartIndicator}

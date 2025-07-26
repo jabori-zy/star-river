@@ -1,50 +1,48 @@
 import {
-	SciChartSurface,
-	NumericAxis,
-	NumberRange,
-	ENumericFormat,
-	OhlcDataSeries,
-	FastCandlestickRenderableSeries,
-	XyDataSeries,
-	FastColumnRenderableSeries,
-	XAxisDragModifier,
-	YAxisDragModifier,
-	EDragMode,
-	ZoomExtentsModifier,
-	ZoomPanModifier,
-	MouseWheelZoomModifier,
+	AnnotationHoverModifier,
 	CursorModifier,
+	DateTimeNumericAxis,
 	EAutoRange,
 	EAxisAlignment,
-	IRenderableSeries,
-	RolloverModifier,
+	EDragMode,
+	ENumericFormat,
+	EResamplingMode,
+	easing,
+	FastCandlestickRenderableSeries,
+	FastColumnRenderableSeries,
 	FastLineRenderableSeries,
 	HorizontalLineAnnotation,
-	DateTimeNumericAxis,
-	EResamplingMode,
-	AnnotationHoverModifier,
-	TTargetsSelector,
-	IAnnotation,
-	easing,
+	type IAnnotation,
+	type IRenderableSeries,
+	MouseWheelZoomModifier,
+	NumberRange,
+	NumericAxis,
+	OhlcDataSeries,
+	RolloverModifier,
+	SciChartDefaults,
+	SciChartSurface,
+	type TTargetsSelector,
+	XAxisDragModifier,
+	XyDataSeries,
+	YAxisDragModifier,
+	ZoomExtentsModifier,
+	ZoomPanModifier,
 } from "scichart";
-import { appTheme } from "../theme";
-import { Kline } from "@/types/kline";
-import { VolumePaletteProvider } from "./volumePaletteProvider";
+import type { KlineChartConfig } from "@/types/chart";
+import type { IndicatorValue } from "@/types/indicator";
 import { getIndicatorChartConfig } from "@/types/indicator/indicator-chart-config";
-import { IndicatorValue } from "@/types/indicator";
+import { type Kline, KlineInterval } from "@/types/kline";
+import type { VirtualOrder } from "@/types/order/virtual-order";
+import type { BacktestIndicatorKey, KlineKey } from "@/types/symbol-key";
 import { parseKey } from "@/utils/parse-key";
-import { KlineKey } from "@/types/symbol-key";
+import { appTheme } from "../theme";
+import { TradeAnnotation } from "../trade-marker-modifier";
 import {
 	getRolloverLegendTemplate,
+	type KlineUpdateContext,
 	processKlineData,
-	KlineUpdateContext,
 } from "../utils";
-import { KlineInterval } from "@/types/kline";
-import { SciChartDefaults } from "scichart";
-import { TradeAnnotation } from "../trade-marker-modifier";
-import { VirtualOrder } from "@/types/order/virtual-order";
-import { KlineChartConfig } from "@/types/chart";
-import { BacktestIndicatorKey } from "@/types/symbol-key";
+import { VolumePaletteProvider } from "./volumePaletteProvider";
 
 SciChartDefaults.debugDisableResampling = false;
 SciChartDefaults.performanceWarnings = false;

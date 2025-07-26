@@ -1,18 +1,19 @@
-import { IndicatorConfig, IndicatorValue } from "@/types/indicator";
-import {
+import type { Node } from "@xyflow/react";
+import type { IndicatorValue, IndicatorType } from "@/types/indicator";
+import type { Exchange } from "@/types/market";
+import type {
 	BacktestDataSource,
 	SelectedAccount,
 	TimeRange,
 } from "@/types/strategy";
-import { Exchange } from "@/types/common";
-import { Node } from "@xyflow/react";
-import { SelectedSymbol } from "./kline-node";
+import type { SelectedSymbol } from "./kline-node";
 
-// 选中的指标, 用于连接到其他节点, 扩展IndicatorConfig
+// 选中的指标, 用于连接到其他节点, 使用新的指标配置结构
 export type SelectedIndicator = {
 	indicatorId: number; // 指标id
 	outputHandleId: string; // 出口id, 用于连接到其他节点
-	indicatorConfig: IndicatorConfig;
+	indicatorType: IndicatorType; // 指标类型
+	indicatorConfig: Record<string, unknown>; // 使用新结构的 getConfig() 返回值
 	value: IndicatorValue;
 };
 

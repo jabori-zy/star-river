@@ -1,10 +1,10 @@
+import { PlusIcon, Settings, X } from "lucide-react";
 import { useState } from "react";
-import { IndicatorConfig } from "@/types/indicator";
-import { SelectedIndicator } from "@/types/node/indicator-node";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { PlusIcon, X, Settings } from "lucide-react";
-import { getIndicatorConfigDisplay } from "@/components/indicator-selector/utils";
+import { Button } from "@/components/ui/button";
+import type { IndicatorType } from "@/types/indicator";
+import { getIndicatorConfig } from "@/types/indicator/indicator-config-new";
+import type { SelectedIndicator } from "@/types/node/indicator-node";
 import EditDialog from "./edit-dialog";
 
 interface IndicatorEditorProps {
@@ -52,26 +52,31 @@ const IndicatorEditor: React.FC<IndicatorEditorProps> = ({
 		}
 	};
 
-	// const getIndicatorLabel = (type: IndicatorType) => {
-	//     const labels: Record<IndicatorType, string> = {
-	//         [IndicatorType.SMA]: 'SMA (简单移动平均)',
-	//         [IndicatorType.EMA]: 'EMA (指数移动平均)',
-	//         [IndicatorType.BBANDS]: 'BOLL (布林带)',
-	//         [IndicatorType.MA]: 'MA (移动平均)',
-	//         [IndicatorType.MACD]: 'MACD (指数平滑移动平均)',
-	//     };
-	//     return labels[type] || type;
-	// };
+	const getConfigDisplay = (
+		indicatorType: IndicatorType,
+		config: Record<string, unknown>,
+	) => {
+		const indicatorConfigInstance = getIndicatorConfig(indicatorType);
+		if (!indicatorConfigInstance) {
+			return "未知配置";
+		}
 
-	const getConfigDisplay = (config: IndicatorConfig) => {
-		const display = getIndicatorConfigDisplay(config);
-		return display;
+		// 根据新的配置结构生成显示文本
+		const parts: string[] = [];
+		Object.entries(indicatorConfigInstance.params).forEach(([key, param]) => {
+			const value = config[key];
+			if (value !== undefined) {
+				parts.push(`${param.label}: ${value}`);
+			}
+		});
+
+		return parts.join(", ");
 	};
 
 	return (
 		<div className="flex flex-col gap-2">
 			<div className="flex items-center justify-between">
-				<label className="text-sm font-bold text-gray-700">技术指标</label>
+				<span className="text-sm font-bold text-gray-700">技术指标</span>
 				<Button variant="ghost" size="icon" onClick={handleAddIndicator}>
 					<PlusIcon className="w-4 h-4" />
 				</Button>
@@ -85,21 +90,19 @@ const IndicatorEditor: React.FC<IndicatorEditorProps> = ({
 				) : (
 					selectedIndicators.map((config, index) => (
 						<div
-							key={index}
+							key={`${config.indicatorType}-${config.indicatorId}`}
 							className="flex items-center justify-between p-2 border rounded-md bg-background group"
 						>
 							<div className="flex items-center gap-2">
 								<Badge variant="outline" className="h-5 px-1">
-									{config.indicatorConfig.type}
+									{config.indicatorType}
 								</Badge>
-								{/* <div className="flex items-center gap-1">
-                                    <span className="text-xs text-muted-foreground">
-                                        {getIndicatorLabel(config.indicatorConfig.type)}
-                                    </span>
-                                </div> */}
 								<div className="flex items-center gap-1">
 									<span className="text-xs text-muted-foreground">
-										{getConfigDisplay(config.indicatorConfig)}
+										{getConfigDisplay(
+											config.indicatorType,
+											config.indicatorConfig,
+										)}
 									</span>
 								</div>
 							</div>

@@ -1,24 +1,6 @@
-import React, { useState, useEffect, useCallback } from "react";
-import {
-	IndicatorConfig,
-	IndicatorType,
-	PriceSource,
-	IndicatorValue,
-	MAType,
-} from "@/types/indicator";
-import { SelectedIndicator } from "@/types/node/indicator-node";
-import {
-	SMAConfig,
-	EMAConfig,
-	BBandsConfig,
-	MAConfig,
-	MACDConfig,
-} from "@/types/indicator/indicator-config";
-import {
-	SMAValue,
-	EMAValue,
-	BBandsValue,
-} from "@/types/indicator/indicator-value";
+import { TrendingUp } from "lucide-react";
+import type React from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -28,20 +10,23 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
 	Select,
-	SelectTrigger,
-	SelectValue,
 	SelectContent,
 	SelectItem,
+	SelectTrigger,
+	SelectValue,
 } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { TrendingUp, BarChart3 } from "lucide-react";
 import {
-	indicatorParamsConfigMap,
-	IndicatorParams,
-} from "@/types/indicator/indicator-params-config";
+	IndicatorType,
+	type IndicatorValue,
+	MAType,
+	PriceSource,
+} from "@/types/indicator";
+import { getIndicatorConfig } from "@/types/indicator/indicator-config-new";
+import type { SelectedIndicator } from "@/types/node/indicator-node";
 
 interface EditDialogProps {
 	isOpen: boolean;
@@ -101,22 +86,29 @@ const EditDialog: React.FC<EditDialogProps> = ({
 	nodeId,
 }) => {
 	const [indicatorType, setIndicatorType] = useState<IndicatorType>(
-		IndicatorType.SMA,
+		IndicatorType.MA,
 	);
 	const [formData, setFormData] = useState<Partial<FormData>>({});
 
-	// 获取指标类型选项（从配置中生成）
+	// 获取指标类型选项（目前只支持 MA）
 	const getIndicatorOptions = (): IndicatorOption[] => {
-		return Object.entries(indicatorParamsConfigMap).map(([type, config]) => ({
-			value: type as IndicatorType,
-			label: config.indicatorShowName,
-			icon: type === IndicatorType.BBANDS ? BarChart3 : TrendingUp,
-		}));
+		return [
+			{
+				value: IndicatorType.MA,
+				label: "MA (移动平均线)",
+				icon: TrendingUp,
+			},
+			{
+				value: IndicatorType.MACD,
+				label: "MACD",
+				icon: TrendingUp,
+			}
+		];
 	};
 
-	// 获取当前指标的配置
-	const getCurrentConfig = useCallback(() => {
-		return indicatorParamsConfigMap[indicatorType];
+	// 获取当前指标的配置实例
+	const getCurrentConfigInstance = useCallback(() => {
+		return getIndicatorConfig(indicatorType);
 	}, [indicatorType]);
 
 	// 类型守卫：检查值是否为数字
@@ -124,38 +116,24 @@ const EditDialog: React.FC<EditDialogProps> = ({
 		return typeof value === "number";
 	};
 
-	// 获取配置属性值的类型安全函数
-	const getConfigValue = (
-		config: IndicatorConfig,
-		key: keyof IndicatorConfig,
-	): FormDataValue => {
-		const value = config[key];
-		if (value === undefined) {
-			return "";
-		}
-		return value as FormDataValue;
-	};
-
 	// 检查指标配置是否已存在
 	const isIndicatorConfigExists = (excludeIndex?: number): boolean => {
+		const configInstance = getCurrentConfigInstance();
+		if (!configInstance) return false;
+
 		return selectedIndicators.some((indicator, index) => {
 			if (excludeIndex !== undefined && index === excludeIndex) {
 				return false; // 排除正在编辑的项
 			}
 
-			if (indicator.indicatorConfig.type !== indicatorType) {
+			if (indicator.indicatorType !== indicatorType) {
 				return false;
 			}
 
 			// 检查关键字段是否相同
-			const currentConfig = getCurrentConfig();
-			return currentConfig.params.every((field) => {
-				const fieldName = field.name;
-				const configValue = getConfigValue(
-					indicator.indicatorConfig,
-					fieldName,
-				);
-				const formValue = formData[fieldName];
+			return Object.keys(configInstance.params).every((key) => {
+				const configValue = indicator.indicatorConfig[key];
+				const formValue = formData[key];
 				return configValue === formValue;
 			});
 		});
@@ -165,30 +143,21 @@ const EditDialog: React.FC<EditDialogProps> = ({
 	useEffect(() => {
 		if (isOpen) {
 			if (isEditing && editingIndex !== null) {
-				const config = selectedIndicators[editingIndex].indicatorConfig;
-				setIndicatorType(config.type);
+				const existingIndicator = selectedIndicators[editingIndex];
+				setIndicatorType(existingIndicator.indicatorType);
 
-				// 设置表单数据
-				const newFormData: Partial<FormData> = {};
-				const selectorConfig = indicatorParamsConfigMap[config.type];
-				selectorConfig.params.forEach((field) => {
-					const fieldName = field.name;
-					newFormData[fieldName] =
-						getConfigValue(config, fieldName) ||
-						(field.defaultValue as FormDataValue) ||
-						"";
-				});
-				setFormData(newFormData);
+				// 设置表单数据为现有配置
+				setFormData({
+					...existingIndicator.indicatorConfig,
+				} as Partial<FormData>);
 			} else {
-				setIndicatorType(IndicatorType.SMA);
-				// 直接初始化表单数据，避免依赖initializeFormData
-				const config = indicatorParamsConfigMap[IndicatorType.SMA];
-				const initialData: Partial<FormData> = {};
-				config.params.forEach((field) => {
-					const fieldName = field.name;
-					initialData[fieldName] = (field.defaultValue as FormDataValue) || "";
-				});
-				setFormData(initialData);
+				setIndicatorType(IndicatorType.MA);
+				// 设置默认值
+				const configInstance = getIndicatorConfig(IndicatorType.MA);
+				if (configInstance) {
+					const defaultConfig = configInstance.getConfig();
+					setFormData({ ...defaultConfig } as Partial<FormData>);
+				}
 			}
 		}
 	}, [isOpen, isEditing, editingIndex, selectedIndicators]);
@@ -196,104 +165,77 @@ const EditDialog: React.FC<EditDialogProps> = ({
 	// 当指标类型改变时，重新初始化表单数据
 	useEffect(() => {
 		if (isOpen && !isEditing) {
-			// 直接初始化表单数据，避免依赖initializeFormData
-			const config = indicatorParamsConfigMap[indicatorType];
-			const initialData: Partial<FormData> = {};
-			config.params.forEach((field) => {
-				const fieldName = field.name;
-				initialData[fieldName] = (field.defaultValue as FormDataValue) || "";
-			});
-			setFormData(initialData);
+			const configInstance = getCurrentConfigInstance();
+			if (configInstance) {
+				const defaultConfig = configInstance.getConfig();
+				setFormData({ ...defaultConfig } as Partial<FormData>);
+			}
 		}
-	}, [indicatorType, isOpen, isEditing]);
+	}, [isOpen, isEditing, getCurrentConfigInstance]);
 
 	// 根据指标类型创建初始值
 	const createInitialValue = (type: IndicatorType): IndicatorValue => {
-		switch (type) {
-			case IndicatorType.SMA:
-				return { sma: 0 } as SMAValue;
-			case IndicatorType.EMA:
-				return { ema: 0 } as EMAValue;
-			case IndicatorType.BBANDS:
-				return { upper: 0, middle: 0, lower: 0 } as BBandsValue;
-			default:
-				return { sma: 0 } as SMAValue;
+		const configInstance = getIndicatorConfig(type);
+		if (configInstance) {
+			return configInstance.getValue() as IndicatorValue;
 		}
+		// 默认返回
+		return { timestamp: 0, ma: 0 } as IndicatorValue;
 	};
 
-	// 类型安全的配置创建函数
+	// 创建指标配置
 	const createIndicatorConfig = (
 		type: IndicatorType,
 		index: number,
 	): SelectedIndicator => {
-		const baseConfig: IndicatorConfig = (() => {
-			switch (type) {
-				case IndicatorType.MA:
-					return {
-						type,
-						timePeriod: formData.timePeriod as number,
-						maType: formData.maType as MAType,
-						priceSource: formData.priceSource as PriceSource,
-					} as MAConfig;
-				case IndicatorType.SMA:
-					return {
-						type,
-						timePeriod: formData.timePeriod as number,
-						priceSource: formData.priceSource as PriceSource,
-					} as SMAConfig;
-				case IndicatorType.EMA:
-					return {
-						type,
-						timePeriod: formData.timePeriod as number,
-						priceSource: formData.priceSource as PriceSource,
-					} as EMAConfig;
-				case IndicatorType.BBANDS:
-					return {
-						type,
-						timePeriod: formData.timePeriod as number,
-						stdDev: formData.stdDev as number,
-						priceSource: formData.priceSource as PriceSource,
-					} as BBandsConfig;
-				case IndicatorType.MACD:
-					return {
-						type,
-						fastPeriod: formData.fastPeriod as number,
-						slowPeriod: formData.slowPeriod as number,
-						signalPeriod: formData.signalPeriod as number,
-						priceSource: formData.priceSource as PriceSource,
-					} as MACDConfig;
-				default:
-					return {
-						type: IndicatorType.SMA,
-						timePeriod: (formData.timePeriod as number) || 20,
-						priceSource:
-							(formData.priceSource as PriceSource) || PriceSource.CLOSE,
-					} as SMAConfig;
+		const configInstance = getIndicatorConfig(type);
+		if (!configInstance) {
+			throw new Error(`不支持的指标类型: ${type}`);
+		}
+
+		// 更新配置实例的 params 默认值
+		Object.entries(formData).forEach(([key, value]) => {
+			if (configInstance.params[key]) {
+				configInstance.params[key].defaultValue = value as
+					| string
+					| number
+					| PriceSource
+					| MAType;
 			}
-		})();
+		});
+
+		// 获取配置
+		const config = configInstance.getConfig();
 
 		return {
 			indicatorId: index + 1,
 			outputHandleId: `${nodeId}_output${index + 1}`,
-			indicatorConfig: baseConfig,
+			indicatorType: type,
+			indicatorConfig: config,
 			value: createInitialValue(type),
 		};
 	};
 
 	const handleSave = (): void => {
+		const configInstance = getCurrentConfigInstance();
+		if (!configInstance) return;
+
 		// 验证必填字段
-		const config = getCurrentConfig();
-		const hasEmptyRequired = config.params.some((field) => {
-			if (field.required) {
-				const value = formData[field.name];
-				return (
-					value === undefined ||
-					value === "" ||
-					(field.type === "number" && isNumber(value) && value <= 0)
-				);
-			}
-			return false;
-		});
+		const hasEmptyRequired = Object.entries(configInstance.params).some(
+			([key, param]) => {
+				if (param.required) {
+					const value = formData[key];
+					return (
+						value === undefined ||
+						value === "" ||
+						(typeof param.defaultValue === "number" &&
+							isNumber(value) &&
+							value <= 0)
+					);
+				}
+				return false;
+			},
+		);
 
 		if (hasEmptyRequired) {
 			return;
@@ -321,10 +263,7 @@ const EditDialog: React.FC<EditDialogProps> = ({
 	};
 
 	// 处理表单字段值变化
-	const handleFieldChange = (
-		fieldName: keyof IndicatorConfig,
-		value: FormDataValue,
-	): void => {
+	const handleFieldChange = (fieldName: string, value: FormDataValue): void => {
 		setFormData((prev) => ({
 			...prev,
 			[fieldName]: value,
@@ -342,46 +281,62 @@ const EditDialog: React.FC<EditDialogProps> = ({
 	};
 
 	// 渲染表单字段
-	const renderFormField = (field: IndicatorParams) => {
-		const { label, name, type, required } = field;
-		const value = formData[name] || "";
+	const renderFormField = (
+		key: string,
+		param: { label: string; defaultValue: unknown; required: boolean },
+	) => {
+		const { label, defaultValue, required } = param;
+		const value = (
+			formData[key] !== undefined ? formData[key] : defaultValue || ""
+		) as FormDataValue;
 
-		if (type === "number") {
+		// 根据默认值类型判断字段类型
+		if (typeof defaultValue === "number") {
 			return (
-				<div key={name} className="grid gap-2">
-					<Label htmlFor={name} className="text-left">
+				<div key={key} className="grid gap-2">
+					<Label htmlFor={key} className="text-left">
 						{label}
 						{required && <span className="text-red-500">*</span>}
 					</Label>
 					<Input
-						id={name}
+						id={key}
 						type="number"
 						value={isNumber(value) ? value : ""}
-						onChange={(e) => handleFieldChange(name, Number(e.target.value))}
-						min={String(name) === "stdDev" ? 0.1 : 1}
-						step={String(name) === "stdDev" ? 0.1 : 1}
+						onChange={(e) => {
+							const inputValue = e.target.value;
+							if (inputValue === "") {
+								handleFieldChange(key, "");
+							} else {
+								handleFieldChange(key, Number(inputValue) || 0);
+							}
+						}}
+						step={1}
 						placeholder={`输入${label}`}
 					/>
 				</div>
 			);
 		}
 
-		if (type === "select") {
-			const options = getSelectOptions(name);
+		// 选择框字段
+		if (
+			typeof defaultValue === "string" &&
+			(key === "priceSource" || key === "maType")
+		) {
+			const options = getSelectOptions(key);
 
 			return (
-				<div key={name} className="grid gap-2">
-					<Label htmlFor={name} className="text-left">
+				<div key={key} className="grid gap-2">
+					<Label htmlFor={key} className="text-left">
 						{label}
 						{required && <span className="text-red-500">*</span>}
 					</Label>
 					<Select
 						value={String(value)}
 						onValueChange={(newValue) =>
-							handleFieldChange(name, newValue as FormDataValue)
+							handleFieldChange(key, newValue as FormDataValue)
 						}
 					>
-						<SelectTrigger id={name}>
+						<SelectTrigger id={key}>
 							<SelectValue placeholder={`选择${label}`} />
 						</SelectTrigger>
 						<SelectContent>
@@ -402,11 +357,14 @@ const EditDialog: React.FC<EditDialogProps> = ({
 		return null;
 	};
 
+	const configInstance = getCurrentConfigInstance();
+
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose} modal={false}>
 			<DialogContent
 				className="sm:max-w-[425px]"
 				onOpenAutoFocus={(e) => e.preventDefault()} // 防止自动聚焦，避免 aria-hidden 警告
+				onInteractOutside={(e) => e.preventDefault()} // 防止点击外部区域关闭对话框
 			>
 				<DialogHeader>
 					<DialogTitle>
@@ -432,29 +390,26 @@ const EditDialog: React.FC<EditDialogProps> = ({
 								<SelectValue placeholder="选择指标类型" />
 							</SelectTrigger>
 							<SelectContent>
-								{(() => {
-									const options = getIndicatorOptions();
-									return options.map((option) => {
-										const IconComponent = option.icon;
-										return (
-											<SelectItem key={option.value} value={option.value}>
-												<div className="flex items-center">
-													<IconComponent className="h-4 w-4 mr-2 text-blue-500" />
-													<span>{option.label}</span>
-												</div>
-											</SelectItem>
-										);
-									});
-								})()}
+								{getIndicatorOptions().map((option) => {
+									const IconComponent = option.icon;
+									return (
+										<SelectItem key={option.value} value={option.value}>
+											<div className="flex items-center">
+												<IconComponent className="h-4 w-4 mr-2 text-blue-500" />
+												<span>{option.label}</span>
+											</div>
+										</SelectItem>
+									);
+								})}
 							</SelectContent>
 						</Select>
 					</div>
 
 					{/* 动态渲染当前指标类型的表单字段 */}
-					{(() => {
-						const config = getCurrentConfig();
-						return config.params.map((field) => renderFormField(field));
-					})()}
+					{configInstance &&
+						Object.entries(configInstance.params).map(([key, param]) =>
+							renderFormField(key, param),
+						)}
 				</div>
 				<DialogFooter>
 					<Button variant="outline" onClick={onClose}>
