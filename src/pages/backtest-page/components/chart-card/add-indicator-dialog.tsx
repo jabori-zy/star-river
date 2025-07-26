@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { IndicatorKey } from "@/types/symbol-key";
 import { parseKey } from "@/utils/parse-key";
 import { SubChartConfig, IndicatorChartConfig } from "@/types/chart";
-import { INDICATOR_CHART_CONFIG_MAP } from "@/types/indicator/indicator-chart-config";
+import { getIndciatorChartConfigFromKeyStr } from "@/types/indicator/indicator-config-new";
 import { BacktestChart } from "@/types/chart/backtest-chart";
 import IndicatorSelector from "@/components/indicator-selector";
 import { Button } from "@/components/ui/button";
@@ -56,11 +56,8 @@ export default function AddIndicatorDialog({
 	const handleAddIndicator = () => {
 		if (selectedIndicatorKey) {
 			// 解析指标数据
-			const indicatorData = parseKey(
-				selectedIndicatorKey,
-			) as IndicatorKey;
-			const indicatorConfig =
-				INDICATOR_CHART_CONFIG_MAP[indicatorData.indicatorType];
+			// const indicatorData = parseKey(selectedIndicatorKey) as IndicatorKey;
+			const indicatorConfig = getIndciatorChartConfigFromKeyStr(selectedIndicatorKey);
 
 			if (indicatorConfig) {
 				// 添加指标配置到副图

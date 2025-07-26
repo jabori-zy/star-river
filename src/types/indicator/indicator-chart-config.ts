@@ -22,7 +22,7 @@ import { IndicatorChartConfig } from "../chart";
 // }
 
 // 指标配置映射
-export const INDICATOR_CHART_CONFIG_MAP: Record<
+const INDICATOR_CHART_CONFIG_MAP: Record<
 	IndicatorType,
 	IndicatorChartConfig
 > = {

@@ -281,11 +281,6 @@ const initIndicatorChart = async (
 			theme: appTheme.SciChartJsTheme,
 		},
 	);
-
-	// 根据缓存键获取指标配置
-	// const indicatorKey = parseCacheKey(indicatorKeyStr) as IndicatorCacheKey;
-	// const indicatorChartConfig = INDICATOR_CHART_CONFIG_MAP[indicatorKey.indicatorType];
-	console.log("指标的图表配置", indicatorChartConfig);
 	const indicatorName = indicatorChartConfig?.name || "未知指标";
 
 	// 添加时间类型的X轴

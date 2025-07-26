@@ -30,7 +30,7 @@ import {
 } from "scichart";
 import type { KlineChartConfig } from "@/types/chart";
 import type { IndicatorValue } from "@/types/indicator";
-import { getIndicatorChartConfig } from "@/types/indicator/indicator-chart-config";
+import { getIndciatorChartConfigFromKeyStr } from "@/types/indicator/indicator-config-new";
 import { type Kline, KlineInterval } from "@/types/kline";
 import type { VirtualOrder } from "@/types/order/virtual-order";
 import type { IndicatorKey, KlineKey } from "@/types/symbol-key";
@@ -212,7 +212,8 @@ export const initKlineChart = async (
 	const onNewIndicator = (newIndicators: Record<string, IndicatorValue>) => {
 		Object.entries(newIndicators).forEach(
 			([indicatorKeyStr, indicatorData]) => {
-				const indicatorChartConfig = getIndicatorChartConfig(indicatorKeyStr);
+				const indicatorChartConfig = getIndciatorChartConfigFromKeyStr(indicatorKeyStr);
+				console.log("新的indicatorChartConfig", indicatorChartConfig);	
 				if (indicatorChartConfig) {
 					// 通过key直接找到对应的数据系列
 					const indicatorDataSeries =
