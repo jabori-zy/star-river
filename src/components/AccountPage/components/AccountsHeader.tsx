@@ -1,10 +1,10 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import type { Account } from "@/types/account";
 import { AddAccountPanel } from "./AddAccountPanel";
 import { mt5FormConfig } from "./mt5-form-config";
-import { Account } from "@/types/account";
 
 interface AccountsHeaderProps {
 	activeTab: string;

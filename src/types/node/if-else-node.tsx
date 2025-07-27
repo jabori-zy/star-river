@@ -1,4 +1,4 @@
-import { Node } from "@xyflow/react";
+import type { Node } from "@xyflow/react";
 
 // 条件判断节点回测模式配置
 export type IfElseNodeBacktestConfig = {

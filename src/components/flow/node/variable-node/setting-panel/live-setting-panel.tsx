@@ -1,13 +1,13 @@
 import React from "react";
-import { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
 import AccountSelector from "@/components/flow/account-selector";
-import { TradeMode, SelectedAccount } from "@/types/strategy";
-import VariableSetting from "../components/variable-setting";
+import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
 import { useUpdateLiveConfig } from "@/hooks/node/variable-node";
-import {
-	VariableNodeLiveConfig,
+import type {
 	VariableConfig,
+	VariableNodeLiveConfig,
 } from "@/types/node/variable-node";
+import { type SelectedAccount, TradeMode } from "@/types/strategy";
+import VariableSetting from "../components/variable-setting";
 
 const VariableNodeLiveSettingPanel: React.FC<SettingProps> = ({ id, data }) => {
 	const {

@@ -1,13 +1,17 @@
 import * as Highcharts from "highcharts/highstock";
 import { HighchartsReact } from "highcharts-react-official";
-import { useRef, useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import useChartResize from "@/hooks/use-chartResize";
 import { getInitialChartData } from "@/service/chart";
 import { useStrategyEventStore } from "@/store/useStrategyEventStore";
-import { IndicatorKeyStr, KlineKeyStr, IndicatorKey } from "@/types/symbol-key";
-import { parseKey } from "@/utils/parse-key";
+import type {
+	IndicatorKey,
+	IndicatorKeyStr,
+	KlineKeyStr,
+} from "@/types/symbol-key";
 import { getIndicatorChartConfig } from "@/utils/getIndicatorChartConfig";
-import { getBaseChartOptions, createChartOptions } from "./options";
+import { parseKey } from "@/utils/parse-key";
+import { createChartOptions, getBaseChartOptions } from "./options";
 
 interface SingleKlineChartProps extends HighchartsReact.Props {
 	id: string; // 唯一标识

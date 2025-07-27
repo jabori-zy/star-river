@@ -1,17 +1,20 @@
-import { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
-import CaseEditor from "../components/condition-editor/case-editor";
+import { useNodeConnections } from "@xyflow/react";
+import { useEffect, useState } from "react";
+import { ReactSortable } from "react-sortablejs";
+import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { useEffect, useState } from "react";
-import { useNodeConnections } from "@xyflow/react";
-import { CaseItem, IfElseNodeData } from "@/types/node/if-else-node";
-import { LogicalSymbol } from "@/types/node/if-else-node";
-import { useUpdateLiveConfig } from "@/hooks/node/if-else-node/use-update-live-config";
-import { ReactSortable } from "react-sortablejs";
 import useStrategyWorkflow, {
-	VariableItem,
+	type VariableItem,
 } from "@/hooks/flow/use-strategy-workflow";
+import { useUpdateLiveConfig } from "@/hooks/node/if-else-node/use-update-live-config";
+import {
+	type CaseItem,
+	type IfElseNodeData,
+	LogicalSymbol,
+} from "@/types/node/if-else-node";
 import { TradeMode } from "@/types/strategy";
+import CaseEditor from "../components/condition-editor/case-editor";
 
 const IfElseNodeLiveSettingPanel: React.FC<SettingProps> = ({ id, data }) => {
 	const ifElseNodeData = data as IfElseNodeData;

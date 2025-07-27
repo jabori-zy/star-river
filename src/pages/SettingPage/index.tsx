@@ -1,13 +1,5 @@
-import { SupportLanguage, SystemConfig } from "@/types/system";
-import { useState, useEffect } from "react";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -19,8 +11,16 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useTranslation } from "react-i18next";
+import { Button } from "@/components/ui/button";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import useSystemConfigStore from "@/store/useSystemConfigStore";
+import { SupportLanguage, type SystemConfig } from "@/types/system";
 
 // 语言选择下拉框
 function LocalizationSelect({

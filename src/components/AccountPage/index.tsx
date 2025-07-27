@@ -1,26 +1,25 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import axios from "axios";
+import React, { useCallback, useEffect, useState } from "react";
+import { Toaster } from "sonner";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import useAccountSSE, { AccountInfo } from "@/hooks/use-accountSSE";
+import { addAccountConfig, getAccountConfigs } from "@/service/account";
+import { Account, type MT5Account } from "@/types/account";
+import { AccountsHeader } from "./components/AccountsHeader";
 import { AccountTable } from "./components/AccountTable";
 import {
-	mt5Columns,
 	binanceColumns,
+	mt5Columns,
 	okxColumns,
 } from "./components/AccountTable/columns";
 import {
-	metatrader5Accounts,
 	binanceAccounts,
+	metatrader5Accounts,
 	okxAccounts,
 } from "./components/AccountTable/data";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { AccountsHeader } from "./components/AccountsHeader";
-import { Toaster } from "sonner";
-import axios from "axios";
-import { MT5Account, Account } from "@/types/account";
-import useAccountSSE, { AccountInfo } from "@/hooks/use-accountSSE";
-import React from "react";
-import { getAccountConfigs, addAccountConfig } from "@/service/account";
 
 // 定义账户类型
 type AccountType = {

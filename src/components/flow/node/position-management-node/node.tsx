@@ -1,12 +1,12 @@
-import { NodeProps } from "@xyflow/react";
-import { type PositionManagementNode as PositionManagementNodeType } from "@/types/node/position-management-node";
-import BaseNode from "@/components/flow/base/BaseNode";
+import type { NodeProps } from "@xyflow/react";
 import { Play } from "lucide-react";
+import BaseNode from "@/components/flow/base/BaseNode";
+import useTradingModeStore from "@/store/useTradingModeStore";
+import type { PositionManagementNode as PositionManagementNodeType } from "@/types/node/position-management-node";
+import { TradeMode } from "@/types/strategy";
 import BacktestModeShow from "./components/show/backtest-mode-show";
 import LiveModeShow from "./components/show/live-mode-show";
 import SimulateModeShow from "./components/show/simulate-mode-show";
-import useTradingModeStore from "@/store/useTradingModeStore";
-import { TradeMode } from "@/types/strategy";
 
 const PositionManagementNode: React.FC<
 	NodeProps<PositionManagementNodeType>

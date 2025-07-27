@@ -1,4 +1,4 @@
-import { NodeData } from "@/types/node/index";
+import type { NodeData } from "@/types/node/index";
 
 export interface SettingProps {
 	id: string; // 节点id,

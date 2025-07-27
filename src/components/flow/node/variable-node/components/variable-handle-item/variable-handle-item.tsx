@@ -1,16 +1,16 @@
-import React from "react";
-import {
-	type VariableConfig,
-	GetVariableType,
-} from "@/types/node/variable-node";
+import { Position } from "@xyflow/react";
 import { Clock, Filter } from "lucide-react";
+import React from "react";
+import BaseHandle from "@/components/flow/base/BaseHandle";
 import {
-	getVariableLabel,
+	GetVariableType,
+	type VariableConfig,
+} from "@/types/node/variable-node";
+import {
 	formatSymbolDisplay,
 	getTimerConfigDisplay,
+	getVariableLabel,
 } from "./utils";
-import BaseHandle from "@/components/flow/base/BaseHandle";
-import { Position } from "@xyflow/react";
 
 interface VariableHandleItemProps {
 	id: string; // 节点id

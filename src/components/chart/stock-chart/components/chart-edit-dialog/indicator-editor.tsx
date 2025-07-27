@@ -1,4 +1,4 @@
-import { KlineChartConfig, SubChartConfig } from "@/types/chart";
+import type { KlineChartConfig, SubChartConfig } from "@/types/chart";
 
 interface IndicatorEditorProps {
 	mode: "main" | "sub";

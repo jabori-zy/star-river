@@ -1,11 +1,17 @@
-import { PanelProps } from "@xyflow/react";
-import { ReactElement, useRef, useState, useCallback, useEffect } from "react";
-import BasePanelHeader from "./header";
+import { type PanelProps, useReactFlow } from "@xyflow/react";
 import { GripVertical } from "lucide-react";
-import TradeModeSwitcher from "./trade-mode-switcher";
-import { SettingPanelProps } from "./trade-mode-switcher";
-import { NodeData } from "@/types/node/index";
-import { useReactFlow } from "@xyflow/react";
+import {
+	type ReactElement,
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+} from "react";
+import type { NodeData } from "@/types/node/index";
+import BasePanelHeader from "./header";
+import TradeModeSwitcher, {
+	type SettingPanelProps,
+} from "./trade-mode-switcher";
 
 interface BasePanelProps extends PanelProps {
 	id: string; // 节点id

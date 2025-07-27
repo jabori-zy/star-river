@@ -1,10 +1,10 @@
 import { RouterProvider } from "react-router";
 import router from "./router";
 import "./i18n";
-import { useEffect, useState } from "react";
-import useSystemConfigStore from "./store/useSystemConfigStore";
 import { StagewiseToolbar } from "@stagewise/toolbar-react";
+import { useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/sonner";
+import useSystemConfigStore from "./store/useSystemConfigStore";
 
 function App() {
 	const { loadSystemConfig } = useSystemConfigStore();

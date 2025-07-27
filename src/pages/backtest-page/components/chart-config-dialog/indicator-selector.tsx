@@ -1,6 +1,6 @@
 import { useMemo } from "react";
-import MultipleSelector, { Option } from "@/components/ui/multi-select";
-import { KlineKey, IndicatorKey } from "@/types/symbol-key";
+import MultipleSelector, { type Option } from "@/components/ui/multi-select";
+import type { IndicatorKey, KlineKey } from "@/types/symbol-key";
 
 interface IndicatorSelectorProps {
 	cacheKeys: Record<string, KlineKey | IndicatorKey>;

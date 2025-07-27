@@ -1,8 +1,8 @@
 import {
-	ComparisonSymbol,
+	type ComparisonSymbol,
 	LogicalSymbol,
+	type Variable,
 	VarType,
-	Variable,
 } from "@/types/node/if-else-node";
 
 // 获取条件类型的中文标签

@@ -1,22 +1,22 @@
-import React from "react";
+import { Position } from "@xyflow/react";
+import type React from "react";
+import BaseHandle from "@/components/flow/base/BaseHandle";
+import { Badge } from "@/components/ui/badge";
 import {
 	type FuturesOrderConfig,
-	OrderType,
 	FuturesOrderSide,
 	OrderStatus,
+	OrderType,
 } from "@/types/order";
-import { Badge } from "@/components/ui/badge";
-import BaseHandle from "@/components/flow/base/BaseHandle";
-import { Position } from "@xyflow/react";
-import {
-	getOrderStatusLabel,
-	getOrderSideLabel,
-	getOrderTypeLabel,
-} from "./utils";
 import {
 	getLimitOrderHandleGroup,
 	getMarketOrderHandleGroup,
 } from "./handle-group";
+import {
+	getOrderSideLabel,
+	getOrderStatusLabel,
+	getOrderTypeLabel,
+} from "./utils";
 
 interface OrderHandleItemProps {
 	id: string;

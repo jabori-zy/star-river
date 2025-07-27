@@ -1,9 +1,5 @@
 import React, { useEffect } from "react";
-import {
-	type FuturesOrderConfig,
-	OrderType,
-	FuturesOrderSide,
-} from "@/types/order";
+import { Button } from "@/components/ui/button";
 import {
 	Dialog,
 	DialogContent,
@@ -12,11 +8,15 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import OrderTypeSelector from "./order-type-selector";
+import { Label } from "@/components/ui/label";
+import {
+	type FuturesOrderConfig,
+	FuturesOrderSide,
+	OrderType,
+} from "@/types/order";
 import OrderSideSelector from "./order-side-selector";
+import OrderTypeSelector from "./order-type-selector";
 import SymbolSelector from "./symbol-selector";
 
 interface OrderConfigDialogProps {

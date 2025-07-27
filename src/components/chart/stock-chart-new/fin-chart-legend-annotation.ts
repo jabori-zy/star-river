@@ -1,12 +1,12 @@
 import {
-	SciChartSurface,
-	EDataSeriesType,
-	OhlcDataSeries,
-	XyyDataSeries,
-	CoordinateCalculatorBase,
+	type CoordinateCalculatorBase,
 	EAnnotationType,
-	ISvgAnnotationBaseOptions,
+	EDataSeriesType,
+	type ISvgAnnotationBaseOptions,
+	type OhlcDataSeries,
+	type SciChartSurface,
 	SvgAnnotationBase,
+	type XyyDataSeries,
 } from "scichart";
 
 export type TFinanceLegendTemplate = (

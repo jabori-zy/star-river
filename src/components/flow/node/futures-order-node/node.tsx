@@ -1,17 +1,17 @@
-import { NodeProps } from "@xyflow/react";
-import { type FuturesOrderNode as FuturesOrderNodeType } from "@/types/node/futures-order-node";
-import BaseNode from "@/components/flow/base/BaseNode";
+import type { NodeProps } from "@xyflow/react";
 import { Play } from "lucide-react";
-import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
 import { useEffect, useRef } from "react";
+import BaseNode from "@/components/flow/base/BaseNode";
 import { useUpdateBacktestConfig } from "@/hooks/node/futures-order-node/use-update-backtest-config";
 import { useUpdateLiveConfig } from "@/hooks/node/futures-order-node/use-update-live-config";
 import { useUpdateSimulateConfig } from "@/hooks/node/futures-order-node/use-update-simulate-config";
-import { TimeRange, TradeMode } from "@/types/strategy";
+import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
+import useTradingModeStore from "@/store/useTradingModeStore";
+import type { FuturesOrderNode as FuturesOrderNodeType } from "@/types/node/futures-order-node";
+import { type TimeRange, TradeMode } from "@/types/strategy";
 import BacktestModeShow from "./components/node-show/backtest-mode-show";
 import LiveModeShow from "./components/node-show/live-mode-show";
 import SimulateModeShow from "./components/node-show/simulate-mode-show";
-import useTradingModeStore from "@/store/useTradingModeStore";
 
 const FuturesOrderNode: React.FC<NodeProps<FuturesOrderNodeType>> = ({
 	id,

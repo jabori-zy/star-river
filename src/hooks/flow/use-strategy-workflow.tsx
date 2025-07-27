@@ -1,20 +1,22 @@
 import {
+	type Connection,
+	type Edge,
+	type IsValidConnection,
 	useReactFlow,
-	IsValidConnection,
-	Connection,
-	Edge,
 } from "@xyflow/react";
-import { NodeType } from "@/types/node/index";
 import { useCallback } from "react";
-import {
+import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
+import { isDefaultOutputHandleId, NodeType } from "@/types/node/index";
+import type {
 	IndicatorNodeData,
 	SelectedIndicator,
 } from "@/types/node/indicator-node";
-import { KlineNodeData, SelectedSymbol } from "@/types/node/kline-node";
-import { VariableNodeData, VariableConfig } from "@/types/node/variable-node";
+import type { KlineNodeData, SelectedSymbol } from "@/types/node/kline-node";
+import type {
+	VariableConfig,
+	VariableNodeData,
+} from "@/types/node/variable-node";
 import { TradeMode } from "@/types/strategy";
-import { isDefaultOutputHandleId } from "@/types/node/index";
-import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
 
 // 定义变量项类型，用于存储节点变量信息
 export interface VariableItem {

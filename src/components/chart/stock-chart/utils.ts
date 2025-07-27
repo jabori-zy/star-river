@@ -1,26 +1,26 @@
 import {
-	IRenderableSeries,
+	type CursorTooltipSvgAnnotation,
+	type DateTimeNumericAxis,
+	EDataSeriesType,
 	ESeriesType,
+	easing,
 	FastMountainRenderableSeries,
 	GradientParams,
-	Point,
-	SciChartSurface,
-	SciChartOverview,
-	SeriesInfo,
-	CursorTooltipSvgAnnotation,
-	EDataSeriesType,
-	OhlcSeriesInfo,
-	RolloverLegendSvgAnnotation,
-	HorizontalLineAnnotation,
-	NumericAxis,
-	DateTimeNumericAxis,
+	type HorizontalLineAnnotation,
+	type IRenderableSeries,
 	NumberRange,
-	OhlcDataSeries,
-	XyDataSeries,
-	easing,
+	type NumericAxis,
+	type OhlcDataSeries,
+	type OhlcSeriesInfo,
+	Point,
+	type RolloverLegendSvgAnnotation,
+	SciChartOverview,
+	type SciChartSurface,
+	type SeriesInfo,
+	type XyDataSeries,
 } from "scichart";
+import type { Kline } from "@/types/kline";
 import { appTheme } from "./theme";
-import { Kline } from "@/types/kline";
 
 // 重写渲染系列以在scichart概览中显示
 const getOverviewSeries = (defaultSeries: IRenderableSeries) => {

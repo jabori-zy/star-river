@@ -1,3 +1,4 @@
+import { Columns3, Grid2x2, LayoutGrid, Rows3 } from "lucide-react";
 import {
 	Select,
 	SelectContent,
@@ -5,8 +6,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { LayoutMode } from "@/types/chart/backtest-chart";
-import { Columns3, Rows3, Grid2x2, LayoutGrid } from "lucide-react";
+import type { LayoutMode } from "@/types/chart/backtest-chart";
 
 interface LayoutControlProps {
 	value: LayoutMode;

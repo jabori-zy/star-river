@@ -1,19 +1,18 @@
-import { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
-import { IndicatorNodeData } from "@/types/node/indicator-node";
-import { useReactFlow, useNodeConnections } from "@xyflow/react";
-import { useEffect, useState } from "react";
-import { useUpdateBacktestConfig } from "@/hooks/node/indicator-node/use-update-backtest-config";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
+import { useNodeConnections, useReactFlow } from "@xyflow/react";
 import { Activity } from "lucide-react";
+import { useEffect, useState } from "react";
+import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
 import IndicatorEditor from "@/components/flow/node/indicator-node/components/indicator-editor";
+import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import { useUpdateBacktestConfig } from "@/hooks/node/indicator-node/use-update-backtest-config";
 import {
 	getNodeDefaultInputHandleId,
 	isDefaultOutputHandleId,
 	NodeType,
 } from "@/types/node/index";
-import { KlineNodeData } from "@/types/node/kline-node";
-import { SelectedSymbol } from "@/types/node/kline-node";
+import type { IndicatorNodeData } from "@/types/node/indicator-node";
+import type { KlineNodeData, SelectedSymbol } from "@/types/node/kline-node";
 import SymbolSelector from "../components/symbol-selector";
 
 const IndicatorNodeBacktestSettingPanel: React.FC<SettingProps> = ({

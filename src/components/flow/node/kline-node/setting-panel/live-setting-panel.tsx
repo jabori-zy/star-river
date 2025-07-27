@@ -1,13 +1,13 @@
-import { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
-import { KlineNodeData } from "@/types/node/kline-node";
-import DataSourceSelector from "../components/data-source-selector";
-import { TradeMode } from "@/types/strategy";
 import { useNodeConnections, useReactFlow } from "@xyflow/react";
-import { useState, useEffect } from "react";
-import { StartNode } from "@/types/node/start-node";
-import SymbolSelector from "../components/symbol-selector";
+import { useEffect, useState } from "react";
+import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
 import { useUpdateLiveConfig } from "@/hooks/node/kline-node/use-update-live-config";
 import { getNodeDefaultInputHandleId, NodeType } from "@/types/node/index";
+import type { KlineNodeData } from "@/types/node/kline-node";
+import type { StartNode } from "@/types/node/start-node";
+import { TradeMode } from "@/types/strategy";
+import DataSourceSelector from "../components/data-source-selector";
+import SymbolSelector from "../components/symbol-selector";
 
 const KlineNodeLiveSettingPanel: React.FC<SettingProps> = ({ id, data }) => {
 	const klineNodeData = data as KlineNodeData;

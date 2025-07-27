@@ -1,7 +1,7 @@
-import { VarType } from "@/types/node/if-else-node";
+import { useEffect, useState } from "react";
 import Selector from "@/components/flow/node/if-else-node/components/selector";
 import { SelectItem } from "@/components/ui/select";
-import { useState, useEffect } from "react";
+import { VarType } from "@/types/node/if-else-node";
 
 interface VarTypeSelectorProps {
 	className?: string;

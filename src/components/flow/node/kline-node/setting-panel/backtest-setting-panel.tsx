@@ -1,18 +1,21 @@
-import { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
-import { KlineNodeData } from "@/types/node/kline-node";
-import { TradeMode, SelectedAccount } from "@/types/strategy";
+// import { FileWithPreview } from "@/hooks/use-file-upload"
+import AccountSelector from "@/components/flow/account-selector";
+import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
+// import { getNodeDefaultInputHandleId, NodeType } from "@/types/node/index";
+import FileUpload from "@/components/ui/file-upload";
+import { Label } from "@/components/ui/label";
+import { useUpdateBacktestConfig } from "@/hooks/node/kline-node/use-update-backtest-config";
+import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
+import type { KlineNodeData } from "@/types/node/kline-node";
+import {
+	BacktestDataSource,
+	type SelectedAccount,
+	TradeMode,
+} from "@/types/strategy";
 // import { useNodeConnections, useReactFlow } from "@xyflow/react";
 // import { useEffect, useState } from "react";
 // import { StartNodeData } from "@/types/node/start-node";
 import SymbolSelector from "../components/symbol-selector";
-import { useUpdateBacktestConfig } from "@/hooks/node/kline-node/use-update-backtest-config";
-import { BacktestDataSource } from "@/types/strategy";
-import { Label } from "@/components/ui/label";
-// import { getNodeDefaultInputHandleId, NodeType } from "@/types/node/index";
-import FileUpload from "@/components/ui/file-upload";
-// import { FileWithPreview } from "@/hooks/use-file-upload"
-import AccountSelector from "@/components/flow/account-selector";
-import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
 
 const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	id,

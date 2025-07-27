@@ -1,5 +1,5 @@
 import axios from "axios";
-import { MT5Account, Account } from "../types/account";
+import { Account, type MT5Account } from "../types/account";
 
 const API_BASE_URL = "http://localhost:3100";
 const ROUTER = "account";

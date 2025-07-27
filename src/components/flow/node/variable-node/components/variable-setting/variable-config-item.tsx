@@ -1,11 +1,11 @@
-import React from "react";
-import {
-	type VariableConfig,
-	GetVariableType,
-} from "@/types/node/variable-node";
-import { Button } from "@/components/ui/button";
+import { Clock, Filter, Settings, X } from "lucide-react";
+import type React from "react";
 import { Badge } from "@/components/ui/badge";
-import { Settings, X, Clock, Filter } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+	GetVariableType,
+	type VariableConfig,
+} from "@/types/node/variable-node";
 
 interface VariableConfigItemProps {
 	config: VariableConfig;

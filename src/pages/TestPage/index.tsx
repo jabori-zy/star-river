@@ -1,7 +1,7 @@
+import { useTranslation } from "react-i18next";
 import { AppSidebar } from "@/components/app-sidebar-demo";
 import { SiteHeader } from "@/components/app-sidebar-demo/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { useTranslation } from "react-i18next";
 
 export default function TestDashboard() {
 	const { t } = useTranslation();

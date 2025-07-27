@@ -1,12 +1,12 @@
-import React from "react";
+import { Settings, X } from "lucide-react";
+import type React from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
 	type FuturesOrderConfig,
-	OrderType,
 	FuturesOrderSide,
+	OrderType,
 } from "@/types/order";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Settings, X } from "lucide-react";
 
 interface OrderConfigItemProps {
 	config: FuturesOrderConfig;

@@ -1,21 +1,21 @@
-import BaseNode from "@/components/flow/base/BaseNode";
+import { type NodeProps, Position, useReactFlow } from "@xyflow/react";
 import { Play } from "lucide-react";
-import { NodeProps, Position, useReactFlow } from "@xyflow/react";
-import { type StartNode as StartNodeType } from "@/types/node/start-node";
-import { BaseHandleProps } from "@/components/flow/base/BaseHandle";
+import { useEffect } from "react";
+import type { BaseHandleProps } from "@/components/flow/base/BaseHandle";
+import BaseNode from "@/components/flow/base/BaseNode";
+import { useBacktestConfig } from "@/hooks/node/start-node/use-update-backtest-config";
+import { useLiveConfig } from "@/hooks/node/start-node/use-update-live-config";
+import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
+import useTradingModeStore from "@/store/useTradingModeStore";
+import { getNodeDefaultOutputHandleId, NodeType } from "@/types/node/index";
+import type { StartNode as StartNodeType } from "@/types/node/start-node";
 import {
-	StrategyBacktestConfig,
-	StrategyLiveConfig,
+	type StrategyBacktestConfig,
+	type StrategyLiveConfig,
 	TradeMode,
 } from "@/types/strategy";
-import LiveNodeShow from "./components/node-show/live-mode-show";
 import BacktestNodeShow from "./components/node-show/backtest-mode-show";
-import useTradingModeStore from "@/store/useTradingModeStore";
-import { useLiveConfig } from "@/hooks/node/start-node/use-update-live-config";
-import { useBacktestConfig } from "@/hooks/node/start-node/use-update-backtest-config";
-import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
-import { useEffect } from "react";
-import { getNodeDefaultOutputHandleId, NodeType } from "@/types/node/index";
+import LiveNodeShow from "./components/node-show/live-mode-show";
 
 const StartNode: React.FC<NodeProps<StartNodeType>> = ({
 	id,

@@ -29,11 +29,10 @@ import {
 	ZoomPanModifier,
 } from "scichart";
 import type { KlineChartConfig } from "@/types/chart";
-import type { IndicatorValue } from "@/types/indicator";
-import { getIndciatorChartConfigFromKeyStr } from "@/types/indicator/indicator-config-new";
+import { getIndciatorChartConfigFromKeyStr } from "@/types/indicator/indicator-config";
 import { type Kline, KlineInterval } from "@/types/kline";
 import type { VirtualOrder } from "@/types/order/virtual-order";
-import type { IndicatorKey, KlineKey } from "@/types/symbol-key";
+import type { IndicatorKey, IndicatorKeyStr, KlineKey } from "@/types/symbol-key";
 import { parseKey } from "@/utils/parse-key";
 import { appTheme } from "../theme";
 import { TradeAnnotation } from "../trade-marker-modifier";
@@ -175,14 +174,12 @@ export const initKlineChart = async (
 					indicatorChartConfig,
 				);
 				if (indicatorChartConfig) {
-					const indicatorKey = parseKey(
-						indicatorKeyStr,
-					) as IndicatorKey;
+					const indicatorKey = parseKey(indicatorKeyStr) as IndicatorKey;
 					const indicatorDataSeries = new XyDataSeries(wasmContext, {
 						dataSeriesName:
 							indicatorKey.indicatorType.toUpperCase() +
 							":" +
-							indicatorKey.indicatorConfig.period,
+							indicatorKey.indicatorConfig.timePeriod,
 					});
 					// console.log("indicatorDataSeries", indicatorDataSeries);
 
@@ -209,11 +206,14 @@ export const initKlineChart = async (
 		);
 	}
 
-	const onNewIndicator = (newIndicators: Record<string, IndicatorValue>) => {
+	const onNewIndicator = (
+		newIndicators: Record<IndicatorKeyStr, Record<string, number>>, // 指标数据，key为indicatorKeyStr，value为指标数据
+	) => {
 		Object.entries(newIndicators).forEach(
 			([indicatorKeyStr, indicatorData]) => {
-				const indicatorChartConfig = getIndciatorChartConfigFromKeyStr(indicatorKeyStr);
-				console.log("新的indicatorChartConfig", indicatorChartConfig);	
+				const indicatorChartConfig =
+					getIndciatorChartConfigFromKeyStr(indicatorKeyStr);
+				console.log("新的indicatorChartConfig", indicatorChartConfig);
 				if (indicatorChartConfig) {
 					// 通过key直接找到对应的数据系列
 					const indicatorDataSeries =
@@ -223,7 +223,7 @@ export const initKlineChart = async (
 							indicatorData[
 								indicatorChartConfig.seriesConfigs[0].indicatorValueKey
 							];
-						console.log("indicator_value", value);
+						// console.log("indicator_value", value);
 						if (value !== undefined && value !== null && value !== 0) {
 							const timestamp = indicatorData.timestamp / 1000;
 
@@ -417,7 +417,7 @@ export const initKlineChart = async (
 	// 批量设置指标数据
 	const setIndicatorData = (
 		indicatorKeyStr: string,
-		indicatorValues: IndicatorValue[],
+		indicatorValues: Record<string, number>[],
 	) => {
 		console.log(
 			`setIndicatorData(): Setting data for ${indicatorKeyStr}, ${indicatorValues.length} values`,

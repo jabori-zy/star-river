@@ -1,12 +1,11 @@
-import { SupportLanguage } from "@/types/system";
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
-
+import { SupportLanguage } from "@/types/system";
+import enUSSetting from "./en-US/setting";
+import enUSStrategy from "./en-US/strategy";
 // 导入所有语言模块
 import zhCNSetting from "./zh-CN/setting";
 import zhCNStrategy from "./zh-CN/strategy";
-import enUSSetting from "./en-US/setting";
-import enUSStrategy from "./en-US/strategy";
 
 // 语言模块映射
 const languageModules = {

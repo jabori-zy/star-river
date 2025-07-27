@@ -1,5 +1,5 @@
-import { IfElseNodeData } from "@/types/node/if-else-node";
-import { IfElseCaseItem, ElseCaseItem } from "../case-handle-item";
+import type { IfElseNodeData } from "@/types/node/if-else-node";
+import { ElseCaseItem, IfElseCaseItem } from "../case-handle-item";
 
 interface LiveModeShowProps {
 	id: string;

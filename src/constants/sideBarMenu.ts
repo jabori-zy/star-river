@@ -1,4 +1,4 @@
-import { BookOpen, Bot, Settings2, SquareTerminal, Play } from "lucide-react";
+import { BookOpen, Bot, Play, Settings2, SquareTerminal } from "lucide-react";
 
 export const sideBarMenu = {
 	user: {

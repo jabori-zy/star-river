@@ -1,8 +1,8 @@
 "use client";
 
 import { useSortable } from "@dnd-kit/sortable";
-import { Button } from "@/components/ui/button";
 import { GripVertical } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface DragHandleProps {
 	id: string | number;

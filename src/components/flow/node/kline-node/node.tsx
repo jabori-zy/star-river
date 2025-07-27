@@ -1,25 +1,25 @@
-import { useEffect, useRef } from "react";
-import BaseNode from "@/components/flow/base/BaseNode";
+import { type NodeProps, Position } from "@xyflow/react";
 import { Play } from "lucide-react";
-import { NodeProps, Position } from "@xyflow/react";
-import { type KlineNode as KlineNodeType } from "@/types/node/kline-node";
-import { BaseHandleProps } from "@/components/flow/base/BaseHandle";
-import LiveModeShow from "./components/show/live-mode-show";
-import BacktestModeShow from "./components/show/backtest-mode-show";
-import { TradeMode } from "@/types/strategy";
-import useTradingModeStore from "@/store/useTradingModeStore";
-import {
-	KlineNodeLiveConfig,
-	KlineNodeBacktestConfig,
-} from "@/types/node/kline-node";
+import { useEffect, useRef } from "react";
+import type { BaseHandleProps } from "@/components/flow/base/BaseHandle";
+import BaseNode from "@/components/flow/base/BaseNode";
 import { useUpdateBacktestConfig } from "@/hooks/node/kline-node/use-update-backtest-config";
 import { useUpdateLiveConfig } from "@/hooks/node/kline-node/use-update-live-config";
+import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
+import useTradingModeStore from "@/store/useTradingModeStore";
 import {
 	getNodeDefaultInputHandleId,
 	getNodeDefaultOutputHandleId,
 	NodeType,
 } from "@/types/node/index";
-import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
+import type {
+	KlineNodeBacktestConfig,
+	KlineNodeLiveConfig,
+	KlineNode as KlineNodeType,
+} from "@/types/node/kline-node";
+import { TradeMode } from "@/types/strategy";
+import BacktestModeShow from "./components/show/backtest-mode-show";
+import LiveModeShow from "./components/show/live-mode-show";
 
 const KlineNode: React.FC<NodeProps<KlineNodeType>> = ({
 	id,

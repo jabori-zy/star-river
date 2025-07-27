@@ -1,7 +1,7 @@
 import { create } from "zustand";
-import { SystemConfig, SupportLanguage } from "@/types/system";
-import { getSystemConfig, updateSystemConfig } from "@/service/system";
 import { changeLanguage } from "@/i18n/i18n";
+import { getSystemConfig, updateSystemConfig } from "@/service/system";
+import type { SupportLanguage, SystemConfig } from "@/types/system";
 
 // 系统配置状态接口
 interface SystemConfigState {

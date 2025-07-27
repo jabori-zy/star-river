@@ -1,8 +1,8 @@
 import {
 	type FuturesOrderConfig,
-	OrderType,
 	FuturesOrderSide,
 	OrderStatus,
+	OrderType,
 } from "@/types/order";
 
 export const formatOrderConfig = (config: FuturesOrderConfig): string => {

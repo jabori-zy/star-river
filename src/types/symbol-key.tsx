@@ -1,4 +1,5 @@
-import type { IndicatorConfig, IndicatorType } from "./indicator";
+import type { IndicatorType } from "./indicator";
+import type { IndicatorConfigType } from "./indicator/config";
 import type { KlineInterval } from "./kline";
 
 export type Key = KlineKey | IndicatorKey;
@@ -45,7 +46,7 @@ export type IndicatorKey = {
 	symbol: string;
 	interval: KlineInterval;
 	indicatorType: IndicatorType;
-	indicatorConfig: IndicatorConfig;
+	indicatorConfig: IndicatorConfigType;
 	startTime?: string;
 	endTime?: string;
 };

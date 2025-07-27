@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
-import { SelectedSymbol } from "@/types/node/kline-node";
-import { Button } from "@/components/ui/button";
+import { Clock, PlusIcon, Settings, TrendingUp, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
 	Dialog,
 	DialogContent,
@@ -13,13 +13,13 @@ import {
 import { Label } from "@/components/ui/label";
 import {
 	Select,
-	SelectTrigger,
-	SelectValue,
 	SelectContent,
 	SelectItem,
+	SelectTrigger,
+	SelectValue,
 } from "@/components/ui/select";
-import { PlusIcon, X, Settings, TrendingUp, Clock } from "lucide-react";
-import { SelectedAccount } from "@/types/strategy";
+import type { SelectedSymbol } from "@/types/node/kline-node";
+import type { SelectedAccount } from "@/types/strategy";
 
 interface SymbolSelectorProps {
 	selectedSymbols: SelectedSymbol[]; // 已选择的交易对

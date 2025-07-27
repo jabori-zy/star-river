@@ -1,11 +1,11 @@
+import type { LucideIcon } from "lucide-react";
 import React from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { SettingProps } from "./setting-panel";
-import { NodeData } from "@/types/node/index";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import useTradingModeStore from "@/store/useTradingModeStore";
+import type { NodeData } from "@/types/node/index";
 import { TradeMode } from "@/types/strategy";
-import { LucideIcon } from "lucide-react";
+import type { SettingProps } from "./setting-panel";
 
 export interface SettingPanelProps {
 	icon: LucideIcon;

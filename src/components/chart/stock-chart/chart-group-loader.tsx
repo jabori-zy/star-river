@@ -1,5 +1,9 @@
-import { DetailedHTMLProps, HTMLAttributes, useState } from "react";
-import { SciChartGroup, IInitResult, DefaultFallback } from "scichart-react";
+import { type DetailedHTMLProps, type HTMLAttributes, useState } from "react";
+import {
+	DefaultFallback,
+	type IInitResult,
+	SciChartGroup,
+} from "scichart-react";
 
 type TDivProps = DetailedHTMLProps<
 	HTMLAttributes<HTMLDivElement>,

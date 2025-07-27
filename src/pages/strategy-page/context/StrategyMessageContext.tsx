@@ -1,4 +1,5 @@
-import React, { createContext, useState, useEffect } from "react";
+import type React from "react";
+import { createContext, useEffect, useState } from "react";
 import useStrategySSE from "@/hooks/use-strategySSE";
 
 export interface StrategyEventContextProps {

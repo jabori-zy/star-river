@@ -1,22 +1,25 @@
-import { Label } from "@/components/ui/label";
+import {
+	AtSign,
+	ChevronDown,
+	ChevronRight,
+	PercentSquare,
+	Play,
+	TrendingUp,
+	Variable,
+	Wallet,
+} from "lucide-react";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { StrategyBacktestConfig, StrategyVariable } from "@/types/strategy";
 import {
 	Collapsible,
 	CollapsibleContent,
 	CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import {
-	AtSign,
-	Variable,
-	ChevronRight,
-	ChevronDown,
-	Wallet,
-	TrendingUp,
-	PercentSquare,
-	Play,
-} from "lucide-react";
-import { useState } from "react";
+import { Label } from "@/components/ui/label";
+import type {
+	StrategyBacktestConfig,
+	StrategyVariable,
+} from "@/types/strategy";
 
 interface BacktestModeShowProps {
 	backtestConfig: StrategyBacktestConfig;

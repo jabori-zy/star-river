@@ -1,7 +1,9 @@
-import { useCallback, useState } from "react";
 import { useReactFlow } from "@xyflow/react";
-import { IndicatorNodeLiveConfig } from "@/types/node/indicator-node";
-import { SelectedIndicator } from "@/types/node/indicator-node";
+import { useCallback, useState } from "react";
+import type {
+	IndicatorNodeLiveConfig,
+	SelectedIndicator,
+} from "@/types/node/indicator-node";
 
 interface UseUpdateLiveConfigProps {
 	id: string;

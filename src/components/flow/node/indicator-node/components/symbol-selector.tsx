@@ -1,4 +1,3 @@
-import { SelectedSymbol } from "@/types/node/kline-node";
 import { Label } from "@/components/ui/label";
 import {
 	Select,
@@ -7,6 +6,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import type { SelectedSymbol } from "@/types/node/kline-node";
 
 interface SymbolSelectorProps {
 	symbolList: SelectedSymbol[];

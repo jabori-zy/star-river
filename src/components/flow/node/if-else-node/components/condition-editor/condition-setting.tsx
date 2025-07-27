@@ -1,17 +1,17 @@
+import { Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import type { VariableItem } from "@/hooks/flow/use-strategy-workflow";
 import {
 	ComparisonSymbol,
-	Condition,
+	type Condition,
+	type Variable,
 	VarType,
-	Variable,
 } from "@/types/node/if-else-node";
-import { VariableItem } from "@/hooks/flow/use-strategy-workflow";
-import VariableSelector from "./variable-selector";
-import { useState, useEffect } from "react";
 import ComparisonSymbolSelector from "./comparison-symbol-selector";
-import VarTypeSelector from "./var-type-selector";
 import ConstantInput from "./constant-input";
-import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import VarTypeSelector from "./var-type-selector";
+import VariableSelector from "./variable-selector";
 
 interface ConditionSettingProps {
 	variableItemList: VariableItem[];

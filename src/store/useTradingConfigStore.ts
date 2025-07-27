@@ -1,8 +1,8 @@
 import { create } from "zustand";
-import {
+import type {
+	BacktestTradeConfig,
 	LiveTradeConfig,
 	SimulateTradeConfig,
-	BacktestTradeConfig,
 } from "@/types/start_node";
 
 interface TradingConfigState {

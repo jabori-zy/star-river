@@ -1,6 +1,6 @@
-import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
+import { Button } from "@/components/ui/button";
 
 interface DialogProps {
 	isOpen: boolean;

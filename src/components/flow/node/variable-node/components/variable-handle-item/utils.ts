@@ -1,8 +1,8 @@
 import {
-	type VariableConfig,
 	GetVariableType,
-	type TimerConfig,
 	StrategySysVariable,
+	type TimerConfig,
+	type VariableConfig,
 } from "@/types/node/variable-node";
 
 // 获取变量类型的中文标签

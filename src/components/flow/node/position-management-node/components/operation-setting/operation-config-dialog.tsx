@@ -1,8 +1,5 @@
 import React, { useCallback, useEffect } from "react";
-import {
-	type PositionOperationConfig,
-	PositionOperation,
-} from "@/types/node/position-management-node";
+import { Button } from "@/components/ui/button";
 import {
 	Dialog,
 	DialogContent,
@@ -11,11 +8,14 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import SymbolSelector from "./symbol-selector";
+import { Label } from "@/components/ui/label";
+import {
+	PositionOperation,
+	type PositionOperationConfig,
+} from "@/types/node/position-management-node";
 import OperationTypeSelector from "./operation-type-selector";
+import SymbolSelector from "./symbol-selector";
 
 interface OperationConfigDialogProps {
 	isOpen: boolean;

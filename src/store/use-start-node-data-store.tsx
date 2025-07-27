@@ -1,13 +1,13 @@
+import dayjs from "dayjs";
 import { create } from "zustand";
 import {
-	StrategyLiveConfig,
-	StrategyBacktestConfig,
-	SelectedAccount,
-	StrategyVariable,
 	BacktestDataSource,
-	TimeRange,
+	type SelectedAccount,
+	type StrategyBacktestConfig,
+	type StrategyLiveConfig,
+	type StrategyVariable,
+	type TimeRange,
 } from "@/types/strategy";
-import dayjs from "dayjs";
 
 // StartNode数据状态接口
 interface StartNodeDataState {

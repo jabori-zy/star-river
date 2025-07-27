@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
 import * as Highcharts from "highcharts/highstock";
 import { HighchartsReact } from "highcharts-react-official";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import useChartResize from "@/hooks/use-chartResize";
 

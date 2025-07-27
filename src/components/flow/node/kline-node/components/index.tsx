@@ -1,7 +1,7 @@
-import { TrendingUp, Clock } from "lucide-react";
-import BaseHandle from "@/components/flow/base/BaseHandle";
 import { Position } from "@xyflow/react";
-import { SelectedSymbol } from "@/types/node/kline-node";
+import { Clock, TrendingUp } from "lucide-react";
+import BaseHandle from "@/components/flow/base/BaseHandle";
+import type { SelectedSymbol } from "@/types/node/kline-node";
 
 const getIntervalLabel = (interval: string) => {
 	const intervalMap: Record<string, string> = {

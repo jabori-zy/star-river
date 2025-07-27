@@ -1,6 +1,6 @@
+import { Bolt, Trash2 } from "lucide-react";
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Bolt, Trash2 } from "lucide-react";
 
 interface ChartEditButtonProps {
 	isMainChart: boolean;

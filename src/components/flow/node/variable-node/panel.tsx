@@ -1,8 +1,8 @@
-import { SettingPanelProps } from "@/components/flow/base/BasePanel/trade-mode-switcher";
-import VariableNodeLiveSettingPanel from "./setting-panel/live-setting-panel";
-import VariableNodeBacktestSettingPanel from "./setting-panel/backtest-setting-panel";
-import VariableNodeSimSettingPanel from "./setting-panel/sim-setting-panel";
 import { Play } from "lucide-react";
+import type { SettingPanelProps } from "@/components/flow/base/BasePanel/trade-mode-switcher";
+import VariableNodeBacktestSettingPanel from "./setting-panel/backtest-setting-panel";
+import VariableNodeLiveSettingPanel from "./setting-panel/live-setting-panel";
+import VariableNodeSimSettingPanel from "./setting-panel/sim-setting-panel";
 
 const FuturesOrderNodeSettingPanel: SettingPanelProps = {
 	icon: Play,

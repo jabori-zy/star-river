@@ -1,17 +1,17 @@
 import React from "react";
-import { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
 import AccountSelector from "@/components/flow/account-selector";
+import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
+import { useUpdateBacktestConfig } from "@/hooks/node/variable-node";
+import type {
+	VariableConfig,
+	VariableNodeBacktestConfig,
+} from "@/types/node/variable-node";
 import {
-	TradeMode,
 	BacktestDataSource,
-	SelectedAccount,
+	type SelectedAccount,
+	TradeMode,
 } from "@/types/strategy";
 import VariableSetting from "../components/variable-setting";
-import { useUpdateBacktestConfig } from "@/hooks/node/variable-node";
-import {
-	VariableNodeBacktestConfig,
-	VariableConfig,
-} from "@/types/node/variable-node";
 
 const VariableNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	id,

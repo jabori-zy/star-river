@@ -1,9 +1,9 @@
-import React from "react";
 import {
-	BaseEdge as ReactFlowBaseEdge,
-	EdgeProps,
+	type EdgeProps,
 	getBezierPath,
+	BaseEdge as ReactFlowBaseEdge,
 } from "@xyflow/react";
+import React from "react";
 
 /**
  * 自定义边

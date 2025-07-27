@@ -1,8 +1,8 @@
 import {
-	AxisBase2D,
+	type AxisBase2D,
 	EventHandler,
-	NumberRange,
-	VisibleRangeChangedArgs,
+	type NumberRange,
+	type VisibleRangeChangedArgs,
 } from "scichart";
 
 export class AxisSynchroniser {

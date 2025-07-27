@@ -1,5 +1,6 @@
-import { IndicatorValue } from "../indicator/indicator-value";
-import { KeyStr } from "@/types/symbol-key";
+import type { IndicatorValueConfig } from "@/types/indicator/schemas";
+import type { IndicatorKeyStr, KeyStr } from "@/types/symbol-key";
+// import { IndicatorValue } from "../indicator/backup/indicator-value";
 
 export type LayoutMode = "vertical" | "horizontal" | "grid" | "grid-alt";
 
@@ -16,14 +17,14 @@ export type SeriesConfig = {
 	type: SeriesType; // 数据系列类型
 	color?: string; // 数据系列颜色
 	strokeThickness?: number; // 数据系列线宽
-	indicatorValueKey: keyof IndicatorValue; // 指标值的键名
+	indicatorValueKey: keyof IndicatorValueConfig; // 指标值的键名
 };
 
 export type KlineChartConfig = {
 	klineKeyStr: KeyStr; // 蜡烛图缓存key
 	upColor?: string; // 上涨颜色
 	downColor?: string; // 下跌颜色
-	indicatorChartConfig: Record<KeyStr, IndicatorChartConfig>; // 指标图表配置映射 indicatorCacheKeyStr -> IndicatorChartConfig
+	indicatorChartConfig: Record<IndicatorKeyStr, IndicatorChartConfig>; // 指标图表配置映射 indicatorCacheKeyStr -> IndicatorChartConfig
 };
 
 // 主图指标图表配置

@@ -1,9 +1,9 @@
+import type { ColumnDef } from "@tanstack/react-table";
+import axios from "axios";
+import { CirclePlay, MoreHorizontal, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -12,18 +12,16 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MT5Account, BinanceAccount, OKXAccount } from "@/types/account";
-import { DragHandle } from "./DragHandle";
-import axios from "axios";
-import { Trash2, CirclePlay } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import {
 	Tooltip,
 	TooltipContent,
 	TooltipProvider,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { startMt5Terminal } from "@/service/account";
-import { deleteAccountConfig } from "@/service/account";
+import { deleteAccountConfig, startMt5Terminal } from "@/service/account";
+import type { BinanceAccount, MT5Account, OKXAccount } from "@/types/account";
+import { DragHandle } from "./DragHandle";
 
 // 格式化日期时间
 const formatDateTime = (dateTimeStr: string) => {

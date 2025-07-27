@@ -1,17 +1,16 @@
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import {
-	Loader2,
-	Save,
-	Play,
-	Square,
-	DollarSign,
-	CreditCard,
-	Calendar,
-} from "lucide-react";
 import { useReactFlow } from "@xyflow/react";
-import { TradeMode } from "@/types/strategy";
+import {
+	Calendar,
+	CreditCard,
+	DollarSign,
+	Loader2,
+	Play,
+	Save,
+	Square,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
 	Select,
 	SelectContent,
@@ -19,10 +18,9 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { Strategy } from "@/types/strategy";
-import { updateStrategy } from "@/service/strategy";
+import { initStrategy, updateStrategy } from "@/service/strategy";
 import useTradingModeStore from "@/store/useTradingModeStore";
-import { initStrategy } from "@/service/strategy";
+import { type Strategy, TradeMode } from "@/types/strategy";
 
 // 声明 window.require 类型
 declare global {

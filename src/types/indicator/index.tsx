@@ -1,18 +1,17 @@
-import {
-	MAConfig,
-	SMAConfig,
-	EMAConfig,
-	BBandsConfig,
-	MACDConfig,
-} from "./indicator-config";
-import { IndicatorValue } from "./indicator-value";
+// import type {
+// 	BBandsConfig,
+// 	EMAConfig,
+// 	MACDConfig,
+// 	MAConfig,
+// 	SMAConfig,
+// } from "./backup/indicator-config";
 
-export type IndicatorConfig =
-	| MAConfig
-	| SMAConfig
-	| EMAConfig
-	| BBandsConfig
-	| MACDConfig;
+// export type IndicatorConfig =
+// 	| MAConfig
+// 	| SMAConfig
+// 	| EMAConfig
+// 	| BBandsConfig
+// 	| MACDConfig;
 
 export enum MAType {
 	SMA = "SMA",
@@ -32,14 +31,15 @@ export enum IndicatorType {
 	EMA = "ema",
 	BBANDS = "bbands",
 	MACD = "macd",
+	RSI = "rsi",
 }
 
-export type IndicatorMap = {
-	[IndicatorType.SMA]: SMAConfig;
-	[IndicatorType.EMA]: EMAConfig;
-	[IndicatorType.BBANDS]: BBandsConfig;
-	[IndicatorType.MACD]: MACDConfig;
-};
+// export type IndicatorMap = {
+// 	[IndicatorType.SMA]: SMAConfig;
+// 	[IndicatorType.EMA]: EMAConfig;
+// 	[IndicatorType.BBANDS]: BBandsConfig;
+// 	[IndicatorType.MACD]: MACDConfig;
+// };
 
 export enum PriceSource {
 	CLOSE = "CLOSE",
@@ -47,5 +47,3 @@ export enum PriceSource {
 	HIGH = "HIGH",
 	LOW = "LOW",
 }
-
-export type { IndicatorValue };

@@ -1,35 +1,35 @@
 import {
-	SciChartSurface,
-	NumericAxis,
-	NumberRange,
-	ENumericFormat,
-	XyDataSeries,
-	FastColumnRenderableSeries,
-	ZoomExtentsModifier,
-	ZoomPanModifier,
-	MouseWheelZoomModifier,
-	EAxisAlignment,
-	IRenderableSeries,
-	FastMountainRenderableSeries,
-	RolloverModifier,
-	FastLineRenderableSeries,
 	CursorModifier,
 	DateTimeNumericAxis,
-	XAxisDragModifier,
-	YAxisDragModifier,
+	EAutoRange,
+	EAxisAlignment,
 	EDragMode,
+	ENumericFormat,
 	EResamplingMode,
 	easing,
-	EAutoRange,
+	FastColumnRenderableSeries,
+	FastLineRenderableSeries,
+	FastMountainRenderableSeries,
+	type IRenderableSeries,
+	MouseWheelZoomModifier,
+	NumberRange,
+	NumericAxis,
+	RolloverModifier,
+	SciChartDefaults,
+	SciChartSurface,
+	XAxisDragModifier,
+	XyDataSeries,
+	YAxisDragModifier,
+	ZoomExtentsModifier,
+	ZoomPanModifier,
 } from "scichart";
+import {
+	type IndicatorChartConfig,
+	type SeriesConfig,
+	SeriesType,
+} from "@/types/chart";
 import { appTheme } from "../theme";
-import { SeriesType, IndicatorChartConfig, SeriesConfig } from "@/types/chart";
-// import { parseCacheKey } from "@/utils/parseCacheKey";
-// import { IndicatorCacheKey } from "@/types/cache";
-// import { INDICATOR_CHART_CONFIG_MAP } from "@/types/indicator/indicator-chart-config";
-import { IndicatorValue } from "@/types/indicator";
 import { getRolloverLegendTemplate } from "../utils";
-import { SciChartDefaults } from "scichart";
 
 SciChartDefaults.debugDisableResampling = false;
 SciChartDefaults.performanceWarnings = false;
@@ -46,7 +46,7 @@ interface IndicatorUpdateContext {
 
 // 处理第一个指标数据点
 const handleFirstIndicatorData = (
-	data: IndicatorValue,
+	data: Record<string, number>,
 	context: IndicatorUpdateContext,
 ): { firstDataTimestamp: number } => {
 	const { dataSeries, xAxis, yAxis, indicatorChartConfig } = context;
@@ -103,7 +103,7 @@ const handleFirstIndicatorData = (
 
 // 调整指标图表Y轴范围
 const adjustIndicatorYAxisRange = (
-	data: IndicatorValue,
+	data: Record<string, number>,
 	yAxis: NumericAxis,
 	indicatorChartConfig: IndicatorChartConfig,
 ): void => {
@@ -194,7 +194,7 @@ const adjustIndicatorXAxisRangeForManyData = (
 
 // 处理指标数据更新
 const processIndicatorData = (
-	data: IndicatorValue,
+	data: Record<string, number>,
 	context: IndicatorUpdateContext,
 ): { firstDataTimestamp: number | null } => {
 	const {
@@ -252,7 +252,7 @@ const processIndicatorData = (
 			adjustIndicatorXAxisRangeForFewData(
 				newDataCount,
 				timestamp,
-				context.firstDataTimestamp!,
+				context.firstDataTimestamp ?? timestamp,
 				xAxis,
 			);
 		} else {
@@ -418,7 +418,7 @@ const initIndicatorChart = async (
 	let firstDataTimestamp: number | null = null;
 
 	// 处理多系列数据更新
-	const onNewData = (data: IndicatorValue) => {
+	const onNewData = (data: Record<string, number>) => {
 		if (!data) return;
 
 		// 构建指标更新上下文

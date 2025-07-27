@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { NodeItemProps } from "@/types/nodeCategory";
+import type { NodeItemProps } from "@/types/nodeCategory";
 
 interface DragAndDropState {
 	dragNodeItem: NodeItemProps | null;

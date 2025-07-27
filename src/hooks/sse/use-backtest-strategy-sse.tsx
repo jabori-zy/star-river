@@ -1,14 +1,14 @@
 import { useEffect, useRef } from "react";
-import {
-	BacktestStrategyEvent,
-	indicatorUpdateEvent,
-	klineUpdateEvent,
-	FuturesOrderFilledEvent,
-} from "@/types/strategy-event/backtest-strategy-event";
-import { BACKTESET_STRATEGY_SSE_URL } from "./index";
 import { useBacktestIndicatorDataStore } from "@/store/backtest-replay-store/use-backtest-indicator-store";
 import { useBacktestKlineDataStore } from "@/store/backtest-replay-store/use-backtest-kline-store";
 import { useBacktestOrderDataStore } from "@/store/backtest-replay-store/use-backtest-order-store";
+import type {
+	BacktestStrategyEvent,
+	FuturesOrderFilledEvent,
+	indicatorUpdateEvent,
+	klineUpdateEvent,
+} from "@/types/strategy-event/backtest-strategy-event";
+import { BACKTESET_STRATEGY_SSE_URL } from "./index";
 
 const supportBacktestEvents = [
 	"kline-update",

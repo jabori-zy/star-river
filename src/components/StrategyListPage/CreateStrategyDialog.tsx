@@ -1,20 +1,21 @@
 // 填写策略名称，策略描述等信息
+
+import { Loader2 } from "lucide-react";
+import { useState } from "react";
+import { useNavigate } from "react-router";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import {
 	Dialog,
 	DialogContent,
+	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogFooter,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { useNavigate } from "react-router";
-import { Loader2 } from "lucide-react";
-import { toast } from "sonner";
 import { createStrategy } from "@/service/strategy";
 
 interface CreateStrategyDialogProps {

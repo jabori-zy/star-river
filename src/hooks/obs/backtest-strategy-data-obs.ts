@@ -1,16 +1,15 @@
-import { Observable, Subject, BehaviorSubject } from "rxjs";
+import { BehaviorSubject, Observable, Subject } from "rxjs";
 import { filter, map, share, takeUntil } from "rxjs/operators";
-import {
+import type { Kline } from "@/types/kline";
+import type { VirtualOrder } from "@/types/order/virtual-order";
+import type {
 	BacktestStrategyEvent,
-	klineUpdateEvent,
-	indicatorUpdateEvent,
 	FuturesOrderFilledEvent,
+	indicatorUpdateEvent,
+	klineUpdateEvent,
 } from "@/types/strategy-event/backtest-strategy-event";
+import type { KeyStr } from "@/types/symbol-key";
 import { BACKTESET_STRATEGY_SSE_URL } from "../sse/index";
-import { Kline } from "@/types/kline";
-import { IndicatorValue } from "@/types/indicator";
-import { VirtualOrder } from "@/types/order/virtual-order";
-import { KeyStr } from "@/types/symbol-key";
 
 // SSE连接状态
 export enum SSEConnectionState {
@@ -127,7 +126,7 @@ class BacktestStrategyDataObservableService {
 	createIndicatorStreamFromKey(
 		keyStr: KeyStr,
 		enabled: boolean = true,
-	): Observable<IndicatorValue[]> {
+	): Observable<Record<string, number>[]> {
 		return this.createIndicatorStream(enabled).pipe(
 			filter((event) => event.indicatorKey === keyStr),
 			map((event) => event.indicatorSeries),
@@ -232,13 +231,13 @@ class BacktestStrategyDataObservableService {
 	private handleMessage(event: MessageEvent): void {
 		try {
 			const strategyEvent = JSON.parse(event.data) as BacktestStrategyEvent;
-			console.log("收到SSE消息:", strategyEvent);
+			// console.log("收到SSE消息:", strategyEvent);
 
 			// 处理K线更新事件
 			if (strategyEvent.event === "kline-update") {
 				const klineEvent = strategyEvent as klineUpdateEvent;
 
-				console.log("发送K线数据到Observable流:", klineEvent);
+				// console.log("发送K线数据到Observable流:", klineEvent);
 				this.klineDataSubject.next(klineEvent);
 			}
 
@@ -246,7 +245,7 @@ class BacktestStrategyDataObservableService {
 			if (strategyEvent.event === "indicator-update") {
 				const indicatorEvent = strategyEvent as indicatorUpdateEvent;
 
-				console.log("发送指标数据到Observable流:", indicatorEvent);
+				// console.log("发送指标数据到Observable流:", indicatorEvent);
 				this.indicatorDataSubject.next(indicatorEvent);
 			}
 
@@ -254,7 +253,7 @@ class BacktestStrategyDataObservableService {
 			if (strategyEvent.event === "futures-order-filled") {
 				const orderEvent = strategyEvent as FuturesOrderFilledEvent;
 
-				console.log("发送订单数据到Observable流:", orderEvent);
+				// console.log("发送订单数据到Observable流:", orderEvent);
 				this.orderDataSubject.next(orderEvent);
 			}
 		} catch (error) {

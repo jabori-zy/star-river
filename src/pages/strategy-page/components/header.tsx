@@ -1,9 +1,9 @@
-import { useState, memo } from "react";
+import { Check, X } from "lucide-react";
+import { memo, useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Strategy } from "@/types/strategy";
-import { Check, X } from "lucide-react";
+import type { Strategy } from "@/types/strategy";
 import { StrategyControl } from "./strategy-control";
 
 interface HeaderProps {

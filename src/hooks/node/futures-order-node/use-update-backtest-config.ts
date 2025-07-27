@@ -1,12 +1,12 @@
-import { useCallback, useState, useEffect } from "react";
 import { useReactFlow } from "@xyflow/react";
-import {
+import { useCallback, useEffect, useState } from "react";
+import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
+import type {
 	FuturesOrderNodeBacktestConfig,
 	FuturesOrderNodeBacktestExchangeModeConfig,
 } from "@/types/node/futures-order-node";
-import { FuturesOrderConfig } from "@/types/order";
-import { BacktestDataSource, TimeRange } from "@/types/strategy";
-import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
+import type { FuturesOrderConfig } from "@/types/order";
+import { BacktestDataSource, type TimeRange } from "@/types/strategy";
 
 interface UseUpdateBacktestConfigProps {
 	id: string;

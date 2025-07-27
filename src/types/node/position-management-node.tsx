@@ -1,5 +1,5 @@
-import { Node } from "@xyflow/react";
-import { SelectedAccount } from "@/types/strategy";
+import type { Node } from "@xyflow/react";
+import type { SelectedAccount } from "@/types/strategy";
 
 // 仓位操作类型
 export enum PositionOperation {

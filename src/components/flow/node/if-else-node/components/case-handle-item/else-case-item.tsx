@@ -1,5 +1,5 @@
-import BaseHandle from "@/components/flow/base/BaseHandle";
 import { Position } from "@xyflow/react";
+import BaseHandle from "@/components/flow/base/BaseHandle";
 
 interface ElseCaseItemProps {
 	handleId: string;

@@ -1,11 +1,11 @@
-import StartNodeSettingPanel from "../node/start-node/setting-panel";
-import KlineNodeSettingPanel from "../node/kline-node/setting-panel";
-import IndicatorNodeSettingPanel from "../node/indicator-node/setting-panel";
-import { IfElseNodeSettingPanel } from "../node/if-else-node";
-import { SettingPanelProps } from "../base/BasePanel/trade-mode-switcher";
 import { NodeType } from "@/types/node/index";
+import type { SettingPanelProps } from "../base/BasePanel/trade-mode-switcher";
 import { FuturesOrderNodeSettingPanel } from "../node/futures-order-node";
+import { IfElseNodeSettingPanel } from "../node/if-else-node";
+import IndicatorNodeSettingPanel from "../node/indicator-node/setting-panel";
+import KlineNodeSettingPanel from "../node/kline-node/setting-panel";
 import { PositionManagementNodeSettingPanel } from "../node/position-management-node";
+import StartNodeSettingPanel from "../node/start-node/setting-panel";
 import { VariableNodeSettingPanel } from "../node/variable-node";
 
 /**

@@ -1,11 +1,11 @@
+import { useReactFlow } from "@xyflow/react";
 import { useCallback, useEffect } from "react";
-import {
-	StrategyLiveConfig,
+import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
+import type {
 	SelectedAccount,
+	StrategyLiveConfig,
 	StrategyVariable,
 } from "@/types/strategy";
-import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
-import { useReactFlow } from "@xyflow/react";
 
 // 接口定义
 interface UseLiveConfigProps {

@@ -1,8 +1,8 @@
-import { StartNodeData } from "./start-node";
-import { KlineNodeData } from "./kline-node";
-import { IndicatorNodeData } from "./indicator-node";
-import { IfElseNodeData } from "./if-else-node";
-import { PositionManagementNodeData } from "./position-management-node";
+import type { IfElseNodeData } from "./if-else-node";
+import type { IndicatorNodeData } from "./indicator-node";
+import type { KlineNodeData } from "./kline-node";
+import type { PositionManagementNodeData } from "./position-management-node";
+import type { StartNodeData } from "./start-node";
 
 export enum NodeType {
 	StartNode = "startNode",

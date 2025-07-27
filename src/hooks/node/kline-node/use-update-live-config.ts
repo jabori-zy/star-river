@@ -1,7 +1,10 @@
-import { useCallback, useState } from "react";
 import { useReactFlow } from "@xyflow/react";
-import { KlineNodeLiveConfig, SelectedSymbol } from "@/types/node/kline-node";
-import { SelectedAccount } from "@/types/strategy";
+import { useCallback, useState } from "react";
+import type {
+	KlineNodeLiveConfig,
+	SelectedSymbol,
+} from "@/types/node/kline-node";
+import type { SelectedAccount } from "@/types/strategy";
 
 interface UseUpdateLiveConfigProps {
 	id: string;

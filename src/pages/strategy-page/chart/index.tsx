@@ -1,24 +1,5 @@
-import { useState, useEffect, useMemo } from "react";
-import { getStrategyCacheKeys } from "@/service/strategy";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
-import { parseKey } from "@/utils/parse-key";
-import { KlineKey, IndicatorKey } from "@/types/symbol-key";
-import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from "@/components/ui/dialog";
+import { useEffect, useMemo, useState } from "react";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -29,18 +10,35 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-
+import { Button } from "@/components/ui/button";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
+import MultipleSelector, { type Option } from "@/components/ui/multi-select";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import { getStrategyCacheKeys, updateStrategy } from "@/service/strategy";
+import { useStrategyStore } from "@/store/useStrategyStore";
+import type { StrategyChartConfig } from "@/types/strategyChartConfig";
+import type { IndicatorKey, KlineKey } from "@/types/symbol-key";
+import { parseKey } from "@/utils/parse-key";
+import ChartCard from "./components/ChartCard";
 // 导入自定义组件和工具函数
 import ChartHeader from "./components/ChartHeader";
-import ChartCard from "./components/ChartCard";
 import {
 	getIndicatorOptionsForKline,
 	renderKlineItem,
 } from "./utils/chartUtils";
-import MultipleSelector, { Option } from "@/components/ui/multi-select";
-import { StrategyChartConfig } from "@/types/strategyChartConfig";
-import { useStrategyStore } from "@/store/useStrategyStore";
-import { updateStrategy } from "@/service/strategy";
 
 export interface StrategyChartContentProps {
 	strategyId: number;

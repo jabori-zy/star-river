@@ -1,5 +1,6 @@
-import React, { useState, useRef, useCallback, useEffect } from "react";
 import { Plus, X } from "lucide-react";
+import type React from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import NodeListPanel from "./node-list-panel";
 

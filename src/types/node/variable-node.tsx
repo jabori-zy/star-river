@@ -1,6 +1,5 @@
-import { Node } from "@xyflow/react";
-import { SelectedAccount } from "@/types/strategy";
-import { BacktestDataSource } from "@/types/strategy";
+import type { Node } from "@xyflow/react";
+import type { BacktestDataSource, SelectedAccount } from "@/types/strategy";
 
 // 策略系统变量
 export enum StrategySysVariable {

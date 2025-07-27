@@ -1,15 +1,15 @@
-import React, { useCallback } from "react";
-import { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
-import { StartNodeData } from "@/types/node/start-node";
-import AccountSelector from "../components/account-selector";
-import VariableEditor from "../components/variable-editor";
-import {
-	StrategySimulateConfig,
+import { useReactFlow } from "@xyflow/react";
+import type React from "react";
+import { useCallback, useState } from "react";
+import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
+import type { StartNodeData } from "@/types/node/start-node";
+import type {
 	SelectedAccount,
+	StrategySimulateConfig,
 	StrategyVariable,
 } from "@/types/strategy";
-import { useState } from "react";
-import { useReactFlow } from "@xyflow/react";
+import AccountSelector from "../components/account-selector";
+import VariableEditor from "../components/variable-editor";
 
 // 新开始节点模拟模式设置面板
 export const StartNodeSimulationSettingPanel: React.FC<SettingProps> = ({

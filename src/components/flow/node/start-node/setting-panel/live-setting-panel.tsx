@@ -1,10 +1,10 @@
-import React from "react";
-import { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
-import { StartNodeData } from "@/types/node/start-node";
-import AccountSelector from "../components/account-selector";
-import VariableEditor from "../components/variable-editor";
+import type React from "react";
+import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
 import { useLiveConfig } from "@/hooks/node/start-node/use-update-live-config";
 import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
+import type { StartNodeData } from "@/types/node/start-node";
+import AccountSelector from "../components/account-selector";
+import VariableEditor from "../components/variable-editor";
 
 // 新开始节点实时模式设置面板
 export const StartNodeLiveSettingPanel: React.FC<SettingProps> = ({

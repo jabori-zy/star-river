@@ -1,12 +1,12 @@
-import Login from "../pages/login";
-import StrategyListPage from "../components/StrategyListPage";
 import { createBrowserRouter } from "react-router";
-import TestPage from "../pages/TestPage/index";
-import StrategyPage from "../pages/strategy-page";
 import AccountPage from "../components/AccountPage";
+import StrategyListPage from "../components/StrategyListPage";
 import BacktestPage from "../pages/backtest-page";
 import Dashboard from "../pages/Dashboard";
+import Login from "../pages/login";
 import SettingPage from "../pages/SettingPage";
+import StrategyPage from "../pages/strategy-page";
+import TestPage from "../pages/TestPage/index";
 
 const router = createBrowserRouter([
 	{

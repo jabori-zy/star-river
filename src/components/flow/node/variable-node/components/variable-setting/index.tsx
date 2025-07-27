@@ -1,9 +1,9 @@
-import { useState } from "react";
-import { type VariableConfig } from "@/types/node/variable-node";
-import { Button } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
-import VariableConfigItem from "./variable-config-item";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import type { VariableConfig } from "@/types/node/variable-node";
 import VariableConfigDialog from "./variable-config-dialog";
+import VariableConfigItem from "./variable-config-item";
 
 interface VariableSettingProps {
 	id: string;

@@ -1,10 +1,10 @@
-import React from "react";
+import type React from "react";
 import {
 	Select,
-	SelectTrigger,
-	SelectValue,
 	SelectContent,
 	SelectItem,
+	SelectTrigger,
+	SelectValue,
 } from "@/components/ui/select";
 import { PositionOperation } from "@/types/node/position-management-node";
 

@@ -1,10 +1,10 @@
-import { useCallback, useState, useEffect } from "react";
 import { useReactFlow } from "@xyflow/react";
-import {
-	PositionSimulateConfig,
+import { useCallback, useEffect, useState } from "react";
+import type {
 	PositionOperationConfig,
+	PositionSimulateConfig,
 } from "@/types/node/position-management-node";
-import { SelectedAccount } from "@/types/strategy";
+import type { SelectedAccount } from "@/types/strategy";
 
 interface UseUpdateSimulateConfigProps {
 	id: string;

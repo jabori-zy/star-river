@@ -1,4 +1,4 @@
-import { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
+import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
 
 const IfElseNodeSimSettingPanel: React.FC<SettingProps> = ({ id, data }) => {
 	return (

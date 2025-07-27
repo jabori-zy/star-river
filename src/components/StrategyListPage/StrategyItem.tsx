@@ -1,21 +1,14 @@
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
-	Eye,
 	ArrowUpRight,
+	Eye,
 	MoreVertical,
-	Play,
 	Pause,
+	Play,
 	Trash2,
 } from "lucide-react";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { useState } from "react";
+import { useNavigate } from "react-router";
+import { toast } from "sonner";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -27,13 +20,20 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useState } from "react";
-import { toast } from "sonner";
-import { useNavigate } from "react-router";
-import { StrategyItemProps } from "@/types/strategy";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useSidebar } from "@/components/ui/sidebar";
 import { deleteStrategy } from "@/service/strategy";
 import useSidebarToggleStore from "@/store/use-sidebar-toggle-store";
-import { useSidebar } from "@/components/ui/sidebar";
+import type { StrategyItemProps } from "@/types/strategy";
 
 export function StrategyItem({
 	strategyId,

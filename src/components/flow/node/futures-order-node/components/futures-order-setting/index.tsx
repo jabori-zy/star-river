@@ -1,9 +1,9 @@
-import { useState } from "react";
-import { type FuturesOrderConfig } from "@/types/order";
-import { Button } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
-import OrderConfigItem from "./order-config-item";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import type { FuturesOrderConfig } from "@/types/order";
 import OrderConfigDialog from "./order-config-dialog";
+import OrderConfigItem from "./order-config-item";
 
 interface FuturesOrderSettingProps {
 	nodeId: string;

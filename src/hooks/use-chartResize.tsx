@@ -1,5 +1,5 @@
+import type HighchartsReact from "highcharts-react-official";
 import { useEffect } from "react";
-import HighchartsReact from "highcharts-react-official";
 
 interface ChartResizeOptions {
 	width?: number | string; // 可以是数字或百分比字符串

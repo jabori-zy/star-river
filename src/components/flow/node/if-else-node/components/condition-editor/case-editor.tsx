@@ -1,16 +1,16 @@
-import { NodeData } from "@/types/node/index";
-import ConditionSetting from "./condition-setting";
+import { GripVertical, RefreshCcw, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { RefreshCcw, Trash2, GripVertical } from "lucide-react";
-import { VariableItem } from "@/hooks/flow/use-strategy-workflow";
+import type { VariableItem } from "@/hooks/flow/use-strategy-workflow";
 import {
-	CaseItem,
-	Condition,
+	type CaseItem,
 	ComparisonSymbol,
-	VarType,
+	type Condition,
 	LogicalSymbol,
+	VarType,
 } from "@/types/node/if-else-node";
-import { useState, useEffect } from "react";
+import type { NodeData } from "@/types/node/index";
+import ConditionSetting from "./condition-setting";
 
 interface CaseEditorProps {
 	id: string;

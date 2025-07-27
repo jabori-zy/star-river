@@ -1,10 +1,10 @@
-import React from "react";
-import {
+import type React from "react";
+import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import type {
 	IndicatorNodeData,
 	IndicatorNodeLiveConfig,
 } from "@/types/node/indicator-node";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import { IndicatorItem } from "./index";
 
 interface LiveModeShowProps {

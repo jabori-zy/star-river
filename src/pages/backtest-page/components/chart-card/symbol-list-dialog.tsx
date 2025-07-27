@@ -1,14 +1,14 @@
-import { useState, useEffect, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
 	Dialog,
 	DialogContent,
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { KlineKey, IndicatorKey } from "@/types/symbol-key";
 import { getStrategyCacheKeys } from "@/service/strategy";
+import type { IndicatorKey, KlineKey } from "@/types/symbol-key";
 import { parseKey } from "@/utils/parse-key";
 
 interface SymbolListDialogProps {
@@ -36,10 +36,7 @@ export default function SymbolListDialog({
 		setLoading(true);
 		try {
 			const keys = await getStrategyCacheKeys(strategyId);
-			const parsedKeyMap: Record<
-				string,
-				KlineKey | IndicatorKey
-			> = {};
+			const parsedKeyMap: Record<string, KlineKey | IndicatorKey> = {};
 
 			keys.forEach((keyString) => {
 				parsedKeyMap[keyString] = parseKey(keyString) as

@@ -1,9 +1,9 @@
-import { useState, useEffect, useMemo, memo } from "react";
 import { useReactFlow } from "@xyflow/react";
-import BasePanel from "@/components/flow/base/BasePanel";
 import { Play } from "lucide-react";
+import { memo, useEffect, useMemo, useState } from "react";
+import BasePanel from "@/components/flow/base/BasePanel";
+import type { NodeData, NodeType } from "@/types/node/index";
 import { PanelComponentMap } from "./constants";
-import { NodeData, NodeType } from "@/types/node/index";
 
 /**
  * 所有节点的面板。根据选择的节点，在同一个面板中，切换不同节点的面板

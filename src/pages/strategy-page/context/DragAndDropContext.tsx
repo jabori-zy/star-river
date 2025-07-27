@@ -1,5 +1,5 @@
 import { createContext, useState } from "react";
-import { NodeItemProps } from "@/types/node";
+import type { NodeItemProps } from "@/types/node";
 
 type DragAndDropContextType = [
 	NodeItemProps | null,

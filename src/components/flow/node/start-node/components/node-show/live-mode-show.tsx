@@ -1,17 +1,17 @@
-import { Label } from "@/components/ui/label";
+import { AtSign, ChevronDown, ChevronRight, Variable } from "lucide-react";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import {
-	StrategyLiveConfig,
-	SelectedAccount,
-	StrategyVariable,
-} from "@/types/strategy";
 import {
 	Collapsible,
 	CollapsibleContent,
 	CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { AtSign, Variable, ChevronRight, ChevronDown } from "lucide-react";
-import { useState } from "react";
+import { Label } from "@/components/ui/label";
+import type {
+	SelectedAccount,
+	StrategyLiveConfig,
+	StrategyVariable,
+} from "@/types/strategy";
 
 interface LiveNodeShowProps {
 	liveConfig: StrategyLiveConfig;

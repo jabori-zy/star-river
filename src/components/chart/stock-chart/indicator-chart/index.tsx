@@ -1,19 +1,21 @@
 import React, {
-	useRef,
-	useImperativeHandle,
 	forwardRef,
+	useImperativeHandle,
+	useRef,
 	useState,
 } from "react";
-import { SciChartReact, TResolvedReturnType } from "scichart-react";
-import { AxisBase2D, SciChartSurface, XyDataSeries } from "scichart";
-import { Subscription } from "rxjs";
-import initIndicatorChart from "./init-indicator-chart";
-import { IndicatorValue } from "@/types/indicator";
-import { IndicatorChartConfig, KlineChartConfig } from "@/types/chart";
+import type { Subscription } from "rxjs";
+import type { AxisBase2D, SciChartSurface, XyDataSeries } from "scichart";
+import { SciChartReact, type TResolvedReturnType } from "scichart-react";
 import { createIndicatorStreamFromKey } from "@/hooks/obs/backtest-strategy-data-obs";
-import { SubChartConfig } from "@/types/chart";
+import type {
+	IndicatorChartConfig,
+	KlineChartConfig,
+	SubChartConfig,
+} from "@/types/chart";
 import ChartEditButton from "../chart-edit-button";
 import ChartEditDialog from "../components/chart-edit-dialog";
+import initIndicatorChart from "./init-indicator-chart";
 
 interface IndicatorChartProps {
 	enabled?: boolean; // 是否启用Observable数据流
@@ -39,7 +41,7 @@ const IndicatorChart = forwardRef<IndicatorChartRef, IndicatorChartProps>(
 		ref,
 	) => {
 		const chartControlsRef = useRef<{
-			onNewData: (data: IndicatorValue) => void;
+			onNewData: (data: Record<string, number>) => void;
 			getDataSeries: () => XyDataSeries[];
 			getIndicatorConfig: () => IndicatorChartConfig;
 			clearChartData: () => void;
@@ -98,19 +100,21 @@ const IndicatorChart = forwardRef<IndicatorChartRef, IndicatorChartProps>(
 						indicatorCacheKeyStr,
 						enabled,
 					);
-					subscription = obs.subscribe((indicatorData: IndicatorValue[]) => {
-						console.log(`=== 收到指标数据流更新 ===`);
-						console.log(`数据长度: ${indicatorData.length}`);
+					subscription = obs.subscribe(
+						(indicatorData: Record<string, number>[]) => {
+							console.log(`=== 收到指标数据流更新 ===`);
+							console.log(`数据长度: ${indicatorData.length}`);
 
-						if (indicatorData.length > 0) {
-							// 取最新的指标数据
-							const latestIndicator = indicatorData[indicatorData.length - 1];
-							console.log(`最新指标:`, latestIndicator);
+							if (indicatorData.length > 0) {
+								// 取最新的指标数据
+								const latestIndicator = indicatorData[indicatorData.length - 1];
+								console.log(`最新指标:`, latestIndicator);
 
-							// 直接调用图表更新方法
-							controls.onNewData(latestIndicator);
-						}
-					});
+								// 直接调用图表更新方法
+								controls.onNewData(latestIndicator);
+							}
+						},
+					);
 				}
 
 				return { sciChartSurface, controls, subscription };

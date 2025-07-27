@@ -1,5 +1,5 @@
 import {
-	IThemeProvider,
+	type IThemeProvider,
 	SciChartJSLightTheme,
 	SciChartJsNavyTheme,
 } from "scichart";

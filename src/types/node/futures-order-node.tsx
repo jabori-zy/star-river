@@ -1,10 +1,10 @@
-import { Node } from "@xyflow/react";
-import {
-	SelectedAccount,
+import type { Node } from "@xyflow/react";
+import type { FuturesOrderConfig } from "@/types/order";
+import type {
 	BacktestDataSource,
+	SelectedAccount,
 	TimeRange,
 } from "@/types/strategy";
-import { FuturesOrderConfig } from "@/types/order";
 
 export type FuturesOrderNodeLiveConfig = {
 	futuresOrderConfigs: FuturesOrderConfig[];

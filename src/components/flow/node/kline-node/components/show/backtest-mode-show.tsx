@@ -1,7 +1,7 @@
-import React from "react";
-import { KlineNodeBacktestConfig } from "@/types/node/kline-node";
-import { Label } from "@/components/ui/label";
+import type React from "react";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import type { KlineNodeBacktestConfig } from "@/types/node/kline-node";
 import { SymbolItem } from "../index";
 
 interface BacktestModeShowProps {

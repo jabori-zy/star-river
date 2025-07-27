@@ -19,13 +19,8 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import {
-	IndicatorType,
-	type IndicatorValue,
-	MAType,
-	PriceSource,
-} from "@/types/indicator";
-import { getIndicatorConfig } from "@/types/indicator/indicator-config-new";
+import { IndicatorType, MAType, PriceSource } from "@/types/indicator";
+import { getIndicatorConfig } from "@/types/indicator/indicator-config";
 import type { SelectedIndicator } from "@/types/node/indicator-node";
 
 interface EditDialogProps {
@@ -102,7 +97,7 @@ const EditDialog: React.FC<EditDialogProps> = ({
 				value: IndicatorType.MACD,
 				label: "MACD",
 				icon: TrendingUp,
-			}
+			},
 		];
 	};
 
@@ -155,7 +150,7 @@ const EditDialog: React.FC<EditDialogProps> = ({
 				// 设置默认值
 				const configInstance = getIndicatorConfig(IndicatorType.MA);
 				if (configInstance) {
-					const defaultConfig = configInstance.getConfig();
+					const defaultConfig = configInstance.getDefaultConfig();
 					setFormData({ ...defaultConfig } as Partial<FormData>);
 				}
 			}
@@ -167,20 +162,20 @@ const EditDialog: React.FC<EditDialogProps> = ({
 		if (isOpen && !isEditing) {
 			const configInstance = getCurrentConfigInstance();
 			if (configInstance) {
-				const defaultConfig = configInstance.getConfig();
+				const defaultConfig = configInstance.getDefaultConfig();
 				setFormData({ ...defaultConfig } as Partial<FormData>);
 			}
 		}
 	}, [isOpen, isEditing, getCurrentConfigInstance]);
 
 	// 根据指标类型创建初始值
-	const createInitialValue = (type: IndicatorType): IndicatorValue => {
+	const createInitialValue = (type: IndicatorType): Record<string, number> => {
 		const configInstance = getIndicatorConfig(type);
 		if (configInstance) {
-			return configInstance.getValue() as IndicatorValue;
+			return configInstance.getValue() as Record<string, number>;
 		}
 		// 默认返回
-		return { timestamp: 0, ma: 0 } as IndicatorValue;
+		return { timestamp: 0, ma: 0 } as Record<string, number>;
 	};
 
 	// 创建指标配置
@@ -205,7 +200,7 @@ const EditDialog: React.FC<EditDialogProps> = ({
 		});
 
 		// 获取配置
-		const config = configInstance.getConfig();
+		const config = configInstance.getDefaultConfig();
 
 		return {
 			indicatorId: index + 1,

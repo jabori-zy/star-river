@@ -1,9 +1,9 @@
-import React, { ReactNode, useState } from "react";
 import { type NodeProps, useReactFlow } from "@xyflow/react";
-import { type LucideIcon } from "lucide-react";
-import { BaseHandleProps } from "../BaseHandle";
-import BaseHandle from "../BaseHandle";
+import type { LucideIcon } from "lucide-react";
+import type React from "react";
+import { type ReactNode, useState } from "react";
 import { useChangeNodeName } from "@/hooks/node/use-change-node-name";
+import BaseHandle, { type BaseHandleProps } from "../BaseHandle";
 
 // BaseNode的属性接口
 //这是TypeScript的工具类型，作用是从NodeProps类型中只选择selected属性

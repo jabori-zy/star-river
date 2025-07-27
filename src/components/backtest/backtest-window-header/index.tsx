@@ -1,7 +1,7 @@
-import React from "react";
-import { Button } from "@/components/ui/button";
 import { Minus, Square, X } from "lucide-react";
+import type React from "react";
 import QuitConfirmBox from "@/components/quit-confirm-box";
+import { Button } from "@/components/ui/button";
 
 // 声明electron的require
 const { ipcRenderer } = window.require

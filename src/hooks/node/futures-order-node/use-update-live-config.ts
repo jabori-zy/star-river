@@ -1,8 +1,8 @@
-import { useCallback, useState, useEffect } from "react";
 import { useReactFlow } from "@xyflow/react";
-import { FuturesOrderNodeLiveConfig } from "@/types/node/futures-order-node";
-import { FuturesOrderConfig } from "@/types/order";
-import { SelectedAccount } from "@/types/strategy";
+import { useCallback, useEffect, useState } from "react";
+import type { FuturesOrderNodeLiveConfig } from "@/types/node/futures-order-node";
+import type { FuturesOrderConfig } from "@/types/order";
+import type { SelectedAccount } from "@/types/strategy";
 
 interface UseUpdateLiveConfigProps {
 	id: string;

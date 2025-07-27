@@ -1,4 +1,4 @@
-import { parseIndicatorConfigNew } from "@/types/indicator/indicator-config-new";
+import { parseIndicatorConfigNew } from "@/types/indicator/indicator-config";
 import type { KlineInterval } from "@/types/kline";
 import type { IndicatorType } from "../types/indicator";
 import type { IndicatorKey, Key, KlineKey } from "../types/symbol-key";
@@ -7,9 +7,9 @@ import type { IndicatorKey, Key, KlineKey } from "../types/symbol-key";
  * 解析缓存键字符串为相应类型
  */
 export function parseKey(keyStr: string): Key {
+	console.log("keyStr", keyStr);
 	const parts = keyStr.split("|");
 	const type = parts[0];
-	console.log("key_type", type);
 
 	if (type === "kline") {
 		return {
@@ -19,7 +19,8 @@ export function parseKey(keyStr: string): Key {
 			startTime: parts[4],
 			endTime: parts[5],
 		} as KlineKey;
-	} else if (type === "indicator") {
+	} 
+	else if (type === "indicator") {
 		const indicatorConfigStr = parts[4];
 		const indicatorType = indicatorConfigStr.split("(")[0] as IndicatorType;
 
@@ -28,7 +29,7 @@ export function parseKey(keyStr: string): Key {
 			indicatorType,
 			indicatorConfigStr,
 		);
-		console.log("indicatorConfig", indicatorConfig);
+		// console.log("indicatorConfig", indicatorConfig);
 
 		if (!indicatorConfig) {
 			throw new Error(`无法解析指标配置: ${indicatorConfigStr}`);

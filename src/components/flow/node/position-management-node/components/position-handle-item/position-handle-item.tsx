@@ -1,9 +1,9 @@
 import {
 	PositionOperation,
-	PositionOperationConfig,
+	type PositionOperationConfig,
 } from "@/types/node/position-management-node";
-import { UpdateHandleItem } from "./opt/update-handle-item";
 import { CloseAllHandleItem } from "./opt/close-all-handle-item";
+import { UpdateHandleItem } from "./opt/update-handle-item";
 
 interface PositionHandleItemProps {
 	id: string; // 节点id

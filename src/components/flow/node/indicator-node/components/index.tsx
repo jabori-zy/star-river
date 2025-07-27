@@ -1,10 +1,12 @@
-import BaseHandle from "@/components/flow/base/BaseHandle";
 import { Position } from "@xyflow/react";
-
-import { MAType,PriceSource,IndicatorType } from "@/types/indicator";
-import type { SelectedIndicator } from "@/types/node/indicator-node";
-import { getIndicatorConfig, getIndicatorDisplayName } from "@/types/indicator/indicator-config-new";
+import BaseHandle from "@/components/flow/base/BaseHandle";
 import { Badge } from "@/components/ui/badge";
+import { type IndicatorType, MAType, PriceSource } from "@/types/indicator";
+import {
+	getIndicatorConfig,
+	getIndicatorDisplayName,
+} from "@/types/indicator/indicator-config";
+import type { SelectedIndicator } from "@/types/node/indicator-node";
 
 // 价格源选项映射
 const PRICE_SOURCE_LABELS: Record<PriceSource, string> = {
@@ -38,13 +40,16 @@ const getPriceSourceLabel = (priceSource: PriceSource): string => {
 };
 
 // 根据新的配置结构获取指标参数显示文本
-const getIndicatorParams = (indicatorType: IndicatorType, indicatorConfig: Record<string, unknown>): string => {
+const getIndicatorParams = (
+	indicatorType: IndicatorType,
+	indicatorConfig: Record<string, unknown>,
+): string => {
 	const configInstance = getIndicatorConfig(indicatorType);
 	if (!configInstance) return "";
 
 	// 构建显示文本（排除价格源，单独显示）
 	const paramParts: string[] = [];
-	
+
 	Object.entries(configInstance.params).forEach(([key, param]) => {
 		const value = indicatorConfig[key];
 		if (value !== undefined && key !== "priceSource") {
@@ -67,7 +72,7 @@ interface IndicatorItemProps {
 
 export function IndicatorItem({ indicator, handleId }: IndicatorItemProps) {
 	const priceSource = indicator.indicatorConfig.priceSource as PriceSource;
-	
+
 	return (
 		<div className="flex items-center justify-between px-2 py-2 bg-gray-100 rounded-md relative">
 			<div className="flex items-center gap-2 justify-between w-full">
@@ -79,7 +84,10 @@ export function IndicatorItem({ indicator, handleId }: IndicatorItemProps) {
 						</span>
 					</div>
 					<div className="text-xs text-muted-foreground">
-						{getIndicatorParams(indicator.indicatorType, indicator.indicatorConfig)}
+						{getIndicatorParams(
+							indicator.indicatorType,
+							indicator.indicatorConfig,
+						)}
 						{priceSource && ` | ${getPriceSourceLabel(priceSource)}`}
 					</div>
 				</div>

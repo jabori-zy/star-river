@@ -1,5 +1,5 @@
+import type { ReactNode } from "react";
 import { create } from "zustand";
-import { ReactNode } from "react";
 
 interface HeaderStore {
 	centerContent: ReactNode | null;

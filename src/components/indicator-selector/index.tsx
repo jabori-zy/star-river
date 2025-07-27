@@ -1,5 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { parseKey } from "@/utils/parse-key";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import {
 	Select,
@@ -8,13 +7,10 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import {
-	KlineKey,
-	IndicatorKey,
-	Key,
-} from "@/types/symbol-key";
 import { getStrategyCacheKeys } from "@/service/strategy";
-import { IndicatorOption, getIndicatorConfigDisplay } from "./utils";
+import type { IndicatorKey, Key, KlineKey } from "@/types/symbol-key";
+import { parseKey } from "@/utils/parse-key";
+import { getIndicatorConfigDisplay, type IndicatorOption } from "./utils";
 
 interface IndicatorSelectorProps {
 	klineKeyStr: string; // K线指标的缓存键
@@ -113,7 +109,10 @@ export default function IndicatorSelector({
 	// 渲染指标选项
 	const renderIndicatorOption = (option: IndicatorOption) => {
 		console.log(option);
-		const configDisplay = getIndicatorConfigDisplay(option.indicatorConfig, option.indicatorType);
+		const configDisplay = getIndicatorConfigDisplay(
+			option.indicatorConfig,
+			option.indicatorType,
+		);
 		console.log(configDisplay);
 		return (
 			<div className="flex items-center gap-2">

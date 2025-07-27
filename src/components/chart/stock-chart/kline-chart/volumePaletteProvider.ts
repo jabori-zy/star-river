@@ -1,10 +1,10 @@
 import {
-	OhlcDataSeries,
-	IRenderableSeries,
-	IPointMetadata,
-	parseColorToUIntArgb,
 	EFillPaletteMode,
-	IFillPaletteProvider,
+	type IFillPaletteProvider,
+	type IPointMetadata,
+	type IRenderableSeries,
+	type OhlcDataSeries,
+	parseColorToUIntArgb,
 } from "scichart";
 
 // Class which manages red/green fill colouring on Volume column series depending on if the candle is up or down

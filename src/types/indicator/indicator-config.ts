@@ -1,12 +1,12 @@
-import { IndicatorType } from "./index";
-import { IndicatorChartConfig } from "../chart";
-import { 
-	IndicatorTypeSchema, 
-	IndicatorParam, 
-	IndicatorValueConfig 
-} from "./schemas";
+import type { IndicatorKey } from "@/types/symbol-key";
 import { parseKey } from "@/utils/parse-key";
-import { IndicatorKey } from "@/types/symbol-key";
+import type { IndicatorChartConfig } from "../chart";
+import { IndicatorType } from "./index";
+import {
+	type IndicatorParam,
+	IndicatorTypeSchema,
+	type IndicatorValueConfig,
+} from "./schemas";
 
 // 基础指标配置接口
 export interface BaseIndicatorConfig {
@@ -14,8 +14,20 @@ export interface BaseIndicatorConfig {
 	displayName: string;
 	description?: string;
 	chartConfig: IndicatorChartConfig;
-	indicatorValue: IndicatorValueConfig;
+	indicatorValueConfig: IndicatorValueConfig;
 	getValue(): Record<string, number>;
+}
+
+// 默认的getValue实现工具函数
+export function getIndicatorValues(
+	indicatorValueConfig: IndicatorValueConfig,
+): Record<string, number> {
+	return Object.fromEntries(
+		Object.entries(indicatorValueConfig).map(([key, value]) => [
+			key,
+			value.value,
+		]),
+	);
 }
 
 // 通用指标配置接口
@@ -25,13 +37,13 @@ export interface IndicatorConfig<
 	params: {
 		[K in keyof T]-?: IndicatorParam;
 	};
-	getConfig(): T;
-	parseIndicatorConfigFromKeyStr(
-		indicatorType: IndicatorType,
-		indicatorConfigStr: string,
-	): T | undefined;
+	getDefaultConfig(): T; // 获取默认配置
+	parseIndicatorConfigFromKeyStr(indicatorType: IndicatorType,indicatorConfigStr: string,): T | undefined;
 	validateConfig(config: unknown): config is T;
+	// getSeriesName(seriesName: string): string;
 }
+
+
 
 // 解析键字符串为参数映射
 export function parseKeyStrToMap(keyStr: string): Map<string, string> {
@@ -134,7 +146,9 @@ export function getIndicatorDisplayName(indicatorType: IndicatorType): string {
 	return config?.displayName || "";
 }
 
-export function getIndciatorChartConfigFromKeyStr(keyStr: string): IndicatorChartConfig | undefined {
+export function getIndciatorChartConfigFromKeyStr(
+	keyStr: string,
+): IndicatorChartConfig | undefined {
 	const indicatorKey = parseKey(keyStr) as IndicatorKey;
 	if (!indicatorKey) return undefined;
 	const indicatorType = indicatorKey.indicatorType;
@@ -142,4 +156,3 @@ export function getIndciatorChartConfigFromKeyStr(keyStr: string): IndicatorChar
 	if (!config) return undefined;
 	return config.chartConfig;
 }
-

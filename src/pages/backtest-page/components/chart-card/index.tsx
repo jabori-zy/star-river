@@ -1,5 +1,6 @@
 // import RealtimeTickingStockCharts from "@/components/chart/SciChart";
-import { Ellipsis, Trash2, Search, ChartSpline } from "lucide-react";
+import { ChartSpline, Ellipsis, Search, Trash2 } from "lucide-react";
+import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 import StockCharts from "@/components/chart/stock-chart";
 // import KlineChartWithObservable from "@/components/chart/stock-chart/kline-chart/kline-chart-with-observable";
 // import StockChart from "@/components/chart/stock-chart-new";
@@ -12,11 +13,10 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { BacktestChart } from "@/types/chart/backtest-chart";
-import SymbolListDialog from "./symbol-list-dialog";
+import type { IndicatorChartConfig, SubChartConfig } from "@/types/chart";
+import type { BacktestChart } from "@/types/chart/backtest-chart";
 import AddIndicatorDialog from "./add-indicator-dialog";
-import { useState, useRef, useImperativeHandle, forwardRef } from "react";
-import { IndicatorChartConfig, SubChartConfig } from "@/types/chart";
+import SymbolListDialog from "./symbol-list-dialog";
 
 interface ChartCardProps {
 	chartConfig: BacktestChart;

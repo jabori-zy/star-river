@@ -1,5 +1,5 @@
-import React from "react";
-import { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
+import type React from "react";
+import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
 
 // 新开始节点实时模式设置面板
 export const StartNodeSimSettingPanel: React.FC<SettingProps> = ({

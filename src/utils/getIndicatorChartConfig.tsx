@@ -1,5 +1,5 @@
-import { IndicatorKey } from "@/types/symbol-key";
 import { IndicatorType } from "@/types/indicator";
+import type { IndicatorKey } from "@/types/symbol-key";
 
 export interface IndicatorSeriesConfig {
 	id: string;

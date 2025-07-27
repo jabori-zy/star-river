@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import { KeyStr } from "@/types/symbol-key";
-import { Kline } from "@/types/kline";
+import type { Kline } from "@/types/kline";
+import type { KeyStr } from "@/types/symbol-key";
 
 // 定义缓存大小常量
 const MAX_CACHE_SIZE = 20;

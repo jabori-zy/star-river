@@ -1,7 +1,12 @@
-import { NodeChange, Node, Edge, getOutgoers } from "@xyflow/react";
-import { StartNodeData } from "@/types/node/start-node";
-import { KlineNodeData } from "@/types/node/kline-node";
-import { TimeRange, SelectedAccount } from "@/types/strategy";
+import {
+	type Edge,
+	getOutgoers,
+	type Node,
+	type NodeChange,
+} from "@xyflow/react";
+import type { KlineNodeData } from "@/types/node/kline-node";
+import type { StartNodeData } from "@/types/node/start-node";
+import type { SelectedAccount, TimeRange } from "@/types/strategy";
 
 // 检查时间范围是否发生变化
 export const hasTimeRangeChanged = (

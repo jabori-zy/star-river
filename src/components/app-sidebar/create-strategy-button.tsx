@@ -1,8 +1,8 @@
 import { Plus } from "lucide-react";
 import {
 	SidebarMenu,
-	SidebarMenuItem,
 	SidebarMenuButton,
+	SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
 const CreateStrategyButton = () => {

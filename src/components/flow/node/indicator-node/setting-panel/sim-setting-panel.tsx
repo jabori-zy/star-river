@@ -1,13 +1,13 @@
-import { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
-import { IndicatorNodeData } from "@/types/node/indicator-node";
-import { TradeMode } from "@/types/strategy";
 import { useNodeConnections } from "@xyflow/react";
+import { Activity, AlertCircle } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useUpdateLiveConfig } from "@/hooks/node/indicator-node/use-update-live-config";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
+import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, Activity } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import { useUpdateLiveConfig } from "@/hooks/node/indicator-node/use-update-live-config";
+import type { IndicatorNodeData } from "@/types/node/indicator-node";
+import { TradeMode } from "@/types/strategy";
 
 const IndicatorNodeSimSettingPanel: React.FC<SettingProps> = ({ id, data }) => {
 	const indicatorNodeData = data as IndicatorNodeData;

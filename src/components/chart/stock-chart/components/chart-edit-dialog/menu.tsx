@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button";
 import { BarChart3, TrendingUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export type MenuType = "kline" | "indicator";
 

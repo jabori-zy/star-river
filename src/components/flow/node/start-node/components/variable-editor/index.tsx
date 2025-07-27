@@ -1,12 +1,7 @@
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import { AlignLeft, Hash, Plus, Settings, Variable, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipProvider,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
 import {
 	Dialog,
 	DialogContent,
@@ -19,13 +14,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
 	Select,
-	SelectTrigger,
-	SelectValue,
 	SelectContent,
 	SelectItem,
+	SelectTrigger,
+	SelectValue,
 } from "@/components/ui/select";
-import { Settings, X, Hash, AlignLeft, Plus, Variable } from "lucide-react";
-import { StrategyVariable, StrategyVariableType } from "@/types/strategy";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { type StrategyVariable, StrategyVariableType } from "@/types/strategy";
 
 interface VariableEditorProps {
 	variables: StrategyVariable[];

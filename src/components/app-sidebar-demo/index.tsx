@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import {
 	BookOpen,
 	Bot,
@@ -13,6 +12,7 @@ import {
 	Settings2,
 	SquareTerminal,
 } from "lucide-react";
+import type * as React from "react";
 
 import { NavMain } from "@/components/app-sidebar-demo/nav-main";
 import {

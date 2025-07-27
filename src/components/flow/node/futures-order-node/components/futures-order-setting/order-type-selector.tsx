@@ -1,14 +1,14 @@
-import React from "react";
-import { OrderType } from "@/types/order";
+import { ShoppingCart, TrendingUp } from "lucide-react";
+import type React from "react";
+import { Label } from "@/components/ui/label";
 import {
 	Select,
-	SelectTrigger,
-	SelectValue,
 	SelectContent,
 	SelectItem,
+	SelectTrigger,
+	SelectValue,
 } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
-import { TrendingUp, ShoppingCart } from "lucide-react";
+import { OrderType } from "@/types/order";
 
 interface OrderTypeSelectorProps {
 	value: OrderType;

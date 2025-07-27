@@ -1,14 +1,14 @@
-import React from "react";
-import { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
-import { StartNodeData } from "@/types/node/start-node";
-import AccountSelector from "../components/account-selector";
-import VariableEditor from "../components/variable-editor";
-import { BacktestDataSource } from "@/types/strategy";
-import DataSourceSelector from "../components/data-source-selector";
-import TimeRangeSelector from "../components/time-range-selector";
-import BacktestStrategySetting from "../components/backtest-strategy-setting";
+import type React from "react";
+import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
 import { useBacktestConfig } from "@/hooks/node/start-node/use-update-backtest-config";
 import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
+import type { StartNodeData } from "@/types/node/start-node";
+import { BacktestDataSource } from "@/types/strategy";
+import AccountSelector from "../components/account-selector";
+import BacktestStrategySetting from "../components/backtest-strategy-setting";
+import DataSourceSelector from "../components/data-source-selector";
+import TimeRangeSelector from "../components/time-range-selector";
+import VariableEditor from "../components/variable-editor";
 
 // 新开始节点回测模式设置面板
 export const StartNodeBacktestSettingPanel: React.FC<SettingProps> = ({

@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { SelectedAccount } from "@/types/strategy";
+import type React from "react";
+import { useEffect, useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import {
 	Select,
 	SelectContent,
@@ -7,7 +8,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
+import type { SelectedAccount } from "@/types/strategy";
 
 interface OptAccountSelectorProps {
 	accountList: SelectedAccount[];

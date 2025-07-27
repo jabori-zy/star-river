@@ -1,7 +1,10 @@
-import { useCallback, useState } from "react";
 import { useReactFlow } from "@xyflow/react";
-import { CaseItem, LogicalSymbol } from "@/types/node/if-else-node";
-import { IfElseNodeLiveConfig } from "@/types/node/if-else-node";
+import { useCallback, useState } from "react";
+import {
+	type CaseItem,
+	type IfElseNodeLiveConfig,
+	LogicalSymbol,
+} from "@/types/node/if-else-node";
 
 interface UseUpdateLiveConfigProps {
 	id: string;

@@ -1,5 +1,5 @@
 import type { Node } from "@xyflow/react";
-import type { IndicatorValue, IndicatorType } from "@/types/indicator";
+import type { IndicatorType } from "@/types/indicator";
 import type { Exchange } from "@/types/market";
 import type {
 	BacktestDataSource,
@@ -14,7 +14,7 @@ export type SelectedIndicator = {
 	outputHandleId: string; // 出口id, 用于连接到其他节点
 	indicatorType: IndicatorType; // 指标类型
 	indicatorConfig: Record<string, unknown>; // 使用新结构的 getConfig() 返回值
-	value: IndicatorValue;
+	value: Record<string, number>;
 };
 
 // 实盘交易指标配置

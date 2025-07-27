@@ -1,19 +1,15 @@
 import { useReactFlow } from "@xyflow/react";
 import { useCallback, useState } from "react";
-
-import type{
+import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
+import { Exchange } from "@/types/market";
+import type {
 	KlineNodeBacktestConfig,
 	KlineNodeBacktestExchangeModeConfig,
 	KlineNodeBacktestFileModeConfig,
 	SelectedSymbol,
 } from "@/types/node/kline-node";
+import type { SelectedAccount, TimeRange } from "@/types/strategy";
 import { BacktestDataSource } from "@/types/strategy";
-import type {
-	SelectedAccount,
-	TimeRange,
-} from "@/types/strategy";
-import { Exchange } from "@/types/market";
-import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
 
 interface UseUpdateBacktestConfigProps {
 	id: string;

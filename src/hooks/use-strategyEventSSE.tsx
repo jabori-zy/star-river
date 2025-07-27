@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useStrategyEventStore } from "@/store/useStrategyEventStore";
-import { LiveStrategyEvent } from "@/types/strategyEvent";
+import type { LiveStrategyEvent } from "@/types/strategyEvent";
 
 const useStrategyEventSSE = (strategyId: number, enabled: boolean = true) => {
 	const eventSourceRef = useRef<EventSource | null>(null);

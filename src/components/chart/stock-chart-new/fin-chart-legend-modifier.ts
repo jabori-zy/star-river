@@ -1,26 +1,26 @@
 import {
 	ChartModifierBase2D,
 	DpiHelper,
+	EBaseType,
+	EChart2DModifierType,
 	ECoordinateMode,
 	EModifierType,
 	EMousePosition,
-	EBaseType,
-	EChart2DModifierType,
-	IChartModifierBaseOptions,
+	type IChartModifierBaseOptions,
 	LineAnnotation,
-	ModifierMouseArgs,
-	Point,
-	SciChartSurface,
-	SciChartSurfaceBase,
-	SciChartSubSurface,
+	type ModifierMouseArgs,
+	type Point,
+	registerType,
+	type SciChartSubSurface,
+	type SciChartSurface,
+	type SciChartSurfaceBase,
+	testIsInBounds,
 	translateFromCanvasToSeriesViewRect,
 	translateToNotScaled,
-	registerType,
-	testIsInBounds,
 } from "scichart";
 import {
-	TFinanceLegendTemplate,
 	FinChartLegendAnnotation,
+	type TFinanceLegendTemplate,
 } from "./fin-chart-legend-annotation";
 
 /**

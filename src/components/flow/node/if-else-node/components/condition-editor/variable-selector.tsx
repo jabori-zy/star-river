@@ -1,22 +1,22 @@
+import { useEffect, useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import {
 	Select,
 	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
 	SelectGroup,
+	SelectItem,
 	SelectLabel,
 	SelectSeparator,
+	SelectTrigger,
+	SelectValue,
 } from "@/components/ui/select";
+import type { VariableItem } from "@/hooks/flow/use-strategy-workflow";
 import { cn } from "@/lib/utils";
-import { VariableItem } from "@/hooks/flow/use-strategy-workflow";
-import { SelectedIndicator } from "@/types/node/indicator-node";
-import { SelectedSymbol } from "@/types/node/kline-node";
-import { VariableConfig } from "@/types/node/variable-node";
-import { Badge } from "@/components/ui/badge";
-import { useState, useEffect } from "react";
-import { Variable } from "@/types/node/if-else-node";
+import type { Variable } from "@/types/node/if-else-node";
 import { NodeType } from "@/types/node/index";
+import type { SelectedIndicator } from "@/types/node/indicator-node";
+import type { SelectedSymbol } from "@/types/node/kline-node";
+import type { VariableConfig } from "@/types/node/variable-node";
 
 interface VariableSelectorProps {
 	variableItemList: VariableItem[];

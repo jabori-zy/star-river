@@ -1,7 +1,7 @@
-import BaseHandle from "@/components/flow/base/BaseHandle";
 import { Position } from "@xyflow/react";
-import { PositionOperationConfig } from "@/types/node/position-management-node";
-import { getPositionOperationLabel, formatSymbolDisplay } from "../utils";
+import BaseHandle from "@/components/flow/base/BaseHandle";
+import type { PositionOperationConfig } from "@/types/node/position-management-node";
+import { formatSymbolDisplay, getPositionOperationLabel } from "../utils";
 
 interface CloseAllHandleItemProps {
 	id: string; // 节点id

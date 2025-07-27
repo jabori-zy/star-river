@@ -1,4 +1,4 @@
-import { KlineChartConfig } from "@/types/chart";
+import type { KlineChartConfig } from "@/types/chart";
 
 interface KlineEditorProps {
 	klineChartConfig: KlineChartConfig;

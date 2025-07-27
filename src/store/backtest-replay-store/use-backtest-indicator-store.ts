@@ -1,6 +1,5 @@
 import { create } from "zustand";
-import { KeyStr } from "@/types/symbol-key";
-import { IndicatorValue } from "@/types/indicator";
+import type { KeyStr } from "@/types/symbol-key";
 
 // 定义缓存大小常量
 const MAX_CACHE_SIZE = 20;
@@ -8,10 +7,10 @@ const MAX_CACHE_SIZE = 20;
 // 回测指标数据存储
 interface BacktestIndicatorDataState {
 	// 按数据的缓存键存储的指标数据列表
-	indicatorData: Record<KeyStr, IndicatorValue[]>;
+	indicatorData: Record<KeyStr, Record<string, number>[]>;
 
 	// 添加新指标数据到指定的缓存key中，自动控制缓存大小
-	addIndicatorData: (cacheKey: KeyStr, data: IndicatorValue[]) => void;
+	addIndicatorData: (cacheKey: KeyStr, data: Record<string, number>[]) => void;
 
 	// 清空特定缓存key的所有指标数据
 	clearIndicatorData: (cacheKey: KeyStr) => void;
@@ -20,10 +19,10 @@ interface BacktestIndicatorDataState {
 	clearAllIndicatorData: () => void;
 
 	// 获取指定缓存key的最新指标数据
-	getLatestIndicatorData: (cacheKey: KeyStr) => IndicatorValue | undefined;
+	getLatestIndicatorData: (cacheKey: KeyStr) => Record<string, number> | undefined;
 
 	// 获取所有的缓存key的指标数据
-	getAllIndicatorData: () => Record<KeyStr, IndicatorValue[]>;
+	getAllIndicatorData: () => Record<KeyStr, Record<string, number>[]>;
 }
 
 export const useBacktestIndicatorDataStore = create<BacktestIndicatorDataState>(
@@ -40,7 +39,7 @@ export const useBacktestIndicatorDataStore = create<BacktestIndicatorDataState>(
 				}
 				const currentData = state.indicatorData[cacheKey];
 				// 如果当前数据数组已达到最大容量，则移除最早的数据
-				let newData;
+				let newData: Record<string, number>[] = [];
 				if (currentData.length >= MAX_CACHE_SIZE) {
 					// 移除第一个元素(最旧的)，并添加新数据到末尾
 					newData = [...currentData.slice(1), ...data];

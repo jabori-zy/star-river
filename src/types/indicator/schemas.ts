@@ -30,4 +30,4 @@ export const IndicatorValueConfigSchema = z.record(
 
 // 从 Zod schema 推导类型
 export type IndicatorParam = z.infer<typeof IndicatorParamSchema>;
-export type IndicatorValueConfig = z.infer<typeof IndicatorValueConfigSchema>; 
+export type IndicatorValueConfig = z.infer<typeof IndicatorValueConfigSchema>;

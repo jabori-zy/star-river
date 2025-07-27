@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { StrategyChartConfig } from "@/types/strategyChartConfig";
+import type { StrategyChartConfig } from "@/types/strategyChartConfig";
 
 interface StrategyChartConfigState {
 	strategyChartConfig: StrategyChartConfig[];

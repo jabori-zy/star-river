@@ -1,11 +1,11 @@
-import { useCallback, useState, useEffect } from "react";
 import { useReactFlow } from "@xyflow/react";
-import {
-	VariableNodeBacktestConfig,
+import { useCallback, useEffect, useState } from "react";
+import type {
 	VariableConfig,
+	VariableNodeBacktestConfig,
 	VariableNodeBacktestExchangeModeConfig,
 } from "@/types/node/variable-node";
-import { SelectedAccount, BacktestDataSource } from "@/types/strategy";
+import { BacktestDataSource, type SelectedAccount } from "@/types/strategy";
 
 interface UseUpdateBacktestConfigProps {
 	id: string;

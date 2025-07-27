@@ -1,14 +1,14 @@
-import { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
-import OptAccountSelector from "../components/opt-account-selector";
+import { useEffect, useState } from "react";
+import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
+import { useUpdateSimulateConfig } from "@/hooks/node/position-management-node/use-update-simulate-config";
 import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
-import { SelectedAccount } from "@/types/strategy";
-import { useState, useEffect } from "react";
-import OperationSetting from "../components/operation-setting";
-import {
+import type {
 	PositionManagementNodeData,
 	PositionOperationConfig,
 } from "@/types/node/position-management-node";
-import { useUpdateSimulateConfig } from "@/hooks/node/position-management-node/use-update-simulate-config";
+import type { SelectedAccount } from "@/types/strategy";
+import OperationSetting from "../components/operation-setting";
+import OptAccountSelector from "../components/opt-account-selector";
 
 const PositionManagementNodeSimSettingPanel: React.FC<SettingProps> = ({
 	id,

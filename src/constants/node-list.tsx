@@ -1,5 +1,5 @@
-import { Boxes, Sigma, ChevronsUpDown } from "lucide-react";
-import { NodeItemProps } from "@/types/nodeCategory";
+import { Boxes, ChevronsUpDown, Sigma } from "lucide-react";
+import type { NodeItemProps } from "@/types/nodeCategory";
 
 export const nodeList = [
 	{

@@ -1,11 +1,11 @@
-import React from "react";
-import {
-	type PositionOperationConfig,
-	PositionOperation,
-} from "@/types/node/position-management-node";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Settings, X } from "lucide-react";
+import type React from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+	PositionOperation,
+	type PositionOperationConfig,
+} from "@/types/node/position-management-node";
 
 interface OperationConfigItemProps {
 	config: PositionOperationConfig;

@@ -1,10 +1,10 @@
-import { Node } from "@xyflow/react";
-import {
+import type { Node } from "@xyflow/react";
+import type { Kline } from "@/types/kline";
+import type {
+	BacktestDataSource,
 	SelectedAccount,
 	TimeRange,
-	BacktestDataSource,
 } from "@/types/strategy";
-import { Kline } from "@/types/kline";
 
 export type SelectedSymbol = {
 	symbolId: number; // 交易对id

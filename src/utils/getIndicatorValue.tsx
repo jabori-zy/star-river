@@ -1,5 +1,5 @@
 import { IndicatorType } from "@/types/indicator";
-import { SMAValue, BOLLValue } from "@/types/indicatorValue";
+import type { BOLLValue, SMAValue } from "@/types/indicatorValue";
 
 export function getIndicatorValue(indicatorType: IndicatorType) {
 	switch (indicatorType) {

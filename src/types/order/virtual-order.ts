@@ -1,5 +1,5 @@
-import { FuturesOrderSide, OrderStatus, OrderType } from "./index";
-import { Exchange } from "@/types/common";
+import type { Exchange } from "@/types/common";
+import type { FuturesOrderSide, OrderStatus, OrderType } from "./index";
 
 export type VirtualOrder = {
 	orderId: string; // 订单ID

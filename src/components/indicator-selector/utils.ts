@@ -1,5 +1,5 @@
 import { type IndicatorType, MAType } from "@/types/indicator";
-import { getIndicatorConfig } from "@/types/indicator/indicator-config-new";
+import { getIndicatorConfig } from "@/types/indicator/indicator-config";
 
 export interface IndicatorOption {
 	key: string;
@@ -27,13 +27,13 @@ export const getIndicatorConfigDisplay = (
 	indicatorType?: string,
 ): string => {
 	if (!indicatorType) return "";
-	
+
 	const configInstance = getIndicatorConfig(indicatorType as IndicatorType);
 	if (!configInstance) return "";
 
 	// 构建显示文本（排除价格源，不显示）
 	const paramParts: string[] = [];
-	
+
 	Object.entries(configInstance.params).forEach(([key, param]) => {
 		const value = indicatorConfig[key];
 		if (value !== undefined && key !== "priceSource") {

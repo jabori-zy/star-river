@@ -1,4 +1,4 @@
-import { Handle, HandleProps } from "@xyflow/react";
+import { Handle, type HandleProps } from "@xyflow/react";
 
 export interface BaseHandleProps extends HandleProps {
 	connectLimit?: number; // 连接限制，0表示不限制，1表示只能连接一个，2表示只能连接两个

@@ -4,9 +4,13 @@ import { IndicatorType, MAType, PriceSource } from "@/types/indicator";
 import {
 	type IndicatorConfig,
 	parseKeyStrToMap,
-} from "@/types/indicator/indicator-config-new";
-import type { IndicatorValue } from "@/types/indicator/indicator-value";
-import { MATypeSchema, PriceSourceSchema } from "@/types/indicator/schemas";
+	getIndicatorValues,
+} from "@/types/indicator/indicator-config";
+import {
+	type IndicatorValueConfig,
+	MATypeSchema,
+	PriceSourceSchema,
+} from "@/types/indicator/schemas";
 
 // MA 指标配置的 Zod schema
 const MAConfigSchema = z.object({
@@ -15,7 +19,7 @@ const MAConfigSchema = z.object({
 	priceSource: PriceSourceSchema,
 });
 
-type MAConfigType = z.infer<typeof MAConfigSchema>;
+export type MAConfigType = z.infer<typeof MAConfigSchema>;
 
 // MA指标配置实现
 export const MAConfig: IndicatorConfig<MAConfigType> = {
@@ -42,7 +46,7 @@ export const MAConfig: IndicatorConfig<MAConfigType> = {
 			required: true,
 		},
 	},
-	indicatorValue: {
+	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0 },
 		ma: { label: "ma", value: 0 },
 	},
@@ -55,12 +59,12 @@ export const MAConfig: IndicatorConfig<MAConfigType> = {
 				type: SeriesType.LINE,
 				color: "#FF6B6B",
 				strokeThickness: 2,
-				indicatorValueKey: "ma" as keyof IndicatorValue,
+				indicatorValueKey: "ma" as keyof IndicatorValueConfig,
 			},
 		],
 	},
 
-	getConfig(): MAConfigType {
+	getDefaultConfig(): MAConfigType {
 		const config = Object.fromEntries(
 			Object.entries(this.params).map(([key, param]) => [
 				key,
@@ -74,13 +78,7 @@ export const MAConfig: IndicatorConfig<MAConfigType> = {
 	},
 
 	getValue() {
-		const result = Object.fromEntries(
-			Object.entries(this.indicatorValue).map(([key, value]) => [
-				key,
-				value.value,
-			]),
-		);
-		return result;
+		return getIndicatorValues(this.indicatorValueConfig);
 	},
 
 	parseIndicatorConfigFromKeyStr(
@@ -90,8 +88,8 @@ export const MAConfig: IndicatorConfig<MAConfigType> = {
 		try {
 			console.log("indicatorConfigStr", indicatorConfigStr);
 			const params = parseKeyStrToMap(indicatorConfigStr);
-			console.log("解析参数:", params);
-			console.log("指标类型:", indicatorType);
+			// console.log("解析参数:", params);
+			// console.log("指标类型:", indicatorType);
 
 			if (indicatorType !== IndicatorType.MA) {
 				console.warn(
@@ -129,4 +127,8 @@ export const MAConfig: IndicatorConfig<MAConfigType> = {
 			return false;
 		}
 	},
+
+	// getSeriesName(): string {
+	// 	return this.chartConfig.name;
+	// },
 };

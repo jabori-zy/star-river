@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import { VirtualOrder } from "@/types/order/virtual-order";
 import { OrderStatus } from "@/types/order";
+import type { VirtualOrder } from "@/types/order/virtual-order";
 
 // 定义组合键类型：exchange+symbol
 type OrderKey = string;

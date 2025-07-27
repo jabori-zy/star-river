@@ -1,9 +1,9 @@
-import { Strategy } from "@/types/strategy";
-import { toast } from "sonner";
 import axios from "axios";
+import { toast } from "sonner";
 import { useStrategyStore } from "@/store/useStrategyStore";
+import type { BacktestStrategyChartConfig } from "@/types/chart/backtest-chart";
+import type { Strategy } from "@/types/strategy";
 import { API_BASE_URL } from "./index";
-import { BacktestStrategyChartConfig } from "@/types/chart/backtest-chart";
 
 const ROUTER = "strategy";
 const API_VERSION = "api/v1";

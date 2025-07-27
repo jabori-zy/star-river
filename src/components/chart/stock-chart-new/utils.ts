@@ -1,30 +1,30 @@
 import {
-	NumberRange,
-	Rect,
-	SciChartSurface,
-	SciChartSubSurface,
-	SciChartVerticalGroup,
-	NumericAxis,
-	DateTimeNumericAxis,
-	XyDataSeries,
-	FastLineRenderableSeries,
-	ZoomPanModifier,
-	MouseWheelZoomModifier,
-	ZoomExtentsModifier,
-	XAxisDragModifier,
-	YAxisDragModifier,
-	EDragMode,
 	CursorModifier,
-	RolloverModifier,
-	TSciChart,
-	EResamplingMode,
+	DateTimeNumericAxis,
 	EAutoRange,
 	EAxisAlignment,
+	EDragMode,
+	EResamplingMode,
+	FastLineRenderableSeries,
+	MouseWheelZoomModifier,
+	NumberRange,
+	NumericAxis,
+	Rect,
+	RolloverModifier,
+	type SciChartSubSurface,
+	type SciChartSurface,
+	SciChartVerticalGroup,
 	Thickness,
+	type TSciChart,
+	XAxisDragModifier,
+	XyDataSeries,
+	YAxisDragModifier,
+	ZoomExtentsModifier,
+	ZoomPanModifier,
 } from "scichart";
 import { appTheme } from "../SciChart/theme";
-import { AxisSynchroniser } from "./axis-synchroniser";
-import { dateValues, closeValues } from "./demo-data";
+import type { AxisSynchroniser } from "./axis-synchroniser";
+import { closeValues, dateValues } from "./demo-data";
 
 export const containerId = "containerId";
 

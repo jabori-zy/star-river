@@ -1,9 +1,9 @@
-import {
+import type { Node } from "@xyflow/react";
+import type {
+	StrategyBacktestConfig,
 	StrategyLiveConfig,
 	StrategySimulateConfig,
-	StrategyBacktestConfig,
 } from "@/types/strategy";
-import { Node } from "@xyflow/react";
 
 // 开始节点数据
 export type StartNodeData = {

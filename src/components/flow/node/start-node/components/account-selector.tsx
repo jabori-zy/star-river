@@ -1,19 +1,19 @@
-import { useState, useEffect } from "react";
-import { SelectedAccount } from "@/types/strategy";
-import { Exchange } from "@/types/common";
-import { MT5Account } from "@/types/account";
-import { getAccountConfigs } from "@/service/account";
+import { AlertCircle, DollarSign, Plus, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import {
 	Select,
-	SelectTrigger,
-	SelectValue,
 	SelectContent,
 	SelectItem,
+	SelectTrigger,
+	SelectValue,
 } from "@/components/ui/select";
-import { X, Plus, AlertCircle, DollarSign } from "lucide-react";
+import { getAccountConfigs } from "@/service/account";
+import type { MT5Account } from "@/types/account";
+import type { Exchange } from "@/types/common";
+import type { SelectedAccount } from "@/types/strategy";
 
 interface AccountSelectorProps {
 	selectedAccounts: SelectedAccount[]; // 已选择账户，可以多选

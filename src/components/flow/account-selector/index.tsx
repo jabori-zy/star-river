@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { SelectedAccount } from "@/types/strategy";
+import type React from "react";
+import { useEffect, useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import {
 	Select,
 	SelectContent,
@@ -7,9 +8,8 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { TradeMode } from "@/types/strategy";
 import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
+import { type SelectedAccount, TradeMode } from "@/types/strategy";
 
 interface AccountSelectorProps {
 	label: string;

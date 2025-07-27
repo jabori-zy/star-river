@@ -1,27 +1,27 @@
 import React, {
-	useRef,
-	useImperativeHandle,
 	forwardRef,
+	useImperativeHandle,
+	useRef,
 	useState,
 } from "react";
-import { SciChartReact, TResolvedReturnType } from "scichart-react";
-import { AxisBase2D, SciChartSurface } from "scichart";
-import { initKlineChart } from "./init-kline-chart";
-import { Kline } from "@/types/kline";
-import { IndicatorValue } from "@/types/indicator";
-import { VirtualOrder } from "@/types/order/virtual-order";
+import type { Subscription } from "rxjs";
+import type { AxisBase2D, SciChartSurface } from "scichart";
+import { SciChartReact, type TResolvedReturnType } from "scichart-react";
 import {
-	createKlineStreamFromKey,
 	createIndicatorStreamFromKey,
+	createKlineStreamFromKey,
 	createOrderStreamForSymbol,
 } from "@/hooks/obs/backtest-strategy-data-obs";
+import { getInitialChartData } from "@/service/chart";
+import type { KlineChartConfig, SubChartConfig } from "@/types/chart";
+import type { Kline } from "@/types/kline";
+import type { VirtualOrder } from "@/types/order/virtual-order";
+import type { KlineKey } from "@/types/symbol-key";
 import { parseKey } from "@/utils/parse-key";
-import { KlineKey } from "@/types/symbol-key";
-import { Subscription } from "rxjs";
-import { KlineChartConfig, SubChartConfig } from "@/types/chart";
 import ChartEditButton from "../chart-edit-button";
 import ChartEditDialog from "../components/chart-edit-dialog";
-import { getInitialChartData } from "@/service/chart";
+import { initKlineChart } from "./init-kline-chart";
+import type { IndicatorKeyStr } from "@/types/symbol-key";
 
 interface KlineChartProps {
 	playIndex: number;
@@ -45,7 +45,9 @@ const KlineChart = forwardRef<KlineChartRef, KlineChartProps>(
 			setKlineData: (symbolName: string, kline: Kline[]) => void;
 			setXRange: (start: number, end: number) => void;
 			onNewKline: (newKline: Kline) => void;
-			onNewIndicator: (newIndicators: Record<string, IndicatorValue>) => void;
+			onNewIndicator: (
+				newIndicators: Record<IndicatorKeyStr, Record<string, number>>,
+			) => void;
 			onNewOrder: (newOrder: VirtualOrder) => void;
 			clearChartData: () => void;
 		}>(undefined);
@@ -91,9 +93,7 @@ const KlineChart = forwardRef<KlineChartRef, KlineChartProps>(
 				);
 
 				// 解析K线缓存键获取交易所和交易对信息
-				const klineKey = parseKey(
-					klineChartConfig.klineKeyStr,
-				) as KlineKey;
+				const klineKey = parseKey(klineChartConfig.klineKeyStr) as KlineKey;
 
 				// 如果playIndex大于-1，则获取初始数据， -1代表还未开始
 				if (playIndex > -1) {
@@ -104,7 +104,7 @@ const KlineChart = forwardRef<KlineChartRef, KlineChartProps>(
 					)) as Kline[];
 					if (initialKlines && initialKlines.length > 0) {
 						controls.setKlineData(
-							klineKey.symbol + "/" + klineKey.interval,
+							`${klineKey.symbol}/${klineKey.interval}`,
 							initialKlines,
 						);
 					}
@@ -116,9 +116,9 @@ const KlineChart = forwardRef<KlineChartRef, KlineChartProps>(
 							indicatorKeyStr,
 							playIndex,
 							null,
-						)) as IndicatorValue[];
+						)) as Record<string, number>[];
 						if (indicatorValue && indicatorValue.length > 0) {
-							console.log("indicatorValue: ", indicatorValue);
+							// console.log("indicatorValue: ", indicatorValue);
 							controls.setIndicatorData(indicatorKeyStr, indicatorValue);
 						}
 					}
@@ -160,14 +160,8 @@ const KlineChart = forwardRef<KlineChartRef, KlineChartProps>(
 								indicatorKeyStr,
 								enabled,
 							);
-							console.log(
-								"指标key: ",
-								indicatorKeyStr,
-								"指标数据流: ",
-								indicatorStream,
-							);
 							const indicatorSubscription = indicatorStream.subscribe(
-								(indicatorData: IndicatorValue[]) => {
+								(indicatorData: Record<string, number>[]) => {
 									console.log(`=== 收到指标数据流更新: ${indicatorKeyStr} ===`);
 									console.log(`指标数据长度: ${indicatorData.length}`);
 
@@ -177,7 +171,10 @@ const KlineChart = forwardRef<KlineChartRef, KlineChartProps>(
 										console.log(`最新指标数据:`, latestIndicator);
 
 										// 独立更新指标数据 - 构建单个指标的数据对象
-										const indicatorDataMap: Record<string, IndicatorValue> = {
+										const indicatorDataMap: Record<
+											IndicatorKeyStr,
+											Record<string, number>
+										> = {
 											[indicatorKeyStr]: latestIndicator,
 										};
 										controls.onNewIndicator(indicatorDataMap);

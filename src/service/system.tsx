@@ -1,6 +1,6 @@
-import { SystemConfig } from "@/types/system";
-import { API_BASE_URL } from ".";
 import axios from "axios";
+import type { SystemConfig } from "@/types/system";
+import { API_BASE_URL } from ".";
 
 const ROUTER = "system";
 const API_VERSION = "api/v1";

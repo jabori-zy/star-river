@@ -1,9 +1,9 @@
-import { useState } from "react";
-import { type PositionOperationConfig } from "@/types/node/position-management-node";
-import { Button } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
-import OperationConfigItem from "./operation-config-item";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import type { PositionOperationConfig } from "@/types/node/position-management-node";
 import OperationConfigDialog from "./operation-config-dialog";
+import OperationConfigItem from "./operation-config-item";
 
 interface OperationSettingProps {
 	nodeId: string;

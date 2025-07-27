@@ -1,14 +1,13 @@
-import { NodeProps } from "@xyflow/react";
-import { type IfElseNode as IfElseNodeType } from "@/types/node/if-else-node";
-import BaseNode from "@/components/flow/base/BaseNode";
-import useTradingModeStore from "@/store/useTradingModeStore";
-import { useReactFlow, Position } from "@xyflow/react";
-import { useEffect, useRef } from "react";
+import { type NodeProps, Position, useReactFlow } from "@xyflow/react";
 import { Play } from "lucide-react";
-import { TradeMode } from "@/types/strategy";
-import { BaseHandleProps } from "@/components/flow/base/BaseHandle";
-import { getNodeDefaultInputHandleId, NodeType } from "@/types/node/index";
+import { useEffect, useRef } from "react";
+import type { BaseHandleProps } from "@/components/flow/base/BaseHandle";
+import BaseNode from "@/components/flow/base/BaseNode";
 import { useUpdateBacktestConfig } from "@/hooks/node/if-else-node/use-update-backtest-config";
+import useTradingModeStore from "@/store/useTradingModeStore";
+import type { IfElseNode as IfElseNodeType } from "@/types/node/if-else-node";
+import { getNodeDefaultInputHandleId, NodeType } from "@/types/node/index";
+import { TradeMode } from "@/types/strategy";
 import BacktestModeShow from "./components/node-show/backtest-mode-show";
 import LiveModeShow from "./components/node-show/live-mode-show";
 

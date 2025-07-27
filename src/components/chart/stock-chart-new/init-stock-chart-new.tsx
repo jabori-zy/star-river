@@ -1,21 +1,21 @@
 import {
-	NumberRange,
-	SciChartVerticalGroup,
-	SciChartSurface,
-	NumericAxis,
 	DateTimeNumericAxis,
+	NumberRange,
+	NumericAxis,
+	SciChartSurface,
+	SciChartVerticalGroup,
 } from "scichart";
 import { appTheme } from "../SciChart/theme";
 import { AxisSynchroniser } from "./axis-synchroniser";
 import { dateValues } from "./demo-data";
 import {
-	setParentSurface,
-	setWasmContext,
-	setVerticalGroup,
-	setAxisSynchronizer,
-	updateMinPanelSize,
 	addSubChart,
 	removeChart,
+	setAxisSynchronizer,
+	setParentSurface,
+	setVerticalGroup,
+	setWasmContext,
+	updateMinPanelSize,
 } from "./utils";
 
 export const initStockChart = async (rootElement: string | HTMLDivElement) => {

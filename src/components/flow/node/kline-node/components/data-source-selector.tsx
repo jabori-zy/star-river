@@ -1,6 +1,6 @@
-import React, { useMemo } from "react";
-import { TradeMode, SelectedAccount } from "@/types/strategy";
-import { StartNode, StartNodeData } from "@/types/node/start-node";
+import type React from "react";
+import { useMemo } from "react";
+import { Badge } from "@/components/ui/badge";
 import {
 	Select,
 	SelectContent,
@@ -8,7 +8,8 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
+import type { StartNode, StartNodeData } from "@/types/node/start-node";
+import { type SelectedAccount, TradeMode } from "@/types/strategy";
 
 interface DataSourceSelectorProps {
 	startNode: StartNode | null; // 已连接的start节点

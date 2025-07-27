@@ -1,12 +1,11 @@
 "use client";
 
-import * as React from "react";
-import { type Row } from "@tanstack/react-table";
-import { TableCell, TableRow } from "@/components/ui/table";
-import { flexRender } from "@tanstack/react-table";
+import type { UniqueIdentifier } from "@dnd-kit/core";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { type UniqueIdentifier } from "@dnd-kit/core";
+import { flexRender, type Row } from "@tanstack/react-table";
+import * as React from "react";
+import { TableCell, TableRow } from "@/components/ui/table";
 
 interface TableItemProps<TData> {
 	row: Row<TData>;

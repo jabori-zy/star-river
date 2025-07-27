@@ -1,7 +1,6 @@
 import { create } from "zustand";
-import { KeyStr } from "@/types/symbol-key";
-import { Kline } from "@/types/kline";
-import { IndicatorValue } from "@/types/indicator";
+import type { Kline } from "@/types/kline";
+import type { KeyStr } from "@/types/symbol-key";
 
 // 定义缓存大小常量
 const MAX_CACHE_SIZE = 20;
@@ -9,10 +8,10 @@ const MAX_CACHE_SIZE = 20;
 // 回测策略数据存储
 interface BacktestStrategyMarketDataState {
 	// 按数据的缓存键存储的数据列表
-	marketData: Record<KeyStr, (Kline | IndicatorValue)[]>;
+	marketData: Record<KeyStr, (Kline | Record<string, number>)[]>;
 
 	// 添加新数据到指定的缓存key中，自动控制缓存大小
-	addMarketData: (cacheKey: KeyStr, data: (Kline | IndicatorValue)[]) => void;
+	addMarketData: (cacheKey: KeyStr, data: (Kline | Record<string, number>)[]) => void;
 
 	// 清空特定缓存key的所有数据
 	clearMarketData: (cacheKey: KeyStr) => void;
@@ -21,10 +20,10 @@ interface BacktestStrategyMarketDataState {
 	clearAllMarketData: () => void;
 
 	// 获取指定缓存key的最新数据
-	getLatestMarketData: (cacheKey: KeyStr) => Kline | IndicatorValue | undefined;
+	getLatestMarketData: (cacheKey: KeyStr) => Kline | Record<string, number> | undefined;
 
 	// 获取所有的缓存key的数据
-	getAllMarketData: () => Record<KeyStr, (Kline | IndicatorValue)[]>;
+	getAllMarketData: () => Record<KeyStr, (Kline | Record<string, number>)[]>;
 }
 
 export const useBacktestStrategyMarketDataStore =
@@ -41,7 +40,7 @@ export const useBacktestStrategyMarketDataStore =
 				}
 				const currentData = state.marketData[cacheKey];
 				// 如果当前数据数组已达到最大容量，则移除最早的数据
-				let newData;
+				let newData: (Kline | Record<string, number>)[] = [];
 				if (currentData.length >= MAX_CACHE_SIZE) {
 					// 移除第一个元素(最旧的)，并添加新事件到末尾
 					newData = [...currentData.slice(1), ...data];

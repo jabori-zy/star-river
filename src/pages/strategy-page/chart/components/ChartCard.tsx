@@ -1,6 +1,6 @@
-import { Button } from "@/components/ui/button";
 // import SingleKlineChart from "@/components/chart/SingleKlineChart";
 import { Edit, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface ChartCardProps {
 	id: string;

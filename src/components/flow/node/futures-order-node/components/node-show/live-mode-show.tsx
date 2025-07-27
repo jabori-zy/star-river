@@ -1,4 +1,4 @@
-import { FuturesOrderNodeData } from "@/types/node/futures-order-node";
+import type { FuturesOrderNodeData } from "@/types/node/futures-order-node";
 import { OrderHandleItem } from "../order-handle-item";
 
 interface LiveModeShowProps {

@@ -1,7 +1,6 @@
-import { KeyStr } from "@/types/symbol-key";
-import { Kline } from "@/types/kline";
-import { IndicatorValue } from "@/types/indicator";
-import { VirtualOrder } from "@/types/order/virtual-order";
+import type { Kline } from "@/types/kline";
+import type { VirtualOrder } from "@/types/order/virtual-order";
+import type { KeyStr } from "@/types/symbol-key";
 
 export type LiveStrategyEvent = {
 	channel: string;
@@ -43,7 +42,7 @@ export type klineUpdateEvent = BaseEventProps & {
 
 export type indicatorUpdateEvent = BaseEventProps & {
 	indicatorKey: KeyStr;
-	indicatorSeries: IndicatorValue[];
+	indicatorSeries: Record<string, number>[];
 };
 
 export type FuturesOrderFilledEvent = BaseEventProps & {

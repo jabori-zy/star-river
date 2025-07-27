@@ -1,13 +1,13 @@
 import {
+	type AnnotationHoverEventArgs,
 	CustomAnnotation,
-	EVerticalAnchorPoint,
 	EHorizontalAnchorPoint,
-	TextAnnotation,
-	AnnotationHoverEventArgs,
-	Thickness,
-	Rect,
-	NativeTextAnnotation,
+	EVerticalAnchorPoint,
 	EWrapTo,
+	NativeTextAnnotation,
+	type Rect,
+	TextAnnotation,
+	Thickness,
 } from "scichart";
 import { appTheme } from "./theme";
 

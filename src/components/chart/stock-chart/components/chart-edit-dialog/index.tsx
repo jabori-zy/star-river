@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { KlineChartConfig, SubChartConfig } from "@/types/chart";
 import Dialog from "@/components/dialog";
-import Menu, { MenuType } from "./menu";
-import KlineEditor from "./kline-editor";
+import type { KlineChartConfig, SubChartConfig } from "@/types/chart";
 import IndicatorEditor from "./indicator-editor";
+import KlineEditor from "./kline-editor";
+import Menu, { type MenuType } from "./menu";
 
 interface ChartEditDialogProps {
 	isOpen: boolean;

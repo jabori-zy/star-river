@@ -1,5 +1,5 @@
-import React from "react";
-import { BacktestDataSource } from "@/types/strategy";
+import { File } from "lucide-react";
+import type React from "react";
 import {
 	Select,
 	SelectContent,
@@ -7,7 +7,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { File } from "lucide-react";
+import { BacktestDataSource } from "@/types/strategy";
 
 interface DataSourceSelectorProps {
 	dataSource: BacktestDataSource;

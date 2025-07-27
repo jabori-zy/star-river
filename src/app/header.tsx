@@ -1,11 +1,16 @@
-import { SidebarIcon } from "lucide-react";
+import {
+	ChevronLeft,
+	ChevronRight,
+	Minus,
+	SidebarIcon,
+	Square,
+	X,
+} from "lucide-react";
+import { useNavigate } from "react-router";
+import QuitConfirmBox from "@/components/quit-confirm-box";
 import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/components/ui/sidebar";
 import useSidebarToggleStore from "@/store/use-sidebar-toggle-store";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Minus, Square, X } from "lucide-react";
-import QuitConfirmBox from "@/components/quit-confirm-box";
-import { useNavigate } from "react-router";
 import { useHeaderStore } from "@/store/useHeaderStore";
 
 // 声明electron的require

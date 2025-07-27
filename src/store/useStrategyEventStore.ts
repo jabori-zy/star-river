@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { LiveStrategyEvent } from "@/types/strategyEvent";
+import type { LiveStrategyEvent } from "@/types/strategyEvent";
 
 // 定义不同事件的类型
 type EventName = "strategy-data-update" | "node-message-update";

@@ -1,12 +1,12 @@
-import { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
-import TradeAccountSelector from "../components/trade-account-selector";
-import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
 import { useEffect, useState } from "react";
-import { SelectedAccount } from "@/types/strategy";
-import FuturesOrderSetting from "../components/futures-order-setting";
-import { FuturesOrderConfig } from "@/types/order";
-import { FuturesOrderNodeData } from "@/types/node/futures-order-node";
+import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
 import { useUpdateBacktestConfig } from "@/hooks/node/futures-order-node/use-update-backtest-config";
+import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
+import type { FuturesOrderNodeData } from "@/types/node/futures-order-node";
+import type { FuturesOrderConfig } from "@/types/order";
+import type { SelectedAccount } from "@/types/strategy";
+import FuturesOrderSetting from "../components/futures-order-setting";
+import TradeAccountSelector from "../components/trade-account-selector";
 
 const FuturesOrderNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	id,

@@ -1,7 +1,7 @@
-import DatePickerWithInput from "@/components/ui/date-picker-with-input";
-import { TimeRange } from "@/types/strategy";
-import React from "react";
 import { Clock } from "lucide-react";
+import type React from "react";
+import DatePickerWithInput from "@/components/ui/date-picker-with-input";
+import type { TimeRange } from "@/types/strategy";
 
 interface TimeRangeSelectorProps {
 	timeRange: TimeRange;

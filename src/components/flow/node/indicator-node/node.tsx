@@ -1,21 +1,21 @@
-import { NodeProps, Position } from "@xyflow/react";
-import BaseNode from "@/components/flow/base/BaseNode";
+import { type NodeProps, Position } from "@xyflow/react";
 import { Play } from "lucide-react";
-import { type IndicatorNode as IndicatorNodeType } from "@/types/node/indicator-node";
-import { BaseHandleProps } from "@/components/flow/base/BaseHandle";
 import { useEffect } from "react";
-import { useUpdateLiveConfig } from "@/hooks/node/indicator-node/use-update-live-config";
+import type { BaseHandleProps } from "@/components/flow/base/BaseHandle";
+import BaseNode from "@/components/flow/base/BaseNode";
 import { useUpdateBacktestConfig } from "@/hooks/node/indicator-node/use-update-backtest-config";
+import { useUpdateLiveConfig } from "@/hooks/node/indicator-node/use-update-live-config";
+import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
 import useTradingModeStore from "@/store/useTradingModeStore";
-import { TradeMode } from "@/types/strategy";
-import LiveModeShow from "./components/live-mode-show";
-import BacktestModeShow from "./components/backtest-mode-show";
 import {
 	getNodeDefaultInputHandleId,
 	getNodeDefaultOutputHandleId,
 	NodeType,
 } from "@/types/node/index";
-import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
+import type { IndicatorNode as IndicatorNodeType } from "@/types/node/indicator-node";
+import { TradeMode } from "@/types/strategy";
+import BacktestModeShow from "./components/backtest-mode-show";
+import LiveModeShow from "./components/live-mode-show";
 
 const IndicatorNode: React.FC<NodeProps<IndicatorNodeType>> = ({
 	id,

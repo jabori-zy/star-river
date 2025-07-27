@@ -1,10 +1,10 @@
-import { useCallback, useState, useEffect } from "react";
 import { useReactFlow } from "@xyflow/react";
-import {
+import { useCallback, useEffect, useState } from "react";
+import type {
 	PositionLiveConfig,
 	PositionOperationConfig,
 } from "@/types/node/position-management-node";
-import { SelectedAccount } from "@/types/strategy";
+import type { SelectedAccount } from "@/types/strategy";
 
 interface UseUpdateLiveConfigProps {
 	id: string;

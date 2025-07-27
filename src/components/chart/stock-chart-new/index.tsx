@@ -1,7 +1,7 @@
-import { SciChartReact, TResolvedReturnType } from "scichart-react";
+import { useRef } from "react";
+import { SciChartReact, type TResolvedReturnType } from "scichart-react";
 import { initStockChart } from "./init-stock-chart-new";
 import { containerId } from "./utils";
-import { useRef } from "react";
 
 const StockChart = () => {
 	const chartControlsRef = useRef<

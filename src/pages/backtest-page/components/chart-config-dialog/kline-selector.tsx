@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import {
 	Select,
 	SelectContent,
@@ -6,8 +7,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { KlineKey, IndicatorKey } from "@/types/symbol-key";
+import type { IndicatorKey, KlineKey } from "@/types/symbol-key";
 
 interface KlineSelectorProps {
 	cacheKeys: Record<string, KlineKey | IndicatorKey>;
@@ -69,9 +69,7 @@ const KlineSelector = ({
 					<SelectValue placeholder="选择K线">
 						{selectedKlineCacheKey &&
 							cacheKeys[selectedKlineCacheKey] &&
-							renderKlineItem(
-								cacheKeys[selectedKlineCacheKey] as KlineKey,
-							)}
+							renderKlineItem(cacheKeys[selectedKlineCacheKey] as KlineKey)}
 					</SelectValue>
 				</SelectTrigger>
 				<SelectContent

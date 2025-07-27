@@ -1,9 +1,4 @@
-import { useState, useEffect } from "react";
-import { IndicatorKey } from "@/types/symbol-key";
-import { parseKey } from "@/utils/parse-key";
-import { SubChartConfig, IndicatorChartConfig } from "@/types/chart";
-import { getIndciatorChartConfigFromKeyStr } from "@/types/indicator/indicator-config-new";
-import { BacktestChart } from "@/types/chart/backtest-chart";
+import { useEffect, useState } from "react";
 import IndicatorSelector from "@/components/indicator-selector";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,6 +10,11 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import type { IndicatorChartConfig, SubChartConfig } from "@/types/chart";
+import type { BacktestChart } from "@/types/chart/backtest-chart";
+import { getIndciatorChartConfigFromKeyStr } from "@/types/indicator/indicator-config";
+import { IndicatorKey } from "@/types/symbol-key";
+import { parseKey } from "@/utils/parse-key";
 
 interface IndicatorListDialogProps {
 	open: boolean;
@@ -57,7 +57,8 @@ export default function AddIndicatorDialog({
 		if (selectedIndicatorKey) {
 			// 解析指标数据
 			// const indicatorData = parseKey(selectedIndicatorKey) as IndicatorKey;
-			const indicatorConfig = getIndciatorChartConfigFromKeyStr(selectedIndicatorKey);
+			const indicatorConfig =
+				getIndciatorChartConfigFromKeyStr(selectedIndicatorKey);
 
 			if (indicatorConfig) {
 				// 添加指标配置到副图

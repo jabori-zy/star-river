@@ -1,7 +1,7 @@
-import React from "react";
+import type React from "react";
 import { Separator } from "@/components/ui/separator";
-import ViewportControl from "./viewport-control";
 import AddNodeButton from "./add-node-button";
+import ViewportControl from "./viewport-control";
 
 // 节点控制面板
 const ControlPanel: React.FC = () => {

@@ -1,6 +1,6 @@
-import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
+import { cn } from "@/lib/utils";
 
 interface SliderWithTickProps {
 	defaultValue?: number[];

@@ -1,6 +1,10 @@
-import BaseHandle from "@/components/flow/base/BaseHandle";
 import { Position } from "@xyflow/react";
-import { CaseItem, LogicalSymbol } from "@/types/node/if-else-node";
+import BaseHandle from "@/components/flow/base/BaseHandle";
+import type {
+	CaseItem,
+	Condition,
+	LogicalSymbol,
+} from "@/types/node/if-else-node";
 // import { Badge } from "@/components/ui/badge";
 import {
 	getCaseTypeLabel,
@@ -8,7 +12,6 @@ import {
 	getLogicalLabel,
 	getVariableLabel,
 } from "./utils";
-import { Condition } from "@/types/node/if-else-node";
 
 interface IfElseCaseItemProps {
 	caseItem: CaseItem;

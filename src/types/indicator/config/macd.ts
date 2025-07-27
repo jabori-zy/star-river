@@ -4,8 +4,9 @@ import { IndicatorType, PriceSource } from "@/types/indicator";
 import {
 	type IndicatorConfig,
 	parseKeyStrToMap,
-} from "@/types/indicator/indicator-config-new";
-import type { IndicatorValue } from "@/types/indicator/indicator-value";
+	getIndicatorValues,
+} from "@/types/indicator/indicator-config";
+import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const MACDConfigSchema = z.object({
 	fastPeriod: z.number().int().positive(),
@@ -14,7 +15,7 @@ const MACDConfigSchema = z.object({
 	priceSource: z.nativeEnum(PriceSource),
 });
 
-type MACDConfigType = z.infer<typeof MACDConfigSchema>;
+export type MACDConfigType = z.infer<typeof MACDConfigSchema>;
 
 export const MACDConfig: IndicatorConfig<MACDConfigType> = {
 	type: IndicatorType.MACD,
@@ -46,7 +47,7 @@ export const MACDConfig: IndicatorConfig<MACDConfigType> = {
 			required: true,
 		},
 	},
-	indicatorValue: {
+	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0 },
 		macd: { label: "MACD", value: 0 },
 		signal: { label: "Signal", value: 0 },
@@ -61,26 +62,26 @@ export const MACDConfig: IndicatorConfig<MACDConfigType> = {
 				type: SeriesType.LINE,
 				color: "#FF6B6B",
 				strokeThickness: 2,
-				indicatorValueKey: "macd" as keyof IndicatorValue,
+				indicatorValueKey: "macd" as keyof IndicatorValueConfig,
 			},
 			{
 				name: "Signal",
 				type: SeriesType.LINE,
 				color: "#4ECDC4",
 				strokeThickness: 2,
-				indicatorValueKey: "signal" as keyof IndicatorValue,
+				indicatorValueKey: "signal" as keyof IndicatorValueConfig,
 			},
 			{
 				name: "Histogram",
 				type: SeriesType.COLUMN,
 				color: "#45B7D1",
 				strokeThickness: 1,
-				indicatorValueKey: "histogram" as keyof IndicatorValue,
+				indicatorValueKey: "histogram" as keyof IndicatorValueConfig,
 			},
 		],
 	},
 
-	getConfig(): MACDConfigType {
+	getDefaultConfig(): MACDConfigType {
 		const config = Object.fromEntries(
 			Object.entries(this.params).map(([key, param]) => [
 				key,
@@ -94,13 +95,7 @@ export const MACDConfig: IndicatorConfig<MACDConfigType> = {
 	},
 
 	getValue() {
-		const result = Object.fromEntries(
-			Object.entries(this.indicatorValue).map(([key, value]) => [
-				key,
-				value.value,
-			]),
-		);
-		return result;
+		return getIndicatorValues(this.indicatorValueConfig);
 	},
 
 	parseIndicatorConfigFromKeyStr(
@@ -110,8 +105,8 @@ export const MACDConfig: IndicatorConfig<MACDConfigType> = {
 		try {
 			console.log("indicatorConfigStr", indicatorConfigStr);
 			const params = parseKeyStrToMap(indicatorConfigStr);
-			console.log("解析参数:", params);
-			console.log("指标类型:", indicatorType);
+			// console.log("解析参数:", params);
+			// console.log("指标类型:", indicatorType);
 
 			if (indicatorType !== IndicatorType.MACD) {
 				console.warn(

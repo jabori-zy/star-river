@@ -1,7 +1,7 @@
-import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, PlusCircle } from "lucide-react";
-import { BacktestStrategyChartConfig } from "@/types/chart/backtest-chart";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import type { BacktestStrategyChartConfig } from "@/types/chart/backtest-chart";
 
 interface AddChartButtonProps {
 	onAddChart: (klineCacheKeyStr: string, chartName: string) => void;

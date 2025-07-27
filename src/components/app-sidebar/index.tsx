@@ -1,4 +1,4 @@
-import * as React from "react";
+import type * as React from "react";
 
 import { NavMain } from "@/components/app-sidebar/nav-main";
 import { NavUser } from "@/components/app-sidebar/nav-user";
@@ -8,8 +8,8 @@ import {
 	SidebarFooter,
 	SidebarHeader,
 } from "@/components/ui/sidebar";
-import CreateStrategyButton from "./create-strategy-button";
 import { sideBarMenu } from "@/constants/sideBarMenu";
+import CreateStrategyButton from "./create-strategy-button";
 // This is sample data.
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {

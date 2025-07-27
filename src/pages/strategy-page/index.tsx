@@ -1,12 +1,12 @@
-import { useLocation } from "react-router";
 import { useEffect, useState } from "react";
-import { useStrategyStore } from "@/store/useStrategyStore";
-import { getStrategyById } from "@/service/strategy";
+import { useLocation } from "react-router";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import StrategyFlowContent from "./flow";
-import StrategyChartContent from "./chart";
 import useStrategyEventSSE from "@/hooks/use-strategyEventSSE";
+import { getStrategyById } from "@/service/strategy";
 import { useHeaderStore } from "@/store/useHeaderStore";
+import { useStrategyStore } from "@/store/useStrategyStore";
+import StrategyChartContent from "./chart";
+import StrategyFlowContent from "./flow";
 
 function StrategyPageMainContent() {
 	const location = useLocation();

@@ -1,36 +1,36 @@
-import { useCallback, useEffect, useMemo } from "react";
 import {
-	ReactFlow,
-	MiniMap,
+	addEdge,
+	applyEdgeChanges,
+	applyNodeChanges,
 	//   Controls,
 	Background,
-	useNodesState,
-	useEdgesState,
-	addEdge,
-	NodeToolbar,
-	applyNodeChanges,
-	NodeChange,
-	type Node,
-	type OnNodesChange,
-	type Edge,
-	type OnEdgesChange,
-	type OnConnect,
 	type Connection,
+	type Edge,
 	type EdgeChange,
-	applyEdgeChanges,
-	OnEdgesDelete,
+	MiniMap,
+	type Node,
+	type NodeChange,
+	NodeToolbar,
+	type OnConnect,
+	type OnEdgesChange,
+	type OnEdgesDelete,
+	type OnNodesChange,
+	ReactFlow,
+	useEdgesState,
+	useNodesState,
 } from "@xyflow/react";
+import { useCallback, useEffect, useMemo } from "react";
 import { handleNodeChanges } from "./on-node-change";
 import "@xyflow/react/dist/style.css";
-import { DevTools } from "@/components/flow/devtools"; // 开发者工具
-import { useDndNodeStore } from "@/store/use-dnd-node-store";
 import { useReactFlow } from "@xyflow/react";
-import { Strategy } from "@/types/strategy";
-import { nodeTypes } from "@/constants/nodeTypes";
-import edgeTypes from "@/constants/edgeTypes";
-import NodePanel from "@/components/flow/node-panel";
+import { DevTools } from "@/components/flow/devtools"; // 开发者工具
 import ControlPanel from "@/components/flow/node-controllor";
+import NodePanel from "@/components/flow/node-panel";
+import edgeTypes from "@/constants/edgeTypes";
+import { nodeTypes } from "@/constants/nodeTypes";
 import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
+import { useDndNodeStore } from "@/store/use-dnd-node-store";
+import type { Strategy } from "@/types/strategy";
 
 export default function StrategyFlow({ strategy }: { strategy: Strategy }) {
 	const [nodes, setNodes] = useNodesState<Node>([]);

@@ -1,4 +1,4 @@
-import { MT5Account, BinanceAccount, OKXAccount } from "@/types/account";
+import type { BinanceAccount, MT5Account, OKXAccount } from "@/types/account";
 
 // MT5账户基础模板数据
 const mt5AccountsBase: MT5Account[] = [

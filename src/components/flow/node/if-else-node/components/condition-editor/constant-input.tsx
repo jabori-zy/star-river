@@ -1,5 +1,5 @@
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
-import { useState, useEffect } from "react";
 
 interface ConstantInputProps {
 	className?: string;

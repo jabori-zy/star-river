@@ -1,8 +1,8 @@
-import StrategyFlow from "./strategy-flow";
-import { Strategy } from "@/types/strategy";
 import { ReactFlowProvider } from "@xyflow/react";
 import { useStrategyStore } from "@/store/useStrategyStore";
+import type { Strategy } from "@/types/strategy";
 import { Header } from "../components/header";
+import StrategyFlow from "./strategy-flow";
 
 interface StrategyFlowContentProps {
 	strategy: Strategy;

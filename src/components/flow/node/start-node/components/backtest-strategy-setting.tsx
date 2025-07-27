@@ -1,9 +1,8 @@
-import React from "react";
+import { PercentSquare, Play, TrendingUp, Wallet } from "lucide-react";
+import type React from "react";
+import SliderWithTick from "@/components/slider-with-tick";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PercentSquare, Wallet, Play } from "lucide-react";
-import { TrendingUp } from "lucide-react";
-import SliderWithTick from "@/components/slider-with-tick";
 
 interface BacktestStrategySettingProps {
 	initialBalance: number;

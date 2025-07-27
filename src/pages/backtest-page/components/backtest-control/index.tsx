@@ -1,3 +1,12 @@
+import {
+	ArrowRightToLine,
+	Loader2,
+	Pause,
+	Play,
+	Save,
+	Square,
+} from "lucide-react";
+import type React from "react";
 import { Button } from "@/components/ui/button";
 import {
 	Tooltip,
@@ -5,19 +14,10 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-	Pause,
-	Play,
-	ArrowRightToLine,
-	Square,
-	Save,
-	Loader2,
-} from "lucide-react";
-import React from "react";
-import AddChartButton from "./add-chart-button";
+import type { LayoutMode } from "@/types/chart";
+import type { BacktestStrategyChartConfig } from "@/types/chart/backtest-chart";
 import LayoutControl from "../layout-control";
-import { BacktestStrategyChartConfig } from "@/types/chart/backtest-chart";
-import { LayoutMode } from "@/types/chart";
+import AddChartButton from "./add-chart-button";
 
 interface BacktestControlProps {
 	strategyId: number;

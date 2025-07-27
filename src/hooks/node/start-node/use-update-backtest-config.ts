@@ -1,13 +1,13 @@
-import { useCallback, useEffect } from "react";
-import {
-	StrategyBacktestConfig,
-	SelectedAccount,
-	StrategyVariable,
-	TimeRange,
-	BacktestDataSource,
-} from "@/types/strategy";
-import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
 import { useReactFlow } from "@xyflow/react";
+import { useCallback, useEffect } from "react";
+import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
+import {
+	BacktestDataSource,
+	type SelectedAccount,
+	type StrategyBacktestConfig,
+	type StrategyVariable,
+	type TimeRange,
+} from "@/types/strategy";
 
 interface UseBacktestConfigProps {
 	initialConfig?: StrategyBacktestConfig;

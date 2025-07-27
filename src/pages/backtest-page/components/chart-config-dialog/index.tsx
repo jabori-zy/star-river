@@ -1,4 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
+import { AlertCircle } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import {
 	Dialog,
 	DialogContent,
@@ -7,19 +10,16 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
 import { getStrategyCacheKeys } from "@/service/strategy";
-import { parseKey } from "@/utils/parse-key";
+import type { BacktestChart } from "@/types/chart/backtest-chart";
 import {
+	type KlineKey,
 	KlineKey,
-	KlineKey,
-	IndicatorKey,
+	type IndicatorKey,
 } from "@/types/symbol-key";
-import { BacktestChart } from "@/types/chart/backtest-chart";
-import KlineSelector from "./kline-selector";
+import { parseKey } from "@/utils/parse-key";
 import IndicatorSelector from "./indicator-selector";
+import KlineSelector from "./kline-selector";
 
 interface ChartConfigDialogProps {
 	open: boolean;

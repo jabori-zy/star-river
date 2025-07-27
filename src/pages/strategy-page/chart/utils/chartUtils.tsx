@@ -1,5 +1,5 @@
-import { KlineKey, IndicatorKey } from "@/types/symbol-key";
 import { Badge } from "@/components/ui/badge";
+import type { IndicatorKey, KlineKey } from "@/types/symbol-key";
 import { parseKey } from "@/utils/parse-key";
 
 // 获取特定K线对应的指标选项

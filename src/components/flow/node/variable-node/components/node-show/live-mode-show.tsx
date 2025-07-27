@@ -1,5 +1,5 @@
-import React from "react";
-import { VariableNodeData } from "@/types/node/variable-node";
+import type React from "react";
+import type { VariableNodeData } from "@/types/node/variable-node";
 import { VariableHandleItem } from "../variable-handle-item/index";
 
 interface LiveModeShowProps {

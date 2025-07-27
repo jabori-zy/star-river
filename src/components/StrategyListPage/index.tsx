@@ -1,10 +1,7 @@
-import { StrategyItem } from "./StrategyItem";
-import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { useState, useEffect } from "react";
-import CreateStrategyDialog from "./CreateStrategyDialog";
-import { Toaster } from "@/components/ui/sonner";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import {
 	Pagination,
 	PaginationContent,
@@ -14,8 +11,11 @@ import {
 	PaginationNext,
 	PaginationPrevious,
 } from "@/components/ui/pagination";
+import { Toaster } from "@/components/ui/sonner";
 import { getStrategyList } from "@/service/strategy";
-import { Strategy } from "@/types/strategy";
+import type { Strategy } from "@/types/strategy";
+import CreateStrategyDialog from "./CreateStrategyDialog";
+import { StrategyItem } from "./StrategyItem";
 
 function StrategyListPage() {
 	const [open, setOpen] = useState(false);

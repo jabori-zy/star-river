@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { Strategy } from "@/types/strategy";
+import type { Strategy } from "@/types/strategy";
 
 interface StrategyState {
 	strategy: Strategy | undefined;

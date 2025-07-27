@@ -1,7 +1,7 @@
-import React from "react";
-import { KlineNodeLiveConfig } from "@/types/node/kline-node";
-import { Label } from "@/components/ui/label";
+import type React from "react";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import type { KlineNodeLiveConfig } from "@/types/node/kline-node";
 import { SymbolItem } from "../index";
 
 interface LiveModeShowProps {

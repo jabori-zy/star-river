@@ -1,14 +1,14 @@
-import { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
-import { IndicatorNodeData } from "@/types/node/indicator-node";
 import { useNodeConnections } from "@xyflow/react";
+import { Activity, AlertCircle } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useUpdateLiveConfig } from "@/hooks/node/indicator-node/use-update-live-config";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, Activity } from "lucide-react";
+import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
 import IndicatorEditor from "@/components/flow/node/indicator-node/components/indicator-editor";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import { useUpdateLiveConfig } from "@/hooks/node/indicator-node/use-update-live-config";
 import { getNodeDefaultInputHandleId, NodeType } from "@/types/node/index";
+import type { IndicatorNodeData } from "@/types/node/indicator-node";
 
 const IndicatorNodeLiveSettingPanel: React.FC<SettingProps> = ({
 	id,

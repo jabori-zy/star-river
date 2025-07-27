@@ -1,4 +1,4 @@
-import { PositionManagementNodeData } from "@/types/node/position-management-node";
+import type { PositionManagementNodeData } from "@/types/node/position-management-node";
 import { PositionHandleItem } from "../position-handle-item/index";
 
 interface LiveModeShowProps {

@@ -1,17 +1,17 @@
-import { useCallback, useState } from "react";
 import { useReactFlow } from "@xyflow/react";
-import {
+import { useCallback, useState } from "react";
+import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
+import type {
 	IndicatorNodeBacktestConfig,
 	IndicatorNodeBacktestExchangeModeConfig,
 	SelectedIndicator,
 } from "@/types/node/indicator-node";
+import type { SelectedSymbol } from "@/types/node/kline-node";
 import {
 	BacktestDataSource,
-	SelectedAccount,
-	TimeRange,
+	type SelectedAccount,
+	type TimeRange,
 } from "@/types/strategy";
-import { SelectedSymbol } from "@/types/node/kline-node";
-import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
 
 interface UseUpdateBacktestConfigProps {
 	id: string;

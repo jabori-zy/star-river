@@ -1,12 +1,12 @@
-import React, { useRef, useImperativeHandle, forwardRef } from "react";
+import React, { forwardRef, useImperativeHandle, useRef } from "react";
 import {
-	ResizablePanelGroup,
-	ResizablePanel,
 	ResizableHandle,
+	ResizablePanel,
+	ResizablePanelGroup,
 } from "@/components/ui/resizable";
+import type { IndicatorChartConfig, SubChartConfig } from "@/types/chart";
+import type { BacktestStrategyChartConfig } from "@/types/chart/backtest-chart";
 import ChartCard from "../chart-card";
-import { BacktestStrategyChartConfig } from "@/types/chart/backtest-chart";
-import { IndicatorChartConfig, SubChartConfig } from "@/types/chart";
 
 interface ChartContainerProps {
 	strategyChartConfig: BacktestStrategyChartConfig;

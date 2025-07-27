@@ -22,10 +22,7 @@ import type {
 	SubChartConfig,
 } from "@/types/chart";
 import type { BacktestStrategyChartConfig } from "@/types/chart/backtest-chart";
-import type {
-	IndicatorKey,
-	KlineKey,
-} from "@/types/symbol-key";
+import type { IndicatorKey, KlineKey } from "@/types/symbol-key";
 import { parseKey } from "@/utils/parse-key";
 import BacktestWindowHeader from "../../components/backtest/backtest-window-header";
 import useBacktestStrategySSE from "../../hooks/sse/use-backtest-strategy-sse";
@@ -72,10 +69,7 @@ export default function BacktestPage() {
 		try {
 			if (!strategyId) return;
 			const keys = await getStrategyCacheKeys(strategyId);
-			const parsedKeyMap: Record<
-				string,
-				KlineKey | IndicatorKey
-			> = {};
+			const parsedKeyMap: Record<string, KlineKey | IndicatorKey> = {};
 			console.log("keys", keys);
 
 			keys.forEach((keyString) => {

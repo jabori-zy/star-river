@@ -1,5 +1,8 @@
 import { TradeMode } from "@/types/node";
-import { StrategyLiveConfig, StrategySimulateConfig } from "@/types/strategy";
+import type {
+	StrategyLiveConfig,
+	StrategySimulateConfig,
+} from "@/types/strategy";
 
 /**
  * 安全获取实盘交易配置中的账户列表

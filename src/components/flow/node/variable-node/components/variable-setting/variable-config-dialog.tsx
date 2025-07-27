@@ -1,10 +1,8 @@
+import { Clock, Filter } from "lucide-react";
 import React, { useEffect } from "react";
-import {
-	type VariableConfig,
-	GetVariableType,
-	StrategySysVariable,
-	type TimerConfig,
-} from "@/types/node/variable-node";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
 	Dialog,
 	DialogContent,
@@ -13,9 +11,8 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
 	Select,
 	SelectContent,
@@ -23,13 +20,16 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
-import { Clock, Filter } from "lucide-react";
+import {
+	GetVariableType,
+	StrategySysVariable,
+	type TimerConfig,
+	type VariableConfig,
+} from "@/types/node/variable-node";
 import SymbolSelector from "./symbol-selector";
 import {
-	getVariableLabel,
 	generateVariableName,
+	getVariableLabel,
 	isDuplicateConfig,
 } from "./utils";
 

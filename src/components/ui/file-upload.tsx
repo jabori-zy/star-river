@@ -4,14 +4,13 @@ import {
 	UploadIcon,
 	XIcon,
 } from "lucide-react";
-
+import { Button } from "@/components/ui/button";
 import {
+	type FileMetadata,
+	type FileWithPreview,
 	formatBytes,
 	useFileUpload,
-	FileMetadata,
-	FileWithPreview,
 } from "@/hooks/use-file-upload";
-import { Button } from "@/components/ui/button";
 
 interface FileUploadProps {
 	maxSize?: number;

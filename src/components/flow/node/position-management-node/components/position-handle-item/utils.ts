@@ -1,6 +1,6 @@
 import {
 	PositionOperation,
-	PositionOperationConfig,
+	type PositionOperationConfig,
 } from "@/types/node/position-management-node";
 
 // 获取仓位操作类型的中文标签

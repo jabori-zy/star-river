@@ -1,12 +1,12 @@
-import { parseKey } from "@/utils/parse-key";
-import { getIndicatorChartConfig } from "@/utils/getIndicatorChartConfig";
-import * as Highcharts from "highcharts/highstock";
-import {
+import type * as Highcharts from "highcharts/highstock";
+import type {
 	IndicatorKey,
 	IndicatorKeyStr,
 	KlineKey,
 	KlineKeyStr,
 } from "@/types/symbol-key";
+import { getIndicatorChartConfig } from "@/utils/getIndicatorChartConfig";
+import { parseKey } from "@/utils/parse-key";
 
 // 获取基础图表配置（无数据）
 export function getBaseChartOptions(): Highcharts.Options {
