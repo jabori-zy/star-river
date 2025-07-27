@@ -16,12 +16,11 @@ import { getInitialChartData } from "@/service/chart";
 import type { KlineChartConfig, SubChartConfig } from "@/types/chart";
 import type { Kline } from "@/types/kline";
 import type { VirtualOrder } from "@/types/order/virtual-order";
-import type { KlineKey } from "@/types/symbol-key";
+import type { IndicatorKeyStr, KlineKey } from "@/types/symbol-key";
 import { parseKey } from "@/utils/parse-key";
 import ChartEditButton from "../chart-edit-button";
 import ChartEditDialog from "../components/chart-edit-dialog";
 import { initKlineChart } from "./init-kline-chart";
-import type { IndicatorKeyStr } from "@/types/symbol-key";
 
 interface KlineChartProps {
 	playIndex: number;
@@ -162,13 +161,9 @@ const KlineChart = forwardRef<KlineChartRef, KlineChartProps>(
 							);
 							const indicatorSubscription = indicatorStream.subscribe(
 								(indicatorData: Record<string, number>[]) => {
-									console.log(`=== 收到指标数据流更新: ${indicatorKeyStr} ===`);
-									console.log(`指标数据长度: ${indicatorData.length}`);
 
 									if (indicatorData.length > 0) {
-										const latestIndicator =
-											indicatorData[indicatorData.length - 1];
-										console.log(`最新指标数据:`, latestIndicator);
+										const latestIndicator = indicatorData[indicatorData.length - 1];
 
 										// 独立更新指标数据 - 构建单个指标的数据对象
 										const indicatorDataMap: Record<

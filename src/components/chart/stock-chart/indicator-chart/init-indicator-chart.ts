@@ -30,6 +30,9 @@ import {
 } from "@/types/chart";
 import { appTheme } from "../theme";
 import { getRolloverLegendTemplate } from "../utils";
+import { getIndicatorSeriesName } from "@/types/indicator/indicator-config";
+import type { IndicatorKey, IndicatorKeyStr } from "@/types/symbol-key";
+import { parseKey } from "@/utils/parse-key";
 
 SciChartDefaults.debugDisableResampling = false;
 SciChartDefaults.performanceWarnings = false;
@@ -271,9 +274,11 @@ const processIndicatorData = (
 
 const initIndicatorChart = async (
 	rootElement: string | HTMLDivElement,
+	indicatorKeyStr: IndicatorKeyStr,
 	indicatorChartConfig: IndicatorChartConfig,
 ) => {
 	// console.log("initTestChart", indicatorKeyStr);
+	const indicatorKey = parseKey(indicatorKeyStr) as IndicatorKey;
 
 	const { sciChartSurface, wasmContext } = await SciChartSurface.create(
 		rootElement,
@@ -281,7 +286,6 @@ const initIndicatorChart = async (
 			theme: appTheme.SciChartJsTheme,
 		},
 	);
-	const indicatorName = indicatorChartConfig?.name || "未知指标";
 
 	// 添加时间类型的X轴
 	const xAxis = new DateTimeNumericAxis(wasmContext, {
@@ -315,7 +319,7 @@ const initIndicatorChart = async (
 		indicatorChartConfig.seriesConfigs.forEach((seriesConfig: SeriesConfig) => {
 			// 创建数据系列
 			const dataSeriesInstance = new XyDataSeries(wasmContext, {
-				dataSeriesName: seriesConfig.name,
+				dataSeriesName: getIndicatorSeriesName(seriesConfig.name, indicatorKey),
 			});
 			dataSeries.push(dataSeriesInstance);
 
@@ -375,7 +379,7 @@ const initIndicatorChart = async (
 	} else {
 		// 如果没有配置，创建默认的单条折线图
 		const defaultDataSeries = new XyDataSeries(wasmContext, {
-			dataSeriesName: indicatorName,
+			dataSeriesName: getIndicatorSeriesName(indicatorChartConfig.seriesConfigs[0].name, indicatorKey),
 		});
 		const defaultRenderableSeries = new FastLineRenderableSeries(wasmContext, {
 			dataSeries: defaultDataSeries,

@@ -1,4 +1,4 @@
-import { parseIndicatorConfigNew } from "@/types/indicator/indicator-config";
+import { parseIndicatorConfig } from "@/types/indicator/indicator-config";
 import type { KlineInterval } from "@/types/kline";
 import type { IndicatorType } from "../types/indicator";
 import type { IndicatorKey, Key, KlineKey } from "../types/symbol-key";
@@ -19,13 +19,12 @@ export function parseKey(keyStr: string): Key {
 			startTime: parts[4],
 			endTime: parts[5],
 		} as KlineKey;
-	} 
-	else if (type === "indicator") {
+	} else if (type === "indicator") {
 		const indicatorConfigStr = parts[4];
 		const indicatorType = indicatorConfigStr.split("(")[0] as IndicatorType;
 
 		// 使用新的解析函数
-		const indicatorConfig = parseIndicatorConfigNew(
+		const indicatorConfig = parseIndicatorConfig(
 			indicatorType,
 			indicatorConfigStr,
 		);

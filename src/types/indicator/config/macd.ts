@@ -2,11 +2,12 @@ import { z } from "zod";
 import { SeriesType } from "@/types/chart";
 import { IndicatorType, PriceSource } from "@/types/indicator";
 import {
-	type IndicatorConfig,
-	parseKeyStrToMap,
+	createParseIndicatorConfigFromKeyStr,
 	getIndicatorValues,
+	type IndicatorConfig,
 } from "@/types/indicator/indicator-config";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
+import type { IndicatorKey } from "@/types/symbol-key";
 
 const MACDConfigSchema = z.object({
 	fastPeriod: z.number().int().positive(),
@@ -16,6 +17,16 @@ const MACDConfigSchema = z.object({
 });
 
 export type MACDConfigType = z.infer<typeof MACDConfigSchema>;
+
+// MACD指标的参数映射函数
+function buildMACDConfig(params: Map<string, string>): unknown {
+	return {
+		fastPeriod: parseInt(params.get("fast_period") || "12"),
+		slowPeriod: parseInt(params.get("slow_period") || "26"),
+		signalPeriod: parseInt(params.get("signal_period") || "9"),
+		priceSource: params.get("price_source") as PriceSource,
+	};
+}
 
 export const MACDConfig: IndicatorConfig<MACDConfigType> = {
 	type: IndicatorType.MACD,
@@ -54,7 +65,6 @@ export const MACDConfig: IndicatorConfig<MACDConfigType> = {
 		histogram: { label: "Histogram", value: 0 },
 	},
 	chartConfig: {
-		name: "MACD",
 		isInMainChart: false,
 		seriesConfigs: [
 			{
@@ -98,44 +108,12 @@ export const MACDConfig: IndicatorConfig<MACDConfigType> = {
 		return getIndicatorValues(this.indicatorValueConfig);
 	},
 
-	parseIndicatorConfigFromKeyStr(
-		indicatorType: IndicatorType,
-		indicatorConfigStr: string,
-	): MACDConfigType | undefined {
-		try {
-			console.log("indicatorConfigStr", indicatorConfigStr);
-			const params = parseKeyStrToMap(indicatorConfigStr);
-			// console.log("解析参数:", params);
-			// console.log("指标类型:", indicatorType);
-
-			if (indicatorType !== IndicatorType.MACD) {
-				console.warn(
-					`指标类型不匹配，期望: ${IndicatorType.MACD}, 实际: ${indicatorType}`,
-				);
-				return undefined;
-			}
-
-			// 构建配置对象
-			const configCandidate = {
-				fastPeriod: parseInt(params.get("fast_period") || "12"),
-				slowPeriod: parseInt(params.get("slow_period") || "26"),
-				signalPeriod: parseInt(params.get("signal_period") || "9"),
-				priceSource: params.get("price_source") as PriceSource,
-			};
-
-			// 使用 Zod 验证配置
-			const validatedConfig = MACDConfigSchema.parse(configCandidate);
-			console.log("验证通过的配置:", validatedConfig);
-
-			return validatedConfig;
-		} catch (error) {
-			console.error("解析指标配置失败:", error);
-			if (error instanceof z.ZodError) {
-				console.error("验证错误详情:", error.errors);
-			}
-			return undefined;
-		}
-	},
+	// 使用通用解析函数
+	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
+		IndicatorType.MACD,
+		MACDConfigSchema,
+		buildMACDConfig,
+	),
 
 	validateConfig(config: unknown): config is MACDConfigType {
 		try {
@@ -143,6 +121,19 @@ export const MACDConfig: IndicatorConfig<MACDConfigType> = {
 			return true;
 		} catch {
 			return false;
+		}
+	},
+	getSeriesName(seriesName: string, indicatorKey: IndicatorKey): string | undefined {
+		if (indicatorKey.indicatorType === IndicatorType.MACD) {
+			const macdConfig = indicatorKey.indicatorConfig as MACDConfigType;
+			const seriseConfig = this.chartConfig.seriesConfigs.find(config => config.name === seriesName);
+			if (seriseConfig) {
+				return `${indicatorKey.indicatorType} ${macdConfig.fastPeriod} ${macdConfig.slowPeriod} ${macdConfig.signalPeriod} ${macdConfig.priceSource.toLowerCase()} : ${seriseConfig.name}`;
+			} else {
+				return undefined;
+			}
+		} else {
+			return undefined;
 		}
 	},
 };

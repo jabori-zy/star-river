@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { SeriesType } from "@/types/chart";
-import type { IndicatorKey } from "@/types/symbol-key";
-import { IndicatorType, MAType, PriceSource } from "@/types/indicator";
+import { IndicatorType, PriceSource } from "@/types/indicator";
 import {
 	createParseIndicatorConfigFromKeyStr,
 	getIndicatorValues,
@@ -9,43 +8,35 @@ import {
 } from "@/types/indicator/indicator-config";
 import {
 	type IndicatorValueConfig,
-	MATypeSchema,
 	PriceSourceSchema,
 } from "@/types/indicator/schemas";
+import type { IndicatorKey } from "@/types/symbol-key";
 
-// MA 指标配置的 Zod schema
-const MAConfigSchema = z.object({
-	maType: MATypeSchema,
+// RSI 指标配置的 Zod schema
+const RSIConfigSchema = z.object({
 	timePeriod: z.number().int().positive(),
 	priceSource: PriceSourceSchema,
 });
 
-export type MAConfigType = z.infer<typeof MAConfigSchema>;
+export type RSIConfigType = z.infer<typeof RSIConfigSchema>;
 
-// MA指标的参数映射函数
-function buildMAConfig(params: Map<string, string>): unknown {
+// RSI指标的参数映射函数
+function buildRSIConfig(params: Map<string, string>): unknown {
 	return {
-		maType: params.get("ma_type") as MAType,
 		timePeriod: parseInt(params.get("time_period") || "0"),
 		priceSource: params.get("price_source") as PriceSource,
 	};
 }
 
-// MA指标配置实现
-export const MAConfig: IndicatorConfig<MAConfigType> = {
-	type: IndicatorType.MA,
-	displayName: "MA",
-	description: "计算指定周期的移动平均线",
+// RSI指标配置实现
+export const RSIConfig: IndicatorConfig<RSIConfigType> = {
+	type: IndicatorType.RSI, // 修正：应该是RSI而不是MA
+	displayName: "RSI",
+	description: "计算指定周期的相对强弱指数",
 	params: {
-		maType: {
-			label: "MA类型",
-			description: "选择移动平均线的计算方式",
-			defaultValue: MAType.SMA,
-			required: true,
-		},
 		timePeriod: {
 			label: "周期",
-			description: "选择移动平均线的时间周期",
+			description: "选择相对强弱指数的时间周期",
 			defaultValue: 14,
 			required: true,
 		},
@@ -58,22 +49,22 @@ export const MAConfig: IndicatorConfig<MAConfigType> = {
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0 },
-		ma: { label: "ma", value: 0 },
+		rsi: { label: "rsi", value: 0 },
 	},
 	chartConfig: {
-		isInMainChart: true,
+		isInMainChart: false, // RSI显示在副图
 		seriesConfigs: [
 			{
-				name: "MA",
+				name: "RSI",
 				type: SeriesType.LINE,
 				color: "#FF6B6B",
 				strokeThickness: 2,
-				indicatorValueKey: "ma" as keyof IndicatorValueConfig,
+				indicatorValueKey: "rsi" as keyof IndicatorValueConfig,
 			},
 		],
 	},
 
-	getDefaultConfig(): MAConfigType {
+	getDefaultConfig(): RSIConfigType {
 		const config = Object.fromEntries(
 			Object.entries(this.params).map(([key, param]) => [
 				key,
@@ -82,7 +73,7 @@ export const MAConfig: IndicatorConfig<MAConfigType> = {
 		);
 
 		// 使用 Zod 验证配置
-		const validatedConfig = MAConfigSchema.parse(config);
+		const validatedConfig = RSIConfigSchema.parse(config);
 		return validatedConfig;
 	},
 
@@ -92,14 +83,14 @@ export const MAConfig: IndicatorConfig<MAConfigType> = {
 
 	// 使用通用解析函数
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
-		IndicatorType.MA,
-		MAConfigSchema,
-		buildMAConfig,
+		IndicatorType.RSI,
+		RSIConfigSchema,
+		buildRSIConfig,
 	),
 
-	validateConfig(config: unknown): config is MAConfigType {
+	validateConfig(config: unknown): config is RSIConfigType {
 		try {
-			MAConfigSchema.parse(config);
+			RSIConfigSchema.parse(config);
 			return true;
 		} catch {
 			return false;
@@ -107,13 +98,11 @@ export const MAConfig: IndicatorConfig<MAConfigType> = {
 	},
 
 	getSeriesName(seriesName: string, indicatorKey: IndicatorKey): string | undefined {
-		// 如果指标类型为MA，则返回MA-seriesName-maType-timePeriod
-		if (indicatorKey.indicatorType === IndicatorType.MA) {
-			const maConfig = indicatorKey.indicatorConfig as MAConfigType;
-			// 找到名称相同的seriesConfig
+		if (indicatorKey.indicatorType === IndicatorType.RSI) {
+			const rsiConfig = indicatorKey.indicatorConfig as RSIConfigType;
 			const seriseConfig = this.chartConfig.seriesConfigs.find(config => config.name === seriesName);
 			if (seriseConfig) {
-				return `${seriseConfig.name} ${maConfig.maType.toLowerCase()} ${maConfig.timePeriod} ${maConfig.priceSource.toLowerCase()}`;
+				return `${indicatorKey.indicatorType} ${rsiConfig.timePeriod} ${rsiConfig.priceSource.toLowerCase()} : ${seriseConfig.name}`;
 			} else {
 				return undefined;
 			}

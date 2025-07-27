@@ -20,6 +20,12 @@ export type SeriesConfig = {
 	indicatorValueKey: keyof IndicatorValueConfig; // 指标值的键名
 };
 
+// 指标图表配置
+export type IndicatorChartConfig = {
+	isInMainChart: boolean; // 是否在主图中
+	seriesConfigs: SeriesConfig[];
+};
+
 export type KlineChartConfig = {
 	klineKeyStr: KeyStr; // 蜡烛图缓存key
 	upColor?: string; // 上涨颜色
@@ -27,16 +33,11 @@ export type KlineChartConfig = {
 	indicatorChartConfig: Record<IndicatorKeyStr, IndicatorChartConfig>; // 指标图表配置映射 indicatorCacheKeyStr -> IndicatorChartConfig
 };
 
-// 主图指标图表配置
-export type IndicatorChartConfig = {
-	name: string; // 指标名称
-	isInMainChart: boolean; // 是否在主图中
-	seriesConfigs: SeriesConfig[];
-};
+
 
 // 子图配置
 export type SubChartConfig = {
 	mainChartId: number; // 所属的主图id
 	subChartId: number; // 子图id
-	indicatorChartConfigs: Record<KeyStr, IndicatorChartConfig>;
+	indicatorChartConfigs: Record<IndicatorKeyStr, IndicatorChartConfig>;
 };

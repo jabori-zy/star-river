@@ -19,7 +19,9 @@ interface BacktestIndicatorDataState {
 	clearAllIndicatorData: () => void;
 
 	// 获取指定缓存key的最新指标数据
-	getLatestIndicatorData: (cacheKey: KeyStr) => Record<string, number> | undefined;
+	getLatestIndicatorData: (
+		cacheKey: KeyStr,
+	) => Record<string, number> | undefined;
 
 	// 获取所有的缓存key的指标数据
 	getAllIndicatorData: () => Record<KeyStr, Record<string, number>[]>;

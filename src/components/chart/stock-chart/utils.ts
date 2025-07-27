@@ -99,20 +99,59 @@ export const getRolloverLegendTemplate = (
 	seriesInfos: SeriesInfo[],
 	_svgAnnotation: RolloverLegendSvgAnnotation,
 ) => {
+
+	const groupedSeriesInfos = seriesInfos.reduce((acc, seriesInfo) => {
+		// seriesName中是否包含 : ，如果包含，则取 : 前的字符串作为key
+		const key = seriesInfo.seriesName.split(":")[0];
+
+		if (!acc[key]) {
+			acc[key] = [];
+		}
+		acc[key].push(seriesInfo);
+		return acc;
+	}, {} as Record<string, SeriesInfo[]>);
 	let outputSvgString = "";
 
 	// Foreach series there will be a seriesInfo supplied by SciChart. This contains info about the series under the house
-	seriesInfos.forEach((seriesInfo, index) => {
-		const y = 20 + index * 20;
-		const textColor = seriesInfo.stroke;
-		let legendText = `${seriesInfo.formattedYValue}`;
-		if (seriesInfo.dataSeriesType === EDataSeriesType.Ohlc) {
-			const o = seriesInfo as OhlcSeriesInfo;
-			legendText = `Open=${o.formattedOpenValue} High=${o.formattedHighValue} Low=${o.formattedLowValue} Close=${o.formattedCloseValue}`;
+	Object.keys(groupedSeriesInfos).forEach((key, index) => {
+		const seriesInfos = groupedSeriesInfos[key];
+		// 如果seriesInfos只有一个，说明是单系列，无需组合
+		if (seriesInfos.length === 1) {
+			const y = 20 + index * 20;
+			const textColor = seriesInfos[0].stroke;
+			let legendText = `${seriesInfos[0].formattedYValue}`;
+			if (seriesInfos[0].dataSeriesType === EDataSeriesType.Ohlc) {
+				const o = seriesInfos[0] as OhlcSeriesInfo;
+				legendText = `Open=${o.formattedOpenValue} High=${o.formattedHighValue} Low=${o.formattedLowValue} Close=${o.formattedCloseValue}`;
+			}
+			outputSvgString += `<text x="10" y="${y}" font-size="13" font-family="Verdana" fill="${textColor}">
+				${seriesInfos[0].seriesName}=${legendText}
+			</text>`;
+			return;
+		} else {
+			// 如果seriesInfos有多个，说明是组合指标,例如bbands
+			console.log("key=", key, "seriesInfos", seriesInfos);
+			const y = 20 + index * 20;
+			// 组合指标的输出格式为：指标名称 : 指标值1=指标值1值 指标值2=指标值2值 指标值3=指标值3值
+			let indicatorOutput = `${key} : `;
+			seriesInfos.forEach((seriesInfo) => {
+				const indicatorName = seriesInfo.seriesName.split(":")[1];
+				let indicatorValue = `${seriesInfo.formattedYValue}`;
+				indicatorOutput += `${indicatorName}=${indicatorValue} `;
+				if (seriesInfo.dataSeriesType === EDataSeriesType.Ohlc) {
+					const o = seriesInfo as OhlcSeriesInfo;
+					indicatorValue = `Open=${o.formattedOpenValue} High=${o.formattedHighValue} Low=${o.formattedLowValue} Close=${o.formattedCloseValue}`;
+				}
+				
+			});
+			outputSvgString += `<text x="10" y="${y}" font-size="13" font-family="Verdana"">
+				${indicatorOutput}
+			</text>`;
+
+
 		}
-		outputSvgString += `<text x="10" y="${y}" font-size="13" font-family="Verdana" fill="${textColor}">
-            ${seriesInfo.seriesName}: ${legendText}
-        </text>`;
+
+		
 	});
 
 	return `<svg width="100%" height="100%">

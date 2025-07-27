@@ -11,7 +11,10 @@ interface BacktestStrategyMarketDataState {
 	marketData: Record<KeyStr, (Kline | Record<string, number>)[]>;
 
 	// 添加新数据到指定的缓存key中，自动控制缓存大小
-	addMarketData: (cacheKey: KeyStr, data: (Kline | Record<string, number>)[]) => void;
+	addMarketData: (
+		cacheKey: KeyStr,
+		data: (Kline | Record<string, number>)[],
+	) => void;
 
 	// 清空特定缓存key的所有数据
 	clearMarketData: (cacheKey: KeyStr) => void;
@@ -20,7 +23,9 @@ interface BacktestStrategyMarketDataState {
 	clearAllMarketData: () => void;
 
 	// 获取指定缓存key的最新数据
-	getLatestMarketData: (cacheKey: KeyStr) => Kline | Record<string, number> | undefined;
+	getLatestMarketData: (
+		cacheKey: KeyStr,
+	) => Kline | Record<string, number> | undefined;
 
 	// 获取所有的缓存key的数据
 	getAllMarketData: () => Record<KeyStr, (Kline | Record<string, number>)[]>;

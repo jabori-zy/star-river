@@ -77,12 +77,9 @@ const IndicatorChart = forwardRef<IndicatorChartRef, IndicatorChartProps>(
 			},
 		}));
 
-		const indicatorChartConfig = Object.values(
-			subChartConfig.indicatorChartConfigs,
-		)[0];
-		const indicatorCacheKeyStr = Object.keys(
-			subChartConfig.indicatorChartConfigs,
-		)[0];
+		// 只取第一个（暂不支持多个指标）
+		const indicatorChartConfig = Object.values(subChartConfig.indicatorChartConfigs)[0];
+		const indicatorKeyStr = Object.keys(subChartConfig.indicatorChartConfigs)[0];
 
 		// 创建图表初始化函数 - 参考官网示例的方式
 		const initChart = React.useCallback(
@@ -90,6 +87,7 @@ const IndicatorChart = forwardRef<IndicatorChartRef, IndicatorChartProps>(
 				// 初始化图表
 				const { sciChartSurface, controls } = await initIndicatorChart(
 					rootElement,
+					indicatorKeyStr,
 					indicatorChartConfig,
 				);
 
@@ -97,7 +95,7 @@ const IndicatorChart = forwardRef<IndicatorChartRef, IndicatorChartProps>(
 				let subscription: Subscription | null = null;
 				if (enabled) {
 					const obs = createIndicatorStreamFromKey(
-						indicatorCacheKeyStr,
+						indicatorKeyStr,
 						enabled,
 					);
 					subscription = obs.subscribe(
@@ -119,7 +117,7 @@ const IndicatorChart = forwardRef<IndicatorChartRef, IndicatorChartProps>(
 
 				return { sciChartSurface, controls, subscription };
 			},
-			[indicatorCacheKeyStr, indicatorChartConfig, enabled],
+			[indicatorKeyStr, indicatorChartConfig, enabled],
 		);
 
 		return (
@@ -136,7 +134,7 @@ const IndicatorChart = forwardRef<IndicatorChartRef, IndicatorChartProps>(
 
 				{/* 图表区域 - 占据全部空间 */}
 				<SciChartReact
-					key={`indicator-${indicatorCacheKeyStr}`}
+					key={`indicator-${indicatorKeyStr}`}
 					initChart={initChart}
 					style={{ width: "100%", height: "100%" }}
 					onInit={(initResult: TResolvedReturnType<typeof initChart>) => {

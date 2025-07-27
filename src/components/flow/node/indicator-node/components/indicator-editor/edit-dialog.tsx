@@ -20,7 +20,10 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { IndicatorType, MAType, PriceSource } from "@/types/indicator";
-import { getIndicatorConfig } from "@/types/indicator/indicator-config";
+import {
+	getIndicatorConfig,
+	INDICATOR_CONFIG_MAP,
+} from "@/types/indicator/indicator-config";
 import type { SelectedIndicator } from "@/types/node/indicator-node";
 
 interface EditDialogProps {
@@ -85,20 +88,13 @@ const EditDialog: React.FC<EditDialogProps> = ({
 	);
 	const [formData, setFormData] = useState<Partial<FormData>>({});
 
-	// 获取指标类型选项（目前只支持 MA）
+	// 获取指标类型选项（从配置映射中动态生成）
 	const getIndicatorOptions = (): IndicatorOption[] => {
-		return [
-			{
-				value: IndicatorType.MA,
-				label: "MA (移动平均线)",
-				icon: TrendingUp,
-			},
-			{
-				value: IndicatorType.MACD,
-				label: "MACD",
-				icon: TrendingUp,
-			},
-		];
+		return Object.entries(INDICATOR_CONFIG_MAP).map(([type, config]) => ({
+			value: type as IndicatorType,
+			label: config?.displayName || type,
+			icon: TrendingUp,
+		}));
 	};
 
 	// 获取当前指标的配置实例

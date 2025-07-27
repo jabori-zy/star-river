@@ -29,10 +29,14 @@ import {
 	ZoomPanModifier,
 } from "scichart";
 import type { KlineChartConfig } from "@/types/chart";
-import { getIndciatorChartConfigFromKeyStr } from "@/types/indicator/indicator-config";
+import { getIndicatorSeriesName } from "@/types/indicator/indicator-config";
 import { type Kline, KlineInterval } from "@/types/kline";
 import type { VirtualOrder } from "@/types/order/virtual-order";
-import type { IndicatorKey, IndicatorKeyStr, KlineKey } from "@/types/symbol-key";
+import type {
+	IndicatorKey,
+	IndicatorKeyStr,
+	KlineKey,
+} from "@/types/symbol-key";
 import { parseKey } from "@/utils/parse-key";
 import { appTheme } from "../theme";
 import { TradeAnnotation } from "../trade-marker-modifier";
@@ -119,7 +123,7 @@ export const initKlineChart = async (
 
 	// 添加蜡烛图
 	const candleDataSeries = new OhlcDataSeries(wasmContext, {
-		dataSeriesName: klineKey.symbol + "/" + klineKey.interval,
+		dataSeriesName: `${klineKey.symbol}/${klineKey.interval}`,
 	});
 
 	const candlestickSeries = new FastCandlestickRenderableSeries(wasmContext, {
@@ -160,7 +164,7 @@ export const initKlineChart = async (
 	);
 
 	// 建立指标键与数据系列的直接映射关系
-	const indicatorDataSeriesMap = new Map<string, XyDataSeries>();
+	const indicatorDataSeriesMap = new Map<IndicatorKeyStr, Map<string, XyDataSeries>>(); // 指标键与数据系列的映射关系 指标键 -> 数据系列名称 -> 数据系列
 	const mainChartIndicatorRenderableSeries: IRenderableSeries[] = [];
 
 	// 添加主图的指标
@@ -169,92 +173,102 @@ export const initKlineChart = async (
 		Object.entries(klineChartConfig.indicatorChartConfig).forEach(
 			([indicatorKeyStr, indicatorChartConfig]) => {
 				console.log(
-					"indicatorChartConfig",
+					"主图指标配置",
 					indicatorKeyStr,
 					indicatorChartConfig,
 				);
+				// 如果主图指标配置不为空，则添加主图指标
 				if (indicatorChartConfig) {
+					// indicatorKey主要是为了获取指标的配置
 					const indicatorKey = parseKey(indicatorKeyStr) as IndicatorKey;
-					const indicatorDataSeries = new XyDataSeries(wasmContext, {
-						dataSeriesName:
-							indicatorKey.indicatorType.toUpperCase() +
-							":" +
-							indicatorKey.indicatorConfig.timePeriod,
-					});
-					// console.log("indicatorDataSeries", indicatorDataSeries);
 
-					// 建立直接映射关系
-					indicatorDataSeriesMap.set(indicatorKeyStr, indicatorDataSeries);
+					// 遍历指标的系列配置.
+					for (const seriesConfig of indicatorChartConfig.seriesConfigs) {
+						// 创建数据系列
+						const indicatorDataSeries = new XyDataSeries(wasmContext, {
+							dataSeriesName: getIndicatorSeriesName(seriesConfig.name, indicatorKey) || seriesConfig.name,
+						});
 
-					mainChartIndicatorRenderableSeries.push(
-						new FastLineRenderableSeries(wasmContext, {
-							dataSeries: indicatorDataSeries,
-							stroke:
-								indicatorChartConfig.seriesConfigs[0].color ||
-								appTheme.ForegroundColor,
-							strokeThickness:
-								indicatorChartConfig.seriesConfigs[0].strokeThickness || 2,
-						}),
-					);
-					sciChartSurface.renderableSeries.add(
-						mainChartIndicatorRenderableSeries[
-							mainChartIndicatorRenderableSeries.length - 1
-						],
-					);
+						// 建立直接映射关系
+						if (!indicatorDataSeriesMap.has(indicatorKeyStr)) {
+							indicatorDataSeriesMap.set(indicatorKeyStr, new Map());
+						}
+						indicatorDataSeriesMap.get(indicatorKeyStr)?.set(seriesConfig.name, indicatorDataSeries);
+
+						// 添加指标渲染器
+						mainChartIndicatorRenderableSeries.push(
+							new FastLineRenderableSeries(wasmContext, {
+								dataSeries: indicatorDataSeries,
+								stroke:
+									seriesConfig.color || appTheme.ForegroundColor,
+								strokeThickness:
+									seriesConfig.strokeThickness || 2,
+							}),
+						);
+					}
 				}
 			},
 		);
+		
+		// 在循环外统一添加所有主图指标的渲染器
+		sciChartSurface.renderableSeries.add(...mainChartIndicatorRenderableSeries);
 	}
 
 	const onNewIndicator = (
 		newIndicators: Record<IndicatorKeyStr, Record<string, number>>, // 指标数据，key为indicatorKeyStr，value为指标数据
 	) => {
+		console.log("新指标数据", newIndicators);
 		Object.entries(newIndicators).forEach(
 			([indicatorKeyStr, indicatorData]) => {
-				const indicatorChartConfig =
-					getIndciatorChartConfigFromKeyStr(indicatorKeyStr);
-				console.log("新的indicatorChartConfig", indicatorChartConfig);
+				console.log("indicatorKeyStr", indicatorKeyStr);
+				const indicatorChartConfig = klineChartConfig.indicatorChartConfig[indicatorKeyStr];
+				console.log("indicatorChartConfig", indicatorChartConfig);
+				
 				if (indicatorChartConfig) {
-					// 通过key直接找到对应的数据系列
-					const indicatorDataSeries =
-						indicatorDataSeriesMap.get(indicatorKeyStr);
-					if (indicatorDataSeries) {
-						const value =
-							indicatorData[
-								indicatorChartConfig.seriesConfigs[0].indicatorValueKey
-							];
-						// console.log("indicator_value", value);
-						if (value !== undefined && value !== null && value !== 0) {
-							const timestamp = indicatorData.timestamp / 1000;
-
-							// 参考K线的更新方式：判断是新数据还是更新现有数据
-							if (indicatorDataSeries.count() === 0) {
-								// 没有数据，直接添加
-								indicatorDataSeries.append(timestamp, value);
-							} else {
-								// 有数据，判断是否是相同时间戳的数据
-								const currentIndex = indicatorDataSeries.count() - 1;
-								const latestTimestamp = indicatorDataSeries
-									.getNativeXValues()
-									.get(currentIndex);
-
-								if (timestamp === latestTimestamp) {
-									// 相同时间戳，更新现有数据
-									indicatorDataSeries.update(currentIndex, value);
-									console.log(
-										`更新指标数据: ${indicatorKeyStr}, timestamp: ${timestamp}, value: ${value}`,
-									);
-								} else {
-									// 不同时间戳，追加新数据
+					// 遍历指标的系列配置
+					console.log("indicatorDataSeriesMap", indicatorDataSeriesMap);
+					for (const seriesConfig of indicatorChartConfig.seriesConfigs) {
+						console.log("seriesConfig", seriesConfig);
+						const indicatorDataSeries = indicatorDataSeriesMap.get(indicatorKeyStr)?.get(seriesConfig.name);
+						console.log("indicatorDataSeries", indicatorDataSeries);
+						
+						if (indicatorDataSeries) {
+							const value = indicatorData[seriesConfig.indicatorValueKey];
+							console.log("key=", seriesConfig.indicatorValueKey, "value=", value);
+							
+							if (value !== undefined && value !== null && !Number.isNaN(value) && value !== 0) {
+								const timestamp = indicatorData.timestamp / 1000;
+								
+								// 参考K线的更新方式：判断是新数据还是更新现有数据
+								if (indicatorDataSeries.count() === 0) {
+									// 没有数据，直接添加
 									indicatorDataSeries.append(timestamp, value);
 									console.log(
-										`追加指标数据: ${indicatorKeyStr}, timestamp: ${timestamp}, value: ${value}`,
+										`首次添加指标数据: ${indicatorKeyStr} - ${seriesConfig.name}, timestamp: ${timestamp}, value: ${value}`,
 									);
+								} else {
+									// 有数据，判断是否是相同时间戳的数据
+									const currentIndex = indicatorDataSeries.count() - 1;
+									const latestTimestamp = indicatorDataSeries
+										.getNativeXValues()
+										.get(currentIndex);
+
+									if (timestamp === latestTimestamp) {
+										// 相同时间戳，更新现有数据
+										indicatorDataSeries.update(currentIndex, value);
+										console.log(
+											`更新指标数据: ${indicatorKeyStr} - ${seriesConfig.name}, timestamp: ${timestamp}, value: ${value}`,
+										);
+									} else {
+										// 不同时间戳，追加新数据
+										indicatorDataSeries.append(timestamp, value);
+										console.log(
+											`追加指标数据: ${indicatorKeyStr} - ${seriesConfig.name}, timestamp: ${timestamp}, value: ${value}`,
+										);
+									}
 								}
 							}
 						}
-					} else {
-						console.warn(`未找到指标 ${indicatorKeyStr} 对应的数据系列`);
 					}
 				}
 			},
@@ -423,35 +437,39 @@ export const initKlineChart = async (
 			`setIndicatorData(): Setting data for ${indicatorKeyStr}, ${indicatorValues.length} values`,
 		);
 
-		const indicatorDataSeries = indicatorDataSeriesMap.get(indicatorKeyStr);
+		const indicatorSeriesMap = indicatorDataSeriesMap.get(indicatorKeyStr);
 		const indicatorChartConfig =
 			klineChartConfig.indicatorChartConfig[indicatorKeyStr];
 
-		if (indicatorDataSeries && indicatorChartConfig) {
-			// 清除现有数据
-			indicatorDataSeries.clear();
+		if (indicatorSeriesMap && indicatorChartConfig) {
+			// 遍历所有系列配置
+			for (const seriesConfig of indicatorChartConfig.seriesConfigs) {
+				const indicatorDataSeries = indicatorSeriesMap.get(seriesConfig.name);
+				
+				if (indicatorDataSeries) {
+					// 清除现有数据
+					indicatorDataSeries.clear();
 
-			// 准备数据数组
-			const xValues: number[] = [];
-			const yValues: number[] = [];
+					// 准备数据数组
+					const xValues: number[] = [];
+					const yValues: number[] = [];
 
-			indicatorValues.forEach((indicatorValue) => {
-				const value =
-					indicatorValue[
-						indicatorChartConfig.seriesConfigs[0].indicatorValueKey
-					];
-				if (value !== undefined && value !== null) {
-					xValues.push(indicatorValue.timestamp / 1000);
-					yValues.push(value);
+					indicatorValues.forEach((indicatorValue) => {
+						const value = indicatorValue[seriesConfig.indicatorValueKey];
+						if (value !== undefined && value !== null && !Number.isNaN(value) && value !== 0) {
+							xValues.push(indicatorValue.timestamp / 1000);
+							yValues.push(value);
+						}
+					});
+
+					// 批量添加数据
+					if (xValues.length > 0) {
+						indicatorDataSeries.appendRange(xValues, yValues);
+						console.log(
+							`批量设置指标数据完成: ${indicatorKeyStr} - ${seriesConfig.name}, ${xValues.length} 个数据点`,
+						);
+					}
 				}
-			});
-
-			// 批量添加数据
-			if (xValues.length > 0) {
-				indicatorDataSeries.appendRange(xValues, yValues);
-				console.log(
-					`批量设置指标数据完成: ${indicatorKeyStr}, ${xValues.length} 个数据点`,
-				);
 			}
 		} else {
 			console.warn(`未找到指标 ${indicatorKeyStr} 对应的数据系列或配置`);
@@ -461,8 +479,10 @@ export const initKlineChart = async (
 	const clearChartData = () => {
 		candleDataSeries.clear();
 		volumeDataSeries.clear();
-		indicatorDataSeriesMap.forEach((indicatorDataSeries) => {
-			indicatorDataSeries.clear();
+		indicatorDataSeriesMap.forEach((seriesMap) => {
+			seriesMap.forEach((dataSeries) => {
+				dataSeries.clear();
+			});
 		});
 		sciChartSurface.annotations.clear();
 	};
