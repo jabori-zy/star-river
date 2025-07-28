@@ -1,4 +1,3 @@
-import { TrendingUp } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -44,7 +43,6 @@ type FormData = Record<string, FormDataValue>;
 interface IndicatorOption {
 	value: IndicatorType;
 	label: string;
-	icon: React.ComponentType<{ className?: string }>;
 }
 
 // 选择框选项类型
@@ -93,7 +91,6 @@ const EditDialog: React.FC<EditDialogProps> = ({
 		return Object.entries(INDICATOR_CONFIG_MAP).map(([type, config]) => ({
 			value: type as IndicatorType,
 			label: config?.displayName || type,
-			icon: TrendingUp,
 		}));
 	};
 
@@ -382,13 +379,9 @@ const EditDialog: React.FC<EditDialogProps> = ({
 							</SelectTrigger>
 							<SelectContent>
 								{getIndicatorOptions().map((option) => {
-									const IconComponent = option.icon;
 									return (
 										<SelectItem key={option.value} value={option.value}>
-											<div className="flex items-center">
-												<IconComponent className="h-4 w-4 mr-2 text-blue-500" />
-												<span>{option.label}</span>
-											</div>
+											<span>{option.label}</span>
 										</SelectItem>
 									);
 								})}

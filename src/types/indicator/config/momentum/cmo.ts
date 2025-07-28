@@ -12,31 +12,31 @@ import {
 } from "@/types/indicator/schemas";
 import type { IndicatorKey } from "@/types/symbol-key";
 
-// RSI 指标配置的 Zod schema
-const RSIConfigSchema = z.object({
+// CMO 指标配置的 Zod schema
+const CmoConfigSchema = z.object({
 	timePeriod: z.number().int().positive(),
 	priceSource: PriceSourceSchema,
 });
 
-export type RSIConfigType = z.infer<typeof RSIConfigSchema>;
+export type CmoConfigType = z.infer<typeof CmoConfigSchema>;
 
-// RSI指标的参数映射函数
-function buildRSIConfig(params: Map<string, string>): unknown {
+// CMO指标的参数映射函数
+function buildCmoConfig(params: Map<string, string>): unknown {
 	return {
 		timePeriod: parseInt(params.get("time_period") || "0"),
 		priceSource: params.get("price_source") as PriceSource,
 	};
 }
 
-// RSI指标配置实现
-export const RSIConfig: IndicatorConfig<RSIConfigType> = {
-	type: IndicatorType.RSI, // 修正：应该是RSI而不是MA
-	displayName: "RSI",
-	description: "计算指定周期的相对强弱指数",
+// CMO指标配置实现
+export const CmoConfig: IndicatorConfig<CmoConfigType> = {
+	type: IndicatorType.CMO,
+	displayName: "CMO",
+	description: "Chande Momentum Oscillator",
 	params: {
 		timePeriod: {
 			label: "周期",
-			description: "选择相对强弱指数的时间周期",
+			description: "选择CMO指标的时间周期",
 			defaultValue: 14,
 			required: true,
 		},
@@ -49,22 +49,22 @@ export const RSIConfig: IndicatorConfig<RSIConfigType> = {
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0 },
-		rsi: { label: "rsi", value: 0 },
+		cmo: { label: "cmo", value: 0 },
 	},
 	chartConfig: {
-		isInMainChart: false, // RSI显示在副图
+		isInMainChart: false,
 		seriesConfigs: [
 			{
-				name: "RSI",
+				name: "cmo",
 				type: SeriesType.LINE,
 				color: "#FF6B6B",
 				strokeThickness: 2,
-				indicatorValueKey: "rsi" as keyof IndicatorValueConfig,
+				indicatorValueKey: "cmo" as keyof IndicatorValueConfig,
 			},
 		],
 	},
 
-	getDefaultConfig(): RSIConfigType {
+	getDefaultConfig(): CmoConfigType {
 		const config = Object.fromEntries(
 			Object.entries(this.params).map(([key, param]) => [
 				key,
@@ -73,7 +73,7 @@ export const RSIConfig: IndicatorConfig<RSIConfigType> = {
 		);
 
 		// 使用 Zod 验证配置
-		const validatedConfig = RSIConfigSchema.parse(config);
+		const validatedConfig = CmoConfigSchema.parse(config);
 		return validatedConfig;
 	},
 
@@ -83,14 +83,14 @@ export const RSIConfig: IndicatorConfig<RSIConfigType> = {
 
 	// 使用通用解析函数
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
-		IndicatorType.RSI,
-		RSIConfigSchema,
-		buildRSIConfig,
+		IndicatorType.CMO,
+		CmoConfigSchema,
+		buildCmoConfig,
 	),
 
-	validateConfig(config: unknown): config is RSIConfigType {
+	validateConfig(config: unknown): config is CmoConfigType {
 		try {
-			RSIConfigSchema.parse(config);
+			CmoConfigSchema.parse(config);
 			return true;
 		} catch {
 			return false;
@@ -101,13 +101,15 @@ export const RSIConfig: IndicatorConfig<RSIConfigType> = {
 		seriesName: string,
 		indicatorKey: IndicatorKey,
 	): string | undefined {
-		if (indicatorKey.indicatorType === IndicatorType.RSI) {
-			const rsiConfig = indicatorKey.indicatorConfig as RSIConfigType;
+		// 如果指标类型为CMO，则返回CMO-seriesName-timePeriod-priceSource
+		if (indicatorKey.indicatorType === IndicatorType.CMO) {
+			const cmoConfig = indicatorKey.indicatorConfig as CmoConfigType;
+			// 找到名称相同的seriesConfig
 			const seriseConfig = this.chartConfig.seriesConfigs.find(
 				(config) => config.name === seriesName,
 			);
 			if (seriseConfig) {
-				return `${indicatorKey.indicatorType} ${rsiConfig.timePeriod} ${rsiConfig.priceSource.toLowerCase()} : ${seriseConfig.name}`;
+				return `${indicatorKey.indicatorType} ${cmoConfig.timePeriod} ${cmoConfig.priceSource.toLowerCase()} : ${seriseConfig.name}`;
 			} else {
 				return undefined;
 			}

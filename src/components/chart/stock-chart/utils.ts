@@ -99,17 +99,19 @@ export const getRolloverLegendTemplate = (
 	seriesInfos: SeriesInfo[],
 	_svgAnnotation: RolloverLegendSvgAnnotation,
 ) => {
+	const groupedSeriesInfos = seriesInfos.reduce(
+		(acc, seriesInfo) => {
+			// seriesName中是否包含 : ，如果包含，则取 : 前的字符串作为key
+			const key = seriesInfo.seriesName.split(":")[0];
 
-	const groupedSeriesInfos = seriesInfos.reduce((acc, seriesInfo) => {
-		// seriesName中是否包含 : ，如果包含，则取 : 前的字符串作为key
-		const key = seriesInfo.seriesName.split(":")[0];
-
-		if (!acc[key]) {
-			acc[key] = [];
-		}
-		acc[key].push(seriesInfo);
-		return acc;
-	}, {} as Record<string, SeriesInfo[]>);
+			if (!acc[key]) {
+				acc[key] = [];
+			}
+			acc[key].push(seriesInfo);
+			return acc;
+		},
+		{} as Record<string, SeriesInfo[]>,
+	);
 	let outputSvgString = "";
 
 	// Foreach series there will be a seriesInfo supplied by SciChart. This contains info about the series under the house
@@ -142,16 +144,11 @@ export const getRolloverLegendTemplate = (
 					const o = seriesInfo as OhlcSeriesInfo;
 					indicatorValue = `Open=${o.formattedOpenValue} High=${o.formattedHighValue} Low=${o.formattedLowValue} Close=${o.formattedCloseValue}`;
 				}
-				
 			});
 			outputSvgString += `<text x="10" y="${y}" font-size="13" font-family="Verdana"">
 				${indicatorOutput}
 			</text>`;
-
-
 		}
-
-		
 	});
 
 	return `<svg width="100%" height="100%">
@@ -386,7 +383,7 @@ export const handleNewKlineData = (
 		adjustXAxisRangeForFewCandles(
 			candleCount,
 			timestamp,
-			firstCandleTimestamp!,
+			firstCandleTimestamp || timestamp,
 			candleInterval,
 			xAxis,
 		);

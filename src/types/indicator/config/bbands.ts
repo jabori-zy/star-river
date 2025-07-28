@@ -13,7 +13,7 @@ import {
 } from "@/types/indicator/schemas";
 import type { IndicatorKey } from "@/types/symbol-key";
 
-	const BBandsConfigSchema = z.object({
+const BBandsConfigSchema = z.object({
 	timePeriod: z.number().int().positive(), // 时间周期
 	devUp: z.number().positive(), // 上轨标准差 浮点数
 	devDown: z.number().positive(), // 下轨标准差 浮点数
@@ -88,14 +88,14 @@ export const BBandsConfig: IndicatorConfig<BBandsConfigType> = {
 			},
 			{
 				name: "middle",
-				type: SeriesType.LINE,
+				type: SeriesType.DASH,
 				color: "#4ECDC4",
 				strokeThickness: 2,
 				indicatorValueKey: "middle" as keyof IndicatorValueConfig,
 			},
 			{
 				name: "lower",
-				type: SeriesType.COLUMN,
+				type: SeriesType.LINE,
 				color: "#45B7D1",
 				strokeThickness: 1,
 				indicatorValueKey: "lower" as keyof IndicatorValueConfig,
@@ -135,10 +135,15 @@ export const BBandsConfig: IndicatorConfig<BBandsConfigType> = {
 			return false;
 		}
 	},
-	getSeriesName(seriesName: string, indicatorKey: IndicatorKey): string | undefined {
+	getSeriesName(
+		seriesName: string,
+		indicatorKey: IndicatorKey,
+	): string | undefined {
 		if (indicatorKey.indicatorType === IndicatorType.BBANDS) {
 			const bbandsConfig = indicatorKey.indicatorConfig as BBandsConfigType;
-			const seriseConfig = this.chartConfig.seriesConfigs.find(config => config.name === seriesName);
+			const seriseConfig = this.chartConfig.seriesConfigs.find(
+				(config) => config.name === seriesName,
+			);
 			if (seriseConfig) {
 				return `${indicatorKey.indicatorType} ${bbandsConfig.timePeriod} ${bbandsConfig.devUp} ${bbandsConfig.devDown} ${bbandsConfig.maType.toLowerCase()} ${bbandsConfig.priceSource.toLowerCase()} : ${seriseConfig.name}`;
 			}

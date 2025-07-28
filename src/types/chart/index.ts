@@ -9,6 +9,7 @@ export enum SeriesType {
 	LINE = "line",
 	COLUMN = "column",
 	MOUNTAIN = "mountain",
+	DASH = "dash",
 }
 
 // 指标图表数据系列配置
@@ -32,8 +33,6 @@ export type KlineChartConfig = {
 	downColor?: string; // 下跌颜色
 	indicatorChartConfig: Record<IndicatorKeyStr, IndicatorChartConfig>; // 指标图表配置映射 indicatorCacheKeyStr -> IndicatorChartConfig
 };
-
-
 
 // 子图配置
 export type SubChartConfig = {

@@ -161,9 +161,9 @@ const KlineChart = forwardRef<KlineChartRef, KlineChartProps>(
 							);
 							const indicatorSubscription = indicatorStream.subscribe(
 								(indicatorData: Record<string, number>[]) => {
-
 									if (indicatorData.length > 0) {
-										const latestIndicator = indicatorData[indicatorData.length - 1];
+										const latestIndicator =
+											indicatorData[indicatorData.length - 1];
 
 										// 独立更新指标数据 - 构建单个指标的数据对象
 										const indicatorDataMap: Record<

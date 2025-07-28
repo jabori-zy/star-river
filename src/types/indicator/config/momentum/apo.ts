@@ -14,28 +14,30 @@ import {
 import type { IndicatorKey } from "@/types/symbol-key";
 
 // MA 指标配置的 Zod schema
-const MAConfigSchema = z.object({
+const APOConfigSchema = z.object({
+	fastPeriod: z.number().int().positive(),
+	slowPeriod: z.number().int().positive(),
 	maType: MATypeSchema,
-	timePeriod: z.number().int().positive(),
 	priceSource: PriceSourceSchema,
 });
 
-export type MAConfigType = z.infer<typeof MAConfigSchema>;
+export type APOConfigType = z.infer<typeof APOConfigSchema>;
 
 // MA指标的参数映射函数
-function buildMAConfig(params: Map<string, string>): unknown {
+function buildAPOConfig(params: Map<string, string>): unknown {
 	return {
+		fastPeriod: parseInt(params.get("fast_period") || "0"),
+		slowPeriod: parseInt(params.get("slow_period") || "0"),
 		maType: params.get("ma_type") as MAType,
-		timePeriod: parseInt(params.get("time_period") || "0"),
 		priceSource: params.get("price_source") as PriceSource,
 	};
 }
 
 // MA指标配置实现
-export const MAConfig: IndicatorConfig<MAConfigType> = {
-	type: IndicatorType.MA,
-	displayName: "MA",
-	description: "计算指定周期的移动平均线",
+export const APOConfig: IndicatorConfig<APOConfigType> = {
+	type: IndicatorType.APO,
+	displayName: "APO",
+	description: "Absolute Price Oscillator",
 	params: {
 		maType: {
 			label: "MA类型",
@@ -43,10 +45,16 @@ export const MAConfig: IndicatorConfig<MAConfigType> = {
 			defaultValue: MAType.SMA,
 			required: true,
 		},
-		timePeriod: {
-			label: "周期",
-			description: "选择移动平均线的时间周期",
-			defaultValue: 14,
+		fastPeriod: {
+			label: "快线周期",
+			description: "选择快线的计算周期",
+			defaultValue: 12,
+			required: true,
+		},
+		slowPeriod: {
+			label: "慢线周期",
+			description: "选择慢线的计算周期",
+			defaultValue: 26,
 			required: true,
 		},
 		priceSource: {
@@ -58,22 +66,22 @@ export const MAConfig: IndicatorConfig<MAConfigType> = {
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0 },
-		ma: { label: "ma", value: 0 },
+		apo: { label: "apo", value: 0 },
 	},
 	chartConfig: {
-		isInMainChart: true,
+		isInMainChart: false,
 		seriesConfigs: [
 			{
-				name: "MA",
+				name: "apo",
 				type: SeriesType.LINE,
 				color: "#FF6B6B",
 				strokeThickness: 2,
-				indicatorValueKey: "ma" as keyof IndicatorValueConfig,
+				indicatorValueKey: "apo" as keyof IndicatorValueConfig,
 			},
 		],
 	},
 
-	getDefaultConfig(): MAConfigType {
+	getDefaultConfig(): APOConfigType {
 		const config = Object.fromEntries(
 			Object.entries(this.params).map(([key, param]) => [
 				key,
@@ -82,7 +90,7 @@ export const MAConfig: IndicatorConfig<MAConfigType> = {
 		);
 
 		// 使用 Zod 验证配置
-		const validatedConfig = MAConfigSchema.parse(config);
+		const validatedConfig = APOConfigSchema.parse(config);
 		return validatedConfig;
 	},
 
@@ -92,14 +100,14 @@ export const MAConfig: IndicatorConfig<MAConfigType> = {
 
 	// 使用通用解析函数
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
-		IndicatorType.MA,
-		MAConfigSchema,
-		buildMAConfig,
+		IndicatorType.APO,
+		APOConfigSchema,
+		buildAPOConfig,
 	),
 
-	validateConfig(config: unknown): config is MAConfigType {
+	validateConfig(config: unknown): config is APOConfigType {
 		try {
-			MAConfigSchema.parse(config);
+			APOConfigSchema.parse(config);
 			return true;
 		} catch {
 			return false;
@@ -110,15 +118,15 @@ export const MAConfig: IndicatorConfig<MAConfigType> = {
 		seriesName: string,
 		indicatorKey: IndicatorKey,
 	): string | undefined {
-		// 如果指标类型为MA，则返回MA-seriesName-maType-timePeriod
-		if (indicatorKey.indicatorType === IndicatorType.MA) {
-			const maConfig = indicatorKey.indicatorConfig as MAConfigType;
+		// 如果指标类型为APO，则返回APO-seriesName-fastPeriod-slowPeriod-maType-priceSource
+		if (indicatorKey.indicatorType === IndicatorType.APO) {
+			const apoConfig = indicatorKey.indicatorConfig as APOConfigType;
 			// 找到名称相同的seriesConfig
 			const seriseConfig = this.chartConfig.seriesConfigs.find(
 				(config) => config.name === seriesName,
 			);
 			if (seriseConfig) {
-				return `${seriseConfig.name} ${maConfig.maType.toLowerCase()} ${maConfig.timePeriod} ${maConfig.priceSource.toLowerCase()}`;
+				return `${seriseConfig.name} ${apoConfig.fastPeriod} ${apoConfig.slowPeriod} ${apoConfig.maType.toLowerCase()} ${apoConfig.priceSource.toLowerCase()}`;
 			} else {
 				return undefined;
 			}

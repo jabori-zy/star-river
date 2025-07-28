@@ -11,6 +11,7 @@ import {
 	FastCandlestickRenderableSeries,
 	FastColumnRenderableSeries,
 	FastLineRenderableSeries,
+	FastMountainRenderableSeries,
 	HorizontalLineAnnotation,
 	type IAnnotation,
 	type IRenderableSeries,
@@ -29,6 +30,7 @@ import {
 	ZoomPanModifier,
 } from "scichart";
 import type { KlineChartConfig } from "@/types/chart";
+import { SeriesType } from "@/types/chart";
 import { getIndicatorSeriesName } from "@/types/indicator/indicator-config";
 import { type Kline, KlineInterval } from "@/types/kline";
 import type { VirtualOrder } from "@/types/order/virtual-order";
@@ -164,7 +166,10 @@ export const initKlineChart = async (
 	);
 
 	// 建立指标键与数据系列的直接映射关系
-	const indicatorDataSeriesMap = new Map<IndicatorKeyStr, Map<string, XyDataSeries>>(); // 指标键与数据系列的映射关系 指标键 -> 数据系列名称 -> 数据系列
+	const indicatorDataSeriesMap = new Map<
+		IndicatorKeyStr,
+		Map<string, XyDataSeries>
+	>(); // 指标键与数据系列的映射关系 指标键 -> 数据系列名称 -> 数据系列
 	const mainChartIndicatorRenderableSeries: IRenderableSeries[] = [];
 
 	// 添加主图的指标
@@ -172,11 +177,7 @@ export const initKlineChart = async (
 	if (Object.keys(klineChartConfig.indicatorChartConfig).length > 0) {
 		Object.entries(klineChartConfig.indicatorChartConfig).forEach(
 			([indicatorKeyStr, indicatorChartConfig]) => {
-				console.log(
-					"主图指标配置",
-					indicatorKeyStr,
-					indicatorChartConfig,
-				);
+				console.log("主图指标配置", indicatorKeyStr, indicatorChartConfig);
 				// 如果主图指标配置不为空，则添加主图指标
 				if (indicatorChartConfig) {
 					// indicatorKey主要是为了获取指标的配置
@@ -186,30 +187,95 @@ export const initKlineChart = async (
 					for (const seriesConfig of indicatorChartConfig.seriesConfigs) {
 						// 创建数据系列
 						const indicatorDataSeries = new XyDataSeries(wasmContext, {
-							dataSeriesName: getIndicatorSeriesName(seriesConfig.name, indicatorKey) || seriesConfig.name,
+							dataSeriesName:
+								getIndicatorSeriesName(seriesConfig.name, indicatorKey) ||
+								seriesConfig.name,
 						});
 
 						// 建立直接映射关系
 						if (!indicatorDataSeriesMap.has(indicatorKeyStr)) {
 							indicatorDataSeriesMap.set(indicatorKeyStr, new Map());
 						}
-						indicatorDataSeriesMap.get(indicatorKeyStr)?.set(seriesConfig.name, indicatorDataSeries);
+						indicatorDataSeriesMap
+							.get(indicatorKeyStr)
+							?.set(seriesConfig.name, indicatorDataSeries);
+
+						// 根据系列类型创建相应的渲染器
+						let renderableSeriesInstance: IRenderableSeries;
+
+						switch (seriesConfig.type) {
+							case SeriesType.LINE:
+								renderableSeriesInstance = new FastLineRenderableSeries(
+									wasmContext,
+									{
+										dataSeries: indicatorDataSeries,
+										stroke: seriesConfig.color || appTheme.ForegroundColor,
+										strokeThickness: seriesConfig.strokeThickness || 2,
+										resamplingMode: EResamplingMode.None,
+									},
+								);
+								break;
+
+							case SeriesType.DASH:
+								renderableSeriesInstance = new FastLineRenderableSeries(
+									wasmContext,
+									{
+										dataSeries: indicatorDataSeries,
+										stroke: seriesConfig.color || appTheme.ForegroundColor,
+										strokeThickness: seriesConfig.strokeThickness || 2,
+										resamplingMode: EResamplingMode.None,
+										strokeDashArray: [5, 5],
+									},
+								);
+								break;
+
+							case SeriesType.COLUMN:
+								renderableSeriesInstance = new FastColumnRenderableSeries(
+									wasmContext,
+									{
+										dataSeries: indicatorDataSeries,
+										fill: seriesConfig.color || appTheme.ForegroundColor,
+										stroke: seriesConfig.color || appTheme.ForegroundColor,
+										strokeThickness: 1,
+										resamplingMode: EResamplingMode.None,
+									},
+								);
+								break;
+
+							case SeriesType.MOUNTAIN:
+								renderableSeriesInstance = new FastMountainRenderableSeries(
+									wasmContext,
+									{
+										dataSeries: indicatorDataSeries,
+										fill: seriesConfig.color || appTheme.ForegroundColor,
+										stroke: seriesConfig.color || appTheme.ForegroundColor,
+										strokeThickness: seriesConfig.strokeThickness || 2,
+										resamplingMode: EResamplingMode.None,
+									},
+								);
+								break;
+
+							default:
+								// 默认使用折线图
+								renderableSeriesInstance = new FastLineRenderableSeries(
+									wasmContext,
+									{
+										dataSeries: indicatorDataSeries,
+										stroke: seriesConfig.color || appTheme.ForegroundColor,
+										strokeThickness: seriesConfig.strokeThickness || 2,
+										resamplingMode: EResamplingMode.None,
+									},
+								);
+								break;
+						}
 
 						// 添加指标渲染器
-						mainChartIndicatorRenderableSeries.push(
-							new FastLineRenderableSeries(wasmContext, {
-								dataSeries: indicatorDataSeries,
-								stroke:
-									seriesConfig.color || appTheme.ForegroundColor,
-								strokeThickness:
-									seriesConfig.strokeThickness || 2,
-							}),
-						);
+						mainChartIndicatorRenderableSeries.push(renderableSeriesInstance);
 					}
 				}
 			},
 		);
-		
+
 		// 在循环外统一添加所有主图指标的渲染器
 		sciChartSurface.renderableSeries.add(...mainChartIndicatorRenderableSeries);
 	}
@@ -221,24 +287,37 @@ export const initKlineChart = async (
 		Object.entries(newIndicators).forEach(
 			([indicatorKeyStr, indicatorData]) => {
 				console.log("indicatorKeyStr", indicatorKeyStr);
-				const indicatorChartConfig = klineChartConfig.indicatorChartConfig[indicatorKeyStr];
+				const indicatorChartConfig =
+					klineChartConfig.indicatorChartConfig[indicatorKeyStr];
 				console.log("indicatorChartConfig", indicatorChartConfig);
-				
+
 				if (indicatorChartConfig) {
 					// 遍历指标的系列配置
 					console.log("indicatorDataSeriesMap", indicatorDataSeriesMap);
 					for (const seriesConfig of indicatorChartConfig.seriesConfigs) {
 						console.log("seriesConfig", seriesConfig);
-						const indicatorDataSeries = indicatorDataSeriesMap.get(indicatorKeyStr)?.get(seriesConfig.name);
+						const indicatorDataSeries = indicatorDataSeriesMap
+							.get(indicatorKeyStr)
+							?.get(seriesConfig.name);
 						console.log("indicatorDataSeries", indicatorDataSeries);
-						
+
 						if (indicatorDataSeries) {
 							const value = indicatorData[seriesConfig.indicatorValueKey];
-							console.log("key=", seriesConfig.indicatorValueKey, "value=", value);
-							
-							if (value !== undefined && value !== null && !Number.isNaN(value) && value !== 0) {
+							console.log(
+								"key=",
+								seriesConfig.indicatorValueKey,
+								"value=",
+								value,
+							);
+
+							if (
+								value !== undefined &&
+								value !== null &&
+								!Number.isNaN(value) &&
+								value !== 0
+							) {
 								const timestamp = indicatorData.timestamp / 1000;
-								
+
 								// 参考K线的更新方式：判断是新数据还是更新现有数据
 								if (indicatorDataSeries.count() === 0) {
 									// 没有数据，直接添加
@@ -445,7 +524,7 @@ export const initKlineChart = async (
 			// 遍历所有系列配置
 			for (const seriesConfig of indicatorChartConfig.seriesConfigs) {
 				const indicatorDataSeries = indicatorSeriesMap.get(seriesConfig.name);
-				
+
 				if (indicatorDataSeries) {
 					// 清除现有数据
 					indicatorDataSeries.clear();
@@ -456,7 +535,12 @@ export const initKlineChart = async (
 
 					indicatorValues.forEach((indicatorValue) => {
 						const value = indicatorValue[seriesConfig.indicatorValueKey];
-						if (value !== undefined && value !== null && !Number.isNaN(value) && value !== 0) {
+						if (
+							value !== undefined &&
+							value !== null &&
+							!Number.isNaN(value) &&
+							value !== 0
+						) {
 							xValues.push(indicatorValue.timestamp / 1000);
 							yValues.push(value);
 						}

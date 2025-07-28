@@ -123,10 +123,15 @@ export const MACDConfig: IndicatorConfig<MACDConfigType> = {
 			return false;
 		}
 	},
-	getSeriesName(seriesName: string, indicatorKey: IndicatorKey): string | undefined {
+	getSeriesName(
+		seriesName: string,
+		indicatorKey: IndicatorKey,
+	): string | undefined {
 		if (indicatorKey.indicatorType === IndicatorType.MACD) {
 			const macdConfig = indicatorKey.indicatorConfig as MACDConfigType;
-			const seriseConfig = this.chartConfig.seriesConfigs.find(config => config.name === seriesName);
+			const seriseConfig = this.chartConfig.seriesConfigs.find(
+				(config) => config.name === seriesName,
+			);
 			if (seriseConfig) {
 				return `${indicatorKey.indicatorType} ${macdConfig.fastPeriod} ${macdConfig.slowPeriod} ${macdConfig.signalPeriod} ${macdConfig.priceSource.toLowerCase()} : ${seriseConfig.name}`;
 			} else {

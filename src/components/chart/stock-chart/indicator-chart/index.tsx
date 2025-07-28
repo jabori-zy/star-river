@@ -78,8 +78,12 @@ const IndicatorChart = forwardRef<IndicatorChartRef, IndicatorChartProps>(
 		}));
 
 		// 只取第一个（暂不支持多个指标）
-		const indicatorChartConfig = Object.values(subChartConfig.indicatorChartConfigs)[0];
-		const indicatorKeyStr = Object.keys(subChartConfig.indicatorChartConfigs)[0];
+		const indicatorChartConfig = Object.values(
+			subChartConfig.indicatorChartConfigs,
+		)[0];
+		const indicatorKeyStr = Object.keys(
+			subChartConfig.indicatorChartConfigs,
+		)[0];
 
 		// 创建图表初始化函数 - 参考官网示例的方式
 		const initChart = React.useCallback(
@@ -94,10 +98,7 @@ const IndicatorChart = forwardRef<IndicatorChartRef, IndicatorChartProps>(
 				// 订阅指标数据流 - 类似官网示例中的 obs.subscribe()
 				let subscription: Subscription | null = null;
 				if (enabled) {
-					const obs = createIndicatorStreamFromKey(
-						indicatorKeyStr,
-						enabled,
-					);
+					const obs = createIndicatorStreamFromKey(indicatorKeyStr, enabled);
 					subscription = obs.subscribe(
 						(indicatorData: Record<string, number>[]) => {
 							console.log(`=== 收到指标数据流更新 ===`);

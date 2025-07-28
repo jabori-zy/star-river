@@ -28,11 +28,11 @@ import {
 	type SeriesConfig,
 	SeriesType,
 } from "@/types/chart";
-import { appTheme } from "../theme";
-import { getRolloverLegendTemplate } from "../utils";
 import { getIndicatorSeriesName } from "@/types/indicator/indicator-config";
 import type { IndicatorKey, IndicatorKeyStr } from "@/types/symbol-key";
 import { parseKey } from "@/utils/parse-key";
+import { appTheme } from "../theme";
+import { getRolloverLegendTemplate } from "../utils";
 
 SciChartDefaults.debugDisableResampling = false;
 SciChartDefaults.performanceWarnings = false;
@@ -379,7 +379,10 @@ const initIndicatorChart = async (
 	} else {
 		// 如果没有配置，创建默认的单条折线图
 		const defaultDataSeries = new XyDataSeries(wasmContext, {
-			dataSeriesName: getIndicatorSeriesName(indicatorChartConfig.seriesConfigs[0].name, indicatorKey),
+			dataSeriesName: getIndicatorSeriesName(
+				indicatorChartConfig.seriesConfigs[0].name,
+				indicatorKey,
+			),
 		});
 		const defaultRenderableSeries = new FastLineRenderableSeries(wasmContext, {
 			dataSeries: defaultDataSeries,
