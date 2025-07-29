@@ -33,6 +33,10 @@ const router = createBrowserRouter([
 				path: "setting",
 				element: <SettingPage />,
 			},
+			{
+				path: "test",
+				element: <TestPage />,
+			},
 		],
 	},
 	{
@@ -42,10 +46,6 @@ const router = createBrowserRouter([
 	{
 		path: "/backtest/:strategyId?",
 		element: <BacktestPage />,
-	},
-	{
-		path: "/test",
-		element: <TestPage />,
 	},
 ]);
 

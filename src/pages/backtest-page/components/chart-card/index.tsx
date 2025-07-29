@@ -1,11 +1,7 @@
-// import RealtimeTickingStockCharts from "@/components/chart/SciChart";
+	// import RealtimeTickingStockCharts from "@/components/chart/SciChart";
 import { ChartSpline, Ellipsis, Search, Trash2 } from "lucide-react";
 import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 import StockCharts from "@/components/chart/stock-chart";
-// import KlineChartWithObservable from "@/components/chart/stock-chart/kline-chart/kline-chart-with-observable";
-// import StockChart from "@/components/chart/stock-chart-new";
-// import SyncMultiChart from "@/components/chart/Demo";
-// import RealtimeTickingStockCharts from "@/components/chart/SciChart";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -17,6 +13,7 @@ import type { IndicatorChartConfig, SubChartConfig } from "@/types/chart";
 import type { BacktestChart } from "@/types/chart/backtest-chart";
 import AddIndicatorDialog from "./add-indicator-dialog";
 import SymbolListDialog from "./symbol-list-dialog";
+import { BacktestChart as BacktestChartComponent } from "@/components/chart/backtest-chart";
 
 interface ChartCardProps {
 	chartConfig: BacktestChart;
@@ -127,12 +124,13 @@ const ChartCard = forwardRef<ChartCardRef, ChartCardProps>(
 					</DropdownMenu>
 				</div>
 				<div className="flex-1 w-full overflow-hidden bg-gray-50">
-					<StockCharts
+					{/* <StockCharts
 						ref={stockChartsRef}
 						strategyId={strategyId}
 						chartConfig={chartConfig}
 						onDeleteSubChart={onDeleteSubChart}
-					/>
+					/> */}
+					<BacktestChartComponent />
 				</div>
 
 				{/* Symbol选择Dialog */}
