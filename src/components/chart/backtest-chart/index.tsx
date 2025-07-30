@@ -18,7 +18,7 @@ import React, { useCallback, useEffect, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { get_play_index } from "@/service/strategy-control/backtest-strategy-control";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
-import { useBacktestChartStore } from "./backtest-chart-store";
+import { useBacktestChartStore, cleanupBacktestChartStore } from "./backtest-chart-store";
 import { KlineLegend, useLegend } from "./legend";
 import { SeriesType } from "@/types/chart";
 
@@ -33,14 +33,13 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 	const {
 		chartData: klineData,
 		initKlineData,
-		stopSimulation,
 		setSeriesRef,
 		setChartRef,
 		setKlineKeyStr,
 		setEnabled,
 		initObserverSubscriptions,
 		cleanupSubscriptions,
-	} = useBacktestChartStore();
+	} = useBacktestChartStore(chartConfig.id);
 
 	// 添加容器和图表 API 引用
 	const chartContainerRef = useRef<HTMLDivElement>(null);
@@ -139,10 +138,10 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 			initObserverSubscriptions();
 		}, 100);
 
-		// 手动调整图表大小
-		setTimeout(() => {
-			resizeChart();
-		}, 200);
+		// // 手动调整图表大小
+		// setTimeout(() => {
+		// 	resizeChart();
+		// }, 200);
 	};
 
 	// 组件挂载后进行初始 resize
@@ -158,10 +157,11 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 	useEffect(() => {
 		return () => {
 			cleanupSubscriptions();
-			stopSimulation();
 			chartApiRef.current = null;
+			// 清理对应的store实例
+			cleanupBacktestChartStore(chartConfig.id);
 		};
-	}, [cleanupSubscriptions, stopSimulation]);
+	}, [cleanupSubscriptions, chartConfig.id]);
 
 	const chartOptions = {
 		autoSize: false,

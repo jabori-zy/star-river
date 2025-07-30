@@ -14,9 +14,8 @@ export type Candlestick = {
 	close: number;
 };
 
-let interval: NodeJS.Timeout | null = null;
-
 interface BacktestChartStore {
+	chartId: number;
 	reactive: boolean;
 	resizeOnUpdate: boolean;
 	chartData: Candlestick[];
@@ -42,13 +41,12 @@ interface BacktestChartStore {
 	cleanupSubscriptions: () => void;
 	onNewKline: (kline: Kline) => void;
 
-	// 保留原有的定时器方法（用于兼容）
-	startSimulation: () => void;
-	stopSimulation: () => void;
 	resetData: () => void;
 }
 
-export const useBacktestChartStore = create<BacktestChartStore>((set, get) => ({
+// 创建单个图表store的工厂函数
+const createBacktestChartStore = (chartId: number) => create<BacktestChartStore>((set, get) => ({
+	chartId: chartId,
 	reactive: true,
 	resizeOnUpdate: false,
 	chartData: [],
@@ -90,10 +88,10 @@ export const useBacktestChartStore = create<BacktestChartStore>((set, get) => ({
 
 			if (series) {
 				// use series.update to update single data point
-				console.log("update data point", point);
+				// console.log("update data point", point);
 				try {
 					series.update(point);
-					console.log("success update data point");
+					console.log("success update data point, chartId:", state.chartId);
 				} catch (error) {
 					console.error("error update data point", error);
 				}
@@ -204,8 +202,6 @@ export const useBacktestChartStore = create<BacktestChartStore>((set, get) => ({
 	},
 
 	onNewKline: (kline: Kline) => {
-		console.log("处理新K线数据:", kline);
-
 		// 将 Kline 数据转换为 FlexibleCandlestickData 格式
 		// 后端返回毫秒级时间戳，转换为秒级时间戳
 		const timestampInSeconds = Math.floor(
@@ -222,19 +218,6 @@ export const useBacktestChartStore = create<BacktestChartStore>((set, get) => ({
 		// 使用现有的 updateSinglePoint 方法更新图表
 		const state = get();
 		state.updateSinglePoint(candlestickData);
-	},
-
-	startSimulation: () => {
-		// 已移除模拟数据生成逻辑，现在使用 Observer 数据流
-		console.log("startSimulation: 现在使用 Observer 数据流，无需模拟数据");
-	},
-
-	stopSimulation: () => {
-		if (interval) {
-			clearInterval(interval);
-			interval = null;
-			set({ isRunning: false });
-		}
 	},
 
 	initKlineData: async (playIndex: number) => {
@@ -279,8 +262,39 @@ export const useBacktestChartStore = create<BacktestChartStore>((set, get) => ({
 	},
 
 	resetData: () => {
-		const { stopSimulation } = get();
-		stopSimulation();
 		set({ chartData: [] });
 	},
 }));
+
+// 多实例store管理器
+const storeInstances = new Map<number, ReturnType<typeof createBacktestChartStore>>();
+
+// 获取或创建指定chartId的store实例
+export const getBacktestChartStore = (chartId: number) => {
+	if (!storeInstances.has(chartId)) {
+		storeInstances.set(chartId, createBacktestChartStore(chartId));
+	}
+	const store = storeInstances.get(chartId);
+	if (!store) {
+		throw new Error(`Failed to create store for chartId: ${chartId}`);
+	}
+	return store;
+};
+
+// 清理指定chartId的store实例
+export const cleanupBacktestChartStore = (chartId: number) => {
+	const store = storeInstances.get(chartId);
+	if (store) {
+		// 清理订阅
+		const state = store.getState();
+		state.cleanupSubscriptions();
+		// 从管理器中移除
+		storeInstances.delete(chartId);
+	}
+};
+
+// Hook：根据chartId获取对应的store
+export const useBacktestChartStore = (chartId?: number) => {
+	const targetChartId = chartId ?? 0; // 默认使用chartId=0
+	return getBacktestChartStore(targetChartId)();
+};
