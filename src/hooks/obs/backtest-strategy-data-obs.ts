@@ -196,7 +196,6 @@ class BacktestStrategyDataObservableService {
 			this.disconnect();
 		}
 
-		console.log("正在建立SSE连接...");
 		this.connectionState$.next(SSEConnectionState.CONNECTING);
 
 		try {
@@ -204,7 +203,6 @@ class BacktestStrategyDataObservableService {
 
 			// 连接成功
 			this.eventSource.onopen = () => {
-				console.log("SSE连接已建立");
 				this.connectionState$.next(SSEConnectionState.CONNECTED);
 			};
 

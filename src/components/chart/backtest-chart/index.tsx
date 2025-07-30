@@ -1,26 +1,20 @@
 import dayjs from "dayjs";
-import {
-	CrosshairMode,
-	type IChartApi,
-	type TickMarkType,
-	type Time,
-	TimeFormatterFn,
-} from "lightweight-charts";
+import { CrosshairMode, type IChartApi, type Time } from "lightweight-charts";
 import {
 	CandlestickSeries,
 	Chart,
 	LineSeries,
 	Pane,
-	TimeScale,
-	TimeScaleFitContentTrigger,
 } from "lightweight-charts-react-components";
-import React, { useCallback, useEffect, useRef } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { useCallback, useEffect, useRef } from "react";
 import { get_play_index } from "@/service/strategy-control/backtest-strategy-control";
-import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
-import { useBacktestChartStore, cleanupBacktestChartStore } from "./backtest-chart-store";
-import { KlineLegend, useLegend } from "./legend";
 import { SeriesType } from "@/types/chart";
+import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
+import {
+	cleanupBacktestChartStore,
+	useBacktestChartStore,
+} from "./backtest-chart-store";
+import { KlineLegend, useKlineLegend } from "./legend";
 
 interface BacktestChartProps {
 	strategyId: number;
@@ -28,8 +22,6 @@ interface BacktestChartProps {
 }
 
 const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
-	console.log("图表刷新了", chartConfig.id);
-
 	const {
 		chartData: klineData,
 		initKlineData,
@@ -45,7 +37,7 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 	const chartContainerRef = useRef<HTMLDivElement>(null);
 	const chartApiRef = useRef<IChartApi | null>(null);
 
-	const { klineSeriesRef, legendData, onCrosshairMove } = useLegend({ data: klineData });
+	const { klineSeriesRef, legendData, onCrosshairMove } = useKlineLegend({data: klineData});
 
 	const playIndex = useRef(0);
 
@@ -89,7 +81,7 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 			chartId: chartConfig.id,
 			klineKeyStr,
 			enabled,
-			reason: "useEffect triggered"
+			reason: "useEffect triggered",
 		});
 		storeActionsRef.current.setKlineKeyStr(klineKeyStr);
 		storeActionsRef.current.setEnabled(enabled);
@@ -106,8 +98,7 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 			if (klineSeriesRef.current) {
 				const seriesApi = klineSeriesRef.current.api();
 				if (seriesApi) {
-					console.log("设置series引用到store:", seriesApi);
-					storeActionsRef.current.setSeriesRef(klineSeriesRef.current);;
+					storeActionsRef.current.setSeriesRef(klineSeriesRef.current);
 					return true;
 				} else {
 					console.warn("series API尚未可用，稍后重试");
@@ -253,19 +244,23 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 				onInit={handleChartInit}
 			>
 				<Pane>
-					<CandlestickSeries ref={klineSeriesRef} data={klineData} reactive={true} />
+					<CandlestickSeries
+						ref={klineSeriesRef}
+						data={klineData}
+						reactive={true}
+					/>
 					{/* 图例 */}
 					<KlineLegend klineSeriesData={legendData} />
 					{/* 添加主图指标 */}
-					{Object.entries(chartConfig.klineChartConfig.indicatorChartConfig).map(([_, indicatorConfig]) => {
+					{Object.entries(
+						chartConfig.klineChartConfig.indicatorChartConfig,
+					).map(([_, indicatorConfig]) => {
 						// 主图指标
 						if (indicatorConfig.isInMainChart) {
 							return indicatorConfig.seriesConfigs.map((seriesConfig) => {
 								if (seriesConfig.type === SeriesType.LINE) {
-									return (
-											<LineSeries key={seriesConfig.name} data={[]} />
-										);
-									}
+									return <LineSeries key={seriesConfig.name} data={[]} />;
+								}
 							});
 						}
 					})}

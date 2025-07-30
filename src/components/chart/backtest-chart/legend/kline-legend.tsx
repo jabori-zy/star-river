@@ -1,8 +1,8 @@
 import type React from "react";
-import type { LegendData } from "./useLegend";
+import type { KlineLegendData } from "./use-kline-legend";
 
 interface KlineLegendProps {
-	klineSeriesData: LegendData | null;
+	klineSeriesData: KlineLegendData | null;
 	className?: string;
 }
 

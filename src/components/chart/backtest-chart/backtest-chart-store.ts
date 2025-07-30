@@ -78,7 +78,6 @@ const createBacktestChartStore = (chartId: number) => create<BacktestChartStore>
 		const state = get();
 		if (state.seriesRef) {
 			const series = state.seriesRef.api();
-			console.log("series API:", series);
 
 			if (series) {
 				// use series.update to update single data point
@@ -168,15 +167,15 @@ const createBacktestChartStore = (chartId: number) => create<BacktestChartStore>
 
 	cleanupSubscriptions: () => {
 		const state = get();
-		console.log(
-			"清理 Observer 订阅，当前订阅数量:",
-			state.subscriptions.length,
-		);
+		// console.log(
+		// 	"清理 Observer 订阅，当前订阅数量:",
+		// 	state.subscriptions.length,
+		// );
 
 		state.subscriptions.forEach((subscription, index) => {
 			try {
 				subscription.unsubscribe();
-				console.log(`订阅 ${index} 已清理`);
+				// console.log(`订阅 ${index} 已清理`);
 			} catch (error) {
 				console.error(`清理订阅 ${index} 时出错:`, error);
 			}
@@ -206,16 +205,10 @@ const createBacktestChartStore = (chartId: number) => create<BacktestChartStore>
 
 	initKlineData: async (playIndex: number) => {
 		const state = get();
-		console.log("initKlineData called:", {
-			chartId: state.chartId,
-			playIndex,
-			isInitialized: state.isInitialized,
-			hasData: state.chartData.length > 0
-		});
 
 		// 如果已经初始化过且有数据，跳过重复初始化
 		if (state.isInitialized && state.chartData.length > 0) {
-			console.log("图表已初始化，跳过重复初始化:", state.chartId);
+			// console.log("图表已初始化，跳过重复初始化:", state.chartId);
 			return;
 		}
 
@@ -235,10 +228,6 @@ const createBacktestChartStore = (chartId: number) => create<BacktestChartStore>
 					close: kline.close,
 				}));
 
-				// console.log("初始化K线数据: ", klineData);
-				// console.log("数据长度: ", klineData.length);
-				// console.log("第一个数据点: ", klineData[0]);
-				// console.log("最后一个数据点: ", klineData[klineData.length - 1]);
 				set({ chartData: klineData, isInitialized: true }); // 设置数据并标记为已初始化
 
 				// 如果 series 已经可用，立即设置数据
@@ -246,7 +235,6 @@ const createBacktestChartStore = (chartId: number) => create<BacktestChartStore>
 				if (state.seriesRef) {
 					const series = state.seriesRef.api();
 					if (series) {
-						console.log("立即设置 series 数据");
 						series.setData(klineData);
 					}
 				}

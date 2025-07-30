@@ -20,7 +20,7 @@ import { colors } from "./colors";
 //     wickDownColor: '#ef5350',
 // });
 
-export type LegendData = {
+export type KlineLegendData = {
 	open?: string;
 	high?: string;
 	low?: string;
@@ -65,7 +65,7 @@ const mapCandlestickDataToLegendData = ({
 	low,
 	close,
 	time,
-}: CandlestickData): LegendData => {
+}: CandlestickData): KlineLegendData => {
 	const decreased = open > close;
 	const sign = decreased ? "-" : "+";
 	const difference = Math.abs(close - open);
@@ -84,7 +84,7 @@ const mapCandlestickDataToLegendData = ({
 
 const getLastBarLegendData = (
 	s: ISeriesApi<"Candlestick">,
-): LegendData | null => {
+): KlineLegendData | null => {
 	const data = s.dataByIndex(Number.MAX_SAFE_INTEGER, -1);
 
 	if (!data) {
@@ -98,16 +98,16 @@ const getLastBarLegendData = (
 	return mapCandlestickDataToLegendData(data);
 };
 
-interface UseLegendOptions {
+interface UseKlineLegendProps {
 	data?: CandlestickData[];
 }
 
-export const useLegend = (options: UseLegendOptions = {}) => {
-	const { data = [] } = options;
+export const useKlineLegend = (props: UseKlineLegendProps = {}) => {
+	const { data = [] } = props;
 	const klineSeriesRef = useRef<SeriesApiRef<"Candlestick">>(null);
 
 	// 使用传入的数据或默认数据来初始化 legendData
-	const [legendData, setLegendData] = useState<LegendData | null>(() => {
+	const [legendData, setLegendData] = useState<KlineLegendData | null>(() => {
 		if (data && data.length > 0) {
 			return mapCandlestickDataToLegendData(data[data.length - 1]);
 		}
@@ -116,10 +116,10 @@ export const useLegend = (options: UseLegendOptions = {}) => {
 
 	// 🔧 修复：监听数据变化，自动更新 legendData
 	useEffect(() => {
-		// console.log("Legend: 数据变化", {
-		// 	dataLength: data?.length,
-		// 	hasData: data && data.length > 0,
-		// });
+		console.log("Legend: 数据变化", {
+			dataLength: data?.length,
+			hasData: data && data.length > 0,
+		});
 		if (data && data.length > 0) {
 			const lastDataPoint = data[data.length - 1];
 			// console.log("Legend: 最后一个数据点", lastDataPoint);
