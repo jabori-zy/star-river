@@ -49,6 +49,31 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 
 	const playIndex = useRef(0);
 
+	// 存储初始的 chartId，用于组件卸载时的清理
+	const initialChartIdRef = useRef(chartConfig.id);
+
+	// 使用 useRef 存储 store 函数，避免依赖项变化导致无限渲染
+	const storeActionsRef = useRef({
+		setKlineKeyStr,
+		setEnabled,
+		initKlineData,
+		setSeriesRef,
+		setChartRef,
+		initObserverSubscriptions,
+		cleanupSubscriptions,
+	});
+
+	// 更新 ref 中的函数引用
+	storeActionsRef.current = {
+		setKlineKeyStr,
+		setEnabled,
+		initKlineData,
+		setSeriesRef,
+		setChartRef,
+		initObserverSubscriptions,
+		cleanupSubscriptions,
+	};
+
 	const getPlayIndex = useCallback(() => {
 		get_play_index(strategyId).then((index) => {
 			playIndex.current = index;
@@ -60,14 +85,18 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 	useEffect(() => {
 		const klineKeyStr = chartConfig.klineChartConfig.klineKeyStr;
 		const enabled = true; // 默认启用 Observer 数据流
-		console.log("初始化 BacktestChart 配置:", { klineKeyStr, enabled });
-		setKlineKeyStr(klineKeyStr);
-		setEnabled(enabled);
+		console.log("初始化 BacktestChart 配置:", {
+			chartId: chartConfig.id,
+			klineKeyStr,
+			enabled,
+			reason: "useEffect triggered"
+		});
+		storeActionsRef.current.setKlineKeyStr(klineKeyStr);
+		storeActionsRef.current.setEnabled(enabled);
 		getPlayIndex();
 	}, [
 		chartConfig.klineChartConfig.klineKeyStr,
-		setKlineKeyStr,
-		setEnabled,
+		chartConfig.id, // 只依赖 chartConfig.id，避免函数引用变化
 		getPlayIndex,
 	]);
 
@@ -78,7 +107,7 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 				const seriesApi = ref.current.api();
 				if (seriesApi) {
 					console.log("设置series引用到store:", seriesApi);
-					setSeriesRef(ref.current);
+					storeActionsRef.current.setSeriesRef(ref.current);
 					return true;
 				} else {
 					console.warn("series API尚未可用，稍后重试");
@@ -97,7 +126,7 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 
 			return () => clearTimeout(timer);
 		}
-	}, [ref, setSeriesRef]);
+	}, [ref]); // 只依赖 ref
 
 	// 手动调整图表大小的函数
 	const resizeChart = useCallback(() => {
@@ -128,14 +157,14 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 
 	// Chart onInit 回调 - 初始化 observer 订阅
 	const handleChartInit = (chart: IChartApi) => {
-		setChartRef(chart);
+		storeActionsRef.current.setChartRef(chart);
 
 		// 保存图表 API 引用
 		chartApiRef.current = chart;
 
 		// 延迟初始化 observer 订阅，确保所有引用都已设置
 		setTimeout(() => {
-			initObserverSubscriptions();
+			storeActionsRef.current.initObserverSubscriptions();
 		}, 100);
 
 		// // 手动调整图表大小
@@ -156,12 +185,12 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 	// 组件卸载时清理
 	useEffect(() => {
 		return () => {
-			cleanupSubscriptions();
+			storeActionsRef.current.cleanupSubscriptions();
 			chartApiRef.current = null;
-			// 清理对应的store实例
-			cleanupBacktestChartStore(chartConfig.id);
+			// 使用初始的 chartId 进行清理，避免因 chartId 变化导致错误清理
+			cleanupBacktestChartStore(initialChartIdRef.current);
 		};
-	}, [cleanupSubscriptions, chartConfig.id]);
+	}, []); // 移除依赖项，只在组件真正卸载时清理
 
 	const chartOptions = {
 		autoSize: false,

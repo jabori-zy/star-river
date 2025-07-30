@@ -16,8 +16,6 @@ export type Candlestick = {
 
 interface BacktestChartStore {
 	chartId: number;
-	reactive: boolean;
-	resizeOnUpdate: boolean;
 	chartData: Candlestick[];
 	isRunning: boolean;
 	seriesRef: SeriesApiRef<"Candlestick"> | null;
@@ -25,10 +23,9 @@ interface BacktestChartStore {
 	subscriptions: Subscription[];
 	klineKeyStr: string;
 	enabled: boolean;
+	isInitialized: boolean; // 标记是否已经初始化过数据
 
 	initKlineData: (playIndex: number) => void;
-	setReactive: (reactive: boolean) => void;
-	setResizeOnUpdate: (resizeOnUpdate: boolean) => void;
 	setData: (data: Candlestick[]) => void;
 	setSeriesRef: (ref: SeriesApiRef<"Candlestick">) => void;
 	setChartRef: (chart: IChartApi) => void;
@@ -47,8 +44,6 @@ interface BacktestChartStore {
 // 创建单个图表store的工厂函数
 const createBacktestChartStore = (chartId: number) => create<BacktestChartStore>((set, get) => ({
 	chartId: chartId,
-	reactive: true,
-	resizeOnUpdate: false,
 	chartData: [],
 	isRunning: false,
 	seriesRef: null,
@@ -56,9 +51,8 @@ const createBacktestChartStore = (chartId: number) => create<BacktestChartStore>
 	subscriptions: [],
 	klineKeyStr: "",
 	enabled: true,
+	isInitialized: false,
 
-	setReactive: (reactive: boolean) => set({ reactive }),
-	setResizeOnUpdate: (resizeOnUpdate: boolean) => set({ resizeOnUpdate }),
 	setData: (data: Candlestick[]) => set(() => ({ chartData: data })),
 	setSeriesRef: (ref: SeriesApiRef<"Candlestick">) => {
 		set({ seriesRef: ref });
@@ -222,7 +216,18 @@ const createBacktestChartStore = (chartId: number) => create<BacktestChartStore>
 
 	initKlineData: async (playIndex: number) => {
 		const state = get();
-		console.log("playIndex: ", playIndex);
+		console.log("initKlineData called:", {
+			chartId: state.chartId,
+			playIndex,
+			isInitialized: state.isInitialized,
+			hasData: state.chartData.length > 0
+		});
+
+		// 如果已经初始化过且有数据，跳过重复初始化
+		if (state.isInitialized && state.chartData.length > 0) {
+			console.log("图表已初始化，跳过重复初始化:", state.chartId);
+			return;
+		}
 
 		if (playIndex > -1) {
 			const initialKlines = (await getInitialChartData(
@@ -244,7 +249,7 @@ const createBacktestChartStore = (chartId: number) => create<BacktestChartStore>
 				// console.log("数据长度: ", klineData.length);
 				// console.log("第一个数据点: ", klineData[0]);
 				// console.log("最后一个数据点: ", klineData[klineData.length - 1]);
-				set({ chartData: klineData }); // 设置 klineData 字段
+				set({ chartData: klineData, isInitialized: true }); // 设置数据并标记为已初始化
 
 				// 如果 series 已经可用，立即设置数据
 				const state = get();
@@ -262,7 +267,7 @@ const createBacktestChartStore = (chartId: number) => create<BacktestChartStore>
 	},
 
 	resetData: () => {
-		set({ chartData: [] });
+		set({ chartData: [], isInitialized: false });
 	},
 }));
 
@@ -296,5 +301,11 @@ export const cleanupBacktestChartStore = (chartId: number) => {
 // Hook：根据chartId获取对应的store
 export const useBacktestChartStore = (chartId?: number) => {
 	const targetChartId = chartId ?? 0; // 默认使用chartId=0
-	return getBacktestChartStore(targetChartId)();
+	const store = getBacktestChartStore(targetChartId);
+	return store();
+};
+
+// 获取指定chartId的store实例（不是hook）
+export const getBacktestChartStoreInstance = (chartId: number) => {
+	return getBacktestChartStore(chartId);
 };

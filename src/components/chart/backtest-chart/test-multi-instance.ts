@@ -43,7 +43,45 @@ export const testMultiInstanceStore = () => {
   console.log('=== 多实例store测试完成 ===');
 };
 
+// 测试数据持久性
+export const testDataPersistence = () => {
+  console.log('=== 测试数据持久性 ===');
+
+  const store1 = getBacktestChartStore(1);
+  const store2 = getBacktestChartStore(2);
+
+  // 模拟设置数据
+  const mockData = [
+    { time: 1640995200 as any, open: 100, high: 105, low: 95, close: 102 },
+    { time: 1640995260 as any, open: 102, high: 108, low: 100, close: 106 }
+  ];
+
+  store1.getState().setData(mockData);
+  store2.getState().setData(mockData);
+
+  // 标记为已初始化
+  store1.setState({ isInitialized: true });
+  store2.setState({ isInitialized: true });
+
+  console.log('Store1 数据长度:', store1.getState().chartData.length);
+  console.log('Store2 数据长度:', store2.getState().chartData.length);
+  console.log('Store1 已初始化:', store1.getState().isInitialized);
+  console.log('Store2 已初始化:', store2.getState().isInitialized);
+
+  // 模拟删除图表1，检查图表2的数据是否保持
+  cleanupBacktestChartStore(1);
+
+  console.log('删除图表1后，Store2 数据长度:', store2.getState().chartData.length);
+  console.log('删除图表1后，Store2 已初始化:', store2.getState().isInitialized);
+
+  // 清理
+  cleanupBacktestChartStore(2);
+
+  console.log('=== 数据持久性测试完成 ===');
+};
+
 // 在开发环境下可以调用这个函数进行测试
 if (process.env.NODE_ENV === 'development') {
   // testMultiInstanceStore();
+  // testDataPersistence();
 }
