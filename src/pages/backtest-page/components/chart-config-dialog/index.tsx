@@ -11,7 +11,7 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { getStrategyCacheKeys } from "@/service/strategy";
-import type { BacktestChart } from "@/types/chart/backtest-chart";
+import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import {
 	type KlineKey,
 	KlineKey,
@@ -42,7 +42,7 @@ const ChartConfigDialog = ({
 	const [cacheKeys, setCacheKeys] = useState<
 		Record<string, KlineKey | IndicatorKey>
 	>({});
-	const [tempChartConfig, setTempChartConfig] = useState<BacktestChart>({
+	const [tempChartConfig, setTempChartConfig] = useState<BacktestChartConfig>({
 		id: 0,
 		chartName: "",
 		klineCacheKeyStr: "",
@@ -111,11 +111,11 @@ const ChartConfigDialog = ({
 
 	// 更新临时图表配置
 	const updateTempChartConfig = (
-		key: keyof BacktestChart,
+		key: keyof BacktestChartConfig,
 		value: string | string[],
 	) => {
 		setTempChartConfig((prev) => {
-			const newConfig: BacktestChart = {
+			const newConfig: BacktestChartConfig = {
 				...prev,
 				[key]: value,
 				...(key === "klineCacheKeyStr" ? { indicatorCacheKeyStrs: [] } : {}),

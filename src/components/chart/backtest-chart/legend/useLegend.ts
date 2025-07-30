@@ -1,18 +1,16 @@
 import dayjs from "dayjs";
-import { useCallback, useRef, useState, useEffect } from "react";
-import { colors } from "./colors";
-import { generateOHLCData } from "../mock-data";
-import type { SeriesApiRef } from "lightweight-charts-react-components";
-import type { CandlestickData, createChart } from "lightweight-charts";
 import type {
-  ISeriesApi,
-  MouseEventParams,
-  Time,
-  WhitespaceData,
+	CandlestickData,
+	ISeriesApi,
+	MouseEventParams,
+	Time,
+	WhitespaceData,
 } from "lightweight-charts";
+import type { SeriesApiRef } from "lightweight-charts-react-components";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { colors } from "./colors";
 
 // const chart = createChart(container, chartOptions);
-
 
 // const series = chart.addSeries(CandlestickSeries, {
 //     upColor: '#26a69a',
@@ -23,140 +21,197 @@ import type {
 // });
 
 export type LegendData = {
-  open?: string;
-  high?: string;
-  low?: string;
-  close?: string;
-  time: string;
-  color?: string;
-  change?: string;
+	open?: string;
+	high?: string;
+	low?: string;
+	close?: string;
+	time: Time; // 使用 Time 类型，与 K线数据保持一致
+	timeString: string; // 用于显示的时间字符串
+	color?: string;
+	change?: string;
 };
 
-export const seriesData = generateOHLCData(100);
+// 移除模拟数据，现在使用真实数据
 
-const isCandlestickData = (data: CandlestickData<Time> | WhitespaceData<Time> | undefined): data is CandlestickData<Time> => {
-  return data != null && "close" in data && "open" in data && "high" in data && "low" in data;
+const isCandlestickData = (
+	data: CandlestickData<Time> | WhitespaceData<Time> | undefined,
+): data is CandlestickData<Time> => {
+	return (
+		data != null &&
+		"close" in data &&
+		"open" in data &&
+		"high" in data &&
+		"low" in data
+	);
 };
 
 const timeToString = (time: Time): string => {
-  if (typeof time === "number") {
-    return dayjs(time * 1000).format("YYYY-MM-DD");
-  }
+	if (typeof time === "number") {
+		// 对于分钟级数据，显示日期和时间
+		return dayjs(time * 1000).format("YYYY-MM-DD HH:mm");
+	}
 
-  if (typeof time === "object") {
-    const date = new Date(time.year, time.month - 1, time.day);
-    return dayjs(date).format("YYYY-MM-DD");
-  }
+	if (typeof time === "object") {
+		const date = new Date(time.year, time.month - 1, time.day);
+		return dayjs(date).format("YYYY-MM-DD");
+	}
 
-  return time;
+	return time;
 };
 
 const mapCandlestickDataToLegendData = ({
-  open,
-  high,
-  low,
-  close,
-  time,
+	open,
+	high,
+	low,
+	close,
+	time,
 }: CandlestickData): LegendData => {
-  const decreased = open > close;
-  const sign = decreased ? "-" : "+";
-  const difference = Math.abs(close - open);
+	const decreased = open > close;
+	const sign = decreased ? "-" : "+";
+	const difference = Math.abs(close - open);
 
-  return {
-    open: open.toFixed(2),
-    high: high.toFixed(2),
-    low: low.toFixed(2),
-    close: close.toFixed(2),
-    time: timeToString(time),
-    color: decreased ? colors.red : colors.green,
-    change: `${sign}${difference.toFixed(2)} (${sign}${((difference / open) * 100).toFixed(2)}%)`,
-  };
+	return {
+		open: open.toFixed(2),
+		high: high.toFixed(2),
+		low: low.toFixed(2),
+		close: close.toFixed(2),
+		time: time, // 保持原始时间格式用于比较
+		timeString: timeToString(time), // 用于显示的时间字符串
+		color: decreased ? colors.red : colors.green,
+		change: `${sign}${difference.toFixed(2)} (${sign}${((difference / open) * 100).toFixed(2)}%)`,
+	};
 };
 
-const getLastBarLegendData = (s: ISeriesApi<"Candlestick">): LegendData | null => {
-  const data = s.dataByIndex(Number.MAX_SAFE_INTEGER, -1);
+const getLastBarLegendData = (
+	s: ISeriesApi<"Candlestick">,
+): LegendData | null => {
+	const data = s.dataByIndex(Number.MAX_SAFE_INTEGER, -1);
 
-  if (!data) {
-    return null;
-  }
+	if (!data) {
+		return null;
+	}
 
-  if (!isCandlestickData(data)) {
-    return null;
-  }
+	if (!isCandlestickData(data)) {
+		return null;
+	}
 
-  return mapCandlestickDataToLegendData(data);
+	return mapCandlestickDataToLegendData(data);
 };
 
 interface UseLegendOptions {
-  data?: CandlestickData[];
+	data?: CandlestickData[];
 }
 
 export const useLegend = (options: UseLegendOptions = {}) => {
-  const { data = seriesData } = options;
-  const ref = useRef<SeriesApiRef<"Candlestick">>(null);
-  
-  // 使用传入的数据或默认数据来初始化 legendData
-  const [legendData, setLegendData] = useState<LegendData | null>(() => {
-    if (data && data.length > 0) {
-      return mapCandlestickDataToLegendData(data[data.length - 1]);
-    }
-    return null;
-  });
+	const { data = [] } = options;
+	const ref = useRef<SeriesApiRef<"Candlestick">>(null);
 
-  // 🔧 修复：监听数据变化，自动更新 legendData
-  useEffect(() => {
-    if (data && data.length > 0) {
-      const lastDataPoint = data[data.length - 1];
-      const newLegendData = mapCandlestickDataToLegendData(lastDataPoint);
-      setLegendData(prev => {
-        // 只有在时间不同时才更新，避免不必要的渲染
-        if (prev?.time !== newLegendData.time) {
-          return newLegendData;
-        }
-        return prev;
-      });
-    }
-  }, [data]);
+	// 使用传入的数据或默认数据来初始化 legendData
+	const [legendData, setLegendData] = useState<LegendData | null>(() => {
+		if (data && data.length > 0) {
+			return mapCandlestickDataToLegendData(data[data.length - 1]);
+		}
+		return null;
+	});
 
-  const onCrosshairMove = useCallback(
-    (param: MouseEventParams) => {
-      if (!ref.current) {
-        return;
-      }
+	// 🔧 修复：监听数据变化，自动更新 legendData
+	useEffect(() => {
+		// console.log("Legend: 数据变化", {
+		// 	dataLength: data?.length,
+		// 	hasData: data && data.length > 0,
+		// });
+		if (data && data.length > 0) {
+			const lastDataPoint = data[data.length - 1];
+			// console.log("Legend: 最后一个数据点", lastDataPoint);
+			const newLegendData = mapCandlestickDataToLegendData(lastDataPoint);
+			// console.log("Legend: 新的图例数据", newLegendData);
+			setLegendData((prev) => {
+				// 只有在时间不同时才更新，避免不必要的渲染
+				const shouldUpdate = prev?.time !== newLegendData.time;
+				// console.log("Legend: useEffect 是否更新图例", {
+				// 	shouldUpdate,
+				// 	prevTime: prev?.time,
+				// 	newTime: newLegendData.time,
+				// 	prevTimeString: prev?.timeString,
+				// 	newTimeString: newLegendData.timeString,
+				// });
+				if (shouldUpdate) {
+					return newLegendData;
+				}
+				return prev;
+			});
+		} else {
+			// console.log("Legend: 没有数据，设置为 null");
+			setLegendData(null);
+		}
+	}, [data]);
 
-      const seriesApi = ref.current.api();
-      if (!seriesApi) {
-        return;
-      }
+	const onCrosshairMove = useCallback((param: MouseEventParams) => {
+		if (!ref.current) {
+			// console.log("Legend: ref.current 不存在");
+			return;
+		}
 
-      if (!param) {
-        return;
-      }
+		const seriesApi = ref.current.api();
+		if (!seriesApi) {
+			// console.log("Legend: seriesApi 不存在");
+			return;
+		}
 
-      if (!param.time) {
-        const lastBarData = getLastBarLegendData(seriesApi);
-        setLegendData(prev => (prev?.time !== lastBarData?.time ? lastBarData : prev));
-        return;
-      }
+		if (!param) {
+			// console.log("Legend: param 不存在");
+			return;
+		}
 
-      // 获取数据，可能为 undefined
-      const dataFromChart = param.seriesData.get(seriesApi);
+		// console.log("Legend: onCrosshairMove 被调用", {
+		// 	time: param.time,
+		// 	hasSeriesData: param.seriesData.size > 0,
+		// });
 
-      // 先检查是否为 undefined，再进行类型检查
-      if (!isCandlestickData(dataFromChart)) {
-        setLegendData(null);
-        return;
-      }
+		if (!param.time) {
+			// console.log("Legend: 没有时间参数，获取最后一个数据点");
+			const lastBarData = getLastBarLegendData(seriesApi);
+			// console.log("Legend: 最后一个数据点", lastBarData);
+			setLegendData((prev) =>
+				prev?.time !== lastBarData?.time ? lastBarData : prev,
+			);
+			return;
+		}
 
-      const newLegendData = mapCandlestickDataToLegendData(dataFromChart);
-      setLegendData(prev => (prev?.time !== newLegendData.time ? newLegendData : prev));
-    },
-    []
-  );
+		// 获取数据，可能为 undefined
+		const dataFromChart = param.seriesData.get(seriesApi);
+		// console.log("Legend: 从图表获取的数据", dataFromChart);
 
-  return {
-    ref,
-    legendData,
-    onCrosshairMove,
-  };
-}; 
+		// 先检查是否为 undefined，再进行类型检查
+		if (!isCandlestickData(dataFromChart)) {
+			// console.log("Legend: 数据不是有效的蜡烛图数据，获取最后一个数据点");
+			// 如果没有数据，显示最后一个数据点而不是 null
+			const lastBarData = getLastBarLegendData(seriesApi);
+			// console.log("Legend: 最后一个数据点", lastBarData);
+			setLegendData((prev) =>
+				prev?.time !== lastBarData?.time ? lastBarData : prev,
+			);
+			return;
+		}
+
+		const newLegendData = mapCandlestickDataToLegendData(dataFromChart);
+		// console.log("Legend: 新的图例数据", newLegendData);
+		setLegendData((prev) => {
+			const shouldUpdate = prev?.time !== newLegendData.time;
+			// console.log("Legend: 是否更新图例", {
+			// 	shouldUpdate,
+			// 	prevTime: prev?.time,
+			// 	newTime: newLegendData.time,
+			// 	prevTimeString: prev?.timeString,
+			// 	newTimeString: newLegendData.timeString,
+			// });
+			return shouldUpdate ? newLegendData : prev;
+		});
+	}, []);
+
+	return {
+		ref,
+		legendData,
+		onCrosshairMove,
+	};
+};

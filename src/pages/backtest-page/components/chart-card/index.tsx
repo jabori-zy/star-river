@@ -10,13 +10,13 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { IndicatorChartConfig, SubChartConfig } from "@/types/chart";
-import type { BacktestChart } from "@/types/chart/backtest-chart";
+import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import AddIndicatorDialog from "./add-indicator-dialog";
 import SymbolListDialog from "./symbol-list-dialog";
-import { BacktestChart as BacktestChartComponent } from "@/components/chart/backtest-chart";
+import BacktestChart from "@/components/chart/backtest-chart";
 
 interface ChartCardProps {
-	chartConfig: BacktestChart;
+	chartConfig: BacktestChartConfig;
 	strategyId: number;
 	onDelete: (chartId: number) => void;
 	onUpdate: (
@@ -130,7 +130,7 @@ const ChartCard = forwardRef<ChartCardRef, ChartCardProps>(
 						chartConfig={chartConfig}
 						onDeleteSubChart={onDeleteSubChart}
 					/> */}
-					<BacktestChartComponent />
+					<BacktestChart strategyId={strategyId} chartConfig={chartConfig} />
 				</div>
 
 				{/* Symbol选择Dialog */}

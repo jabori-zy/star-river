@@ -21,7 +21,7 @@ import {
 	ResizablePanelGroup,
 } from "@/components/ui/resizable";
 import { get_play_index } from "@/service/strategy-control/backtest-strategy-control";
-import type { BacktestChart } from "@/types/chart/backtest-chart";
+import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import { AxisSynchroniser } from "./axis-synchroniser";
 import { ChartGroupLoader } from "./chart-group-loader";
 import IndicatorChart from "./indicator-chart";
@@ -29,7 +29,7 @@ import KlineChart from "./kline-chart";
 
 interface StockChartsProps {
 	strategyId: number;
-	chartConfig: BacktestChart;
+	chartConfig: BacktestChartConfig;
 	onDeleteSubChart: (subChartId: number) => void;
 }
 
@@ -57,7 +57,7 @@ const StockCharts = forwardRef<StockChartsRef, StockChartsProps>(
 
 		const getPlayIndex = useCallback(() => {
 			get_play_index(strategyId).then((playIndex) => {
-				setPlayIndex(playIndex);
+				setPlayIndex(playIndex) 
 			});
 		}, [strategyId]);
 

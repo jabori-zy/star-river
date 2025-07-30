@@ -7,10 +7,10 @@ interface KlineLegendProps {
 }
 
 const KlineLegend: React.FC<KlineLegendProps> = ({
-	klineSeriesData: legendData,
+	klineSeriesData,
 	className = "",
 }) => {
-	if (legendData === null) {
+	if (klineSeriesData === null) {
 		return null;
 	}
 
@@ -19,37 +19,54 @@ const KlineLegend: React.FC<KlineLegendProps> = ({
 			className={`absolute top-0 left-0 z-10 hover:cursor-pointer hover:bg-gray-100 p-2 rounded-sm ${className}`}
 		>
 			<div className="flex flex-wrap gap-2 text-xs">
-				{legendData.open && (
+				{/* 显示时间
+				{klineSeriesData.timeString && (
+					<span className="font-medium text-gray-700">
+						{klineSeriesData.timeString}
+					</span>
+				)} */}
+				{klineSeriesData.open && (
 					<span>
 						O:{" "}
-						<span style={{ color: legendData.color }}>{legendData.open}</span>
+						<span style={{ color: klineSeriesData.color }}>
+							{klineSeriesData.open}
+						</span>
 					</span>
 				)}
-				{legendData.high && (
+				{klineSeriesData.high && (
 					<span>
 						H:{" "}
-						<span style={{ color: legendData.color }}>{legendData.high}</span>
+						<span style={{ color: klineSeriesData.color }}>
+							{klineSeriesData.high}
+						</span>
 					</span>
 				)}
-				{legendData.low && (
+				{klineSeriesData.low && (
 					<span>
-						L: <span style={{ color: legendData.color }}>{legendData.low}</span>
+						L:{" "}
+						<span style={{ color: klineSeriesData.color }}>
+							{klineSeriesData.low}
+						</span>
 					</span>
 				)}
-				{legendData.close && (
+				{klineSeriesData.close && (
 					<span>
 						C:{" "}
-						<span style={{ color: legendData.color }}>{legendData.close}</span>
+						<span style={{ color: klineSeriesData.color }}>
+							{klineSeriesData.close}
+						</span>
 					</span>
 				)}
-				{legendData.change && (
+				{klineSeriesData.change && (
 					<span
 						style={{
-							color: legendData.change.startsWith("+") ? "#22c55e" : "#ef4444",
+							color: klineSeriesData.change.startsWith("+")
+								? "#22c55e"
+								: "#ef4444",
 						}}
 						className="text-xs"
 					>
-						{legendData.change}
+						{klineSeriesData.change}
 					</span>
 				)}
 			</div>

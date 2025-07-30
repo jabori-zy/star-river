@@ -1,7 +1,7 @@
 import type { KlineChartConfig, LayoutMode, SubChartConfig } from ".";
 
 // 回测图表配置
-export type BacktestChart = {
+export type BacktestChartConfig = {
 	id: number;
 	chartName: string;
 	klineChartConfig: KlineChartConfig;
@@ -9,6 +9,6 @@ export type BacktestChart = {
 };
 
 export type BacktestStrategyChartConfig = {
-	charts: BacktestChart[];
+	charts: BacktestChartConfig[];
 	layout: LayoutMode;
 };

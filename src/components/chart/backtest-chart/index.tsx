@@ -1,136 +1,193 @@
-import React, { useEffect } from "react";
-import { Chart, CandlestickSeries, Pane, LineSeries, TimeScale, TimeScaleFitContentTrigger, SeriesApiRef } from "lightweight-charts-react-components";
-import { generateLineData } from "./mock-data";
-import { CrosshairMode } from "lightweight-charts";
-import { Card, CardContent} from "@/components/ui/card";
+import dayjs from "dayjs";
+import {
+	CrosshairMode,
+	type IChartApi,
+	type TickMarkType,
+	type Time,
+	TimeFormatterFn,
+} from "lightweight-charts";
+import {
+	CandlestickSeries,
+	Chart,
+	LineSeries,
+	Pane,
+	TimeScale,
+	TimeScaleFitContentTrigger,
+} from "lightweight-charts-react-components";
+import React, { useCallback, useEffect, useRef } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { get_play_index } from "@/service/strategy-control/backtest-strategy-control";
+import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
+import { useKlineChartStore } from "./klinechart-store";
 import { KlineLegend, useLegend } from "./legend";
-import { useRealTimeKlineStore } from "./realTimeStore";
-import { RealTimeControls } from "./RealTimeControls";
 
-const lineData = generateLineData(100);
-const lineData2 = generateLineData(100);
+interface BacktestChartProps {
+	strategyId: number;
+	chartConfig: BacktestChartConfig;
+}
 
-const BacktestChart = () => {
-  const {
-    reactive,
-    resizeOnUpdate,
-    data: realTimeData,
-    isRunning,
-    startSimulation,
-    stopSimulation,
-    setSeriesRef,
-  } = useRealTimeKlineStore();
+const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
+	console.log("chart refresh");
+	const {
+		klineData,
+		initKlineData,
+		stopSimulation,
+		setSeriesRef,
+		setChartRef,
+		setKlineKeyStr,
+		setEnabled,
+		initObserverSubscriptions,
+		cleanupSubscriptions,
+	} = useKlineChartStore();
 
-  const { ref, legendData, onCrosshairMove } = useLegend({ data: realTimeData });
+	const { ref, legendData, onCrosshairMove } = useLegend({ data: klineData });
 
-  // 设置series引用到store中，这样store就可以直接使用series.update方法
-  useEffect(() => {
-    const checkAndSetSeries = () => {
-      if (ref.current) {
-        const seriesApi = ref.current.api();
-        if (seriesApi) {
-          console.log("设置series引用到store:", seriesApi);
-          setSeriesRef(ref.current);
-          return true;
-        } else {
-          console.warn("series API尚未可用，稍后重试");
-          return false;
-        }
-      }
-      return false;
-    };
+	const playIndex = useRef(0);
 
-    // 立即检查
-    if (!checkAndSetSeries()) {
-      // 如果立即检查失败，延迟重试
-      const timer = setTimeout(() => {
-        checkAndSetSeries();
-      }, 100);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [ref, setSeriesRef]);
+	const getPlayIndex = useCallback(() => {
+		get_play_index(strategyId).then((index) => {
+			playIndex.current = index;
+			initKlineData(playIndex.current);
+		});
+	}, [strategyId, initKlineData]);
 
-  // 组件卸载时清理定时器
-  useEffect(() => {
-    return () => {
-      stopSimulation();
-    };
-  }, [stopSimulation]);
+	// 初始化配置
+	useEffect(() => {
+		const klineKeyStr = chartConfig.klineChartConfig.klineKeyStr;
+		const enabled = true; // 默认启用 Observer 数据流
+		console.log("初始化 BacktestChart 配置:", { klineKeyStr, enabled });
+		setKlineKeyStr(klineKeyStr);
+		setEnabled(enabled);
+		getPlayIndex();
+	}, [
+		chartConfig.klineChartConfig.klineKeyStr,
+		setKlineKeyStr,
+		setEnabled,
+		getPlayIndex,
+	]);
 
-  const chartOptions = {
-    autoSize: true,
-    width: 600,
-    height: 400,
-    grid: {
-      vertLines: {
-        visible: false,
-      },
-      horzLines: {
-        visible: false,
-      },
-    },
-    crosshair: {
-      mode: CrosshairMode.Normal,
-      vertLine: {
-        style: 3,
-        color: "#080F25",
-      },
-      horzLine: {
-        style: 3,
-        color: "#080F25",
-      },
-    },
-    layout: {
-      panes: {
-        separatorColor: "#080F25",
-      }
-    }
-  };
+	// 设置series引用到store中，这样store就可以直接使用series.update方法
+	useEffect(() => {
+		const checkAndSetSeries = () => {
+			if (ref.current) {
+				const seriesApi = ref.current.api();
+				if (seriesApi) {
+					console.log("设置series引用到store:", seriesApi);
+					setSeriesRef(ref.current);
+					return true;
+				} else {
+					console.warn("series API尚未可用，稍后重试");
+					return false;
+				}
+			}
+			return false;
+		};
 
-  return (
-    <div className="space-y-4">
-      {/* 控制面板 */}
-      <RealTimeControls />
+		// 立即检查
+		if (!checkAndSetSeries()) {
+			// 如果立即检查失败，延迟重试
+			const timer = setTimeout(() => {
+				checkAndSetSeries();
+			}, 100);
 
-      {/* 图表容器 */}
-      <Card className="w-full">
-        <CardContent>
-          <div className="relative h-96 w-full">
-            <Chart 
-              options={chartOptions}
-              onCrosshairMove={onCrosshairMove}
-            >
-              <Pane>
-                <CandlestickSeries 
-                  ref={ref}
-                  data={realTimeData} 
-                  reactive={false}
-                  // options={{
-                  //   upColor: '#22c55e',
-                  //   downColor: '#ef4444',
-                  //   borderUpColor: '#22c55e',
-                  //   borderDownColor: '#ef4444',
-                  //   wickUpColor: '#22c55e',
-                  //   wickDownColor: '#ef4444',
-                  // }}
-                />
-              </Pane>
-              <Pane>
-                <LineSeries data={lineData2} />
-              </Pane>
-              <TimeScale>
-                <TimeScaleFitContentTrigger 
-                  deps={resizeOnUpdate ? [realTimeData.length] : []} 
-                />
-              </TimeScale>
-            </Chart>
-            <KlineLegend klineSeriesData={legendData} />
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
+			return () => clearTimeout(timer);
+		}
+	}, [ref, setSeriesRef]);
+
+	// Chart onInit 回调 - 初始化 observer 订阅
+	const handleChartInit = (chart: IChartApi) => {
+		console.log("Chart 初始化完成:", chart);
+		setChartRef(chart);
+
+		// 延迟初始化 observer 订阅，确保所有引用都已设置
+		setTimeout(() => {
+			initObserverSubscriptions();
+		}, 100);
+	};
+
+	// 组件卸载时清理
+	useEffect(() => {
+		return () => {
+			console.log("BacktestChart 组件卸载，清理资源");
+			cleanupSubscriptions();
+			stopSimulation();
+		};
+	}, [cleanupSubscriptions, stopSimulation]);
+
+	const chartOptions = {
+		autoSize: true,
+		width: 600,
+		height: 400,
+		grid: {
+			vertLines: {
+				visible: false,
+			},
+			horzLines: {
+				visible: false,
+			},
+		},
+		crosshair: {
+			mode: CrosshairMode.Normal,
+			vertLine: {
+				style: 3,
+				color: "#080F25",
+			},
+			horzLine: {
+				style: 3,
+				color: "#080F25",
+			},
+		},
+		layout: {
+			panes: {
+				separatorColor: "#080F25",
+			},
+		},
+		localization: {
+			timeFormatter: (time: Time) => {
+				// 将时间戳转换为 yyyy-mm-dd hh:mm 格式
+				if (typeof time === "number") {
+					return dayjs(time * 1000).format("YYYY-MM-DD HH:mm");
+				}
+
+				if (typeof time === "object" && time !== null && "year" in time) {
+					const date = new Date(time.year, time.month - 1, time.day);
+					return dayjs(date).format("YYYY-MM-DD");
+				}
+
+				if (typeof time === "string") {
+					return dayjs(time).format("YYYY-MM-DD");
+				}
+
+				return String(time);
+			},
+		},
+		timeScale: {
+			visible: true,
+			timeVisible: true,
+		},
+	};
+
+	return (
+		<div className="space-y-4">
+			{/* 图表容器 */}
+			<Card className="w-full">
+				<CardContent>
+					<div className="relative h-96 w-full">
+						<Chart
+							options={chartOptions}
+							onCrosshairMove={onCrosshairMove}
+							onInit={handleChartInit}
+						>
+							<Pane>
+								<CandlestickSeries ref={ref} data={klineData} reactive={true} />
+								<KlineLegend klineSeriesData={legendData} />
+							</Pane>
+						</Chart>
+					</div>
+				</CardContent>
+			</Card>
+		</div>
+	);
 };
 
-export { BacktestChart };
+export default BacktestChart;

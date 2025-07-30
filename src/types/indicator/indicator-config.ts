@@ -63,7 +63,7 @@ export function createParseIndicatorConfigFromKeyStr<T>(
 		indicatorConfigStr: string,
 	): T | undefined {
 		try {
-			console.log("indicatorConfigStr", indicatorConfigStr);
+			// console.log("indicatorConfigStr", indicatorConfigStr);
 			const params = parseKeyStrToMap(indicatorConfigStr);
 
 			if (indicatorType !== expectedType) {

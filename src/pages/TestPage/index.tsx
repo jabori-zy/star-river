@@ -2,10 +2,11 @@ import { useTranslation } from "react-i18next";
 import { AppSidebar } from "@/components/app-sidebar-demo";
 import { SiteHeader } from "@/components/app-sidebar-demo/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { BacktestChart } from "@/components/chart/backtest-chart";
+import BacktestChart from "@/components/chart/backtest-chart";
+import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 
 export default function TestDashboard() {
-	const { t } = useTranslation();
+	// const { t } = useTranslation();
 
 	return (
 		<div>
@@ -13,7 +14,7 @@ export default function TestDashboard() {
 				<div className="text-2xl font-bold">Test</div>
 			</div>
 			<div className="flex flex-col gap-4 p-4">
-				<BacktestChart />
+				<BacktestChart strategyId={1} chartConfig={{} as BacktestChartConfig} />
 			</div>
 		</div>
 

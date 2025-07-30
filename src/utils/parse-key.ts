@@ -7,7 +7,6 @@ import type { IndicatorKey, Key, KlineKey } from "../types/symbol-key";
  * 解析缓存键字符串为相应类型
  */
 export function parseKey(keyStr: string): Key {
-	console.log("keyStr", keyStr);
 	const parts = keyStr.split("|");
 	const type = parts[0];
 

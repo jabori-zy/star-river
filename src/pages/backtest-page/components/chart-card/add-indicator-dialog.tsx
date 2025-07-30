@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import type { IndicatorChartConfig, SubChartConfig } from "@/types/chart";
-import type { BacktestChart } from "@/types/chart/backtest-chart";
+import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import { getIndciatorChartConfigFromKeyStr } from "@/types/indicator/indicator-config";
 import { IndicatorKey } from "@/types/symbol-key";
 import { parseKey } from "@/utils/parse-key";
@@ -20,7 +20,7 @@ interface IndicatorListDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	strategyId: number;
-	chartConfig: BacktestChart;
+	chartConfig: BacktestChartConfig;
 	onMainChartIndicatorAdd: (
 		chartId: number,
 		indicatorKeyStr: string,
