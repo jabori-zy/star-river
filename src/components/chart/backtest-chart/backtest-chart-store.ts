@@ -1,18 +1,25 @@
-import type { IChartApi, UTCTimestamp } from "lightweight-charts";
+import type { IChartApi, Time, UTCTimestamp } from "lightweight-charts";
 import type { SeriesApiRef } from "lightweight-charts-react-components";
 import type { Subscription } from "rxjs";
 import { create } from "zustand";
 import { createKlineStreamFromKey } from "@/hooks/obs/backtest-strategy-data-obs";
 import { getInitialChartData } from "@/service/chart";
 import type { Kline } from "@/types/kline";
-import type { FlexibleCandlestickData } from "./mock-data";
+
+export type Candlestick = {
+	time: Time; // 使用 lightweight-charts 的 Time 类型
+	open: number;
+	high: number;
+	low: number;
+	close: number;
+};
 
 let interval: NodeJS.Timeout | null = null;
 
-interface KlineChartStore {
+interface BacktestChartStore {
 	reactive: boolean;
 	resizeOnUpdate: boolean;
-	klineData: FlexibleCandlestickData[];
+	chartData: Candlestick[];
 	isRunning: boolean;
 	seriesRef: SeriesApiRef<"Candlestick"> | null;
 	chartRef: IChartApi | null;
@@ -23,12 +30,12 @@ interface KlineChartStore {
 	initKlineData: (playIndex: number) => void;
 	setReactive: (reactive: boolean) => void;
 	setResizeOnUpdate: (resizeOnUpdate: boolean) => void;
-	setData: (data: FlexibleCandlestickData[]) => void;
+	setData: (data: Candlestick[]) => void;
 	setSeriesRef: (ref: SeriesApiRef<"Candlestick">) => void;
 	setChartRef: (chart: IChartApi) => void;
 	setKlineKeyStr: (keyStr: string) => void;
 	setEnabled: (enabled: boolean) => void;
-	updateSinglePoint: (point: FlexibleCandlestickData) => void;
+	updateSinglePoint: (point: Candlestick) => void;
 
 	// Observer 相关方法
 	initObserverSubscriptions: () => void;
@@ -41,10 +48,10 @@ interface KlineChartStore {
 	resetData: () => void;
 }
 
-export const useKlineChartStore = create<KlineChartStore>((set, get) => ({
+export const useBacktestChartStore = create<BacktestChartStore>((set, get) => ({
 	reactive: true,
 	resizeOnUpdate: false,
-	klineData: [],
+	chartData: [],
 	isRunning: false,
 	seriesRef: null,
 	chartRef: null,
@@ -54,21 +61,20 @@ export const useKlineChartStore = create<KlineChartStore>((set, get) => ({
 
 	setReactive: (reactive: boolean) => set({ reactive }),
 	setResizeOnUpdate: (resizeOnUpdate: boolean) => set({ resizeOnUpdate }),
-	setData: (data: FlexibleCandlestickData[]) =>
-		set(() => ({ klineData: data })),
+	setData: (data: Candlestick[]) => set(() => ({ chartData: data })),
 	setSeriesRef: (ref: SeriesApiRef<"Candlestick">) => {
 		set({ seriesRef: ref });
 
 		// after setting series reference, check if there is data to set
 		const state = get();
-		if (state.klineData && state.klineData.length > 0) {
+		if (state.chartData && state.chartData.length > 0) {
 			const series = ref.api();
 			if (series) {
 				console.log(
 					"set series reference and set data immediately, data length:",
-					state.klineData.length,
+					state.chartData.length,
 				);
-				series.setData(state.klineData);
+				series.setData(state.chartData);
 			}
 		}
 	},
@@ -76,7 +82,7 @@ export const useKlineChartStore = create<KlineChartStore>((set, get) => ({
 	setKlineKeyStr: (keyStr: string) => set({ klineKeyStr: keyStr }),
 	setEnabled: (enabled: boolean) => set({ enabled }),
 
-	updateSinglePoint: (point: FlexibleCandlestickData) => {
+	updateSinglePoint: (point: Candlestick) => {
 		const state = get();
 		if (state.seriesRef) {
 			const series = state.seriesRef.api();
@@ -107,10 +113,10 @@ export const useKlineChartStore = create<KlineChartStore>((set, get) => ({
 				// fallback solution
 				const dataLimit = 10000;
 				set((prevState) => ({
-					klineData:
-						prevState.klineData.length >= dataLimit
-							? [...prevState.klineData.slice(1), point]
-							: [...prevState.klineData, point],
+					chartData:
+						prevState.chartData.length >= dataLimit
+							? [...prevState.chartData.slice(1), point]
+							: [...prevState.chartData, point],
 				}));
 			}
 		} else {
@@ -120,10 +126,10 @@ export const useKlineChartStore = create<KlineChartStore>((set, get) => ({
 			);
 			const dataLimit = 10000;
 			set((prevState) => ({
-				klineData:
-					prevState.klineData.length >= dataLimit
-						? [...prevState.klineData.slice(1), point]
-						: [...prevState.klineData, point],
+				chartData:
+					prevState.chartData.length >= dataLimit
+						? [...prevState.chartData.slice(1), point]
+						: [...prevState.chartData, point],
 			}));
 		}
 	},
@@ -205,7 +211,7 @@ export const useKlineChartStore = create<KlineChartStore>((set, get) => ({
 		const timestampInSeconds = Math.floor(
 			kline.timestamp / 1000,
 		) as UTCTimestamp;
-		const candlestickData: FlexibleCandlestickData = {
+		const candlestickData: Candlestick = {
 			time: timestampInSeconds, // 转换为秒级时间戳
 			open: kline.open,
 			high: kline.high,
@@ -243,36 +249,19 @@ export const useKlineChartStore = create<KlineChartStore>((set, get) => ({
 			)) as Kline[];
 
 			if (initialKlines && initialKlines.length > 0) {
-				// 按时间戳排序，确保数据按时间顺序排列
-				const sortedKlines = [...initialKlines].sort(
-					(a, b) => a.timestamp - b.timestamp,
-				);
+				const klineData: Candlestick[] = initialKlines.map((kline) => ({
+					time: Math.floor(kline.timestamp / 1000) as UTCTimestamp,
+					open: kline.open,
+					high: kline.high,
+					low: kline.low,
+					close: kline.close,
+				}));
 
-				const klineData: FlexibleCandlestickData[] = sortedKlines.map(
-					(kline) => ({
-						time: Math.floor(kline.timestamp / 1000) as UTCTimestamp,
-						open: kline.open,
-						high: kline.high,
-						low: kline.low,
-						close: kline.close,
-					}),
-				);
-
-				console.log("初始化K线数据: ", klineData);
-				console.log("数据长度: ", klineData.length);
-				console.log("第一个数据点: ", klineData[0]);
-				console.log("最后一个数据点: ", klineData[klineData.length - 1]);
-
-				// 验证时间戳是否递增
-				for (let i = 1; i < klineData.length; i++) {
-					if (klineData[i].time <= klineData[i - 1].time) {
-						console.warn(
-							`时间戳顺序错误: ${klineData[i - 1].time} -> ${klineData[i].time}`,
-						);
-					}
-				}
-
-				set({ klineData }); // 设置 klineData 字段
+				// console.log("初始化K线数据: ", klineData);
+				// console.log("数据长度: ", klineData.length);
+				// console.log("第一个数据点: ", klineData[0]);
+				// console.log("最后一个数据点: ", klineData[klineData.length - 1]);
+				set({ chartData: klineData }); // 设置 klineData 字段
 
 				// 如果 series 已经可用，立即设置数据
 				const state = get();
@@ -292,6 +281,6 @@ export const useKlineChartStore = create<KlineChartStore>((set, get) => ({
 	resetData: () => {
 		const { stopSimulation } = get();
 		stopSimulation();
-		set({ klineData: [] });
+		set({ chartData: [] });
 	},
 }));

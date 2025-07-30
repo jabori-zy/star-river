@@ -57,6 +57,8 @@ const ChartCard = forwardRef<ChartCardRef, ChartCardProps>(
 		const [isIndicatorDialogOpen, setIsIndicatorDialogOpen] = useState(false);
 		const stockChartsRef = useRef<{ clearChartData: () => void }>(null);
 
+
+
 		// 暴露清空方法给父组件
 		useImperativeHandle(ref, () => ({
 			clearChartData: () => {
@@ -88,8 +90,8 @@ const ChartCard = forwardRef<ChartCardRef, ChartCardProps>(
 		};
 
 		return (
-			<div className="flex flex-col h-full overflow-hidden">
-				<div className="flex items-center justify-between px-2 mb-2">
+			<div className="flex flex-col h-full min-h-0 overflow-hidden">
+				<div className="flex items-center justify-between px-2 mb-2 flex-shrink-0">
 					<div className="flex flex-row items-center gap-2">
 						<Button
 							className="flex flex-row items-center gap-2 text-sm font-medium"
@@ -123,7 +125,7 @@ const ChartCard = forwardRef<ChartCardRef, ChartCardProps>(
 						</DropdownMenuContent>
 					</DropdownMenu>
 				</div>
-				<div className="flex-1 w-full overflow-hidden bg-gray-50">
+				<div className="flex-1 w-full h-full bg-gray-50">
 					{/* <StockCharts
 						ref={stockChartsRef}
 						strategyId={strategyId}

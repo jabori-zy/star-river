@@ -18,8 +18,9 @@ import React, { useCallback, useEffect, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { get_play_index } from "@/service/strategy-control/backtest-strategy-control";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
-import { useKlineChartStore } from "./klinechart-store";
+import { useBacktestChartStore } from "./backtest-chart-store";
 import { KlineLegend, useLegend } from "./legend";
+import { SeriesType } from "@/types/chart";
 
 interface BacktestChartProps {
 	strategyId: number;
@@ -27,9 +28,10 @@ interface BacktestChartProps {
 }
 
 const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
-	console.log("chart refresh");
+	console.log("图表刷新了", chartConfig.id);
+
 	const {
-		klineData,
+		chartData: klineData,
 		initKlineData,
 		stopSimulation,
 		setSeriesRef,
@@ -38,7 +40,11 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 		setEnabled,
 		initObserverSubscriptions,
 		cleanupSubscriptions,
-	} = useKlineChartStore();
+	} = useBacktestChartStore();
+
+	// 添加容器和图表 API 引用
+	const chartContainerRef = useRef<HTMLDivElement>(null);
+	const chartApiRef = useRef<IChartApi | null>(null);
 
 	const { ref, legendData, onCrosshairMove } = useLegend({ data: klineData });
 
@@ -94,30 +100,73 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 		}
 	}, [ref, setSeriesRef]);
 
+	// 手动调整图表大小的函数
+	const resizeChart = useCallback(() => {
+		if (chartApiRef.current && chartContainerRef.current) {
+			const rect = chartContainerRef.current.getBoundingClientRect();
+			chartApiRef.current.resize(rect.width, rect.height, true);
+		}
+	}, []);
+
+	// 监听容器大小变化
+	useEffect(() => {
+		let resizeObserver: ResizeObserver | null = null;
+
+		if (chartContainerRef.current) {
+			resizeObserver = new ResizeObserver(() => {
+				// 当容器大小变化时，手动调整图表大小
+				setTimeout(resizeChart, 50);
+			});
+			resizeObserver.observe(chartContainerRef.current);
+		}
+
+		return () => {
+			if (resizeObserver) {
+				resizeObserver.disconnect();
+			}
+		};
+	}, [resizeChart]);
+
 	// Chart onInit 回调 - 初始化 observer 订阅
 	const handleChartInit = (chart: IChartApi) => {
-		console.log("Chart 初始化完成:", chart);
 		setChartRef(chart);
+
+		// 保存图表 API 引用
+		chartApiRef.current = chart;
 
 		// 延迟初始化 observer 订阅，确保所有引用都已设置
 		setTimeout(() => {
 			initObserverSubscriptions();
 		}, 100);
+
+		// 手动调整图表大小
+		setTimeout(() => {
+			resizeChart();
+		}, 200);
 	};
+
+	// 组件挂载后进行初始 resize
+	useEffect(() => {
+		const timer = setTimeout(() => {
+			resizeChart();
+		}, 300);
+
+		return () => clearTimeout(timer);
+	}, [resizeChart]);
 
 	// 组件卸载时清理
 	useEffect(() => {
 		return () => {
-			console.log("BacktestChart 组件卸载，清理资源");
 			cleanupSubscriptions();
 			stopSimulation();
+			chartApiRef.current = null;
 		};
 	}, [cleanupSubscriptions, stopSimulation]);
 
 	const chartOptions = {
-		autoSize: true,
-		width: 600,
-		height: 400,
+		autoSize: false,
+		// width: 400,
+		// height: 600,
 		grid: {
 			vertLines: {
 				visible: false,
@@ -168,24 +217,31 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 	};
 
 	return (
-		<div className="space-y-4">
-			{/* 图表容器 */}
-			<Card className="w-full">
-				<CardContent>
-					<div className="relative h-96 w-full">
-						<Chart
-							options={chartOptions}
-							onCrosshairMove={onCrosshairMove}
-							onInit={handleChartInit}
-						>
-							<Pane>
-								<CandlestickSeries ref={ref} data={klineData} reactive={true} />
-								<KlineLegend klineSeriesData={legendData} />
-							</Pane>
-						</Chart>
-					</div>
-				</CardContent>
-			</Card>
+		<div ref={chartContainerRef} className="relative w-full h-full">
+			<Chart
+				options={chartOptions}
+				onCrosshairMove={onCrosshairMove}
+				onInit={handleChartInit}
+			>
+				<Pane>
+					<CandlestickSeries ref={ref} data={klineData} reactive={true} />
+					{/* 图例 */}
+					<KlineLegend klineSeriesData={legendData} />
+					{/* 添加主图指标 */}
+					{Object.entries(chartConfig.klineChartConfig.indicatorChartConfig).map(([_, indicatorConfig]) => {
+						// 主图指标
+						if (indicatorConfig.isInMainChart) {
+							return indicatorConfig.seriesConfigs.map((seriesConfig) => {
+								if (seriesConfig.type === SeriesType.LINE) {
+									return (
+											<LineSeries key={seriesConfig.name} data={[]} />
+										);
+									}
+							});
+						}
+					})}
+				</Pane>
+			</Chart>
 		</div>
 	);
 };

@@ -1,7 +1,6 @@
 import { RouterProvider } from "react-router";
 import router from "./router";
 import "./i18n";
-import { StagewiseToolbar } from "@stagewise/toolbar-react";
 import { useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import useSystemConfigStore from "./store/useSystemConfigStore";
@@ -37,11 +36,6 @@ function App() {
 	return (
 		<>
 			<RouterProvider router={router} />
-			<StagewiseToolbar
-				config={{
-					plugins: [],
-				}}
-			/>
 			<Toaster
 				position="top-center"
 				toastOptions={{

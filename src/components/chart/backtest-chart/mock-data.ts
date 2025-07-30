@@ -1,33 +1,13 @@
 import dayjs from "dayjs";
 import type { Time, UTCTimestamp } from "lightweight-charts";
-
-// 定义时间对象类型（lightweight-charts内部使用的格式）
-export type TimeObject = {
-	year: number;
-	month: number;
-	day: number;
-};
-
-export type CandlestickData<T> = {
-	time: T;
-	open: number;
-	high: number;
-	low: number;
-	close: number;
-};
+import type { Candlestick } from "./backtest-chart-store";
 
 // 支持多种时间格式的类型，与 lightweight-charts 的 Time 类型兼容
-export type FlexibleCandlestickData = {
-	time: Time; // 使用 lightweight-charts 的 Time 类型
-	open: number;
-	high: number;
-	low: number;
-	close: number;
-};
+
 
 const createStubArray = (length: number) => new Array(length).fill(0);
 
-export const generateOHLCData = (length: number): FlexibleCandlestickData[] => {
+export const generateOHLCData = (length: number): Candlestick[] => {
 	const start = dayjs().subtract(length, "day");
 	let previousClose = Math.max(1, Math.random() * 100);
 
@@ -88,8 +68,8 @@ export const generateLineData = (
 };
 
 export const generateNextDataPoint = (
-	last: FlexibleCandlestickData,
-): FlexibleCandlestickData => {
+	last: Candlestick,
+): Candlestick => {
 	// 修复时间生成逻辑，处理lightweight-charts的时间对象格式
 	console.log("last", last);
 	let nextTime: Time;
