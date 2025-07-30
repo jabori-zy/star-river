@@ -36,7 +36,7 @@ export default function BacktestPage() {
 	const chartContainerRef = useRef<{ clearAllChartData: () => void }>(null);
 
 	// 从URL路径获取strategyId参数
-	const getStrategyIdFromPath = (): number | null => {
+	const getStrategyIdFromPath = useCallback((): number | null => {
 		const path = window.location.pathname;
 		const match = path.match(/\/backtest\/(\d+)/);
 		if (match && match[1]) {
@@ -44,7 +44,7 @@ export default function BacktestPage() {
 			return !Number.isNaN(id) && id > 0 ? id : null;
 		}
 		return null;
-	};
+	}, []);
 
 	const [strategyId, setStrategyId] = useState<number | null>(
 		getStrategyIdFromPath(),
@@ -192,7 +192,7 @@ export default function BacktestPage() {
 		return () => {
 			window.removeEventListener("popstate", handlePathChange);
 		};
-	}, []);
+	}, [getStrategyIdFromPath]);
 
 	// 当strategyId变化时，重新加载配置
 	useEffect(() => {
@@ -263,13 +263,13 @@ export default function BacktestPage() {
 
 	// 添加图表
 	const addChart = (klineCacheKeyStr: string, chartName: string) => {
-		const chartId = chartConfig.charts.length + 1;
+		const maxChartId = Math.max(...chartConfig.charts.map((chart) => chart.id));
 		setChartConfig((prev) => ({
 			...prev,
 			charts: [
 				...prev.charts,
 				{
-					id: chartId,
+					id: maxChartId + 1,
 					chartName: chartName,
 					klineChartConfig: {
 						klineKeyStr: klineCacheKeyStr,

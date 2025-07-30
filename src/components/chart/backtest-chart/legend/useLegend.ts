@@ -104,7 +104,7 @@ interface UseLegendOptions {
 
 export const useLegend = (options: UseLegendOptions = {}) => {
 	const { data = [] } = options;
-	const ref = useRef<SeriesApiRef<"Candlestick">>(null);
+	const klineSeriesRef = useRef<SeriesApiRef<"Candlestick">>(null);
 
 	// 使用传入的数据或默认数据来初始化 legendData
 	const [legendData, setLegendData] = useState<LegendData | null>(() => {
@@ -147,12 +147,12 @@ export const useLegend = (options: UseLegendOptions = {}) => {
 	}, [data]);
 
 	const onCrosshairMove = useCallback((param: MouseEventParams) => {
-		if (!ref.current) {
+		if (!klineSeriesRef.current) {
 			// console.log("Legend: ref.current 不存在");
 			return;
 		}
 
-		const seriesApi = ref.current.api();
+		const seriesApi = klineSeriesRef.current.api();
 		if (!seriesApi) {
 			// console.log("Legend: seriesApi 不存在");
 			return;
@@ -210,7 +210,7 @@ export const useLegend = (options: UseLegendOptions = {}) => {
 	}, []);
 
 	return {
-		ref,
+		klineSeriesRef,
 		legendData,
 		onCrosshairMove,
 	};

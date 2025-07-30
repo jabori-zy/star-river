@@ -85,44 +85,34 @@ const createBacktestChartStore = (chartId: number) => create<BacktestChartStore>
 				// console.log("update data point", point);
 				try {
 					series.update(point);
-					console.log("success update data point, chartId:", state.chartId);
 				} catch (error) {
 					console.error("error update data point", error);
 				}
-
-				// update data array in store, keep data synchronized
-				// const dataLimit = 10000;
-				// set((prevState) => ({
-				// 	klineData:
-				// 		prevState.klineData.length >= dataLimit
-				// 			? [...prevState.klineData.slice(1), point]
-				// 			: [...prevState.klineData, point],
-				// }));
 			} else {
 				console.log(
 					"series API is null, seriesRef exists but API is not available",
 				);
 				// fallback solution
-				const dataLimit = 10000;
-				set((prevState) => ({
-					chartData:
-						prevState.chartData.length >= dataLimit
-							? [...prevState.chartData.slice(1), point]
-							: [...prevState.chartData, point],
-				}));
+				// const dataLimit = 10000;
+				// set((prevState) => ({
+				// 	chartData:
+				// 		prevState.chartData.length >= dataLimit
+				// 			? [...prevState.chartData.slice(1), point]
+				// 			: [...prevState.chartData, point],
+				// }));
 			}
 		} else {
 			// if series reference is not available, fallback to original method
 			console.log(
 				"seriesRef is null, series reference is not available, use fallback solution",
 			);
-			const dataLimit = 10000;
-			set((prevState) => ({
-				chartData:
-					prevState.chartData.length >= dataLimit
-						? [...prevState.chartData.slice(1), point]
-						: [...prevState.chartData, point],
-			}));
+			// const dataLimit = 10000;
+			// set((prevState) => ({
+			// 	chartData:
+			// 		prevState.chartData.length >= dataLimit
+			// 			? [...prevState.chartData.slice(1), point]
+			// 			: [...prevState.chartData, point],
+			// }));
 		}
 	},
 
@@ -299,9 +289,8 @@ export const cleanupBacktestChartStore = (chartId: number) => {
 };
 
 // Hook：根据chartId获取对应的store
-export const useBacktestChartStore = (chartId?: number) => {
-	const targetChartId = chartId ?? 0; // 默认使用chartId=0
-	const store = getBacktestChartStore(targetChartId);
+export const useBacktestChartStore = (chartId: number) => {
+	const store = getBacktestChartStore(chartId);
 	return store();
 };
 

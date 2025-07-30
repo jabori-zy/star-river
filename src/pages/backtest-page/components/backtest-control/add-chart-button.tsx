@@ -33,25 +33,23 @@ const AddChartButton = ({
 	};
 
 	return (
-		<>
-			<div className="flex items-center gap-3">
-				{showAlert && (
-					<Alert variant="destructive" className="w-auto py-2">
-						<AlertCircle className="h-4 w-4" />
-						<AlertDescription>{alertMessage}</AlertDescription>
-					</Alert>
-				)}
+		<div className="flex items-center gap-3">
+			{showAlert && (
+				<Alert variant="destructive" className="w-auto py-2">
+					<AlertCircle className="h-4 w-4" />
+					<AlertDescription>{alertMessage}</AlertDescription>
+				</Alert>
+			)}
 
-				<Button
-					variant="outline"
-					className="flex items-center gap-1"
-					onClick={handleAddChart}
-				>
-					<PlusCircle className="h-4 w-4" />
-					添加图表
-				</Button>
-			</div>
-		</>
+			<Button
+				variant="outline"
+				className="flex items-center gap-1"
+				onClick={handleAddChart}
+			>
+				<PlusCircle className="h-4 w-4" />
+				添加图表
+			</Button>
+		</div>
 	);
 };
 

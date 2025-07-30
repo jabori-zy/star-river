@@ -45,7 +45,7 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 	const chartContainerRef = useRef<HTMLDivElement>(null);
 	const chartApiRef = useRef<IChartApi | null>(null);
 
-	const { ref, legendData, onCrosshairMove } = useLegend({ data: klineData });
+	const { klineSeriesRef, legendData, onCrosshairMove } = useLegend({ data: klineData });
 
 	const playIndex = useRef(0);
 
@@ -103,11 +103,11 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 	// 设置series引用到store中，这样store就可以直接使用series.update方法
 	useEffect(() => {
 		const checkAndSetSeries = () => {
-			if (ref.current) {
-				const seriesApi = ref.current.api();
+			if (klineSeriesRef.current) {
+				const seriesApi = klineSeriesRef.current.api();
 				if (seriesApi) {
 					console.log("设置series引用到store:", seriesApi);
-					storeActionsRef.current.setSeriesRef(ref.current);
+					storeActionsRef.current.setSeriesRef(klineSeriesRef.current);;
 					return true;
 				} else {
 					console.warn("series API尚未可用，稍后重试");
@@ -126,7 +126,7 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 
 			return () => clearTimeout(timer);
 		}
-	}, [ref]); // 只依赖 ref
+	}, [klineSeriesRef]); // 只依赖 ref
 
 	// 手动调整图表大小的函数
 	const resizeChart = useCallback(() => {
@@ -253,7 +253,7 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 				onInit={handleChartInit}
 			>
 				<Pane>
-					<CandlestickSeries ref={ref} data={klineData} reactive={true} />
+					<CandlestickSeries ref={klineSeriesRef} data={klineData} reactive={true} />
 					{/* 图例 */}
 					<KlineLegend klineSeriesData={legendData} />
 					{/* 添加主图指标 */}
