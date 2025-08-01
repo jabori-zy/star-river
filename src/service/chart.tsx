@@ -27,8 +27,8 @@ export async function getInitialChartData(
 		}
 
 		const data = response.data;
-		if (data["code"] === 0) {
-			return data["data"];
+		if (data.code === 0) {
+			return data.data;
 		}
 		return [];
 	} catch (error) {

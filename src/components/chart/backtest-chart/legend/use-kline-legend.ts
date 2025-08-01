@@ -10,15 +10,6 @@ import type { SeriesApiRef } from "lightweight-charts-react-components";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { colors } from "./colors";
 
-// const chart = createChart(container, chartOptions);
-
-// const series = chart.addSeries(CandlestickSeries, {
-//     upColor: '#26a69a',
-//     downColor: '#ef5350',
-//     borderVisible: false,
-//     wickUpColor: '#26a69a',
-//     wickDownColor: '#ef5350',
-// });
 
 export type KlineLegendData = {
 	open?: string;
@@ -98,13 +89,8 @@ const getLastBarLegendData = (
 	return mapCandlestickDataToLegendData(data);
 };
 
-interface UseKlineLegendProps {
-	data?: CandlestickData[];
-}
-
-export const useKlineLegend = (props: UseKlineLegendProps = {}) => {
-	const { data = [] } = props;
-	const klineSeriesRef = useRef<SeriesApiRef<"Candlestick">>(null);
+export const useKlineLegend = (data: CandlestickData[]) => {
+	const klineSeriesRef = useRef<SeriesApiRef<"Candlestick"> | null>(null);
 
 	// 使用传入的数据或默认数据来初始化 legendData
 	const [legendData, setLegendData] = useState<KlineLegendData | null>(() => {
@@ -116,10 +102,10 @@ export const useKlineLegend = (props: UseKlineLegendProps = {}) => {
 
 	// 🔧 修复：监听数据变化，自动更新 legendData
 	useEffect(() => {
-		console.log("Legend: 数据变化", {
-			dataLength: data?.length,
-			hasData: data && data.length > 0,
-		});
+		// console.log("Legend: 数据变化", {
+		// 	dataLength: data?.length,
+		// 	hasData: data && data.length > 0,
+		// });
 		if (data && data.length > 0) {
 			const lastDataPoint = data[data.length - 1];
 			// console.log("Legend: 最后一个数据点", lastDataPoint);

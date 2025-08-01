@@ -19,7 +19,8 @@ import { CciConfig } from "./config/momentum/cci";
 import { CmoConfig } from "./config/momentum/cmo";
 import { DxConfig } from "./config/momentum/dx";
 import { RSIConfig } from "./config/rsi";
-import { IndicatorType } from "./index";
+import { IndicatorType, type IndicatorValueField } from "./index";
+
 import {
 	type IndicatorParam,
 	IndicatorTypeSchema,
@@ -33,7 +34,7 @@ export interface BaseIndicatorConfig {
 	description?: string;
 	chartConfig: IndicatorChartConfig;
 	indicatorValueConfig: IndicatorValueConfig;
-	getValue(): Record<string, number>;
+	getValue(): Record<IndicatorValueField, number>;
 	getSeriesName(
 		seriesName: string,
 		indicatorKey: IndicatorKey,
@@ -43,7 +44,7 @@ export interface BaseIndicatorConfig {
 // 默认的getValue实现工具函数
 export function getIndicatorValues(
 	indicatorValueConfig: IndicatorValueConfig,
-): Record<string, number> {
+): Record<IndicatorValueField, number> {
 	return Object.fromEntries(
 		Object.entries(indicatorValueConfig).map(([key, value]) => [
 			key,
@@ -63,7 +64,7 @@ export function createParseIndicatorConfigFromKeyStr<T>(
 		indicatorConfigStr: string,
 	): T | undefined {
 		try {
-			// console.log("indicatorConfigStr", indicatorConfigStr);
+			
 			const params = parseKeyStrToMap(indicatorConfigStr);
 
 			if (indicatorType !== expectedType) {
@@ -116,7 +117,7 @@ export function parseKeyStrToMap(keyStr: string): Map<string, string> {
 		return params;
 	}
 
-	paramStr.split(",").forEach((param) => {
+	paramStr.split(" ").forEach((param) => {
 		const [key, value] = param.split("=");
 		if (key && value) {
 			params.set(key.trim(), value.trim());
@@ -165,8 +166,9 @@ export function parseIndicatorConfig(
 	try {
 		// 验证指标类型
 		const validatedType = IndicatorTypeSchema.parse(indicatorType);
-
+		
 		const config = INDICATOR_CONFIG_MAP[validatedType];
+		
 
 		if (!config) {
 			console.warn(`不支持的指标类型: ${validatedType}`);

@@ -1,20 +1,25 @@
 import dayjs from "dayjs";
-import { CrosshairMode, type IChartApi, type Time } from "lightweight-charts";
+import { CrosshairMode, type IChartApi, type Time, type CandlestickData, type SingleValueData } from "lightweight-charts";
 import {
 	CandlestickSeries,
 	Chart,
-	LineSeries,
 	Pane,
 } from "lightweight-charts-react-components";
 import { useCallback, useEffect, useRef } from "react";
 import { get_play_index } from "@/service/strategy-control/backtest-strategy-control";
-import { SeriesType } from "@/types/chart";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import {
 	cleanupBacktestChartStore,
 	useBacktestChartStore,
 } from "./backtest-chart-store";
 import { KlineLegend, useKlineLegend } from "./legend";
+import type { IndicatorValueConfig } from "@/types/indicator/schemas";
+import MainChartIndicatorSeries from "./main-chart-indicator-series";
+import SubChartIndicatorSeries from "./sub-chart-indicator-series";
+import ChartApiDebugger from "./debug/chart-api-debugger";
+import { autoApplyPaneHeights } from "./utils/pane-height-manager";
+
+
 
 interface BacktestChartProps {
 	strategyId: number;
@@ -22,102 +27,131 @@ interface BacktestChartProps {
 }
 
 const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
+	// console.log("BacktestChart: 初始化", chartConfig);
 	const {
-		chartData: klineData,
-		initKlineData,
-		setSeriesRef,
-		setChartRef,
-		setKlineKeyStr,
-		setEnabled,
+		setChartConfig,
+		klineData,
+		indicatorData,
+		initChartData,
+		// setChartRef,
 		initObserverSubscriptions,
 		cleanupSubscriptions,
-	} = useBacktestChartStore(chartConfig.id);
-
-	// 添加容器和图表 API 引用
-	const chartContainerRef = useRef<HTMLDivElement>(null);
-	const chartApiRef = useRef<IChartApi | null>(null);
-
-	const { klineSeriesRef, legendData, onCrosshairMove } = useKlineLegend({data: klineData});
-
-	const playIndex = useRef(0);
-
-	// 存储初始的 chartId，用于组件卸载时的清理
-	const initialChartIdRef = useRef(chartConfig.id);
+	} = useBacktestChartStore(chartConfig);
 
 	// 使用 useRef 存储 store 函数，避免依赖项变化导致无限渲染
 	const storeActionsRef = useRef({
-		setKlineKeyStr,
-		setEnabled,
-		initKlineData,
-		setSeriesRef,
-		setChartRef,
+		klineData,
+		indicatorData,
+		setChartConfig,
+		// setChartRef,
 		initObserverSubscriptions,
 		cleanupSubscriptions,
 	});
 
 	// 更新 ref 中的函数引用
 	storeActionsRef.current = {
-		setKlineKeyStr,
-		setEnabled,
-		initKlineData,
-		setSeriesRef,
-		setChartRef,
+		klineData,
+		indicatorData,
+		setChartConfig,
+		// setChartRef,
 		initObserverSubscriptions,
 		cleanupSubscriptions,
 	};
 
+	// 添加容器和图表 API 引用
+	const chartContainerRef = useRef<HTMLDivElement>(null);
+	const chartApiRef = useRef<IChartApi | null>(null);
+
+	// 不再需要暴露引用给外部组件，调试器在内部使用
+
+	const { klineSeriesRef, legendData, onCrosshairMove } = useKlineLegend(klineData[chartConfig.klineChartConfig.klineKeyStr] as CandlestickData[] || []);
+
+
+
+	// 处理动态 series ref 的回调函数
+	// const handleSeriesRef = useCallback((keyStr: string, ref: SeriesApiRef<"Line"> | SeriesApiRef<"Histogram"> | SeriesApiRef<"Area">) => {
+	// 	if (ref) {
+	// 		addSeriesRef(keyStr, ref);
+	// 	}
+	// }, [addSeriesRef]);
+
+	const playIndex = useRef(0);
 	const getPlayIndex = useCallback(() => {
 		get_play_index(strategyId).then((index) => {
 			playIndex.current = index;
-			initKlineData(playIndex.current);
+			initChartData(playIndex.current);
 		});
-	}, [strategyId, initKlineData]);
+	}, [strategyId, initChartData]);
+
+	// 计算子图数量和获取容器高度
+	const subChartCount = chartConfig.subChartConfigs.reduce((count, subChartConfig) => {
+		return count + Object.keys(subChartConfig.indicatorChartConfigs).filter(
+			indicatorKeyStr => {
+				const indicatorConfig = subChartConfig.indicatorChartConfigs[indicatorKeyStr];
+				return !indicatorConfig.isInMainChart;
+			}
+		).length;
+	}, 0);
+
+	// 获取容器高度
+	const getContainerHeight = useCallback(() => {
+		if (chartContainerRef.current) {
+			const rect = chartContainerRef.current.getBoundingClientRect();
+			return rect.height || 600; // 默认600px
+		}
+		return 600;
+	}, []);
+
+	const containerHeight = getContainerHeight();
 
 	// 初始化配置
 	useEffect(() => {
-		const klineKeyStr = chartConfig.klineChartConfig.klineKeyStr;
-		const enabled = true; // 默认启用 Observer 数据流
-		console.log("初始化 BacktestChart 配置:", {
-			chartId: chartConfig.id,
-			klineKeyStr,
-			enabled,
-			reason: "useEffect triggered",
-		});
-		storeActionsRef.current.setKlineKeyStr(klineKeyStr);
-		storeActionsRef.current.setEnabled(enabled);
 		getPlayIndex();
-	}, [
-		chartConfig.klineChartConfig.klineKeyStr,
-		chartConfig.id, // 只依赖 chartConfig.id，避免函数引用变化
-		getPlayIndex,
-	]);
+	}, [getPlayIndex]);
 
-	// 设置series引用到store中，这样store就可以直接使用series.update方法
+	// 当子图数量变化时，重新应用高度配置
 	useEffect(() => {
-		const checkAndSetSeries = () => {
-			if (klineSeriesRef.current) {
-				const seriesApi = klineSeriesRef.current.api();
-				if (seriesApi) {
-					storeActionsRef.current.setSeriesRef(klineSeriesRef.current);
-					return true;
-				} else {
-					console.warn("series API尚未可用，稍后重试");
-					return false;
-				}
-			}
-			return false;
-		};
-
-		// 立即检查
-		if (!checkAndSetSeries()) {
-			// 如果立即检查失败，延迟重试
+		if (chartApiRef.current) {
+			// 减少延迟，确保 DOM 更新完成但减少闪烁
 			const timer = setTimeout(() => {
-				checkAndSetSeries();
-			}, 100);
+				const success = autoApplyPaneHeights(chartApiRef.current, chartContainerRef);
+				if (success) {
+					console.log(`✅ 子图数量变化 (${subChartCount})，Pane 高度配置已重新应用`);
+				}
+			}, 100); // 从 300ms 减少到 100ms
 
 			return () => clearTimeout(timer);
 		}
-	}, [klineSeriesRef]); // 只依赖 ref
+	}, [subChartCount]);
+
+
+
+	// 设置series引用到store中，这样store就可以直接使用series.update方法
+	// useEffect(() => {
+	// 	const checkAndSetSeries = () => {
+	// 		if (klineSeriesRef.current) {
+	// 			const seriesApi = klineSeriesRef.current.api();
+	// 			if (seriesApi) {
+	// 				storeActionsRef.current.addSeriesRef(chartConfig.klineChartConfig.klineKeyStr, klineSeriesRef.current);
+	// 				return true;
+	// 			} else {
+	// 				console.warn("series API尚未可用，稍后重试");
+	// 				return false;
+	// 			}
+	// 		}
+	// 		return false;
+	// 	};
+
+	// 	// 立即检查
+	// 	if (!checkAndSetSeries()) {
+	// 		// 如果立即检查失败，延迟重试
+	// 		const timer = setTimeout(() => {
+	// 			checkAndSetSeries();
+	// 		}, 100);
+
+	// 		return () => clearTimeout(timer);
+	// 	}
+	// }, [chartConfig.klineChartConfig.klineKeyStr]); // 只依赖 ref
 
 	// 手动调整图表大小的函数
 	const resizeChart = useCallback(() => {
@@ -134,7 +168,7 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 		if (chartContainerRef.current) {
 			resizeObserver = new ResizeObserver(() => {
 				// 当容器大小变化时，手动调整图表大小
-				setTimeout(resizeChart, 50);
+				setTimeout(resizeChart, 20);
 			});
 			resizeObserver.observe(chartContainerRef.current);
 		}
@@ -148,20 +182,33 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 
 	// Chart onInit 回调 - 初始化 observer 订阅
 	const handleChartInit = (chart: IChartApi) => {
-		storeActionsRef.current.setChartRef(chart);
+		console.log('🎯 Chart onInit 被调用，Chart API:', chart);
+
+		// storeActionsRef.current.setChartRef(chart);
 
 		// 保存图表 API 引用
 		chartApiRef.current = chart;
+		console.log('✅ Chart API 已保存到 chartApiRef.current:', chartApiRef.current);
 
 		// 延迟初始化 observer 订阅，确保所有引用都已设置
 		setTimeout(() => {
 			storeActionsRef.current.initObserverSubscriptions();
 		}, 100);
 
-		// // 手动调整图表大小
-		// setTimeout(() => {
-		// 	resizeChart();
-		// }, 200);
+		// 手动调整图表大小
+		setTimeout(() => {
+			resizeChart();
+		}, 200);
+
+		// 尽快应用 Pane 高度配置，减少闪烁
+		setTimeout(() => {
+			const success = autoApplyPaneHeights(chartApiRef.current, chartContainerRef);
+			if (success) {
+				console.log('✅ Pane 高度配置已自动应用');
+			} else {
+				console.warn('⚠️ Pane 高度配置应用失败');
+			}
+		}, 10); // 减少延迟时间
 	};
 
 	// 组件挂载后进行初始 resize
@@ -179,14 +226,11 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 			storeActionsRef.current.cleanupSubscriptions();
 			chartApiRef.current = null;
 			// 使用初始的 chartId 进行清理，避免因 chartId 变化导致错误清理
-			cleanupBacktestChartStore(initialChartIdRef.current);
+			cleanupBacktestChartStore(chartConfig);
 		};
-	}, []); // 移除依赖项，只在组件真正卸载时清理
+	}, [chartConfig]); // 移除依赖项，只在组件真正卸载时清理
 
 	const chartOptions = {
-		autoSize: false,
-		// width: 400,
-		// height: 600,
 		grid: {
 			vertLines: {
 				visible: false,
@@ -237,35 +281,81 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 	};
 
 	return (
-		<div ref={chartContainerRef} className="relative w-full h-full">
-			<Chart
-				options={chartOptions}
-				onCrosshairMove={onCrosshairMove}
-				onInit={handleChartInit}
-			>
-				<Pane>
-					<CandlestickSeries
-						ref={klineSeriesRef}
-						data={klineData}
-						reactive={true}
-					/>
-					{/* 图例 */}
-					<KlineLegend klineSeriesData={legendData} />
-					{/* 添加主图指标 */}
-					{Object.entries(
-						chartConfig.klineChartConfig.indicatorChartConfig,
-					).map(([_, indicatorConfig]) => {
-						// 主图指标
-						if (indicatorConfig.isInMainChart) {
-							return indicatorConfig.seriesConfigs.map((seriesConfig) => {
-								if (seriesConfig.type === SeriesType.LINE) {
-									return <LineSeries key={seriesConfig.name} data={[]} />;
-								}
+		<div ref={chartContainerRef} className="w-full h-full">
+			{/* Chart API 调试器 */}
+			{/* {process.env.NODE_ENV === 'development' && (
+				<ChartApiDebugger
+					chartApiRef={chartApiRef}
+					containerRef={chartContainerRef}
+				/>
+			)} */}
+
+			<div className="relative w-full h-full">
+				<Chart
+					options={chartOptions}
+					onCrosshairMove={onCrosshairMove}
+					onInit={handleChartInit}
+				>
+					{/* <Pane> */}
+						<CandlestickSeries
+							ref={klineSeriesRef}
+							data={klineData[chartConfig.klineChartConfig.klineKeyStr] as CandlestickData[] || []}
+							reactive={true}
+							alwaysReplaceData={false}
+						/>
+						{/* 图例 */}
+						<KlineLegend klineSeriesData={legendData} />
+						{/* 添加主图指标 */}
+						{Object.entries(
+							chartConfig.klineChartConfig.indicatorChartConfig,
+						).map(([indicatorKeyStr, indicatorConfig]) => {
+							const data = indicatorData[indicatorKeyStr] as Record<keyof IndicatorValueConfig, SingleValueData[]> || {};
+							// console.log("indicator_data: ", data);
+							// 主图指标
+							if (indicatorConfig.isInMainChart && data) {
+								return indicatorConfig.seriesConfigs.map((seriesConfig) => {
+									const seriesKeyStr = `${indicatorKeyStr}_${seriesConfig.name}`;
+
+									return (
+										<MainChartIndicatorSeries
+											key={seriesKeyStr}
+											seriesConfig={seriesConfig}
+											data={data[seriesConfig.indicatorValueKey] as SingleValueData[] || []}
+											// onSeriesRef={handleSeriesRef}
+										/>
+									);
+								});
+							}
+							return null;
+						})}
+					{/* </Pane> */}
+
+				{/* 添加子图指标 */}
+						{(() => {
+							let subChartIndex = 0; // 子图索引计数器
+							return chartConfig.subChartConfigs.map((subChartConfig) => {
+								return Object.entries(subChartConfig.indicatorChartConfigs).map(([indicatorKeyStr, indicatorConfig]) => {
+									const data = indicatorData[indicatorKeyStr] as Record<keyof IndicatorValueConfig, SingleValueData[]> || {};
+									// 子图指标
+									if (!indicatorConfig.isInMainChart && data) {
+										const currentSubChartIndex = subChartIndex++;
+										return (
+											<SubChartIndicatorSeries
+												key={indicatorKeyStr}
+												indicatorChartConfig={indicatorConfig}
+												data={data}
+												subChartIndex={currentSubChartIndex}
+												totalSubChartCount={subChartCount}
+												containerHeight={containerHeight}
+											/>
+										);
+									}
+									return null;
+								});
 							});
-						}
-					})}
-				</Pane>
-			</Chart>
+						})()}
+				</Chart>
+			</div>
 		</div>
 	);
 };

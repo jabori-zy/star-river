@@ -3,29 +3,16 @@ import type { IndicatorConfigType } from "./indicator/config";
 import type { KlineInterval } from "./kline";
 
 export type Key = KlineKey | IndicatorKey;
-// | BacktestKlineKey
-// | BacktestIndicatorKey;
 
 export type KeyStr = KlineKeyStr | IndicatorKeyStr;
-// | BacktestKlineKeyStr
-// | BacktestIndicatorKeyStr;
 
 export type KlineKeyStr = string;
 
 export type IndicatorKeyStr = string;
 
-// export type BacktestKlineKeyStr = string;
-
-// export type BacktestIndicatorKeyStr = string;
-
-// export type KlineKey = {
-// 	exchange: string;
-// 	symbol: string;
-// 	interval: KlineInterval;
-
-// };
 
 export type KlineKey = {
+	type: "kline";
 	exchange: string;
 	symbol: string;
 	interval: KlineInterval;
@@ -33,15 +20,9 @@ export type KlineKey = {
 	endTime?: string;
 };
 
-// export type IndicatorKey = {
-// 	exchange: string;
-// 	symbol: string;
-// 	interval: KlineInterval;
-// 	indicatorType: IndicatorType;
-// 	indicatorConfig: IndicatorConfig;
-// };
 
 export type IndicatorKey = {
+	type: "indicator";
 	exchange: string;
 	symbol: string;
 	interval: KlineInterval;

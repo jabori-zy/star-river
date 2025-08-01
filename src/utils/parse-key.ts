@@ -12,6 +12,7 @@ export function parseKey(keyStr: string): Key {
 
 	if (type === "kline") {
 		return {
+			type: "kline",
 			exchange: parts[1],
 			symbol: parts[2],
 			interval: parts[3] as unknown as KlineInterval,
@@ -27,13 +28,13 @@ export function parseKey(keyStr: string): Key {
 			indicatorType,
 			indicatorConfigStr,
 		);
-		// console.log("indicatorConfig", indicatorConfig);
 
 		if (!indicatorConfig) {
 			throw new Error(`无法解析指标配置: ${indicatorConfigStr}`);
 		}
 
 		return {
+			type: "indicator",
 			exchange: parts[1],
 			symbol: parts[2],
 			interval: parts[3] as unknown as KlineInterval,

@@ -132,7 +132,10 @@ const ChartCard = forwardRef<ChartCardRef, ChartCardProps>(
 						chartConfig={chartConfig}
 						onDeleteSubChart={onDeleteSubChart}
 					/> */}
-					<BacktestChart strategyId={strategyId} chartConfig={chartConfig} />
+					<BacktestChart
+						strategyId={strategyId}
+						chartConfig={chartConfig}
+					/>
 				</div>
 
 				{/* Symbol选择Dialog */}

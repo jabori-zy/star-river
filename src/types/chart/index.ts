@@ -1,8 +1,11 @@
+import type { IndicatorValueField } from "@/types/indicator";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import type { IndicatorKeyStr, KeyStr } from "@/types/symbol-key";
 // import { IndicatorValue } from "../indicator/backup/indicator-value";
 
 export type LayoutMode = "vertical" | "horizontal" | "grid" | "grid-alt";
+
+export type ChartId = number;
 
 // 数据系列类型
 export enum SeriesType {
@@ -36,7 +39,7 @@ export type KlineChartConfig = {
 
 // 子图配置
 export type SubChartConfig = {
-	mainChartId: number; // 所属的主图id
-	subChartId: number; // 子图id
+	mainChartId: ChartId; // 所属的主图id
+	subChartId: ChartId; // 子图id`	
 	indicatorChartConfigs: Record<IndicatorKeyStr, IndicatorChartConfig>;
 };

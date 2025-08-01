@@ -1,17 +1,7 @@
-// import type {
-// 	BBandsConfig,
-// 	EMAConfig,
-// 	MACDConfig,
-// 	MAConfig,
-// 	SMAConfig,
-// } from "./backup/indicator-config";
 
-// export type IndicatorConfig =
-// 	| MAConfig
-// 	| SMAConfig
-// 	| EMAConfig
-// 	| BBandsConfig
-// 	| MACDConfig;
+
+export type IndicatorValueField = string; // 指标值字段
+
 
 export enum MAType {
 	SMA = "SMA",
