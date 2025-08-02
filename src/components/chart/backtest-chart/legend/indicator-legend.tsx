@@ -1,6 +1,7 @@
 import type React from "react";
 import { forwardRef } from "react";
 import { Eye, EyeOff, Bolt, Trash2 } from "lucide-react";
+import type { IChartApi } from "lightweight-charts";
 import { Button } from "@/components/ui/button";
 import type { IndicatorLegendData } from "./use-indicator-legend";
 import type { IndicatorKeyStr } from "@/types/symbol-key";
@@ -11,6 +12,7 @@ interface IndicatorLegendProps {
 	indicatorLegendData: IndicatorLegendData | null;
 	indicatorKeyStr: IndicatorKeyStr; // 新增指标键字符串，用于控制可见性
 	chartConfig: BacktestChartConfig; // 新增图表配置，用于获取对应的store
+	chartApiRef?: React.RefObject<IChartApi | null>; // 图表API引用，用于删除子图Pane
 	className?: string;
 	style?: React.CSSProperties;
 }
@@ -19,11 +21,12 @@ const IndicatorLegend = forwardRef<HTMLDivElement, IndicatorLegendProps>(({
 	indicatorLegendData,
 	indicatorKeyStr,
 	chartConfig,
+	chartApiRef,
 	className = "",
 	style,
 }, ref) => {
 	// 使用当前图表的可见性状态管理
-	const { getIndicatorVisibility, toggleIndicatorVisibility } = useBacktestChartStore(chartConfig);
+	const { getIndicatorVisibility, toggleIndicatorVisibility, removeIndicator } = useBacktestChartStore(chartConfig);
 
 	if (indicatorLegendData === null) {
 		return null;
@@ -36,6 +39,47 @@ const IndicatorLegend = forwardRef<HTMLDivElement, IndicatorLegendProps>(({
 	const handleVisibilityToggle = (e: React.MouseEvent) => {
 		e.stopPropagation();
 		toggleIndicatorVisibility(indicatorKeyStr);
+	};
+
+	// 处理删除指标
+	const handleDeleteIndicator = (e: React.MouseEvent) => {
+		e.stopPropagation();
+
+		// 检查是否是子图指标
+		const isSubChartIndicator = chartConfig.subChartConfigs.some(
+			subChart => subChart.indicatorChartConfigs[indicatorKeyStr]
+		);
+
+		if (isSubChartIndicator && chartApiRef?.current) {
+			// 找到对应的子图索引
+			const subChartIndex = chartConfig.subChartConfigs.findIndex(
+				subChart => subChart.indicatorChartConfigs[indicatorKeyStr]
+			);
+
+			if (subChartIndex !== -1) {
+				const subChartConfig = chartConfig.subChartConfigs[subChartIndex];
+
+				// 如果子图只有这一个指标，删除整个Pane
+				if (Object.keys(subChartConfig.indicatorChartConfigs).length === 1) {
+					try {
+						// 获取所有Panes
+						const panes = chartApiRef.current.panes();
+
+						// 子图的Pane索引 = 主图(0) + 子图索引 + 1
+						const paneIndex = subChartIndex + 1;
+
+						if (panes[paneIndex]) {
+							chartApiRef.current.removePane(paneIndex);
+						}
+					} catch (error) {
+						console.error('删除Pane失败:', error);
+					}
+				}
+			}
+		}
+
+		// 从配置中删除指标
+		removeIndicator(indicatorKeyStr);
 	};
 
 	return (
@@ -110,10 +154,7 @@ const IndicatorLegend = forwardRef<HTMLDivElement, IndicatorLegendProps>(({
 						size="sm"
 						className="h-6 w-6 p-0 border-gray-300 bg-white hover:bg-red-50 hover:border-red-400"
 						title="删除"
-						onClick={(e) => {
-							e.stopPropagation();
-							// TODO: 实现删除功能
-						}}
+						onClick={handleDeleteIndicator}
 					>
 						<Trash2 size={12} className="text-red-600" />
 					</Button>

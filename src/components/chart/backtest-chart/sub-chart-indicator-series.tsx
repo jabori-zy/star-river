@@ -1,5 +1,5 @@
 import { useRef, useEffect, forwardRef, useImperativeHandle, useState } from "react";
-import type { SingleValueData, MouseEventParams } from "lightweight-charts";
+import type { SingleValueData, MouseEventParams, IChartApi } from "lightweight-charts";
 import { Pane, type PaneApiRef } from "lightweight-charts-react-components";
 import type { IndicatorChartConfig } from "@/types/chart";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
@@ -19,6 +19,7 @@ interface SubChartIndicatorSeriesProps {
 	totalSubChartCount: number; // 总子图数量
 	containerHeight: number; // 容器高度
 	chartConfig: BacktestChartConfig; // 新增图表配置
+	chartApiRef?: React.RefObject<IChartApi | null>; // 图表API引用
 	// onSeriesRef: (keyStr: string, ref: SeriesApiRef<"Line"> | SeriesApiRef<"Histogram"> | SeriesApiRef<"Area">) => void;
 }
 
@@ -34,6 +35,7 @@ const SubChartIndicatorSeries = forwardRef<SubChartIndicatorSeriesRef, SubChartI
 	totalSubChartCount,
 	containerHeight,
 	chartConfig,
+	chartApiRef,
 }, ref) => {
 	// 创建 Pane 引用
 	const paneRef = useRef<PaneApiRef>(null);
@@ -124,6 +126,7 @@ const SubChartIndicatorSeries = forwardRef<SubChartIndicatorSeriesRef, SubChartI
 				paneRef={paneRef}
 				paneInitialized={paneInitialized}
 				chartConfig={chartConfig}
+				chartApiRef={chartApiRef}
 			/>
 		</Pane>
 	);

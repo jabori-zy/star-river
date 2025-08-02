@@ -54,7 +54,44 @@ export default function TestDashboard() {
 				}
 			}
 		},
-		subChartConfigs: []
+		subChartConfigs: [
+			{
+				mainChartId: 1,
+				subChartId: 2,
+				indicatorChartConfigs: {
+					"RSI_14": {
+						isInMainChart: false,
+						seriesConfigs: [
+							{
+								name: "RSI",
+								type: SeriesType.LINE,
+								color: "#9C27B0",
+								strokeThickness: 2,
+								indicatorValueKey: "rsi"
+							}
+						]
+					}
+				}
+			},
+			{
+				mainChartId: 1,
+				subChartId: 3,
+				indicatorChartConfigs: {
+					"VOLUME": {
+						isInMainChart: false,
+						seriesConfigs: [
+							{
+								name: "Volume",
+								type: SeriesType.COLUMN,
+								color: "#607D8B",
+								strokeThickness: 1,
+								indicatorValueKey: "volume"
+							}
+						]
+					}
+				}
+			}
+		]
 	};
 
 	return (

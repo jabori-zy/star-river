@@ -35,6 +35,8 @@ interface BacktestChartStore {
 
 	setChartConfig: (chartConfig: BacktestChartConfig) => void;
 
+	getChartConfig: () => BacktestChartConfig;
+
 	setKlineData: (keyStr: KeyStr, data: CandlestickData[]) => void;
 	setIndicatorData: (
 		keyStr: KeyStr,
@@ -94,6 +96,9 @@ interface BacktestChartStore {
 		indicatorData: Record<keyof IndicatorValueConfig, SingleValueData[]>,
 	) => void;
 
+	// 指标删除相关方法
+	removeIndicator: (indicatorKeyStr: IndicatorKeyStr) => void;
+
 	resetData: () => void;
 }
 
@@ -111,6 +116,8 @@ const createBacktestChartStore = (chartConfig: BacktestChartConfig) =>
 		// 初始状态：所有指标和K线默认可见
 		indicatorVisibilityMap: {},
 		klineVisibilityMap: {},
+
+		getChartConfig: () => get().chartConfig,
 
 		setChartConfig: (chartConfig: BacktestChartConfig) => set({ chartConfig }),
 
@@ -564,6 +571,85 @@ const createBacktestChartStore = (chartConfig: BacktestChartConfig) =>
 					...visibilityMap,
 				},
 			}));
+		},
+
+		// 删除指标
+		removeIndicator: (indicatorKeyStr: IndicatorKeyStr) => {
+			const state = get();
+			const currentConfig = state.chartConfig;
+
+			// 检查是否是主图指标
+			const isMainChartIndicator = currentConfig.klineChartConfig.indicatorChartConfig[indicatorKeyStr];
+
+			if (isMainChartIndicator) {
+				// 删除主图指标
+				const newIndicatorChartConfig = { ...currentConfig.klineChartConfig.indicatorChartConfig };
+				delete newIndicatorChartConfig[indicatorKeyStr];
+
+				const newChartConfig = {
+					...currentConfig,
+					klineChartConfig: {
+						...currentConfig.klineChartConfig,
+						indicatorChartConfig: newIndicatorChartConfig
+					}
+				};
+
+				set({ chartConfig: newChartConfig });
+			} else {
+				// 检查是否是子图指标
+				const subChartIndex = currentConfig.subChartConfigs.findIndex(
+					subChart => subChart.indicatorChartConfigs[indicatorKeyStr]
+				);
+
+				if (subChartIndex !== -1) {
+					const subChartConfig = currentConfig.subChartConfigs[subChartIndex];
+					const newIndicatorChartConfigs = { ...subChartConfig.indicatorChartConfigs };
+					delete newIndicatorChartConfigs[indicatorKeyStr];
+
+					// 如果子图没有其他指标了，删除整个子图
+					if (Object.keys(newIndicatorChartConfigs).length === 0) {
+						const newSubChartConfigs = currentConfig.subChartConfigs.filter((_, index) => index !== subChartIndex);
+						const newChartConfig = {
+							...currentConfig,
+							subChartConfigs: newSubChartConfigs
+						};
+						set({ chartConfig: newChartConfig });
+					} else {
+						// 更新子图配置
+						const newSubChartConfigs = [...currentConfig.subChartConfigs];
+						newSubChartConfigs[subChartIndex] = {
+							...subChartConfig,
+							indicatorChartConfigs: newIndicatorChartConfigs
+						};
+						const newChartConfig = {
+							...currentConfig,
+							subChartConfigs: newSubChartConfigs
+						};
+						set({ chartConfig: newChartConfig });
+					}
+				}
+			}
+
+			// 清理指标数据和可见性状态
+			const newIndicatorData = { ...state.indicatorData };
+			delete newIndicatorData[indicatorKeyStr];
+
+			const newIndicatorVisibilityMap = { ...state.indicatorVisibilityMap };
+			delete newIndicatorVisibilityMap[indicatorKeyStr];
+
+			set({
+				indicatorData: newIndicatorData,
+				indicatorVisibilityMap: newIndicatorVisibilityMap
+			});
+
+			// 清理订阅
+			const subscriptions = state.subscriptions[indicatorKeyStr];
+			if (subscriptions) {
+				subscriptions.forEach(subscription => subscription.unsubscribe());
+				const newSubscriptions = { ...state.subscriptions };
+				delete newSubscriptions[indicatorKeyStr];
+				set({ subscriptions: newSubscriptions });
+			}
 		},
 
 		resetData: () => {

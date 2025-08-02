@@ -38,6 +38,7 @@ interface BacktestChartProps {
 
 const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 	const {
+		getChartConfig,
 		setChartConfig,
 		klineData,
 		indicatorData,
@@ -46,7 +47,6 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 		cleanupSubscriptions,
 		// 可见性控制方法
 		getKlineVisibility,
-		// getIndicatorVisibility,
 	} = useBacktestChartStore(chartConfig);
 
 	// 使用 useRef 存储 store 函数，避免依赖项变化导致无限渲染
@@ -316,11 +316,7 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 					{/* <Pane> */}
 					<CandlestickSeries
 						ref={klineSeriesRef}
-						data={
-							(klineData[
-								chartConfig.klineChartConfig.klineKeyStr
-							] as CandlestickData[]) || []
-						}
+						data={(klineData[getChartConfig().klineChartConfig.klineKeyStr] as CandlestickData[]) || []}
 						options={{
 							visible: klineVisible,
 						}}
@@ -330,12 +326,12 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 					{/* 图例 */}
 					<KlineLegend
 						klineSeriesData={legendData}
-						klineKeyStr={chartConfig.klineChartConfig.klineKeyStr}
+						klineKeyStr={getChartConfig().klineChartConfig.klineKeyStr}
 						chartConfig={chartConfig}
 					/>
 					{/* 添加主图指标 */}
 					{Object.entries(
-						chartConfig.klineChartConfig.indicatorChartConfig,
+						getChartConfig().klineChartConfig.indicatorChartConfig,
 					).map(([indicatorKeyStr, indicatorConfig], index) => {
 						const data =
 							(indicatorData[indicatorKeyStr] as Record<
@@ -359,7 +355,8 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 										indicatorKeyStr={indicatorKeyStr}
 										data={data}
 										index={index}
-										chartConfig={chartConfig}
+										chartConfig={getChartConfig()}
+										chartApiRef={chartApiRef}
 									/>
 									{/* 指标系列 */}
 									{indicatorConfig.seriesConfigs.map((seriesConfig) => {
@@ -375,7 +372,7 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 													] as SingleValueData[]) || []
 												}
 												indicatorKeyStr={indicatorKeyStr}
-												chartConfig={chartConfig}
+												chartConfig={getChartConfig()}
 												// onSeriesRef={handleSeriesRef}
 											/>
 										);
@@ -393,11 +390,7 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 						return chartConfig.subChartConfigs.map((subChartConfig) => {
 							return Object.entries(subChartConfig.indicatorChartConfigs).map(
 								([indicatorKeyStr, indicatorConfig]) => {
-									const data =
-										(indicatorData[indicatorKeyStr] as Record<
-											keyof IndicatorValueConfig,
-											SingleValueData[]
-										>) || {};
+									const data =(indicatorData[indicatorKeyStr] as Record<keyof IndicatorValueConfig,SingleValueData[]>) || {};
 									// 子图指标
 									if (!indicatorConfig.isInMainChart && data) {
 										const currentSubChartIndex = subChartIndex++;
@@ -420,7 +413,8 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 												subChartIndex={currentSubChartIndex}
 												totalSubChartCount={subChartCount}
 												containerHeight={containerHeight}
-												chartConfig={chartConfig}
+												chartConfig={getChartConfig()}
+												chartApiRef={chartApiRef}
 											/>
 										);
 									}
