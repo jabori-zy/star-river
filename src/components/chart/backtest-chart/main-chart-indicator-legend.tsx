@@ -33,6 +33,11 @@ const MainChartIndicatorLegend = forwardRef<MainChartIndicatorLegendRef, MainCha
 	// 计算top位置，避免使用动态类名
 	const topPosition = (index + 1) * 32; // 32px = 8 * 4 (Tailwind的top-8)
 
+	// 如果没有legend数据，不渲染
+	if (!legendData) {
+		return null;
+	}
+
 	return (
 		<IndicatorLegend
 			indicatorLegendData={legendData}

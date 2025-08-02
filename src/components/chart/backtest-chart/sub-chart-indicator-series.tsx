@@ -62,12 +62,42 @@ const SubChartIndicatorSeries = forwardRef<SubChartIndicatorSeriesRef, SubChartI
 					paneApi.setHeight(subChartHeight);
 					console.log(`✅ 子图 ${subChartIndex} 高度设置为: ${subChartHeight}px`);
 
-					// 再延迟一点时间，确保高度设置完全生效
+					// 再延迟一点时间，确保高度设置完全生效，并验证HTML元素可用性
 					setTimeout(() => {
-						setPaneInitialized(true);
-						console.log(`🎯 子图 ${subChartIndex} 完全初始化完成`);
-					}, 50);
-				}, 100);
+						// 验证pane的HTML元素是否可用
+						if (paneApi && typeof paneApi.getHTMLElement === 'function') {
+							const htmlElement = paneApi.getHTMLElement();
+							if (htmlElement) {
+								const rect = htmlElement.getBoundingClientRect();
+								if (rect.width > 0 && rect.height > 0) {
+									setPaneInitialized(true);
+									console.log(`🎯 子图 ${subChartIndex} 完全初始化完成，HTML元素有效:`, {
+										width: rect.width,
+										height: rect.height,
+										top: rect.top,
+										left: rect.left
+									});
+								} else {
+									console.warn(`⚠️ 子图 ${subChartIndex} HTML元素尺寸无效，延迟初始化:`, rect);
+									// 如果HTML元素尺寸无效，再延迟一点时间
+									setTimeout(() => {
+										setPaneInitialized(true);
+										console.log(`🎯 子图 ${subChartIndex} 延迟初始化完成`);
+									}, 100);
+								}
+							} else {
+								console.warn(`⚠️ 子图 ${subChartIndex} 无法获取HTML元素，延迟初始化`);
+								setTimeout(() => {
+									setPaneInitialized(true);
+									console.log(`🎯 子图 ${subChartIndex} 延迟初始化完成`);
+								}, 100);
+							}
+						} else {
+							setPaneInitialized(true);
+							console.log(`🎯 子图 ${subChartIndex} 初始化完成（无getHTMLElement方法）`);
+						}
+					}, 100); // 增加延迟时间，确保DOM完全更新
+				}, 150); // 增加初始延迟时间
 			}
 		}
 	}, [subChartIndex, subChartHeight]);

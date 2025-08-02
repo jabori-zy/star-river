@@ -66,7 +66,11 @@ export const IndicatorSeries = ({ seriesConfig, data }: IndicatorSeriesProps) =>
 				<HistogramSeries
 					ref={seriesRef as React.RefObject<SeriesApiRef<"Histogram">>}
 					data={data}
-					options={histogramSeriesOptions}
+					options={{
+						...histogramSeriesOptions,
+						lastValueVisible: false,
+						priceLineVisible: false,
+					}}
 					reactive={true}
 					alwaysReplaceData={false}
 				/>

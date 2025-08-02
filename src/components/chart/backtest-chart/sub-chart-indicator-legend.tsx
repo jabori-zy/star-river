@@ -45,6 +45,8 @@ const SubChartIndicatorLegend = forwardRef<SubChartIndicatorLegendRef, SubChartI
 
 		let isMounted = true;
 		let retryTimer: NodeJS.Timeout | null = null;
+		let retryCount = 0;
+		const maxRetries = 20; // 最大重试次数
 
 		const updatePaneElement = () => {
 			if (!isMounted || !paneRef.current) return;
@@ -57,33 +59,63 @@ const SubChartIndicatorLegend = forwardRef<SubChartIndicatorLegendRef, SubChartI
 					const htmlElement = paneApi.getHTMLElement();
 
 					if (htmlElement && isMounted) {
-						console.log(`✅ 成功获取pane HTML元素 (pane已初始化):`, {
-							indicatorKeyStr,
-							element: htmlElement.tagName,
-							rect: htmlElement.getBoundingClientRect()
-						});
-						setPaneElement(htmlElement);
-						return; // 成功获取，停止重试
+						// 验证HTML元素是否有效
+						const rect = htmlElement.getBoundingClientRect();
+
+						// 检查元素是否有有效的尺寸和位置
+						if (rect.width > 0 && rect.height > 0 && rect.top >= 0 && rect.left >= 0) {
+							console.log(`✅ 成功获取有效的pane HTML元素:`, {
+								indicatorKeyStr,
+								element: htmlElement.tagName,
+								rect: {
+									top: rect.top,
+									left: rect.left,
+									width: rect.width,
+									height: rect.height
+								}
+							});
+							setPaneElement(htmlElement);
+							return; // 成功获取，停止重试
+						} else {
+							console.warn(`⚠️ pane HTML元素尺寸或位置无效，继续重试:`, {
+								indicatorKeyStr,
+								rect: {
+									top: rect.top,
+									left: rect.left,
+									width: rect.width,
+									height: rect.height
+								}
+							});
+						}
 					}
 				}
 
-				// 如果没有获取到元素，快速重试（因为pane已经初始化，应该很快能获取到）
-				console.log(`⏳ pane已初始化但未获取到HTML元素，50ms后重试:`, indicatorKeyStr);
-				retryTimer = setTimeout(() => {
-					if (isMounted) {
-						updatePaneElement();
-					}
-				}, 50);
+				// 如果没有获取到有效元素，进行重试
+				retryCount++;
+				if (retryCount < maxRetries) {
+					const retryDelay = Math.min(50 + retryCount * 10, 200); // 递增延迟，最大200ms
+					console.log(`⏳ 第${retryCount}次重试获取pane HTML元素，${retryDelay}ms后重试:`, indicatorKeyStr);
+					retryTimer = setTimeout(() => {
+						if (isMounted) {
+							updatePaneElement();
+						}
+					}, retryDelay);
+				} else {
+					console.error(`❌ 达到最大重试次数(${maxRetries})，放弃获取pane HTML元素:`, indicatorKeyStr);
+				}
 
 			} catch (error) {
 				console.error(`获取pane HTML元素失败:`, error);
 
 				// 即使出错也要重试
-				retryTimer = setTimeout(() => {
-					if (isMounted) {
-						updatePaneElement();
-					}
-				}, 100);
+				retryCount++;
+				if (retryCount < maxRetries) {
+					retryTimer = setTimeout(() => {
+						if (isMounted) {
+							updatePaneElement();
+						}
+					}, 100);
+				}
 			}
 		};
 
@@ -104,6 +136,7 @@ const SubChartIndicatorLegend = forwardRef<SubChartIndicatorLegendRef, SubChartI
 		if (!paneElement || !legendRef.current) return;
 
 		let isMounted = true;
+		let updateTimer: NodeJS.Timeout | null = null;
 
 		const updatePosition = () => {
 			if (!isMounted || !paneElement || !legendRef.current) return;
@@ -112,21 +145,38 @@ const SubChartIndicatorLegend = forwardRef<SubChartIndicatorLegendRef, SubChartI
 				const paneRect = paneElement.getBoundingClientRect();
 				const legendElement = legendRef.current;
 
-				// 验证pane位置是否有效
-				if (paneRect.width === 0 || paneRect.height === 0) {
+				// 严格验证pane位置是否有效
+				if (paneRect.width <= 0 || paneRect.height <= 0) {
 					console.warn(`⚠️ pane尺寸无效，跳过位置更新:`, {
 						indicatorKeyStr,
-						rect: paneRect
+						rect: {
+							top: paneRect.top,
+							left: paneRect.left,
+							width: paneRect.width,
+							height: paneRect.height
+						}
 					});
 					return;
 				}
 
-				// 验证pane是否在视口内
-				if (paneRect.top < 0 || paneRect.left < 0) {
-					console.warn(`⚠️ pane位置异常，可能还未正确渲染:`, {
+				// 验证pane是否在合理的视口位置
+				if (paneRect.top < -100 || paneRect.left < -100 ||
+					paneRect.top > window.innerHeight + 100 ||
+					paneRect.left > window.innerWidth + 100) {
+					console.warn(`⚠️ pane位置超出合理范围，可能还未正确渲染:`, {
 						indicatorKeyStr,
-						rect: paneRect
+						rect: {
+							top: paneRect.top,
+							left: paneRect.left,
+							width: paneRect.width,
+							height: paneRect.height
+						},
+						viewport: {
+							width: window.innerWidth,
+							height: window.innerHeight
+						}
 					});
+					return;
 				}
 
 				// 设置legend相对于pane的固定位置
@@ -153,46 +203,84 @@ const SubChartIndicatorLegend = forwardRef<SubChartIndicatorLegendRef, SubChartI
 			}
 		};
 
+		// 防抖的位置更新函数
+		const debouncedUpdatePosition = () => {
+			if (updateTimer) {
+				clearTimeout(updateTimer);
+			}
+			updateTimer = setTimeout(() => {
+				if (isMounted) {
+					updatePosition();
+				}
+			}, 16); // 约60fps的更新频率
+		};
+
 		// 延迟一点时间再更新位置，确保pane完全渲染
-		const initialTimer = setTimeout(updatePosition, 50);
+		const initialTimer = setTimeout(updatePosition, 100);
 
 		// 使用ResizeObserver监听pane元素大小和位置变化
 		let resizeObserver: ResizeObserver | null = null;
 		if (window.ResizeObserver) {
-			resizeObserver = new ResizeObserver(() => {
-				// 添加防抖，避免频繁更新
-				setTimeout(() => {
-					if (isMounted) {
-						updatePosition();
-					}
-				}, 10);
-			});
+			resizeObserver = new ResizeObserver(debouncedUpdatePosition);
 			resizeObserver.observe(paneElement);
 		}
 
+		// 使用IntersectionObserver监听pane元素的可见性变化
+		let intersectionObserver: IntersectionObserver | null = null;
+		if (window.IntersectionObserver) {
+			intersectionObserver = new IntersectionObserver((entries) => {
+				entries.forEach((entry) => {
+					if (entry.isIntersecting) {
+						// 当pane变为可见时，更新位置
+						debouncedUpdatePosition();
+					}
+				});
+			}, {
+				threshold: 0.1 // 当10%的pane可见时触发
+			});
+			intersectionObserver.observe(paneElement);
+		}
+
 		// 添加窗口resize监听作为备用
-		const handleWindowResize = () => {
-			setTimeout(updatePosition, 50);
-		};
+		const handleWindowResize = debouncedUpdatePosition;
 		window.addEventListener('resize', handleWindowResize);
+
+		// 添加滚动监听，处理容器滚动的情况
+		const handleScroll = debouncedUpdatePosition;
+		window.addEventListener('scroll', handleScroll, true); // 使用捕获模式监听所有滚动事件
 
 		return () => {
 			isMounted = false;
 			clearTimeout(initialTimer);
+			if (updateTimer) {
+				clearTimeout(updateTimer);
+			}
 
 			// 清理ResizeObserver
 			if (resizeObserver) {
 				resizeObserver.disconnect();
 			}
 
+			// 清理IntersectionObserver
+			if (intersectionObserver) {
+				intersectionObserver.disconnect();
+			}
+
 			// 清理窗口监听
 			window.removeEventListener('resize', handleWindowResize);
+			window.removeEventListener('scroll', handleScroll, true);
 		};
 	}, [paneElement, indicatorKeyStr]);
 
 	// 只有在成功获取到pane HTML元素时才渲染legend
 	if (!paneElement) {
 		console.log(`⏳ 等待pane HTML元素，暂不渲染legend:`, indicatorKeyStr);
+		return null;
+	}
+
+	// 添加错误边界保护
+	if (!legendData) {
+		console.log(`⏳ 等待legend数据，暂不渲染legend:`, indicatorKeyStr);
 		return null;
 	}
 
