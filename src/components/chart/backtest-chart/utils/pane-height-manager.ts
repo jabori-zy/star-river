@@ -121,7 +121,6 @@ export function applyPaneHeightsWithChartApi(
 	try {
 		// 获取所有 Panes
 		const panes = chartApi.panes();
-		console.log('🎯 panes', panes);
 
 		if (panes.length === 0) {
 			console.warn('没有找到任何 Panes');
@@ -133,11 +132,9 @@ export function applyPaneHeightsWithChartApi(
 
 		// 计算高度配置
 		const heightConfig = calculatePaneHeights(subChartCount);
-		console.log('🎯 heightConfig', heightConfig);
 
 		// 使用最小延迟确保在下一个事件循环中执行，减少闪烁
 		setTimeout(() => {
-			console.log('🎯 开始使用 setStretchFactor 设置 Pane 高度比例...');
 
 			// 将比例转换为 stretch factor（乘以100便于理解为百分比）
 			panes.forEach((pane, index) => {
@@ -154,23 +151,13 @@ export function applyPaneHeightsWithChartApi(
 				}
 
 				pane.setStretchFactor(stretchFactor);
-				console.log(`✅ 设置 Pane ${index} (${index === 0 ? '主图' : '子图'}) stretchFactor: ${stretchFactor} (${stretchFactor}%)`);
 			});
 
 			// 验证设置结果
 			setTimeout(() => {
-				console.log('🔍 验证 setStretchFactor 设置结果:');
-				panes.forEach((pane, index) => {
-					const actualHeight = pane.getHeight();
-					console.log(`Pane ${index}: 实际高度 ${actualHeight}px`);
-				});
 			}, 50); // 从 200ms 减少到 50ms
 		}, 0); // 从 100ms 减少到 0ms
 
-		// 调试输出
-		if (process.env.NODE_ENV === 'development') {
-			logPaneHeights(heightConfig, 0); // containerHeight 不再需要
-		}
 
 		return true;
 	} catch (error) {
@@ -187,7 +174,7 @@ export function applyPaneHeightsWithChartApi(
  */
 export function autoApplyPaneHeights(
 	chartApi: IChartApi | null,
-	containerRef?: React.RefObject<HTMLElement | null>
+	// containerRef?: React.RefObject<HTMLElement | null>
 ): boolean {
 	if (!chartApi) {
 		console.warn('Chart API 未设置，无法应用高度配置');
@@ -195,20 +182,4 @@ export function autoApplyPaneHeights(
 	}
 
 	return applyPaneHeightsWithChartApi(chartApi);
-}
-
-/**
- * 调试用：打印高度配置信息
- * @param heightConfig 高度配置
- * @param containerHeight 容器高度
- */
-export function logPaneHeights(heightConfig: PaneHeightConfig, containerHeight: number): void {
-	console.log('=== Pane Height Configuration ===');
-	console.log(`Container Height: ${containerHeight}px`);
-	console.log(`Main Pane: ${(heightConfig.mainPaneHeight * 100).toFixed(1)}% (${ratioToPixels(heightConfig.mainPaneHeight, containerHeight)}px)`);
-	
-	heightConfig.subPaneHeights.forEach((ratio, index) => {
-		console.log(`Sub Pane ${index + 1}: ${(ratio * 100).toFixed(1)}% (${ratioToPixels(ratio, containerHeight)}px)`);
-	});
-	console.log('================================');
 }

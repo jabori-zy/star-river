@@ -1,6 +1,6 @@
 import type React from "react";
 import { forwardRef } from "react";
-import { Eye, EyeOff, Zap, Trash2 } from "lucide-react";
+import { Eye, EyeOff, Bolt, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { IndicatorLegendData } from "./use-indicator-legend";
 import type { IndicatorKeyStr } from "@/types/symbol-key";
@@ -41,7 +41,7 @@ const IndicatorLegend = forwardRef<HTMLDivElement, IndicatorLegendProps>(({
 	return (
 		<div
 			ref={ref}
-			className={`absolute top-0 left-0 z-10 hover:cursor-pointer hover:bg-gray-100 p-2 rounded-sm group ${className}`}
+			className={`absolute top-0 left-0 z-10 hover:cursor-pointer hover:bg-gray-100 px-2 py-1 rounded-sm group ${className}`}
 			style={style}
 		>
 			<div className="flex flex-wrap gap-2 text-xs items-center">
@@ -103,7 +103,7 @@ const IndicatorLegend = forwardRef<HTMLDivElement, IndicatorLegendProps>(({
 							// TODO: 实现快速操作功能
 						}}
 					>
-						<Zap size={12} className="text-yellow-600" />
+						<Bolt size={12} className="text-yellow-600" />
 					</Button>
 					<Button
 						variant="outline"

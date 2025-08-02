@@ -42,7 +42,6 @@ const SubChartIndicatorLegend = forwardRef<SubChartIndicatorLegendRef, SubChartI
 	useEffect(() => {
 		// 只有在pane初始化完成后才开始获取HTML元素
 		if (!paneInitialized) {
-			console.log(`⏳ 等待pane初始化完成:`, indicatorKeyStr);
 			return;
 		}
 
@@ -67,16 +66,6 @@ const SubChartIndicatorLegend = forwardRef<SubChartIndicatorLegendRef, SubChartI
 
 						// 检查元素是否有有效的尺寸和位置
 						if (rect.width > 0 && rect.height > 0 && rect.top >= 0 && rect.left >= 0) {
-							console.log(`✅ 成功获取有效的pane HTML元素:`, {
-								indicatorKeyStr,
-								element: htmlElement.tagName,
-								rect: {
-									top: rect.top,
-									left: rect.left,
-									width: rect.width,
-									height: rect.height
-								}
-							});
 							setPaneElement(htmlElement);
 							return; // 成功获取，停止重试
 						} else {
@@ -97,7 +86,6 @@ const SubChartIndicatorLegend = forwardRef<SubChartIndicatorLegendRef, SubChartI
 				retryCount++;
 				if (retryCount < maxRetries) {
 					const retryDelay = Math.min(50 + retryCount * 10, 200); // 递增延迟，最大200ms
-					console.log(`⏳ 第${retryCount}次重试获取pane HTML元素，${retryDelay}ms后重试:`, indicatorKeyStr);
 					retryTimer = setTimeout(() => {
 						if (isMounted) {
 							updatePaneElement();
@@ -123,7 +111,6 @@ const SubChartIndicatorLegend = forwardRef<SubChartIndicatorLegendRef, SubChartI
 		};
 
 		// pane已经初始化，立即尝试获取HTML元素
-		console.log(`🎯 pane已初始化，开始获取HTML元素:`, indicatorKeyStr);
 		updatePaneElement();
 
 		return () => {
@@ -187,20 +174,6 @@ const SubChartIndicatorLegend = forwardRef<SubChartIndicatorLegendRef, SubChartI
 				legendElement.style.top = `${paneRect.top + 8}px`;
 				legendElement.style.left = `${paneRect.left + 8}px`;
 				legendElement.style.zIndex = '1000';
-
-				console.log(`📍 更新legend位置:`, {
-					indicatorKeyStr,
-					paneRect: {
-						top: paneRect.top,
-						left: paneRect.left,
-						width: paneRect.width,
-						height: paneRect.height
-					},
-					legendPosition: {
-						top: paneRect.top + 8,
-						left: paneRect.left + 8
-					}
-				});
 			} catch (error) {
 				console.error(`位置更新失败:`, error);
 			}
@@ -277,13 +250,11 @@ const SubChartIndicatorLegend = forwardRef<SubChartIndicatorLegendRef, SubChartI
 
 	// 只有在成功获取到pane HTML元素时才渲染legend
 	if (!paneElement) {
-		console.log(`⏳ 等待pane HTML元素，暂不渲染legend:`, indicatorKeyStr);
 		return null;
 	}
 
 	// 添加错误边界保护
 	if (!legendData) {
-		console.log(`⏳ 等待legend数据，暂不渲染legend:`, indicatorKeyStr);
 		return null;
 	}
 

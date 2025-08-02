@@ -23,7 +23,6 @@ export type IndicatorLegendData = {
 const parseIndicatorName = (indicatorKeyStr: IndicatorKeyStr): string => {
 	try {
 		const indicatorKey = parseKey(indicatorKeyStr) as IndicatorKey;
-		console.log("indicatorKey", indicatorKey.indicatorConfig);
 		const config = getIndicatorConfig(indicatorKey.indicatorType);
 		return config?.displayName || indicatorKey.indicatorType;
 	} catch (error) {

@@ -283,32 +283,20 @@ export const initKlineChart = async (
 	const onNewIndicator = (
 		newIndicators: Record<IndicatorKeyStr, Record<string, number>>, // 指标数据，key为indicatorKeyStr，value为指标数据
 	) => {
-		console.log("新指标数据", newIndicators);
 		Object.entries(newIndicators).forEach(
 			([indicatorKeyStr, indicatorData]) => {
-				console.log("indicatorKeyStr", indicatorKeyStr);
 				const indicatorChartConfig =
 					klineChartConfig.indicatorChartConfig[indicatorKeyStr];
-				console.log("indicatorChartConfig", indicatorChartConfig);
 
 				if (indicatorChartConfig) {
 					// 遍历指标的系列配置
-					console.log("indicatorDataSeriesMap", indicatorDataSeriesMap);
 					for (const seriesConfig of indicatorChartConfig.seriesConfigs) {
-						console.log("seriesConfig", seriesConfig);
 						const indicatorDataSeries = indicatorDataSeriesMap
 							.get(indicatorKeyStr)
 							?.get(seriesConfig.name);
-						console.log("indicatorDataSeries", indicatorDataSeries);
 
 						if (indicatorDataSeries) {
 							const value = indicatorData[seriesConfig.indicatorValueKey];
-							console.log(
-								"key=",
-								seriesConfig.indicatorValueKey,
-								"value=",
-								value,
-							);
 
 							if (
 								value !== undefined &&
@@ -322,9 +310,6 @@ export const initKlineChart = async (
 								if (indicatorDataSeries.count() === 0) {
 									// 没有数据，直接添加
 									indicatorDataSeries.append(timestamp, value);
-									console.log(
-										`首次添加指标数据: ${indicatorKeyStr} - ${seriesConfig.name}, timestamp: ${timestamp}, value: ${value}`,
-									);
 								} else {
 									// 有数据，判断是否是相同时间戳的数据
 									const currentIndex = indicatorDataSeries.count() - 1;
@@ -335,15 +320,9 @@ export const initKlineChart = async (
 									if (timestamp === latestTimestamp) {
 										// 相同时间戳，更新现有数据
 										indicatorDataSeries.update(currentIndex, value);
-										console.log(
-											`更新指标数据: ${indicatorKeyStr} - ${seriesConfig.name}, timestamp: ${timestamp}, value: ${value}`,
-										);
 									} else {
 										// 不同时间戳，追加新数据
 										indicatorDataSeries.append(timestamp, value);
-										console.log(
-											`追加指标数据: ${indicatorKeyStr} - ${seriesConfig.name}, timestamp: ${timestamp}, value: ${value}`,
-										);
 									}
 								}
 							}
@@ -402,9 +381,6 @@ export const initKlineChart = async (
 	sciChartSurface.annotations.add(latestPriceAnnotation);
 
 	const setKlineData = (symbolName: string, klines: Kline[]) => {
-		console.log(
-			`createCandlestickChart(): Setting data for ${symbolName}, ${klines.length} candles`,
-		);
 
 		// 将 Kline 映射为 scichart 期望的结构化数组
 		const xValues: number[] = [];
@@ -496,14 +472,9 @@ export const initKlineChart = async (
 		const dateDifference =
 			10 *
 			KlineInterval[chartInterval as unknown as keyof typeof KlineInterval];
-		console.log("dateDifference", dateDifference);
 		const range = new NumberRange(start - dateDifference, end + dateDifference);
-		console.log(
-			`createCandlestickChart(): Setting chart range to ${new Date((start - dateDifference) * 1000).toLocaleString()} - ${new Date((end + dateDifference) * 1000).toLocaleString()}`,
-		);
 		xAxis.visibleRange = range;
 		xAxis.animateVisibleRange(range, 10, easing.inOutQuad, () => {
-			console.log("x轴调整完成");
 		});
 	};
 

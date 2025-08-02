@@ -3,7 +3,7 @@ import { CrosshairMode, type IChartApi, type Time, type CandlestickData, type Si
 import {
 	CandlestickSeries,
 	Chart,
-	Pane,
+	// Pane,
 } from "lightweight-charts-react-components";
 import { useCallback, useEffect, useRef } from "react";
 import { get_play_index } from "@/service/strategy-control/backtest-strategy-control";
@@ -17,9 +17,9 @@ import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import MainChartIndicatorSeries from "./main-chart-indicator-series";
 import MainChartIndicatorLegend, { type MainChartIndicatorLegendRef } from "./main-chart-indicator-legend";
 import SubChartIndicatorSeries, { type SubChartIndicatorSeriesRef } from "./sub-chart-indicator-series";
-import ChartApiDebugger from "./debug/chart-api-debugger";
+// import ChartApiDebugger from "./debug/chart-api-debugger";
 import { autoApplyPaneHeights } from "./utils/pane-height-manager";
-import { IndicatorKeyStr } from "@/types/symbol-key";
+import type { IndicatorKeyStr } from "@/types/symbol-key";
 
 
 
@@ -29,18 +29,16 @@ interface BacktestChartProps {
 }
 
 const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
-	// console.log("BacktestChart: 初始化", chartConfig);
 	const {
 		setChartConfig,
 		klineData,
 		indicatorData,
 		initChartData,
-		// setChartRef,
 		initObserverSubscriptions,
 		cleanupSubscriptions,
 		// 可见性控制方法
 		getKlineVisibility,
-		getIndicatorVisibility,
+		// getIndicatorVisibility,
 	} = useBacktestChartStore(chartConfig);
 
 	// 使用 useRef 存储 store 函数，避免依赖项变化导致无限渲染
@@ -147,15 +145,12 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 		if (chartApiRef.current) {
 			// 减少延迟，确保 DOM 更新完成但减少闪烁
 			const timer = setTimeout(() => {
-				const success = autoApplyPaneHeights(chartApiRef.current, chartContainerRef);
-				if (success) {
-					console.log(`✅ 子图数量变化 (${subChartCount})，Pane 高度配置已重新应用`);
-				}
+				autoApplyPaneHeights(chartApiRef.current);
 			}, 100); // 从 300ms 减少到 100ms
 
 			return () => clearTimeout(timer);
 		}
-	}, [subChartCount]);
+	}, []);
 
 	// 手动调整图表大小的函数
 	const resizeChart = useCallback(() => {
@@ -186,13 +181,10 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 
 	// Chart onInit 回调 - 初始化 observer 订阅
 	const handleChartInit = (chart: IChartApi) => {
-		console.log('🎯 Chart onInit 被调用，Chart API:', chart);
-
 		// storeActionsRef.current.setChartRef(chart);
 
 		// 保存图表 API 引用
 		chartApiRef.current = chart;
-		console.log('✅ Chart API 已保存到 chartApiRef.current:', chartApiRef.current);
 
 		// 延迟初始化 observer 订阅，确保所有引用都已设置
 		setTimeout(() => {
@@ -206,12 +198,7 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 
 		// 尽快应用 Pane 高度配置，减少闪烁
 		setTimeout(() => {
-			const success = autoApplyPaneHeights(chartApiRef.current, chartContainerRef);
-			if (success) {
-				console.log('✅ Pane 高度配置已自动应用');
-			} else {
-				console.warn('⚠️ Pane 高度配置应用失败');
-			}
+			autoApplyPaneHeights(chartApiRef.current);
 		}, 10); // 减少延迟时间
 	};
 
@@ -321,7 +308,6 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 							chartConfig.klineChartConfig.indicatorChartConfig,
 						).map(([indicatorKeyStr, indicatorConfig], index) => {
 							const data = indicatorData[indicatorKeyStr] as Record<keyof IndicatorValueConfig, SingleValueData[]> || {};
-							// console.log("indicator_data: ", data);
 							// 主图指标
 							if (indicatorConfig.isInMainChart && data) {
 								return (

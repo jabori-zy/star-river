@@ -278,7 +278,6 @@ class BacktestStrategyDataObservableService {
 	 */
 	disconnect(): void {
 		if (this.eventSource) {
-			console.log("正在断开SSE连接...");
 			this.eventSource.close();
 			this.eventSource = null;
 			this.connectionState$.next(SSEConnectionState.DISCONNECTED);

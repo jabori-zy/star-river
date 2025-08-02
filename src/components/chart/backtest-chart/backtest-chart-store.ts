@@ -162,8 +162,6 @@ const createBacktestChartStore = (chartConfig: BacktestChartConfig) => create<Ba
 		// 清理现有订阅
 		state.cleanupSubscriptions();
 
-		console.log("初始化 Observer 订阅，klineKeyStr:", state.getKeyStr());
-
 		try {
 			state.getKeyStr().forEach((keyStr) => {
 				const key = parseKey(keyStr);
@@ -217,15 +215,11 @@ const createBacktestChartStore = (chartConfig: BacktestChartConfig) => create<Ba
 
 	addObserverSubscription: (keyStr: KeyStr, subscription: Subscription) => {
 		set({ subscriptions: { ...get().subscriptions, [keyStr]: [...(get().subscriptions[keyStr] || []), subscription] } });
-		console.log("subscriptions: ", get().subscriptions);
 	},
 
 	cleanupSubscriptions: () => {
 		const state = get();
-		// console.log(
-		// 	"清理 Observer 订阅，当前订阅数量:",
-		// 	state.subscriptions.length,
-		// );
+
 
 		Object.entries(state.subscriptions).forEach(([_, subscriptions]) => {
 			subscriptions.forEach((subscription, index) => {
@@ -350,7 +344,6 @@ const createBacktestChartStore = (chartConfig: BacktestChartConfig) => create<Ba
 								low: kline.low,
 								close: kline.close,
 							}));
-							console.log("klineData: ", klineData);
 
 							state.setKlineData(keyStr, klineData);
 						} else {
@@ -376,10 +369,8 @@ const createBacktestChartStore = (chartConfig: BacktestChartConfig) => create<Ba
 									}
 								});
 							});
-							console.log("indicatorData: ", indicatorData);
 							
 							state.setIndicatorData(keyStr, indicatorData);
-							console.log("state.indicatorData: ", state.indicatorData);
 						} else {
 							console.warn(`No indicator data received for keyStr: ${keyStr}`);
 						}

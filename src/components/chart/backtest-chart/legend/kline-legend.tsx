@@ -1,5 +1,5 @@
 import type React from "react";
-import { Eye, EyeOff, Zap, Trash2 } from "lucide-react";
+import { Eye, EyeOff, Bolt } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { KlineLegendData } from "./use-kline-legend";
 import type { KlineKeyStr } from "@/types/symbol-key";
@@ -37,7 +37,7 @@ const KlineLegend: React.FC<KlineLegendProps> = ({
 
 	return (
 		<div
-			className={`absolute top-0 left-0 z-10 hover:cursor-pointer hover:bg-gray-100 p-2 rounded-sm group ${className}`}
+			className={`absolute top-0 left-0 z-10 hover:cursor-pointer hover:bg-gray-100 px-2 py-1 rounded-sm group ${className}`}
 		>
 			<div className="flex flex-wrap gap-2 text-xs items-center">
 				{/* 显示时间
@@ -120,7 +120,7 @@ const KlineLegend: React.FC<KlineLegendProps> = ({
 							// TODO: 实现快速操作功能
 						}}
 					>
-						<Zap size={12} className="text-yellow-600" />
+						<Bolt size={12} className="text-yellow-600" />
 					</Button>
 					{/* <Button
 						variant="outline"
