@@ -38,6 +38,9 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 		// setChartRef,
 		initObserverSubscriptions,
 		cleanupSubscriptions,
+		// 可见性控制方法
+		getKlineVisibility,
+		getIndicatorVisibility,
 	} = useBacktestChartStore(chartConfig);
 
 	// 使用 useRef 存储 store 函数，避免依赖项变化导致无限渲染
@@ -67,6 +70,9 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 	// 不再需要暴露引用给外部组件，调试器在内部使用
 
 	const { klineSeriesRef, legendData, onCrosshairMove } = useKlineLegend(klineData[chartConfig.klineChartConfig.klineKeyStr] as CandlestickData[] || []);
+
+	// 获取K线可见性状态（从当前图表的store中获取）
+	const klineVisible = getKlineVisibility(chartConfig.klineChartConfig.klineKeyStr);
 
 	// 收集所有指标legend的ref
 	const indicatorLegendRefs = useRef<Record<IndicatorKeyStr, MainChartIndicatorLegendRef | null>>({});
@@ -298,11 +304,18 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 						<CandlestickSeries
 							ref={klineSeriesRef}
 							data={klineData[chartConfig.klineChartConfig.klineKeyStr] as CandlestickData[] || []}
+							options={{
+								visible: klineVisible,
+							}}
 							reactive={true}
 							alwaysReplaceData={false}
 						/>
 						{/* 图例 */}
-						<KlineLegend klineSeriesData={legendData} />
+						<KlineLegend
+							klineSeriesData={legendData}
+							klineKeyStr={chartConfig.klineChartConfig.klineKeyStr}
+							chartConfig={chartConfig}
+						/>
 						{/* 添加主图指标 */}
 						{Object.entries(
 							chartConfig.klineChartConfig.indicatorChartConfig,
@@ -326,6 +339,7 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 											indicatorKeyStr={indicatorKeyStr}
 											data={data}
 											index={index}
+											chartConfig={chartConfig}
 										/>
 										{/* 指标系列 */}
 										{indicatorConfig.seriesConfigs.map((seriesConfig) => {
@@ -336,6 +350,8 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 													key={seriesKeyStr}
 													seriesConfig={seriesConfig}
 													data={data[seriesConfig.indicatorValueKey] as SingleValueData[] || []}
+													indicatorKeyStr={indicatorKeyStr}
+													chartConfig={chartConfig}
 													// onSeriesRef={handleSeriesRef}
 												/>
 											);
@@ -372,6 +388,7 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 												subChartIndex={currentSubChartIndex}
 												totalSubChartCount={subChartCount}
 												containerHeight={containerHeight}
+												chartConfig={chartConfig}
 											/>
 										);
 									}

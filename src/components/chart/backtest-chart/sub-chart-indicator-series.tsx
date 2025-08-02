@@ -4,9 +4,11 @@ import { Pane, type PaneApiRef } from "lightweight-charts-react-components";
 import type { IndicatorChartConfig } from "@/types/chart";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import type { IndicatorKeyStr } from "@/types/symbol-key";
+import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import { IndicatorSeries } from "./indicator-series";
 import { calculateSubChartHeight } from "./utils/pane-height-manager";
 import SubChartIndicatorLegend, { type SubChartIndicatorLegendRef } from "./sub-chart-indicator-legend";
+import { useBacktestChartStore } from "./backtest-chart-store";
 
 // 子图指标 Series 组件 - 支持多个 series 在同一个 Pane 中，自管理高度
 interface SubChartIndicatorSeriesProps {
@@ -16,6 +18,7 @@ interface SubChartIndicatorSeriesProps {
 	subChartIndex: number; // 子图索引（从0开始）
 	totalSubChartCount: number; // 总子图数量
 	containerHeight: number; // 容器高度
+	chartConfig: BacktestChartConfig; // 新增图表配置
 	// onSeriesRef: (keyStr: string, ref: SeriesApiRef<"Line"> | SeriesApiRef<"Histogram"> | SeriesApiRef<"Area">) => void;
 }
 
@@ -30,11 +33,16 @@ const SubChartIndicatorSeries = forwardRef<SubChartIndicatorSeriesRef, SubChartI
 	subChartIndex,
 	totalSubChartCount,
 	containerHeight,
+	chartConfig,
 }, ref) => {
 	// 创建 Pane 引用
 	const paneRef = useRef<PaneApiRef>(null);
 	// 创建 Legend 引用
 	const legendRef = useRef<SubChartIndicatorLegendRef>(null);
+
+	// 获取指标可见性状态（从当前图表的store中获取）
+	const { getIndicatorVisibility } = useBacktestChartStore(chartConfig);
+	const isVisible = getIndicatorVisibility(indicatorKeyStr);
 
 	// 暴露onCrosshairMove方法给父组件
 	useImperativeHandle(ref, () => ({
@@ -116,6 +124,7 @@ const SubChartIndicatorSeries = forwardRef<SubChartIndicatorSeriesRef, SubChartI
 						key={`${seriesConfig.name}-${index}`}
 						seriesConfig={seriesConfig}
 						data={seriesData}
+						visible={isVisible}
 					/>
 				);
 			})}
@@ -126,6 +135,7 @@ const SubChartIndicatorSeries = forwardRef<SubChartIndicatorSeriesRef, SubChartI
 				data={data}
 				paneRef={paneRef}
 				paneInitialized={paneInitialized}
+				chartConfig={chartConfig}
 			/>
 		</Pane>
 	);

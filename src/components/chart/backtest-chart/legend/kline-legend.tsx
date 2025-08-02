@@ -1,20 +1,39 @@
 import type React from "react";
-import { Eye, Zap, Trash2 } from "lucide-react";
+import { Eye, EyeOff, Zap, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { KlineLegendData } from "./use-kline-legend";
+import type { KlineKeyStr } from "@/types/symbol-key";
+import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
+import { useBacktestChartStore } from "../backtest-chart-store";
 
 interface KlineLegendProps {
 	klineSeriesData: KlineLegendData | null;
+	klineKeyStr: KlineKeyStr; // 新增K线键字符串，用于控制可见性
+	chartConfig: BacktestChartConfig; // 新增图表配置，用于获取对应的store
 	className?: string;
 }
 
 const KlineLegend: React.FC<KlineLegendProps> = ({
 	klineSeriesData,
+	klineKeyStr,
+	chartConfig,
 	className = "",
 }) => {
+	// 使用当前图表的可见性状态管理
+	const { getKlineVisibility, toggleKlineVisibility } = useBacktestChartStore(chartConfig);
+
 	if (klineSeriesData === null) {
 		return null;
 	}
+
+	// 获取当前K线的可见性状态
+	const isVisible = getKlineVisibility(klineKeyStr);
+
+	// 处理可见性切换
+	const handleVisibilityToggle = (e: React.MouseEvent) => {
+		e.stopPropagation();
+		toggleKlineVisibility(klineKeyStr);
+	};
 
 	return (
 		<div
@@ -77,14 +96,19 @@ const KlineLegend: React.FC<KlineLegendProps> = ({
 					<Button
 						variant="outline"
 						size="sm"
-						className="h-6 w-6 p-0 border-gray-300 bg-white hover:bg-blue-50 hover:border-blue-400"
-						title="查看详情"
-						onClick={(e) => {
-							e.stopPropagation();
-							// TODO: 实现查看详情功能
-						}}
+						className={`h-6 w-6 p-0 border-gray-300 bg-white transition-colors ${
+							isVisible
+								? "hover:bg-blue-50 hover:border-blue-400"
+								: "hover:bg-gray-50 hover:border-gray-400 bg-gray-100"
+						}`}
+						title={isVisible ? "隐藏K线" : "显示K线"}
+						onClick={handleVisibilityToggle}
 					>
-						<Eye size={12} className="text-blue-600" />
+						{isVisible ? (
+							<Eye size={12} className="text-blue-600" />
+						) : (
+							<EyeOff size={12} className="text-gray-500" />
+						)}
 					</Button>
 					<Button
 						variant="outline"
@@ -98,7 +122,7 @@ const KlineLegend: React.FC<KlineLegendProps> = ({
 					>
 						<Zap size={12} className="text-yellow-600" />
 					</Button>
-					<Button
+					{/* <Button
 						variant="outline"
 						size="sm"
 						className="h-6 w-6 p-0 border-gray-300 bg-white hover:bg-red-50 hover:border-red-400"
@@ -109,7 +133,7 @@ const KlineLegend: React.FC<KlineLegendProps> = ({
 						}}
 					>
 						<Trash2 size={12} className="text-red-600" />
-					</Button>
+					</Button> */}
 				</div>
 			</div>
 		</div>

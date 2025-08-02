@@ -1,4 +1,4 @@
-import { BookOpen, Bot, Play, Settings2, SquareTerminal } from "lucide-react";
+import { BookOpen, Bot, Play, Settings2, SquareTerminal, Eye } from "lucide-react";
 
 export const sideBarMenu = {
 	user: {
@@ -22,6 +22,11 @@ export const sideBarMenu = {
 			title: "测试页面",
 			url: "/test",
 			icon: BookOpen,
+		},
+		{
+			title: "指标可见性测试",
+			url: "/test-indicator-visibility",
+			icon: Eye,
 		},
 		{
 			title: "设置",

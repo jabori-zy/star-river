@@ -13,13 +13,14 @@ import { SeriesType } from "@/types/chart";
 export interface IndicatorSeriesProps {
 	seriesConfig: SeriesConfig;
 	data: SingleValueData[];
+	visible?: boolean; // 新增可见性控制属性
 }
 
 /**
  * 单个指标 Series 组件
  * 可以被主图指标和子图指标共用
  */
-export const IndicatorSeries = ({ seriesConfig, data }: IndicatorSeriesProps) => {
+export const IndicatorSeries = ({ seriesConfig, data, visible = true }: IndicatorSeriesProps) => {
 	const seriesRef = useRef<SeriesApiRef<"Line"> | SeriesApiRef<"Histogram"> | SeriesApiRef<"Area"> | null>(null);
 
 	const lineSeriesOptions = useMemo(
@@ -56,6 +57,7 @@ export const IndicatorSeries = ({ seriesConfig, data }: IndicatorSeriesProps) =>
 						lineWidth: 1,
 						lastValueVisible: false,
 						priceLineVisible: false,
+						visible: visible,
 					}}
 					reactive={true}
 					alwaysReplaceData={false}
@@ -70,6 +72,7 @@ export const IndicatorSeries = ({ seriesConfig, data }: IndicatorSeriesProps) =>
 						...histogramSeriesOptions,
 						lastValueVisible: false,
 						priceLineVisible: false,
+						visible: visible,
 					}}
 					reactive={true}
 					alwaysReplaceData={false}
@@ -80,7 +83,10 @@ export const IndicatorSeries = ({ seriesConfig, data }: IndicatorSeriesProps) =>
 				<AreaSeries
 					ref={seriesRef as React.RefObject<SeriesApiRef<"Area">>}
 					data={data}
-					options={areaSeriesOptions}
+					options={{
+						...areaSeriesOptions,
+						visible: visible,
+					}}
 					reactive={true}
 					alwaysReplaceData={false}
 				/>
@@ -97,6 +103,7 @@ export const IndicatorSeries = ({ seriesConfig, data }: IndicatorSeriesProps) =>
 						lineStyle: 2, // 虚线样式
 						lastValueVisible: false,
 						priceLineVisible: false,
+						visible: visible,
 					}}
 					reactive={true}
 					alwaysReplaceData={false}

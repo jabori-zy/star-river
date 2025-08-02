@@ -1,23 +1,42 @@
 import type React from "react";
 import { forwardRef } from "react";
-import { Eye, Zap, Trash2 } from "lucide-react";
+import { Eye, EyeOff, Zap, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { IndicatorLegendData } from "./use-indicator-legend";
+import type { IndicatorKeyStr } from "@/types/symbol-key";
+import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
+import { useBacktestChartStore } from "../backtest-chart-store";
 
 interface IndicatorLegendProps {
 	indicatorLegendData: IndicatorLegendData | null;
+	indicatorKeyStr: IndicatorKeyStr; // 新增指标键字符串，用于控制可见性
+	chartConfig: BacktestChartConfig; // 新增图表配置，用于获取对应的store
 	className?: string;
 	style?: React.CSSProperties;
 }
 
 const IndicatorLegend = forwardRef<HTMLDivElement, IndicatorLegendProps>(({
 	indicatorLegendData,
+	indicatorKeyStr,
+	chartConfig,
 	className = "",
 	style,
 }, ref) => {
+	// 使用当前图表的可见性状态管理
+	const { getIndicatorVisibility, toggleIndicatorVisibility } = useBacktestChartStore(chartConfig);
+
 	if (indicatorLegendData === null) {
 		return null;
 	}
+
+	// 获取当前指标的可见性状态
+	const isVisible = getIndicatorVisibility(indicatorKeyStr);
+
+	// 处理可见性切换
+	const handleVisibilityToggle = (e: React.MouseEvent) => {
+		e.stopPropagation();
+		toggleIndicatorVisibility(indicatorKeyStr);
+	};
 
 	return (
 		<div
@@ -60,14 +79,19 @@ const IndicatorLegend = forwardRef<HTMLDivElement, IndicatorLegendProps>(({
 					<Button
 						variant="outline"
 						size="sm"
-						className="h-6 w-6 p-0 border-gray-300 bg-white hover:bg-blue-50 hover:border-blue-400"
-						title="查看详情"
-						onClick={(e) => {
-							e.stopPropagation();
-							// TODO: 实现查看详情功能
-						}}
+						className={`h-6 w-6 p-0 border-gray-300 bg-white transition-colors ${
+							isVisible
+								? "hover:bg-blue-50 hover:border-blue-400"
+								: "hover:bg-gray-50 hover:border-gray-400 bg-gray-100"
+						}`}
+						title={isVisible ? "隐藏指标" : "显示指标"}
+						onClick={handleVisibilityToggle}
 					>
-						<Eye size={12} className="text-blue-600" />
+						{isVisible ? (
+							<Eye size={12} className="text-blue-600" />
+						) : (
+							<EyeOff size={12} className="text-gray-500" />
+						)}
 					</Button>
 					<Button
 						variant="outline"

@@ -30,6 +30,12 @@ interface BacktestChartStore {
 	subscriptions: Record<KeyStr, Subscription[]>; // 订阅集合
 	isInitialized: boolean; // 标记是否已经初始化过数据
 
+	// === 系列可见性状态 ===
+	// 存储每个指标的可见性状态，key为indicatorKeyStr，value为是否可见
+	indicatorVisibilityMap: Record<IndicatorKeyStr, boolean>;
+	// 存储每个K线的可见性状态，key为klineKeyStr，value为是否可见
+	klineVisibilityMap: Record<KlineKeyStr, boolean>;
+
 	initChartData: (playIndex: number) => void;
 
 	setChartConfig: (chartConfig: BacktestChartConfig) => void;
@@ -40,6 +46,30 @@ interface BacktestChartStore {
 	// getData: (keyStr: KeyStr) => CandlestickData[] | SingleValueData[];
 
 	getLastKline: (keyStr: KeyStr) => CandlestickData | SingleValueData | null;
+
+	// === 指标可见性控制方法 ===
+	// 设置指标可见性
+	setIndicatorVisibility: (indicatorKeyStr: IndicatorKeyStr, visible: boolean) => void;
+	// 切换指标可见性
+	toggleIndicatorVisibility: (indicatorKeyStr: IndicatorKeyStr) => void;
+	// 获取指标可见性
+	getIndicatorVisibility: (indicatorKeyStr: IndicatorKeyStr) => boolean;
+
+	// === K线可见性控制方法 ===
+	// 设置K线可见性
+	setKlineVisibility: (klineKeyStr: KlineKeyStr, visible: boolean) => void;
+	// 切换K线可见性
+	toggleKlineVisibility: (klineKeyStr: KlineKeyStr) => void;
+	// 获取K线可见性
+	getKlineVisibility: (klineKeyStr: KlineKeyStr) => boolean;
+
+	// === 批量操作方法 ===
+	// 重置所有为可见
+	resetAllVisibility: () => void;
+	// 批量设置指标可见性
+	setBatchIndicatorVisibility: (visibilityMap: Record<IndicatorKeyStr, boolean>) => void;
+	// 批量设置K线可见性
+	setBatchKlineVisibility: (visibilityMap: Record<KlineKeyStr, boolean>) => void;
 
 	// setChartRef: (chart: IChartApi) => void; // 设置chart引用
 
@@ -68,6 +98,11 @@ const createBacktestChartStore = (chartConfig: BacktestChartConfig) => create<Ba
 	// chartRef: null,
 	subscriptions: {},
 	isInitialized: false,
+
+	// === 系列可见性状态初始化 ===
+	// 初始状态：所有指标和K线默认可见
+	indicatorVisibilityMap: {},
+	klineVisibilityMap: {},
 
 	setChartConfig: (chartConfig: BacktestChartConfig) => set({ chartConfig }),
 
@@ -373,8 +408,88 @@ const createBacktestChartStore = (chartConfig: BacktestChartConfig) => create<Ba
 		}
 	},
 
+	// === 指标可见性控制方法实现 ===
+	// 设置指标可见性
+	setIndicatorVisibility: (indicatorKeyStr: IndicatorKeyStr, visible: boolean) => {
+		set((state) => ({
+			indicatorVisibilityMap: {
+				...state.indicatorVisibilityMap,
+				[indicatorKeyStr]: visible,
+			},
+		}));
+	},
+
+	// 切换指标可见性
+	toggleIndicatorVisibility: (indicatorKeyStr: IndicatorKeyStr) => {
+		const currentVisibility = get().getIndicatorVisibility(indicatorKeyStr);
+		get().setIndicatorVisibility(indicatorKeyStr, !currentVisibility);
+	},
+
+	// 获取指标可见性，默认为true（可见）
+	getIndicatorVisibility: (indicatorKeyStr: IndicatorKeyStr) => {
+		const { indicatorVisibilityMap } = get();
+		return indicatorVisibilityMap[indicatorKeyStr] ?? true; // 默认可见
+	},
+
+	// === K线可见性控制方法实现 ===
+	// 设置K线可见性
+	setKlineVisibility: (klineKeyStr: KlineKeyStr, visible: boolean) => {
+		set((state) => ({
+			klineVisibilityMap: {
+				...state.klineVisibilityMap,
+				[klineKeyStr]: visible,
+			},
+		}));
+	},
+
+	// 切换K线可见性
+	toggleKlineVisibility: (klineKeyStr: KlineKeyStr) => {
+		const currentVisibility = get().getKlineVisibility(klineKeyStr);
+		get().setKlineVisibility(klineKeyStr, !currentVisibility);
+	},
+
+	// 获取K线可见性，默认为true（可见）
+	getKlineVisibility: (klineKeyStr: KlineKeyStr) => {
+		const { klineVisibilityMap } = get();
+		return klineVisibilityMap[klineKeyStr] ?? true; // 默认可见
+	},
+
+	// === 批量操作方法实现 ===
+	// 重置所有为可见
+	resetAllVisibility: () => {
+		set({
+			indicatorVisibilityMap: {},
+			klineVisibilityMap: {},
+		});
+	},
+
+	// 批量设置指标可见性
+	setBatchIndicatorVisibility: (visibilityMap: Record<IndicatorKeyStr, boolean>) => {
+		set((state) => ({
+			indicatorVisibilityMap: {
+				...state.indicatorVisibilityMap,
+				...visibilityMap,
+			},
+		}));
+	},
+
+	// 批量设置K线可见性
+	setBatchKlineVisibility: (visibilityMap: Record<KlineKeyStr, boolean>) => {
+		set((state) => ({
+			klineVisibilityMap: {
+				...state.klineVisibilityMap,
+				...visibilityMap,
+			},
+		}));
+	},
+
 	resetData: () => {
-		set({ klineData: {}, isInitialized: false });
+		set({
+			klineData: {},
+			indicatorData: {},
+			isInitialized: false,
+			// 重置时保持可见性状态，不清空
+		});
 	},
 }));
 

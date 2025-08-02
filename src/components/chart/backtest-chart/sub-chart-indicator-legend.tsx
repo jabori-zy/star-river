@@ -2,6 +2,7 @@ import type { SingleValueData, MouseEventParams } from "lightweight-charts";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import type { IndicatorKeyStr } from "@/types/symbol-key";
 import type { PaneApiRef } from "lightweight-charts-react-components";
+import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import { IndicatorLegend, useIndicatorLegend } from "./legend";
 import { useImperativeHandle, forwardRef, useState, useEffect, useRef } from "react";
 
@@ -10,6 +11,7 @@ interface SubChartIndicatorLegendProps {
 	data: Record<keyof IndicatorValueConfig, SingleValueData[]>;
 	paneRef: React.RefObject<PaneApiRef | null>; // pane的ref，用于获取HTML元素
 	paneInitialized: boolean; // pane是否已经完全初始化
+	chartConfig: BacktestChartConfig; // 新增图表配置
 }
 
 export interface SubChartIndicatorLegendRef {
@@ -25,6 +27,7 @@ const SubChartIndicatorLegend = forwardRef<SubChartIndicatorLegendRef, SubChartI
 	data,
 	paneRef,
 	paneInitialized,
+	chartConfig,
 }, ref) => {
 	const { legendData, onCrosshairMove: indicatorOnCrosshairMove } = useIndicatorLegend(indicatorKeyStr, data);
 	const [paneElement, setPaneElement] = useState<HTMLElement | null>(null);
@@ -288,6 +291,8 @@ const SubChartIndicatorLegend = forwardRef<SubChartIndicatorLegendRef, SubChartI
 		<IndicatorLegend
 			ref={legendRef}
 			indicatorLegendData={legendData}
+			indicatorKeyStr={indicatorKeyStr}
+			chartConfig={chartConfig}
 		/>
 	);
 });
