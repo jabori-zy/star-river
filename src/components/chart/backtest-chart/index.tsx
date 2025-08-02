@@ -1,5 +1,11 @@
 import dayjs from "dayjs";
-import { CrosshairMode, type IChartApi, type Time, type CandlestickData, type SingleValueData } from "lightweight-charts";
+import {
+	type CandlestickData,
+	CrosshairMode,
+	type IChartApi,
+	type SingleValueData,
+	type Time,
+} from "lightweight-charts";
 import {
 	CandlestickSeries,
 	Chart,
@@ -8,20 +14,22 @@ import {
 import { useCallback, useEffect, useRef } from "react";
 import { get_play_index } from "@/service/strategy-control/backtest-strategy-control";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
+import type { IndicatorValueConfig } from "@/types/indicator/schemas";
+import type { IndicatorKeyStr } from "@/types/symbol-key";
 import {
 	cleanupBacktestChartStore,
 	useBacktestChartStore,
 } from "./backtest-chart-store";
 import { KlineLegend, useKlineLegend } from "./legend";
-import type { IndicatorValueConfig } from "@/types/indicator/schemas";
+import MainChartIndicatorLegend, {
+	type MainChartIndicatorLegendRef,
+} from "./main-chart-indicator-legend";
 import MainChartIndicatorSeries from "./main-chart-indicator-series";
-import MainChartIndicatorLegend, { type MainChartIndicatorLegendRef } from "./main-chart-indicator-legend";
-import SubChartIndicatorSeries, { type SubChartIndicatorSeriesRef } from "./sub-chart-indicator-series";
+import SubChartIndicatorSeries, {
+	type SubChartIndicatorSeriesRef,
+} from "./sub-chart-indicator-series";
 // import ChartApiDebugger from "./debug/chart-api-debugger";
 import { autoApplyPaneHeights } from "./utils/pane-height-manager";
-import type { IndicatorKeyStr } from "@/types/symbol-key";
-
-
 
 interface BacktestChartProps {
 	strategyId: number;
@@ -67,37 +75,48 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 
 	// 不再需要暴露引用给外部组件，调试器在内部使用
 
-	const { klineSeriesRef, legendData, onCrosshairMove } = useKlineLegend(klineData[chartConfig.klineChartConfig.klineKeyStr] as CandlestickData[] || []);
+	const { klineSeriesRef, legendData, onCrosshairMove } = useKlineLegend(
+		(klineData[
+			chartConfig.klineChartConfig.klineKeyStr
+		] as CandlestickData[]) || [],
+	);
 
 	// 获取K线可见性状态（从当前图表的store中获取）
-	const klineVisible = getKlineVisibility(chartConfig.klineChartConfig.klineKeyStr);
+	const klineVisible = getKlineVisibility(
+		chartConfig.klineChartConfig.klineKeyStr,
+	);
 
 	// 收集所有指标legend的ref
-	const indicatorLegendRefs = useRef<Record<IndicatorKeyStr, MainChartIndicatorLegendRef | null>>({});
+	const indicatorLegendRefs = useRef<
+		Record<IndicatorKeyStr, MainChartIndicatorLegendRef | null>
+	>({});
 	// 收集所有子图指标的ref
-	const subChartIndicatorRefs = useRef<Record<IndicatorKeyStr, SubChartIndicatorSeriesRef | null>>({});
+	const subChartIndicatorRefs = useRef<
+		Record<IndicatorKeyStr, SubChartIndicatorSeriesRef | null>
+	>({});
 
 	// 统一的crosshair事件处理函数
-	const handleCrosshairMove = useCallback((param: import("lightweight-charts").MouseEventParams) => {
-		// 调用K线legend的onCrosshairMove
-		onCrosshairMove(param);
+	const handleCrosshairMove = useCallback(
+		(param: import("lightweight-charts").MouseEventParams) => {
+			// 调用K线legend的onCrosshairMove
+			onCrosshairMove(param);
 
-		// 调用所有主图指标legend的onCrosshairMove
-		Object.entries(indicatorLegendRefs.current).forEach(([_, ref]) => {
-			if (ref?.onCrosshairMove) {
-				ref.onCrosshairMove(param);
-			}
-		});
+			// 调用所有主图指标legend的onCrosshairMove
+			Object.entries(indicatorLegendRefs.current).forEach(([_, ref]) => {
+				if (ref?.onCrosshairMove) {
+					ref.onCrosshairMove(param);
+				}
+			});
 
-		// 调用所有子图指标的onCrosshairMove
-		Object.entries(subChartIndicatorRefs.current).forEach(([_, ref]) => {
-			if (ref?.onCrosshairMove) {
-				ref.onCrosshairMove(param);
-			}
-		});
-	}, [onCrosshairMove]);
-
-
+			// 调用所有子图指标的onCrosshairMove
+			Object.entries(subChartIndicatorRefs.current).forEach(([_, ref]) => {
+				if (ref?.onCrosshairMove) {
+					ref.onCrosshairMove(param);
+				}
+			});
+		},
+		[onCrosshairMove],
+	);
 
 	// 处理动态 series ref 的回调函数
 	// const handleSeriesRef = useCallback((keyStr: string, ref: SeriesApiRef<"Line"> | SeriesApiRef<"Histogram"> | SeriesApiRef<"Area">) => {
@@ -115,14 +134,21 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 	}, [strategyId, initChartData]);
 
 	// 计算子图数量和获取容器高度
-	const subChartCount = chartConfig.subChartConfigs.reduce((count, subChartConfig) => {
-		return count + Object.keys(subChartConfig.indicatorChartConfigs).filter(
-			indicatorKeyStr => {
-				const indicatorConfig = subChartConfig.indicatorChartConfigs[indicatorKeyStr];
-				return !indicatorConfig.isInMainChart;
-			}
-		).length;
-	}, 0);
+	const subChartCount = chartConfig.subChartConfigs.reduce(
+		(count, subChartConfig) => {
+			return (
+				count +
+				Object.keys(subChartConfig.indicatorChartConfigs).filter(
+					(indicatorKeyStr) => {
+						const indicatorConfig =
+							subChartConfig.indicatorChartConfigs[indicatorKeyStr];
+						return !indicatorConfig.isInMainChart;
+					},
+				).length
+			);
+		},
+		0,
+	);
 
 	// 获取容器高度
 	const getContainerHeight = useCallback(() => {
@@ -288,73 +314,90 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 					onInit={handleChartInit}
 				>
 					{/* <Pane> */}
-						<CandlestickSeries
-							ref={klineSeriesRef}
-							data={klineData[chartConfig.klineChartConfig.klineKeyStr] as CandlestickData[] || []}
-							options={{
-								visible: klineVisible,
-							}}
-							reactive={true}
-							alwaysReplaceData={false}
-						/>
-						{/* 图例 */}
-						<KlineLegend
-							klineSeriesData={legendData}
-							klineKeyStr={chartConfig.klineChartConfig.klineKeyStr}
-							chartConfig={chartConfig}
-						/>
-						{/* 添加主图指标 */}
-						{Object.entries(
-							chartConfig.klineChartConfig.indicatorChartConfig,
-						).map(([indicatorKeyStr, indicatorConfig], index) => {
-							const data = indicatorData[indicatorKeyStr] as Record<keyof IndicatorValueConfig, SingleValueData[]> || {};
-							// 主图指标
-							if (indicatorConfig.isInMainChart && data) {
-								return (
-									<>
-										{/* 指标图例 - 根据索引调整位置 */}
-										<MainChartIndicatorLegend
-											key={`${indicatorKeyStr}-legend`}
-											ref={(ref) => {
-												if (ref) {
-													indicatorLegendRefs.current[indicatorKeyStr] = ref;
-												} else {
-													delete indicatorLegendRefs.current[indicatorKeyStr];
-												}
-											}}
-											indicatorKeyStr={indicatorKeyStr}
-											data={data}
-											index={index}
-											chartConfig={chartConfig}
-										/>
-										{/* 指标系列 */}
-										{indicatorConfig.seriesConfigs.map((seriesConfig) => {
-											const seriesKeyStr = `${indicatorKeyStr}_${seriesConfig.name}`;
+					<CandlestickSeries
+						ref={klineSeriesRef}
+						data={
+							(klineData[
+								chartConfig.klineChartConfig.klineKeyStr
+							] as CandlestickData[]) || []
+						}
+						options={{
+							visible: klineVisible,
+						}}
+						reactive={true}
+						alwaysReplaceData={false}
+					/>
+					{/* 图例 */}
+					<KlineLegend
+						klineSeriesData={legendData}
+						klineKeyStr={chartConfig.klineChartConfig.klineKeyStr}
+						chartConfig={chartConfig}
+					/>
+					{/* 添加主图指标 */}
+					{Object.entries(
+						chartConfig.klineChartConfig.indicatorChartConfig,
+					).map(([indicatorKeyStr, indicatorConfig], index) => {
+						const data =
+							(indicatorData[indicatorKeyStr] as Record<
+								keyof IndicatorValueConfig,
+								SingleValueData[]
+							>) || {};
+						// 主图指标
+						if (indicatorConfig.isInMainChart && data) {
+							return (
+								<>
+									{/* 指标图例 - 根据索引调整位置 */}
+									<MainChartIndicatorLegend
+										key={`${indicatorKeyStr}-legend`}
+										ref={(ref) => {
+											if (ref) {
+												indicatorLegendRefs.current[indicatorKeyStr] = ref;
+											} else {
+												delete indicatorLegendRefs.current[indicatorKeyStr];
+											}
+										}}
+										indicatorKeyStr={indicatorKeyStr}
+										data={data}
+										index={index}
+										chartConfig={chartConfig}
+									/>
+									{/* 指标系列 */}
+									{indicatorConfig.seriesConfigs.map((seriesConfig) => {
+										const seriesKeyStr = `${indicatorKeyStr}_${seriesConfig.name}`;
 
-											return (
-												<MainChartIndicatorSeries
-													key={seriesKeyStr}
-													seriesConfig={seriesConfig}
-													data={data[seriesConfig.indicatorValueKey] as SingleValueData[] || []}
-													indicatorKeyStr={indicatorKeyStr}
-													chartConfig={chartConfig}
-													// onSeriesRef={handleSeriesRef}
-												/>
-											);
-										})}
-									</>
-								);
-							}
-							return null;
-						})}
+										return (
+											<MainChartIndicatorSeries
+												key={seriesKeyStr}
+												seriesConfig={seriesConfig}
+												data={
+													(data[
+														seriesConfig.indicatorValueKey
+													] as SingleValueData[]) || []
+												}
+												indicatorKeyStr={indicatorKeyStr}
+												chartConfig={chartConfig}
+												// onSeriesRef={handleSeriesRef}
+											/>
+										);
+									})}
+								</>
+							);
+						}
+						return null;
+					})}
 					{/* </Pane> */}
 
-				{/* 添加子图指标 */}
-						{(() => {
-							let subChartIndex = 0; // 子图索引计数器
-							return chartConfig.subChartConfigs.map((subChartConfig) => {
-								return Object.entries(subChartConfig.indicatorChartConfigs).map(([indicatorKeyStr, indicatorConfig]) => {
-									const data = indicatorData[indicatorKeyStr] as Record<keyof IndicatorValueConfig, SingleValueData[]> || {};
+					{/* 添加子图指标 */}
+					{(() => {
+						let subChartIndex = 0; // 子图索引计数器
+						return chartConfig.subChartConfigs.map((subChartConfig) => {
+							return Object.entries(subChartConfig.indicatorChartConfigs).map(
+								([indicatorKeyStr, indicatorConfig]) => {
+									const data =
+										(indicatorData[indicatorKeyStr] as Record<
+											keyof IndicatorValueConfig,
+											SingleValueData[]
+										>) || {};
 									// 子图指标
 									if (!indicatorConfig.isInMainChart && data) {
 										const currentSubChartIndex = subChartIndex++;
@@ -363,9 +406,12 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 												key={indicatorKeyStr}
 												ref={(ref) => {
 													if (ref) {
-														subChartIndicatorRefs.current[indicatorKeyStr] = ref;
+														subChartIndicatorRefs.current[indicatorKeyStr] =
+															ref;
 													} else {
-														delete subChartIndicatorRefs.current[indicatorKeyStr];
+														delete subChartIndicatorRefs.current[
+															indicatorKeyStr
+														];
 													}
 												}}
 												indicatorKeyStr={indicatorKeyStr}
@@ -379,9 +425,10 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 										);
 									}
 									return null;
-								});
-							});
-						})()}
+								},
+							);
+						});
+					})()}
 				</Chart>
 			</div>
 		</div>

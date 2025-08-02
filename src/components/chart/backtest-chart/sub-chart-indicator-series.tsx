@@ -96,7 +96,7 @@ const SubChartIndicatorSeries = forwardRef<SubChartIndicatorSeriesRef, SubChartI
 				}, 150); // 增加初始延迟时间
 			}
 		}
-	}, [subChartIndex, subChartHeight]);
+	}, [subChartHeight]);
 
 	// 渲染所有 series 在同一个 Pane 中
 	return (

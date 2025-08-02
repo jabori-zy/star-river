@@ -24,11 +24,6 @@ export const sideBarMenu = {
 			icon: BookOpen,
 		},
 		{
-			title: "指标可见性测试",
-			url: "/test-indicator-visibility",
-			icon: Eye,
-		},
-		{
 			title: "设置",
 			url: "/setting",
 			icon: Settings2,

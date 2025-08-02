@@ -1,4 +1,3 @@
-import type { IndicatorValueField } from "@/types/indicator";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import type { IndicatorKeyStr, KeyStr } from "@/types/symbol-key";
 // import { IndicatorValue } from "../indicator/backup/indicator-value";
