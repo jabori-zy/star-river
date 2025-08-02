@@ -34,13 +34,14 @@ export const AccBandsConfig: IndicatorConfig<AccBandsConfigType> = {
 			description: "选择Acceleration Bands的时间周期",
 			defaultValue: 14,
 			required: true,
+			legendShowName: "period",
 		},
 	},
 	indicatorValueConfig: {
-		timestamp: { label: "timestamp", value: 0 },
-		upper: { label: "upper", value: 0 },
-		middle: { label: "middle", value: 0 },
-		lower: { label: "lower", value: 0 },
+		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },
+		upper: { label: "upper", value: 0, legendShowName: "upper" },
+		middle: { label: "middle", value: 0, legendShowName: "middle" },
+		lower: { label: "lower", value: 0, legendShowName: "lower" },
 	},
 	chartConfig: {
 		isInMainChart: true,

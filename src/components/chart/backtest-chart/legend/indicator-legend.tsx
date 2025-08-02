@@ -1,76 +1,59 @@
 import type React from "react";
+import { forwardRef } from "react";
 import { Eye, Zap, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { KlineLegendData } from "./use-kline-legend";
+import type { IndicatorLegendData } from "./use-indicator-legend";
 
-interface KlineLegendProps {
-	klineSeriesData: KlineLegendData | null;
+interface IndicatorLegendProps {
+	indicatorLegendData: IndicatorLegendData | null;
 	className?: string;
+	style?: React.CSSProperties;
 }
 
-const KlineLegend: React.FC<KlineLegendProps> = ({
-	klineSeriesData,
+const IndicatorLegend = forwardRef<HTMLDivElement, IndicatorLegendProps>(({
+	indicatorLegendData,
 	className = "",
-}) => {
-	if (klineSeriesData === null) {
+	style,
+}, ref) => {
+	if (indicatorLegendData === null) {
 		return null;
 	}
 
 	return (
 		<div
+			ref={ref}
 			className={`absolute top-0 left-0 z-10 hover:cursor-pointer hover:bg-gray-100 p-2 rounded-sm group ${className}`}
+			style={style}
 		>
 			<div className="flex flex-wrap gap-2 text-xs items-center">
-				{/* 显示时间
-				{klineSeriesData.timeString && (
-					<span className="font-medium text-gray-700">
-						{klineSeriesData.timeString}
-					</span>
-				)} */}
-				{klineSeriesData.open && (
-					<span>
-						O:{" "}
-						<span style={{ color: klineSeriesData.color }}>
-							{klineSeriesData.open}
+				{/* 指标名称 */}
+				<span className="font-medium text-gray-700">
+					{indicatorLegendData.indicatorName}
+				</span>
+
+				{/* 指标值 */}
+				{(() => {
+					const valueEntries = Object.entries(indicatorLegendData.values);
+					const isSingleValue = valueEntries.length === 1;
+
+					return valueEntries.map(([key, valueInfo]) => (
+						<span key={key}>
+							{/* 单个值时不显示field字段，多个值时显示field字段 */}
+							{isSingleValue ? (
+								<span style={{ color: valueInfo.color }}>
+									{valueInfo.value}
+								</span>
+							) : (
+								<>
+									{valueInfo.label}:{" "}
+									<span style={{ color: valueInfo.color }}>
+										{valueInfo.value}
+									</span>
+								</>
+							)}
 						</span>
-					</span>
-				)}
-				{klineSeriesData.high && (
-					<span>
-						H:{" "}
-						<span style={{ color: klineSeriesData.color }}>
-							{klineSeriesData.high}
-						</span>
-					</span>
-				)}
-				{klineSeriesData.low && (
-					<span>
-						L:{" "}
-						<span style={{ color: klineSeriesData.color }}>
-							{klineSeriesData.low}
-						</span>
-					</span>
-				)}
-				{klineSeriesData.close && (
-					<span>
-						C:{" "}
-						<span style={{ color: klineSeriesData.color }}>
-							{klineSeriesData.close}
-						</span>
-					</span>
-				)}
-				{klineSeriesData.change && (
-					<span
-						style={{
-							color: klineSeriesData.change.startsWith("+")
-								? "#22c55e"
-								: "#ef4444",
-						}}
-						className="text-xs"
-					>
-						{klineSeriesData.change}
-					</span>
-				)}
+					));
+				})()}
 
 				{/* 操作图标 - 仅鼠标悬浮可见 */}
 				<div className="flex gap-1 ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
@@ -114,6 +97,8 @@ const KlineLegend: React.FC<KlineLegendProps> = ({
 			</div>
 		</div>
 	);
-};
+});
 
-export { KlineLegend };
+IndicatorLegend.displayName = 'IndicatorLegend';
+
+export { IndicatorLegend };

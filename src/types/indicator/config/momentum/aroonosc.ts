@@ -34,11 +34,12 @@ export const AroonOscConfig: IndicatorConfig<AroonOscConfigType> = {
 			description: "选择AROON振荡器的时间周期",
 			defaultValue: 14,
 			required: true,
+			legendShowName: "period",
 		},
 	},
 	indicatorValueConfig: {
-		timestamp: { label: "timestamp", value: 0 },
-		aroon_osc: { label: "aroon_osc", value: 0 },
+		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },
+		aroon_osc: { label: "aroon_osc", value: 0, legendShowName: "aroon osc" },
 	},
 	chartConfig: {
 		isInMainChart: false,

@@ -34,11 +34,12 @@ export const DxConfig: IndicatorConfig<DxConfigType> = {
 			description: "选择DX指标的时间周期",
 			defaultValue: 14,
 			required: true,
+			legendShowName: "period",
 		},
 	},
 	indicatorValueConfig: {
-		timestamp: { label: "timestamp", value: 0 },
-		dx: { label: "dx", value: 0 },
+		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },
+		dx: { label: "dx", value: 0, legendShowName: "dx" },
 	},
 	chartConfig: {
 		isInMainChart: false,

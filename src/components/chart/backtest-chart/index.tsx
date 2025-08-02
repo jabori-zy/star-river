@@ -15,9 +15,11 @@ import {
 import { KlineLegend, useKlineLegend } from "./legend";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import MainChartIndicatorSeries from "./main-chart-indicator-series";
-import SubChartIndicatorSeries from "./sub-chart-indicator-series";
+import MainChartIndicatorLegend, { type MainChartIndicatorLegendRef } from "./main-chart-indicator-legend";
+import SubChartIndicatorSeries, { type SubChartIndicatorSeriesRef } from "./sub-chart-indicator-series";
 import ChartApiDebugger from "./debug/chart-api-debugger";
 import { autoApplyPaneHeights } from "./utils/pane-height-manager";
+import { IndicatorKeyStr } from "@/types/symbol-key";
 
 
 
@@ -65,6 +67,31 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 	// 不再需要暴露引用给外部组件，调试器在内部使用
 
 	const { klineSeriesRef, legendData, onCrosshairMove } = useKlineLegend(klineData[chartConfig.klineChartConfig.klineKeyStr] as CandlestickData[] || []);
+
+	// 收集所有指标legend的ref
+	const indicatorLegendRefs = useRef<Record<IndicatorKeyStr, MainChartIndicatorLegendRef | null>>({});
+	// 收集所有子图指标的ref
+	const subChartIndicatorRefs = useRef<Record<IndicatorKeyStr, SubChartIndicatorSeriesRef | null>>({});
+
+	// 统一的crosshair事件处理函数
+	const handleCrosshairMove = useCallback((param: import("lightweight-charts").MouseEventParams) => {
+		// 调用K线legend的onCrosshairMove
+		onCrosshairMove(param);
+
+		// 调用所有主图指标legend的onCrosshairMove
+		Object.entries(indicatorLegendRefs.current).forEach(([_, ref]) => {
+			if (ref?.onCrosshairMove) {
+				ref.onCrosshairMove(param);
+			}
+		});
+
+		// 调用所有子图指标的onCrosshairMove
+		Object.entries(subChartIndicatorRefs.current).forEach(([_, ref]) => {
+			if (ref?.onCrosshairMove) {
+				ref.onCrosshairMove(param);
+			}
+		});
+	}, [onCrosshairMove]);
 
 
 
@@ -124,35 +151,6 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 		}
 	}, [subChartCount]);
 
-
-
-	// 设置series引用到store中，这样store就可以直接使用series.update方法
-	// useEffect(() => {
-	// 	const checkAndSetSeries = () => {
-	// 		if (klineSeriesRef.current) {
-	// 			const seriesApi = klineSeriesRef.current.api();
-	// 			if (seriesApi) {
-	// 				storeActionsRef.current.addSeriesRef(chartConfig.klineChartConfig.klineKeyStr, klineSeriesRef.current);
-	// 				return true;
-	// 			} else {
-	// 				console.warn("series API尚未可用，稍后重试");
-	// 				return false;
-	// 			}
-	// 		}
-	// 		return false;
-	// 	};
-
-	// 	// 立即检查
-	// 	if (!checkAndSetSeries()) {
-	// 		// 如果立即检查失败，延迟重试
-	// 		const timer = setTimeout(() => {
-	// 			checkAndSetSeries();
-	// 		}, 100);
-
-	// 		return () => clearTimeout(timer);
-	// 	}
-	// }, [chartConfig.klineChartConfig.klineKeyStr]); // 只依赖 ref
-
 	// 手动调整图表大小的函数
 	const resizeChart = useCallback(() => {
 		if (chartApiRef.current && chartContainerRef.current) {
@@ -198,7 +196,7 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 		// 手动调整图表大小
 		setTimeout(() => {
 			resizeChart();
-		}, 200);
+		}, 100);
 
 		// 尽快应用 Pane 高度配置，减少闪烁
 		setTimeout(() => {
@@ -293,7 +291,7 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 			<div className="relative w-full h-full">
 				<Chart
 					options={chartOptions}
-					onCrosshairMove={onCrosshairMove}
+					onCrosshairMove={handleCrosshairMove}
 					onInit={handleChartInit}
 				>
 					{/* <Pane> */}
@@ -308,23 +306,42 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 						{/* 添加主图指标 */}
 						{Object.entries(
 							chartConfig.klineChartConfig.indicatorChartConfig,
-						).map(([indicatorKeyStr, indicatorConfig]) => {
+						).map(([indicatorKeyStr, indicatorConfig], index) => {
 							const data = indicatorData[indicatorKeyStr] as Record<keyof IndicatorValueConfig, SingleValueData[]> || {};
 							// console.log("indicator_data: ", data);
 							// 主图指标
 							if (indicatorConfig.isInMainChart && data) {
-								return indicatorConfig.seriesConfigs.map((seriesConfig) => {
-									const seriesKeyStr = `${indicatorKeyStr}_${seriesConfig.name}`;
-
-									return (
-										<MainChartIndicatorSeries
-											key={seriesKeyStr}
-											seriesConfig={seriesConfig}
-											data={data[seriesConfig.indicatorValueKey] as SingleValueData[] || []}
-											// onSeriesRef={handleSeriesRef}
+								return (
+									<>
+										{/* 指标图例 - 根据索引调整位置 */}
+										<MainChartIndicatorLegend
+											key={`${indicatorKeyStr}-legend`}
+											ref={(ref) => {
+												if (ref) {
+													indicatorLegendRefs.current[indicatorKeyStr] = ref;
+												} else {
+													delete indicatorLegendRefs.current[indicatorKeyStr];
+												}
+											}}
+											indicatorKeyStr={indicatorKeyStr}
+											data={data}
+											index={index}
 										/>
-									);
-								});
+										{/* 指标系列 */}
+										{indicatorConfig.seriesConfigs.map((seriesConfig) => {
+											const seriesKeyStr = `${indicatorKeyStr}_${seriesConfig.name}`;
+
+											return (
+												<MainChartIndicatorSeries
+													key={seriesKeyStr}
+													seriesConfig={seriesConfig}
+													data={data[seriesConfig.indicatorValueKey] as SingleValueData[] || []}
+													// onSeriesRef={handleSeriesRef}
+												/>
+											);
+										})}
+									</>
+								);
 							}
 							return null;
 						})}
@@ -342,6 +359,14 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 										return (
 											<SubChartIndicatorSeries
 												key={indicatorKeyStr}
+												ref={(ref) => {
+													if (ref) {
+														subChartIndicatorRefs.current[indicatorKeyStr] = ref;
+													} else {
+														delete subChartIndicatorRefs.current[indicatorKeyStr];
+													}
+												}}
+												indicatorKeyStr={indicatorKeyStr}
 												indicatorChartConfig={indicatorConfig}
 												data={data}
 												subChartIndex={currentSubChartIndex}

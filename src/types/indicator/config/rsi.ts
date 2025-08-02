@@ -39,17 +39,19 @@ export const RSIConfig: IndicatorConfig<RSIConfigType> = {
 			description: "选择相对强弱指数的时间周期",
 			defaultValue: 14,
 			required: true,
+			legendShowName: "period",
 		},
 		priceSource: {
 			label: "价格源",
 			description: "选择指标计算价格源",
 			defaultValue: PriceSource.CLOSE,
 			required: true,
+			legendShowName: "source",
 		},
 	},
 	indicatorValueConfig: {
-		timestamp: { label: "timestamp", value: 0 },
-		rsi: { label: "rsi", value: 0 },
+		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },
+		rsi: { label: "rsi", value: 0, legendShowName: "rsi" },
 	},
 	chartConfig: {
 		isInMainChart: false, // RSI显示在副图

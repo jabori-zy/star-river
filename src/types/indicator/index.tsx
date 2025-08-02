@@ -1,8 +1,3 @@
-
-
-export type IndicatorValueField = string; // 指标值字段
-
-
 export enum MAType {
 	SMA = "SMA",
 	EMA = "EMA",

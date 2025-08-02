@@ -36,17 +36,19 @@ export const ADOSCConfig: IndicatorConfig<ADOSCConfigType> = {
 			description: "选择快线的计算周期",
 			defaultValue: 12,
 			required: true,
+			legendShowName: "fast",
 		},
 		slowPeriod: {
 			label: "慢线周期",
 			description: "选择慢线的计算周期",
 			defaultValue: 26,
 			required: true,
+			legendShowName: "slow",
 		},
 	},
 	indicatorValueConfig: {
-		timestamp: { label: "timestamp", value: 0 },
-		adosc: { label: "adosc", value: 0 },
+		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },
+		adosc: { label: "adosc", value: 0, legendShowName: "ad osc" },
 	},
 	chartConfig: {
 		isInMainChart: false,

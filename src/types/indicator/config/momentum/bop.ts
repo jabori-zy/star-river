@@ -26,8 +26,8 @@ export const BopConfig: IndicatorConfig<BopConfigType> = {
 	description: "Balance Of Power",
 	params: {},
 	indicatorValueConfig: {
-		timestamp: { label: "timestamp", value: 0 },
-		bop: { label: "bop", value: 0 },
+		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },
+		bop: { label: "bop", value: 0, legendShowName: "bop" },
 	},
 	chartConfig: {
 		isInMainChart: false,

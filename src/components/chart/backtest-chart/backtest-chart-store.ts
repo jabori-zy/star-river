@@ -7,7 +7,6 @@ import { getInitialChartData } from "@/service/chart";
 import type { Kline } from "@/types/kline";
 import type { ChartId } from "@/types/chart";
 import type { KeyStr, IndicatorKeyStr, KlineKeyStr } from "@/types/symbol-key";
-import type { IndicatorValueField } from "@/types/indicator";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import { parseKey } from "@/utils/parse-key";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
@@ -232,26 +231,16 @@ const createBacktestChartStore = (chartConfig: BacktestChartConfig) => create<Ba
 			console.log("替换后数据: ", newData);
 		} else {
 			const data = get().klineData[klineKeyStr] as CandlestickData[];
-			console.log("插入新k线: ", candlestickData);
+			// 说明策略还未开始，当前是第一根k线
+			if (!data) {
+				get().setKlineData(klineKeyStr, [candlestickData]);
+			}
+			
 			// 创建新数组，添加新k线
 			const newData = [...data, candlestickData];
 			get().setKlineData(klineKeyStr, newData);
 			console.log("插入后数据: ", newData);
 		}
-
-		// 使用现有的 updateSinglePoint 方法更新图表
-		// const state = get();
-		// const seriesRef = state.getSeriesRef(klineKeyStr);
-		// if (seriesRef) {
-		// 	const series = seriesRef.api();
-		// 	if (series) {
-		// 		series.update(candlestickData);
-		// 	} else {
-		// 		console.error(`Series API for keyStr ${klineKeyStr} is null`);
-		// 	}
-		// } else {
-		// 	console.error(`Series ref for keyStr ${klineKeyStr} is null`);
-		// }
 	},
 
 	onNewIndicator: (indicatorKeyStr: KeyStr, indicator: Record<keyof IndicatorValueConfig, SingleValueData[]>) => {
@@ -262,8 +251,8 @@ const createBacktestChartStore = (chartConfig: BacktestChartConfig) => create<Ba
 		const updatedIndicator: Record<keyof IndicatorValueConfig, SingleValueData[]> = { ...existingIndicatorData };
 
 		Object.entries(indicator).forEach(([indicatorValueKey, newDataArray]) => {
-			const typedKey = indicatorValueKey as keyof IndicatorValueConfig;
-			const existingData = existingIndicatorData[typedKey] || [];
+			const indicatorValueField = indicatorValueKey as keyof IndicatorValueConfig;
+			const existingData = existingIndicatorData[indicatorValueField] || [];
 
 			// 处理新数据数组中的每个数据点
 			newDataArray.forEach((newDataPoint) => {
@@ -277,13 +266,13 @@ const createBacktestChartStore = (chartConfig: BacktestChartConfig) => create<Ba
 
 				// 如果最后一个数据点的时间戳与新数据点的时间戳相同，则替换最后一个数据点
 				if (lastData && lastData.time === newDataPoint.time) {
-					console.log(`替换最后一个指标数据点 ${indicatorKeyStr}.${typedKey}:`, newDataPoint);
+					console.log(`替换最后一个指标数据点 ${indicatorKeyStr}.${indicatorValueField}:`, newDataPoint);
 					// 创建新数组，替换最后一个数据点
-					updatedIndicator[typedKey] = [...existingData.slice(0, -1), newDataPoint];
+					updatedIndicator[indicatorValueField] = [...existingData.slice(0, -1), newDataPoint];
 				} else {
-					console.log(`插入新指标数据点 ${indicatorKeyStr}.${typedKey}:`, newDataPoint);
+					console.log(`插入新指标数据点 ${indicatorKeyStr}.${indicatorValueField}:`, newDataPoint);
 					// 创建新数组，添加新数据点
-					updatedIndicator[typedKey] = [...existingData, newDataPoint];
+					updatedIndicator[indicatorValueField] = [...existingData, newDataPoint];
 				}
 			});
 		});
@@ -335,7 +324,7 @@ const createBacktestChartStore = (chartConfig: BacktestChartConfig) => create<Ba
 					} 
 					
 					else if (key.type === "indicator") {
-						const initialIndicatorData = await getInitialChartData(keyStr, playIndex, null) as Record<IndicatorValueField, number>[];
+						const initialIndicatorData = await getInitialChartData(keyStr, playIndex, null) as Record<keyof IndicatorValueConfig, number>[];
 						// 安全检查：确保指标数据存在
 						if (initialIndicatorData && Array.isArray(initialIndicatorData) && initialIndicatorData.length > 0) {
 							

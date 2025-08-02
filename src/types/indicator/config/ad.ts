@@ -26,8 +26,8 @@ export const ADConfig: IndicatorConfig<ADConfigType> = {
 	description: "Accumulation/Distribution",
 	params: {},
 	indicatorValueConfig: {
-		timestamp: { label: "timestamp", value: 0 },
-		ad: { label: "ad", value: 0 },
+		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },
+		ad: { label: "ad", value: 0, legendShowName: "ad" },
 	},
 	chartConfig: {
 		isInMainChart: false,

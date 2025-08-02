@@ -19,7 +19,7 @@ import { CciConfig } from "./config/momentum/cci";
 import { CmoConfig } from "./config/momentum/cmo";
 import { DxConfig } from "./config/momentum/dx";
 import { RSIConfig } from "./config/rsi";
-import { IndicatorType, type IndicatorValueField } from "./index";
+import { IndicatorType } from "./index";
 
 import {
 	type IndicatorParam,
@@ -34,7 +34,7 @@ export interface BaseIndicatorConfig {
 	description?: string;
 	chartConfig: IndicatorChartConfig;
 	indicatorValueConfig: IndicatorValueConfig;
-	getValue(): Record<IndicatorValueField, number>;
+	getValue(): Record<keyof IndicatorValueConfig, number>; // 获取指标值
 	getSeriesName(
 		seriesName: string,
 		indicatorKey: IndicatorKey,
@@ -44,7 +44,7 @@ export interface BaseIndicatorConfig {
 // 默认的getValue实现工具函数
 export function getIndicatorValues(
 	indicatorValueConfig: IndicatorValueConfig,
-): Record<IndicatorValueField, number> {
+): Record<keyof IndicatorValueConfig, number> {
 	return Object.fromEntries(
 		Object.entries(indicatorValueConfig).map(([key, value]) => [
 			key,
@@ -238,4 +238,16 @@ export function getIndicatorSeriesName(
 	const config = getIndicatorConfig(indicatorKey.indicatorType);
 	if (!config) return undefined;
 	return config.getSeriesName(seriesName, indicatorKey);
+}
+
+export function getConfigLegendShowName(indicatorType: IndicatorType, key: keyof IndicatorValueConfig): string | undefined {
+	const config = getIndicatorConfig(indicatorType);
+	if (!config) return undefined;
+	return config.indicatorValueConfig[key]?.legendShowName;
+}
+
+export function getValueLegendShowName(indicatorType: IndicatorType, key: keyof IndicatorValueConfig): string | undefined {
+	const config = getIndicatorConfig(indicatorType);
+	if (!config) return undefined;
+	return config.indicatorValueConfig[key]?.legendShowName;
 }

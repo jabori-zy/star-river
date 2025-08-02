@@ -34,11 +34,12 @@ export const ADXConfig: IndicatorConfig<ADXConfigType> = {
 			description: "选择移动平均线的时间周期",
 			defaultValue: 14,
 			required: true,
+			legendShowName: "period",
 		},
 	},
 	indicatorValueConfig: {
-		timestamp: { label: "timestamp", value: 0 },
-		adx: { label: "adx", value: 0 },
+		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },
+		adx: { label: "adx", value: 0, legendShowName: "adx" },
 	},
 	chartConfig: {
 		isInMainChart: false,
