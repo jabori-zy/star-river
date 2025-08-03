@@ -91,10 +91,9 @@ export default function BacktestPage() {
 			try {
 				setIsLoading(true);
 				const config = await getBacktestStrategyChartConfig(strategyId);
-				console.log("从后端获取的配置:", config);
 
 				// 如果后端返回的配置有效，则使用后端配置，否则默认生成一个配置
-				if (config && config.charts && config.charts.length > 0) {
+				if (config.charts && config.charts.length > 0) {
 					setChartConfig({
 						charts: config.charts || [],
 						layout: config.layout || "vertical",

@@ -77,15 +77,6 @@ const SubChartIndicatorLegend = forwardRef<SubChartIndicatorLegendRef, SubChartI
 
 							if (isInViewport) {
 								setPaneElement(htmlElement);
-								console.log(`✅ 成功获取pane HTML元素:`, {
-									indicatorKeyStr,
-									rect: {
-										top: rect.top,
-										left: rect.left,
-										width: rect.width,
-										height: rect.height
-									}
-								});
 								return; // 成功获取，停止重试
 							}
 						}
@@ -257,11 +248,6 @@ const SubChartIndicatorLegend = forwardRef<SubChartIndicatorLegendRef, SubChartI
 
 	// 只有在成功获取到pane HTML元素时才渲染legend
 	if (!paneElement) {
-		return null;
-	}
-
-	// 添加错误边界保护
-	if (!legendData) {
 		return null;
 	}
 

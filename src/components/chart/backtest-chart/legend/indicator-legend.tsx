@@ -9,7 +9,7 @@ import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import { useBacktestChartStore } from "../backtest-chart-store";
 
 interface IndicatorLegendProps {
-	indicatorLegendData: IndicatorLegendData | null;
+	indicatorLegendData: IndicatorLegendData;
 	indicatorKeyStr: IndicatorKeyStr; // 新增指标键字符串，用于控制可见性
 	chartConfig: BacktestChartConfig; // 新增图表配置，用于获取对应的store
 	chartApiRef?: React.RefObject<IChartApi | null>; // 图表API引用，用于删除子图Pane
@@ -27,10 +27,6 @@ const IndicatorLegend = forwardRef<HTMLDivElement, IndicatorLegendProps>(({
 }, ref) => {
 	// 使用当前图表的可见性状态管理
 	const { getIndicatorVisibility, toggleIndicatorVisibility, removeIndicator } = useBacktestChartStore(chartConfig);
-
-	if (indicatorLegendData === null) {
-		return null;
-	}
 
 	// 获取当前指标的可见性状态
 	const isVisible = getIndicatorVisibility(indicatorKeyStr);
