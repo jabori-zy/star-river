@@ -44,13 +44,14 @@ const SubChartIndicatorLegend = forwardRef<SubChartIndicatorLegendRef, SubChartI
 	useEffect(() => {
 		// 只有在pane初始化完成后才开始获取HTML元素
 		if (!paneInitialized) {
+			setPaneElement(null); // 重置状态
 			return;
 		}
 
 		let isMounted = true;
 		let retryTimer: NodeJS.Timeout | null = null;
 		let retryCount = 0;
-		const maxRetries = 20; // 最大重试次数
+		const maxRetries = 15; // 减少最大重试次数，提高响应速度
 
 		const updatePaneElement = () => {
 			if (!isMounted || !paneRef.current) return;
@@ -67,27 +68,45 @@ const SubChartIndicatorLegend = forwardRef<SubChartIndicatorLegendRef, SubChartI
 						const rect = htmlElement.getBoundingClientRect();
 
 						// 检查元素是否有有效的尺寸和位置
-						if (rect.width > 0 && rect.height > 0 && rect.top >= 0 && rect.left >= 0) {
-							setPaneElement(htmlElement);
-							return; // 成功获取，停止重试
-						} else {
-							console.warn(`⚠️ pane HTML元素尺寸或位置无效，继续重试:`, {
-								indicatorKeyStr,
-								rect: {
-									top: rect.top,
-									left: rect.left,
-									width: rect.width,
-									height: rect.height
-								}
-							});
+						if (rect.width > 0 && rect.height > 0) {
+							// 进一步验证元素是否在合理的视口范围内
+							const isInViewport = rect.top > -window.innerHeight &&
+												rect.left > -window.innerWidth &&
+												rect.top < window.innerHeight * 2 &&
+												rect.left < window.innerWidth * 2;
+
+							if (isInViewport) {
+								setPaneElement(htmlElement);
+								console.log(`✅ 成功获取pane HTML元素:`, {
+									indicatorKeyStr,
+									rect: {
+										top: rect.top,
+										left: rect.left,
+										width: rect.width,
+										height: rect.height
+									}
+								});
+								return; // 成功获取，停止重试
+							}
 						}
+
+						console.warn(`⚠️ pane HTML元素尺寸或位置无效，继续重试:`, {
+							indicatorKeyStr,
+							retryCount,
+							rect: {
+								top: rect.top,
+								left: rect.left,
+								width: rect.width,
+								height: rect.height
+							}
+						});
 					}
 				}
 
 				// 如果没有获取到有效元素，进行重试
 				retryCount++;
 				if (retryCount < maxRetries) {
-					const retryDelay = Math.min(50 + retryCount * 10, 200); // 递增延迟，最大200ms
+					const retryDelay = Math.min(30 + retryCount * 15, 150); // 优化重试延迟
 					retryTimer = setTimeout(() => {
 						if (isMounted) {
 							updatePaneElement();
@@ -107,7 +126,7 @@ const SubChartIndicatorLegend = forwardRef<SubChartIndicatorLegendRef, SubChartI
 						if (isMounted) {
 							updatePaneElement();
 						}
-					}, 100);
+					}, 10);
 				}
 			}
 		};
@@ -129,6 +148,7 @@ const SubChartIndicatorLegend = forwardRef<SubChartIndicatorLegendRef, SubChartI
 
 		let isMounted = true;
 		let updateTimer: NodeJS.Timeout | null = null;
+		let lastPosition = { top: 0, left: 0 }; // 记录上次位置，避免不必要的更新
 
 		const updatePosition = () => {
 			if (!isMounted || !paneElement || !legendRef.current) return;
@@ -139,43 +159,29 @@ const SubChartIndicatorLegend = forwardRef<SubChartIndicatorLegendRef, SubChartI
 
 				// 严格验证pane位置是否有效
 				if (paneRect.width <= 0 || paneRect.height <= 0) {
-					console.warn(`⚠️ pane尺寸无效，跳过位置更新:`, {
-						indicatorKeyStr,
-						rect: {
-							top: paneRect.top,
-							left: paneRect.left,
-							width: paneRect.width,
-							height: paneRect.height
-						}
-					});
-					return;
+					return; // 静默跳过，减少日志噪音
 				}
 
 				// 验证pane是否在合理的视口位置
-				if (paneRect.top < -100 || paneRect.left < -100 ||
-					paneRect.top > window.innerHeight + 100 ||
-					paneRect.left > window.innerWidth + 100) {
-					console.warn(`⚠️ pane位置超出合理范围，可能还未正确渲染:`, {
-						indicatorKeyStr,
-						rect: {
-							top: paneRect.top,
-							left: paneRect.left,
-							width: paneRect.width,
-							height: paneRect.height
-						},
-						viewport: {
-							width: window.innerWidth,
-							height: window.innerHeight
-						}
-					});
-					return;
+				if (paneRect.top < -200 || paneRect.left < -200 ||
+					paneRect.top > window.innerHeight + 200 ||
+					paneRect.left > window.innerWidth + 200) {
+					return; // 静默跳过，减少日志噪音
 				}
 
-				// 设置legend相对于pane的固定位置
-				legendElement.style.position = 'fixed';
-				legendElement.style.top = `${paneRect.top + 8}px`;
-				legendElement.style.left = `${paneRect.left + 8}px`;
-				legendElement.style.zIndex = '1000';
+				// 计算新位置
+				const newTop = paneRect.top + 8;
+				const newLeft = paneRect.left + 8;
+
+				// 只有位置发生变化时才更新，避免不必要的DOM操作
+				if (Math.abs(newTop - lastPosition.top) > 1 || Math.abs(newLeft - lastPosition.left) > 1) {
+					legendElement.style.position = 'fixed';
+					legendElement.style.top = `${newTop}px`;
+					legendElement.style.left = `${newLeft}px`;
+					legendElement.style.zIndex = '1000';
+
+					lastPosition = { top: newTop, left: newLeft };
+				}
 			} catch (error) {
 				console.error(`位置更新失败:`, error);
 			}
@@ -190,11 +196,11 @@ const SubChartIndicatorLegend = forwardRef<SubChartIndicatorLegendRef, SubChartI
 				if (isMounted) {
 					updatePosition();
 				}
-			}, 16); // 约60fps的更新频率
+			}, 8); // 提高更新频率，约120fps
 		};
 
-		// 延迟一点时间再更新位置，确保pane完全渲染
-		const initialTimer = setTimeout(updatePosition, 100);
+		// 立即更新一次位置
+		updatePosition();
 
 		// 使用ResizeObserver监听pane元素大小和位置变化
 		let resizeObserver: ResizeObserver | null = null;
@@ -209,17 +215,17 @@ const SubChartIndicatorLegend = forwardRef<SubChartIndicatorLegendRef, SubChartI
 			intersectionObserver = new IntersectionObserver((entries) => {
 				entries.forEach((entry) => {
 					if (entry.isIntersecting) {
-						// 当pane变为可见时，更新位置
-						debouncedUpdatePosition();
+						// 当pane变为可见时，立即更新位置
+						updatePosition();
 					}
 				});
 			}, {
-				threshold: 0.1 // 当10%的pane可见时触发
+				threshold: 0.05 // 当5%的pane可见时触发，更敏感
 			});
 			intersectionObserver.observe(paneElement);
 		}
 
-		// 添加窗口resize监听作为备用
+		// 添加窗口resize监听
 		const handleWindowResize = debouncedUpdatePosition;
 		window.addEventListener('resize', handleWindowResize);
 
@@ -229,7 +235,6 @@ const SubChartIndicatorLegend = forwardRef<SubChartIndicatorLegendRef, SubChartI
 
 		return () => {
 			isMounted = false;
-			clearTimeout(initialTimer);
 			if (updateTimer) {
 				clearTimeout(updateTimer);
 			}
@@ -248,7 +253,7 @@ const SubChartIndicatorLegend = forwardRef<SubChartIndicatorLegendRef, SubChartI
 			window.removeEventListener('resize', handleWindowResize);
 			window.removeEventListener('scroll', handleScroll, true);
 		};
-	}, [paneElement, indicatorKeyStr]);
+	}, [paneElement]); // 移除不必要的依赖
 
 	// 只有在成功获取到pane HTML元素时才渲染legend
 	if (!paneElement) {

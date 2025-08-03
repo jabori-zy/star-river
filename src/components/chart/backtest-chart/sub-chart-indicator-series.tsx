@@ -61,6 +61,8 @@ const SubChartIndicatorSeries = forwardRef<SubChartIndicatorSeriesRef, SubChartI
 	// 当组件挂载或高度参数变化时，设置 Pane 高度
 	// 添加一个状态来跟踪pane是否已经完全初始化
 	const [paneInitialized, setPaneInitialized] = useState(false);
+	// 添加一个状态来跟踪HTML元素是否已经获取到
+	const [isHtmlGet, setIsHtmlGet] = useState(false);
 
 	useEffect(() => {
 		if (paneRef.current) {
@@ -80,19 +82,23 @@ const SubChartIndicatorSeries = forwardRef<SubChartIndicatorSeriesRef, SubChartI
 								const rect = htmlElement.getBoundingClientRect();
 								if (rect.width > 0 && rect.height > 0) {
 									setPaneInitialized(true);
+									setIsHtmlGet(true); // 设置HTML元素已获取状态
 								} else {
 									// 如果HTML元素尺寸无效，再延迟一点时间
 									setTimeout(() => {
 										setPaneInitialized(true);
+										setIsHtmlGet(true);
 									}, 100);
 								}
 							} else {
 								setTimeout(() => {
 									setPaneInitialized(true);
+									// HTML元素未获取到，不设置isHtmlGet为true
 								}, 100);
 							}
 						} else {
 							setPaneInitialized(true);
+							// getHTMLElement方法不可用，不设置isHtmlGet为true
 						}
 					}, 100); // 增加延迟时间，确保DOM完全更新
 				}, 150); // 增加初始延迟时间
@@ -118,16 +124,18 @@ const SubChartIndicatorSeries = forwardRef<SubChartIndicatorSeriesRef, SubChartI
 					/>
 				);
 			})}
-			{/* 子图指标图例 */}
-			<SubChartIndicatorLegend
-				ref={legendRef}
-				indicatorKeyStr={indicatorKeyStr}
-				data={data}
-				paneRef={paneRef}
-				paneInitialized={paneInitialized}
-				chartConfig={chartConfig}
-				chartApiRef={chartApiRef}
-			/>
+			{/* 子图指标图例 - 只有在HTML元素获取到后才渲染 */}
+			{isHtmlGet && (
+				<SubChartIndicatorLegend
+					ref={legendRef}
+					indicatorKeyStr={indicatorKeyStr}
+					data={data}
+					paneRef={paneRef}
+					paneInitialized={paneInitialized}
+					chartConfig={chartConfig}
+					chartApiRef={chartApiRef}
+				/>
+			)}
 		</Pane>
 	);
 });
