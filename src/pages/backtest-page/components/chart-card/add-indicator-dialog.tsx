@@ -10,26 +10,16 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import type { IndicatorChartConfig, SubChartConfig } from "@/types/chart";
+import type { IndicatorChartConfig } from "@/types/chart";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
-import { getIndciatorChartConfigFromKeyStr } from "@/types/indicator/indicator-config";
-import { IndicatorKey } from "@/types/symbol-key";
-import { parseKey } from "@/utils/parse-key";
+import { getIndciatorChartBaseConfigFromKeyStr } from "@/types/indicator/indicator-config";
 
 interface IndicatorListDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	strategyId: number;
 	chartConfig: BacktestChartConfig;
-	onMainChartIndicatorAdd: (
-		chartId: number,
-		indicatorKeyStr: string,
-		indicatorChartConfig: IndicatorChartConfig,
-	) => void;
-	onSubChartIndicatorAdd: (
-		chartId: number,
-		subChartConfig: SubChartConfig,
-	) => void;
+	onIndicatorAdd: (indicatorChartConfig: IndicatorChartConfig) => void;
 }
 
 export default function AddIndicatorDialog({
@@ -37,8 +27,7 @@ export default function AddIndicatorDialog({
 	open,
 	onOpenChange,
 	strategyId,
-	onMainChartIndicatorAdd,
-	onSubChartIndicatorAdd,
+	onIndicatorAdd,
 }: IndicatorListDialogProps) {
 	// 选中的指标缓存键
 	const [selectedIndicatorKey, setSelectedIndicatorKey] = useState<
@@ -57,29 +46,23 @@ export default function AddIndicatorDialog({
 		if (selectedIndicatorKey) {
 			// 解析指标数据
 			// const indicatorData = parseKey(selectedIndicatorKey) as IndicatorKey;
-			const indicatorConfig =
-				getIndciatorChartConfigFromKeyStr(selectedIndicatorKey);
+			const indicatorChartBaseConfig = getIndciatorChartBaseConfigFromKeyStr(selectedIndicatorKey);
 
-			if (indicatorConfig) {
-				// 添加指标配置到副图
-				const subChartId = chartConfig.subChartConfigs.length + 1;
+			if (indicatorChartBaseConfig) {
+				// 添加指标配置
+				const id = chartConfig.indicatorChartConfigs.length + 1;
 
 				// 添加到主图
-				if (indicatorConfig.isInMainChart) {
-					onMainChartIndicatorAdd(
-						chartConfig.id,
-						selectedIndicatorKey,
-						indicatorConfig,
-					);
-				} else {
-					// 添加到副图
-					onSubChartIndicatorAdd(chartConfig.id, {
-						mainChartId: chartConfig.id,
-						subChartId: subChartId,
-						indicatorChartConfigs: { [selectedIndicatorKey]: indicatorConfig },
-					});
+				onIndicatorAdd(
+					{
+						chartId: id,
+						indicatorKeyStr: selectedIndicatorKey,
+						isDelete: false,
+						...indicatorChartBaseConfig,
+					}
+				);
 				}
-			}
+			
 
 			onOpenChange(false);
 		}

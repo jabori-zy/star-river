@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { IndicatorKey } from "@/types/symbol-key";
 import { parseKey } from "@/utils/parse-key";
-import type { IndicatorChartConfig } from "../chart";
+import type { IndicatorChartBaseConfig } from "../chart";
 import { AccBandsConfig } from "./config/acc-bands";
 import { ADConfig } from "./config/ad";
 import { ADOSCConfig } from "./config/adosc";
@@ -32,7 +32,7 @@ export interface BaseIndicatorConfig {
 	type: IndicatorType;
 	displayName: string;
 	description?: string;
-	chartConfig: IndicatorChartConfig;
+	chartConfig: IndicatorChartBaseConfig;
 	indicatorValueConfig: IndicatorValueConfig;
 	getValue(): Record<keyof IndicatorValueConfig, number>; // 获取指标值
 	getSeriesName(
@@ -220,9 +220,9 @@ export function getIndicatorDisplayName(indicatorType: IndicatorType): string {
 	return config?.displayName || "";
 }
 
-export function getIndciatorChartConfigFromKeyStr(
+export function getIndciatorChartBaseConfigFromKeyStr(
 	keyStr: string,
-): IndicatorChartConfig | undefined {
+): IndicatorChartBaseConfig | undefined {
 	const indicatorKey = parseKey(keyStr) as IndicatorKey;
 	if (!indicatorKey) return undefined;
 	const indicatorType = indicatorKey.indicatorType;

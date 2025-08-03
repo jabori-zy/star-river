@@ -14,37 +14,29 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
-import type { LayoutMode } from "@/types/chart";
-import type { BacktestStrategyChartConfig } from "@/types/chart/backtest-chart";
 import LayoutControl from "../layout-control";
 import AddChartButton from "./add-chart-button";
+import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
 
 interface BacktestControlProps {
 	strategyId: number;
-	strategyChartConfig: BacktestStrategyChartConfig;
-	updateLayout: (layout: LayoutMode) => void;
-	onAddChart: (klineCacheKeyStr: string, chartName: string) => void;
-	onSaveChart: () => void;
 	isRunning: boolean;
 	onPlay: () => void;
 	onPlayOne: () => void;
 	onPause: () => void;
 	onStop: () => void;
-	isSaving?: boolean;
 }
 
 const BacktestControl: React.FC<BacktestControlProps> = ({
-	strategyChartConfig,
-	updateLayout,
-	onAddChart,
-	onSaveChart,
-	isSaving = false,
+	strategyId,
 	isRunning,
 	onPlay,
 	onPlayOne,
 	onPause,
 	onStop,
 }) => {
+	// 使用store中的状态和方法
+	const { chartConfig, isSaving, updateLayout, addChart, saveChartConfig } = useBacktestChartConfigStore();
 	return (
 		<div className="flex items-center w-full ">
 			{/* 左侧占位空间 */}
@@ -113,17 +105,18 @@ const BacktestControl: React.FC<BacktestControlProps> = ({
 
 			{/* 图表按钮 - 居右 */}
 			<div className="flex-1 flex items-center gap-2 justify-end">
-				{strategyChartConfig.charts.length > 1 && (
+				{chartConfig.charts.length > 1 && (
 					<LayoutControl
-						value={strategyChartConfig.layout || "vertical"}
+						value={chartConfig.layout || "vertical"}
 						onChange={updateLayout}
 					/>
 				)}
 				<AddChartButton
-					onAddChart={onAddChart}
-					strategyChartConfig={strategyChartConfig}
+					onAddChart={addChart}
+					strategyChartConfig={chartConfig}
+					strategyId={strategyId}
 				/>
-				<Button variant="default" onClick={onSaveChart} disabled={isSaving}>
+				<Button variant="default" onClick={saveChartConfig} disabled={isSaving}>
 					{isSaving ? (
 						<Loader2 className="w-4 h-4 animate-spin" />
 					) : (

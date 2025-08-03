@@ -11,7 +11,7 @@ import {
 	createKlineStreamFromKey,
 } from "@/hooks/obs/backtest-strategy-data-obs";
 import { getInitialChartData } from "@/service/chart";
-import type { ChartId } from "@/types/chart";
+import type { ChartId, IndicatorChartConfig } from "@/types/chart";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import type { Kline } from "@/types/kline";
@@ -20,7 +20,6 @@ import { parseKey } from "@/utils/parse-key";
 
 interface BacktestChartStore {
 	chartId: ChartId;
-	chartConfig: BacktestChartConfig;
 	klineData: Record<KlineKeyStr, CandlestickData[]>; // k线数据 和 指标数据 的集合
 	indicatorData: Record<IndicatorKeyStr,Record<keyof IndicatorValueConfig, SingleValueData[]>>; // 指标数据
 	subscriptions: Record<KeyStr, Subscription[]>; // 订阅集合
@@ -31,11 +30,7 @@ interface BacktestChartStore {
 	// 存储每个K线的可见性状态，key为klineKeyStr，value为是否可见
 	klineVisibilityMap: Record<KlineKeyStr, boolean>;
 
-	initChartData: (playIndex: number) => void;
-
-	setChartConfig: (chartConfig: BacktestChartConfig) => void;
-
-	getChartConfig: () => BacktestChartConfig;
+	initChartData: (playIndex: number, chartConfig: BacktestChartConfig) => void;
 
 	setKlineData: (keyStr: KeyStr, data: CandlestickData[]) => void;
 	setIndicatorData: (
@@ -84,10 +79,10 @@ interface BacktestChartStore {
 
 	// getSeriesRef: (keyStr: KeyStr) => SeriesApiRef<"Candlestick"> | SeriesApiRef<"Line"> | SeriesApiRef<"Area"> | SeriesApiRef<"Histogram"> | null;
 
-	getKeyStr: () => KeyStr[];
+	getKeyStr: (chartConfig: BacktestChartConfig) => KeyStr[];
 
 	// Observer 相关方法
-	initObserverSubscriptions: () => void;
+	initObserverSubscriptions: (chartConfig: BacktestChartConfig) => void;
 	addObserverSubscription: (keyStr: KeyStr, subscription: Subscription) => void;
 	cleanupSubscriptions: () => void;
 	onNewKline: (klineKeyStr: KeyStr, kline: Kline) => void;
@@ -96,9 +91,6 @@ interface BacktestChartStore {
 		indicatorData: Record<keyof IndicatorValueConfig, SingleValueData[]>,
 	) => void;
 
-	// 指标删除相关方法
-	removeIndicator: (indicatorKeyStr: IndicatorKeyStr) => void;
-
 	resetData: () => void;
 }
 
@@ -106,7 +98,6 @@ interface BacktestChartStore {
 const createBacktestChartStore = (chartConfig: BacktestChartConfig) =>
 	create<BacktestChartStore>((set, get) => ({
 		chartId: chartConfig.id,
-		chartConfig: chartConfig,
 		klineData: {},
 		indicatorData: {},
 		// chartRef: null,
@@ -116,10 +107,6 @@ const createBacktestChartStore = (chartConfig: BacktestChartConfig) =>
 		// 初始状态：所有指标和K线默认可见
 		indicatorVisibilityMap: {},
 		klineVisibilityMap: {},
-
-		getChartConfig: () => get().chartConfig,
-
-		setChartConfig: (chartConfig: BacktestChartConfig) => set({ chartConfig }),
 
 		setKlineData: (keyStr: KeyStr, data: CandlestickData[]) =>
 			set(() => ({ klineData: { ...get().klineData, [keyStr]: data } })),
@@ -157,41 +144,27 @@ const createBacktestChartStore = (chartConfig: BacktestChartConfig) =>
 
 		// setChartRef: (chart: IChartApi) => set({ chartRef: chart }),
 
-		getKeyStr: () => {
-			const state = get();
-			const chartConfig = state.chartConfig;
+		getKeyStr: (chartConfig: BacktestChartConfig) => {
 			const klineKeyStr = chartConfig.klineChartConfig.klineKeyStr;
 
-			// 主图指标
-			const mainChartIndicatorConfig =
-				chartConfig.klineChartConfig.indicatorChartConfig;
-			const mainChartIndicatorKeyStrs = Object.keys(mainChartIndicatorConfig);
+			// 从 indicatorChartConfigs 数组中获取所有未删除指标的 keyStr
+			const indicatorKeyStrs = (chartConfig.indicatorChartConfigs || [])
+				.filter((indicatorConfig) => !indicatorConfig.isDelete)
+				.map((indicatorConfig) => indicatorConfig.indicatorKeyStr);
 
-			// 子图指标
-			const subChartIndicatorConfigs = chartConfig.subChartConfigs.map(
-				(subChartConfig) => subChartConfig.indicatorChartConfigs,
-			);
-			const subChartIndicatorKeyStrs = subChartIndicatorConfigs.flatMap(
-				(subChartIndicatorConfig) => Object.keys(subChartIndicatorConfig),
-			);
-
-			const keyStrs = [
-				klineKeyStr,
-				...mainChartIndicatorKeyStrs,
-				...subChartIndicatorKeyStrs,
-			];
+			const keyStrs = [klineKeyStr, ...indicatorKeyStrs];
 			return keyStrs;
 		},
 
 		// Observer 相关方法
-		initObserverSubscriptions: () => {
+		initObserverSubscriptions: (chartConfig: BacktestChartConfig) => {
 			const state = get();
 
 			// 清理现有订阅
 			state.cleanupSubscriptions();
 
 			try {
-				state.getKeyStr().forEach((keyStr) => {
+				state.getKeyStr(chartConfig).forEach((keyStr) => {
 					const key = parseKey(keyStr);
 					if (key.type === "kline") {
 						const klineStream = createKlineStreamFromKey(keyStr, true);
@@ -380,7 +353,7 @@ const createBacktestChartStore = (chartConfig: BacktestChartConfig) =>
 			console.log(`更新后的指标数据 ${indicatorKeyStr}:`, updatedIndicator);
 		},
 
-		initChartData: async (playIndex: number) => {
+		initChartData: async (playIndex: number, chartConfig: BacktestChartConfig) => {
 			const state = get();
 
 			// 如果已经初始化过且有数据，跳过重复初始化
@@ -391,7 +364,7 @@ const createBacktestChartStore = (chartConfig: BacktestChartConfig) =>
 
 			if (playIndex > -1) {
 				// 使用 Promise.all 等待所有异步操作完成
-				const promises = state.getKeyStr().map(async (keyStr) => {
+				const promises = state.getKeyStr(chartConfig).map(async (keyStr) => {
 					try {
 						const key = parseKey(keyStr);
 
@@ -573,84 +546,7 @@ const createBacktestChartStore = (chartConfig: BacktestChartConfig) =>
 			}));
 		},
 
-		// 删除指标
-		removeIndicator: (indicatorKeyStr: IndicatorKeyStr) => {
-			const state = get();
-			const currentConfig = state.chartConfig;
 
-			// 检查是否是主图指标
-			const isMainChartIndicator = currentConfig.klineChartConfig.indicatorChartConfig[indicatorKeyStr];
-
-			if (isMainChartIndicator) {
-				// 删除主图指标
-				const newIndicatorChartConfig = { ...currentConfig.klineChartConfig.indicatorChartConfig };
-				delete newIndicatorChartConfig[indicatorKeyStr];
-
-				const newChartConfig = {
-					...currentConfig,
-					klineChartConfig: {
-						...currentConfig.klineChartConfig,
-						indicatorChartConfig: newIndicatorChartConfig
-					}
-				};
-
-				set({ chartConfig: newChartConfig });
-			} else {
-				// 检查是否是子图指标
-				const subChartIndex = currentConfig.subChartConfigs.findIndex(
-					subChart => subChart.indicatorChartConfigs[indicatorKeyStr]
-				);
-
-				if (subChartIndex !== -1) {
-					const subChartConfig = currentConfig.subChartConfigs[subChartIndex];
-					const newIndicatorChartConfigs = { ...subChartConfig.indicatorChartConfigs };
-					delete newIndicatorChartConfigs[indicatorKeyStr];
-
-					// 如果子图没有其他指标了，删除整个子图
-					if (Object.keys(newIndicatorChartConfigs).length === 0) {
-						const newSubChartConfigs = currentConfig.subChartConfigs.filter((_, index) => index !== subChartIndex);
-						const newChartConfig = {
-							...currentConfig,
-							subChartConfigs: newSubChartConfigs
-						};
-						set({ chartConfig: newChartConfig });
-					} else {
-						// 更新子图配置
-						const newSubChartConfigs = [...currentConfig.subChartConfigs];
-						newSubChartConfigs[subChartIndex] = {
-							...subChartConfig,
-							indicatorChartConfigs: newIndicatorChartConfigs
-						};
-						const newChartConfig = {
-							...currentConfig,
-							subChartConfigs: newSubChartConfigs
-						};
-						set({ chartConfig: newChartConfig });
-					}
-				}
-			}
-
-			// 清理指标数据和可见性状态
-			const newIndicatorData = { ...state.indicatorData };
-			delete newIndicatorData[indicatorKeyStr];
-
-			const newIndicatorVisibilityMap = { ...state.indicatorVisibilityMap };
-			delete newIndicatorVisibilityMap[indicatorKeyStr];
-
-			set({
-				indicatorData: newIndicatorData,
-				indicatorVisibilityMap: newIndicatorVisibilityMap
-			});
-
-			// 清理订阅
-			const subscriptions = state.subscriptions[indicatorKeyStr];
-			if (subscriptions) {
-				subscriptions.forEach(subscription => subscription.unsubscribe());
-				const newSubscriptions = { ...state.subscriptions };
-				delete newSubscriptions[indicatorKeyStr];
-				set({ subscriptions: newSubscriptions });
-			}
-		},
 
 		resetData: () => {
 			set({

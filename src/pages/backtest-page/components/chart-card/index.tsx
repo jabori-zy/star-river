@@ -1,7 +1,6 @@
 	// import RealtimeTickingStockCharts from "@/components/chart/SciChart";
 import { ChartSpline, Ellipsis, Search, Trash2 } from "lucide-react";
-import { forwardRef, useImperativeHandle, useRef, useState } from "react";
-import StockCharts from "@/components/chart/stock-chart";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -9,85 +8,40 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { IndicatorChartConfig, SubChartConfig } from "@/types/chart";
+import type { IndicatorChartConfig } from "@/types/chart";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import AddIndicatorDialog from "./add-indicator-dialog";
 import SymbolListDialog from "./symbol-list-dialog";
 import BacktestChart from "@/components/chart/backtest-chart";
+import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
 
 interface ChartCardProps {
-	chartConfig: BacktestChartConfig;
 	strategyId: number;
-	onDelete: (chartId: number) => void;
-	onUpdate: (
-		chartId: number,
-		klineCacheKeyStr: string,
-		chartName: string,
-	) => void;
-	onAddMainChartIndicator: (
-		chartId: number,
-		indicatorKeyStr: string,
-		indicatorChartConfig: IndicatorChartConfig,
-	) => void;
-	onAddSubChartIndicator: (
-		chartId: number,
-		subChartConfig: SubChartConfig,
-	) => void;
-	onDeleteSubChart: (subChartId: number) => void;
+	chartConfig: BacktestChartConfig;
 }
 
-interface ChartCardRef {
-	clearChartData: () => void;
-}
+const ChartCard: React.FC<ChartCardProps> = ({
+	chartConfig,
+	strategyId,
+}) => {
+	// 使用store中的方法
+	const { deleteChart, updateChart, addIndicator } = useBacktestChartConfigStore();
 
-const ChartCard = forwardRef<ChartCardRef, ChartCardProps>(
-	(
-		{
-			chartConfig,
-			strategyId,
-			onDelete,
-			onUpdate,
-			onAddMainChartIndicator,
-			onAddSubChartIndicator,
-			onDeleteSubChart,
-		},
-		ref,
-	) => {
-		const [isSymbolDialogOpen, setIsSymbolDialogOpen] = useState(false);
-		const [isIndicatorDialogOpen, setIsIndicatorDialogOpen] = useState(false);
-		const stockChartsRef = useRef<{ clearChartData: () => void }>(null);
-
-
-
-		// 暴露清空方法给父组件
-		useImperativeHandle(ref, () => ({
-			clearChartData: () => {
-				if (stockChartsRef.current) {
-					stockChartsRef.current.clearChartData();
-				}
-			},
-		}));
+	const [isSymbolDialogOpen, setIsSymbolDialogOpen] = useState(false);
+	const [isIndicatorDialogOpen, setIsIndicatorDialogOpen] = useState(false);
 
 		// 处理kline选择
 		const handleKlineSelect = (klineCacheKeyStr: string, chartName: string) => {
-			onUpdate(chartConfig.id, klineCacheKeyStr, chartName);
+			updateChart(chartConfig.id, klineCacheKeyStr, chartName);
 		};
 
 		// 处理指标添加
-		const handleMainChartIndicatorAdd = (
-			chartId: number,
-			indicatorKeyStr: string,
-			indicatorChartConfig: IndicatorChartConfig,
-		) => {
-			onAddMainChartIndicator(chartId, indicatorKeyStr, indicatorChartConfig);
+		const handleIndicatorAdd = (indicatorChartConfig: IndicatorChartConfig) => {
+			addIndicator(chartConfig.id, indicatorChartConfig);
 		};
 
-		const handleSubChartIndicatorAdd = (
-			chartId: number,
-			subChartConfig: SubChartConfig,
-		) => {
-			onAddSubChartIndicator(chartId, subChartConfig);
-		};
+
+
 
 		return (
 			<div className="flex flex-col h-full min-h-0 overflow-hidden">
@@ -118,7 +72,7 @@ const ChartCard = forwardRef<ChartCardRef, ChartCardProps>(
 							<Ellipsis />
 						</DropdownMenuTrigger>
 						<DropdownMenuContent>
-							<DropdownMenuItem onClick={() => onDelete(chartConfig.id)}>
+							<DropdownMenuItem onClick={() => deleteChart(chartConfig.id)}>
 								<Trash2 className="w-4 h-4 text-red-500" />
 								<div className="text-red-500">删除图表</div>
 							</DropdownMenuItem>
@@ -152,13 +106,11 @@ const ChartCard = forwardRef<ChartCardRef, ChartCardProps>(
 					open={isIndicatorDialogOpen}
 					onOpenChange={setIsIndicatorDialogOpen}
 					strategyId={strategyId}
-					onMainChartIndicatorAdd={handleMainChartIndicatorAdd}
-					onSubChartIndicatorAdd={handleSubChartIndicatorAdd}
+					onIndicatorAdd={handleIndicatorAdd}
 				/>
 			</div>
 		);
-	},
-);
+};
 
 ChartCard.displayName = "ChartCard";
 

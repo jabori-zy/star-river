@@ -23,22 +23,28 @@ export type SeriesConfig = {
 	indicatorValueKey: keyof IndicatorValueConfig; // 指标值的键名
 };
 
-// 指标图表配置
-export type IndicatorChartConfig = {
+
+export type IndicatorChartBaseConfig = {
 	isInMainChart: boolean; // 是否在主图中
 	seriesConfigs: SeriesConfig[];
+}
+
+// 指标图表配置
+export type IndicatorChartConfig = IndicatorChartBaseConfig & {
+	chartId: ChartId; // 图表id
+	indicatorKeyStr: IndicatorKeyStr; // 指标缓存key
+	isDelete: boolean; // 是否已删除
 };
 
 export type KlineChartConfig = {
 	klineKeyStr: KeyStr; // 蜡烛图缓存key
 	upColor?: string; // 上涨颜色
 	downColor?: string; // 下跌颜色
-	indicatorChartConfig: Record<IndicatorKeyStr, IndicatorChartConfig>; // 指标图表配置映射 indicatorCacheKeyStr -> IndicatorChartConfig
 };
 
-// 子图配置
-export type SubChartConfig = {
-	mainChartId: ChartId; // 所属的主图id
-	subChartId: ChartId; // 子图id`	
-	indicatorChartConfigs: Record<IndicatorKeyStr, IndicatorChartConfig>;
-};
+// // 子图配置
+// export type SubChartConfig = {
+// 	mainChartId: ChartId; // 所属的主图id
+// 	subChartId: ChartId; // 子图id`	
+// 	indicatorChartConfigs: Record<IndicatorKeyStr, IndicatorChartConfig>;
+// };

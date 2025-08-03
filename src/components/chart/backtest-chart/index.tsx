@@ -11,7 +11,7 @@ import {
 	Chart,
 	// Pane,
 } from "lightweight-charts-react-components";
-import { useCallback, useEffect, useRef } from "react";
+import { Fragment, useCallback, useEffect, useRef } from "react";
 import { get_play_index } from "@/service/strategy-control/backtest-strategy-control";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
@@ -20,6 +20,7 @@ import {
 	cleanupBacktestChartStore,
 	useBacktestChartStore,
 } from "./backtest-chart-store";
+
 import { KlineLegend, useKlineLegend } from "./legend";
 import MainChartIndicatorLegend, {
 	type MainChartIndicatorLegendRef,
@@ -29,17 +30,18 @@ import SubChartIndicatorSeries, {
 	type SubChartIndicatorSeriesRef,
 } from "./sub-chart-indicator-series";
 // import ChartApiDebugger from "./debug/chart-api-debugger";
+import IndicatorDebugPanel from "./debug/indicator-debug-panel";
 import { autoApplyPaneHeights } from "./utils/pane-height-manager";
 
 interface BacktestChartProps {
 	strategyId: number;
 	chartConfig: BacktestChartConfig;
+
 }
 
 const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
+	// 使用图表内部store管理数据和可见性
 	const {
-		getChartConfig,
-		setChartConfig,
 		klineData,
 		indicatorData,
 		initChartData,
@@ -49,12 +51,23 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 		getKlineVisibility,
 	} = useBacktestChartStore(chartConfig);
 
+	// 指标分类方法
+	const getMainChartIndicators = useCallback(() => {
+		return (chartConfig.indicatorChartConfigs || []).filter(
+			(indicatorConfig) => indicatorConfig.isInMainChart === true && !indicatorConfig.isDelete
+		);
+	}, [chartConfig.indicatorChartConfigs]);
+
+	const getSubChartIndicators = useCallback(() => {
+		return (chartConfig.indicatorChartConfigs || []).filter(
+			(indicatorConfig) => indicatorConfig.isInMainChart === false && !indicatorConfig.isDelete
+		);
+	}, [chartConfig.indicatorChartConfigs]);
+
 	// 使用 useRef 存储 store 函数，避免依赖项变化导致无限渲染
 	const storeActionsRef = useRef({
 		klineData,
 		indicatorData,
-		setChartConfig,
-		// setChartRef,
 		initObserverSubscriptions,
 		cleanupSubscriptions,
 	});
@@ -63,8 +76,6 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 	storeActionsRef.current = {
 		klineData,
 		indicatorData,
-		setChartConfig,
-		// setChartRef,
 		initObserverSubscriptions,
 		cleanupSubscriptions,
 	};
@@ -129,26 +140,12 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 	const getPlayIndex = useCallback(() => {
 		get_play_index(strategyId).then((index) => {
 			playIndex.current = index;
-			initChartData(playIndex.current);
+			initChartData(playIndex.current, chartConfig);
 		});
-	}, [strategyId, initChartData]);
+	}, [strategyId, initChartData, chartConfig]);
 
 	// 计算子图数量和获取容器高度
-	const subChartCount = chartConfig.subChartConfigs.reduce(
-		(count, subChartConfig) => {
-			return (
-				count +
-				Object.keys(subChartConfig.indicatorChartConfigs).filter(
-					(indicatorKeyStr) => {
-						const indicatorConfig =
-							subChartConfig.indicatorChartConfigs[indicatorKeyStr];
-						return !indicatorConfig.isInMainChart;
-					},
-				).length
-			);
-		},
-		0,
-	);
+	const subChartCount = getSubChartIndicators().length;
 
 	// 获取容器高度
 	const getContainerHeight = useCallback(() => {
@@ -214,7 +211,7 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 
 		// 延迟初始化 observer 订阅，确保所有引用都已设置
 		setTimeout(() => {
-			storeActionsRef.current.initObserverSubscriptions();
+			storeActionsRef.current.initObserverSubscriptions(chartConfig);
 		}, 100);
 
 		// 手动调整图表大小
@@ -307,6 +304,14 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 				/>
 			)} */}
 
+			{/* 指标调试面板 */}
+			{process.env.NODE_ENV === 'development' && (
+				<IndicatorDebugPanel
+					chartConfig={chartConfig}
+					chartApiRef={chartApiRef}
+				/>
+			)}
+
 			<div className="relative w-full h-full">
 				<Chart
 					options={chartOptions}
@@ -316,7 +321,7 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 					{/* <Pane> */}
 					<CandlestickSeries
 						ref={klineSeriesRef}
-						data={(klineData[getChartConfig().klineChartConfig.klineKeyStr] as CandlestickData[]) || []}
+						data={(klineData[chartConfig.klineChartConfig.klineKeyStr] as CandlestickData[]) || []}
 						options={{
 							visible: klineVisible,
 						}}
@@ -326,22 +331,21 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 					{/* 图例 */}
 					<KlineLegend
 						klineSeriesData={legendData}
-						klineKeyStr={getChartConfig().klineChartConfig.klineKeyStr}
+						klineKeyStr={chartConfig.klineChartConfig.klineKeyStr}
 						chartConfig={chartConfig}
 					/>
 					{/* 添加主图指标 */}
-					{Object.entries(
-						getChartConfig().klineChartConfig.indicatorChartConfig,
-					).map(([indicatorKeyStr, indicatorConfig], index) => {
+					{getMainChartIndicators().map((indicatorConfig, index) => {
+						const indicatorKeyStr = indicatorConfig.indicatorKeyStr;
 						const data =
 							(indicatorData[indicatorKeyStr] as Record<
 								keyof IndicatorValueConfig,
 								SingleValueData[]
 							>) || {};
-						// 主图指标
-						if (indicatorConfig.isInMainChart && data) {
+
+						if (data) {
 							return (
-								<>
+								<Fragment key={`main-indicator-${indicatorKeyStr}`}>
 									{/* 指标图例 - 根据索引调整位置 */}
 									<MainChartIndicatorLegend
 										key={`${indicatorKeyStr}-legend`}
@@ -355,7 +359,7 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 										indicatorKeyStr={indicatorKeyStr}
 										data={data}
 										index={index}
-										chartConfig={getChartConfig()}
+										chartConfig={chartConfig}
 										chartApiRef={chartApiRef}
 									/>
 									{/* 指标系列 */}
@@ -372,12 +376,12 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 													] as SingleValueData[]) || []
 												}
 												indicatorKeyStr={indicatorKeyStr}
-												chartConfig={getChartConfig()}
+												chartConfig={chartConfig}
 												// onSeriesRef={handleSeriesRef}
 											/>
 										);
 									})}
-								</>
+								</Fragment>
 							);
 						}
 						return null;
@@ -385,44 +389,34 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 					{/* </Pane> */}
 
 					{/* 添加子图指标 */}
-					{(() => {
-						let subChartIndex = 0; // 子图索引计数器
-						return chartConfig.subChartConfigs.map((subChartConfig) => {
-							return Object.entries(subChartConfig.indicatorChartConfigs).map(
-								([indicatorKeyStr, indicatorConfig]) => {
-									const data =(indicatorData[indicatorKeyStr] as Record<keyof IndicatorValueConfig,SingleValueData[]>) || {};
-									// 子图指标
-									if (!indicatorConfig.isInMainChart && data) {
-										const currentSubChartIndex = subChartIndex++;
-										return (
-											<SubChartIndicatorSeries
-												key={indicatorKeyStr}
-												ref={(ref) => {
-													if (ref) {
-														subChartIndicatorRefs.current[indicatorKeyStr] =
-															ref;
-													} else {
-														delete subChartIndicatorRefs.current[
-															indicatorKeyStr
-														];
-													}
-												}}
-												indicatorKeyStr={indicatorKeyStr}
-												indicatorChartConfig={indicatorConfig}
-												data={data}
-												subChartIndex={currentSubChartIndex}
-												totalSubChartCount={subChartCount}
-												containerHeight={containerHeight}
-												chartConfig={getChartConfig()}
-												chartApiRef={chartApiRef}
-											/>
-										);
-									}
-									return null;
-								},
+					{getSubChartIndicators().map((indicatorConfig, subChartIndex) => {
+						const indicatorKeyStr = indicatorConfig.indicatorKeyStr;
+						const data = (indicatorData[indicatorKeyStr] as Record<keyof IndicatorValueConfig,SingleValueData[]>) || {};
+
+						if (data) {
+							return (
+								<SubChartIndicatorSeries
+									key={indicatorKeyStr}
+									ref={(ref) => {
+										if (ref) {
+											subChartIndicatorRefs.current[indicatorKeyStr] = ref;
+										} else {
+											delete subChartIndicatorRefs.current[indicatorKeyStr];
+										}
+									}}
+									indicatorKeyStr={indicatorKeyStr}
+									indicatorChartConfig={indicatorConfig}
+									data={data}
+									subChartIndex={subChartIndex}
+									totalSubChartCount={subChartCount}
+									containerHeight={containerHeight}
+									chartConfig={chartConfig}
+									chartApiRef={chartApiRef}
+								/>
 							);
-						});
-					})()}
+						}
+						return null;
+					})}
 				</Chart>
 			</div>
 		</div>

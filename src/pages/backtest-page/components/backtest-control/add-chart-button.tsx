@@ -8,6 +8,7 @@ interface AddChartButtonProps {
 	showAlert?: boolean;
 	alertMessage?: string;
 	strategyChartConfig: BacktestStrategyChartConfig;
+	strategyId: number;
 }
 
 const AddChartButton = ({
@@ -15,6 +16,7 @@ const AddChartButton = ({
 	showAlert = false,
 	alertMessage = "",
 	strategyChartConfig,
+	strategyId,
 }: AddChartButtonProps) => {
 	// 处理添加图表
 	const handleAddChart = () => {

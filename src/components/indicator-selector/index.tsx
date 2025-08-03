@@ -66,14 +66,12 @@ export default function IndicatorSelector({
 	// 计算可用的指标选项
 	const availableIndicatorOptions = useMemo((): IndicatorOption[] => {
 		if (!klineConfig || Object.keys(keys).length === 0) return [];
-		console.log("keys", keys);
 
 		const options: IndicatorOption[] = [];
 
 		Object.entries(keys).forEach(([key, value]) => {
 			if (key.startsWith("indicator|")) {
 				const indicatorData = value as IndicatorKey;
-				console.log("indicatorData", indicatorData);
 
 				// 确保交易所、交易对和时间周期完全一致
 				if (
@@ -108,12 +106,10 @@ export default function IndicatorSelector({
 
 	// 渲染指标选项
 	const renderIndicatorOption = (option: IndicatorOption) => {
-		console.log(option);
 		const configDisplay = getIndicatorConfigDisplay(
 			option.indicatorConfig,
 			option.indicatorType,
 		);
-		console.log(configDisplay);
 		return (
 			<div className="flex items-center gap-2">
 				<Badge variant="outline">{option.indicatorType.toUpperCase()}</Badge>
