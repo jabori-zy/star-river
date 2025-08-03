@@ -70,7 +70,7 @@ export const MAConfig: IndicatorConfig<MAConfigType> = {
 			{
 				name: "MA",
 				type: SeriesType.LINE,
-				color: "#FF6B6B",
+				color: "#D6D618",
 				strokeThickness: 2,
 				indicatorValueKey: "ma" as keyof IndicatorValueConfig,
 			},

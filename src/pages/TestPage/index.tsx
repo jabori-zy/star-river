@@ -1,9 +1,34 @@
+import React from "react";
 import BacktestChart from "@/components/chart/backtest-chart";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import { SeriesType } from "@/types/chart";
+import { ColorPicker } from "@/components/color-picker";
+import type { ColorValue } from "@/components/color-picker";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 export default function TestDashboard() {
 	// const { t } = useTranslation();
+
+	// 颜色选择器测试状态
+	const [selectedColor, setSelectedColor] = React.useState("#FF6B6B");
+	const [colorWithAlpha, setColorWithAlpha] = React.useState("#00FF00");
+	const [simpleColor, setSimpleColor] = React.useState("#0066FF");
+
+	const handleColorChange = (color: string) => {
+		setSelectedColor(color);
+		console.log("颜色改变:", color);
+	};
+
+	const handleColorComplete = (colorValue: ColorValue) => {
+		console.log("颜色选择完成:", colorValue);
+	};
+
+	const customPresetColors = [
+		"#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4",
+		"#FFEAA7", "#DDA0DD", "#98D8C8", "#F7DC6F",
+		"#BB8FCE", "#85C1E9", "#F8C471", "#82E0AA"
+	];
 
 	// 创建测试配置
 	const testChartConfig: BacktestChartConfig = {
@@ -95,13 +120,100 @@ export default function TestDashboard() {
 	};
 
 	return (
-		<div>
-			<div className="flex flex-col gap-4 p-4">
-				<div className="text-2xl font-bold">动态 Series 测试</div>
-			</div>
-			<div className="flex flex-col gap-4 p-4 h-96">
-				<BacktestChart strategyId={1} chartConfig={testChartConfig} />
-			</div>
+		<div className="container mx-auto p-6 space-y-8">
+			{/* 颜色选择器测试区域 */}
+			<Card>
+				<CardHeader>
+					<CardTitle>颜色选择器组件测试</CardTitle>
+					<CardDescription>
+						测试不同配置的颜色选择器组件功能
+					</CardDescription>
+				</CardHeader>
+				<CardContent className="space-y-6">
+					{/* 基础颜色选择器 */}
+					<div className="space-y-3">
+						<h3 className="text-lg font-semibold">基础颜色选择器</h3>
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<ColorPicker
+								value={selectedColor}
+								onChange={handleColorChange}
+								onChangeComplete={handleColorComplete}
+								className="w-full"
+							/>
+							<div className="space-y-2">
+								<p className="text-sm text-muted-foreground">当前选择的颜色:</p>
+								<div
+									className="w-full h-12 rounded border border-border"
+									style={{ backgroundColor: selectedColor }}
+								/>
+								<p className="font-mono text-sm">{selectedColor}</p>
+							</div>
+						</div>
+					</div>
+
+					<Separator />
+
+					{/* 带透明度的颜色选择器 */}
+					<div className="space-y-3">
+						<h3 className="text-lg font-semibold">带透明度的颜色选择器</h3>
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<ColorPicker
+								value={colorWithAlpha}
+								onChange={setColorWithAlpha}
+								showAlpha={true}
+								className="w-full"
+							/>
+							<div className="space-y-2">
+								<p className="text-sm text-muted-foreground">当前选择的颜色:</p>
+								<div
+									className="w-full h-12 rounded border border-border"
+									style={{ backgroundColor: colorWithAlpha }}
+								/>
+								<p className="font-mono text-sm">{colorWithAlpha}</p>
+							</div>
+						</div>
+					</div>
+
+					<Separator />
+
+					{/* 自定义预设颜色的选择器 */}
+					<div className="space-y-3">
+						<h3 className="text-lg font-semibold">自定义预设颜色</h3>
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<ColorPicker
+								value={simpleColor}
+								onChange={setSimpleColor}
+								showAlpha={false}
+								presetColors={customPresetColors}
+								className="w-full"
+							/>
+							<div className="space-y-2">
+								<p className="text-sm text-muted-foreground">当前选择的颜色:</p>
+								<div
+									className="w-full h-12 rounded border border-border"
+									style={{ backgroundColor: simpleColor }}
+								/>
+								<p className="font-mono text-sm">{simpleColor}</p>
+							</div>
+						</div>
+					</div>
+				</CardContent>
+			</Card>
+
+			{/* 原有的图表测试 */}
+			<Card>
+				<CardHeader>
+					<CardTitle>动态 Series 测试</CardTitle>
+					<CardDescription>
+						测试动态图表系列功能
+					</CardDescription>
+				</CardHeader>
+				<CardContent>
+					<div className="h-96">
+						<BacktestChart strategyId={1} chartConfig={testChartConfig} />
+					</div>
+				</CardContent>
+			</Card>
 		</div>
 
 			// <SidebarProvider className="flex flex-col">
