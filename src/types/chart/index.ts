@@ -25,15 +25,15 @@ export type SeriesConfig = {
 
 
 export type IndicatorChartBaseConfig = {
-	isInMainChart: boolean; // 是否在主图中
+	isInMainChart: boolean; // isInMainChart
 	seriesConfigs: SeriesConfig[];
 }
 
-// 指标图表配置
+
 export type IndicatorChartConfig = IndicatorChartBaseConfig & {
-	chartId: ChartId; // 图表id
-	indicatorKeyStr: IndicatorKeyStr; // 指标缓存key
-	isDelete: boolean; // 是否已删除
+	chartId: ChartId; // chartId
+	indicatorKeyStr: IndicatorKeyStr; // indicatorKeyStr
+	isDelete: boolean; // isDelete
 };
 
 export type KlineChartConfig = {

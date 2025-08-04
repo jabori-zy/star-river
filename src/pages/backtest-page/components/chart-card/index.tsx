@@ -88,7 +88,7 @@ const ChartCard: React.FC<ChartCardProps> = ({
 					/> */}
 					<BacktestChart
 						strategyId={strategyId}
-						chartConfig={chartConfig}
+						chartId={chartConfig.id}
 					/>
 				</div>
 

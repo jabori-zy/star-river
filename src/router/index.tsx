@@ -17,6 +17,7 @@ import ResponsiveTest from "../pages/responsive-test";
 import FinalLayoutTest from "../pages/final-layout-test";
 import CompactLayoutTest from "../pages/compact-layout-test";
 import VerticalLayoutTest from "../pages/vertical-layout-test";
+import TestPaneDeletion from "../pages/test-pane-deletion";
 
 const router = createBrowserRouter([
 	{
@@ -92,6 +93,10 @@ const router = createBrowserRouter([
 	{
 		path: "/vertical-layout-test",
 		element: <VerticalLayoutTest />,
+	},
+	{
+		path: "/test-pane-deletion",
+		element: <TestPaneDeletion />,
 	},
 	{
 		path: "/backtest/:strategyId?",

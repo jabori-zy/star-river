@@ -26,21 +26,28 @@ import MainChartIndicatorLegend, {
 	type MainChartIndicatorLegendRef,
 } from "./main-chart-indicator-legend";
 import MainChartIndicatorSeries from "./main-chart-indicator-series";
-import SubChartIndicatorSeries, {
+import SubChartIndicatorPane, {
 	type SubChartIndicatorSeriesRef,
-} from "./sub-chart-indicator-series";
+} from "./sub-chart-indicator-pane";
 // import ChartApiDebugger from "./debug/chart-api-debugger";
 import IndicatorDebugPanel from "./debug/indicator-debug-panel";
 import { autoApplyPaneHeights } from "./utils/pane-height-manager";
+import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
 
 interface BacktestChartProps {
+	chartId: number;
 	strategyId: number;
-	chartConfig: BacktestChartConfig;
+	// chartConfig: BacktestChartConfig;
 
 }
 
-const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
+const BacktestChart = ({ chartId, strategyId }: BacktestChartProps) => {
 	// 使用图表内部store管理数据和可见性
+	const chartConfig = useBacktestChartConfigStore.getState().getChartConfig(chartId);
+	if (!chartConfig) {
+		throw new Error(`Chart config not found for chartId: ${chartId}`);
+	}
+
 	const {
 		klineData,
 		indicatorData,
@@ -49,7 +56,7 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 		cleanupSubscriptions,
 		// 可见性控制方法
 		getKlineVisibility,
-	} = useBacktestChartStore(chartConfig);
+	} = useBacktestChartStore(chartId);
 
 	// 指标分类方法
 	const getMainChartIndicators = useCallback(() => {
@@ -360,7 +367,6 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 										data={data}
 										index={index}
 										chartConfig={chartConfig}
-										chartApiRef={chartApiRef}
 									/>
 									{/* 指标系列 */}
 									{indicatorConfig.seriesConfigs.map((seriesConfig) => {
@@ -395,7 +401,7 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 
 						if (data) {
 							return (
-								<SubChartIndicatorSeries
+								<SubChartIndicatorPane
 									key={indicatorKeyStr}
 									ref={(ref) => {
 										if (ref) {
@@ -411,7 +417,6 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 									totalSubChartCount={subChartCount}
 									containerHeight={containerHeight}
 									chartConfig={chartConfig}
-									chartApiRef={chartApiRef}
 								/>
 							);
 						}

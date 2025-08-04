@@ -95,9 +95,9 @@ interface BacktestChartStore {
 }
 
 // 创建单个图表store的工厂函数
-const createBacktestChartStore = (chartConfig: BacktestChartConfig) =>
+const createBacktestChartStore = (chartId: number) =>
 	create<BacktestChartStore>((set, get) => ({
-		chartId: chartConfig.id,
+		chartId: chartId,
 		klineData: {},
 		indicatorData: {},
 		// chartRef: null,
@@ -564,13 +564,13 @@ const storeInstances = new Map<
 >();
 
 // 获取或创建指定chartId的store实例
-export const getBacktestChartStore = (chartConfig: BacktestChartConfig) => {
-	if (!storeInstances.has(chartConfig.id)) {
-		storeInstances.set(chartConfig.id, createBacktestChartStore(chartConfig));
+export const getBacktestChartStore = (chartId: number) => {
+	if (!storeInstances.has(chartId)) {
+		storeInstances.set(chartId, createBacktestChartStore(chartId));
 	}
-	const store = storeInstances.get(chartConfig.id);
+	const store = storeInstances.get(chartId);
 	if (!store) {
-		throw new Error(`Failed to create store for chartId: ${chartConfig.id}`);
+		throw new Error(`Failed to create store for chartId: ${chartId}`);
 	}
 	return store;
 };
@@ -588,14 +588,14 @@ export const cleanupBacktestChartStore = (chartConfig: BacktestChartConfig) => {
 };
 
 // Hook：根据chartId获取对应的store
-export const useBacktestChartStore = (chartConfig: BacktestChartConfig) => {
-	const store = getBacktestChartStore(chartConfig);
+export const useBacktestChartStore = (chartId: number) => {
+	const store = getBacktestChartStore(chartId);
 	return store();
 };
 
 // 获取指定chartId的store实例（不是hook）
 export const getBacktestChartStoreInstance = (
-	chartConfig: BacktestChartConfig,
+	chartId: number,
 ) => {
-	return getBacktestChartStore(chartConfig);
+	return getBacktestChartStore(chartId);
 };

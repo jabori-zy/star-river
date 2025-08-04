@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Trash2, Eye, EyeOff, Bug, X, RefreshCw, Info, FileText } from "lucide-react";
+import { Trash2, Eye, EyeOff, Bug, X, RefreshCw, Info, FileText, Minimize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -24,7 +24,7 @@ const IndicatorDebugPanel: React.FC<IndicatorDebugPanelProps> = ({
 		getIndicatorVisibility,
 		toggleIndicatorVisibility,
 		indicatorData,
-	} = useBacktestChartStore(chartConfig);
+	} = useBacktestChartStore(chartConfig.id);
 
 	// 使用全局配置store来删除指标
 	const { removeIndicator } = useBacktestChartConfigStore();
@@ -126,36 +126,45 @@ const IndicatorDebugPanel: React.FC<IndicatorDebugPanelProps> = ({
 	};
 
 	const handleDeleteIndicator = (indicatorKeyStr: IndicatorKeyStr) => {
+		// 只删除配置，让React自然地卸载组件和清理Pane
+		// lightweight-charts-react-components会自动处理series和pane的清理
+		removeIndicator(chartConfig.id, indicatorKeyStr);
+	};
+
+	// 只删除Pane，不删除配置
+	const handleRemovePaneOnly = (indicatorKeyStr: IndicatorKeyStr) => {
 		// 使用新的store方法获取指标信息
 		const subIndicators = getSubChartIndicators();
 		const targetIndicator = subIndicators.find(indicator => indicator.indicatorKeyStr === indicatorKeyStr);
 
-		// 如果是子图指标，需要处理Pane删除逻辑
+		// 只处理子图指标的Pane删除
 		if (targetIndicator && chartApiRef?.current) {
 			// 找到该指标在子图中的索引
 			const subChartIndex = subIndicators.findIndex(indicator => indicator.indicatorKeyStr === indicatorKeyStr);
 
 			if (subChartIndex !== -1) {
-				// 检查是否是该子图的唯一指标
-				// 注意：现在每个子图指标都有自己的Pane，所以删除指标就是删除Pane
 				try {
 					// 获取所有Panes
 					const panes = chartApiRef.current.panes();
+					console.log("只删除Pane - panes", panes);
 
 					// 子图的Pane索引 = 主图(0) + 子图索引 + 1
 					const paneIndex = subChartIndex + 1;
 
 					if (panes[paneIndex]) {
 						chartApiRef.current.removePane(paneIndex);
+						console.log(`已删除Pane ${paneIndex}，但保留配置`);
+
+						// 注意：删除Pane后，React组件仍然存在但无法正常渲染
+						// 这可能会导致一些显示问题，但配置仍然保留
 					}
 				} catch (error) {
 					console.error('删除Pane失败:', error);
 				}
 			}
+		} else {
+			console.warn('主图指标无法单独删除Pane，只有子图指标支持此操作');
 		}
-
-		// 从配置中删除指标
-		removeIndicator(chartConfig.id, indicatorKeyStr);
 	};
 
 	const indicators = getAllIndicators();
@@ -293,6 +302,18 @@ const IndicatorDebugPanel: React.FC<IndicatorDebugPanelProps> = ({
 												<EyeOff size={10} className="text-gray-500" />
 											)}
 										</Button>
+										{/* 只删除Pane按钮 - 仅对子图指标显示 */}
+										{indicator.type === 'sub' && (
+											<Button
+												variant="outline"
+												size="sm"
+												className="h-6 w-6 p-0 bg-orange-50 border-orange-200 hover:bg-orange-100"
+												title="只删除Pane（保留配置）"
+												onClick={() => handleRemovePaneOnly(indicator.keyStr)}
+											>
+												<Minimize2 size={10} className="text-orange-600" />
+											</Button>
+										)}
 										<Button
 											variant="outline"
 											size="sm"

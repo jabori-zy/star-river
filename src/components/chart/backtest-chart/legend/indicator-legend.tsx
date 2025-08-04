@@ -1,7 +1,6 @@
 import type React from "react";
 import { forwardRef } from "react";
 import { Eye, EyeOff, Bolt, Trash2 } from "lucide-react";
-import type { IChartApi } from "lightweight-charts";
 import { Button } from "@/components/ui/button";
 import type { IndicatorLegendData } from "./use-indicator-legend";
 import type { IndicatorKeyStr } from "@/types/symbol-key";
@@ -12,7 +11,6 @@ interface IndicatorLegendProps {
 	indicatorLegendData: IndicatorLegendData;
 	indicatorKeyStr: IndicatorKeyStr; // 新增指标键字符串，用于控制可见性
 	chartConfig: BacktestChartConfig; // 新增图表配置，用于获取对应的store
-	chartApiRef?: React.RefObject<IChartApi | null>; // 图表API引用，用于删除子图Pane
 	className?: string;
 	style?: React.CSSProperties;
 }
@@ -21,7 +19,6 @@ const IndicatorLegend = forwardRef<HTMLDivElement, IndicatorLegendProps>(({
 	indicatorLegendData,
 	indicatorKeyStr,
 	chartConfig,
-	chartApiRef,
 	className = "",
 	style,
 }, ref) => {
@@ -41,40 +38,8 @@ const IndicatorLegend = forwardRef<HTMLDivElement, IndicatorLegendProps>(({
 	const handleDeleteIndicator = (e: React.MouseEvent) => {
 		e.stopPropagation();
 
-		// 检查是否是子图指标
-		const isSubChartIndicator = chartConfig.subChartConfigs.some(
-			subChart => subChart.indicatorChartConfigs[indicatorKeyStr]
-		);
-
-		if (isSubChartIndicator && chartApiRef?.current) {
-			// 找到对应的子图索引
-			const subChartIndex = chartConfig.subChartConfigs.findIndex(
-				subChart => subChart.indicatorChartConfigs[indicatorKeyStr]
-			);
-
-			if (subChartIndex !== -1) {
-				const subChartConfig = chartConfig.subChartConfigs[subChartIndex];
-
-				// 如果子图只有这一个指标，删除整个Pane
-				if (Object.keys(subChartConfig.indicatorChartConfigs).length === 1) {
-					try {
-						// 获取所有Panes
-						const panes = chartApiRef.current.panes();
-
-						// 子图的Pane索引 = 主图(0) + 子图索引 + 1
-						const paneIndex = subChartIndex + 1;
-
-						if (panes[paneIndex]) {
-							chartApiRef.current.removePane(paneIndex);
-						}
-					} catch (error) {
-						console.error('删除Pane失败:', error);
-					}
-				}
-			}
-		}
-
-		// 从配置中删除指标
+		// 只删除配置，让React自然地卸载组件和清理Pane
+		// lightweight-charts-react-components会自动处理series和pane的清理
 		removeIndicator(indicatorKeyStr);
 	};
 

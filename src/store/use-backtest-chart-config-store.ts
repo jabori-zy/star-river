@@ -27,6 +27,7 @@ interface BacktestChartConfigState {
 	// 基础操作
 	setStrategyId: (strategyId: number | null) => void;
 	setChartConfig: (config: BacktestStrategyChartConfig) => void;
+	getChartConfig: (chartId: number) => BacktestChartConfig | undefined;
 	setLoading: (loading: boolean) => void;
 	setSaving: (saving: boolean) => void;
 	setConfigLoaded: (loaded: boolean) => void;
@@ -84,6 +85,11 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 		setLoading: (isLoading) => set({ isLoading }),
 		setSaving: (isSaving) => set({ isSaving }),
 		setConfigLoaded: (configLoaded) => set({ configLoaded }),
+
+		getChartConfig: (chartId) => {
+			const { chartConfig } = get();
+			return chartConfig.charts.find((chart) => chart.id === chartId);
+		},
 
 		// 获取策略缓存键
 		fetchCacheKeys: async () => {

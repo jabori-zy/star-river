@@ -1,4 +1,4 @@
-import type { SingleValueData, MouseEventParams, IChartApi } from "lightweight-charts";
+import type { SingleValueData, MouseEventParams } from "lightweight-charts";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import type { IndicatorKeyStr } from "@/types/symbol-key";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
@@ -10,7 +10,6 @@ interface MainChartIndicatorLegendProps {
 	data: Record<keyof IndicatorValueConfig, SingleValueData[]>;
 	index: number; // 用于调整位置
 	chartConfig: BacktestChartConfig; // 新增图表配置
-	chartApiRef?: React.RefObject<IChartApi | null>; // 图表API引用
 }
 
 export interface MainChartIndicatorLegendRef {
@@ -26,7 +25,6 @@ const MainChartIndicatorLegend = forwardRef<MainChartIndicatorLegendRef, MainCha
 	data,
 	index,
 	chartConfig,
-	chartApiRef,
 }, ref) => {
 	const { legendData, onCrosshairMove: indicatorOnCrosshairMove } = useIndicatorLegend(indicatorKeyStr, data);
 
@@ -43,7 +41,6 @@ const MainChartIndicatorLegend = forwardRef<MainChartIndicatorLegendRef, MainCha
 			indicatorLegendData={legendData}
 			indicatorKeyStr={indicatorKeyStr}
 			chartConfig={chartConfig}
-			chartApiRef={chartApiRef}
 			className="absolute left-0 z-10 hover:cursor-pointer hover:bg-gray-100 p-2 rounded-sm"
 			style={{ top: `${topPosition}px` }}
 		/>
