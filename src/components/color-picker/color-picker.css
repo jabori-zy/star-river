@@ -28,3 +28,15 @@
   border-radius: 4px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
+
+/* 隐藏数字输入框的加减按钮 */
+.rgb-input input[type="number"]::-webkit-outer-spin-button,
+.rgb-input input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.rgb-input input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}

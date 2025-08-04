@@ -1,11 +1,13 @@
 import type React from "react";
-import { forwardRef } from "react";
+import { forwardRef, useState } from "react";
 import { Eye, EyeOff, Bolt, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { IndicatorLegendData } from "./use-indicator-legend";
 import type { IndicatorKeyStr } from "@/types/symbol-key";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import { useBacktestChartStore } from "../backtest-chart-store";
+import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
+import { IndicatorLegendEditDialog } from "./indicator-legend-edit-dialog";
 
 interface IndicatorLegendProps {
 	indicatorLegendData: IndicatorLegendData;
@@ -23,7 +25,12 @@ const IndicatorLegend = forwardRef<HTMLDivElement, IndicatorLegendProps>(({
 	style,
 }, ref) => {
 	// 使用当前图表的可见性状态管理
-	const { getIndicatorVisibility, toggleIndicatorVisibility, removeIndicator } = useBacktestChartStore(chartConfig);
+	const { getIndicatorVisibility, toggleIndicatorVisibility } = useBacktestChartStore(chartConfig.id);
+
+	const { removeIndicator } = useBacktestChartConfigStore();
+
+	// 编辑对话框状态
+	const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
 	// 获取当前指标的可见性状态
 	const isVisible = getIndicatorVisibility(indicatorKeyStr);
@@ -40,7 +47,7 @@ const IndicatorLegend = forwardRef<HTMLDivElement, IndicatorLegendProps>(({
 
 		// 只删除配置，让React自然地卸载组件和清理Pane
 		// lightweight-charts-react-components会自动处理series和pane的清理
-		removeIndicator(indicatorKeyStr);
+		removeIndicator(chartConfig.id, indicatorKeyStr);
 	};
 
 	return (
@@ -102,10 +109,10 @@ const IndicatorLegend = forwardRef<HTMLDivElement, IndicatorLegendProps>(({
 						variant="outline"
 						size="sm"
 						className="h-6 w-6 p-0 border-gray-300 bg-white hover:bg-yellow-50 hover:border-yellow-400"
-						title="快速操作"
+						title="编辑"
 						onClick={(e) => {
 							e.stopPropagation();
-							// TODO: 实现快速操作功能
+							setIsEditDialogOpen(true);
 						}}
 					>
 						<Bolt size={12} className="text-yellow-600" />
@@ -121,6 +128,14 @@ const IndicatorLegend = forwardRef<HTMLDivElement, IndicatorLegendProps>(({
 					</Button>
 				</div>
 			</div>
+
+			{/* 编辑对话框 */}
+			<IndicatorLegendEditDialog
+				open={isEditDialogOpen}
+				onOpenChange={setIsEditDialogOpen}
+				chartId={chartConfig.id}
+				indicatorKeyStr={indicatorKeyStr}
+			/>
 		</div>
 	);
 });

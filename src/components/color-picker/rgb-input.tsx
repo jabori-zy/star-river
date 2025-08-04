@@ -82,7 +82,7 @@ export function RgbInput({ value, onChange, disabled }: RgbInputProps) {
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 rgb-input">
       <div className="flex flex-row gap-4">
         <div className="flex items-center">
           <Label htmlFor="rgb-r" className="text-xs text-muted-foreground w-3">

@@ -18,6 +18,7 @@ import FinalLayoutTest from "../pages/final-layout-test";
 import CompactLayoutTest from "../pages/compact-layout-test";
 import VerticalLayoutTest from "../pages/vertical-layout-test";
 import TestPaneDeletion from "../pages/test-pane-deletion";
+import IndicatorLegendEditTest from "../pages/indicator-legend-edit-test";
 
 const router = createBrowserRouter([
 	{
@@ -97,6 +98,10 @@ const router = createBrowserRouter([
 	{
 		path: "/test-pane-deletion",
 		element: <TestPaneDeletion />,
+	},
+	{
+		path: "/indicator-legend-edit-test",
+		element: <IndicatorLegendEditTest />,
 	},
 	{
 		path: "/backtest/:strategyId?",

@@ -4,12 +4,12 @@ import { Button } from '@/components/ui/button';
 import './color-picker.css';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
-import { Palette } from 'lucide-react';
+
 import { ColorInput } from './color-input';
 import { AlphaSlider } from './alpha-slider';
 import { PresetColors } from './preset-colors';
 import type { ColorPickerProps, ColorMode } from './types';
-import { DEFAULT_PRESET_COLORS, parseColor, colorToRgba, formatColorByMode } from './utils';
+import { DEFAULT_PRESET_COLORS, parseColor, colorToRgba } from './utils';
 import { cn } from '@/lib/utils';
 
 export function ColorPicker({
@@ -51,26 +51,18 @@ export function ColorPicker({
   };
 
   const displayColor = showAlpha ? colorToRgba(currentColor, alpha) : currentColor;
-  const displayText = formatColorByMode(currentColor, colorMode);
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          disabled={disabled}
+        <div
           className={cn(
-            "w-full justify-start gap-2 h-10",
+            "w-8 h-8 rounded border border-border cursor-pointer hover:ring-2 hover:ring-primary/20 transition-all",
+            disabled && "cursor-not-allowed opacity-50",
             className
           )}
-        >
-          <div
-            className="w-6 h-6 rounded border border-border flex-shrink-0"
-            style={{ backgroundColor: displayColor }}
-          />
-          <span className="font-mono text-sm">{displayText}</span>
-          <Palette className="w-4 h-4 ml-auto" />
-        </Button>
+          style={{ backgroundColor: displayColor }}
+        />
       </PopoverTrigger>
       
       <PopoverContent className="w-80 p-4" align="start">
@@ -118,7 +110,7 @@ export function ColorPicker({
             </>
           )}
 
-          {/* 操作按钮 */}
+          {/* 操作按钮
           <Separator />
           <div className="flex gap-2">
             <Button
@@ -136,7 +128,7 @@ export function ColorPicker({
             >
               确定
             </Button>
-          </div>
+          </div> */}
         </div>
       </PopoverContent>
     </Popover>
