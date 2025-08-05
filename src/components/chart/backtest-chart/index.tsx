@@ -105,13 +105,9 @@ const BacktestChart = ({ chartId, strategyId }: BacktestChartProps) => {
 	);
 
 	// 收集所有指标legend的ref
-	const indicatorLegendRefs = useRef<
-		Record<IndicatorKeyStr, MainChartIndicatorLegendRef | null>
-	>({});
+	const indicatorLegendRefs = useRef<Record<IndicatorKeyStr, MainChartIndicatorLegendRef | null>>({});
 	// 收集所有子图指标的ref
-	const subChartIndicatorRefs = useRef<
-		Record<IndicatorKeyStr, SubChartIndicatorSeriesRef | null>
-	>({});
+	const subChartIndicatorRefs = useRef<Record<IndicatorKeyStr, SubChartIndicatorSeriesRef | null>>({});
 
 	// 统一的crosshair事件处理函数
 	const handleCrosshairMove = useCallback(
@@ -406,9 +402,10 @@ const BacktestChart = ({ chartId, strategyId }: BacktestChartProps) => {
 									ref={(ref) => {
 										if (ref) {
 											subChartIndicatorRefs.current[indicatorKeyStr] = ref;
-										} else {
-											delete subChartIndicatorRefs.current[indicatorKeyStr];
-										}
+										} 
+										// else {
+										// 	delete subChartIndicatorRefs.current[indicatorKeyStr];
+										// }
 									}}
 									indicatorKeyStr={indicatorKeyStr}
 									indicatorChartConfig={indicatorConfig}

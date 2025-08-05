@@ -3,7 +3,7 @@ import type {
 	SingleValueData,
 	UTCTimestamp,
 } from "lightweight-charts";
-// import type { SeriesApiRef } from "lightweight-charts-react-components";
+import type { IChartApi } from "lightweight-charts";
 import type { Subscription } from "rxjs";
 import { create } from "zustand";
 import {

@@ -106,7 +106,7 @@ const SubChartIndicatorPane = forwardRef<SubChartIndicatorSeriesRef, SubChartInd
 
 	// 渲染所有 series 在同一个 Pane 中
 	return (
-		<Pane ref={paneRef}>
+		<Pane ref={paneRef} >
 			
 			{/* 指标系列 */}
 			{indicatorChartConfig.seriesConfigs.map((seriesConfig, index) => {

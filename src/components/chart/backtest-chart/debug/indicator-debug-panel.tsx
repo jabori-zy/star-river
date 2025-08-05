@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Trash2, Eye, EyeOff, Bug, X, RefreshCw, Info, FileText, Minimize2 } from "lucide-react";
+import { Trash2, Eye, EyeOff, Bug, X, RefreshCw, Info, FileText, Minimize2, Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -167,6 +167,52 @@ const IndicatorDebugPanel: React.FC<IndicatorDebugPanelProps> = ({
 		}
 	};
 
+	// 通过删除Pane内的所有Series来清空Pane（新方案）
+	const handleClearPaneSeries = (indicatorKeyStr: IndicatorKeyStr) => {
+		// 使用新的store方法获取指标信息
+		const subIndicators = getSubChartIndicators();
+		const targetIndicator = subIndicators.find(indicator => indicator.indicatorKeyStr === indicatorKeyStr);
+
+		// 只处理子图指标的Pane清理
+		if (targetIndicator && chartApiRef?.current) {
+			// 找到该指标在子图中的索引
+			const subChartIndex = subIndicators.findIndex(indicator => indicator.indicatorKeyStr === indicatorKeyStr);
+
+			if (subChartIndex !== -1) {
+				try {
+					// 获取所有Panes
+					const panes = chartApiRef.current.panes();
+					console.log("清空Pane内Series - panes", panes);
+
+					// 子图的Pane索引 = 主图(0) + 子图索引 + 1
+					const paneIndex = subChartIndex + 1;
+
+					if (panes[paneIndex]) {
+						const targetPane = panes[paneIndex];
+
+						// 获取该Pane内的所有Series
+						const seriesInPane = targetPane.getSeries();
+						console.log(`Pane ${paneIndex} 内的Series数量:`, seriesInPane.length);
+
+						// 删除该Pane内的所有Series
+						seriesInPane.forEach((series, index) => {
+							console.log(`删除Pane ${paneIndex} 内的Series ${index}`);
+							if (chartApiRef.current) {
+								chartApiRef.current.removeSeries(series);
+							}
+						});
+
+						console.log(`已清空Pane ${paneIndex} 内的所有Series，Pane会自动消失`);
+					}
+				} catch (error) {
+					console.error('清空Pane内Series失败:', error);
+				}
+			}
+		} else {
+			console.warn('主图指标无法单独清空Pane，只有子图指标支持此操作');
+		}
+	};
+
 	const indicators = getAllIndicators();
 
 	if (!isOpen) {
@@ -223,6 +269,19 @@ const IndicatorDebugPanel: React.FC<IndicatorDebugPanelProps> = ({
 						<FileText size={10} className="mr-1" />
 						打印配置到控制台
 					</Button>
+				</div>
+
+				{/* 操作说明 */}
+				<div className="mb-3 p-2 bg-yellow-50 rounded-sm">
+					<div className="flex items-center gap-2 mb-1">
+						<Info size={12} className="text-yellow-600" />
+						<span className="text-xs font-medium text-yellow-800">删除方式说明</span>
+					</div>
+					<div className="text-xs text-yellow-700 space-y-1">
+						<div>🔴 红色垃圾桶：删除配置（推荐）</div>
+						<div>🟠 橙色最小化：只删除Pane（保留配置）</div>
+						<div>🟣 紫色图层：清空Pane内Series（新方案）</div>
+					</div>
 				</div>
 
 				<div className="space-y-2">
@@ -312,6 +371,18 @@ const IndicatorDebugPanel: React.FC<IndicatorDebugPanelProps> = ({
 												onClick={() => handleRemovePaneOnly(indicator.keyStr)}
 											>
 												<Minimize2 size={10} className="text-orange-600" />
+											</Button>
+										)}
+										{/* 清空Pane内Series按钮 - 仅对子图指标显示 */}
+										{indicator.type === 'sub' && (
+											<Button
+												variant="outline"
+												size="sm"
+												className="h-6 w-6 p-0 bg-purple-50 border-purple-200 hover:bg-purple-100"
+												title="清空Pane内Series（新方案）"
+												onClick={() => handleClearPaneSeries(indicator.keyStr)}
+											>
+												<Layers size={10} className="text-purple-600" />
 											</Button>
 										)}
 										<Button
