@@ -8,6 +8,7 @@ import {
 } from "@/types/indicator/indicator-config";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import type { IndicatorKey } from "@/types/symbol-key";
+import { LineSeries } from "lightweight-charts";
 
 // AROON 指标配置的 Zod schema
 const AroonConfigSchema = z.object({
@@ -48,6 +49,7 @@ export const AroonConfig: IndicatorConfig<AroonConfigType> = {
 			{
 				name: "aroon_down",
 				type: SeriesType.LINE,
+				series: LineSeries,
 				color: "#FF6B6B",
 				strokeThickness: 2,
 				indicatorValueKey: "aroon_down" as keyof IndicatorValueConfig,
@@ -55,6 +57,7 @@ export const AroonConfig: IndicatorConfig<AroonConfigType> = {
 			{
 				name: "aroon_up",
 				type: SeriesType.LINE,
+				series: LineSeries,
 				color: "#4ECDC4",
 				strokeThickness: 2,
 				indicatorValueKey: "aroon_up" as keyof IndicatorValueConfig,

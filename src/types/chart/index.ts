@@ -1,3 +1,4 @@
+import { LineSeries, AreaSeries, HistogramSeries } from "lightweight-charts";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import type { IndicatorKeyStr, KeyStr } from "@/types/symbol-key";
 // import { IndicatorValue } from "../indicator/backup/indicator-value";
@@ -18,6 +19,7 @@ export enum SeriesType {
 export type SeriesConfig = {
 	name: string; // 数据系列名称
 	type: SeriesType; // 数据系列类型
+	series: typeof LineSeries | typeof AreaSeries | typeof HistogramSeries;
 	color?: string; // 数据系列颜色
 	strokeThickness?: number; // 数据系列线宽
 	indicatorValueKey: keyof IndicatorValueConfig; // 指标值的键名

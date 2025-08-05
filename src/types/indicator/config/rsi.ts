@@ -11,6 +11,7 @@ import {
 	PriceSourceSchema,
 } from "@/types/indicator/schemas";
 import type { IndicatorKey } from "@/types/symbol-key";
+import { LineSeries } from "lightweight-charts";
 
 // RSI 指标配置的 Zod schema
 const RSIConfigSchema = z.object({
@@ -59,6 +60,7 @@ export const RSIConfig: IndicatorConfig<RSIConfigType> = {
 			{
 				name: "RSI",
 				type: SeriesType.LINE,
+				series: LineSeries,
 				color: "#FF6B6B",
 				strokeThickness: 2,
 				indicatorValueKey: "rsi" as keyof IndicatorValueConfig,

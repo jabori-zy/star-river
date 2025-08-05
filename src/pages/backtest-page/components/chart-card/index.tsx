@@ -14,6 +14,7 @@ import AddIndicatorDialog from "./add-indicator-dialog";
 import SymbolListDialog from "./symbol-list-dialog";
 import BacktestChart from "@/components/chart/backtest-chart";
 import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
+import BacktestChartNew from "@/components/chart/backtest-chart-new";
 
 interface ChartCardProps {
 	strategyId: number;
@@ -86,7 +87,11 @@ const ChartCard: React.FC<ChartCardProps> = ({
 						chartConfig={chartConfig}
 						onDeleteSubChart={onDeleteSubChart}
 					/> */}
-					<BacktestChart
+					{/* <BacktestChart
+						strategyId={strategyId}
+						chartId={chartConfig.id}
+					/> */}
+					<BacktestChartNew
 						strategyId={strategyId}
 						chartId={chartConfig.id}
 					/>

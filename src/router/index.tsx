@@ -19,6 +19,7 @@ import CompactLayoutTest from "../pages/compact-layout-test";
 import VerticalLayoutTest from "../pages/vertical-layout-test";
 import TestPaneDeletion from "../pages/test-pane-deletion";
 import IndicatorLegendEditTest from "../pages/indicator-legend-edit-test";
+import TestNewChart from "../pages/test_new_chart";
 
 const router = createBrowserRouter([
 	{
@@ -106,6 +107,10 @@ const router = createBrowserRouter([
 	{
 		path: "/backtest/:strategyId?",
 		element: <BacktestPage />,
+	},
+	{
+		path: "/test-new-chart",
+		element: <TestNewChart />,
 	},
 ]);
 

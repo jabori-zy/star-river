@@ -8,6 +8,7 @@ import {
 } from "@/types/indicator/indicator-config";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import type { IndicatorKey } from "@/types/symbol-key";
+import { LineSeries } from "lightweight-charts";
 
 // MA 指标配置的 Zod schema
 const ADConfigSchema = z.object({}); // 没有参数
@@ -35,6 +36,7 @@ export const ADConfig: IndicatorConfig<ADConfigType> = {
 			{
 				name: "ad",
 				type: SeriesType.LINE,
+				series: LineSeries,
 				color: "#FF6B6B",
 				strokeThickness: 2,
 				indicatorValueKey: "ad" as keyof IndicatorValueConfig,

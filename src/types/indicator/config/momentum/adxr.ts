@@ -8,6 +8,7 @@ import {
 } from "@/types/indicator/indicator-config";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import type { IndicatorKey } from "@/types/symbol-key";
+import { LineSeries } from "lightweight-charts";
 
 // MA 指标配置的 Zod schema
 const ADXRConfigSchema = z.object({
@@ -47,6 +48,7 @@ export const ADXRConfig: IndicatorConfig<ADXRConfigType> = {
 			{
 				name: "adxr",
 				type: SeriesType.LINE,
+				series: LineSeries,
 				color: "#FF6B6B",
 				strokeThickness: 2,
 				indicatorValueKey: "adxr" as keyof IndicatorValueConfig,

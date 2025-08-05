@@ -12,6 +12,7 @@ import {
 	PriceSourceSchema,
 } from "@/types/indicator/schemas";
 import type { IndicatorKey } from "@/types/symbol-key";
+import { LineSeries } from "lightweight-charts";
 
 const BBandsConfigSchema = z.object({
 	timePeriod: z.number().int().positive(), // 时间周期
@@ -87,6 +88,7 @@ export const BBandsConfig: IndicatorConfig<BBandsConfigType> = {
 			{
 				name: "upper",
 				type: SeriesType.LINE,
+				series: LineSeries,
 				color: "#FF6B6B",
 				strokeThickness: 2,
 				indicatorValueKey: "upper" as keyof IndicatorValueConfig,
@@ -94,6 +96,7 @@ export const BBandsConfig: IndicatorConfig<BBandsConfigType> = {
 			{
 				name: "middle",
 				type: SeriesType.DASH,
+				series: LineSeries,
 				color: "#4ECDC4",
 				strokeThickness: 2,
 				indicatorValueKey: "middle" as keyof IndicatorValueConfig,
@@ -101,6 +104,7 @@ export const BBandsConfig: IndicatorConfig<BBandsConfigType> = {
 			{
 				name: "lower",
 				type: SeriesType.LINE,
+				series: LineSeries,
 				color: "#45B7D1",
 				strokeThickness: 1,
 				indicatorValueKey: "lower" as keyof IndicatorValueConfig,

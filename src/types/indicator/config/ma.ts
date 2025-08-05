@@ -12,6 +12,7 @@ import {
 	PriceSourceSchema,
 } from "@/types/indicator/schemas";
 import type { IndicatorKey } from "@/types/symbol-key";
+import { LineSeries } from "lightweight-charts";
 
 // MA 指标配置的 Zod schema
 const MAConfigSchema = z.object({
@@ -70,6 +71,7 @@ export const MAConfig: IndicatorConfig<MAConfigType> = {
 			{
 				name: "MA",
 				type: SeriesType.LINE,
+				series: LineSeries,
 				color: "#D6D618",
 				strokeThickness: 2,
 				indicatorValueKey: "ma" as keyof IndicatorValueConfig,

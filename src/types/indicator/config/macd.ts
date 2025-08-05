@@ -8,6 +8,7 @@ import {
 } from "@/types/indicator/indicator-config";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import type { IndicatorKey } from "@/types/symbol-key";
+import { LineSeries, HistogramSeries } from "lightweight-charts";
 
 const MACDConfigSchema = z.object({
 	fastPeriod: z.number().int().positive(),
@@ -74,6 +75,7 @@ export const MACDConfig: IndicatorConfig<MACDConfigType> = {
 			{
 				name: "MACD",
 				type: SeriesType.LINE,
+				series: LineSeries,
 				color: "#FF6B6B",
 				strokeThickness: 2,
 				indicatorValueKey: "macd" as keyof IndicatorValueConfig,
@@ -81,6 +83,7 @@ export const MACDConfig: IndicatorConfig<MACDConfigType> = {
 			{
 				name: "Signal",
 				type: SeriesType.LINE,
+				series: LineSeries,
 				color: "#4ECDC4",
 				strokeThickness: 2,
 				indicatorValueKey: "signal" as keyof IndicatorValueConfig,
@@ -88,6 +91,7 @@ export const MACDConfig: IndicatorConfig<MACDConfigType> = {
 			{
 				name: "Histogram",
 				type: SeriesType.COLUMN,
+				series: HistogramSeries,
 				color: "#45B7D1",
 				strokeThickness: 1,
 				indicatorValueKey: "histogram" as keyof IndicatorValueConfig,

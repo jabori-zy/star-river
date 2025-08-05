@@ -12,6 +12,7 @@ import {
 	PriceSourceSchema,
 } from "@/types/indicator/schemas";
 import type { IndicatorKey } from "@/types/symbol-key";
+import { LineSeries } from "lightweight-charts";
 
 // MA 指标配置的 Zod schema
 const APOConfigSchema = z.object({
@@ -78,6 +79,7 @@ export const APOConfig: IndicatorConfig<APOConfigType> = {
 			{
 				name: "apo",
 				type: SeriesType.LINE,
+				series: LineSeries,
 				color: "#FF6B6B",
 				strokeThickness: 2,
 				indicatorValueKey: "apo" as keyof IndicatorValueConfig,
