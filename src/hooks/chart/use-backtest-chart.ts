@@ -14,6 +14,7 @@ import { get_play_index } from "@/service/strategy-control/backtest-strategy-con
 import { useBacktestChartStore } from "@/components/chart/backtest-chart-new/backtest-chart-store";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import { SeriesType } from "@/types/chart";
+import { useKlineLegend } from "./use-kline-legend";
 
 interface UseBacktestChartProps {
     strategyId: number;
@@ -24,7 +25,9 @@ interface UseBacktestChartProps {
 
 interface UseBacktestChartReturn {
     chartConfig: BacktestChartConfig;
-    initialKlineData: Record<string, CandlestickData[]>;
+    legendData: any; // K线图例数据
+    klineData: Record<string, CandlestickData[]>;
+    indicatorData: Record<string, Record<string, SingleValueData[]>>;
     getChartRef: () => IChartApi | null;
 }
 
@@ -40,8 +43,8 @@ export const useBacktestChart = ({
     // 图表数据和ref管理
     const {
         chartConfig,
-        initialKlineData,
-        initialIndicatorData,
+        klineData,
+        indicatorData,
         initChartData,
         setChartRef,
         getChartRef,
@@ -53,6 +56,8 @@ export const useBacktestChart = ({
         getMainChartIndicatorConfig,
         getSubChartIndicatorConfig,
     } = useBacktestChartStore(chartId);
+
+    const { legendData, onCrosshairMove } = useKlineLegend({chartId, klineKeyStr: chartConfig.klineChartConfig.klineKeyStr});
 
     // 获取播放索引并初始化数据
     const playIndex = useRef(0);
@@ -111,6 +116,12 @@ export const useBacktestChart = ({
             else {
                 // 创建子图 Pane
                 const subChartPane = chart.addPane(false);
+
+                // 使用 setTimeout 延迟获取 HTML 元素，因为 pane 还没有完全实例化
+                setTimeout(() => {
+                    console.log("创建pane时，获取html", subChartPane.getHTMLElement());
+                }, 100);
+
                 // 创建子图指标
                 config.seriesConfigs.forEach(seriesConfig => {
                     let subChartIndicatorSeries: ISeriesApi<"Line"> | ISeriesApi<"Area"> | ISeriesApi<"Histogram"> | null = null;
@@ -129,14 +140,13 @@ export const useBacktestChart = ({
                             break;
                     }
                     if (subChartIndicatorSeries) {
-                        
                         setIndicatorSeriesRef(config.indicatorKeyStr, seriesConfig.indicatorValueKey, subChartIndicatorSeries);
                     }
                 });
 
             }
-            
         });
+        
     }, [chartConfig.indicatorChartConfigs, setIndicatorSeriesRef]);
 
     // 创建子图指标
@@ -149,29 +159,29 @@ export const useBacktestChart = ({
     const initKlineData = useCallback(() => {
         const klineSeries = getKlineSeriesRef(chartConfig.klineChartConfig.klineKeyStr);
         if (klineSeries) {
-            const klineDataArray = initialKlineData[chartConfig.klineChartConfig.klineKeyStr] as CandlestickData[];
+            const klineDataArray = klineData[chartConfig.klineChartConfig.klineKeyStr] as CandlestickData[];
             if (klineDataArray && klineDataArray.length > 0) {
                 klineSeries.setData(klineDataArray);
             }
         }
-    }, [chartConfig.klineChartConfig.klineKeyStr, initialKlineData, getKlineSeriesRef]);
+    }, [chartConfig.klineChartConfig.klineKeyStr, klineData, getKlineSeriesRef]);
 
     const initIndicatorData = useCallback(() => {
         chartConfig.indicatorChartConfigs.forEach(config => {
             config.seriesConfigs.forEach(seriesConfig => {
                 const indicatorSeriesRef = getIndicatorSeriesRef(config.indicatorKeyStr, seriesConfig.indicatorValueKey);
                 if (indicatorSeriesRef) {
-                    const indicatorData = initialIndicatorData[config.indicatorKeyStr]
-                    if (indicatorData) {
-                        const indicatorDataArray = indicatorData[seriesConfig.indicatorValueKey] as SingleValueData[];
-                        if (indicatorDataArray && indicatorDataArray.length > 0) {
-                            indicatorSeriesRef.setData(indicatorDataArray);
+                    const indicatorDataArray = indicatorData[config.indicatorKeyStr]
+                    if (indicatorDataArray) {
+                        const indicatorSeriesDataArray = indicatorDataArray[seriesConfig.indicatorValueKey] as SingleValueData[];
+                        if (indicatorSeriesDataArray && indicatorSeriesDataArray.length > 0) {
+                            indicatorSeriesRef.setData(indicatorSeriesDataArray);
                         }
                     }
                 }
             });
         });
-    }, [chartConfig.indicatorChartConfigs, getIndicatorSeriesRef, initialIndicatorData]);
+    }, [chartConfig.indicatorChartConfigs, getIndicatorSeriesRef, indicatorData]);
 
     // 图表初始化（只初始化一次）
     useEffect(() => {
@@ -184,6 +194,9 @@ export const useBacktestChart = ({
 
             // 创建指标
             createIndicatorSeries(chart);
+
+            // 添加 crosshair 事件监听
+            chart.subscribeCrosshairMove(onCrosshairMove);
 
             // 获取pane
             const pane = chart.panes();
@@ -202,11 +215,11 @@ export const useBacktestChart = ({
         chartOptions,
         chartContainerRef,
         createIndicatorSeries,
+        onCrosshairMove,
     ]);
 
     // 初始化数据
     useEffect(() => {
-        console.log("初始化数据");
         // 初始化k线数据
         initKlineData();
         // 初始化指标数据
@@ -235,7 +248,9 @@ export const useBacktestChart = ({
 
     return {
         chartConfig,
-        initialKlineData,
+        klineData,
+        indicatorData,
+        legendData,
         getChartRef,
     };
 };

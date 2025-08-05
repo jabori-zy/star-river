@@ -3,7 +3,7 @@ import type {
 	SingleValueData,
 	UTCTimestamp,
 } from "lightweight-charts";
-import type { IChartApi, ISeriesApi } from "lightweight-charts";
+import type { IChartApi, ISeriesApi, IPaneApi, Time } from "lightweight-charts";
 import type { Subscription } from "rxjs";
 import { create } from "zustand";
 import {
@@ -23,8 +23,8 @@ interface BacktestChartStore {
 	chartId: ChartId;
 	chartConfig: BacktestChartConfig;
 
-	initialKlineData: Record<KlineKeyStr, CandlestickData[]>; // 初始k线数据
-	initialIndicatorData: Record<IndicatorKeyStr,Record<keyof IndicatorValueConfig, SingleValueData[]>>; // 初始指标数据
+	// initialKlineData: Record<KlineKeyStr, CandlestickData[]>; // 初始k线数据
+	// initialIndicatorData: Record<IndicatorKeyStr,Record<keyof IndicatorValueConfig, SingleValueData[]>>; // 初始指标数据
 
 	klineData: Record<KlineKeyStr, CandlestickData[]>; // k线数据 和 指标数据 的集合
 	indicatorData: Record<IndicatorKeyStr,Record<keyof IndicatorValueConfig, SingleValueData[]>>; // 指标数据
@@ -34,6 +34,7 @@ interface BacktestChartStore {
 	chartRef: IChartApi | null;
 	klineSeriesRef: Record<KlineKeyStr, ISeriesApi<"Candlestick"> | null>;
 	indicatorSeriesRef: Record<IndicatorKeyStr, Record<keyof IndicatorValueConfig, ISeriesApi<"Line"> | ISeriesApi<"Area"> | ISeriesApi<"Histogram"> | null>>;
+	subChartPaneRef: Record<IndicatorKeyStr, IPaneApi<Time> | null>;
 
 	// === 系列可见性状态 ===
 	// 存储每个指标的可见性状态，key为indicatorKeyStr，value为是否可见
@@ -50,10 +51,10 @@ interface BacktestChartStore {
 	getSubChartIndicatorConfig: () => IndicatorChartConfig[];
 
 
-	initChartData: (playIndex: number) => void;
+	initChartData: (playIndex: number) => Promise<void>;
 
-	setInitialKlineData: (keyStr: KlineKeyStr, data: CandlestickData[]) => void;
-	setInitialIndicatorData: (keyStr: IndicatorKeyStr, data: Record<keyof IndicatorValueConfig, SingleValueData[]>) => void;
+	// setInitialKlineData: (keyStr: KlineKeyStr, data: CandlestickData[]) => void;
+	// setInitialIndicatorData: (keyStr: IndicatorKeyStr, data: Record<keyof IndicatorValueConfig, SingleValueData[]>) => void;
 
 	setKlineData: (keyStr: KeyStr, data: CandlestickData[]) => void;
 	setIndicatorData: (
@@ -106,6 +107,10 @@ interface BacktestChartStore {
 	setIndicatorSeriesRef: (indicatorKeyStr: IndicatorKeyStr, indicatorValueKey: keyof IndicatorValueConfig, ref: ISeriesApi<"Line"> | ISeriesApi<"Area"> | ISeriesApi<"Histogram">) => void;
 	getIndicatorSeriesRef: (indicatorKeyStr: IndicatorKeyStr, indicatorValueKey: keyof IndicatorValueConfig) => ISeriesApi<"Line"> | ISeriesApi<"Area"> | ISeriesApi<"Histogram"> | null;
 
+	setSubChartPaneRef: (indicatorKeyStr: IndicatorKeyStr, ref: IPaneApi<Time>) => void;
+	getSubChartPaneRef: (indicatorKeyStr: IndicatorKeyStr) => IPaneApi<Time> | null;
+	setSubChartPaneRefWithValidation: (indicatorKeyStr: IndicatorKeyStr, ref: IPaneApi<Time>) => void;
+
 	getKeyStr: () => KeyStr[];
 
 	// Observer 相关方法
@@ -127,8 +132,8 @@ const createBacktestChartStore = (chartId: number, chartConfig: BacktestChartCon
 		chartId: chartId,
 		chartConfig: chartConfig,
 
-		initialKlineData: {},
-		initialIndicatorData: {},
+		// initialKlineData: {},
+		// initialIndicatorData: {},
 
 		klineData: {},
 		indicatorData: {},
@@ -138,6 +143,7 @@ const createBacktestChartStore = (chartId: number, chartConfig: BacktestChartCon
 		chartRef: null,
 		klineSeriesRef: {},
 		indicatorSeriesRef: {},
+		subChartPaneRef: {},
 
 		// === 系列可见性状态初始化 ===
 		// 初始状态：所有指标和K线默认可见
@@ -153,12 +159,12 @@ const createBacktestChartStore = (chartId: number, chartConfig: BacktestChartCon
 		getSubChartIndicatorConfig: () => get().chartConfig.indicatorChartConfigs.filter(config => config.isInMainChart === false),
 
 		// === 初始数据管理方法 ===
-		setInitialKlineData: (keyStr: KlineKeyStr, data: CandlestickData[]) =>
-			set(() => ({ initialKlineData: { ...get().initialKlineData, [keyStr]: data } })),
+		// setInitialKlineData: (keyStr: KlineKeyStr, data: CandlestickData[]) =>
+		// 	set(() => ({ initialKlineData: { ...get().initialKlineData, [keyStr]: data } })),
 
 
-		setInitialIndicatorData: (keyStr: IndicatorKeyStr, data: Record<keyof IndicatorValueConfig, SingleValueData[]>) =>
-			set(() => ({ initialIndicatorData: { ...get().initialIndicatorData, [keyStr]: data } })),
+		// setInitialIndicatorData: (keyStr: IndicatorKeyStr, data: Record<keyof IndicatorValueConfig, SingleValueData[]>) =>
+		// 	set(() => ({ initialIndicatorData: { ...get().initialIndicatorData, [keyStr]: data } })),
 
 		// === 数据管理方法 ===
 		setKlineData: (keyStr: KeyStr, data: CandlestickData[]) =>
@@ -198,6 +204,29 @@ const createBacktestChartStore = (chartId: number, chartConfig: BacktestChartCon
 		setIndicatorSeriesRef: (indicatorKeyStr: IndicatorKeyStr, indicatorValueKey: keyof IndicatorValueConfig, ref: ISeriesApi<"Line"> | ISeriesApi<"Area"> | ISeriesApi<"Histogram">) =>
 			set({ indicatorSeriesRef: { ...get().indicatorSeriesRef, [indicatorKeyStr]: { ...get().indicatorSeriesRef[indicatorKeyStr], [indicatorValueKey]: ref } } }),
 		getIndicatorSeriesRef: (indicatorKeyStr: IndicatorKeyStr, indicatorValueKey: keyof IndicatorValueConfig) => get().indicatorSeriesRef[indicatorKeyStr]?.[indicatorValueKey] || null,
+
+		setSubChartPaneRef: (indicatorKeyStr: IndicatorKeyStr, ref: IPaneApi<Time>) =>
+			set({ subChartPaneRef: { ...get().subChartPaneRef, [indicatorKeyStr]: ref } }),
+		getSubChartPaneRef: (indicatorKeyStr: IndicatorKeyStr) => get().subChartPaneRef[indicatorKeyStr] || null,
+
+		// 带有延迟验证的 Pane 引用设置方法
+		setSubChartPaneRefWithValidation: (indicatorKeyStr: IndicatorKeyStr, ref: IPaneApi<Time>) => {
+			// 立即设置引用
+			set({ subChartPaneRef: { ...get().subChartPaneRef, [indicatorKeyStr]: ref } });
+
+			// 使用工具函数进行延迟验证
+			import("@/hooks/chart/utils/html-element-validator").then(({ validatePaneHTMLElement }) => {
+				validatePaneHTMLElement(ref, indicatorKeyStr, {
+					maxRetries: 5,
+					initialDelay: 150,
+					retryDelay: 100,
+					minWidth: 0,
+					minHeight: 0
+				}).catch((error) => {
+					console.warn(`Pane ${indicatorKeyStr} 验证失败，但引用已设置:`, error.message);
+				});
+			});
+		},
 
 		getKeyStr: () => {
 			const chartConfig = get().chartConfig;
@@ -413,7 +442,7 @@ const createBacktestChartStore = (chartId: number, chartConfig: BacktestChartCon
 									}),
 								);
 
-								state.setInitialKlineData(keyStr, klineData);
+								// state.setInitialKlineData(keyStr, klineData);
 								state.setKlineData(keyStr, klineData);
 							} else {
 								console.warn(`No kline data received for keyStr: ${keyStr}`);
@@ -454,7 +483,7 @@ const createBacktestChartStore = (chartId: number, chartConfig: BacktestChartCon
 									);
 								});
 
-								state.setInitialIndicatorData(keyStr, indicatorData);
+								// state.setInitialIndicatorData(keyStr, indicatorData);
 								state.setIndicatorData(keyStr, indicatorData);
 							} else {
 								console.warn(
