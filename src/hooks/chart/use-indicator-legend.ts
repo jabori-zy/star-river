@@ -175,8 +175,7 @@ export const useIndicatorLegend = ({ chartId, indicatorKeyStr }: UseIndicatorLeg
         });
     }, [data, indicatorKeyStr]);
 
-    const onCrosshairMove = useCallback(
-        (param: MouseEventParams) => {
+    const onCrosshairMove = useCallback((param: MouseEventParams) => {
             if (!param || !param.time) {
                 // 没有时间参数时，显示空值而不是最新数据
                 const indicatorName = parseIndicatorName(indicatorKeyStr);
@@ -205,6 +204,7 @@ export const useIndicatorLegend = ({ chartId, indicatorKeyStr }: UseIndicatorLeg
                         value: "--", // 显示占位符
                         color: getIndicatorValueColor(key, colorIndex++),
                     };
+                    
                 });
 
                 const emptyLegendData = {
@@ -233,9 +233,7 @@ export const useIndicatorLegend = ({ chartId, indicatorKeyStr }: UseIndicatorLeg
                 const shouldUpdate = prev?.time !== newLegendData.time;
                 return shouldUpdate ? newLegendData : prev;
             });
-        },
-        [indicatorKeyStr, data],
-    );
+    }, [indicatorKeyStr, data]);
 
     return {
         legendData,

@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useMemo, useCallback } from "react";
 import type { IChartApi } from "lightweight-charts";
 import { chartOptions } from "./chart-config";
 import { useBacktestChart } from "@/hooks/chart";
@@ -15,8 +15,54 @@ interface BacktestChartNewProps {
     chartId: number
 }
 
+// 将主图指标图例组件提取到外部，避免在渲染时重新创建
+interface MainChartIndicatorLegendProps {
+    chartId: number;
+    indicatorKeyStr: string;
+    index: number;
+}
+
+const MainChartIndicatorLegend = ({ chartId, indicatorKeyStr, index }: MainChartIndicatorLegendProps) => {
+    const { legendData: indicatorLegendData, onCrosshairMove } = useIndicatorLegend({
+        chartId,
+        indicatorKeyStr,
+    });
+
+    // 获取图表API引用 - 使用 useMemo 稳定引用
+    const { getChartRef } = useBacktestChartStore(chartId);
+    
+    // 稳定的图表引用
+    const chartRef = useMemo(() => getChartRef(), [getChartRef]);
+
+    // 🔑 为主图指标订阅鼠标事件
+    useEffect(() => {
+        const chart = chartRef;
+        if (!chart || !onCrosshairMove) return;
+
+        // 订阅鼠标移动事件
+        chart.subscribeCrosshairMove(onCrosshairMove);
+
+        return () => {
+            // 清理订阅
+            chart.unsubscribeCrosshairMove(onCrosshairMove);
+        };
+    }, [chartRef, onCrosshairMove]);
+
+    return (
+        <IndicatorLegend
+            indicatorLegendData={indicatorLegendData}
+            indicatorKeyStr={indicatorKeyStr}
+            chartId={chartId}
+            style={{
+                // 主图指标：从40px开始，每个间隔30px
+                top: `${40 + index * 30}px`,
+                left: '0px',
+            }}
+        />
+    );
+};
+
 const BacktestChartNew = ({ strategyId, chartId }: BacktestChartNewProps) => {
-    console.log("图表刷新了");
 
     // 图表容器的引用
     const chartContainerRef = useRef<HTMLDivElement>(null);
@@ -32,16 +78,21 @@ const BacktestChartNew = ({ strategyId, chartId }: BacktestChartNewProps) => {
         chartOptions,
     });
 
-    // 获取图表API引用
+    // 获取图表API引用 - 使用稳定的引用
     const { getChartRef } = useBacktestChartStore(chartId);
-
-    // 更新chartApiRef
-    useEffect(() => {
+    
+    // 使用 useCallback 稳定函数引用
+    const updateChartApiRef = useCallback(() => {
         const chartApi = getChartRef();
-        if (chartApi) {
+        if (chartApi && chartApiRef.current !== chartApi) {
             chartApiRef.current = chartApi;
         }
     }, [getChartRef]);
+
+    // 更新chartApiRef
+    useEffect(() => {
+        updateChartApiRef();
+    }, [updateChartApiRef]);
 
 	return (
         <div className="relative w-full h-full">
@@ -58,45 +109,14 @@ const BacktestChartNew = ({ strategyId, chartId }: BacktestChartNewProps) => {
             {/* 主图指标图例 */}
             {chartConfig.indicatorChartConfigs
                 .filter(indicatorConfig => indicatorConfig.isInMainChart)
-                .map((indicatorConfig, index) => {
-                    // 🔑 主图指标 legend - 需要订阅鼠标事件来更新数据
-                    const MainChartIndicatorLegendComponent = () => {
-                        const { legendData: indicatorLegendData, onCrosshairMove } = useIndicatorLegend({
-                            chartId,
-                            indicatorKeyStr: indicatorConfig.indicatorKeyStr,
-                        });
-
-                        // 🔑 为主图指标订阅鼠标事件
-                        const { getChartRef } = useBacktestChartStore(chartId);
-                        useEffect(() => {
-                            const chart = getChartRef();
-                            if (!chart || !onCrosshairMove) return;
-
-                            // 订阅鼠标移动事件
-                            chart.subscribeCrosshairMove(onCrosshairMove);
-
-                            return () => {
-                                // 清理订阅
-                                chart.unsubscribeCrosshairMove(onCrosshairMove);
-                            };
-                        }, [getChartRef, onCrosshairMove]);
-
-                        return (
-                            <IndicatorLegend
-                                indicatorLegendData={indicatorLegendData}
-                                indicatorKeyStr={indicatorConfig.indicatorKeyStr}
-                                chartId={chartId}
-                                style={{
-                                    // 主图指标：从40px开始，每个间隔30px
-                                    top: `${40 + index * 30}px`,
-                                    left: '0px',
-                                }}
-                            />
-                        );
-                    };
-
-                    return <MainChartIndicatorLegendComponent key={indicatorConfig.indicatorKeyStr} />;
-                })}
+                .map((indicatorConfig, index) => (
+                    <MainChartIndicatorLegend 
+                        key={indicatorConfig.indicatorKeyStr}
+                        chartId={chartId}
+                        indicatorKeyStr={indicatorConfig.indicatorKeyStr}
+                        index={index}
+                    />
+                ))}
 
             {/* 子图指标图例 - 使用 Portal 方式渲染到对应的 Pane 中 */}
             {chartConfig.indicatorChartConfigs
