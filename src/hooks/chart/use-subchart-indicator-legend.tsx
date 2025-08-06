@@ -31,12 +31,47 @@ export function useSubchartIndicatorLegend({
         return indicatorLegendData || null;
     });
 
-    // 🔑 智能数据更新：只在数据真正变化时才更新，参考 kline-legend 的策略
+    // 🔑 智能数据更新：只在数据真正变化时才更新，避免闪烁
     useEffect(() => {
         if (indicatorLegendData) {
             setStableLegendData((prev) => {
-                // 只有在时间或关键数据不同时才更新，避免不必要的渲染
-                const shouldUpdate = prev?.time !== indicatorLegendData.time || prev?.timeString !== indicatorLegendData.timeString;
+                if (!prev) return indicatorLegendData;
+
+                // 深度比较数据内容，避免不必要的更新
+                const timeChanged = prev.time !== indicatorLegendData.time;
+                const nameChanged = prev.indicatorName !== indicatorLegendData.indicatorName;
+
+                // 比较 values 对象的内容
+                const valuesChanged = (() => {
+                    const prevKeys = Object.keys(prev.values);
+                    const newKeys = Object.keys(indicatorLegendData.values);
+
+                    // 如果 key 数量不同，说明有变化
+                    if (prevKeys.length !== newKeys.length) return true;
+
+                    // 检查每个 key 的值是否相同
+                    for (const key of prevKeys) {
+                        const prevValue = prev.values[key];
+                        const newValue = indicatorLegendData.values[key];
+
+                        if (!newValue ||
+                            prevValue.label !== newValue.label ||
+                            prevValue.value !== newValue.value ||
+                            prevValue.color !== newValue.color) {
+                            return true;
+                        }
+                    }
+                    return false;
+                })();
+
+                // 只有在真正有内容变化时才更新
+                const shouldUpdate = nameChanged || valuesChanged;
+
+                // 如果只是时间变化但内容相同，不更新（避免闪烁）
+                if (timeChanged && !shouldUpdate) {
+                    return prev;
+                }
+
                 return shouldUpdate ? indicatorLegendData : prev;
             });
         } else {
@@ -162,22 +197,31 @@ export function useSubchartIndicatorLegend({
         };
     }, [indicatorKeyStr, getSubChartPaneRef]); // 依赖 indicatorKeyStr 和 getSubChartPaneRef
 
-    // 🔑 简化渲染逻辑：使用稳定的数据源，避免频繁重新渲染
-    // 参考 kline-legend 的做法，stableLegendData 已经过滤了重复更新
+    // 🔑 防抖渲染逻辑：减少频繁重新渲染，避免闪烁
     useEffect(() => {
         if (!rootRef.current || !stableLegendData) return;
 
-        try {
-            rootRef.current.render(
-                <IndicatorLegend
-                    indicatorLegendData={stableLegendData}
-                    indicatorKeyStr={indicatorKeyStr}
-                    chartId={chartId}
-                />
-            );
-        } catch (error) {
-            console.warn(`更新子图指标 legend 数据失败: ${indicatorKeyStr}`, error);
-        }
+        // 使用 requestAnimationFrame 来优化渲染时机
+        const renderFrame = requestAnimationFrame(() => {
+            if (!rootRef.current) return;
+
+            try {
+                rootRef.current.render(
+                    <IndicatorLegend
+                        indicatorLegendData={stableLegendData}
+                        indicatorKeyStr={indicatorKeyStr}
+                        chartId={chartId}
+                    />
+                );
+            } catch (error) {
+                console.warn(`更新子图指标 legend 数据失败: ${indicatorKeyStr}`, error);
+            }
+        });
+
+        // 清理函数：取消待执行的渲染
+        return () => {
+            cancelAnimationFrame(renderFrame);
+        };
     }, [stableLegendData, indicatorKeyStr, chartId]);
 
     return {

@@ -1,14 +1,10 @@
-import { useRef, useEffect } from "react";
-import { createRoot } from "react-dom/client";
+import { useRef } from "react";
 import { chartOptions } from "./chart-config";
 import { useBacktestChart } from "@/hooks/chart";
 import { useIndicatorLegend } from "@/hooks/chart";
-import { useSubchartIndicatorLegend } from "@/hooks/chart/use-subchart-indicator-legend";
+import { SubchartIndicatorLegend } from "./subchart-indicator-legend";
 import { KlineLegend } from "./kline-legend";
 import { IndicatorLegend } from "./indicator-legend";
-import { useBacktestChartStore } from "./backtest-chart-store";
-import { CandlestickData } from "lightweight-charts";
-import { useKlineLegend } from "@/hooks/chart/use-kline-legend";
 
 
 interface BacktestChartNewProps {
@@ -17,7 +13,6 @@ interface BacktestChartNewProps {
 }
 
 const BacktestChartNew = ({ strategyId, chartId }: BacktestChartNewProps) => {
-    console.log("图表刷新了");
 
     // 图表容器的引用
     const chartContainerRef = useRef<HTMLDivElement>(null);
@@ -49,27 +44,12 @@ const BacktestChartNew = ({ strategyId, chartId }: BacktestChartNewProps) => {
             {chartConfig.indicatorChartConfigs
                 .filter(indicatorConfig => indicatorConfig.isInMainChart)
                 .map((indicatorConfig, index) => {
-                    // 为每个主图指标创建对应的 legend hooks
+                    // 🔑 简化主图指标 legend - 不再重复订阅事件
                     const MainChartIndicatorLegendComponent = () => {
-                        const { legendData: indicatorLegendData, onCrosshairMove } = useIndicatorLegend({
+                        const { legendData: indicatorLegendData } = useIndicatorLegend({
                             chartId,
                             indicatorKeyStr: indicatorConfig.indicatorKeyStr,
                         });
-
-                        // 订阅图表的鼠标移动事件
-                        const { getChartRef } = useBacktestChartStore(chartId);
-                        useEffect(() => {
-                            const chart = getChartRef();
-                            if (!chart || !onCrosshairMove) return;
-
-                            // 订阅鼠标移动事件
-                            chart.subscribeCrosshairMove(onCrosshairMove);
-
-                            // 清理函数：取消订阅
-                            return () => {
-                                chart.unsubscribeCrosshairMove(onCrosshairMove);
-                            };
-                        }, [getChartRef, onCrosshairMove]);
 
                         return (
                             <IndicatorLegend
@@ -88,23 +68,16 @@ const BacktestChartNew = ({ strategyId, chartId }: BacktestChartNewProps) => {
                     return <MainChartIndicatorLegendComponent key={indicatorConfig.indicatorKeyStr} />;
                 })}
 
-            {/* 子图指标图例 - 使用专门的 hook 渲染到对应的 Pane 中 */}
+            {/* 子图指标图例 - 使用 Portal 方式渲染到对应的 Pane 中 */}
             {chartConfig.indicatorChartConfigs
                 .filter(config => !config.isInMainChart)
-                .map((indicatorConfig) => {
-                    // 子图指标使用专门的 hook 渲染到 Pane 中
-                    const SubChartIndicatorLegend = () => {
-                        useSubchartIndicatorLegend({
-                            chartId,
-                            indicatorKeyStr: indicatorConfig.indicatorKeyStr,
-                        });
-
-                        // 这个组件本身不渲染任何内容，legend 会被渲染到 Pane 中
-                        return null;
-                    };
-
-                    return <SubChartIndicatorLegend key={indicatorConfig.indicatorKeyStr} />;
-                })}
+                .map((indicatorConfig) => (
+                    <SubchartIndicatorLegend
+                        key={indicatorConfig.indicatorKeyStr}
+                        chartId={chartId}
+                        indicatorKeyStr={indicatorConfig.indicatorKeyStr}
+                    />
+                ))}
         </div>
     );
 };

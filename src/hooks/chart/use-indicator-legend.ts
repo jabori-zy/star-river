@@ -3,7 +3,7 @@ import type {
     SingleValueData,
     Time,
 } from "lightweight-charts";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import { useBacktestChartStore } from "@/components/chart/backtest-chart-new/backtest-chart-store";
 import { getIndicatorConfig, getValueLegendShowName } from "@/types/indicator/indicator-config";
 import type { IndicatorType } from "@/types/indicator";
@@ -154,8 +154,10 @@ export const useIndicatorLegend = ({ chartId, indicatorKeyStr }: UseIndicatorLeg
     // 从 store 获取数据和方法
     const { indicatorData, getIndicatorSeriesRef, getSubChartPaneRef } = useBacktestChartStore(chartId);
 
-    // 从 store 中获取指标数据
-    const data = (indicatorData[indicatorKeyStr] as Record<keyof IndicatorValueConfig, SingleValueData[]>) || {};
+    // 🔑 使用 useMemo 稳定 data 引用，避免无限重新创建 onCrosshairMove
+    const data = useMemo(() => {
+        return (indicatorData[indicatorKeyStr] as Record<keyof IndicatorValueConfig, SingleValueData[]>) || {};
+    }, [indicatorData, indicatorKeyStr]);
 
     const [legendData, setLegendData] = useState<IndicatorLegendData>(() => {
         // 总是返回legend数据，即使没有数据也显示空的legend
