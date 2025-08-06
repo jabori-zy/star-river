@@ -7,7 +7,7 @@ import type { IndicatorKeyStr } from "@/types/symbol-key";
 import { useBacktestChartStore } from "./backtest-chart-store";
 
 interface IndicatorLegendProps {
-	indicatorLegendData: IndicatorLegendData;
+	indicatorLegendData: IndicatorLegendData | null;
 	indicatorKeyStr: IndicatorKeyStr; // 指标键字符串，用于控制可见性
 	chartId: number; // 图表ID，用于获取对应的store
 	className?: string;
@@ -60,12 +60,12 @@ const IndicatorLegend = forwardRef<HTMLDivElement, IndicatorLegendProps>(({
 			<div className="flex flex-wrap gap-2 text-xs items-center">
 				{/* 指标名称 */}
 				<span className="font-medium text-gray-700">
-					{indicatorLegendData.indicatorName}
+					{indicatorLegendData?.indicatorName}
 				</span>
 
 				{/* 指标值 */}
 				{(() => {
-					const valueEntries = Object.entries(indicatorLegendData.values);
+					const valueEntries = Object.entries(indicatorLegendData?.values || {});
 					const isSingleValue = valueEntries.length === 1;
 
 					return valueEntries.map(([key, valueInfo]) => (

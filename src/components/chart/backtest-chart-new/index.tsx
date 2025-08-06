@@ -26,7 +26,7 @@ const BacktestChartNew = ({ strategyId, chartId }: BacktestChartNewProps) => {
 
 
     // 使用 backtest chart hooks
-    const { chartConfig, legendData } = useBacktestChart({
+    const { chartConfig, klineLegendData: legendData } = useBacktestChart({
         strategyId,
         chartId,
         chartContainerRef,
@@ -51,10 +51,25 @@ const BacktestChartNew = ({ strategyId, chartId }: BacktestChartNewProps) => {
                 .map((indicatorConfig, index) => {
                     // 为每个主图指标创建对应的 legend hooks
                     const MainChartIndicatorLegendComponent = () => {
-                        const { legendData: indicatorLegendData } = useIndicatorLegend({
+                        const { legendData: indicatorLegendData, onCrosshairMove } = useIndicatorLegend({
                             chartId,
                             indicatorKeyStr: indicatorConfig.indicatorKeyStr,
                         });
+
+                        // 订阅图表的鼠标移动事件
+                        const { getChartRef } = useBacktestChartStore(chartId);
+                        useEffect(() => {
+                            const chart = getChartRef();
+                            if (!chart || !onCrosshairMove) return;
+
+                            // 订阅鼠标移动事件
+                            chart.subscribeCrosshairMove(onCrosshairMove);
+
+                            // 清理函数：取消订阅
+                            return () => {
+                                chart.unsubscribeCrosshairMove(onCrosshairMove);
+                            };
+                        }, [getChartRef, onCrosshairMove]);
 
                         return (
                             <IndicatorLegend
@@ -74,7 +89,7 @@ const BacktestChartNew = ({ strategyId, chartId }: BacktestChartNewProps) => {
                 })}
 
             {/* 子图指标图例 - 使用专门的 hook 渲染到对应的 Pane 中 */}
-            {/* {chartConfig.indicatorChartConfigs
+            {chartConfig.indicatorChartConfigs
                 .filter(config => !config.isInMainChart)
                 .map((indicatorConfig) => {
                     // 子图指标使用专门的 hook 渲染到 Pane 中
@@ -89,7 +104,7 @@ const BacktestChartNew = ({ strategyId, chartId }: BacktestChartNewProps) => {
                     };
 
                     return <SubChartIndicatorLegend key={indicatorConfig.indicatorKeyStr} />;
-                })} */}
+                })}
         </div>
     );
 };

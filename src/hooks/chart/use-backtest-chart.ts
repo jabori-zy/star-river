@@ -14,7 +14,7 @@ import { get_play_index } from "@/service/strategy-control/backtest-strategy-con
 import { useBacktestChartStore } from "@/components/chart/backtest-chart-new/backtest-chart-store";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import { SeriesType } from "@/types/chart";
-import { useKlineLegend } from "./use-kline-legend";
+import { useKlineLegend, type KlineLegendData } from "./use-kline-legend";
 
 interface UseBacktestChartProps {
     strategyId: number;
@@ -25,7 +25,7 @@ interface UseBacktestChartProps {
 
 interface UseBacktestChartReturn {
     chartConfig: BacktestChartConfig;
-    legendData: any; // K线图例数据
+    klineLegendData: KlineLegendData | null; // K线图例数据
     klineData: Record<string, CandlestickData[]>;
     indicatorData: Record<string, Record<string, SingleValueData[]>>;
     getChartRef: () => IChartApi | null;
@@ -53,8 +53,7 @@ export const useBacktestChart = ({
         setIndicatorSeriesRef,
         getIndicatorSeriesRef,
         initObserverSubscriptions,
-        getMainChartIndicatorConfig,
-        getSubChartIndicatorConfig,
+        setSubChartPaneRef,
     } = useBacktestChartStore(chartId);
 
     const { legendData, onCrosshairMove } = useKlineLegend({chartId, klineKeyStr: chartConfig.klineChartConfig.klineKeyStr});
@@ -116,6 +115,7 @@ export const useBacktestChart = ({
             else {
                 // 创建子图 Pane
                 const subChartPane = chart.addPane(false);
+                setSubChartPaneRef(config.indicatorKeyStr, subChartPane);
 
                 // 使用 setTimeout 延迟获取 HTML 元素，因为 pane 还没有完全实例化
                 setTimeout(() => {
@@ -147,13 +147,7 @@ export const useBacktestChart = ({
             }
         });
         
-    }, [chartConfig.indicatorChartConfigs, setIndicatorSeriesRef]);
-
-    // 创建子图指标
-    // const createSubChartIndicator = useCallback((chart: IChartApi) => {
-    //     const subChartIndicator = chart.addSeries(SubChartIndicatorSeries);
-    //     return subChartIndicator;
-    // }, []);
+    }, [chartConfig.indicatorChartConfigs, setIndicatorSeriesRef, setSubChartPaneRef]);
 
     // 初始化k线数据
     const initKlineData = useCallback(() => {
@@ -234,9 +228,9 @@ export const useBacktestChart = ({
             const { width, height } = entries[0].contentRect;
             const chart = getChartRef();
             chart?.applyOptions({ width, height });
-            setTimeout(() => {
-                chart?.timeScale().fitContent();
-            }, 0);
+            // setTimeout(() => {
+            //     chart?.timeScale().fitContent();
+            // }, 0);
         });
 
         if (chartContainerRef.current) {
@@ -250,7 +244,7 @@ export const useBacktestChart = ({
         chartConfig,
         klineData,
         indicatorData,
-        legendData,
+        klineLegendData: legendData || null,
         getChartRef,
     };
 };
