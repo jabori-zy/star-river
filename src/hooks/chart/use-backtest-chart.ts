@@ -1,17 +1,18 @@
 import { useCallback, useEffect, useRef } from "react";
 import { LineSeries, CandlestickSeries, AreaSeries, HistogramSeries } from "lightweight-charts";
-import type { 
-    CandlestickData, 
-    IChartApi, 
-    ChartOptions, 
-    DeepPartial, 
-    ISeriesApi, 
+import type {
+    CandlestickData,
+    IChartApi,
+    ChartOptions,
+    DeepPartial,
+    ISeriesApi,
     SingleValueData
 } from "lightweight-charts";
 import { createChart } from "lightweight-charts";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import { get_play_index } from "@/service/strategy-control/backtest-strategy-control";
 import { useBacktestChartStore } from "@/components/chart/backtest-chart-new/backtest-chart-store";
+import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import { SeriesType } from "@/types/chart";
 import { useKlineLegend, type KlineLegendData } from "./use-kline-legend";
@@ -55,7 +56,22 @@ export const useBacktestChart = ({
         getIndicatorSeriesRef,
         initObserverSubscriptions,
         setSubChartPaneRef,
+        syncChartConfig,
     } = useBacktestChartStore(chartId);
+
+
+    // 监听全局配置变化并同步到本地store
+    const globalChartConfig = useBacktestChartConfigStore((state) => state.getChartConfig(chartId));
+
+    // 使用ref来跟踪是否已经初始化
+    const isInitializedRef = useRef(false);
+
+    useEffect(() => {
+        // 当全局配置发生变化时，同步到本地store
+        if (globalChartConfig) {
+            syncChartConfig();
+        }
+    }, [globalChartConfig, syncChartConfig]);
 
     const { legendData, onCrosshairMove } = useKlineLegend({chartId, klineKeyStr: chartConfig.klineChartConfig.klineKeyStr});
 
@@ -86,8 +102,40 @@ export const useBacktestChart = ({
         return candleSeries;
     }, [chartConfig, setKlineSeriesRef]);
 
+    // 清理现有的指标系列和子图pane
+    const clearIndicatorSeries = useCallback((chart: IChartApi) => {
+        // 清理所有子图pane
+        // const panes = chart.panes();
+        // // 保留主图pane（索引0），删除所有子图pane
+        // for (let i = panes.length - 1; i > 0; i--) {
+        //     chart.removePane(i);
+        // }
+        console.log("清除子图pane1");
+        chart.removePane(1);
+
+        // 清理主图中的指标系列（保留K线系列）
+        // const mainPane = panes[0];
+        // if (mainPane) {
+        //     const allSeries = mainPane.getSeries();
+        //     // 获取K线系列引用
+        //     const klineSeries = getKlineSeriesRef(chartConfig.klineChartConfig.klineKeyStr);
+
+        //     // 删除所有不是K线的系列
+        //     allSeries.forEach(series => {
+        //         if (series !== klineSeries) {
+        //             chart.removeSeries(series);
+        //         }
+        //     });
+        // }
+    }, [getKlineSeriesRef, chartConfig.klineChartConfig.klineKeyStr]);
+
     // 创建主图指标
-    const createIndicatorSeries = useCallback((chart: IChartApi) => {
+    const createIndicatorSeries = useCallback((chart: IChartApi, shouldClear = false) => {
+        // 如果需要清理，先清理现有的指标系列
+        if (shouldClear) {
+            clearIndicatorSeries(chart);
+        }
+
         chartConfig.indicatorChartConfigs.forEach(config => {
             if (config.isInMainChart) {
                 config.seriesConfigs.forEach(seriesConfig => {
@@ -147,8 +195,8 @@ export const useBacktestChart = ({
 
             }
         });
-        
-    }, [chartConfig.indicatorChartConfigs, setIndicatorSeriesRef, setSubChartPaneRef]);
+
+    }, [chartConfig.indicatorChartConfigs, setIndicatorSeriesRef, setSubChartPaneRef, clearIndicatorSeries]);
 
     // 初始化k线数据
     const initKlineData = useCallback(() => {
@@ -178,6 +226,16 @@ export const useBacktestChart = ({
         });
     }, [chartConfig.indicatorChartConfigs, getIndicatorSeriesRef, indicatorData]);
 
+    // 当配置变化时，重新创建指标系列（但不在初始化时）
+    useEffect(() => {
+        const chart = getChartRef();
+        if (chart && isInitializedRef.current) {
+            createKlineSeries(chart);
+            // 重新创建指标系列，并清理现有的
+            createIndicatorSeries(chart, true);
+        }
+    }, [getChartRef, createKlineSeries, createIndicatorSeries]);
+
     // 图表初始化（只初始化一次）
     useEffect(() => {
         if (chartContainerRef.current && !getChartRef()) {
@@ -187,8 +245,8 @@ export const useBacktestChart = ({
             // 创建K线系列
             createKlineSeries(chart);
 
-            // 创建指标
-            createIndicatorSeries(chart);
+            // 创建指标（初始化时不需要清理）
+            createIndicatorSeries(chart, false);
 
             // 🔑 只为 K线 legend 添加 crosshair 事件监听
             // 指标 legend 现在各自直接订阅事件
@@ -201,16 +259,18 @@ export const useBacktestChart = ({
             // 初始化 observer 订阅
             setTimeout(() => {
                 initObserverSubscriptions();
+                // 标记为已初始化
+                isInitializedRef.current = true;
             }, 100);
         }
     }, [
-        setChartRef, 
-        getChartRef, 
-        createKlineSeries, 
-        initObserverSubscriptions, 
+        setChartRef,
+        getChartRef,
+        createKlineSeries,
+        createIndicatorSeries,
+        initObserverSubscriptions,
         chartOptions,
         chartContainerRef,
-        createIndicatorSeries,
         onCrosshairMove,
     ]);
 

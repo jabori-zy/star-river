@@ -20,6 +20,7 @@ import VerticalLayoutTest from "../pages/vertical-layout-test";
 import TestPaneDeletion from "../pages/test-pane-deletion";
 import IndicatorLegendEditTest from "../pages/indicator-legend-edit-test";
 import TestNewChart from "../pages/test_new_chart";
+import TestNewChartDebugger from "../pages/test-new-chart-debugger";
 
 const router = createBrowserRouter([
 	{
@@ -111,6 +112,10 @@ const router = createBrowserRouter([
 	{
 		path: "/test-new-chart",
 		element: <TestNewChart />,
+	},
+	{
+		path: "/test-new-chart-debugger",
+		element: <TestNewChartDebugger />,
 	},
 ]);
 

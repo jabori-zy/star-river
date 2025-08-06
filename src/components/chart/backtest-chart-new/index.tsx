@@ -1,4 +1,5 @@
 import { useRef, useEffect } from "react";
+import type { IChartApi } from "lightweight-charts";
 import { chartOptions } from "./chart-config";
 import { useBacktestChart } from "@/hooks/chart";
 import { useIndicatorLegend } from "@/hooks/chart";
@@ -6,6 +7,7 @@ import { SubchartIndicatorLegend } from "./subchart-indicator-legend";
 import { KlineLegend } from "./kline-legend";
 import { IndicatorLegend } from "./indicator-legend";
 import { useBacktestChartStore } from "./backtest-chart-store";
+import IndicatorDebugPanel from "./debug/indicator-debug-panel";
 
 
 interface BacktestChartNewProps {
@@ -14,12 +16,13 @@ interface BacktestChartNewProps {
 }
 
 const BacktestChartNew = ({ strategyId, chartId }: BacktestChartNewProps) => {
+    console.log("图表刷新了");
 
     // 图表容器的引用
     const chartContainerRef = useRef<HTMLDivElement>(null);
 
-    
-
+    // 图表API引用，用于调试面板
+    const chartApiRef = useRef<IChartApi | null>(null);
 
     // 使用 backtest chart hooks
     const { chartConfig, klineLegendData: legendData } = useBacktestChart({
@@ -28,6 +31,17 @@ const BacktestChartNew = ({ strategyId, chartId }: BacktestChartNewProps) => {
         chartContainerRef,
         chartOptions,
     });
+
+    // 获取图表API引用
+    const { getChartRef } = useBacktestChartStore(chartId);
+
+    // 更新chartApiRef
+    useEffect(() => {
+        const chartApi = getChartRef();
+        if (chartApi) {
+            chartApiRef.current = chartApi;
+        }
+    }, [getChartRef]);
 
 	return (
         <div className="relative w-full h-full">
@@ -94,6 +108,12 @@ const BacktestChartNew = ({ strategyId, chartId }: BacktestChartNewProps) => {
                         indicatorKeyStr={indicatorConfig.indicatorKeyStr}
                     />
                 ))}
+
+            {/* 调试面板 */}
+            <IndicatorDebugPanel
+                chartConfig={chartConfig}
+                chartApiRef={chartApiRef}
+            />
         </div>
     );
 };

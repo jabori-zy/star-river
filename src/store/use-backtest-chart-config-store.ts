@@ -368,24 +368,60 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 		removeIndicator: (chartId, indicatorKeyStr) => {
 			const { chartConfig } = get();
 
-			// 软删除：只设置isDelete为true，不从数组中移除
+			// 从数组中删除指标
+			const targetChart = chartConfig.charts.find((chart) => chart.id === chartId);
+			if (!targetChart) {
+				console.warn(`图表 ID ${chartId} 不存在`);
+				return;
+			}
+
+			const indciatorKey = parseKey(indicatorKeyStr) as IndicatorKey;
+
+			const existingIndicator = targetChart.indicatorChartConfigs.find(
+				(config) => config.indicatorKeyStr === indicatorKeyStr
+			);
+
+			if (!existingIndicator) {
+				toast.warning(`${indciatorKey.indicatorType.toUpperCase()}不存在`, {
+					duration: 2000,
+				});
+				return;
+			}
+
+			// 从数组中删除指标
+			const updatedChartConfigs = targetChart.indicatorChartConfigs.filter(
+				(config) => config.indicatorKeyStr !== indicatorKeyStr
+			);
+
 			set({
 				chartConfig: {
 					...chartConfig,
 					charts: chartConfig.charts.map((chart) =>
 						chart.id === chartId
-							? {
-									...chart,
-									indicatorChartConfigs: chart.indicatorChartConfigs.map((config) =>
-										config.indicatorKeyStr === indicatorKeyStr
-											? { ...config, isDelete: true }
-											: config
-									),
-								}
+							? { ...chart, indicatorChartConfigs: updatedChartConfigs }
 							: chart,
 					),
 				},
 			});
+
+			// 软删除：只设置isDelete为true，不从数组中移除
+			// set({
+			// 	chartConfig: {
+			// 		...chartConfig,
+			// 		charts: chartConfig.charts.map((chart) =>
+			// 			chart.id === chartId
+			// 				? {
+			// 						...chart,
+			// 						indicatorChartConfigs: chart.indicatorChartConfigs.map((config) =>
+			// 							config.indicatorKeyStr === indicatorKeyStr
+			// 								? { ...config, isDelete: true }
+			// 								: config
+			// 						),
+			// 					}
+			// 				: chart,
+			// 		),
+			// 	},
+			// });
 		},
 
 		// 根据ID获取图表

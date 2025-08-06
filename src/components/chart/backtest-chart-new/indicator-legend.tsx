@@ -78,7 +78,7 @@ const IndicatorLegend = forwardRef<HTMLDivElement, IndicatorLegendProps>(({
 							) : (
 								<>
 									{valueInfo.label}:{" "}
-									<span style={{ color: valueInfo.color }}>
+									<span className="text-xs mr-2" style={{ color: valueInfo.color}}>
 										{valueInfo.value}
 									</span>
 								</>

@@ -47,6 +47,7 @@ interface BacktestChartStore {
 	// === 图表配置 ===
 	getChartConfig: () => BacktestChartConfig;
 	setChartConfig: (chartConfig: BacktestChartConfig) => void;
+	syncChartConfig: () => void; // 同步最新的图表配置
 
 	// === 指标管理 ===
 	getMainChartIndicatorConfig: () => IndicatorChartConfig[];
@@ -159,6 +160,14 @@ const createBacktestChartStore = (chartId: number, chartConfig: BacktestChartCon
 		getChartConfig: () => get().chartConfig,
 		setChartConfig: (chartConfig: BacktestChartConfig) => {
 			set({ chartConfig: chartConfig });
+		},
+
+		// 同步最新的图表配置
+		syncChartConfig: () => {
+			const latestConfig = useBacktestChartConfigStore.getState().getChartConfig(chartId);
+			if (latestConfig) {
+				set({ chartConfig: latestConfig });
+			}
 		},
 
 		getMainChartIndicatorConfig: () => get().chartConfig.indicatorChartConfigs.filter(config => config.isInMainChart === true),
