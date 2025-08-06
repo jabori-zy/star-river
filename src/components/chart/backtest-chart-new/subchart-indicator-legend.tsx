@@ -31,21 +31,18 @@ export function SubchartIndicatorLegend({
             const chart = getChartRef();
             // 确保图表存在、回调函数存在、并且有legend数据
             if (!chart || !onCrosshairMove || !legendData) return;
-
-            console.log(`延迟订阅子图事件: ${indicatorKeyStr}`, "legendData:", legendData);
             // 直接订阅图表的鼠标移动事件
             chart.subscribeCrosshairMove(onCrosshairMove);
-        }, 150); // 延迟150ms，确保图表初始化完成
+        }, 10); // 延迟150ms，确保图表初始化完成
 
         return () => {
             clearTimeout(timer);
             const chart = getChartRef();
             if (chart && onCrosshairMove) {
-                console.log(`取消订阅子图事件: ${indicatorKeyStr}`);
                 chart.unsubscribeCrosshairMove(onCrosshairMove);
             }
         };
-    }, [getChartRef, onCrosshairMove, indicatorKeyStr, legendData]); // 添加legendData作为依赖
+    }, [getChartRef, onCrosshairMove, legendData]); // 添加legendData作为依赖
 
     // 🔑 创建 Portal 容器，只在组件挂载时执行一次
     useEffect(() => {
@@ -92,7 +89,6 @@ export function SubchartIndicatorLegend({
                 }
 
                 setPortalContainer(container);
-                console.log(`成功创建子图 Portal 容器: ${indicatorKeyStr}`);
             }, 0);
         };
 
@@ -105,7 +101,6 @@ export function SubchartIndicatorLegend({
                 if (currentContainer?.parentNode) {
                     currentContainer.parentNode.removeChild(currentContainer);
                 }
-                console.log(`清理子图 Portal 容器: ${indicatorKeyStr}`);
                 return null;
             });
         };

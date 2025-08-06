@@ -38,20 +38,18 @@ const MainChartIndicatorLegend = ({ chartId, indicatorKeyStr, index }: MainChart
             const chart = getChartRef();
             if (!chart || !onCrosshairMove || !indicatorLegendData) return;
 
-            console.log(`延迟订阅主图指标事件: ${indicatorKeyStr}`);
             // 订阅鼠标移动事件
             chart.subscribeCrosshairMove(onCrosshairMove);
-        }, 150); // 稍微延迟，确保图表初始化完成
+        }, 10); // 稍微延迟，确保图表初始化完成
 
         return () => {
             clearTimeout(timer);
             const chart = getChartRef();
             if (chart && onCrosshairMove) {
-                console.log(`取消订阅主图指标事件: ${indicatorKeyStr}`);
                 chart.unsubscribeCrosshairMove(onCrosshairMove);
             }
         };
-    }, [getChartRef, onCrosshairMove, indicatorLegendData, indicatorKeyStr]);
+    }, [getChartRef, onCrosshairMove, indicatorLegendData]);
 
     return (
         <IndicatorLegend
