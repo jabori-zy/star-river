@@ -31,22 +31,27 @@ const MainChartIndicatorLegend = ({ chartId, indicatorKeyStr, index }: MainChart
     // 获取图表API引用 - 使用 useMemo 稳定引用
     const { getChartRef } = useBacktestChartStore(chartId);
     
-    // 稳定的图表引用
-    const chartRef = useMemo(() => getChartRef(), [getChartRef]);
-
-    // 🔑 为主图指标订阅鼠标事件
+    // 🔑 为主图指标订阅鼠标事件 - 延迟订阅，确保图表完全初始化
     useEffect(() => {
-        const chart = chartRef;
-        if (!chart || !onCrosshairMove) return;
+        // 使用 setTimeout 确保在图表完全初始化后再订阅
+        const timer = setTimeout(() => {
+            const chart = getChartRef();
+            if (!chart || !onCrosshairMove || !indicatorLegendData) return;
 
-        // 订阅鼠标移动事件
-        chart.subscribeCrosshairMove(onCrosshairMove);
+            console.log(`延迟订阅主图指标事件: ${indicatorKeyStr}`);
+            // 订阅鼠标移动事件
+            chart.subscribeCrosshairMove(onCrosshairMove);
+        }, 150); // 稍微延迟，确保图表初始化完成
 
         return () => {
-            // 清理订阅
-            chart.unsubscribeCrosshairMove(onCrosshairMove);
+            clearTimeout(timer);
+            const chart = getChartRef();
+            if (chart && onCrosshairMove) {
+                console.log(`取消订阅主图指标事件: ${indicatorKeyStr}`);
+                chart.unsubscribeCrosshairMove(onCrosshairMove);
+            }
         };
-    }, [chartRef, onCrosshairMove]);
+    }, [getChartRef, onCrosshairMove, indicatorLegendData, indicatorKeyStr]);
 
     return (
         <IndicatorLegend

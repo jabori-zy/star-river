@@ -24,19 +24,28 @@ export function SubchartIndicatorLegend({
     // 🔑 获取 legend 数据和事件处理器
     const { legendData, onCrosshairMove } = useIndicatorLegend({ chartId, indicatorKeyStr });
 
-    // 🔑 直接订阅图表事件，避免复杂的事件分发系统
+    // 🔑 延迟订阅图表事件，确保图表完全初始化
     useEffect(() => {
-        const chart = getChartRef();
-        if (!chart || !onCrosshairMove) return;
+        // 使用 setTimeout 确保在图表完全初始化后再订阅
+        const timer = setTimeout(() => {
+            const chart = getChartRef();
+            // 确保图表存在、回调函数存在、并且有legend数据
+            if (!chart || !onCrosshairMove || !legendData) return;
 
-        // 直接订阅图表的鼠标移动事件
-        chart.subscribeCrosshairMove(onCrosshairMove);
+            console.log(`延迟订阅子图事件: ${indicatorKeyStr}`, "legendData:", legendData);
+            // 直接订阅图表的鼠标移动事件
+            chart.subscribeCrosshairMove(onCrosshairMove);
+        }, 150); // 延迟150ms，确保图表初始化完成
 
         return () => {
-            // 清理订阅
-            chart.unsubscribeCrosshairMove(onCrosshairMove);
+            clearTimeout(timer);
+            const chart = getChartRef();
+            if (chart && onCrosshairMove) {
+                console.log(`取消订阅子图事件: ${indicatorKeyStr}`);
+                chart.unsubscribeCrosshairMove(onCrosshairMove);
+            }
         };
-    }, [getChartRef, onCrosshairMove]); // 依赖 getChartRef 和 onCrosshairMove
+    }, [getChartRef, onCrosshairMove, indicatorKeyStr, legendData]); // 添加legendData作为依赖
 
     // 🔑 创建 Portal 容器，只在组件挂载时执行一次
     useEffect(() => {

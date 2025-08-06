@@ -176,6 +176,7 @@ export const useIndicatorLegend = ({ chartId, indicatorKeyStr }: UseIndicatorLeg
     }, [data, indicatorKeyStr]);
 
     const onCrosshairMove = useCallback((param: MouseEventParams) => {
+            console.log(`onCrosshairMove ${indicatorKeyStr}`, param, "data keys:", Object.keys(data));
             if (!param || !param.time) {
                 // 没有时间参数时，显示空值而不是最新数据
                 const indicatorName = parseIndicatorName(indicatorKeyStr);
