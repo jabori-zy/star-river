@@ -59,9 +59,6 @@ export const useBacktestChart = ({
 
     const { legendData, onCrosshairMove } = useKlineLegend({chartId, klineKeyStr: chartConfig.klineChartConfig.klineKeyStr});
 
-    // 🔑 获取统一事件处理方法
-    const { dispatchCrosshairEvent } = useBacktestChartStore(chartId);
-
     // 获取播放索引并初始化数据
     const playIndex = useRef(0);
 
@@ -193,14 +190,9 @@ export const useBacktestChart = ({
             // 创建指标
             createIndicatorSeries(chart);
 
-            // 🔑 添加统一的 crosshair 事件监听 - 分发给所有 legend
-            const unifiedHandler = (param: any) => {
-                // 先调用 K线 legend 的处理器
-                onCrosshairMove(param);
-                // 然后分发给所有注册的指标 legend 处理器
-                dispatchCrosshairEvent(param);
-            };
-            chart.subscribeCrosshairMove(unifiedHandler);
+            // 🔑 只为 K线 legend 添加 crosshair 事件监听
+            // 指标 legend 现在各自直接订阅事件
+            chart.subscribeCrosshairMove(onCrosshairMove);
 
             // 获取pane
             const pane = chart.panes();
@@ -220,7 +212,6 @@ export const useBacktestChart = ({
         chartContainerRef,
         createIndicatorSeries,
         onCrosshairMove,
-        dispatchCrosshairEvent,
     ]);
 
     // 初始化数据

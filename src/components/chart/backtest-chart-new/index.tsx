@@ -1,10 +1,11 @@
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { chartOptions } from "./chart-config";
 import { useBacktestChart } from "@/hooks/chart";
 import { useIndicatorLegend } from "@/hooks/chart";
 import { SubchartIndicatorLegend } from "./subchart-indicator-legend";
 import { KlineLegend } from "./kline-legend";
 import { IndicatorLegend } from "./indicator-legend";
+import { useBacktestChartStore } from "./backtest-chart-store";
 
 
 interface BacktestChartNewProps {
@@ -44,12 +45,27 @@ const BacktestChartNew = ({ strategyId, chartId }: BacktestChartNewProps) => {
             {chartConfig.indicatorChartConfigs
                 .filter(indicatorConfig => indicatorConfig.isInMainChart)
                 .map((indicatorConfig, index) => {
-                    // 🔑 简化主图指标 legend - 不再重复订阅事件
+                    // 🔑 主图指标 legend - 需要订阅鼠标事件来更新数据
                     const MainChartIndicatorLegendComponent = () => {
-                        const { legendData: indicatorLegendData } = useIndicatorLegend({
+                        const { legendData: indicatorLegendData, onCrosshairMove } = useIndicatorLegend({
                             chartId,
                             indicatorKeyStr: indicatorConfig.indicatorKeyStr,
                         });
+
+                        // 🔑 为主图指标订阅鼠标事件
+                        const { getChartRef } = useBacktestChartStore(chartId);
+                        useEffect(() => {
+                            const chart = getChartRef();
+                            if (!chart || !onCrosshairMove) return;
+
+                            // 订阅鼠标移动事件
+                            chart.subscribeCrosshairMove(onCrosshairMove);
+
+                            return () => {
+                                // 清理订阅
+                                chart.unsubscribeCrosshairMove(onCrosshairMove);
+                            };
+                        }, [getChartRef, onCrosshairMove]);
 
                         return (
                             <IndicatorLegend

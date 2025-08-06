@@ -42,8 +42,7 @@ interface BacktestChartStore {
 	// 存储每个K线的可见性状态，key为klineKeyStr，value为是否可见
 	klineVisibilityMap: Record<KlineKeyStr, boolean>;
 
-	// 🔑 事件处理器注册表
-	legendEventHandlers: Record<string, (param: any) => void>;
+
 
 	// === 图表配置 ===
 	getChartConfig: () => BacktestChartConfig;
@@ -122,10 +121,7 @@ interface BacktestChartStore {
 	cleanupSubscriptions: () => void;
 	onNewKline: (klineKeyStr: KeyStr, kline: Kline) => void;
 
-	// 🔑 统一事件处理
-	registerLegendEventHandler: (keyStr: string, handler: (param: any) => void) => void;
-	unregisterLegendEventHandler: (keyStr: string) => void;
-	dispatchCrosshairEvent: (param: any) => void;
+
 	onNewIndicator: (
 		indicatorKeyStr: KeyStr,
 		indicatorData: Record<keyof IndicatorValueConfig, SingleValueData[]>,
@@ -158,8 +154,7 @@ const createBacktestChartStore = (chartId: number, chartConfig: BacktestChartCon
 		indicatorVisibilityMap: {},
 		klineVisibilityMap: {},
 
-		// 🔑 事件处理器注册表初始化
-		legendEventHandlers: {},
+
 
 		getChartConfig: () => get().chartConfig,
 		setChartConfig: (chartConfig: BacktestChartConfig) => {
@@ -616,34 +611,7 @@ const createBacktestChartStore = (chartId: number, chartConfig: BacktestChartCon
 			});
 		},
 
-		// 🔑 统一事件处理方法实现
-		registerLegendEventHandler: (keyStr: string, handler: (param: any) => void) => {
-			set((state) => ({
-				legendEventHandlers: {
-					...state.legendEventHandlers,
-					[keyStr]: handler,
-				},
-			}));
-		},
 
-		unregisterLegendEventHandler: (keyStr: string) => {
-			set((state) => {
-				const newHandlers = { ...state.legendEventHandlers };
-				delete newHandlers[keyStr];
-				return { legendEventHandlers: newHandlers };
-			});
-		},
-
-		dispatchCrosshairEvent: (param: any) => {
-			const handlers = get().legendEventHandlers;
-			Object.values(handlers).forEach(handler => {
-				try {
-					handler(param);
-				} catch (error) {
-					console.error('Legend event handler error:', error);
-				}
-			});
-		},
 	}));
 
 // 多实例store管理器
