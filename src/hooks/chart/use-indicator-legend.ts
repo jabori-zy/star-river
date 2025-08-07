@@ -18,8 +18,8 @@ export type IndicatorLegendData = {
     timeString: string;
 };
 
-// 颜色配置
-const colors = {
+// 默认颜色配置
+const defaultColors = {
     blue: "#3b82f6",
     green: "#22c55e",
     red: "#ef4444",
@@ -50,22 +50,39 @@ const timeToString = (time: Time): string => {
     return time;
 };
 
-// 获取指标值的颜色
-const getIndicatorValueColor = (_key: string, index: number): string => {
-    const colorList = [colors.blue, colors.green, colors.red, colors.gray];
-    return colorList[index % colorList.length];
+// 从图表配置中获取指标值的颜色
+const getIndicatorValueColorFromConfig = (
+    indicatorKeyStr: IndicatorKeyStr,
+    valueKey: string,
+    chartConfig: any
+): string => {
+    const indicatorConfig = chartConfig.indicatorChartConfigs?.find(
+        (config: any) => config.indicatorKeyStr === indicatorKeyStr
+    );
+    
+    if (indicatorConfig) {
+        const seriesConfig = indicatorConfig.seriesConfigs?.find(
+            (config: any) => config.indicatorValueKey === valueKey
+        );
+        if (seriesConfig?.color) {
+            return seriesConfig.color;
+        }
+    }
+    
+    // 如果配置中没有颜色，使用默认颜色
+    const colorList = [defaultColors.blue, defaultColors.green, defaultColors.red, defaultColors.gray];
+    const hash = valueKey.split('').reduce((a, b) => { a = ((a << 5) - a) + b.charCodeAt(0); return a & a; }, 0);
+    return colorList[Math.abs(hash) % colorList.length];
 };
 
-// 将指标数据转换为图例数据
-const mapIndicatorDataToLegendData = (
+// 处理指标值的通用函数
+const processIndicatorValues = (
     indicatorKeyStr: IndicatorKeyStr,
     data: Record<keyof IndicatorValueConfig, SingleValueData[]>,
-    time: Time,
-): IndicatorLegendData => {
-    const indicatorName = parseIndicatorName(indicatorKeyStr);
+    time: Time | null,
+    chartConfig: any
+): Record<string, { label: string; value: string; color?: string }> => {
     const values: Record<string, { label: string; value: string; color?: string }> = {};
-
-    let colorIndex = 0;
 
     // 解析indicatorType用于获取legend名称
     let indicatorType: string | undefined;
@@ -81,32 +98,32 @@ const mapIndicatorDataToLegendData = (
         if (key === "timestamp") return; // 跳过timestamp字段
 
         // 查找对应时间的数据点
-        const dataPoint = seriesData.find((point) => point.time === time);
+        const dataPoint = time ? seriesData.find((point) => point.time === time) : null;
 
-        if (dataPoint) {
-            // 使用新的方法获取legend显示名称，如果没有则使用原始key
-            const legendShowName = indicatorType
-                ? getValueLegendShowName(indicatorType as IndicatorType, key as keyof IndicatorValueConfig)
-                : undefined;
+        // 使用新的方法获取legend显示名称，如果没有则使用原始key
+        const legendShowName = indicatorType
+            ? getValueLegendShowName(indicatorType as IndicatorType, key as keyof IndicatorValueConfig)
+            : undefined;
 
-            values[key] = {
-                label: legendShowName || key,
-                value: dataPoint.value.toFixed(2),
-                color: getIndicatorValueColor(key, colorIndex++),
-            };
-        } else {
-            // 即使没有数据，也要创建空的值条目，确保legend显示
-            const legendShowName = indicatorType
-                ? getValueLegendShowName(indicatorType as IndicatorType, key as keyof IndicatorValueConfig)
-                : undefined;
-
-            values[key] = {
-                label: legendShowName || key,
-                value: "--", // 显示占位符而不是空值
-                color: getIndicatorValueColor(key, colorIndex++),
-            };
-        }
+        values[key] = {
+            label: legendShowName || key,
+            value: dataPoint ? dataPoint.value.toFixed(2) : "--",
+            color: getIndicatorValueColorFromConfig(indicatorKeyStr, key, chartConfig),
+        };
     });
+
+    return values;
+};
+
+// 将指标数据转换为图例数据
+const mapIndicatorDataToLegendData = (
+    indicatorKeyStr: IndicatorKeyStr,
+    data: Record<keyof IndicatorValueConfig, SingleValueData[]>,
+    time: Time,
+    chartConfig: any
+): IndicatorLegendData => {
+    const indicatorName = parseIndicatorName(indicatorKeyStr);
+    const values = processIndicatorValues(indicatorKeyStr, data, time, chartConfig);
 
     return {
         indicatorName,
@@ -120,6 +137,7 @@ const mapIndicatorDataToLegendData = (
 const getLastDataLegendData = (
     indicatorKeyStr: IndicatorKeyStr,
     data: Record<keyof IndicatorValueConfig, SingleValueData[]>,
+    chartConfig: any
 ): IndicatorLegendData => {
     let latestTime: Time | null = null;
     let latestTimestamp = 0;
@@ -142,7 +160,7 @@ const getLastDataLegendData = (
         latestTime = Math.floor(Date.now() / 1000) as Time; // 转换为秒级时间戳并断言为Time类型
     }
 
-    return mapIndicatorDataToLegendData(indicatorKeyStr, data, latestTime);
+    return mapIndicatorDataToLegendData(indicatorKeyStr, data, latestTime, chartConfig);
 };
 
 interface UseIndicatorLegendProps {
@@ -152,7 +170,7 @@ interface UseIndicatorLegendProps {
 
 export const useIndicatorLegend = ({ chartId, indicatorKeyStr }: UseIndicatorLegendProps) => {
     // 从 store 获取数据和方法
-    const { indicatorData, getIndicatorSeriesRef, getSubChartPaneRef } = useBacktestChartStore(chartId);
+    const { indicatorData, getIndicatorSeriesRef, getSubChartPaneRef, chartConfig } = useBacktestChartStore(chartId);
 
     // 🔑 使用 useMemo 稳定 data 引用，避免无限重新创建 onCrosshairMove
     const data = useMemo(() => {
@@ -161,79 +179,40 @@ export const useIndicatorLegend = ({ chartId, indicatorKeyStr }: UseIndicatorLeg
 
     const [legendData, setLegendData] = useState<IndicatorLegendData>(() => {
         // 总是返回legend数据，即使没有数据也显示空的legend
-        return getLastDataLegendData(indicatorKeyStr, data);
+        return getLastDataLegendData(indicatorKeyStr, data, chartConfig);
     });
 
     // 监听数据变化，自动更新图例数据
     useEffect(() => {
         // 总是更新legend数据，即使data为空也要显示
-        const newLegendData = getLastDataLegendData(indicatorKeyStr, data);
+        const newLegendData = getLastDataLegendData(indicatorKeyStr, data, chartConfig);
         setLegendData((prev) => {
             // 只有在时间不同时才更新，避免不必要的渲染
             const shouldUpdate = prev?.time !== newLegendData?.time;
             return shouldUpdate ? newLegendData : prev;
         });
-    }, [data, indicatorKeyStr]);
+    }, [data, indicatorKeyStr, chartConfig]);
 
     const onCrosshairMove = useCallback((param: MouseEventParams) => {
-            if (!param || !param.time) {
-                // 没有时间参数时，显示空值而不是最新数据
-                const indicatorName = parseIndicatorName(indicatorKeyStr);
-                const values: Record<string, { label: string; value: string; color?: string }> = {};
+        const indicatorName = parseIndicatorName(indicatorKeyStr);
+        const time = param?.time || null;
+        
+        // 使用通用函数处理指标值
+        const values = processIndicatorValues(indicatorKeyStr, data, time, chartConfig);
+        
+        const currentTime = time || (Math.floor(Date.now() / 1000) as Time);
+        const newLegendData = {
+            indicatorName,
+            values,
+            time: currentTime,
+            timeString: timeToString(currentTime),
+        };
 
-                // 解析indicatorType用于获取legend名称
-                let indicatorType: string | undefined;
-                try {
-                    const indicatorKey = parseKey(indicatorKeyStr) as IndicatorKey;
-                    indicatorType = indicatorKey.indicatorType;
-                } catch (error) {
-                    console.error("解析indicatorType失败:", error);
-                }
-
-                let colorIndex = 0;
-                // 为所有字段创建空值条目
-                Object.entries(data).forEach(([key]) => {
-                    if (key === "timestamp") return; // 跳过timestamp字段
-
-                    const legendShowName = indicatorType
-                        ? getValueLegendShowName(indicatorType as IndicatorType, key as keyof IndicatorValueConfig)
-                        : undefined;
-
-                    values[key] = {
-                        label: legendShowName || key,
-                        value: "--", // 显示占位符
-                        color: getIndicatorValueColor(key, colorIndex++),
-                    };
-                    
-                });
-
-                const emptyLegendData = {
-                    indicatorName,
-                    values,
-                    time: Math.floor(Date.now() / 1000) as Time,
-                    timeString: timeToString(Math.floor(Date.now() / 1000) as Time),
-                };
-
-                setLegendData((prev) => {
-                    const shouldUpdate = prev?.time !== emptyLegendData.time;
-                    return shouldUpdate ? emptyLegendData : prev;
-                });
-                return;
-            }
-
-            // 根据鼠标位置获取对应时间的数据
-            const newLegendData = mapIndicatorDataToLegendData(
-                indicatorKeyStr,
-                data,
-                param.time,
-            );
-
-            // 总是更新legend数据，即使没有找到具体时间的数据也显示空值
-            setLegendData((prev) => {
-                const shouldUpdate = prev?.time !== newLegendData.time;
-                return shouldUpdate ? newLegendData : prev;
-            });
-    }, [indicatorKeyStr, data]);
+        setLegendData((prev) => {
+            const shouldUpdate = prev?.time !== newLegendData.time;
+            return shouldUpdate ? newLegendData : prev;
+        });
+    }, [indicatorKeyStr, data, chartConfig]);
 
     return {
         legendData,

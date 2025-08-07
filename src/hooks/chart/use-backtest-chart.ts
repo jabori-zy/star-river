@@ -96,8 +96,8 @@ export const useBacktestChart = ({
     // 获取播放索引并初始化数据
     const playIndex = useRef(0);
 
-    // 切换系列可见性
-    const toggleSeriesVisiable = useCallback(() => {
+    // 更改series配置
+    const changeSeriesConfig = useCallback(() => {
         // 切换蜡烛图可见性
         const klineSeries = getKlineSeriesRef(chartConfig.klineChartConfig.klineKeyStr);
         if (klineSeries) {
@@ -112,6 +112,7 @@ export const useBacktestChart = ({
                 if (seriesApi) {
                     seriesApi.applyOptions({
                         visible: config.visible,
+                        color: seriesConfig.color,
                     });
                 }
             });
@@ -164,6 +165,7 @@ export const useBacktestChart = ({
                                     lastValueVisible: false,
                                     priceLineVisible: false,
                                     lineWidth: 1,
+                                    color: seriesConfig.color,
                                 },
                                 0
                             );
@@ -174,6 +176,7 @@ export const useBacktestChart = ({
                                 {
                                     visible: config.visible ?? true,
                                     priceLineVisible: false,
+                                    color: seriesConfig.color,
                                 },
                                 0
                             );
@@ -194,6 +197,7 @@ export const useBacktestChart = ({
                                 {
                                     visible: config.visible ?? true,
                                     priceLineVisible: false,
+                                    color: seriesConfig.color,
                                 },
                                 0
                             );
@@ -226,12 +230,14 @@ export const useBacktestChart = ({
                                 lastValueVisible: false,
                                 lineWidth: 1,
                                 priceLineVisible: false,
+                                color: seriesConfig.color,
                             });
                             break;
                         case SeriesType.COLUMN:
                             subChartIndicatorSeries = subChartPane.addSeries(HistogramSeries,{
                                 visible: config.visible ?? true,
                                 priceLineVisible: false,
+                                color: seriesConfig.color,
                             });
                             break;
                         case SeriesType.MOUNTAIN:
@@ -244,6 +250,7 @@ export const useBacktestChart = ({
                             subChartIndicatorSeries = subChartPane.addSeries(LineSeries,{
                                 visible: config.visible ?? true,
                                 priceLineVisible: false,
+                                color: seriesConfig.color,
                             });
                             break;
                     }
@@ -268,12 +275,12 @@ export const useBacktestChart = ({
             }
 
             // 切换指标系列可见性
-            toggleSeriesVisiable();
+            changeSeriesConfig();
 
             // 删除指标系列
             deleteSeries();
         }
-    }, [globalChartConfig, toggleSeriesVisiable]);
+    }, [globalChartConfig, changeSeriesConfig]);
 
 
     const initializeBacktestChart = useCallback(() => {

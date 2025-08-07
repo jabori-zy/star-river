@@ -6,6 +6,7 @@ import type { IndicatorLegendData } from "@/hooks/chart/use-indicator-legend";
 import type { IndicatorKeyStr } from "@/types/symbol-key";
 import { useBacktestChartStore } from "./backtest-chart-store";
 import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
+import { IndicatorLegendEditDialog } from "./indicator-legend-edit-dialog";
 
 interface IndicatorLegendProps {
 	indicatorLegendData: IndicatorLegendData | null;
@@ -52,8 +53,7 @@ const IndicatorLegend = forwardRef<HTMLDivElement, IndicatorLegendProps>(({
 	// 处理编辑 - 暂时只是占位，不实现功能
 	const handleEdit = (e: React.MouseEvent) => {
 		e.stopPropagation();
-		console.log("编辑被点击:", indicatorKeyStr);
-		// setIsEditDialogOpen(true); // 暂时注释掉功能
+		setIsEditDialogOpen(true);
 	};
 
 	return (
@@ -132,13 +132,13 @@ const IndicatorLegend = forwardRef<HTMLDivElement, IndicatorLegendProps>(({
 				</div>
 			</div>
 
-			{/* 编辑对话框 - 暂时注释掉 */}
-			{/* <IndicatorLegendEditDialog
+			{/* 编辑对话框 */}
+			<IndicatorLegendEditDialog
 				open={isEditDialogOpen}
 				onOpenChange={setIsEditDialogOpen}
 				chartId={chartId}
 				indicatorKeyStr={indicatorKeyStr}
-			/> */}
+			/>
 		</div>
 	);
 });
