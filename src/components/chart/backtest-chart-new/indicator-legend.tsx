@@ -25,7 +25,11 @@ const IndicatorLegend = forwardRef<HTMLDivElement, IndicatorLegendProps>(({
 	// 使用当前图表的可见性状态管理
 	// const { getIndicatorVisibility, toggleIndicatorVisibility } = useBacktestChartStore(chartId);
 	// 使用全局图表配置store， 切换时直接修改配置
-	const { toggleIndicatorVisibility, getIndicatorVisibility } = useBacktestChartConfigStore();
+	const { 
+		toggleIndicatorVisibility, 
+		getIndicatorVisibility,
+		removeIndicator // 软删除指标
+	} = useBacktestChartConfigStore();
 
 	// 编辑对话框状态
 	const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -36,18 +40,13 @@ const IndicatorLegend = forwardRef<HTMLDivElement, IndicatorLegendProps>(({
 	// 
 	const handleVisibilityToggle = (e: React.MouseEvent) => {
 		e.stopPropagation();
-		console.log("切换指标可见性", chartId, indicatorKeyStr);
-		const beforeState = getIndicatorVisibility(chartId, indicatorKeyStr);
 		toggleIndicatorVisibility(chartId, indicatorKeyStr);
-		const afterState = getIndicatorVisibility(chartId, indicatorKeyStr);
-		console.log("切换前后状态", beforeState, "->", afterState);
 	};
 
 	// 处理删除指标 - 暂时只是占位，不实现功能
 	const handleDeleteIndicator = (e: React.MouseEvent) => {
 		e.stopPropagation();
-		console.log("删除指标被点击:", indicatorKeyStr);
-		// 暂时不实现删除功能
+		removeIndicator(chartId, indicatorKeyStr);
 	};
 
 	// 处理编辑 - 暂时只是占位，不实现功能

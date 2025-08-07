@@ -20,7 +20,6 @@ import { useKlineLegend, type KlineLegendData } from "./use-kline-legend";
 import type { MouseEventParams } from "lightweight-charts";
 import type { KlineKeyStr } from "@/types/symbol-key";
 import type { IndicatorChartConfig } from "@/types/chart";
-import { T } from "node_modules/react-router/dist/development/fog-of-war-BALYJxf_.d.mts";
 
 interface UseBacktestChartProps {
     strategyId: number;
@@ -62,6 +61,9 @@ export const useBacktestChart = ({
         setSubChartPaneRef,
         syncChartConfig,
         getIsDataInitialized,
+        getSubChartPaneRef,
+        removeIndicatorSeriesRef,
+        removeSubChartPaneRef,
     } = useBacktestChartStore(chartId);
 
 
@@ -96,7 +98,6 @@ export const useBacktestChart = ({
 
     // 切换系列可见性
     const toggleSeriesVisiable = useCallback(() => {
-
         // 切换蜡烛图可见性
         const klineSeries = getKlineSeriesRef(chartConfig.klineChartConfig.klineKeyStr);
         if (klineSeries) {
@@ -116,6 +117,35 @@ export const useBacktestChart = ({
             });
         });
     }, [getIndicatorSeriesRef, chartConfig.indicatorChartConfigs, getKlineSeriesRef, chartConfig.klineChartConfig.klineKeyStr, chartConfig.klineChartConfig.visible]);
+
+    const deleteSeries = useCallback(() => {
+        const chart = getChartRef();
+        if (chart) {
+            chartConfig.indicatorChartConfigs.forEach(config => {
+                // 如果是主图指标，则removeSeries
+                if (config.isInMainChart && config.isDelete) {
+                    config.seriesConfigs.forEach(seriesConfig => {
+                        const seriesApi = getIndicatorSeriesRef(config.indicatorKeyStr, seriesConfig.indicatorValueKey);
+                        if (seriesApi) {
+                            chart.removeSeries(seriesApi);
+                            // 删除store中的seriesApi
+                            removeIndicatorSeriesRef(config.indicatorKeyStr);
+                        }
+                    });
+                }
+                // 如果是子图指标，则removePane
+                else if (!config.isInMainChart && config.isDelete) {
+                    const subChartPane = getSubChartPaneRef(config.indicatorKeyStr);
+                    if (subChartPane) {
+                        chart.removePane(subChartPane.paneIndex());
+                        // 删除store中的paneApi
+                        removeSubChartPaneRef(config.indicatorKeyStr);
+                    }
+                }
+            });
+    }
+
+    }, [getChartRef, chartConfig.indicatorChartConfigs, getIndicatorSeriesRef, getSubChartPaneRef, removeIndicatorSeriesRef, removeSubChartPaneRef]);
 
     // 创建指标系列
     const createIndicatorSeries = useCallback((chart: IChartApi, indicatorChartConfigs: IndicatorChartConfig[]) => {
@@ -239,6 +269,9 @@ export const useBacktestChart = ({
 
             // 切换指标系列可见性
             toggleSeriesVisiable();
+
+            // 删除指标系列
+            deleteSeries();
         }
     }, [globalChartConfig, toggleSeriesVisiable]);
 

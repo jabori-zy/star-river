@@ -111,9 +111,9 @@ const BacktestChartNew = ({ strategyId, chartId }: BacktestChartNewProps) => {
 
             {/* 主图指标图例 */}
             {chartConfig.indicatorChartConfigs
-                .filter(indicatorConfig => indicatorConfig.isInMainChart)
+                .filter(indicatorConfig => indicatorConfig.isInMainChart && !indicatorConfig.isDelete)
                 .map((indicatorConfig, index) => (
-                    <MainChartIndicatorLegend 
+                    <MainChartIndicatorLegend
                         key={indicatorConfig.indicatorKeyStr}
                         chartId={chartId}
                         indicatorKeyStr={indicatorConfig.indicatorKeyStr}

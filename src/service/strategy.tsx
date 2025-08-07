@@ -316,7 +316,7 @@ export async function getBacktestStrategyChartConfig(
 		if (response.status !== 200) {
 			throw new Error(`获取策略图表配置失败: ${response.status}`);
 		}
-		return response.data["data"];
+		return response.data.data;
 	} catch (error) {
 		console.error("获取策略图表配置错误:", error);
 		throw error;
@@ -329,7 +329,7 @@ export async function initStrategy(strategyId: number) {
 		if (response.status !== 200) {
 			throw new Error(`初始化策略失败: ${response.status}`);
 		}
-		return response.data["data"];
+		return response.data.data;
 	} catch (error) {
 		console.error("初始化策略错误:", error);
 		throw error;
@@ -342,7 +342,7 @@ export async function stopStrategy(strategyId: number) {
 		if (response.status !== 200) {
 			throw new Error(`停止策略失败: ${response.status}`);
 		}
-		return response.data["data"];
+		return response.data.data;
 	} catch (error) {
 		console.error("停止策略错误:", error);
 		throw error;

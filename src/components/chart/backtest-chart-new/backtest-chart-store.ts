@@ -108,11 +108,14 @@ interface BacktestChartStore {
 
 	setKlineSeriesRef: (klineKeyStr: KlineKeyStr, ref: ISeriesApi<"Candlestick">) => void;
 	getKlineSeriesRef: (klineKeyStr: KlineKeyStr) => ISeriesApi<"Candlestick"> | null;
+	removeKlineSeriesRef: (klineKeyStr: KlineKeyStr) => void;
 
 	setIndicatorSeriesRef: (indicatorKeyStr: IndicatorKeyStr, indicatorValueKey: keyof IndicatorValueConfig, ref: ISeriesApi<"Line"> | ISeriesApi<"Area"> | ISeriesApi<"Histogram">) => void;
+	removeIndicatorSeriesRef: (indicatorKeyStr: IndicatorKeyStr) => void;
 	getIndicatorSeriesRef: (indicatorKeyStr: IndicatorKeyStr, indicatorValueKey: keyof IndicatorValueConfig) => ISeriesApi<"Line"> | ISeriesApi<"Area"> | ISeriesApi<"Histogram"> | null;
 
 	setSubChartPaneRef: (indicatorKeyStr: IndicatorKeyStr, ref: IPaneApi<Time>) => void;
+	removeSubChartPaneRef: (indicatorKeyStr: IndicatorKeyStr) => void;
 	getSubChartPaneRef: (indicatorKeyStr: IndicatorKeyStr) => IPaneApi<Time> | null;
 
 	getKeyStr: () => KeyStr[];
@@ -213,14 +216,21 @@ const createBacktestChartStore = (chartId: number, chartConfig: BacktestChartCon
 		setKlineSeriesRef: (klineKeyStr: KlineKeyStr, ref: ISeriesApi<"Candlestick">) =>
 			set({ klineSeriesRef: { ...get().klineSeriesRef, [klineKeyStr]: ref } }),
 		getKlineSeriesRef: (klineKeyStr: KlineKeyStr) => get().klineSeriesRef[klineKeyStr] || null,
+		removeKlineSeriesRef: (klineKeyStr: KlineKeyStr) =>
+			set({ klineSeriesRef: { ...get().klineSeriesRef, [klineKeyStr]: null } }),
 
 		setIndicatorSeriesRef: (indicatorKeyStr: IndicatorKeyStr, indicatorValueKey: keyof IndicatorValueConfig, ref: ISeriesApi<"Line"> | ISeriesApi<"Area"> | ISeriesApi<"Histogram">) =>
 			set({ indicatorSeriesRef: { ...get().indicatorSeriesRef, [indicatorKeyStr]: { ...get().indicatorSeriesRef[indicatorKeyStr], [indicatorValueKey]: ref } } }),
 		getIndicatorSeriesRef: (indicatorKeyStr: IndicatorKeyStr, indicatorValueKey: keyof IndicatorValueConfig) => get().indicatorSeriesRef[indicatorKeyStr]?.[indicatorValueKey] || null,
+		
+		removeIndicatorSeriesRef: (indicatorKeyStr: IndicatorKeyStr) =>
+			set({ indicatorSeriesRef: { ...get().indicatorSeriesRef, [indicatorKeyStr]: {} } }),
 
 		setSubChartPaneRef: (indicatorKeyStr: IndicatorKeyStr, ref: IPaneApi<Time>) =>
 			set({ subChartPaneRef: { ...get().subChartPaneRef, [indicatorKeyStr]: ref } }),
 		getSubChartPaneRef: (indicatorKeyStr: IndicatorKeyStr) => get().subChartPaneRef[indicatorKeyStr] || null,
+		removeSubChartPaneRef: (indicatorKeyStr: IndicatorKeyStr) =>
+			set({ subChartPaneRef: { ...get().subChartPaneRef, [indicatorKeyStr]: null } }),
 
 		getKeyStr: () => {
 			const chartConfig = get().chartConfig;
