@@ -64,7 +64,6 @@ export function createParseIndicatorConfigFromKeyStr<T>(
 		indicatorConfigStr: string,
 	): T | undefined {
 		try {
-			
 			const params = parseKeyStrToMap(indicatorConfigStr);
 
 			if (indicatorType !== expectedType) {
@@ -166,9 +165,8 @@ export function parseIndicatorConfig(
 	try {
 		// 验证指标类型
 		const validatedType = IndicatorTypeSchema.parse(indicatorType);
-		
+
 		const config = INDICATOR_CONFIG_MAP[validatedType];
-		
 
 		if (!config) {
 			console.warn(`不支持的指标类型: ${validatedType}`);
@@ -240,13 +238,19 @@ export function getIndicatorSeriesName(
 	return config.getSeriesName(seriesName, indicatorKey);
 }
 
-export function getConfigLegendShowName(indicatorType: IndicatorType, key: keyof IndicatorValueConfig): string | undefined {
+export function getConfigLegendShowName(
+	indicatorType: IndicatorType,
+	key: keyof IndicatorValueConfig,
+): string | undefined {
 	const config = getIndicatorConfig(indicatorType);
 	if (!config) return undefined;
 	return config.indicatorValueConfig[key]?.legendShowName;
 }
 
-export function getValueLegendShowName(indicatorType: IndicatorType, key: keyof IndicatorValueConfig): string | undefined {
+export function getValueLegendShowName(
+	indicatorType: IndicatorType,
+	key: keyof IndicatorValueConfig,
+): string | undefined {
 	const config = getIndicatorConfig(indicatorType);
 	if (!config) return undefined;
 	return config.indicatorValueConfig[key]?.legendShowName;

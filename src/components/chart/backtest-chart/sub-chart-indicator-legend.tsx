@@ -1,10 +1,16 @@
-import type { SingleValueData, MouseEventParams } from "lightweight-charts";
+import type { MouseEventParams, SingleValueData } from "lightweight-charts";
+import type { PaneApiRef } from "lightweight-charts-react-components";
+import {
+	forwardRef,
+	useEffect,
+	useImperativeHandle,
+	useRef,
+	useState,
+} from "react";
+import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import type { IndicatorKeyStr } from "@/types/symbol-key";
-import type { PaneApiRef } from "lightweight-charts-react-components";
-import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import { IndicatorLegend, useIndicatorLegend } from "./legend";
-import { useImperativeHandle, forwardRef, useState, useEffect, useRef } from "react";
 
 interface SubChartIndicatorLegendProps {
 	indicatorKeyStr: IndicatorKeyStr;
@@ -22,21 +28,23 @@ export interface SubChartIndicatorLegendRef {
  * 子图指标图例组件
  * 单独的组件确保hooks在正确的位置调用
  */
-const SubChartIndicatorLegend = forwardRef<SubChartIndicatorLegendRef, SubChartIndicatorLegendProps>(({
-	indicatorKeyStr,
-	data,
-	paneRef,
-	paneInitialized,
-	chartConfig,
-}, ref) => {
-	const { legendData, onCrosshairMove: indicatorOnCrosshairMove } = useIndicatorLegend(indicatorKeyStr, data);
+const SubChartIndicatorLegend = forwardRef<
+	SubChartIndicatorLegendRef,
+	SubChartIndicatorLegendProps
+>(({ indicatorKeyStr, data, paneRef, paneInitialized, chartConfig }, ref) => {
+	const { legendData, onCrosshairMove: indicatorOnCrosshairMove } =
+		useIndicatorLegend(indicatorKeyStr, data);
 	const [paneElement, setPaneElement] = useState<HTMLElement | null>(null);
 	const legendRef = useRef<HTMLDivElement>(null);
 
 	// 暴露onCrosshairMove方法给父组件
-	useImperativeHandle(ref, () => ({
-		onCrosshairMove: indicatorOnCrosshairMove,
-	}), [indicatorOnCrosshairMove]);
+	useImperativeHandle(
+		ref,
+		() => ({
+			onCrosshairMove: indicatorOnCrosshairMove,
+		}),
+		[indicatorOnCrosshairMove],
+	);
 
 	// 监听paneInitialized状态，只有在pane完全初始化后才获取HTML元素
 	useEffect(() => {
@@ -58,7 +66,7 @@ const SubChartIndicatorLegend = forwardRef<SubChartIndicatorLegendRef, SubChartI
 				// 通过paneRef.current.api()获取paneApi
 				const paneApi = paneRef.current.api();
 
-				if (paneApi && typeof paneApi.getHTMLElement === 'function') {
+				if (paneApi && typeof paneApi.getHTMLElement === "function") {
 					const htmlElement = paneApi.getHTMLElement();
 
 					if (htmlElement && isMounted) {
@@ -68,10 +76,11 @@ const SubChartIndicatorLegend = forwardRef<SubChartIndicatorLegendRef, SubChartI
 						// 检查元素是否有有效的尺寸和位置
 						if (rect.width > 0 && rect.height > 0) {
 							// 进一步验证元素是否在合理的视口范围内
-							const isInViewport = rect.top > -window.innerHeight &&
-												rect.left > -window.innerWidth &&
-												rect.top < window.innerHeight * 2 &&
-												rect.left < window.innerWidth * 2;
+							const isInViewport =
+								rect.top > -window.innerHeight &&
+								rect.left > -window.innerWidth &&
+								rect.top < window.innerHeight * 2 &&
+								rect.left < window.innerWidth * 2;
 
 							if (isInViewport) {
 								setPaneElement(htmlElement);
@@ -86,8 +95,8 @@ const SubChartIndicatorLegend = forwardRef<SubChartIndicatorLegendRef, SubChartI
 								top: rect.top,
 								left: rect.left,
 								width: rect.width,
-								height: rect.height
-							}
+								height: rect.height,
+							},
 						});
 					}
 				}
@@ -102,9 +111,11 @@ const SubChartIndicatorLegend = forwardRef<SubChartIndicatorLegendRef, SubChartI
 						}
 					}, retryDelay);
 				} else {
-					console.error(`❌ 达到最大重试次数(${maxRetries})，放弃获取pane HTML元素:`, indicatorKeyStr);
+					console.error(
+						`❌ 达到最大重试次数(${maxRetries})，放弃获取pane HTML元素:`,
+						indicatorKeyStr,
+					);
 				}
-
 			} catch (error) {
 				console.error(`获取pane HTML元素失败:`, error);
 
@@ -152,9 +163,12 @@ const SubChartIndicatorLegend = forwardRef<SubChartIndicatorLegendRef, SubChartI
 				}
 
 				// 验证pane是否在合理的视口位置
-				if (paneRect.top < -200 || paneRect.left < -200 ||
+				if (
+					paneRect.top < -200 ||
+					paneRect.left < -200 ||
 					paneRect.top > window.innerHeight + 200 ||
-					paneRect.left > window.innerWidth + 200) {
+					paneRect.left > window.innerWidth + 200
+				) {
 					return; // 静默跳过，减少日志噪音
 				}
 
@@ -163,11 +177,14 @@ const SubChartIndicatorLegend = forwardRef<SubChartIndicatorLegendRef, SubChartI
 				const newLeft = paneRect.left + 8;
 
 				// 只有位置发生变化时才更新，避免不必要的DOM操作
-				if (Math.abs(newTop - lastPosition.top) > 1 || Math.abs(newLeft - lastPosition.left) > 1) {
-					legendElement.style.position = 'fixed';
+				if (
+					Math.abs(newTop - lastPosition.top) > 1 ||
+					Math.abs(newLeft - lastPosition.left) > 1
+				) {
+					legendElement.style.position = "fixed";
 					legendElement.style.top = `${newTop}px`;
 					legendElement.style.left = `${newLeft}px`;
-					legendElement.style.zIndex = '1000';
+					legendElement.style.zIndex = "1000";
 
 					lastPosition = { top: newTop, left: newLeft };
 				}
@@ -201,26 +218,29 @@ const SubChartIndicatorLegend = forwardRef<SubChartIndicatorLegendRef, SubChartI
 		// 使用IntersectionObserver监听pane元素的可见性变化
 		let intersectionObserver: IntersectionObserver | null = null;
 		if (window.IntersectionObserver) {
-			intersectionObserver = new IntersectionObserver((entries) => {
-				entries.forEach((entry) => {
-					if (entry.isIntersecting) {
-						// 当pane变为可见时，立即更新位置
-						updatePosition();
-					}
-				});
-			}, {
-				threshold: 0.05 // 当5%的pane可见时触发，更敏感
-			});
+			intersectionObserver = new IntersectionObserver(
+				(entries) => {
+					entries.forEach((entry) => {
+						if (entry.isIntersecting) {
+							// 当pane变为可见时，立即更新位置
+							updatePosition();
+						}
+					});
+				},
+				{
+					threshold: 0.05, // 当5%的pane可见时触发，更敏感
+				},
+			);
 			intersectionObserver.observe(paneElement);
 		}
 
 		// 添加窗口resize监听
 		const handleWindowResize = debouncedUpdatePosition;
-		window.addEventListener('resize', handleWindowResize);
+		window.addEventListener("resize", handleWindowResize);
 
 		// 添加滚动监听，处理容器滚动的情况
 		const handleScroll = debouncedUpdatePosition;
-		window.addEventListener('scroll', handleScroll, true); // 使用捕获模式监听所有滚动事件
+		window.addEventListener("scroll", handleScroll, true); // 使用捕获模式监听所有滚动事件
 
 		return () => {
 			isMounted = false;
@@ -239,8 +259,8 @@ const SubChartIndicatorLegend = forwardRef<SubChartIndicatorLegendRef, SubChartI
 			}
 
 			// 清理窗口监听
-			window.removeEventListener('resize', handleWindowResize);
-			window.removeEventListener('scroll', handleScroll, true);
+			window.removeEventListener("resize", handleWindowResize);
+			window.removeEventListener("scroll", handleScroll, true);
 		};
 	}, [paneElement]); // 移除不必要的依赖
 
@@ -259,6 +279,6 @@ const SubChartIndicatorLegend = forwardRef<SubChartIndicatorLegendRef, SubChartI
 	);
 });
 
-SubChartIndicatorLegend.displayName = 'SubChartIndicatorLegend';
+SubChartIndicatorLegend.displayName = "SubChartIndicatorLegend";
 
 export default SubChartIndicatorLegend;

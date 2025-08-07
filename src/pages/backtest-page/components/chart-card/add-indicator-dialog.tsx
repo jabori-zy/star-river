@@ -46,23 +46,21 @@ export default function AddIndicatorDialog({
 		if (selectedIndicatorKey) {
 			// 解析指标数据
 			// const indicatorData = parseKey(selectedIndicatorKey) as IndicatorKey;
-			const indicatorChartBaseConfig = getIndciatorChartBaseConfigFromKeyStr(selectedIndicatorKey);
+			const indicatorChartBaseConfig =
+				getIndciatorChartBaseConfigFromKeyStr(selectedIndicatorKey);
 
 			if (indicatorChartBaseConfig) {
 				// 添加指标配置
 				const id = chartConfig.indicatorChartConfigs.length + 1;
 
 				// 添加到主图
-				onIndicatorAdd(
-					{
-						chartId: id,
-						indicatorKeyStr: selectedIndicatorKey,
-						isDelete: false,
-						...indicatorChartBaseConfig,
-					}
-				);
-				}
-			
+				onIndicatorAdd({
+					chartId: id,
+					indicatorKeyStr: selectedIndicatorKey,
+					isDelete: false,
+					...indicatorChartBaseConfig,
+				});
+			}
 
 			onOpenChange(false);
 		}

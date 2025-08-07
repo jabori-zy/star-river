@@ -17,7 +17,7 @@ export const IndicatorParamSchema = z.object({
 		MATypeSchema,
 		PriceSourceSchema,
 	]),
-	legendShowName:z.string(),
+	legendShowName: z.string(),
 });
 
 // 指标值配置的 Zod schema
@@ -26,7 +26,7 @@ export const IndicatorValueConfigSchema = z.record(
 	z.object({
 		label: z.string(),
 		value: z.number(),
-		legendShowName:z.string(),
+		legendShowName: z.string(),
 	}),
 );
 

@@ -1,6 +1,8 @@
-	// import RealtimeTickingStockCharts from "@/components/chart/SciChart";
+// import RealtimeTickingStockCharts from "@/components/chart/SciChart";
 import { ChartSpline, Ellipsis, Search, Trash2 } from "lucide-react";
 import { useState } from "react";
+import BacktestChart from "@/components/chart/backtest-chart";
+import BacktestChartNew from "@/components/chart/backtest-chart-new";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -8,113 +10,103 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
 import type { IndicatorChartConfig } from "@/types/chart";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import AddIndicatorDialog from "./add-indicator-dialog";
 import SymbolListDialog from "./symbol-list-dialog";
-import BacktestChart from "@/components/chart/backtest-chart";
-import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
-import BacktestChartNew from "@/components/chart/backtest-chart-new";
 
 interface ChartCardProps {
 	strategyId: number;
 	chartConfig: BacktestChartConfig;
 }
 
-const ChartCard: React.FC<ChartCardProps> = ({
-	chartConfig,
-	strategyId,
-}) => {
+const ChartCard: React.FC<ChartCardProps> = ({ chartConfig, strategyId }) => {
 	// 使用store中的方法
-	const { deleteChart, updateChart, addIndicator } = useBacktestChartConfigStore();
+	const { deleteChart, updateChart, addIndicator } =
+		useBacktestChartConfigStore();
 
 	const [isSymbolDialogOpen, setIsSymbolDialogOpen] = useState(false);
 	const [isIndicatorDialogOpen, setIsIndicatorDialogOpen] = useState(false);
 
-		// 处理kline选择
-		const handleKlineSelect = (klineCacheKeyStr: string, chartName: string) => {
-			updateChart(chartConfig.id, klineCacheKeyStr, chartName);
-		};
+	// 处理kline选择
+	const handleKlineSelect = (klineCacheKeyStr: string, chartName: string) => {
+		updateChart(chartConfig.id, klineCacheKeyStr, chartName);
+	};
 
-		// 处理指标添加
-		const handleIndicatorAdd = (indicatorChartConfig: IndicatorChartConfig) => {
-			addIndicator(chartConfig.id, indicatorChartConfig);
-		};
+	// 处理指标添加
+	const handleIndicatorAdd = (indicatorChartConfig: IndicatorChartConfig) => {
+		addIndicator(chartConfig.id, indicatorChartConfig);
+	};
 
-
-
-
-		return (
-			<div className="flex flex-col h-full min-h-0 overflow-hidden">
-				<div className="flex items-center justify-between px-2 mb-2 flex-shrink-0">
-					<div className="flex flex-row items-center gap-2">
-						<Button
-							className="flex flex-row items-center gap-2 text-sm font-medium"
-							variant="ghost"
-							onClick={() => setIsSymbolDialogOpen(true)}
-						>
-							<Search className="w-4 h-4 text-gray-500" />
-							{chartConfig.chartName}
-						</Button>
-						{/* 纵向的分界线 */}
-						<div className="w-[1px] h-4 bg-gray-300" />
-						<Button
-							className="flex flex-row items-center gap-2 text-sm font-medium"
-							variant="ghost"
-							onClick={() => setIsIndicatorDialogOpen(true)}
-						>
-							<ChartSpline className="w-4 h-4 text-gray-500" />
-							指标
-						</Button>
-					</div>
-
-					<DropdownMenu>
-						<DropdownMenuTrigger>
-							<Ellipsis />
-						</DropdownMenuTrigger>
-						<DropdownMenuContent>
-							<DropdownMenuItem onClick={() => deleteChart(chartConfig.id)}>
-								<Trash2 className="w-4 h-4 text-red-500" />
-								<div className="text-red-500">删除图表</div>
-							</DropdownMenuItem>
-						</DropdownMenuContent>
-					</DropdownMenu>
+	return (
+		<div className="flex flex-col h-full min-h-0 overflow-hidden">
+			<div className="flex items-center justify-between px-2 mb-2 flex-shrink-0">
+				<div className="flex flex-row items-center gap-2">
+					<Button
+						className="flex flex-row items-center gap-2 text-sm font-medium"
+						variant="ghost"
+						onClick={() => setIsSymbolDialogOpen(true)}
+					>
+						<Search className="w-4 h-4 text-gray-500" />
+						{chartConfig.chartName}
+					</Button>
+					{/* 纵向的分界线 */}
+					<div className="w-[1px] h-4 bg-gray-300" />
+					<Button
+						className="flex flex-row items-center gap-2 text-sm font-medium"
+						variant="ghost"
+						onClick={() => setIsIndicatorDialogOpen(true)}
+					>
+						<ChartSpline className="w-4 h-4 text-gray-500" />
+						指标
+					</Button>
 				</div>
-				<div className="flex-1 w-full h-full bg-gray-50">
-					{/* <StockCharts
+
+				<DropdownMenu>
+					<DropdownMenuTrigger>
+						<Ellipsis />
+					</DropdownMenuTrigger>
+					<DropdownMenuContent>
+						<DropdownMenuItem onClick={() => deleteChart(chartConfig.id)}>
+							<Trash2 className="w-4 h-4 text-red-500" />
+							<div className="text-red-500">删除图表</div>
+						</DropdownMenuItem>
+					</DropdownMenuContent>
+				</DropdownMenu>
+			</div>
+			<div className="flex-1 w-full h-full bg-gray-50">
+				{/* <StockCharts
 						ref={stockChartsRef}
 						strategyId={strategyId}
 						chartConfig={chartConfig}
 						onDeleteSubChart={onDeleteSubChart}
 					/> */}
-					{/* <BacktestChart
+				{/* <BacktestChart
 						strategyId={strategyId}
 						chartId={chartConfig.id}
 					/> */}
-					<BacktestChartNew
-						strategyId={strategyId}
-						chartId={chartConfig.id}
-					/>
-				</div>
-
-				{/* Symbol选择Dialog */}
-				<SymbolListDialog
-					open={isSymbolDialogOpen}
-					onOpenChange={setIsSymbolDialogOpen}
-					strategyId={strategyId}
-					onKlineSelect={handleKlineSelect}
-				/>
-
-				{/* Indicator添加Dialog */}
-				<AddIndicatorDialog
-					chartConfig={chartConfig}
-					open={isIndicatorDialogOpen}
-					onOpenChange={setIsIndicatorDialogOpen}
-					strategyId={strategyId}
-					onIndicatorAdd={handleIndicatorAdd}
-				/>
+				<BacktestChartNew strategyId={strategyId} chartId={chartConfig.id} />
 			</div>
-		);
+
+			{/* Symbol选择Dialog */}
+			<SymbolListDialog
+				open={isSymbolDialogOpen}
+				onOpenChange={setIsSymbolDialogOpen}
+				strategyId={strategyId}
+				onKlineSelect={handleKlineSelect}
+			/>
+
+			{/* Indicator添加Dialog */}
+			<AddIndicatorDialog
+				chartConfig={chartConfig}
+				open={isIndicatorDialogOpen}
+				onOpenChange={setIsIndicatorDialogOpen}
+				strategyId={strategyId}
+				onIndicatorAdd={handleIndicatorAdd}
+			/>
+		</div>
+	);
 };
 
 ChartCard.displayName = "ChartCard";

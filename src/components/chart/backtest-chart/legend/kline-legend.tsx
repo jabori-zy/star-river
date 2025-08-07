@@ -1,10 +1,10 @@
+import { Bolt, Eye, EyeOff } from "lucide-react";
 import type React from "react";
-import { Eye, EyeOff, Bolt } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { KlineLegendData } from "./use-kline-legend";
-import type { KlineKeyStr } from "@/types/symbol-key";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
+import type { KlineKeyStr } from "@/types/symbol-key";
 import { useBacktestChartStore } from "../backtest-chart-store";
+import type { KlineLegendData } from "./use-kline-legend";
 
 interface KlineLegendProps {
 	klineSeriesData: KlineLegendData | null;
@@ -20,7 +20,8 @@ const KlineLegend: React.FC<KlineLegendProps> = ({
 	className = "",
 }) => {
 	// 使用当前图表的可见性状态管理
-	const { getKlineVisibility, toggleKlineVisibility } = useBacktestChartStore(chartConfig);
+	const { getKlineVisibility, toggleKlineVisibility } =
+		useBacktestChartStore(chartConfig);
 
 	if (klineSeriesData === null) {
 		return null;

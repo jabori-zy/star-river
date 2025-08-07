@@ -1,3 +1,4 @@
+import { LineSeries } from "lightweight-charts";
 import { z } from "zod";
 import { SeriesType } from "@/types/chart";
 import { IndicatorType, MAType, PriceSource } from "@/types/indicator";
@@ -12,7 +13,6 @@ import {
 	PriceSourceSchema,
 } from "@/types/indicator/schemas";
 import type { IndicatorKey } from "@/types/symbol-key";
-import { LineSeries } from "lightweight-charts";
 
 const BBandsConfigSchema = z.object({
 	timePeriod: z.number().int().positive(), // 时间周期

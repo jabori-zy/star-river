@@ -13,6 +13,7 @@ import {
 } from "lightweight-charts-react-components";
 import { Fragment, useCallback, useEffect, useRef } from "react";
 import { get_play_index } from "@/service/strategy-control/backtest-strategy-control";
+import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import type { IndicatorKeyStr } from "@/types/symbol-key";
@@ -20,7 +21,8 @@ import {
 	cleanupBacktestChartStore,
 	useBacktestChartStore,
 } from "./backtest-chart-store";
-
+// import ChartApiDebugger from "./debug/chart-api-debugger";
+import IndicatorDebugPanel from "./debug/indicator-debug-panel";
 import { KlineLegend, useKlineLegend } from "./legend";
 import MainChartIndicatorLegend, {
 	type MainChartIndicatorLegendRef,
@@ -29,21 +31,19 @@ import MainChartIndicatorSeries from "./main-chart-indicator-series";
 import SubChartIndicatorPane, {
 	type SubChartIndicatorSeriesRef,
 } from "./sub-chart-indicator-pane";
-// import ChartApiDebugger from "./debug/chart-api-debugger";
-import IndicatorDebugPanel from "./debug/indicator-debug-panel";
 import { autoApplyPaneHeights } from "./utils/pane-height-manager";
-import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
 
 interface BacktestChartProps {
 	chartId: number;
 	strategyId: number;
 	// chartConfig: BacktestChartConfig;
-
 }
 
 const BacktestChart = ({ chartId, strategyId }: BacktestChartProps) => {
 	// 使用图表内部store管理数据和可见性
-	const chartConfig = useBacktestChartConfigStore.getState().getChartConfig(chartId);
+	const chartConfig = useBacktestChartConfigStore
+		.getState()
+		.getChartConfig(chartId);
 	if (!chartConfig) {
 		throw new Error(`Chart config not found for chartId: ${chartId}`);
 	}
@@ -61,13 +61,15 @@ const BacktestChart = ({ chartId, strategyId }: BacktestChartProps) => {
 	// 指标分类方法
 	const getMainChartIndicators = useCallback(() => {
 		return (chartConfig.indicatorChartConfigs || []).filter(
-			(indicatorConfig) => indicatorConfig.isInMainChart === true && !indicatorConfig.isDelete
+			(indicatorConfig) =>
+				indicatorConfig.isInMainChart === true && !indicatorConfig.isDelete,
 		);
 	}, [chartConfig.indicatorChartConfigs]);
 
 	const getSubChartIndicators = useCallback(() => {
 		return (chartConfig.indicatorChartConfigs || []).filter(
-			(indicatorConfig) => indicatorConfig.isInMainChart === false && !indicatorConfig.isDelete
+			(indicatorConfig) =>
+				indicatorConfig.isInMainChart === false && !indicatorConfig.isDelete,
 		);
 	}, [chartConfig.indicatorChartConfigs]);
 
@@ -105,9 +107,13 @@ const BacktestChart = ({ chartId, strategyId }: BacktestChartProps) => {
 	);
 
 	// 收集所有指标legend的ref
-	const indicatorLegendRefs = useRef<Record<IndicatorKeyStr, MainChartIndicatorLegendRef | null>>({});
+	const indicatorLegendRefs = useRef<
+		Record<IndicatorKeyStr, MainChartIndicatorLegendRef | null>
+	>({});
 	// 收集所有子图指标的ref
-	const subChartIndicatorRefs = useRef<Record<IndicatorKeyStr, SubChartIndicatorSeriesRef | null>>({});
+	const subChartIndicatorRefs = useRef<
+		Record<IndicatorKeyStr, SubChartIndicatorSeriesRef | null>
+	>({});
 
 	// 统一的crosshair事件处理函数
 	const handleCrosshairMove = useCallback(
@@ -308,7 +314,7 @@ const BacktestChart = ({ chartId, strategyId }: BacktestChartProps) => {
 			)} */}
 
 			{/* 指标调试面板 */}
-			{process.env.NODE_ENV === 'development' && (
+			{process.env.NODE_ENV === "development" && (
 				<IndicatorDebugPanel
 					chartConfig={chartConfig}
 					chartApiRef={chartApiRef}
@@ -324,7 +330,11 @@ const BacktestChart = ({ chartId, strategyId }: BacktestChartProps) => {
 					{/* <Pane> */}
 					<CandlestickSeries
 						ref={klineSeriesRef}
-						data={(klineData[chartConfig.klineChartConfig.klineKeyStr] as CandlestickData[]) || []}
+						data={
+							(klineData[
+								chartConfig.klineChartConfig.klineKeyStr
+							] as CandlestickData[]) || []
+						}
 						options={{
 							visible: klineVisible,
 						}}
@@ -393,7 +403,11 @@ const BacktestChart = ({ chartId, strategyId }: BacktestChartProps) => {
 					{/* 添加子图指标 */}
 					{getSubChartIndicators().map((indicatorConfig, subChartIndex) => {
 						const indicatorKeyStr = indicatorConfig.indicatorKeyStr;
-						const data = (indicatorData[indicatorKeyStr] as Record<keyof IndicatorValueConfig,SingleValueData[]>) || {};
+						const data =
+							(indicatorData[indicatorKeyStr] as Record<
+								keyof IndicatorValueConfig,
+								SingleValueData[]
+							>) || {};
 
 						if (data) {
 							return (
@@ -402,7 +416,7 @@ const BacktestChart = ({ chartId, strategyId }: BacktestChartProps) => {
 									ref={(ref) => {
 										if (ref) {
 											subChartIndicatorRefs.current[indicatorKeyStr] = ref;
-										} 
+										}
 										// else {
 										// 	delete subChartIndicatorRefs.current[indicatorKeyStr];
 										// }

@@ -1,9 +1,9 @@
 import type {
 	CandlestickData,
+	IChartApi,
 	SingleValueData,
 	UTCTimestamp,
 } from "lightweight-charts";
-import type { IChartApi } from "lightweight-charts";
 import type { Subscription } from "rxjs";
 import { create } from "zustand";
 import {
@@ -21,7 +21,10 @@ import { parseKey } from "@/utils/parse-key";
 interface BacktestChartStore {
 	chartId: ChartId;
 	klineData: Record<KlineKeyStr, CandlestickData[]>; // k线数据 和 指标数据 的集合
-	indicatorData: Record<IndicatorKeyStr,Record<keyof IndicatorValueConfig, SingleValueData[]>>; // 指标数据
+	indicatorData: Record<
+		IndicatorKeyStr,
+		Record<keyof IndicatorValueConfig, SingleValueData[]>
+	>; // 指标数据
 	subscriptions: Record<KeyStr, Subscription[]>; // 订阅集合
 
 	// === 系列可见性状态 ===
@@ -353,7 +356,10 @@ const createBacktestChartStore = (chartId: number) =>
 			console.log(`更新后的指标数据 ${indicatorKeyStr}:`, updatedIndicator);
 		},
 
-		initChartData: async (playIndex: number, chartConfig: BacktestChartConfig) => {
+		initChartData: async (
+			playIndex: number,
+			chartConfig: BacktestChartConfig,
+		) => {
 			const state = get();
 
 			// 如果已经初始化过且有数据，跳过重复初始化
@@ -546,8 +552,6 @@ const createBacktestChartStore = (chartId: number) =>
 			}));
 		},
 
-
-
 		resetData: () => {
 			set({
 				klineData: {},
@@ -594,8 +598,6 @@ export const useBacktestChartStore = (chartId: number) => {
 };
 
 // 获取指定chartId的store实例（不是hook）
-export const getBacktestChartStoreInstance = (
-	chartId: number,
-) => {
+export const getBacktestChartStoreInstance = (chartId: number) => {
 	return getBacktestChartStore(chartId);
 };

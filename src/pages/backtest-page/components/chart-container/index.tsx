@@ -29,82 +29,55 @@ const ChartContainer: React.FC<ChartContainerProps> = ({
 				/>
 			));
 
-		const chartCount = chartElements.length;
-		const layout = strategyChartConfig.layout;
+	const chartCount = chartElements.length;
+	const layout = strategyChartConfig.layout;
 
-		// 如果没有图表，显示空状态
-		if (chartCount === 0) {
-			return (
-				<div className="w-full h-full flex items-center justify-center text-gray-500">
-					请选择图表数量
-				</div>
-			);
-		}
+	// 如果没有图表，显示空状态
+	if (chartCount === 0) {
+		return (
+			<div className="w-full h-full flex items-center justify-center text-gray-500">
+				请选择图表数量
+			</div>
+		);
+	}
 
-		// 单个图表时，占满整个布局
-		if (chartCount === 1) {
-			return <div className="w-full h-full p-2">{chartElements[0]}</div>;
-		}
+	// 单个图表时，占满整个布局
+	if (chartCount === 1) {
+		return <div className="w-full h-full p-2">{chartElements[0]}</div>;
+	}
 
-		// 网格布局
-		if (layout === "grid" || layout === "grid-alt") {
-			return renderGridLayout(chartElements, chartCount, layout, strategyChartConfig);
-		}
+	// 网格布局
+	if (layout === "grid" || layout === "grid-alt") {
+		return renderGridLayout(
+			chartElements,
+			chartCount,
+			layout,
+			strategyChartConfig,
+		);
+	}
 
-		// 横向布局（所有图表水平排列）
-		if (layout === "horizontal") {
-			return (
-				<div className="w-full h-full p-2">
-					<ResizablePanelGroup
-						direction="horizontal"
-						className="w-full h-full"
-						id="horizontal-chart-group"
-					>
-						{chartElements.map((chart, index) => {
-							// 使用图表ID作为key，如果没有则回退到索引
-							const chartId = strategyChartConfig.charts[index]?.id || `chart-${index}`;
-							return (
-								<React.Fragment key={`horizontal-${chartId}`}>
-									<ResizablePanel
-										id={`horizontal-panel-${chartId}`}
-										order={index}
-										defaultSize={100 / chartCount}
-										minSize={15}
-										className={
-											index < chartCount - 1 ? "pr-1" : index > 0 ? "pl-1" : ""
-										}
-									>
-										{chart}
-									</ResizablePanel>
-									{index < chartCount - 1 && <ResizableHandle withHandle />}
-								</React.Fragment>
-							);
-						})}
-					</ResizablePanelGroup>
-				</div>
-			);
-		}
-
-		// 纵向布局（默认，所有图表垂直排列）
+	// 横向布局（所有图表水平排列）
+	if (layout === "horizontal") {
 		return (
 			<div className="w-full h-full p-2">
 				<ResizablePanelGroup
-					direction="vertical"
+					direction="horizontal"
 					className="w-full h-full"
-					id="vertical-chart-group"
+					id="horizontal-chart-group"
 				>
 					{chartElements.map((chart, index) => {
 						// 使用图表ID作为key，如果没有则回退到索引
-						const chartId = strategyChartConfig.charts[index]?.id || `chart-${index}`;
+						const chartId =
+							strategyChartConfig.charts[index]?.id || `chart-${index}`;
 						return (
-							<React.Fragment key={`vertical-${chartId}`}>
+							<React.Fragment key={`horizontal-${chartId}`}>
 								<ResizablePanel
-									id={`vertical-panel-${chartId}`}
+									id={`horizontal-panel-${chartId}`}
 									order={index}
 									defaultSize={100 / chartCount}
 									minSize={15}
 									className={
-										index < chartCount - 1 ? "pb-1" : index > 0 ? "pt-1" : ""
+										index < chartCount - 1 ? "pr-1" : index > 0 ? "pl-1" : ""
 									}
 								>
 									{chart}
@@ -116,6 +89,40 @@ const ChartContainer: React.FC<ChartContainerProps> = ({
 				</ResizablePanelGroup>
 			</div>
 		);
+	}
+
+	// 纵向布局（默认，所有图表垂直排列）
+	return (
+		<div className="w-full h-full p-2">
+			<ResizablePanelGroup
+				direction="vertical"
+				className="w-full h-full"
+				id="vertical-chart-group"
+			>
+				{chartElements.map((chart, index) => {
+					// 使用图表ID作为key，如果没有则回退到索引
+					const chartId =
+						strategyChartConfig.charts[index]?.id || `chart-${index}`;
+					return (
+						<React.Fragment key={`vertical-${chartId}`}>
+							<ResizablePanel
+								id={`vertical-panel-${chartId}`}
+								order={index}
+								defaultSize={100 / chartCount}
+								minSize={15}
+								className={
+									index < chartCount - 1 ? "pb-1" : index > 0 ? "pt-1" : ""
+								}
+							>
+								{chart}
+							</ResizablePanel>
+							{index < chartCount - 1 && <ResizableHandle withHandle />}
+						</React.Fragment>
+					);
+				})}
+			</ResizablePanelGroup>
+		</div>
+	);
 };
 
 ChartContainer.displayName = "ChartContainer";
@@ -190,7 +197,9 @@ function renderGridLayout(
 				{chartRows.map((rowCharts, rowIndex) => {
 					// 为每行生成唯一的key，基于该行第一个图表的ID
 					const firstChartIndex = rowIndex * cols;
-					const firstChartId = strategyChartConfig.charts[firstChartIndex]?.id || `row-${rowIndex}`;
+					const firstChartId =
+						strategyChartConfig.charts[firstChartIndex]?.id ||
+						`row-${rowIndex}`;
 
 					return (
 						<React.Fragment key={`grid-row-${firstChartId}`}>
@@ -223,7 +232,9 @@ function renderGridLayout(
 										{rowCharts.map((chart, colIndex) => {
 											// 为每列生成唯一的key，基于图表在原数组中的位置
 											const chartIndex = rowIndex * cols + colIndex;
-											const chartId = strategyChartConfig.charts[chartIndex]?.id || `col-${rowIndex}-${colIndex}`;
+											const chartId =
+												strategyChartConfig.charts[chartIndex]?.id ||
+												`col-${rowIndex}-${colIndex}`;
 
 											return (
 												<React.Fragment key={`grid-col-${chartId}`}>
@@ -251,7 +262,9 @@ function renderGridLayout(
 									</ResizablePanelGroup>
 								)}
 							</ResizablePanel>
-							{rowIndex < chartRows.length - 1 && <ResizableHandle withHandle />}
+							{rowIndex < chartRows.length - 1 && (
+								<ResizableHandle withHandle />
+							)}
 						</React.Fragment>
 					);
 				})}

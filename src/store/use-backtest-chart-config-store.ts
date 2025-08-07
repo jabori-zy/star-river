@@ -1,21 +1,21 @@
-import { create } from "zustand";
 import { toast } from "sonner";
-import type {
-	IndicatorChartConfig,
-	LayoutMode,
-} from "@/types/chart";
-import type { IndicatorKeyStr } from "@/types/symbol-key";
+import { create } from "zustand";
+import {
+	getBacktestStrategyChartConfig,
+	getStrategyCacheKeys,
+	updateBacktestStrategyChartConfig,
+} from "@/service/strategy";
+import type { IndicatorChartConfig, LayoutMode } from "@/types/chart";
 import type {
 	BacktestChartConfig,
 	BacktestStrategyChartConfig,
 } from "@/types/chart/backtest-chart";
-import {
-	getBacktestStrategyChartConfig,
-	updateBacktestStrategyChartConfig,
-	getStrategyCacheKeys,
-} from "@/service/strategy";
+import type {
+	IndicatorKey,
+	IndicatorKeyStr,
+	KlineKey,
+} from "@/types/symbol-key";
 import { parseKey } from "@/utils/parse-key";
-import type { KlineKey, IndicatorKey } from "@/types/symbol-key";
 
 interface BacktestChartConfigState {
 	// 状态
@@ -37,7 +37,7 @@ interface BacktestChartConfigState {
 	loadChartConfig: (strategyId: number) => Promise<void>;
 	saveChartConfig: () => Promise<void>;
 	createDefaultChart: () => Promise<void>;
-	
+
 	// 图表管理
 	addChart: (klineCacheKeyStr: string, chartName: string) => void;
 	deleteChart: (chartId: number) => void;
@@ -49,13 +49,22 @@ interface BacktestChartConfigState {
 	updateLayout: (layout: LayoutMode) => void;
 
 	// 指标管理
-	addIndicator: (chartId: number,indicatorChartConfig: IndicatorChartConfig) => void;
+	addIndicator: (
+		chartId: number,
+		indicatorChartConfig: IndicatorChartConfig,
+	) => void;
 
-	removeIndicator: (chartId: number,indicatorKeyStr: IndicatorKeyStr) => void;
+	removeIndicator: (chartId: number, indicatorKeyStr: IndicatorKeyStr) => void;
 
-	toggleIndicatorVisibility: (chartId: number,indicatorKeyStr: IndicatorKeyStr) => void;
+	toggleIndicatorVisibility: (
+		chartId: number,
+		indicatorKeyStr: IndicatorKeyStr,
+	) => void;
 
-	getIndicatorVisibility: (chartId: number,indicatorKeyStr: IndicatorKeyStr) => boolean;
+	getIndicatorVisibility: (
+		chartId: number,
+		indicatorKeyStr: IndicatorKeyStr,
+	) => boolean;
 
 	toggleKlineVisibility: (chartId: number) => void;
 	getKlineVisibility: (chartId: number) => boolean;
@@ -182,13 +191,13 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 				console.log("后端返回的图表配置:", config);
 
 				// 检查后端返回的配置是否有效
-				const hasValidConfig = config?.charts &&
+				const hasValidConfig =
+					config?.charts &&
 					Array.isArray(config.charts) &&
 					config.charts.length > 0;
 
 				if (hasValidConfig) {
 					// 使用后端配置
-					console.log("使用后端图表配置");
 					set({
 						chartConfig: {
 							charts: config.charts,
@@ -197,7 +206,6 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 					});
 				} else {
 					// 后端配置无效（null、空数组或不存在），创建默认图表
-					console.log("后端配置无效，创建默认图表");
 					const { createDefaultChart } = get();
 					await createDefaultChart();
 				}
@@ -233,7 +241,9 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 					...chartConfig,
 					charts: chartConfig.charts.map((chart) => ({
 						...chart,
-						indicatorChartConfigs: chart.indicatorChartConfigs.filter((config) => !config.isDelete),
+						indicatorChartConfigs: chart.indicatorChartConfigs.filter(
+							(config) => !config.isDelete,
+						),
 					})),
 				};
 				await updateBacktestStrategyChartConfig(strategyId, updatedChartConfig);
@@ -279,7 +289,7 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 		// 删除图表
 		deleteChart: (chartId) => {
 			const { chartConfig } = get();
-			
+
 			// 判断是否是最后一个图表
 			if (chartConfig.charts.length === 1) {
 				toast.error("至少保留一个图表");
@@ -330,12 +340,15 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 
 		// 添加指标
 		addIndicator: (chartId, indicatorChartConfig) => {
-
-			const indciatorKey = parseKey(indicatorChartConfig.indicatorKeyStr) as IndicatorKey;
+			const indciatorKey = parseKey(
+				indicatorChartConfig.indicatorKeyStr,
+			) as IndicatorKey;
 			const { chartConfig } = get();
 
 			// 检查指标是否已存在
-			const targetChart = chartConfig.charts.find((chart) => chart.id === chartId);
+			const targetChart = chartConfig.charts.find(
+				(chart) => chart.id === chartId,
+			);
 			if (!targetChart) {
 				console.warn(`图表 ID ${chartId} 不存在`);
 				return;
@@ -343,7 +356,9 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 
 			// 检查指标是否已存在,并且isDelete为false
 			const existingIndicator = targetChart.indicatorChartConfigs.find(
-				(config) => config.indicatorKeyStr === indicatorChartConfig.indicatorKeyStr && !config.isDelete
+				(config) =>
+					config.indicatorKeyStr === indicatorChartConfig.indicatorKeyStr &&
+					!config.isDelete,
 			);
 
 			if (existingIndicator) {
@@ -355,7 +370,9 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 
 			// 检查指标是否已存在,并且isDelete为true
 			const deletedIndicator = targetChart.indicatorChartConfigs.find(
-				(config) => config.indicatorKeyStr === indicatorChartConfig.indicatorKeyStr && config.isDelete
+				(config) =>
+					config.indicatorKeyStr === indicatorChartConfig.indicatorKeyStr &&
+					config.isDelete,
 			);
 
 			// 如果deletedIndicator存在，则恢复指标，设置isDelete为false
@@ -366,8 +383,6 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 				});
 				return;
 			}
-
-
 
 			set({
 				chartConfig: {
@@ -439,10 +454,11 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 						chart.id === chartId
 							? {
 									...chart,
-									indicatorChartConfigs: chart.indicatorChartConfigs.map((config) =>
-										config.indicatorKeyStr === indicatorKeyStr
-											? { ...config, isDelete: true }
-											: config
+									indicatorChartConfigs: chart.indicatorChartConfigs.map(
+										(config) =>
+											config.indicatorKeyStr === indicatorKeyStr
+												? { ...config, isDelete: true }
+												: config,
 									),
 								}
 							: chart,
@@ -459,7 +475,9 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 
 		toggleKlineVisibility: (chartId) => {
 			const { chartConfig } = get();
-			const targetChart = chartConfig.charts.find((chart) => chart.id === chartId);
+			const targetChart = chartConfig.charts.find(
+				(chart) => chart.id === chartId,
+			);
 			if (!targetChart) {
 				console.warn(`图表 ID ${chartId} 不存在`);
 				return;
@@ -467,41 +485,52 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 
 			const updatedKlineChartConfig = {
 				...targetChart.klineChartConfig,
-				visible: targetChart.klineChartConfig.visible === undefined ? false : !targetChart.klineChartConfig.visible,
+				visible:
+					targetChart.klineChartConfig.visible === undefined
+						? false
+						: !targetChart.klineChartConfig.visible,
 			};
 
 			set({
 				chartConfig: {
 					...chartConfig,
 					charts: chartConfig.charts.map((chart) =>
-						chart.id === chartId ? { ...chart, klineChartConfig: updatedKlineChartConfig } : chart,
+						chart.id === chartId
+							? { ...chart, klineChartConfig: updatedKlineChartConfig }
+							: chart,
 					),
 				},
 			});
-
 		},
 
 		getKlineVisibility: (chartId) => {
 			const { chartConfig } = get();
-			const targetChart = chartConfig.charts.find((chart) => chart.id === chartId);
+			const targetChart = chartConfig.charts.find(
+				(chart) => chart.id === chartId,
+			);
 			if (!targetChart) {
 				console.warn(`图表 ID ${chartId} 不存在`);
 				return false;
 			}
 
-			return targetChart.klineChartConfig.visible === true || targetChart.klineChartConfig.visible === undefined;
+			return (
+				targetChart.klineChartConfig.visible === true ||
+				targetChart.klineChartConfig.visible === undefined
+			);
 		},
 
 		toggleIndicatorVisibility: (chartId, indicatorKeyStr) => {
 			const { chartConfig } = get();
-			const targetChart = chartConfig.charts.find((chart) => chart.id === chartId);
+			const targetChart = chartConfig.charts.find(
+				(chart) => chart.id === chartId,
+			);
 			if (!targetChart) {
 				console.warn(`图表 ID ${chartId} 不存在`);
 				return;
 			}
 
 			const indicatorChartConfig = targetChart.indicatorChartConfigs.find(
-				(config) => config.indicatorKeyStr === indicatorKeyStr
+				(config) => config.indicatorKeyStr === indicatorKeyStr,
 			);
 
 			if (!indicatorChartConfig) {
@@ -511,20 +540,26 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 
 			const updatedIndicatorChartConfig = {
 				...indicatorChartConfig,
-				visible: indicatorChartConfig.visible === undefined ? false : !indicatorChartConfig.visible, // 如果visible未定义，则默认不显示
+				visible:
+					indicatorChartConfig.visible === undefined
+						? false
+						: !indicatorChartConfig.visible, // 如果visible未定义，则默认不显示
 			};
 
 			set({
 				chartConfig: {
 					...chartConfig,
 					charts: chartConfig.charts.map((chart) =>
-						chart.id === chartId 
-							? { 
-								...chart, 
-								indicatorChartConfigs: chart.indicatorChartConfigs.map((config) =>
-									config.indicatorKeyStr === indicatorKeyStr ? updatedIndicatorChartConfig : config
-								)
-							} 
+						chart.id === chartId
+							? {
+									...chart,
+									indicatorChartConfigs: chart.indicatorChartConfigs.map(
+										(config) =>
+											config.indicatorKeyStr === indicatorKeyStr
+												? updatedIndicatorChartConfig
+												: config,
+									),
+								}
 							: chart,
 					),
 				},
@@ -533,14 +568,16 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 
 		getIndicatorVisibility: (chartId, indicatorKeyStr) => {
 			const { chartConfig } = get();
-			const targetChart = chartConfig.charts.find((chart) => chart.id === chartId);
+			const targetChart = chartConfig.charts.find(
+				(chart) => chart.id === chartId,
+			);
 			if (!targetChart) {
 				console.warn(`图表 ID ${chartId} 不存在`);
 				return false;
 			}
 
 			const indicatorChartConfig = targetChart.indicatorChartConfigs.find(
-				(config) => config.indicatorKeyStr === indicatorKeyStr
+				(config) => config.indicatorKeyStr === indicatorKeyStr,
 			);
 
 			if (!indicatorChartConfig) {
@@ -548,7 +585,10 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 				return false;
 			}
 
-			return indicatorChartConfig.visible === true || indicatorChartConfig.visible === undefined;
+			return (
+				indicatorChartConfig.visible === true ||
+				indicatorChartConfig.visible === undefined
+			);
 		},
 
 		// 重置状态

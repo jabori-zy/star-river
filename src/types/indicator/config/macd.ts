@@ -1,3 +1,4 @@
+import { HistogramSeries, LineSeries } from "lightweight-charts";
 import { z } from "zod";
 import { SeriesType } from "@/types/chart";
 import { IndicatorType, PriceSource } from "@/types/indicator";
@@ -8,7 +9,6 @@ import {
 } from "@/types/indicator/indicator-config";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import type { IndicatorKey } from "@/types/symbol-key";
-import { LineSeries, HistogramSeries } from "lightweight-charts";
 
 const MACDConfigSchema = z.object({
 	fastPeriod: z.number().int().positive(),

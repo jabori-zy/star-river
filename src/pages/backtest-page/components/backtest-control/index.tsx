@@ -14,9 +14,9 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
 import LayoutControl from "../layout-control";
 import AddChartButton from "./add-chart-button";
-import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
 
 interface BacktestControlProps {
 	strategyId: number;
@@ -36,7 +36,8 @@ const BacktestControl: React.FC<BacktestControlProps> = ({
 	onStop,
 }) => {
 	// 使用store中的状态和方法
-	const { chartConfig, isSaving, updateLayout, addChart, saveChartConfig } = useBacktestChartConfigStore();
+	const { chartConfig, isSaving, updateLayout, addChart, saveChartConfig } =
+		useBacktestChartConfigStore();
 	return (
 		<div className="flex items-center w-full ">
 			{/* 左侧占位空间 */}

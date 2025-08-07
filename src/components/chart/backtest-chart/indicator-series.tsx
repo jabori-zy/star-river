@@ -20,8 +20,17 @@ export interface IndicatorSeriesProps {
  * 单个指标 Series 组件
  * 可以被主图指标和子图指标共用
  */
-export const IndicatorSeries = ({ seriesConfig, data, visible = true }: IndicatorSeriesProps) => {
-	const seriesRef = useRef<SeriesApiRef<"Line"> | SeriesApiRef<"Histogram"> | SeriesApiRef<"Area"> | null>(null);
+export const IndicatorSeries = ({
+	seriesConfig,
+	data,
+	visible = true,
+}: IndicatorSeriesProps) => {
+	const seriesRef = useRef<
+		| SeriesApiRef<"Line">
+		| SeriesApiRef<"Histogram">
+		| SeriesApiRef<"Area">
+		| null
+	>(null);
 
 	const lineSeriesOptions = useMemo(
 		() => ({

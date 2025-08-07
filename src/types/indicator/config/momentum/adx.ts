@@ -1,3 +1,4 @@
+import { LineSeries } from "lightweight-charts";
 import { z } from "zod";
 import { SeriesType } from "@/types/chart";
 import { IndicatorType } from "@/types/indicator";
@@ -8,7 +9,6 @@ import {
 } from "@/types/indicator/indicator-config";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import type { IndicatorKey } from "@/types/symbol-key";
-import { LineSeries } from "lightweight-charts";
 
 // MA 指标配置的 Zod schema
 const ADXConfigSchema = z.object({

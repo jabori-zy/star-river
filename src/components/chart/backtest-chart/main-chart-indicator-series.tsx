@@ -1,9 +1,9 @@
 import type { SingleValueData } from "lightweight-charts";
 import type { SeriesConfig } from "@/types/chart";
-import type { IndicatorKeyStr } from "@/types/symbol-key";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
-import { IndicatorSeries } from "./indicator-series";
+import type { IndicatorKeyStr } from "@/types/symbol-key";
 import { useBacktestChartStore } from "./backtest-chart-store";
+import { IndicatorSeries } from "./indicator-series";
 
 // 主图指标 Series 组件
 interface MainChartIndicatorSeriesProps {

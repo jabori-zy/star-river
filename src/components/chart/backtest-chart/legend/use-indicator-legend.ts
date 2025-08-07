@@ -5,8 +5,11 @@ import type {
 } from "lightweight-charts";
 import type { SeriesApiRef } from "lightweight-charts-react-components";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { getIndicatorConfig, getValueLegendShowName } from "@/types/indicator/indicator-config";
 import type { IndicatorType } from "@/types/indicator";
+import {
+	getIndicatorConfig,
+	getValueLegendShowName,
+} from "@/types/indicator/indicator-config";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import type { IndicatorKey, IndicatorKeyStr } from "@/types/symbol-key";
 import { parseKey } from "@/utils/parse-key";
@@ -56,7 +59,10 @@ const mapIndicatorDataToLegendData = (
 	time: Time,
 ): IndicatorLegendData => {
 	const indicatorName = parseIndicatorName(indicatorKeyStr);
-	const values: Record<string,{ label: string; value: string; color?: string }> = {};
+	const values: Record<
+		string,
+		{ label: string; value: string; color?: string }
+	> = {};
 
 	let colorIndex = 0;
 
@@ -79,7 +85,10 @@ const mapIndicatorDataToLegendData = (
 		if (dataPoint) {
 			// 使用新的方法获取legend显示名称，如果没有则使用原始key
 			const legendShowName = indicatorType
-				? getValueLegendShowName(indicatorType as IndicatorType, key as keyof IndicatorValueConfig)
+				? getValueLegendShowName(
+						indicatorType as IndicatorType,
+						key as keyof IndicatorValueConfig,
+					)
 				: undefined;
 
 			values[key] = {
@@ -90,7 +99,10 @@ const mapIndicatorDataToLegendData = (
 		} else {
 			// 即使没有数据，也要创建空的值条目，确保legend显示
 			const legendShowName = indicatorType
-				? getValueLegendShowName(indicatorType as IndicatorType, key as keyof IndicatorValueConfig)
+				? getValueLegendShowName(
+						indicatorType as IndicatorType,
+						key as keyof IndicatorValueConfig,
+					)
 				: undefined;
 
 			values[key] = {
@@ -153,12 +165,10 @@ export const useIndicatorLegend = (
 			| null
 		>
 	>({});
-	const [legendData, setLegendData] = useState<IndicatorLegendData>(
-		() => {
-			// 总是返回legend数据，即使没有数据也显示空的legend
-			return getLastDataLegendData(indicatorKeyStr, data);
-		},
-	);
+	const [legendData, setLegendData] = useState<IndicatorLegendData>(() => {
+		// 总是返回legend数据，即使没有数据也显示空的legend
+		return getLastDataLegendData(indicatorKeyStr, data);
+	});
 
 	// 监听数据变化，自动更新图例数据
 	useEffect(() => {
@@ -176,7 +186,10 @@ export const useIndicatorLegend = (
 			if (!param || !param.time) {
 				// 没有时间参数时，显示空值而不是最新数据
 				const indicatorName = parseIndicatorName(indicatorKeyStr);
-				const values: Record<string,{ label: string; value: string; color?: string }> = {};
+				const values: Record<
+					string,
+					{ label: string; value: string; color?: string }
+				> = {};
 
 				// 解析indicatorType用于获取legend名称
 				let indicatorType: string | undefined;
@@ -193,7 +206,10 @@ export const useIndicatorLegend = (
 					if (key === "timestamp") return; // 跳过timestamp字段
 
 					const legendShowName = indicatorType
-						? getValueLegendShowName(indicatorType as IndicatorType, key as keyof IndicatorValueConfig)
+						? getValueLegendShowName(
+								indicatorType as IndicatorType,
+								key as keyof IndicatorValueConfig,
+							)
 						: undefined;
 
 					values[key] = {

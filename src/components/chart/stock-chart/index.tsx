@@ -57,7 +57,7 @@ const StockCharts = forwardRef<StockChartsRef, StockChartsProps>(
 
 		const getPlayIndex = useCallback(() => {
 			get_play_index(strategyId).then((playIndex) => {
-				setPlayIndex(playIndex) 
+				setPlayIndex(playIndex);
 			});
 		}, [strategyId]);
 

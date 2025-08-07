@@ -1,3 +1,4 @@
+import { LineSeries } from "lightweight-charts";
 import { z } from "zod";
 import { SeriesType } from "@/types/chart";
 import { IndicatorType, MAType, PriceSource } from "@/types/indicator";
@@ -12,7 +13,6 @@ import {
 	PriceSourceSchema,
 } from "@/types/indicator/schemas";
 import type { IndicatorKey } from "@/types/symbol-key";
-import { LineSeries } from "lightweight-charts";
 
 // MA 指标配置的 Zod schema
 const MAConfigSchema = z.object({
@@ -63,7 +63,6 @@ export const MAConfig: IndicatorConfig<MAConfigType> = {
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },
 		ma: { label: "ma", value: 0, legendShowName: "ma" },
-
 	},
 	chartConfig: {
 		isInMainChart: true,

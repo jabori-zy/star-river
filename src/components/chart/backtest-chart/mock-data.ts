@@ -4,7 +4,6 @@ import type { Candlestick } from "./backtest-chart-store";
 
 // 支持多种时间格式的类型，与 lightweight-charts 的 Time 类型兼容
 
-
 const createStubArray = (length: number) => new Array(length).fill(0);
 
 export const generateOHLCData = (length: number): Candlestick[] => {
@@ -67,9 +66,7 @@ export const generateLineData = (
 	});
 };
 
-export const generateNextDataPoint = (
-	last: Candlestick,
-): Candlestick => {
+export const generateNextDataPoint = (last: Candlestick): Candlestick => {
 	// 修复时间生成逻辑，处理lightweight-charts的时间对象格式
 	console.log("last", last);
 	let nextTime: Time;

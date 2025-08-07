@@ -10,7 +10,6 @@ export type KlineKeyStr = string;
 
 export type IndicatorKeyStr = string;
 
-
 export type KlineKey = {
 	type: "kline";
 	exchange: string;
@@ -19,7 +18,6 @@ export type KlineKey = {
 	startTime?: string;
 	endTime?: string;
 };
-
 
 export type IndicatorKey = {
 	type: "indicator";

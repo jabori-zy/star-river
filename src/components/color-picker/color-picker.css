@@ -1,42 +1,42 @@
 /* 颜色选择器样式 */
 .color-picker-container .react-colorful {
-  width: 100% !important;
-  max-width: 280px !important;
-  height: auto !important;
+	width: 100% !important;
+	max-width: 280px !important;
+	height: auto !important;
 }
 
 .color-picker-container .react-colorful__saturation {
-  border-radius: 8px 8px 0 0;
-  height: 200px !important;
+	border-radius: 8px 8px 0 0;
+	height: 200px !important;
 }
 
 .color-picker-container .react-colorful__hue {
-  height: 24px;
-  border-radius: 0 0 8px 8px;
+	height: 24px;
+	border-radius: 0 0 8px 8px;
 }
 
 .color-picker-container .react-colorful__saturation-pointer {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .color-picker-container .react-colorful__hue-pointer {
-  width: 16px;
-  height: 24px;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+	width: 16px;
+	height: 24px;
+	border-radius: 4px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 /* 隐藏数字输入框的加减按钮 */
 .rgb-input input[type="number"]::-webkit-outer-spin-button,
 .rgb-input input[type="number"]::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+	-webkit-appearance: none;
+	margin: 0;
 }
 
 .rgb-input input[type="number"] {
-  -moz-appearance: textfield;
-  appearance: textfield;
+	-moz-appearance: textfield;
+	appearance: textfield;
 }

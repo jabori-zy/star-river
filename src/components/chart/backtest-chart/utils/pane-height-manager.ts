@@ -3,7 +3,7 @@
  * 使用 IChartApi.panes() 方法动态管理主图和子图的高度
  */
 
-import type { IChartApi } from 'lightweight-charts';
+import type { IChartApi } from "lightweight-charts";
 
 export interface PaneHeightConfig {
 	mainPaneHeight: number; // 主图高度占比 (0-1)
@@ -74,7 +74,7 @@ export function calculatePaneHeights(subChartCount: number): PaneHeightConfig {
 export function calculateSubChartHeight(
 	subChartIndex: number,
 	totalSubChartCount: number,
-	containerHeight: number
+	containerHeight: number,
 ): number {
 	const heightConfig = calculatePaneHeights(totalSubChartCount);
 
@@ -102,7 +102,9 @@ export function ratioToPixels(ratio: number, containerHeight: number): number {
  * @param containerRef 容器引用
  * @returns 容器高度（像素），如果获取失败返回默认值400
  */
-export function getContainerHeight(containerRef: React.RefObject<HTMLElement | null>): number {
+export function getContainerHeight(
+	containerRef: React.RefObject<HTMLElement | null>,
+): number {
 	if (containerRef.current) {
 		const rect = containerRef.current.getBoundingClientRect();
 		return rect.height || 400;
@@ -115,15 +117,13 @@ export function getContainerHeight(containerRef: React.RefObject<HTMLElement | n
  * @param chartApi Chart API 实例
  * @returns 是否成功应用高度配置
  */
-export function applyPaneHeightsWithChartApi(
-	chartApi: IChartApi
-): boolean {
+export function applyPaneHeightsWithChartApi(chartApi: IChartApi): boolean {
 	try {
 		// 获取所有 Panes
 		const panes = chartApi.panes();
 
 		if (panes.length === 0) {
-			console.warn('没有找到任何 Panes');
+			console.warn("没有找到任何 Panes");
 			return false;
 		}
 
@@ -135,7 +135,6 @@ export function applyPaneHeightsWithChartApi(
 
 		// 使用最小延迟确保在下一个事件循环中执行，减少闪烁
 		setTimeout(() => {
-
 			// 将比例转换为 stretch factor（乘以100便于理解为百分比）
 			panes.forEach((pane, index) => {
 				let stretchFactor: number;
@@ -154,14 +153,12 @@ export function applyPaneHeightsWithChartApi(
 			});
 
 			// 验证设置结果
-			setTimeout(() => {
-			}, 50); // 从 200ms 减少到 50ms
+			setTimeout(() => {}, 50); // 从 200ms 减少到 50ms
 		}, 0); // 从 100ms 减少到 0ms
-
 
 		return true;
 	} catch (error) {
-		console.error('应用 Pane 高度配置失败:', error);
+		console.error("应用 Pane 高度配置失败:", error);
 		return false;
 	}
 }
@@ -177,7 +174,7 @@ export function autoApplyPaneHeights(
 	// containerRef?: React.RefObject<HTMLElement | null>
 ): boolean {
 	if (!chartApi) {
-		console.warn('Chart API 未设置，无法应用高度配置');
+		console.warn("Chart API 未设置，无法应用高度配置");
 		return false;
 	}
 

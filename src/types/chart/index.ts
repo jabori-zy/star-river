@@ -1,4 +1,8 @@
-import { LineSeries, AreaSeries, HistogramSeries } from "lightweight-charts";
+import type {
+	AreaSeries,
+	HistogramSeries,
+	LineSeries,
+} from "lightweight-charts";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import type { IndicatorKeyStr, KeyStr } from "@/types/symbol-key";
 // import { IndicatorValue } from "../indicator/backup/indicator-value";
@@ -25,13 +29,11 @@ export type SeriesConfig = {
 	indicatorValueKey: keyof IndicatorValueConfig; // 指标值的键名
 };
 
-
 export type IndicatorChartBaseConfig = {
 	isInMainChart: boolean; // isInMainChart
 	visible?: boolean; // 指标可见性
 	seriesConfigs: SeriesConfig[];
-}
-
+};
 
 export type IndicatorChartConfig = IndicatorChartBaseConfig & {
 	chartId: ChartId; // chartId
@@ -49,6 +51,6 @@ export type KlineChartConfig = {
 // // 子图配置
 // export type SubChartConfig = {
 // 	mainChartId: ChartId; // 所属的主图id
-// 	subChartId: ChartId; // 子图id`	
+// 	subChartId: ChartId; // 子图id`
 // 	indicatorChartConfigs: Record<IndicatorKeyStr, IndicatorChartConfig>;
 // };

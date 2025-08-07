@@ -10,7 +10,6 @@ import type { SeriesApiRef } from "lightweight-charts-react-components";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { colors } from "./colors";
 
-
 export type KlineLegendData = {
 	open?: string;
 	high?: string;

@@ -11,12 +11,11 @@ import {
 	playOne,
 	stop,
 } from "@/service/strategy-control/backtest-strategy-control";
-
+import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
 import BacktestWindowHeader from "../../components/backtest/backtest-window-header";
 import useBacktestStrategySSE from "../../hooks/sse/use-backtest-strategy-sse";
 import BacktestControl from "./components/backtest-control";
 import ChartContainer from "./components/chart-container";
-import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
 
 export default function BacktestPage() {
 	const navigate = useNavigate();
@@ -34,11 +33,8 @@ export default function BacktestPage() {
 
 	// 从URL参数获取strategyId
 	const getStrategyIdFromParams = useCallback((): number | null => {
-		console.log("params:", params);
-		console.log("params.strategyId:", params.strategyId);
 		if (params.strategyId) {
 			const id = parseInt(params.strategyId, 10);
-			console.log("解析后的ID:", id);
 			return !Number.isNaN(id) && id > 0 ? id : null;
 		}
 		return null;
@@ -53,7 +49,6 @@ export default function BacktestPage() {
 	// 当URL参数变化时，更新store中的strategyId
 	useEffect(() => {
 		const urlStrategyId = getStrategyIdFromParams();
-		console.log("URL参数 strategyId:", urlStrategyId);
 		if (urlStrategyId !== strategyId) {
 			setStrategyId(urlStrategyId);
 		}
@@ -65,10 +60,6 @@ export default function BacktestPage() {
 			loadChartConfig(strategyId);
 		}
 	}, [strategyId, loadChartConfig]);
-
-	useEffect(() => {
-		console.log("当前图表配置:", chartConfig);
-	}, [chartConfig]);
 
 	// 处理退出确认
 	const handleQuit = async () => {
@@ -124,8 +115,6 @@ export default function BacktestPage() {
 			</div>
 		);
 	}
-
-
 
 	// 播放策略
 	const onPlay = () => {

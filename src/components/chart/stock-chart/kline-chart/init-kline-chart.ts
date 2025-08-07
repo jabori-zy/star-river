@@ -381,7 +381,6 @@ export const initKlineChart = async (
 	sciChartSurface.annotations.add(latestPriceAnnotation);
 
 	const setKlineData = (symbolName: string, klines: Kline[]) => {
-
 		// 将 Kline 映射为 scichart 期望的结构化数组
 		const xValues: number[] = [];
 		const openValues: number[] = [];
@@ -474,8 +473,7 @@ export const initKlineChart = async (
 			KlineInterval[chartInterval as unknown as keyof typeof KlineInterval];
 		const range = new NumberRange(start - dateDifference, end + dateDifference);
 		xAxis.visibleRange = range;
-		xAxis.animateVisibleRange(range, 10, easing.inOutQuad, () => {
-		});
+		xAxis.animateVisibleRange(range, 10, easing.inOutQuad, () => {});
 	};
 
 	// 批量设置指标数据

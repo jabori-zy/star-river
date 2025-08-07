@@ -10,7 +10,7 @@ export type BacktestChartConfig = {
 	id: number;
 	chartName: string;
 	klineChartConfig: KlineChartConfig;
-	indicatorChartConfigs: IndicatorChartConfig[];	
+	indicatorChartConfigs: IndicatorChartConfig[];
 };
 
 export type BacktestStrategyChartConfig = {
