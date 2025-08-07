@@ -330,6 +330,8 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 
 		// 添加指标
 		addIndicator: (chartId, indicatorChartConfig) => {
+
+			const indciatorKey = parseKey(indicatorChartConfig.indicatorKeyStr) as IndicatorKey;
 			const { chartConfig } = get();
 
 			// 检查指标是否已存在
@@ -339,11 +341,10 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 				return;
 			}
 
+			// 检查指标是否已存在,并且isDelete为false
 			const existingIndicator = targetChart.indicatorChartConfigs.find(
-				(config) => config.indicatorKeyStr === indicatorChartConfig.indicatorKeyStr
+				(config) => config.indicatorKeyStr === indicatorChartConfig.indicatorKeyStr && !config.isDelete
 			);
-
-			const indciatorKey = parseKey(indicatorChartConfig.indicatorKeyStr) as IndicatorKey;
 
 			if (existingIndicator) {
 				toast.warning(`${indciatorKey.indicatorType.toUpperCase()}已存在`, {
@@ -351,6 +352,22 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 				});
 				return;
 			}
+
+			// 检查指标是否已存在,并且isDelete为true
+			const deletedIndicator = targetChart.indicatorChartConfigs.find(
+				(config) => config.indicatorKeyStr === indicatorChartConfig.indicatorKeyStr && config.isDelete
+			);
+
+			// 如果deletedIndicator存在，则恢复指标，设置isDelete为false
+			if (deletedIndicator) {
+				deletedIndicator.isDelete = false;
+				toast.success(`${indciatorKey.indicatorType.toUpperCase()}添加成功`, {
+					duration: 2000,
+				});
+				return;
+			}
+
+
 
 			set({
 				chartConfig: {

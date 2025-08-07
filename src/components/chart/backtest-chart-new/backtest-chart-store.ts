@@ -53,6 +53,12 @@ interface BacktestChartStore {
 
 
 	initChartData: (playIndex: number) => Promise<void>;
+	initIndicatorData: (indicatorKeyStr: IndicatorKeyStr, playIndex: number) => Promise<void>;
+	
+	// 私有方法（内部使用）
+	_processKlineData: (keyStr: KeyStr, playIndex: number) => Promise<void>;
+	_processIndicatorData: (keyStr: KeyStr, playIndex: number) => Promise<Record<keyof IndicatorValueConfig, SingleValueData[]> | null>;
+	_initSingleKeyData: (keyStr: KeyStr, playIndex: number) => Promise<Record<keyof IndicatorValueConfig, SingleValueData[]> | null | void>;
 
 	// setInitialKlineData: (keyStr: KlineKeyStr, data: CandlestickData[]) => void;
 	// setInitialIndicatorData: (keyStr: IndicatorKeyStr, data: Record<keyof IndicatorValueConfig, SingleValueData[]>) => void;
@@ -422,89 +428,127 @@ const createBacktestChartStore = (chartId: number, chartConfig: BacktestChartCon
 			}));
 		},
 
+		// 私有方法：处理K线数据
+		_processKlineData: async (keyStr: KeyStr, playIndex: number) => {
+			const state = get();
+			const initialKlines = (await getInitialChartData(keyStr, playIndex, null)) as Kline[];
+
+			// 安全检查：确保 initialKlines 存在且是数组
+			if (initialKlines && Array.isArray(initialKlines) && initialKlines.length > 0) {
+				const klineData: CandlestickData[] = initialKlines.map(
+					(kline) => ({
+						time: Math.floor(kline.timestamp / 1000) as UTCTimestamp,
+						open: kline.open,
+						high: kline.high,
+						low: kline.low,
+						close: kline.close,
+					}),
+				);
+
+				state.setKlineData(keyStr, klineData);
+			} else {
+				console.warn(`No kline data received for keyStr: ${keyStr}`);
+			}
+		},
+
+		// 私有方法：处理指标数据
+		_processIndicatorData: async (keyStr: KeyStr, playIndex: number) => {
+			const state = get();
+			const initialIndicatorData = (await getInitialChartData(
+				keyStr,
+				playIndex,
+				null,
+			)) as Record<keyof IndicatorValueConfig, number>[];
+
+			// 安全检查：确保指标数据存在
+			if (
+				initialIndicatorData &&
+				Array.isArray(initialIndicatorData) &&
+				initialIndicatorData.length > 0
+			) {
+				const indicatorData: Record<keyof IndicatorValueConfig, SingleValueData[]> = {};
+				initialIndicatorData.forEach((item) => {
+					Object.entries(item).forEach(
+						([indicatorValueField, value]) => {
+							// 过滤掉timestamp和value为0的数据
+							if (indicatorValueField !== "timestamp" && value !== 0) {
+								indicatorData[
+									indicatorValueField as keyof IndicatorValueConfig
+								] = [
+									...(indicatorData[
+										indicatorValueField as keyof IndicatorValueConfig
+									] || []),
+									{
+										time: Math.floor(
+											item.timestamp / 1000,
+										) as UTCTimestamp,
+										value: value,
+									} as SingleValueData,
+								];
+							}
+						},
+					);
+				});
+
+				state.setIndicatorData(keyStr, indicatorData);
+				return indicatorData;
+			} else {
+				console.warn(`No indicator data received for keyStr: ${keyStr}`);
+				return null;
+			}
+		},
+
+		// 通用方法：处理单个keyStr的数据初始化
+		_initSingleKeyData: async (keyStr: KeyStr, playIndex: number) => {
+			const state = get();
+			try {
+				const key = parseKey(keyStr);
+
+				if (key.type === "kline") {
+					await state._processKlineData(keyStr, playIndex);
+				} else if (key.type === "indicator") {
+					return await state._processIndicatorData(keyStr, playIndex);
+				}
+			} catch (error) {
+				console.error(`Error loading data for keyStr: ${keyStr}`, error);
+				return null;
+			}
+		},
+
 		initChartData: async (playIndex: number) => {
 			const state = get();
 
 			if (playIndex > -1) {
 				// 使用 Promise.all 等待所有异步操作完成
-				const promises = state.getKeyStr().map(async (keyStr) => {
-					try {
-						const key = parseKey(keyStr);
-
-						// 如果是KlineKey, 则转换为K线
-						if (key.type === "kline") {
-							const initialKlines = (await getInitialChartData(keyStr,playIndex,null,)) as Kline[];
-
-							// 安全检查：确保 initialKlines 存在且是数组
-							if (initialKlines && Array.isArray(initialKlines) && initialKlines.length > 0) {
-								const klineData: CandlestickData[] = initialKlines.map(
-									(kline) => ({
-										time: Math.floor(kline.timestamp / 1000) as UTCTimestamp,
-										open: kline.open,
-										high: kline.high,
-										low: kline.low,
-										close: kline.close,
-									}),
-								);
-
-								// state.setInitialKlineData(keyStr, klineData);
-								state.setKlineData(keyStr, klineData);
-							} else {
-								console.warn(`No kline data received for keyStr: ${keyStr}`);
-							}
-						} else if (key.type === "indicator") {
-							const initialIndicatorData = (await getInitialChartData(
-								keyStr,
-								playIndex,
-								null,
-							)) as Record<keyof IndicatorValueConfig, number>[];
-							// 安全检查：确保指标数据存在
-							if (
-								initialIndicatorData &&
-								Array.isArray(initialIndicatorData) &&
-								initialIndicatorData.length > 0
-							) {
-								const indicatorData: Record<keyof IndicatorValueConfig,SingleValueData[]> = {};
-								initialIndicatorData.forEach((item) => {
-									Object.entries(item).forEach(
-										([indicatorValueField, value]) => {
-											// 过滤掉timestamp和value为0的数据
-											if (indicatorValueField !== "timestamp" && value !== 0) {
-												indicatorData[
-													indicatorValueField as keyof IndicatorValueConfig
-												] = [
-													...(indicatorData[
-														indicatorValueField as keyof IndicatorValueConfig
-													] || []),
-													{
-														time: Math.floor(
-															item.timestamp / 1000,
-														) as UTCTimestamp,
-														value: value,
-													} as SingleValueData,
-												];
-											}
-										},
-									);
-								});
-
-								// state.setInitialIndicatorData(keyStr, indicatorData);
-								state.setIndicatorData(keyStr, indicatorData);
-							} else {
-								console.warn(
-									`No indicator data received for keyStr: ${keyStr}`,
-								);
-							}
-						}
-					} catch (error) {
-						console.error(`Error loading data for keyStr: ${keyStr}`, error);
-					}
-				});
+				const promises = state.getKeyStr().map(keyStr => 
+					state._initSingleKeyData(keyStr, playIndex)
+				);
 
 				// 等待所有数据加载完成
 				await Promise.all(promises);
 				// 标记数据已初始化
 				state.setIsDataInitialized(true);
+			}
+		},
+
+		initIndicatorData: async (indicatorKeyStr: IndicatorKeyStr, playIndex: number) => {
+			const state = get();
+			
+			if (playIndex > -1) {
+				try {
+					const key = parseKey(indicatorKeyStr);
+					
+					// 只处理指标类型的key
+					if (key.type === "indicator") {
+						await state._processIndicatorData(indicatorKeyStr, playIndex);
+					} else {
+						console.warn(`Key ${indicatorKeyStr} is not an indicator key`);
+					}
+				} catch (error) {
+					console.error(`Error loading indicator data for keyStr: ${indicatorKeyStr}`, error);
+				}
+			} else {
+				console.warn(`Invalid playIndex: ${playIndex}, skipping indicator data initialization`);
 			}
 		},
 

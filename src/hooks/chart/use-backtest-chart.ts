@@ -7,19 +7,16 @@ import type {
     DeepPartial,
     ISeriesApi,
     SingleValueData,
-    LineSeriesOptions
 } from "lightweight-charts";
 import { createChart } from "lightweight-charts";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import { get_play_index } from "@/service/strategy-control/backtest-strategy-control";
 import { useBacktestChartStore } from "@/components/chart/backtest-chart-new/backtest-chart-store";
 import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
-import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import { SeriesType } from "@/types/chart";
 import { useKlineLegend, type KlineLegendData } from "./use-kline-legend";
-import type { MouseEventParams } from "lightweight-charts";
-import type { KlineKeyStr } from "@/types/symbol-key";
 import type { IndicatorChartConfig } from "@/types/chart";
+import { addChartSeries } from "./utils/add-chart-series";
 
 interface UseBacktestChartProps {
     strategyId: number;
@@ -51,6 +48,7 @@ export const useBacktestChart = ({
         klineData,
         indicatorData,
         initChartData,
+        initIndicatorData,
         setChartRef,
         getChartRef,
         setKlineSeriesRef,
@@ -77,7 +75,6 @@ export const useBacktestChart = ({
     const { chartConfig: globalBacktestConfig, getChartConfig } = useBacktestChartConfigStore();
     
     const globalChartConfig = useMemo(() => {
-        console.log("globalChartConfig useMemo重新计算", chartId, globalBacktestConfig);
         return getChartConfig(chartId);
     }, [getChartConfig, chartId, globalBacktestConfig]);
 
@@ -129,10 +126,9 @@ export const useBacktestChart = ({
                         const seriesApi = getIndicatorSeriesRef(config.indicatorKeyStr, seriesConfig.indicatorValueKey);
                         if (seriesApi) {
                             chart.removeSeries(seriesApi);
-                            // 删除store中的seriesApi
-                            removeIndicatorSeriesRef(config.indicatorKeyStr);
                         }
                     });
+                    removeIndicatorSeriesRef(config.indicatorKeyStr);
                 }
                 // 如果是子图指标，则removePane
                 else if (!config.isInMainChart && config.isDelete) {
@@ -144,9 +140,77 @@ export const useBacktestChart = ({
                     }
                 }
             });
-    }
+        }
+    }, 
+    [getChartRef, chartConfig.indicatorChartConfigs, getIndicatorSeriesRef, getSubChartPaneRef, removeIndicatorSeriesRef, removeSubChartPaneRef]);
 
-    }, [getChartRef, chartConfig.indicatorChartConfigs, getIndicatorSeriesRef, getSubChartPaneRef, removeIndicatorSeriesRef, removeSubChartPaneRef]);
+    // 添加series
+    const addSeries = useCallback(async () => {
+        const chart = getChartRef();
+        if (chart) {
+            // 检查哪些指标需要初始化数据
+            const indicatorsNeedingData = chartConfig.indicatorChartConfigs.filter(config => {
+                // 检查指标是否存在且未被删除，并且store中没有数据
+                return !config.isDelete && !indicatorData[config.indicatorKeyStr];
+            });
+
+            // 并行初始化所有需要数据的指标
+            if (indicatorsNeedingData.length > 0) {
+                await Promise.all(
+                    indicatorsNeedingData.map(config => 
+                        initIndicatorData(config.indicatorKeyStr, playIndex.current)
+                    )
+                );
+            }
+
+            chartConfig.indicatorChartConfigs.forEach(config => {
+                // 如果指标是主图指标，并且没有被删除，并且store中没有seriesRef，则添加series
+                if (config.isInMainChart && !config.isDelete) {
+                    config.seriesConfigs.forEach(seriesConfig => {
+                        const seriesApi = getIndicatorSeriesRef(config.indicatorKeyStr, seriesConfig.indicatorValueKey);
+                        if (!seriesApi) {
+                            const newSeries = addChartSeries(chart, config, seriesConfig);
+                            if (newSeries) {
+                                setIndicatorSeriesRef(config.indicatorKeyStr, seriesConfig.indicatorValueKey, newSeries);
+                                
+                                // 为新创建的系列设置数据
+                                const indicatorDataForSeries = indicatorData[config.indicatorKeyStr];
+                                if (indicatorDataForSeries) {
+                                    const seriesData = indicatorDataForSeries[seriesConfig.indicatorValueKey];
+                                    if (seriesData && seriesData.length > 0) {
+                                        newSeries.setData(seriesData);
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+                // 如果指标是子图指标，并且没有被删除，并且store中没有paneRef，则添加pane
+                else if (!config.isInMainChart && !config.isDelete) {
+                    const subChartPane = getSubChartPaneRef(config.indicatorKeyStr);
+                    if (!subChartPane) {
+                        const newPane = chart.addPane(false);
+                        setSubChartPaneRef(config.indicatorKeyStr, newPane);
+                        // 创建子图指标
+                        config.seriesConfigs.forEach(seriesConfig => {
+                            const subChartIndicatorSeries = addChartSeries(newPane, config, seriesConfig);
+                            if (subChartIndicatorSeries) {
+                                setIndicatorSeriesRef(config.indicatorKeyStr, seriesConfig.indicatorValueKey, subChartIndicatorSeries);
+                            }
+                            // 为新创建的系列设置数据
+                            const subChartIndicatorData = indicatorData[config.indicatorKeyStr];
+                            if (subChartIndicatorData) {
+                                const seriesData = subChartIndicatorData[seriesConfig.indicatorValueKey];
+                                if (seriesData && seriesData.length > 0) {
+                                    subChartIndicatorSeries.setData(seriesData);
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        }
+    }, [chartConfig.indicatorChartConfigs, getChartRef, getIndicatorSeriesRef, setIndicatorSeriesRef, indicatorData, initIndicatorData]);
 
     // 创建指标系列
     const createIndicatorSeries = useCallback((chart: IChartApi, indicatorChartConfigs: IndicatorChartConfig[]) => {
@@ -154,55 +218,7 @@ export const useBacktestChart = ({
         indicatorChartConfigs.forEach(config => {
             if (config.isInMainChart) {
                 config.seriesConfigs.forEach(seriesConfig => {
-                    let mainChartIndicatorSeries: ISeriesApi<"Line"> | ISeriesApi<"Area"> | ISeriesApi<"Histogram"> | null = null;
-                    switch (seriesConfig.type) {
-                        case SeriesType.LINE:
-                            
-                            mainChartIndicatorSeries = chart.addSeries(
-                                LineSeries,
-                                {
-                                    visible: config.visible ?? true,
-                                    lastValueVisible: false,
-                                    priceLineVisible: false,
-                                    lineWidth: 1,
-                                    color: seriesConfig.color,
-                                },
-                                0
-                            );
-                            break;
-                        case SeriesType.COLUMN:
-                            mainChartIndicatorSeries = chart.addSeries(
-                                HistogramSeries,
-                                {
-                                    visible: config.visible ?? true,
-                                    priceLineVisible: false,
-                                    color: seriesConfig.color,
-                                },
-                                0
-                            );
-                            break;
-                        case SeriesType.MOUNTAIN:
-                            mainChartIndicatorSeries = chart.addSeries(
-                                AreaSeries,
-                                {
-                                    visible: config.visible ?? true,
-                                    priceLineVisible: false,
-                                },
-                                0
-                            );
-                            break;
-                        case SeriesType.DASH:
-                            mainChartIndicatorSeries = chart.addSeries(
-                                LineSeries,
-                                {
-                                    visible: config.visible ?? true,
-                                    priceLineVisible: false,
-                                    color: seriesConfig.color,
-                                },
-                                0
-                            );
-                            break;
-                    }
+                    const mainChartIndicatorSeries = addChartSeries(chart, config, seriesConfig);
                     if (mainChartIndicatorSeries) {
                         setIndicatorSeriesRef(config.indicatorKeyStr, seriesConfig.indicatorValueKey, mainChartIndicatorSeries);
                     }
@@ -222,38 +238,7 @@ export const useBacktestChart = ({
 
                 // 创建子图指标
                 config.seriesConfigs.forEach(seriesConfig => {
-                    let subChartIndicatorSeries: ISeriesApi<"Line"> | ISeriesApi<"Area"> | ISeriesApi<"Histogram"> | null = null;
-                    switch (seriesConfig.type) {
-                        case SeriesType.LINE:
-                            subChartIndicatorSeries = subChartPane.addSeries(LineSeries,{
-                                visible: config.visible ?? true,
-                                lastValueVisible: false,
-                                lineWidth: 1,
-                                priceLineVisible: false,
-                                color: seriesConfig.color,
-                            });
-                            break;
-                        case SeriesType.COLUMN:
-                            subChartIndicatorSeries = subChartPane.addSeries(HistogramSeries,{
-                                visible: config.visible ?? true,
-                                priceLineVisible: false,
-                                color: seriesConfig.color,
-                            });
-                            break;
-                        case SeriesType.MOUNTAIN:
-                                subChartIndicatorSeries = subChartPane.addSeries(AreaSeries,{
-                                visible: config.visible ?? true,
-                                priceLineVisible: false,
-                            });
-                            break;
-                        case SeriesType.DASH:
-                            subChartIndicatorSeries = subChartPane.addSeries(LineSeries,{
-                                visible: config.visible ?? true,
-                                priceLineVisible: false,
-                                color: seriesConfig.color,
-                            });
-                            break;
-                    }
+                    const subChartIndicatorSeries = addChartSeries(subChartPane, config, seriesConfig);
                     if (subChartIndicatorSeries) {
                         setIndicatorSeriesRef(config.indicatorKeyStr, seriesConfig.indicatorValueKey, subChartIndicatorSeries);
                     }
@@ -274,13 +259,20 @@ export const useBacktestChart = ({
                 return;
             }
 
-            // 切换指标系列可见性
+            // 添加series (异步操作)
+            addSeries().catch(error => {
+                console.error("添加series时出错:", error);
+            });
+
+            // 修改series配置
             changeSeriesConfig();
 
             // 删除指标系列
             deleteSeries();
+
+            
         }
-    }, [globalChartConfig, changeSeriesConfig]);
+    }, [globalChartConfig, addSeries, changeSeriesConfig, deleteSeries]);
 
 
     const initializeBacktestChart = useCallback(() => {
