@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 export function PresetColors({ colors, selectedColor, onColorSelect }: PresetColorsProps) {
   return (
     <div className="space-y-3">
-      <div className="grid grid-cols-6 gap-2">
+      <div className="grid grid-cols-10 gap-1">
         {colors.map((color, index) => {
           const isSelected = color.toLowerCase() === selectedColor.toLowerCase();
           
@@ -16,7 +16,7 @@ export function PresetColors({ colors, selectedColor, onColorSelect }: PresetCol
               variant="outline"
               size="sm"
               className={cn(
-                "w-8 h-8 p-0 border-2 rounded-md transition-all hover:scale-110",
+                "w-6 h-6 p-0 border-2 rounded-sm transition-all hover:scale-110",
                 isSelected 
                   ? "border-primary ring-2 ring-primary/20" 
                   : "border-border hover:border-primary/50"

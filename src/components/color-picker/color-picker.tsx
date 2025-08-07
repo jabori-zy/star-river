@@ -65,17 +65,15 @@ export function ColorPicker({
         />
       </PopoverTrigger>
       
-      <PopoverContent className="w-80 p-4" align="start">
-        <div className="space-y-4">
+      <PopoverContent className="w-64 p-2" align="start">
+        <div className="space-y-3">
           {/* 颜色选择器 */}
-          <div className="flex justify-center color-picker-container">
+          <div className="h-40 flex justify-center color-picker-container">
             <HexColorPicker
               color={currentColor}
               onChange={handleColorChange}
             />
           </div>
-
-          <Separator />
 
           {/* 颜色值输入 */}
           <ColorInput
@@ -101,7 +99,6 @@ export function ColorPicker({
           {/* 预设颜色 */}
           {showPresets && presetColors.length > 0 && (
             <>
-              <Separator />
               <PresetColors
                 colors={presetColors}
                 selectedColor={currentColor}

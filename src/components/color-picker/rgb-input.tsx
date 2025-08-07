@@ -83,7 +83,7 @@ export function RgbInput({ value, onChange, disabled }: RgbInputProps) {
 
   return (
     <div className="space-y-2 rgb-input">
-      <div className="flex flex-row gap-4">
+      <div className="flex flex-row justify-center gap-2">
         <div className="flex items-center">
           <Label htmlFor="rgb-r" className="text-xs text-muted-foreground w-3">
             R
@@ -97,7 +97,7 @@ export function RgbInput({ value, onChange, disabled }: RgbInputProps) {
             onChange={handleRChange}
             onBlur={() => handleBlur('r')}
             disabled={disabled}
-            className={`text-center text-xs h-8 w-16 flex-1 ${errors.r ? 'border-destructive' : ''}`}
+            className={`text-center text-xs h-8 w-14 flex-1 ${errors.r ? 'border-destructive' : ''}`}
             placeholder="0"
           />
         </div>
@@ -114,7 +114,7 @@ export function RgbInput({ value, onChange, disabled }: RgbInputProps) {
             onChange={handleGChange}
             onBlur={() => handleBlur('g')}
             disabled={disabled}
-            className={`text-center text-xs h-8 w-16 flex-1 ${errors.g ? 'border-destructive' : ''}`}
+            className={`text-center text-xs h-8 w-14 flex-1 ${errors.g ? 'border-destructive' : ''}`}
             placeholder="0"
           />
         </div>
@@ -131,7 +131,7 @@ export function RgbInput({ value, onChange, disabled }: RgbInputProps) {
             onChange={handleBChange}
             onBlur={() => handleBlur('b')}
             disabled={disabled}
-            className={`text-center text-xs h-8 w-16 flex-1 ${errors.b ? 'border-destructive' : ''}`}
+            className={`text-center text-xs h-8 w-14 flex-1 ${errors.b ? 'border-destructive' : ''}`}
             placeholder="0"
           />
         </div>

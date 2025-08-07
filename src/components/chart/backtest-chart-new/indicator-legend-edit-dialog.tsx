@@ -26,8 +26,6 @@ const INDICATOR_PRESET_COLORS = [
   '#98D8C8', // 薄荷绿 - 支撑位
   '#F7DC6F', // 金色 - 阻力位
   '#BB8FCE', // 淡紫色 - 中性信号
-  '#85C1E9', // 浅蓝色 - 次要趋势
-  '#F8C471', // 橙色 - 动量指标
 ];
 
 interface IndicatorLegendEditDialogProps {
@@ -101,7 +99,7 @@ export function IndicatorLegendEditDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange} modal={false}>
-      <DialogContent className="sm:max-w-[400px]">
+      <DialogContent className="sm:max-w-[350px]">
         <DialogHeader>
           <DialogTitle>编辑指标配置</DialogTitle>
           <DialogDescription>
@@ -118,12 +116,12 @@ export function IndicatorLegendEditDialog({
               </Label>
 
               {/* 颜色选择 */}
-              <div className="w-20">
+              <div className="w-12">
                 <ColorPicker
                   value={series.color || '#000000'}
                   onChange={(color) => updateTempSeriesColor(index, color)}
                   onChangeComplete={(colorValue) => updateTempSeriesColor(index, colorValue.hex)}
-                  showAlpha={false}
+                  showAlpha={true}
                   showPresets={true}
                   presetColors={INDICATOR_PRESET_COLORS}
                   className="w-full"

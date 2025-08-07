@@ -43,7 +43,7 @@ export function ColorModeToggle({ mode, onModeChange }: ColorModeToggleProps) {
           <ChevronDown className="w-3 h-3" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
+      <DropdownMenuContent align="start" className="w-12">
         {colorModes.map((colorMode) => (
           <DropdownMenuItem
             key={colorMode.value}
