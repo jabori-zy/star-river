@@ -28,6 +28,7 @@ export type SeriesConfig = {
 
 export type IndicatorChartBaseConfig = {
 	isInMainChart: boolean; // isInMainChart
+	visible?: boolean; // 指标可见性
 	seriesConfigs: SeriesConfig[];
 }
 
@@ -40,6 +41,7 @@ export type IndicatorChartConfig = IndicatorChartBaseConfig & {
 
 export type KlineChartConfig = {
 	klineKeyStr: KeyStr; // 蜡烛图缓存key
+	visible?: boolean; // 蜡烛图可见性
 	upColor?: string; // 上涨颜色
 	downColor?: string; // 下跌颜色
 };

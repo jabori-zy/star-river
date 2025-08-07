@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import type { KlineLegendData } from "@/hooks/chart/use-kline-legend";
 import type { KlineKeyStr } from "@/types/symbol-key";
 import { useBacktestChartStore } from "./backtest-chart-store";
+import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
 
 interface KlineLegendProps {
     klineSeriesData: KlineLegendData | null;
@@ -19,19 +20,19 @@ const KlineLegend: React.FC<KlineLegendProps> = ({
     className = "",
 }) => {
     // 使用当前图表的可见性状态管理
-    const { getKlineVisibility, toggleKlineVisibility } = useBacktestChartStore(chartId);
+    const { getKlineVisibility, toggleKlineVisibility } = useBacktestChartConfigStore();
 
     if (klineSeriesData === null) {
         return null;
     }
 
     // 获取当前K线的可见性状态
-    const isVisible = getKlineVisibility(klineKeyStr);
+    const isVisible = getKlineVisibility(chartId);
 
     // 处理可见性切换
     const handleVisibilityToggle = (e: React.MouseEvent) => {
         e.stopPropagation();
-        toggleKlineVisibility(klineKeyStr);
+        toggleKlineVisibility(chartId);
     };
 
     return (

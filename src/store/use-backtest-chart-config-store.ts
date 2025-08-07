@@ -4,6 +4,7 @@ import type {
 	IndicatorChartConfig,
 	LayoutMode,
 } from "@/types/chart";
+import type { IndicatorKeyStr } from "@/types/symbol-key";
 import type {
 	BacktestChartConfig,
 	BacktestStrategyChartConfig,
@@ -48,15 +49,16 @@ interface BacktestChartConfigState {
 	updateLayout: (layout: LayoutMode) => void;
 
 	// 指标管理
-	addIndicator: (
-		chartId: number,
-		indicatorChartConfig: IndicatorChartConfig,
-	) => void;
+	addIndicator: (chartId: number,indicatorChartConfig: IndicatorChartConfig) => void;
 
-	removeIndicator: (
-		chartId: number,
-		indicatorKeyStr: string,
-	) => void;
+	removeIndicator: (chartId: number,indicatorKeyStr: IndicatorKeyStr) => void;
+
+	toggleIndicatorVisibility: (chartId: number,indicatorKeyStr: IndicatorKeyStr) => void;
+
+	getIndicatorVisibility: (chartId: number,indicatorKeyStr: IndicatorKeyStr) => boolean;
+
+	toggleKlineVisibility: (chartId: number) => void;
+	getKlineVisibility: (chartId: number) => boolean;
 
 	// 辅助方法
 	fetchCacheKeys: () => Promise<Record<string, KlineKey | IndicatorKey>>;
@@ -428,6 +430,100 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 		getChartById: (chartId) => {
 			const { chartConfig } = get();
 			return chartConfig.charts.find((chart) => chart.id === chartId);
+		},
+
+		toggleKlineVisibility: (chartId) => {
+			const { chartConfig } = get();
+			const targetChart = chartConfig.charts.find((chart) => chart.id === chartId);
+			if (!targetChart) {
+				console.warn(`图表 ID ${chartId} 不存在`);
+				return;
+			}
+
+			const updatedKlineChartConfig = {
+				...targetChart.klineChartConfig,
+				visible: targetChart.klineChartConfig.visible === undefined ? false : !targetChart.klineChartConfig.visible,
+			};
+
+			set({
+				chartConfig: {
+					...chartConfig,
+					charts: chartConfig.charts.map((chart) =>
+						chart.id === chartId ? { ...chart, klineChartConfig: updatedKlineChartConfig } : chart,
+					),
+				},
+			});
+
+		},
+
+		getKlineVisibility: (chartId) => {
+			const { chartConfig } = get();
+			const targetChart = chartConfig.charts.find((chart) => chart.id === chartId);
+			if (!targetChart) {
+				console.warn(`图表 ID ${chartId} 不存在`);
+				return false;
+			}
+
+			return targetChart.klineChartConfig.visible === true || targetChart.klineChartConfig.visible === undefined;
+		},
+
+		toggleIndicatorVisibility: (chartId, indicatorKeyStr) => {
+			const { chartConfig } = get();
+			const targetChart = chartConfig.charts.find((chart) => chart.id === chartId);
+			if (!targetChart) {
+				console.warn(`图表 ID ${chartId} 不存在`);
+				return;
+			}
+
+			const indicatorChartConfig = targetChart.indicatorChartConfigs.find(
+				(config) => config.indicatorKeyStr === indicatorKeyStr
+			);
+
+			if (!indicatorChartConfig) {
+				console.warn(`指标 ${indicatorKeyStr} 不存在`);
+				return;
+			}
+
+			const updatedIndicatorChartConfig = {
+				...indicatorChartConfig,
+				visible: indicatorChartConfig.visible === undefined ? false : !indicatorChartConfig.visible, // 如果visible未定义，则默认不显示
+			};
+
+			set({
+				chartConfig: {
+					...chartConfig,
+					charts: chartConfig.charts.map((chart) =>
+						chart.id === chartId 
+							? { 
+								...chart, 
+								indicatorChartConfigs: chart.indicatorChartConfigs.map((config) =>
+									config.indicatorKeyStr === indicatorKeyStr ? updatedIndicatorChartConfig : config
+								)
+							} 
+							: chart,
+					),
+				},
+			});
+		},
+
+		getIndicatorVisibility: (chartId, indicatorKeyStr) => {
+			const { chartConfig } = get();
+			const targetChart = chartConfig.charts.find((chart) => chart.id === chartId);
+			if (!targetChart) {
+				console.warn(`图表 ID ${chartId} 不存在`);
+				return false;
+			}
+
+			const indicatorChartConfig = targetChart.indicatorChartConfigs.find(
+				(config) => config.indicatorKeyStr === indicatorKeyStr
+			);
+
+			if (!indicatorChartConfig) {
+				console.warn(`指标 ${indicatorKeyStr} 不存在`);
+				return false;
+			}
+
+			return indicatorChartConfig.visible === true || indicatorChartConfig.visible === undefined;
 		},
 
 		// 重置状态

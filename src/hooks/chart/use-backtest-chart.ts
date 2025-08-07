@@ -6,7 +6,8 @@ import type {
     ChartOptions,
     DeepPartial,
     ISeriesApi,
-    SingleValueData
+    SingleValueData,
+    LineSeriesOptions
 } from "lightweight-charts";
 import { createChart } from "lightweight-charts";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
@@ -19,6 +20,7 @@ import { useKlineLegend, type KlineLegendData } from "./use-kline-legend";
 import type { MouseEventParams } from "lightweight-charts";
 import type { KlineKeyStr } from "@/types/symbol-key";
 import type { IndicatorChartConfig } from "@/types/chart";
+import { T } from "node_modules/react-router/dist/development/fog-of-war-BALYJxf_.d.mts";
 
 interface UseBacktestChartProps {
     strategyId: number;
@@ -63,11 +65,22 @@ export const useBacktestChart = ({
     } = useBacktestChartStore(chartId);
 
 
-    // 监听全局配置变化并同步到本地store
-    const globalChartConfig = useBacktestChartConfigStore((state) => state.getChartConfig(chartId));
+    // 使用状态追踪初始化状态，而不是 ref
+    const [isInitialized, setIsInitialized] = useState(false);
+    // 追踪数据是否已在图表中设置
+    const [isChartDataSet, setIsChartDataSet] = useState(false);
 
-    // 使用ref来跟踪是否已经初始化
-    const isInitializedRef = useRef(false);
+
+    // 监听全局配置变化并同步到本地store  
+    const { chartConfig: globalBacktestConfig, getChartConfig } = useBacktestChartConfigStore();
+    
+    const globalChartConfig = useMemo(() => {
+        console.log("globalChartConfig useMemo重新计算", chartId, globalBacktestConfig);
+        return getChartConfig(chartId);
+    }, [getChartConfig, chartId, globalBacktestConfig]);
+
+    // 使用ref来跟踪是否是第一次接收到globalChartConfig
+    const isFirstGlobalConfigLoad = useRef(true);
 
     useEffect(() => {
         // 当全局配置发生变化时，同步到本地store
@@ -81,63 +94,31 @@ export const useBacktestChart = ({
     // 获取播放索引并初始化数据
     const playIndex = useRef(0);
 
-    // 获取播放索引,并初始化数据
-    // const getChartInitialData = useCallback(() => {
-    //     get_play_index(strategyId).then((index) => {
-    //         playIndex.current = index;
-    //         initChartData(playIndex.current);
-    //     });
-    // }, [strategyId, initChartData]);
+    // 切换系列可见性
+    const toggleSeriesVisiable = useCallback(() => {
 
-    // 初始化数据
-    // useEffect(() => {
-    //     getChartInitialData();
-    // }, [getChartInitialData]);
-
-    // 创建K线系列的逻辑
-    const createKlineSeries = useCallback((chart: IChartApi, klineKeyStr: KlineKeyStr) => {
-
-        const candleSeries = chart.addSeries(CandlestickSeries);
-        
-        // 将蜡烛图系列存储到 store 中
-        setKlineSeriesRef(klineKeyStr, candleSeries);
-        
-        return candleSeries;
-    }, [setKlineSeriesRef]);
-
-    // 清理现有的指标系列和子图pane
-    const clearIndicatorSeries = useCallback((chart: IChartApi) => {
-        // 清理所有子图pane
-        // const panes = chart.panes();
-        // // 保留主图pane（索引0），删除所有子图pane
-        // for (let i = panes.length - 1; i > 0; i--) {
-        //     chart.removePane(i);
-        // }
-        console.log("清除子图pane1");
-        // chart.removePane(1);
-
-        // 清理主图中的指标系列（保留K线系列）
-        // const mainPane = panes[0];
-        // if (mainPane) {
-        //     const allSeries = mainPane.getSeries();
-        //     // 获取K线系列引用
-        //     const klineSeries = getKlineSeriesRef(chartConfig.klineChartConfig.klineKeyStr);
-
-        //     // 删除所有不是K线的系列
-        //     allSeries.forEach(series => {
-        //         if (series !== klineSeries) {
-        //             chart.removeSeries(series);
-        //         }
-        //     });
-        // }
-    }, [getKlineSeriesRef, chartConfig.klineChartConfig.klineKeyStr]);
-
-    // 创建主图指标
-    const createIndicatorSeries = useCallback((chart: IChartApi, indicatorChartConfigs: IndicatorChartConfig[], shouldClear = false) => {
-        // 如果需要清理，先清理现有的指标系列
-        if (shouldClear) {
-            clearIndicatorSeries(chart);
+        // 切换蜡烛图可见性
+        const klineSeries = getKlineSeriesRef(chartConfig.klineChartConfig.klineKeyStr);
+        if (klineSeries) {
+            klineSeries.applyOptions({
+                visible: chartConfig.klineChartConfig.visible,
+            });
         }
+        // 根据indicatorChartConfig，获取seriesApi
+        chartConfig.indicatorChartConfigs.forEach(config => {
+            config.seriesConfigs.forEach(seriesConfig => {
+                const seriesApi = getIndicatorSeriesRef(config.indicatorKeyStr, seriesConfig.indicatorValueKey);
+                if (seriesApi) {
+                    seriesApi.applyOptions({
+                        visible: config.visible,
+                    });
+                }
+            });
+        });
+    }, [getIndicatorSeriesRef, chartConfig.indicatorChartConfigs, getKlineSeriesRef, chartConfig.klineChartConfig.klineKeyStr, chartConfig.klineChartConfig.visible]);
+
+    // 创建指标系列
+    const createIndicatorSeries = useCallback((chart: IChartApi, indicatorChartConfigs: IndicatorChartConfig[]) => {
 
         indicatorChartConfigs.forEach(config => {
             if (config.isInMainChart) {
@@ -145,16 +126,47 @@ export const useBacktestChart = ({
                     let mainChartIndicatorSeries: ISeriesApi<"Line"> | ISeriesApi<"Area"> | ISeriesApi<"Histogram"> | null = null;
                     switch (seriesConfig.type) {
                         case SeriesType.LINE:
-                            mainChartIndicatorSeries = chart.addSeries(LineSeries,{},0);
+                            
+                            mainChartIndicatorSeries = chart.addSeries(
+                                LineSeries,
+                                {
+                                    visible: config.visible ?? true,
+                                    lastValueVisible: false,
+                                    priceLineVisible: false,
+                                    lineWidth: 1,
+                                },
+                                0
+                            );
                             break;
                         case SeriesType.COLUMN:
-                            mainChartIndicatorSeries = chart.addSeries(HistogramSeries,{},0);
+                            mainChartIndicatorSeries = chart.addSeries(
+                                HistogramSeries,
+                                {
+                                    visible: config.visible ?? true,
+                                    priceLineVisible: false,
+                                },
+                                0
+                            );
                             break;
                         case SeriesType.MOUNTAIN:
-                            mainChartIndicatorSeries = chart.addSeries(AreaSeries,{},0);
+                            mainChartIndicatorSeries = chart.addSeries(
+                                AreaSeries,
+                                {
+                                    visible: config.visible ?? true,
+                                    priceLineVisible: false,
+                                },
+                                0
+                            );
                             break;
                         case SeriesType.DASH:
-                            mainChartIndicatorSeries = chart.addSeries(LineSeries,{},0);
+                            mainChartIndicatorSeries = chart.addSeries(
+                                LineSeries,
+                                {
+                                    visible: config.visible ?? true,
+                                    priceLineVisible: false,
+                                },
+                                0
+                            );
                             break;
                     }
                     if (mainChartIndicatorSeries) {
@@ -179,16 +191,30 @@ export const useBacktestChart = ({
                     let subChartIndicatorSeries: ISeriesApi<"Line"> | ISeriesApi<"Area"> | ISeriesApi<"Histogram"> | null = null;
                     switch (seriesConfig.type) {
                         case SeriesType.LINE:
-                            subChartIndicatorSeries = subChartPane.addSeries(LineSeries);
+                            subChartIndicatorSeries = subChartPane.addSeries(LineSeries,{
+                                visible: config.visible ?? true,
+                                lastValueVisible: false,
+                                lineWidth: 1,
+                                priceLineVisible: false,
+                            });
                             break;
                         case SeriesType.COLUMN:
-                            subChartIndicatorSeries = subChartPane.addSeries(HistogramSeries);
+                            subChartIndicatorSeries = subChartPane.addSeries(HistogramSeries,{
+                                visible: config.visible ?? true,
+                                priceLineVisible: false,
+                            });
                             break;
                         case SeriesType.MOUNTAIN:
-                            subChartIndicatorSeries = subChartPane.addSeries(AreaSeries);
+                                subChartIndicatorSeries = subChartPane.addSeries(AreaSeries,{
+                                visible: config.visible ?? true,
+                                priceLineVisible: false,
+                            });
                             break;
                         case SeriesType.DASH:
-                            subChartIndicatorSeries = subChartPane.addSeries(LineSeries);
+                            subChartIndicatorSeries = subChartPane.addSeries(LineSeries,{
+                                visible: config.visible ?? true,
+                                priceLineVisible: false,
+                            });
                             break;
                     }
                     if (subChartIndicatorSeries) {
@@ -199,23 +225,22 @@ export const useBacktestChart = ({
             }
         });
 
-    }, [setIndicatorSeriesRef, setSubChartPaneRef, clearIndicatorSeries]);
+    }, [setIndicatorSeriesRef, setSubChartPaneRef]);
 
-    // 当配置变化时，重新创建指标系列（但不在初始化时）
-    // 使用 useMemo 来稳定依赖项
-    const chartConfigDeps = useMemo(() => ({
-        klineKeyStr: chartConfig.klineChartConfig.klineKeyStr,
-        indicatorConfigs: chartConfig.indicatorChartConfigs
-    }), [chartConfig.klineChartConfig.klineKeyStr, chartConfig.indicatorChartConfigs]);
 
     useEffect(() => {
-        const chart = getChartRef();
-        if (chart && isInitializedRef.current) {
-            createKlineSeries(chart, chartConfigDeps.klineKeyStr);
-            // 重新创建指标系列，并清理现有的
-            createIndicatorSeries(chart, chartConfigDeps.indicatorConfigs, true);
+        if (globalChartConfig) {
+            // 跳过第一次加载（初始化时），只在后续配置变化时重新创建
+            if (isFirstGlobalConfigLoad.current) {
+                isFirstGlobalConfigLoad.current = false;
+                console.log("跳过第一次加载");
+                return;
+            }
+
+            // 切换指标系列可见性
+            toggleSeriesVisiable();
         }
-    }, [getChartRef, createKlineSeries, createIndicatorSeries, chartConfigDeps]);
+    }, [globalChartConfig, toggleSeriesVisiable]);
 
 
     const initializeBacktestChart = useCallback(() => {
@@ -228,58 +253,13 @@ export const useBacktestChart = ({
 
             // 创建K线系列
             const candleSeries = chart.addSeries(CandlestickSeries);
+            candleSeries.applyOptions({
+                visible: currentConfig.klineChartConfig.visible ?? true,
+            });
             setKlineSeriesRef(currentConfig.klineChartConfig.klineKeyStr, candleSeries);
 
             // 创建指标系列
-            currentConfig.indicatorChartConfigs.forEach(config => {
-                if (config.isInMainChart) {
-                    config.seriesConfigs.forEach(seriesConfig => {
-                        let mainChartIndicatorSeries: ISeriesApi<"Line"> | ISeriesApi<"Area"> | ISeriesApi<"Histogram"> | null = null;
-                        switch (seriesConfig.type) {
-                            case SeriesType.LINE:
-                                mainChartIndicatorSeries = chart.addSeries(LineSeries,{},0);
-                                break;
-                            case SeriesType.COLUMN:
-                                mainChartIndicatorSeries = chart.addSeries(HistogramSeries,{},0);
-                                break;
-                            case SeriesType.MOUNTAIN:
-                                mainChartIndicatorSeries = chart.addSeries(AreaSeries,{},0);
-                                break;
-                            case SeriesType.DASH:
-                                mainChartIndicatorSeries = chart.addSeries(LineSeries,{},0);
-                                break;
-                        }
-                        if (mainChartIndicatorSeries) {
-                            setIndicatorSeriesRef(config.indicatorKeyStr, seriesConfig.indicatorValueKey, mainChartIndicatorSeries);
-                        }
-                    });
-                } else {
-                    // 创建子图
-                    const subChartPane = chart.addPane(false);
-                    setSubChartPaneRef(config.indicatorKeyStr, subChartPane);
-
-                    config.seriesConfigs.forEach(seriesConfig => {
-                        let subChartIndicatorSeries: ISeriesApi<"Line"> | ISeriesApi<"Area"> | ISeriesApi<"Histogram"> | null = null;
-                        switch (seriesConfig.type) {
-                            case SeriesType.LINE:
-                                subChartIndicatorSeries = subChartPane.addSeries(LineSeries);
-                                break;
-                            case SeriesType.COLUMN:
-                                subChartIndicatorSeries = subChartPane.addSeries(HistogramSeries);
-                                break;
-                            case SeriesType.MOUNTAIN:
-                                subChartIndicatorSeries = subChartPane.addSeries(AreaSeries);
-                                break;
-                            case SeriesType.DASH:
-                                subChartIndicatorSeries = subChartPane.addSeries(LineSeries);
-                                break;
-                        }
-                        if (subChartIndicatorSeries) {
-                            setIndicatorSeriesRef(config.indicatorKeyStr, seriesConfig.indicatorValueKey, subChartIndicatorSeries);
-                        }
-                    });
-                }
-            });
+            createIndicatorSeries(chart, currentConfig.indicatorChartConfigs);
 
             // 🔑 只为 K线 legend 添加 crosshair 事件监听
             chart.subscribeCrosshairMove(onCrosshairMove);
@@ -297,17 +277,16 @@ export const useBacktestChart = ({
         chartContainerRef, 
         onCrosshairMove, 
         chartConfig, 
-        setIndicatorSeriesRef, 
-        setSubChartPaneRef, 
-        setKlineSeriesRef,
         setChartRef, 
+        setKlineSeriesRef,
         initObserverSubscriptions, 
         getChartRef,
+        createIndicatorSeries,
     ]);
 
-    // 图表初始化（只初始化一次）
+    // 图表系列初始化
     useEffect(() => {
-        if (!isInitializedRef.current) {
+        if (!isInitialized) {
             get_play_index(strategyId).then((index) => {
                 playIndex.current = index;
                 initChartData(playIndex.current).then(() => {
@@ -315,18 +294,14 @@ export const useBacktestChart = ({
                 });
             });
         }
-    }, [strategyId, initChartData, initializeBacktestChart]);
+    }, [strategyId, initChartData, initializeBacktestChart, isInitialized]);
 
-    // 使用状态追踪初始化状态，而不是 ref
-    const [isInitialized, setIsInitialized] = useState(false);
-    // 追踪数据是否已在图表中设置
-    const [isChartDataSet, setIsChartDataSet] = useState(false);
+    
 
-    // 数据初始化 - 在图表创建后且数据可用时设置数据（仅初始化时）
+    // 图表数据初始化 - 在图表创建后且数据可用时设置数据
     useEffect(() => {
         // 只在图表已初始化、数据已准备好、但数据还未在图表中设置时执行
         if (isInitialized && getChartRef() && getIsDataInitialized() && !isChartDataSet) {
-            console.log("初始化设置数据到图表");
             
             // 初始化k线数据
             const klineSeries = getKlineSeriesRef(chartConfig.klineChartConfig.klineKeyStr);
@@ -358,13 +333,6 @@ export const useBacktestChart = ({
         }
     }, [isInitialized, getIsDataInitialized, isChartDataSet, chartConfig, klineData, indicatorData, getChartRef, getKlineSeriesRef, getIndicatorSeriesRef]);
 
-    // 初始化数据
-    // useEffect(() => {
-    //     // 初始化k线数据
-    //     initKlineSeriesData();
-    //     // 初始化指标数据
-    //     initIndicatorSeriesData();
-    // }, [initKlineSeriesData, initIndicatorSeriesData]);
 
     // 初始化指标数据
 

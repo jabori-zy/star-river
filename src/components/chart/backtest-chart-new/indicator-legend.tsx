@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import type { IndicatorLegendData } from "@/hooks/chart/use-indicator-legend";
 import type { IndicatorKeyStr } from "@/types/symbol-key";
 import { useBacktestChartStore } from "./backtest-chart-store";
+import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
 
 interface IndicatorLegendProps {
 	indicatorLegendData: IndicatorLegendData | null;
@@ -22,19 +23,24 @@ const IndicatorLegend = forwardRef<HTMLDivElement, IndicatorLegendProps>(({
 	style,
 }, ref) => {
 	// 使用当前图表的可见性状态管理
-	const { getIndicatorVisibility, toggleIndicatorVisibility } = useBacktestChartStore(chartId);
+	// const { getIndicatorVisibility, toggleIndicatorVisibility } = useBacktestChartStore(chartId);
+	// 使用全局图表配置store， 切换时直接修改配置
+	const { toggleIndicatorVisibility, getIndicatorVisibility } = useBacktestChartConfigStore();
 
 	// 编辑对话框状态
 	const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
 	// 获取当前指标的可见性状态
-	const isVisible = getIndicatorVisibility(indicatorKeyStr);
+	const isVisible = getIndicatorVisibility(chartId, indicatorKeyStr);
 
-	// 处理可见性切换 - 暂时只是占位，不实现功能
+	// 
 	const handleVisibilityToggle = (e: React.MouseEvent) => {
 		e.stopPropagation();
-		console.log("可见性切换被点击:", indicatorKeyStr);
-		// toggleIndicatorVisibility(indicatorKeyStr); // 暂时注释掉功能
+		console.log("切换指标可见性", chartId, indicatorKeyStr);
+		const beforeState = getIndicatorVisibility(chartId, indicatorKeyStr);
+		toggleIndicatorVisibility(chartId, indicatorKeyStr);
+		const afterState = getIndicatorVisibility(chartId, indicatorKeyStr);
+		console.log("切换前后状态", beforeState, "->", afterState);
 	};
 
 	// 处理删除指标 - 暂时只是占位，不实现功能
