@@ -9,10 +9,9 @@ import {
 	CandlestickSeries,
 	createChart,
 } from "lightweight-charts";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useBacktestChartStore } from "@/components/chart/backtest-chart-new/backtest-chart-store";
 import { get_play_index } from "@/service/strategy-control/backtest-strategy-control";
-import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
 import type { IndicatorChartConfig } from "@/types/chart";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import { type KlineLegendData, useKlineLegend } from "./use-kline-legend";
@@ -20,13 +19,12 @@ import { addChartSeries } from "./utils/add-chart-series";
 
 interface UseBacktestChartProps {
 	strategyId: number;
-	chartId: number;
+	chartConfig: BacktestChartConfig;
 	chartContainerRef: React.RefObject<HTMLDivElement | null>;
 	chartOptions: DeepPartial<ChartOptions>;
 }
 
 interface UseBacktestChartReturn {
-	chartConfig: BacktestChartConfig;
 	klineLegendData: KlineLegendData | null; // K线图例数据
 	klineData: Record<string, CandlestickData[]>;
 	indicatorData: Record<string, Record<string, SingleValueData[]>>;
@@ -35,15 +33,16 @@ interface UseBacktestChartReturn {
 
 export const useBacktestChart = ({
 	strategyId,
-	chartId,
+	chartConfig,
 	chartContainerRef,
 	chartOptions,
 }: UseBacktestChartProps): UseBacktestChartReturn => {
+	
 	const resizeObserver = useRef<ResizeObserver>(null);
 
 	// 图表数据和ref管理
 	const {
-		chartConfig,
+		// chartConfig,
 		klineData,
 		indicatorData,
 		initChartData,
@@ -56,40 +55,21 @@ export const useBacktestChart = ({
 		getIndicatorSeriesRef,
 		initObserverSubscriptions,
 		setSubChartPaneRef,
-		syncChartConfig,
 		getIsDataInitialized,
 		getSubChartPaneRef,
 		removeIndicatorSeriesRef,
 		removeSubChartPaneRef,
-	} = useBacktestChartStore(chartId);
+	} = useBacktestChartStore(chartConfig.id, chartConfig);
 
 	// 使用状态追踪初始化状态，而不是 ref
 	const [isInitialized, setIsInitialized] = useState(false);
 	// 追踪数据是否已在图表中设置
 	const [isChartDataSet, setIsChartDataSet] = useState(false);
 
-	// 监听全局配置变化并同步到本地store
-	const { chartConfig: globalBacktestConfig, getChartConfig } =
-		useBacktestChartConfigStore();
+	// 是否是第一次加载
+	const isFirstChartConfigLoad = useRef(true);
 
-	const globalChartConfig = useMemo(() => {
-		return getChartConfig(chartId);
-	}, [getChartConfig, chartId, globalBacktestConfig]);
-
-	// 使用ref来跟踪是否是第一次接收到globalChartConfig
-	const isFirstGlobalConfigLoad = useRef(true);
-
-	useEffect(() => {
-		// 当全局配置发生变化时，同步到本地store
-		if (globalChartConfig) {
-			syncChartConfig();
-		}
-	}, [globalChartConfig, syncChartConfig]);
-
-	const { legendData, onCrosshairMove } = useKlineLegend({
-		chartId,
-		klineKeyStr: chartConfig.klineChartConfig.klineKeyStr,
-	});
+	const { legendData, onCrosshairMove } = useKlineLegend({chartId: chartConfig.id,klineKeyStr: chartConfig.klineChartConfig.klineKeyStr,});
 
 	// 获取播放索引并初始化数据
 	const playIndex = useRef(0);
@@ -255,10 +235,12 @@ export const useBacktestChart = ({
 	}, [
 		chartConfig.indicatorChartConfigs,
 		getChartRef,
+		getSubChartPaneRef,
 		getIndicatorSeriesRef,
 		setIndicatorSeriesRef,
 		indicatorData,
 		initIndicatorData,
+		setSubChartPaneRef,
 	]);
 
 	// 创建指标系列
@@ -313,10 +295,10 @@ export const useBacktestChart = ({
 	);
 
 	useEffect(() => {
-		if (globalChartConfig) {
+		if (chartConfig) {
 			// 跳过第一次加载（初始化时），只在后续配置变化时重新创建
-			if (isFirstGlobalConfigLoad.current) {
-				isFirstGlobalConfigLoad.current = false;
+			if (isFirstChartConfigLoad.current) {
+				isFirstChartConfigLoad.current = false;
 				return;
 			}
 
@@ -331,7 +313,7 @@ export const useBacktestChart = ({
 			// 删除指标系列
 			deleteSeries();
 		}
-	}, [globalChartConfig, addSeries, changeSeriesConfig, deleteSeries]);
+	}, [chartConfig, addSeries, changeSeriesConfig, deleteSeries]);
 
 	/**
 	 * 初始化回测图表实例
@@ -360,7 +342,7 @@ export const useBacktestChart = ({
 			// 确保容器元素真正存在于DOM中
 			// 防止在DOM重排过程中尝试初始化图表
 			if (!document.contains(chartContainerRef.current)) {
-				console.warn(`图表${chartId}的容器不在DOM中，等待重新挂载`);
+				console.warn(`图表${chartConfig.id}的容器不在DOM中，等待重新挂载`);
 				return;
 			}
 
@@ -401,7 +383,6 @@ export const useBacktestChart = ({
 		chartContainerRef,
 		onCrosshairMove,
 		chartConfig,
-		chartId,
 		setChartRef,
 		setKlineSeriesRef,
 		initObserverSubscriptions,
@@ -451,7 +432,7 @@ export const useBacktestChart = ({
 				setIsChartDataSet(false);
 			}
 		}
-	}, [chartId, getChartRef, chartContainerRef, setChartRef]);
+	}, [getChartRef, chartContainerRef, setChartRef]);
 
 	// 图表系列初始化
 	useEffect(() => {
@@ -547,7 +528,6 @@ export const useBacktestChart = ({
 	}, [getChartRef, chartContainerRef]);
 
 	return {
-		chartConfig,
 		klineData,
 		indicatorData,
 		klineLegendData: legendData || null,

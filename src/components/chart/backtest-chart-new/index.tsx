@@ -1,74 +1,23 @@
 import type { IChartApi } from "lightweight-charts";
-import { useCallback, useEffect, useMemo, useRef } from "react";
-import { useBacktestChart, useIndicatorLegend } from "@/hooks/chart";
+import { useCallback, useEffect, useRef } from "react";
+import { useBacktestChart } from "@/hooks/chart";
+import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import { useBacktestChartStore } from "./backtest-chart-store";
 import { chartOptions } from "./chart-config";
 import IndicatorDebugPanel from "./debug/indicator-debug-panel";
-import { IndicatorLegend } from "./indicator-legend";
 import { KlineLegend } from "./kline-legend";
+import MainChartIndicatorLegend from "./main-chart-indicator-legend";
 import { SubchartIndicatorLegend } from "./subchart-indicator-legend";
+
 
 interface BacktestChartNewProps {
 	strategyId: number;
-	chartId: number;
+	chartConfig: BacktestChartConfig;
 }
 
-// 将主图指标图例组件提取到外部，避免在渲染时重新创建
-interface MainChartIndicatorLegendProps {
-	chartId: number;
-	indicatorKeyStr: string;
-	index: number;
-}
 
-const MainChartIndicatorLegend = ({
-	chartId,
-	indicatorKeyStr,
-	index,
-}: MainChartIndicatorLegendProps) => {
-	const { legendData: indicatorLegendData, onCrosshairMove } =
-		useIndicatorLegend({
-			chartId,
-			indicatorKeyStr,
-		});
 
-	// 获取图表API引用 - 使用 useMemo 稳定引用
-	const { getChartRef } = useBacktestChartStore(chartId);
-
-	// 🔑 为主图指标订阅鼠标事件 - 延迟订阅，确保图表完全初始化
-	useEffect(() => {
-		// 使用 setTimeout 确保在图表完全初始化后再订阅
-		const timer = setTimeout(() => {
-			const chart = getChartRef();
-			if (!chart || !onCrosshairMove || !indicatorLegendData) return;
-
-			// 订阅鼠标移动事件
-			chart.subscribeCrosshairMove(onCrosshairMove);
-		}, 10); // 稍微延迟，确保图表初始化完成
-
-		return () => {
-			clearTimeout(timer);
-			const chart = getChartRef();
-			if (chart && onCrosshairMove) {
-				chart.unsubscribeCrosshairMove(onCrosshairMove);
-			}
-		};
-	}, [getChartRef, onCrosshairMove, indicatorLegendData]);
-
-	return (
-		<IndicatorLegend
-			indicatorLegendData={indicatorLegendData}
-			indicatorKeyStr={indicatorKeyStr}
-			chartId={chartId}
-			style={{
-				// 主图指标：从40px开始，每个间隔30px
-				top: `${40 + index * 30}px`,
-				left: "0px",
-			}}
-		/>
-	);
-};
-
-const BacktestChartNew = ({ strategyId, chartId }: BacktestChartNewProps) => {
+const BacktestChartNew = ({ strategyId, chartConfig }: BacktestChartNewProps) => {
 	// 图表容器的引用
 	const chartContainerRef = useRef<HTMLDivElement>(null);
 
@@ -76,15 +25,15 @@ const BacktestChartNew = ({ strategyId, chartId }: BacktestChartNewProps) => {
 	const chartApiRef = useRef<IChartApi | null>(null);
 
 	// 使用 backtest chart hooks
-	const { chartConfig, klineLegendData: legendData } = useBacktestChart({
+	const { klineLegendData: legendData } = useBacktestChart({
 		strategyId,
-		chartId,
+		chartConfig,
 		chartContainerRef,
 		chartOptions,
 	});
 
 	// 获取图表API引用 - 使用稳定的引用
-	const { getChartRef } = useBacktestChartStore(chartId);
+	const { getChartRef } = useBacktestChartStore(chartConfig.id, chartConfig);
 
 	// 使用 useCallback 稳定函数引用
 	const updateChartApiRef = useCallback(() => {
@@ -112,7 +61,7 @@ const BacktestChartNew = ({ strategyId, chartId }: BacktestChartNewProps) => {
 			<KlineLegend
 				klineSeriesData={legendData}
 				klineKeyStr={chartConfig.klineChartConfig.klineKeyStr}
-				chartId={chartId}
+				chartId={chartConfig.id}
 			/>
 
 			{/* 主图指标图例 */}
@@ -124,7 +73,7 @@ const BacktestChartNew = ({ strategyId, chartId }: BacktestChartNewProps) => {
 				.map((indicatorConfig, index) => (
 					<MainChartIndicatorLegend
 						key={indicatorConfig.indicatorKeyStr}
-						chartId={chartId}
+						chartId={chartConfig.id}
 						indicatorKeyStr={indicatorConfig.indicatorKeyStr}
 						index={index}
 					/>
@@ -136,7 +85,7 @@ const BacktestChartNew = ({ strategyId, chartId }: BacktestChartNewProps) => {
 				.map((indicatorConfig) => (
 					<SubchartIndicatorLegend
 						key={indicatorConfig.indicatorKeyStr}
-						chartId={chartId}
+						chartId={chartConfig.id}
 						indicatorKeyStr={indicatorConfig.indicatorKeyStr}
 					/>
 				))}

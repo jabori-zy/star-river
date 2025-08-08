@@ -24,7 +24,7 @@ import { parseKey } from "@/utils/parse-key";
 
 interface BacktestChartStore {
 	chartId: ChartId;
-	chartConfig: BacktestChartConfig;
+	// chartConfig: BacktestChartConfig;
 
 	// initialKlineData: Record<KlineKeyStr, CandlestickData[]>; // 初始k线数据
 	// initialIndicatorData: Record<IndicatorKeyStr,Record<keyof IndicatorValueConfig, SingleValueData[]>>; // 初始指标数据
@@ -58,9 +58,9 @@ interface BacktestChartStore {
 	klineVisibilityMap: Record<KlineKeyStr, boolean>;
 
 	// === 图表配置 ===
-	getChartConfig: () => BacktestChartConfig;
-	setChartConfig: (chartConfig: BacktestChartConfig) => void;
-	syncChartConfig: () => void; // 同步最新的图表配置
+	// getChartConfig: () => BacktestChartConfig;
+	// setChartConfig: (chartConfig: BacktestChartConfig) => void;
+	// syncChartConfig: () => void; // 同步最新的图表配置
 
 	initChartData: (playIndex: number) => Promise<void>;
 	initIndicatorData: (
@@ -80,7 +80,7 @@ interface BacktestChartStore {
 	) => Promise<Record<
 		keyof IndicatorValueConfig,
 		SingleValueData[]
-	> | null | void>;
+	> | null | undefined>;
 
 	// setInitialKlineData: (keyStr: KlineKeyStr, data: CandlestickData[]) => void;
 	// setInitialIndicatorData: (keyStr: IndicatorKeyStr, data: Record<keyof IndicatorValueConfig, SingleValueData[]>) => void;
@@ -219,20 +219,20 @@ const createBacktestChartStore = (
 		indicatorVisibilityMap: {},
 		klineVisibilityMap: {},
 
-		getChartConfig: () => get().chartConfig,
-		setChartConfig: (chartConfig: BacktestChartConfig) => {
-			set({ chartConfig: chartConfig });
-		},
+		// getChartConfig: () => get().chartConfig,
+		// setChartConfig: (chartConfig: BacktestChartConfig) => {
+		// 	set({ chartConfig: chartConfig });
+		// },
 
 		// 同步最新的图表配置
-		syncChartConfig: () => {
-			const latestConfig = useBacktestChartConfigStore
-				.getState()
-				.getChartConfig(chartId);
-			if (latestConfig) {
-				set({ chartConfig: latestConfig });
-			}
-		},
+		// syncChartConfig: () => {
+		// 	const latestConfig = useBacktestChartConfigStore
+		// 		.getState()
+		// 		.getChartConfig(chartId);
+		// 	if (latestConfig) {
+		// 		set({ chartConfig: latestConfig });
+		// 	}
+		// },
 
 		// === 数据管理方法 ===
 		setKlineData: (keyStr: KeyStr, data: CandlestickData[]) =>
@@ -329,7 +329,6 @@ const createBacktestChartStore = (
 			}),
 
 		getKeyStr: () => {
-			const chartConfig = get().chartConfig;
 			const klineKeyStr = chartConfig.klineChartConfig.klineKeyStr;
 
 			// 从 indicatorChartConfigs 数组中获取所有未删除指标的 keyStr
@@ -477,9 +476,8 @@ const createBacktestChartStore = (
 			indicatorKeyStr: KeyStr,
 			indicator: Record<keyof IndicatorValueConfig, SingleValueData[]>,
 		) => {
-			const state = get();
-			const existingIndicatorData = state.indicatorData[indicatorKeyStr] || {};
-			const indicatorConfig = state.chartConfig.indicatorChartConfigs.find(
+			const existingIndicatorData = get().indicatorData[indicatorKeyStr] || {};
+			const indicatorConfig = chartConfig.indicatorChartConfigs.find(
 				(config) => config.indicatorKeyStr === indicatorKeyStr,
 			);
 			const isInMainChart = indicatorConfig?.isInMainChart;
@@ -506,7 +504,7 @@ const createBacktestChartStore = (
 					}
 
 					// update
-					const indicatorSeriesRef = state.getIndicatorSeriesRef(
+					const indicatorSeriesRef = get().getIndicatorSeriesRef(
 						indicatorKeyStr,
 						indicatorValueKey,
 					);
@@ -772,12 +770,15 @@ const storeInstances = new Map<
 >();
 
 // 获取或创建指定chartId的store实例
-export const getBacktestChartStore = (chartId: number) => {
+export const getBacktestChartStore = (chartId: number, chartConfig?: BacktestChartConfig) => {
 	if (!storeInstances.has(chartId)) {
 		// 获取图表配置
-		const chartConfig = useBacktestChartConfigStore
-			.getState()
-			.getChartConfig(chartId);
+		// const chartConfig = useBacktestChartConfigStore
+		// 	.getState()
+		// 	.getChartConfig(chartConfig.id);
+		// if (!chartConfig) {
+		// 	throw new Error(`Chart config not found for chartId: ${chartConfig.id}`);
+		// }
 		if (!chartConfig) {
 			throw new Error(`Chart config not found for chartId: ${chartId}`);
 		}
@@ -791,20 +792,20 @@ export const getBacktestChartStore = (chartId: number) => {
 };
 
 // 清理指定chartId的store实例
-export const cleanupBacktestChartStore = (chartConfig: BacktestChartConfig) => {
-	const store = storeInstances.get(chartConfig.id);
+export const cleanupBacktestChartStore = (chartId: number) => {
+	const store = storeInstances.get(chartId);
 	if (store) {
 		// 清理订阅
 		const state = store.getState();
 		state.cleanupSubscriptions();
 		// 从管理器中移除
-		storeInstances.delete(chartConfig.id);
+		storeInstances.delete(chartId);
 	}
 };
 
 // Hook：根据chartId获取对应的store
-export const useBacktestChartStore = (chartId: number) => {
-	const store = getBacktestChartStore(chartId);
+export const useBacktestChartStore = (chartId: number, chartConfig?: BacktestChartConfig) => {
+	const store = getBacktestChartStore(chartId, chartConfig);
 	return store();
 };
 

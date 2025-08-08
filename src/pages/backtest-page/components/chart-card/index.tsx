@@ -86,7 +86,7 @@ const ChartCard: React.FC<ChartCardProps> = ({ chartConfig, strategyId }) => {
 						strategyId={strategyId}
 						chartId={chartConfig.id}
 					/> */}
-				<BacktestChartNew strategyId={strategyId} chartId={chartConfig.id} />
+				<BacktestChartNew strategyId={strategyId} chartConfig={chartConfig} />
 			</div>
 
 			{/* Symbol选择Dialog */}
