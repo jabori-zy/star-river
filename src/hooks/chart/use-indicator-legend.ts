@@ -13,6 +13,7 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import type { IndicatorKey, IndicatorKeyStr } from "@/types/symbol-key";
 import { parseKey } from "@/utils/parse-key";
+import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
 
 export type IndicatorLegendData = {
 	indicatorName: string;
@@ -210,8 +211,9 @@ export const useIndicatorLegend = ({
 		indicatorData,
 		getIndicatorSeriesRef,
 		getSubChartPaneRef,
-		chartConfig,
 	} = useBacktestChartStore(chartId);
+	
+	const chartConfig = useBacktestChartConfigStore.getState().getChartConfig(chartId);
 
 	// 🔑 使用 useMemo 稳定 data 引用，避免无限重新创建 onCrosshairMove
 	const data = useMemo(() => {

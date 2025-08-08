@@ -103,7 +103,7 @@ export const useKlineLegend = ({
 	const { klineData, getKlineSeriesRef } = useBacktestChartStore(chartId);
 
 	// 从 store 中获取 K线数据
-	const data = (klineData[klineKeyStr] as CandlestickData[]) || [];
+	const data = klineData || [];
 	// 使用传入的数据或默认数据来初始化 legendData
 	const [legendData, setLegendData] = useState<KlineLegendData | null>(() => {
 		if (data && data.length > 0) {
@@ -134,7 +134,7 @@ export const useKlineLegend = ({
 
 	const onCrosshairMove = useCallback(
 		(param: MouseEventParams) => {
-			const seriesApi = getKlineSeriesRef(klineKeyStr);
+			const seriesApi = getKlineSeriesRef();
 			if (!seriesApi) {
 				return;
 			}
@@ -170,11 +170,11 @@ export const useKlineLegend = ({
 				return shouldUpdate ? newLegendData : prev;
 			});
 		},
-		[getKlineSeriesRef, klineKeyStr],
+		[getKlineSeriesRef],
 	);
 
 	return {
-		legendData,
+		klineLegendData: legendData,
 		onCrosshairMove,
 	};
 };

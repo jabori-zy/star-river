@@ -29,7 +29,9 @@ interface BacktestChartStore {
 	// initialKlineData: Record<KlineKeyStr, CandlestickData[]>; // 初始k线数据
 	// initialIndicatorData: Record<IndicatorKeyStr,Record<keyof IndicatorValueConfig, SingleValueData[]>>; // 初始指标数据
 
-	klineData: Record<KlineKeyStr, CandlestickData[]>; // k线数据 和 指标数据 的集合
+	// klineData: Record<KlineKeyStr, CandlestickData[]>; // k线数据 和 指标数据 的集合
+	klineKeyStr: KlineKeyStr | null;
+	klineData: CandlestickData[];
 	indicatorData: Record<
 		IndicatorKeyStr,
 		Record<keyof IndicatorValueConfig, SingleValueData[]>
@@ -41,7 +43,8 @@ interface BacktestChartStore {
 
 	// 各种ref引用存储
 	chartRef: IChartApi | null;
-	klineSeriesRef: Record<KlineKeyStr, ISeriesApi<"Candlestick"> | null>;
+	// klineSeriesRef: Record<KlineKeyStr, ISeriesApi<"Candlestick"> | null>;
+	klineSeriesRef: ISeriesApi<"Candlestick"> | null;
 	indicatorSeriesRef: Record<
 		IndicatorKeyStr,
 		Record<
@@ -63,13 +66,14 @@ interface BacktestChartStore {
 	// syncChartConfig: () => void; // 同步最新的图表配置
 
 	initChartData: (playIndex: number) => Promise<void>;
+	initKlineData: (playIndex: number) => Promise<void>;
 	initIndicatorData: (
 		indicatorKeyStr: IndicatorKeyStr,
 		playIndex: number,
 	) => Promise<void>;
 
 	// 私有方法（内部使用）
-	_processKlineData: (keyStr: KeyStr, playIndex: number) => Promise<void>;
+	_processKlineData: (klinekeyStr: KeyStr, playIndex: number) => Promise<void>;
 	_processIndicatorData: (
 		keyStr: KeyStr,
 		playIndex: number,
@@ -85,11 +89,17 @@ interface BacktestChartStore {
 	// setInitialKlineData: (keyStr: KlineKeyStr, data: CandlestickData[]) => void;
 	// setInitialIndicatorData: (keyStr: IndicatorKeyStr, data: Record<keyof IndicatorValueConfig, SingleValueData[]>) => void;
 
-	setKlineData: (keyStr: KeyStr, data: CandlestickData[]) => void;
+	setKlineKeyStr: (klineKeyStr: KlineKeyStr) => void;
+	getKlineKeyStr: () => KlineKeyStr | null;
+	setKlineData: (data: CandlestickData[]) => void;
+	getKlineData: () => CandlestickData[];
+	deleteKlineData: () => void;
 	setIndicatorData: (
 		keyStr: KeyStr,
 		data: Record<keyof IndicatorValueConfig, SingleValueData[]>,
 	) => void;
+	getIndicatorData: (indicatorKeyStr: IndicatorKeyStr) => Record<keyof IndicatorValueConfig, SingleValueData[]>;
+	deleteIndicatorData: (indicatorKeyStr: IndicatorKeyStr) => void;
 
 	// 数据初始化状态管理
 	getIsDataInitialized: () => boolean;
@@ -144,31 +154,27 @@ interface BacktestChartStore {
 	setChartRef: (chart: IChartApi | null) => void;
 	getChartRef: () => IChartApi | null;
 
-	setKlineSeriesRef: (
-		klineKeyStr: KlineKeyStr,
-		ref: ISeriesApi<"Candlestick">,
-	) => void;
-	getKlineSeriesRef: (
-		klineKeyStr: KlineKeyStr,
-	) => ISeriesApi<"Candlestick"> | null;
-	removeKlineSeriesRef: (klineKeyStr: KlineKeyStr) => void;
+	setKlineSeriesRef: (ref: ISeriesApi<"Candlestick">) => void;
+	getKlineSeriesRef: () => ISeriesApi<"Candlestick"> | null;
+	deleteKlineSeriesRef: () => void;
 
 	setIndicatorSeriesRef: (
 		indicatorKeyStr: IndicatorKeyStr,
 		indicatorValueKey: keyof IndicatorValueConfig,
 		ref: ISeriesApi<"Line"> | ISeriesApi<"Area"> | ISeriesApi<"Histogram">,
 	) => void;
-	removeIndicatorSeriesRef: (indicatorKeyStr: IndicatorKeyStr) => void;
+	
 	getIndicatorSeriesRef: (
 		indicatorKeyStr: IndicatorKeyStr,
 		indicatorValueKey: keyof IndicatorValueConfig,
 	) => ISeriesApi<"Line"> | ISeriesApi<"Area"> | ISeriesApi<"Histogram"> | null;
+	deleteIndicatorSeriesRef: (indicatorKeyStr: IndicatorKeyStr) => void;
 
 	setSubChartPaneRef: (
 		indicatorKeyStr: IndicatorKeyStr,
 		ref: IPaneApi<Time>,
 	) => void;
-	removeSubChartPaneRef: (indicatorKeyStr: IndicatorKeyStr) => void;
+	deleteSubChartPaneRef: (indicatorKeyStr: IndicatorKeyStr) => void;
 	getSubChartPaneRef: (
 		indicatorKeyStr: IndicatorKeyStr,
 	) => IPaneApi<Time> | null;
@@ -201,7 +207,8 @@ const createBacktestChartStore = (
 		// initialKlineData: {},
 		// initialIndicatorData: {},
 
-		klineData: {},
+		klineKeyStr: null,
+		klineData: [],
 		indicatorData: {},
 		subscriptions: {},
 
@@ -210,7 +217,7 @@ const createBacktestChartStore = (
 
 		// === ref 引用初始化 ===
 		chartRef: null,
-		klineSeriesRef: {},
+		klineSeriesRef: null,
 		indicatorSeriesRef: {},
 		subChartPaneRef: {},
 
@@ -235,8 +242,11 @@ const createBacktestChartStore = (
 		// },
 
 		// === 数据管理方法 ===
-		setKlineData: (keyStr: KeyStr, data: CandlestickData[]) =>
-			set((state) => ({ klineData: { ...state.klineData, [keyStr]: data } })),
+		setKlineKeyStr: (klineKeyStr: KlineKeyStr) => set({ klineKeyStr: klineKeyStr }),
+		getKlineKeyStr: () => get().klineKeyStr || null,
+		setKlineData: (data: CandlestickData[]) => set({ klineData: data }),
+		getKlineData: () => get().klineData,
+		deleteKlineData: () => set({ klineData: [] }),
 
 		setIndicatorData: (
 			keyStr: KeyStr,
@@ -246,14 +256,22 @@ const createBacktestChartStore = (
 				indicatorData: { ...state.indicatorData, [keyStr]: data },
 			}));
 		},
+		getIndicatorData: (indicatorKeyStr: IndicatorKeyStr) => get().indicatorData[indicatorKeyStr] || {},
+		
+		// 直接整个删除key和value，而不是置为空
+		deleteIndicatorData: (indicatorKeyStr: IndicatorKeyStr) =>
+			set((state) => {
+				const { [indicatorKeyStr]: _, ...rest } = state.indicatorData;
+				return { indicatorData: rest };
+			}),
 
 		// 数据初始化状态管理
 		getIsDataInitialized: () => get().isDataInitialized,
 		setIsDataInitialized: (initialized: boolean) =>
 			set({ isDataInitialized: initialized }),
 
-		getLastKline: (keyStr: KeyStr) => {
-			const data = get().klineData[keyStr] || [];
+		getLastKline: () => {
+			const data = get().klineData || [];
 			return data[data.length - 1] || null;
 		},
 
@@ -277,15 +295,12 @@ const createBacktestChartStore = (
 		setChartRef: (chart: IChartApi | null) => set({ chartRef: chart }),
 		getChartRef: () => get().chartRef,
 
-		setKlineSeriesRef: (
-			klineKeyStr: KlineKeyStr,
-			ref: ISeriesApi<"Candlestick">,
-		) =>
-			set({ klineSeriesRef: { ...get().klineSeriesRef, [klineKeyStr]: ref } }),
-		getKlineSeriesRef: (klineKeyStr: KlineKeyStr) =>
-			get().klineSeriesRef[klineKeyStr] || null,
-		removeKlineSeriesRef: (klineKeyStr: KlineKeyStr) =>
-			set({ klineSeriesRef: { ...get().klineSeriesRef, [klineKeyStr]: null } }),
+		setKlineSeriesRef: (ref: ISeriesApi<"Candlestick">) =>
+			set({ klineSeriesRef: ref }),
+		getKlineSeriesRef: () =>
+			get().klineSeriesRef || null,
+		deleteKlineSeriesRef: () =>
+			set({ klineSeriesRef: null }),
 
 		setIndicatorSeriesRef: (
 			indicatorKeyStr: IndicatorKeyStr,
@@ -306,7 +321,7 @@ const createBacktestChartStore = (
 			indicatorValueKey: keyof IndicatorValueConfig,
 		) => get().indicatorSeriesRef[indicatorKeyStr]?.[indicatorValueKey] || null,
 
-		removeIndicatorSeriesRef: (indicatorKeyStr: IndicatorKeyStr) =>
+		deleteIndicatorSeriesRef: (indicatorKeyStr: IndicatorKeyStr) =>
 			set({
 				indicatorSeriesRef: {
 					...get().indicatorSeriesRef,
@@ -323,7 +338,7 @@ const createBacktestChartStore = (
 			}),
 		getSubChartPaneRef: (indicatorKeyStr: IndicatorKeyStr) =>
 			get().subChartPaneRef[indicatorKeyStr] || null,
-		removeSubChartPaneRef: (indicatorKeyStr: IndicatorKeyStr) =>
+		deleteSubChartPaneRef: (indicatorKeyStr: IndicatorKeyStr) =>
 			set({
 				subChartPaneRef: { ...get().subChartPaneRef, [indicatorKeyStr]: null },
 			}),
@@ -445,7 +460,7 @@ const createBacktestChartStore = (
 			};
 
 			// 调用series的update方法
-			const klineSeries = get().getKlineSeriesRef(klineKeyStr);
+			const klineSeries = get().getKlineSeriesRef();
 			if (klineSeries) {
 				klineSeries.update(candlestickData);
 			}
@@ -455,20 +470,20 @@ const createBacktestChartStore = (
 
 			// 如果最后一根k线的时间戳与新k线的时间戳相同，则替换最后一根k线
 			if (lastData && lastData.time === timestampInSeconds) {
-				const data = get().klineData[klineKeyStr] as CandlestickData[];
+				const data = get().klineData;
 				// 创建新数组，替换最后一根k线
 				const newData = [...data.slice(0, -1), candlestickData];
-				get().setKlineData(klineKeyStr, newData);
+				get().setKlineData(newData);
 			} else {
-				const data = get().klineData[klineKeyStr] as CandlestickData[];
+				const data = get().klineData;
 				// 说明策略还未开始，当前是第一根k线
 				if (!data) {
-					get().setKlineData(klineKeyStr, [candlestickData]);
+					get().setKlineData([candlestickData]);
 				}
 
 				// 创建新数组，添加新k线
 				const newData = [...data, candlestickData];
-				get().setKlineData(klineKeyStr, newData);
+				get().setKlineData(newData);
 			}
 		},
 
@@ -539,10 +554,10 @@ const createBacktestChartStore = (
 		},
 
 		// 私有方法：处理K线数据
-		_processKlineData: async (keyStr: KeyStr, playIndex: number) => {
+		_processKlineData: async (klineKeyStr: KeyStr, playIndex: number) => {
 			const state = get();
 			const initialKlines = (await getInitialChartData(
-				keyStr,
+				klineKeyStr,
 				playIndex,
 				null,
 			)) as Kline[];
@@ -561,9 +576,9 @@ const createBacktestChartStore = (
 					close: kline.close,
 				}));
 
-				state.setKlineData(keyStr, klineData);
+				state.setKlineData(klineData);
 			} else {
-				console.warn(`No kline data received for keyStr: ${keyStr}`);
+				console.warn(`No kline data received for keyStr: ${klineKeyStr}`);
 			}
 		},
 
@@ -642,6 +657,14 @@ const createBacktestChartStore = (
 				await Promise.all(promises);
 				// 标记数据已初始化
 				state.setIsDataInitialized(true);
+			}
+		},
+
+		initKlineData: async (playIndex: number) => {
+			const state = get();
+			const klineKeyStr = state.getKlineKeyStr();
+			if (klineKeyStr) {
+				await state._processKlineData(klineKeyStr, playIndex);
 			}
 		},
 
@@ -756,7 +779,7 @@ const createBacktestChartStore = (
 
 		resetData: () => {
 			set({
-				klineData: {},
+				klineData: [],
 				indicatorData: {},
 				// 重置时保持可见性状态，不清空
 			});

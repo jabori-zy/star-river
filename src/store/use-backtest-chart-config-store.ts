@@ -14,6 +14,7 @@ import type {
 	IndicatorKey,
 	IndicatorKeyStr,
 	KlineKey,
+	KlineKeyStr,
 } from "@/types/symbol-key";
 import { parseKey } from "@/utils/parse-key";
 
@@ -56,6 +57,8 @@ interface BacktestChartConfigState {
 
 	removeIndicator: (chartId: number, indicatorKeyStr: IndicatorKeyStr) => void;
 
+	changeKline: (chartId: number, klineKeyStr: KlineKeyStr) => void;
+
 	toggleIndicatorVisibility: (
 		chartId: number,
 		indicatorKeyStr: IndicatorKeyStr,
@@ -72,6 +75,7 @@ interface BacktestChartConfigState {
 	// 辅助方法
 	fetchCacheKeys: () => Promise<Record<string, KlineKey | IndicatorKey>>;
 	getChartById: (chartId: number) => BacktestChartConfig | undefined;
+	_updateChart: (chartId: number, chartUpdater: (chart: BacktestChartConfig) => BacktestChartConfig) => void;
 	reset: () => void;
 }
 
@@ -338,14 +342,27 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 			});
 		},
 
+		// 通用的图表更新函数
+		_updateChart: (chartId: number, chartUpdater: (chart: BacktestChartConfig) => BacktestChartConfig) => {
+			const { chartConfig } = get();
+			set({
+				chartConfig: {
+					...chartConfig,
+					charts: chartConfig.charts.map((chart) =>
+						chart.id === chartId ? chartUpdater(chart) : chart,
+					),
+				},
+			});
+		},
+
 		// 添加指标
 		addIndicator: (chartId, indicatorChartConfig) => {
-			const indciatorKey = parseKey(
+			const indicatorKey = parseKey(
 				indicatorChartConfig.indicatorKeyStr,
 			) as IndicatorKey;
-			const { chartConfig } = get();
+			const { chartConfig, _updateChart } = get();
 
-			// 检查指标是否已存在
+			// 检查目标图表是否存在
 			const targetChart = chartConfig.charts.find(
 				(chart) => chart.id === chartId,
 			);
@@ -354,117 +371,74 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 				return;
 			}
 
-			// 检查指标是否已存在,并且isDelete为false
+			const { indicatorKeyStr } = indicatorChartConfig;
+			const indicatorName = indicatorKey.indicatorType.toUpperCase();
+
+			// 检查指标是否已存在且未被删除
 			const existingIndicator = targetChart.indicatorChartConfigs.find(
 				(config) =>
-					config.indicatorKeyStr === indicatorChartConfig.indicatorKeyStr &&
-					!config.isDelete,
+					config.indicatorKeyStr === indicatorKeyStr && !config.isDelete,
 			);
 
 			if (existingIndicator) {
-				toast.warning(`${indciatorKey.indicatorType.toUpperCase()}已存在`, {
-					duration: 2000,
-				});
+				toast.warning(`${indicatorName}已存在`, { duration: 2000 });
 				return;
 			}
 
-			// 检查指标是否已存在,并且isDelete为true
+			// 检查是否存在已删除的同名指标
 			const deletedIndicator = targetChart.indicatorChartConfigs.find(
 				(config) =>
-					config.indicatorKeyStr === indicatorChartConfig.indicatorKeyStr &&
-					config.isDelete,
+					config.indicatorKeyStr === indicatorKeyStr && config.isDelete,
 			);
 
-			// 如果deletedIndicator存在，则恢复指标，设置isDelete为false
 			if (deletedIndicator) {
-				deletedIndicator.isDelete = false;
-				toast.success(`${indciatorKey.indicatorType.toUpperCase()}添加成功`, {
-					duration: 2000,
-				});
-				return;
+				// 恢复已删除的指标
+				_updateChart(chartId, (chart) => ({
+					...chart,
+					indicatorChartConfigs: chart.indicatorChartConfigs.map((config) =>
+						config.indicatorKeyStr === indicatorKeyStr
+							? { ...config, isDelete: false }
+							: config,
+					),
+				}));
+			} else {
+				// 添加新指标
+				_updateChart(chartId, (chart) => ({
+					...chart,
+					indicatorChartConfigs: [
+						...chart.indicatorChartConfigs,
+						indicatorChartConfig,
+					],
+				}));
 			}
 
-			set({
-				chartConfig: {
-					...chartConfig,
-					charts: chartConfig.charts.map((chart) =>
-						chart.id === chartId
-							? {
-									...chart,
-									indicatorChartConfigs: [
-										...chart.indicatorChartConfigs,
-										indicatorChartConfig,
-									],
-								}
-							: chart,
-					),
-				},
-			});
-
-			toast.success(`${indciatorKey.indicatorType.toUpperCase()}添加成功`, {
-				duration: 2000,
-			});
+			toast.success(`${indicatorName}添加成功`, { duration: 2000 });
 		},
 
 		// 移除指标
 		removeIndicator: (chartId, indicatorKeyStr) => {
-			const { chartConfig } = get();
-
-			// 从数组中删除指标
-			// const targetChart = chartConfig.charts.find((chart) => chart.id === chartId);
-			// if (!targetChart) {
-			// 	console.warn(`图表 ID ${chartId} 不存在`);
-			// 	return;
-			// }
-
-			// const indciatorKey = parseKey(indicatorKeyStr) as IndicatorKey;
-
-			// const existingIndicator = targetChart.indicatorChartConfigs.find(
-			// 	(config) => config.indicatorKeyStr === indicatorKeyStr
-			// );
-
-			// if (!existingIndicator) {
-			// 	toast.warning(`${indciatorKey.indicatorType.toUpperCase()}不存在`, {
-			// 		duration: 2000,
-			// 	});
-			// 	return;
-			// }
-
-			// // 从数组中删除指标
-			// const updatedChartConfigs = targetChart.indicatorChartConfigs.filter(
-			// 	(config) => config.indicatorKeyStr !== indicatorKeyStr
-			// );
-
-			// set({
-			// 	chartConfig: {
-			// 		...chartConfig,
-			// 		charts: chartConfig.charts.map((chart) =>
-			// 			chart.id === chartId
-			// 				? { ...chart, indicatorChartConfigs: updatedChartConfigs }
-			// 				: chart,
-			// 		),
-			// 	},
-			// });
+			const { _updateChart } = get();
 
 			// 软删除：只设置isDelete为true，不从数组中移除
+			_updateChart(chartId, (chart) => ({
+				...chart,
+				indicatorChartConfigs: chart.indicatorChartConfigs.map((config) =>
+					config.indicatorKeyStr === indicatorKeyStr
+						? { ...config, isDelete: true }
+						: config,
+				),
+			}));
+		},
+
+		changeKline: (chartId, klineKeyStr) => {
+			const { chartConfig } = get();
 			set({
 				chartConfig: {
 					...chartConfig,
-					charts: chartConfig.charts.map((chart) =>
-						chart.id === chartId
-							? {
-									...chart,
-									indicatorChartConfigs: chart.indicatorChartConfigs.map(
-										(config) =>
-											config.indicatorKeyStr === indicatorKeyStr
-												? { ...config, isDelete: true }
-												: config,
-									),
-								}
-							: chart,
-					),
+					charts: chartConfig.charts.map((chart) => chart.id === chartId ? { ...chart, klineChartConfig: { ...chart.klineChartConfig, klineKeyStr } } : chart),
 				},
 			});
+			console.log("切换蜡烛图: ", chartId, klineKeyStr);
 		},
 
 		// 根据ID获取图表

@@ -23,15 +23,15 @@ interface ChartCardProps {
 
 const ChartCard: React.FC<ChartCardProps> = ({ chartConfig, strategyId }) => {
 	// 使用store中的方法
-	const { deleteChart, updateChart, addIndicator } =
+	const { deleteChart, addIndicator, changeKline } =
 		useBacktestChartConfigStore();
 
 	const [isSymbolDialogOpen, setIsSymbolDialogOpen] = useState(false);
 	const [isIndicatorDialogOpen, setIsIndicatorDialogOpen] = useState(false);
 
 	// 处理kline选择
-	const handleKlineSelect = (klineCacheKeyStr: string, chartName: string) => {
-		updateChart(chartConfig.id, klineCacheKeyStr, chartName);
+	const handleKlineSelect = (klineCacheKeyStr: string) => {
+		changeKline(chartConfig.id, klineCacheKeyStr);
 	};
 
 	// 处理指标添加

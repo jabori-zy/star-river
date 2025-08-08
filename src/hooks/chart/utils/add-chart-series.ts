@@ -1,9 +1,25 @@
 import type { IChartApi, IPaneApi, ISeriesApi, Time } from "lightweight-charts";
-import { AreaSeries, HistogramSeries, LineSeries } from "lightweight-charts";
-import type { IndicatorChartConfig, SeriesConfig } from "@/types/chart";
+import { AreaSeries, CandlestickSeries, HistogramSeries, LineSeries } from "lightweight-charts";
+import type { IndicatorChartConfig, KlineChartConfig, SeriesConfig } from "@/types/chart";
 import { SeriesType } from "@/types/chart";
 
-export const addChartSeries = (
+
+export const addKlineSeries = (
+	chart: IChartApi | IPaneApi<Time>,
+	config: KlineChartConfig,
+) => {
+	const klineSeries = chart.addSeries(CandlestickSeries, {
+		visible: config.visible ?? true,
+		priceLineVisible: false,
+	});
+	return klineSeries;
+};
+
+
+
+
+
+export const addIndicatorSeries = (
 	chart: IChartApi | IPaneApi<Time>,
 	config: IndicatorChartConfig,
 	seriesConfig: SeriesConfig,

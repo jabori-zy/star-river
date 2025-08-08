@@ -25,7 +25,7 @@ const BacktestChartNew = ({ strategyId, chartConfig }: BacktestChartNewProps) =>
 	const chartApiRef = useRef<IChartApi | null>(null);
 
 	// 使用 backtest chart hooks
-	const { klineLegendData: legendData } = useBacktestChart({
+	const { klineLegendData } = useBacktestChart({
 		strategyId,
 		chartConfig,
 		chartContainerRef,
@@ -59,7 +59,7 @@ const BacktestChartNew = ({ strategyId, chartConfig }: BacktestChartNewProps) =>
 
 			{/* K线图例 */}
 			<KlineLegend
-				klineSeriesData={legendData}
+				klineSeriesData={klineLegendData}
 				klineKeyStr={chartConfig.klineChartConfig.klineKeyStr}
 				chartId={chartConfig.id}
 			/>

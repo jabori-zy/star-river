@@ -6,6 +6,7 @@ import {
 	DialogContent,
 	DialogHeader,
 	DialogTitle,
+	DialogDescription,
 } from "@/components/ui/dialog";
 import { getStrategyCacheKeys } from "@/service/strategy";
 import type { IndicatorKey, KlineKey } from "@/types/symbol-key";
@@ -16,7 +17,7 @@ interface SymbolListDialogProps {
 	onOpenChange: (open: boolean) => void;
 	strategyId: number;
 	selectedKlineCacheKeyStr?: string;
-	onKlineSelect: (klineCacheKeyStr: string, chartName: string) => void;
+	onKlineSelect: (klineCacheKeyStr: string) => void;
 }
 
 export default function SymbolListDialog({
@@ -47,7 +48,7 @@ export default function SymbolListDialog({
 			// 过滤出kline选项
 			const options: { key: string; data: KlineKey }[] = [];
 			Object.entries(parsedKeyMap).forEach(([key, value]) => {
-				if (key.startsWith("backtest_kline|")) {
+				if (key.startsWith("kline|")) {
 					options.push({
 						key,
 						data: value as KlineKey,
@@ -72,15 +73,7 @@ export default function SymbolListDialog({
 
 	// 处理kline选择
 	const handleKlineSelect = (klineCacheKeyStr: string) => {
-		// 找到对应的kline数据
-		const selectedOption = klineOptions.find(
-			(option) => option.key === klineCacheKeyStr,
-		);
-		const chartName = selectedOption
-			? `${selectedOption.data.symbol} ${selectedOption.data.interval}`
-			: klineCacheKeyStr;
-
-		onKlineSelect(klineCacheKeyStr, chartName);
+		onKlineSelect(klineCacheKeyStr);
 		onOpenChange(false);
 	};
 
@@ -99,6 +92,7 @@ export default function SymbolListDialog({
 				<DialogHeader>
 					<DialogTitle>选择K线数据</DialogTitle>
 				</DialogHeader>
+				<DialogDescription/>
 				<div className="grid gap-4 py-4">
 					{loading ? (
 						<div className="flex items-center justify-center py-8">
