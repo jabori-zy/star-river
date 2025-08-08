@@ -54,6 +54,9 @@ interface BacktestChartStore {
 	>;
 	subChartPaneRef: Record<IndicatorKeyStr, IPaneApi<Time> | null>;
 
+	// === Pane 版本号，用于强制重新渲染 legend ===
+	paneVersion: number;
+
 	// === 系列可见性状态 ===
 	// 存储每个指标的可见性状态，key为indicatorKeyStr，value为是否可见
 	indicatorVisibilityMap: Record<IndicatorKeyStr, boolean>;
@@ -179,6 +182,10 @@ interface BacktestChartStore {
 		indicatorKeyStr: IndicatorKeyStr,
 	) => IPaneApi<Time> | null;
 
+	// Pane 版本号管理
+	getPaneVersion: () => number;
+	incrementPaneVersion: () => void;
+
 	getKeyStr: () => KeyStr[];
 
 	// Observer 相关方法
@@ -220,6 +227,9 @@ const createBacktestChartStore = (
 		klineSeriesRef: null,
 		indicatorSeriesRef: {},
 		subChartPaneRef: {},
+
+		// === Pane 版本号初始化 ===
+		paneVersion: 0,
 
 		// === 系列可见性状态初始化 ===
 		// 初始状态：所有指标和K线默认可见
@@ -342,6 +352,10 @@ const createBacktestChartStore = (
 			set({
 				subChartPaneRef: { ...get().subChartPaneRef, [indicatorKeyStr]: null },
 			}),
+
+		// Pane 版本号管理
+		getPaneVersion: () => get().paneVersion,
+		incrementPaneVersion: () => set({ paneVersion: get().paneVersion + 1 }),
 
 		getKeyStr: () => {
 			const klineKeyStr = chartConfig.klineChartConfig.klineKeyStr;

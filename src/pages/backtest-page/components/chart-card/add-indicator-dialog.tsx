@@ -51,11 +51,8 @@ export default function AddIndicatorDialog({
 
 			if (indicatorChartBaseConfig) {
 				// 添加指标配置
-				const id = chartConfig.indicatorChartConfigs.length + 1;
-
 				// 添加到主图
 				onIndicatorAdd({
-					chartId: id,
 					indicatorKeyStr: selectedIndicatorKey,
 					isDelete: false,
 					...indicatorChartBaseConfig,

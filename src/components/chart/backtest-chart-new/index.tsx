@@ -81,14 +81,16 @@ const BacktestChartNew = ({ strategyId, chartConfig }: BacktestChartNewProps) =>
 
 			{/* 子图指标图例 - 使用 Portal 方式渲染到对应的 Pane 中 */}
 			{chartConfig.indicatorChartConfigs
-				.filter((config) => !config.isInMainChart)
-				.map((indicatorConfig) => (
-					<SubchartIndicatorLegend
-						key={indicatorConfig.indicatorKeyStr}
-						chartId={chartConfig.id}
-						indicatorKeyStr={indicatorConfig.indicatorKeyStr}
-					/>
-				))}
+				.filter((config) => !config.isInMainChart && !config.isDelete)
+				.map((indicatorConfig) => {
+					return (
+						<SubchartIndicatorLegend
+							key={indicatorConfig.indicatorKeyStr}
+							chartId={chartConfig.id}
+							indicatorKeyStr={indicatorConfig.indicatorKeyStr}
+							/>
+					);
+				})}
 
 			{/* 调试面板 */}
 			<IndicatorDebugPanel

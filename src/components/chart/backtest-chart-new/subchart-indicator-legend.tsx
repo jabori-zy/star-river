@@ -21,7 +21,10 @@ export function SubchartIndicatorLegend({
 	const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(
 		null,
 	);
-	const { getSubChartPaneRef, getChartRef } = useBacktestChartStore(chartId);
+	const { getSubChartPaneRef, getChartRef, getPaneVersion } = useBacktestChartStore(chartId);
+
+	// 🔑 获取当前的 pane 版本号，用于监听 pane 变化
+	const paneVersion = getPaneVersion();
 
 	// 🔑 获取 legend 数据和事件处理器
 	const { legendData, onCrosshairMove } = useIndicatorLegend({
@@ -49,10 +52,14 @@ export function SubchartIndicatorLegend({
 		};
 	}, [getChartRef, onCrosshairMove, legendData]); // 添加legendData作为依赖
 
-	// 🔑 创建 Portal 容器，只在组件挂载时执行一次
+	// 🔑 创建 Portal 容器，响应 paneRef 的变化
 	useEffect(() => {
+		// 当pane被删除时版本号会变化，触发重新创建容器
+		void paneVersion; // 引用paneVersion以消除ESLint警告
+
 		const createPortalContainer = () => {
 			const paneRef = getSubChartPaneRef(indicatorKeyStr);
+
 			if (!paneRef) {
 				// 如果 pane 还没准备好，稍后重试
 				setTimeout(createPortalContainer, 100);
@@ -100,6 +107,7 @@ export function SubchartIndicatorLegend({
 		};
 
 		createPortalContainer();
+		
 
 		// 清理函数
 		return () => {
@@ -111,7 +119,8 @@ export function SubchartIndicatorLegend({
 				return null;
 			});
 		};
-	}, [indicatorKeyStr, getSubChartPaneRef]); // 只依赖不变的值
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [indicatorKeyStr, getSubChartPaneRef, paneVersion]); // 依赖 paneVersion，当 pane 被删除时会重新创建容器
 
 	// 🔑 使用 Portal 渲染，简单直接
 	if (!portalContainer || !legendData) {

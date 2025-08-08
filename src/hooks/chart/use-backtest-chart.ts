@@ -66,6 +66,7 @@ export const useBacktestChart = ({
 		getKlineKeyStr,
 		setKlineKeyStr,
 		deleteKlineSeriesRef,
+		incrementPaneVersion,
 	} = useBacktestChartStore(chartConfig.id, chartConfig);
 
 	// 使用状态追踪初始化状态，而不是 ref
@@ -112,6 +113,7 @@ export const useBacktestChart = ({
 		chartConfig.klineChartConfig.visible,
 	]);
 
+	// 删除指标系列
 	const deleteSeries = useCallback(() => {
 		const chart = getChartRef();
 		if (chart) {
@@ -134,7 +136,32 @@ export const useBacktestChart = ({
 				else if (!config.isInMainChart && config.isDelete) {
 					const subChartPane = getSubChartPaneRef(config.indicatorKeyStr);
 					if (subChartPane) {
-						chart.removePane(subChartPane.paneIndex());
+						const removedPaneIndex = subChartPane.paneIndex();
+
+						// 获取所有当前的子图配置，用于后续更新paneRef
+						const allSubChartConfigs = chartConfig.indicatorChartConfigs.filter(c => !c.isInMainChart);
+
+						chart.removePane(removedPaneIndex);
+
+						// 🔑 关键修复：更新所有受影响的paneRef
+						// 当删除一个pane后，后续pane的索引会自动减1，需要更新对应的paneRef
+						allSubChartConfigs.forEach((subConfig) => {
+							if (subConfig.indicatorKeyStr !== config.indicatorKeyStr) {
+								const currentPaneRef = getSubChartPaneRef(subConfig.indicatorKeyStr);
+								if (currentPaneRef && currentPaneRef.paneIndex() >= removedPaneIndex) {
+									// 重新获取更新后的pane引用
+									const updatedPanes = chart.panes();
+									const newPaneIndex = currentPaneRef.paneIndex();
+									if (updatedPanes[newPaneIndex]) {
+										// 更新store中的paneRef为新的pane对象
+										setSubChartPaneRef(subConfig.indicatorKeyStr, updatedPanes[newPaneIndex]);
+									}
+								}
+							}
+						});
+
+						// 🔑 增加pane版本号，强制所有legend组件重新渲染
+						incrementPaneVersion();
 					}
 					// 删除store中的paneApi
 					deleteSubChartPaneRef(config.indicatorKeyStr);
@@ -148,6 +175,8 @@ export const useBacktestChart = ({
 		getSubChartPaneRef,
 		deleteIndicatorSeriesRef,
 		deleteSubChartPaneRef,
+		setSubChartPaneRef,
+		incrementPaneVersion,
 	]);
 
 	const changeKline = useCallback(() => {

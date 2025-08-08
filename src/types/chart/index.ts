@@ -36,7 +36,6 @@ export type IndicatorChartBaseConfig = {
 };
 
 export type IndicatorChartConfig = IndicatorChartBaseConfig & {
-	chartId: ChartId; // chartId
 	indicatorKeyStr: IndicatorKeyStr; // indicatorKeyStr
 	isDelete: boolean; // isDelete
 };

@@ -428,6 +428,7 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 						: config,
 				),
 			}));
+			console.log("当前的图表配置: ", get().chartConfig);
 		},
 
 		// 切换k线，切换k线需要将chartId对应的图表的所有的指标删除（软删除）
