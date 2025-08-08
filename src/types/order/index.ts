@@ -1,3 +1,5 @@
+export type { VirtualOrder } from "./virtual-order";
+
 export enum OrderType {
 	LIMIT = "LIMIT", // 限价单
 	MARKET = "MARKET", // 市价单

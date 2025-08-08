@@ -2,10 +2,13 @@ import type {
 	AreaSeries,
 	HistogramSeries,
 	LineSeries,
+	Time,
+	SeriesMarkerBarPosition,
+	SeriesMarkerShape,
 } from "lightweight-charts";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import type { IndicatorKeyStr, KeyStr } from "@/types/symbol-key";
-// import { IndicatorValue } from "../indicator/backup/indicator-value";
+
 
 export type LayoutMode = "vertical" | "horizontal" | "grid" | "grid-alt";
 
@@ -45,6 +48,17 @@ export type KlineChartConfig = {
 	visible?: boolean; // 蜡烛图可见性
 	upColor?: string; // 上涨颜色
 	downColor?: string; // 下跌颜色
+};
+
+
+
+export type OrderMarker = {
+	time: Time;
+	price: number;
+	position: SeriesMarkerBarPosition;
+	shape: SeriesMarkerShape;
+	color: string;
+	text: string;
 };
 
 // // 子图配置

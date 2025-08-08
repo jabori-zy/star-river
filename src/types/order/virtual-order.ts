@@ -1,4 +1,4 @@
-import type { Exchange } from "@/types/common";
+import type { Exchange } from "@/types/market";
 import type { FuturesOrderSide, OrderStatus, OrderType } from "./index";
 
 export type VirtualOrder = {

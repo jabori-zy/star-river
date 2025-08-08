@@ -67,10 +67,7 @@ const useBacktestStrategyEventSSE = (enabled: boolean = true) => {
 						const data = (strategyEvent as FuturesOrderFilledEvent)
 							.futuresOrder;
 						addSingleOrder(data.exchange, data.symbol, data);
-						console.log("所有订单数据", getAllOrderData());
 					}
-				} else {
-					console.warn("未知的事件类型:", eventName);
 				}
 			} catch (error) {
 				console.error("解析 SSE 消息失败:", error);
@@ -96,7 +93,7 @@ const useBacktestStrategyEventSSE = (enabled: boolean = true) => {
 				eventSourceRef.current = null;
 			}
 		};
-	}, [enabled, addKlineData, addIndicatorData]);
+	}, [enabled, addKlineData, addIndicatorData, addSingleOrder]);
 
 	// 返回可用的操作
 	return {

@@ -3,6 +3,7 @@ import type {
 	IChartApi,
 	IPaneApi,
 	ISeriesApi,
+	ISeriesMarkersPluginApi,
 	SingleValueData,
 	Time,
 	UTCTimestamp,
@@ -12,30 +13,27 @@ import { create } from "zustand";
 import {
 	createIndicatorStreamFromKey,
 	createKlineStreamFromKey,
+	createOrderStreamForSymbol,
 } from "@/hooks/obs/backtest-strategy-data-obs";
 import { getInitialChartData } from "@/service/chart";
-import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
-import type { ChartId } from "@/types/chart";
+import type { ChartId, OrderMarker } from "@/types/chart";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import type { Kline } from "@/types/kline";
 import type { IndicatorKeyStr, KeyStr, KlineKeyStr } from "@/types/symbol-key";
 import { parseKey } from "@/utils/parse-key";
+import type { VirtualOrder } from "@/types/order";
+import dayjs from "dayjs";
 
 interface BacktestChartStore {
 	chartId: ChartId;
-	// chartConfig: BacktestChartConfig;
-
-	// initialKlineData: Record<KlineKeyStr, CandlestickData[]>; // 初始k线数据
-	// initialIndicatorData: Record<IndicatorKeyStr,Record<keyof IndicatorValueConfig, SingleValueData[]>>; // 初始指标数据
-
-	// klineData: Record<KlineKeyStr, CandlestickData[]>; // k线数据 和 指标数据 的集合
 	klineKeyStr: KlineKeyStr | null;
 	klineData: CandlestickData[];
 	indicatorData: Record<
 		IndicatorKeyStr,
 		Record<keyof IndicatorValueConfig, SingleValueData[]>
 	>; // 指标数据
+	orderMarkers: OrderMarker[]; // 订单标记
 	subscriptions: Record<KeyStr, Subscription[]>; // 订阅集合
 
 	// 数据初始化状态标志
@@ -43,7 +41,6 @@ interface BacktestChartStore {
 
 	// 各种ref引用存储
 	chartRef: IChartApi | null;
-	// klineSeriesRef: Record<KlineKeyStr, ISeriesApi<"Candlestick"> | null>;
 	klineSeriesRef: ISeriesApi<"Candlestick"> | null;
 	indicatorSeriesRef: Record<
 		IndicatorKeyStr,
@@ -52,6 +49,7 @@ interface BacktestChartStore {
 			ISeriesApi<"Line"> | ISeriesApi<"Area"> | ISeriesApi<"Histogram"> | null
 		>
 	>;
+	orderMarkerSeriesRef: ISeriesMarkersPluginApi<Time> | null;
 	subChartPaneRef: Record<IndicatorKeyStr, IPaneApi<Time> | null>;
 
 	// === Pane 版本号，用于强制重新渲染 legend ===
@@ -62,11 +60,6 @@ interface BacktestChartStore {
 	indicatorVisibilityMap: Record<IndicatorKeyStr, boolean>;
 	// 存储每个K线的可见性状态，key为klineKeyStr，value为是否可见
 	klineVisibilityMap: Record<KlineKeyStr, boolean>;
-
-	// === 图表配置 ===
-	// getChartConfig: () => BacktestChartConfig;
-	// setChartConfig: (chartConfig: BacktestChartConfig) => void;
-	// syncChartConfig: () => void; // 同步最新的图表配置
 
 	initChartData: (playIndex: number) => Promise<void>;
 	initKlineData: (playIndex: number) => Promise<void>;
@@ -89,9 +82,6 @@ interface BacktestChartStore {
 		SingleValueData[]
 	> | null | undefined>;
 
-	// setInitialKlineData: (keyStr: KlineKeyStr, data: CandlestickData[]) => void;
-	// setInitialIndicatorData: (keyStr: IndicatorKeyStr, data: Record<keyof IndicatorValueConfig, SingleValueData[]>) => void;
-
 	setKlineKeyStr: (klineKeyStr: KlineKeyStr) => void;
 	getKlineKeyStr: () => KlineKeyStr | null;
 	setKlineData: (data: CandlestickData[]) => void;
@@ -103,12 +93,12 @@ interface BacktestChartStore {
 	) => void;
 	getIndicatorData: (indicatorKeyStr: IndicatorKeyStr) => Record<keyof IndicatorValueConfig, SingleValueData[]>;
 	deleteIndicatorData: (indicatorKeyStr: IndicatorKeyStr) => void;
+	setOrderMarkers: (markers: OrderMarker[]) => void;
+	getOrderMarkers: () => OrderMarker[];
 
 	// 数据初始化状态管理
 	getIsDataInitialized: () => boolean;
 	setIsDataInitialized: (initialized: boolean) => void;
-
-	// getData: (keyStr: KeyStr) => CandlestickData[] | SingleValueData[];
 
 	getLastKline: (keyStr: KeyStr) => CandlestickData | SingleValueData | null;
 
@@ -173,6 +163,10 @@ interface BacktestChartStore {
 	) => ISeriesApi<"Line"> | ISeriesApi<"Area"> | ISeriesApi<"Histogram"> | null;
 	deleteIndicatorSeriesRef: (indicatorKeyStr: IndicatorKeyStr) => void;
 
+	setOrderMarkerSeriesRef: (ref: ISeriesMarkersPluginApi<Time>) => void;
+	getOrderMarkerSeriesRef: () => ISeriesMarkersPluginApi<Time> | null;
+	deleteOrderMarkerSeriesRef: () => void;
+
 	setSubChartPaneRef: (
 		indicatorKeyStr: IndicatorKeyStr,
 		ref: IPaneApi<Time>,
@@ -189,7 +183,7 @@ interface BacktestChartStore {
 	getKeyStr: () => KeyStr[];
 
 	// Observer 相关方法
-	initObserverSubscriptions: () => void;
+	initObserverSubscriptions: () => void; // 初始化Observer订阅
 	addObserverSubscription: (keyStr: KeyStr, subscription: Subscription) => void;
 	cleanupSubscriptions: () => void;
 	onNewKline: (klineKeyStr: KeyStr, kline: Kline) => void;
@@ -198,6 +192,7 @@ interface BacktestChartStore {
 		indicatorKeyStr: KeyStr,
 		indicatorData: Record<keyof IndicatorValueConfig, SingleValueData[]>,
 	) => void;
+	onNewOrder: (orderData: VirtualOrder) => void;
 
 	resetData: () => void;
 }
@@ -211,13 +206,11 @@ const createBacktestChartStore = (
 		chartId: chartId,
 		chartConfig: chartConfig,
 
-		// initialKlineData: {},
-		// initialIndicatorData: {},
-
 		klineKeyStr: null,
 		klineData: [],
 		indicatorData: {},
 		subscriptions: {},
+		orderMarkers: [], // 订单标记
 
 		// 数据初始化状态
 		isDataInitialized: false,
@@ -226,6 +219,7 @@ const createBacktestChartStore = (
 		chartRef: null,
 		klineSeriesRef: null,
 		indicatorSeriesRef: {},
+		orderMarkerSeriesRef: null,
 		subChartPaneRef: {},
 
 		// === Pane 版本号初始化 ===
@@ -235,21 +229,6 @@ const createBacktestChartStore = (
 		// 初始状态：所有指标和K线默认可见
 		indicatorVisibilityMap: {},
 		klineVisibilityMap: {},
-
-		// getChartConfig: () => get().chartConfig,
-		// setChartConfig: (chartConfig: BacktestChartConfig) => {
-		// 	set({ chartConfig: chartConfig });
-		// },
-
-		// 同步最新的图表配置
-		// syncChartConfig: () => {
-		// 	const latestConfig = useBacktestChartConfigStore
-		// 		.getState()
-		// 		.getChartConfig(chartId);
-		// 	if (latestConfig) {
-		// 		set({ chartConfig: latestConfig });
-		// 	}
-		// },
 
 		// === 数据管理方法 ===
 		setKlineKeyStr: (klineKeyStr: KlineKeyStr) => set({ klineKeyStr: klineKeyStr }),
@@ -274,6 +253,9 @@ const createBacktestChartStore = (
 				const { [indicatorKeyStr]: _, ...rest } = state.indicatorData;
 				return { indicatorData: rest };
 			}),
+
+		setOrderMarkers: (markers: OrderMarker[]) => set({ orderMarkers: markers }),
+		getOrderMarkers: () => get().orderMarkers,
 
 		// 数据初始化状态管理
 		getIsDataInitialized: () => get().isDataInitialized,
@@ -339,6 +321,13 @@ const createBacktestChartStore = (
 				},
 			}),
 
+		setOrderMarkerSeriesRef: (ref: ISeriesMarkersPluginApi<Time>) =>
+			set({ orderMarkerSeriesRef: ref }),
+		getOrderMarkerSeriesRef: () =>
+			get().orderMarkerSeriesRef || null,
+		deleteOrderMarkerSeriesRef: () =>
+			set({ orderMarkerSeriesRef: null }),
+
 		setSubChartPaneRef: (
 			indicatorKeyStr: IndicatorKeyStr,
 			ref: IPaneApi<Time>,
@@ -380,6 +369,7 @@ const createBacktestChartStore = (
 				state.getKeyStr().forEach((keyStr) => {
 					const key = parseKey(keyStr);
 					if (key.type === "kline") {
+						// 订阅K线数据流
 						const klineStream = createKlineStreamFromKey(keyStr, true);
 						const klineSubscription = klineStream.subscribe({
 							next: (klineData: Kline[]) => {
@@ -391,6 +381,15 @@ const createBacktestChartStore = (
 							},
 						});
 						state.addObserverSubscription(keyStr, klineSubscription);
+
+						// 订阅与该k线相关的订单数据流
+						const orderStream = createOrderStreamForSymbol(key.exchange,key.symbol);
+						const orderSubscription = orderStream.subscribe(
+							(orderData: VirtualOrder) => {
+								state.onNewOrder(orderData);
+							},
+						);
+						state.addObserverSubscription(keyStr, orderSubscription);
 					} else if (key.type === "indicator") {
 						const indicatorStream = createIndicatorStreamFromKey(keyStr, true);
 						const indicatorSubscription = indicatorStream.subscribe({
@@ -565,6 +564,26 @@ const createBacktestChartStore = (
 					[indicatorKeyStr]: updatedIndicator,
 				},
 			}));
+		},
+
+		onNewOrder: (orderData: VirtualOrder) => {
+			console.log("onNewOrder", orderData);
+			// 后端返回时间，转换为时间戳：2025-07-25T00:20:00Z -> timestamp
+			const timestampInSeconds = dayjs(orderData.createTime).unix();
+			const orderMarker: OrderMarker = {
+				time: timestampInSeconds as UTCTimestamp,
+				price: orderData.openPrice,
+				position: "belowBar",
+				shape: "arrowUp",
+				color: "#FF0000",
+				text: `${orderData.orderSide} @ ${orderData.openPrice}`,
+			};
+			console.log("orderMarker", orderMarker);
+			get().setOrderMarkers([...get().orderMarkers, orderMarker]);
+			const orderMarkerSeriesRef = get().getOrderMarkerSeriesRef();
+			if (orderMarkerSeriesRef) {
+				orderMarkerSeriesRef.setMarkers(get().getOrderMarkers());
+			}
 		},
 
 		// 私有方法：处理K线数据

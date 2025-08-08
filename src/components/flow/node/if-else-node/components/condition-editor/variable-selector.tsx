@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import {
 	Select,
@@ -78,13 +78,12 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 	const [variableString, setVariableString] = useState<string>("");
 
 	// 生成选项value，格式：nodeId|handleId|valueKey
-	const generateOptionValue = (
-		nodeId: string,
-		handleId: string,
-		valueKey: string | number,
-	) => {
-		return `${nodeId}|${handleId}|${valueKey}`;
-	};
+	const generateOptionValue = useCallback(
+		(nodeId: string, handleId: string, valueKey: string | number) => {
+			return `${nodeId}|${handleId}|${valueKey}`;
+		},
+		[],
+	);
 
 	// 当传入的variable发生变化时，同步更新本地状态
 	useEffect(() => {
@@ -109,7 +108,7 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 			setSelectedNodeId("");
 			setVariableString("");
 		}
-	}, [variable]);
+	}, [variable, generateOptionValue]);
 
 	// 处理节点选择
 	const handleNodeChange = (nodeId: string) => {
@@ -237,7 +236,7 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 										className="flex items-center justify-center text-[10px] leading-none py-1 border-gray-400 rounded-sm"
 									>
 										{variable.indicatorId} |{" "}
-										{variable.indicatorConfig.type.toUpperCase()}
+										{variable.indicatorType}
 									</Badge>
 
 									<span className="font-medium text-gray-900 text-right">

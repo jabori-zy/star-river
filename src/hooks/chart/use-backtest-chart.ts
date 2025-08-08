@@ -6,7 +6,7 @@ import type {
 	SingleValueData,
 } from "lightweight-charts";
 import {
-	CandlestickSeries,
+	createSeriesMarkers,
 	createChart,
 } from "lightweight-charts";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -67,6 +67,9 @@ export const useBacktestChart = ({
 		setKlineKeyStr,
 		deleteKlineSeriesRef,
 		incrementPaneVersion,
+		setOrderMarkerSeriesRef,
+		getOrderMarkerSeriesRef,
+		deleteOrderMarkerSeriesRef,
 	} = useBacktestChartStore(chartConfig.id, chartConfig);
 
 	// 使用状态追踪初始化状态，而不是 ref
@@ -427,6 +430,10 @@ export const useBacktestChart = ({
 			setKlineKeyStr(chartConfig.klineChartConfig.klineKeyStr);
 			setKlineSeriesRef(candleSeries);
 
+			// 创建订单标记系列
+			const orderMarkerSeries = createSeriesMarkers(candleSeries, []);
+			setOrderMarkerSeriesRef(orderMarkerSeries);
+
 
 			// 创建指标系列
 			createIndicatorSeries(chart, chartConfig.indicatorChartConfigs);
@@ -452,6 +459,7 @@ export const useBacktestChart = ({
 		initObserverSubscriptions,
 		getChartRef,
 		createIndicatorSeries,
+		setOrderMarkerSeriesRef,
 	]);
 
 	/**
