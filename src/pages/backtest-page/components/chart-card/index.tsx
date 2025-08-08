@@ -1,7 +1,6 @@
 // import RealtimeTickingStockCharts from "@/components/chart/SciChart";
 import { ChartSpline, Ellipsis, Search, Trash2 } from "lucide-react";
 import { useState } from "react";
-import BacktestChart from "@/components/chart/backtest-chart";
 import BacktestChartNew from "@/components/chart/backtest-chart-new";
 import { Button } from "@/components/ui/button";
 import {
@@ -94,6 +93,7 @@ const ChartCard: React.FC<ChartCardProps> = ({ chartConfig, strategyId }) => {
 				open={isSymbolDialogOpen}
 				onOpenChange={setIsSymbolDialogOpen}
 				strategyId={strategyId}
+				selectedKlineCacheKeyStr={chartConfig.klineChartConfig.klineKeyStr}
 				onKlineSelect={handleKlineSelect}
 			/>
 

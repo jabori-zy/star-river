@@ -430,15 +430,23 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 			}));
 		},
 
+		// 切换k线，切换k线需要将chartId对应的图表的所有的指标删除（软删除）
+		// 对应的chartId的图表标题也要修改
 		changeKline: (chartId, klineKeyStr) => {
 			const { chartConfig } = get();
+			// 将所有的指标删除
+			chartConfig.charts.forEach((chart) => {
+				if (chart.id === chartId) {
+					chart.indicatorChartConfigs = chart.indicatorChartConfigs.map((config) => ({ ...config, isDelete: true }));
+				}
+			});
+			const klineKey = parseKey(klineKeyStr) as KlineKey;
 			set({
 				chartConfig: {
 					...chartConfig,
-					charts: chartConfig.charts.map((chart) => chart.id === chartId ? { ...chart, klineChartConfig: { ...chart.klineChartConfig, klineKeyStr } } : chart),
+					charts: chartConfig.charts.map((chart) => chart.id === chartId ? { ...chart, klineChartConfig: { ...chart.klineChartConfig, klineKeyStr }, chartName: `${klineKey.symbol} ${klineKey.interval}` } : chart),
 				},
 			});
-			console.log("切换蜡烛图: ", chartId, klineKeyStr);
 		},
 
 		// 根据ID获取图表

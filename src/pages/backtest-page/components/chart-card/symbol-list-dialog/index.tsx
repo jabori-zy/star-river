@@ -11,6 +11,7 @@ import {
 import { getStrategyCacheKeys } from "@/service/strategy";
 import type { IndicatorKey, KlineKey } from "@/types/symbol-key";
 import { parseKey } from "@/utils/parse-key";
+import ConfirmDialog from "./confirm-dialog";
 
 interface SymbolListDialogProps {
 	open: boolean;
@@ -31,6 +32,8 @@ export default function SymbolListDialog({
 		{ key: string; data: KlineKey }[]
 	>([]);
 	const [loading, setLoading] = useState(false);
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [pendingKey, setPendingKey] = useState<string | null>(null);
 
 	// 获取可用的kline数据
 	const fetchKlineOptions = useCallback(async () => {
@@ -71,11 +74,28 @@ export default function SymbolListDialog({
 		}
 	}, [open, fetchKlineOptions]);
 
-	// 处理kline选择
-	const handleKlineSelect = (klineCacheKeyStr: string) => {
-		onKlineSelect(klineCacheKeyStr);
-		onOpenChange(false);
-	};
+    // 处理kline选择（含二次确认）
+    const handleKlineClick = (klineCacheKeyStr: string) => {
+        if (
+            selectedKlineCacheKeyStr &&
+            selectedKlineCacheKeyStr !== klineCacheKeyStr
+        ) {
+            setPendingKey(klineCacheKeyStr);
+            setConfirmOpen(true);
+            return;
+        }
+        onKlineSelect(klineCacheKeyStr);
+        onOpenChange(false);
+    };
+
+    const handleConfirm = () => {
+        if (pendingKey) {
+            onKlineSelect(pendingKey);
+        }
+        setPendingKey(null);
+        setConfirmOpen(false);
+        onOpenChange(false);
+    };
 
 	// 渲染kline项目
 	const renderKlineItem = (klineCacheKey: KlineKey) => (
@@ -87,7 +107,7 @@ export default function SymbolListDialog({
 	);
 
 	return (
-		<Dialog open={open} onOpenChange={onOpenChange}>
+		<Dialog open={open} onOpenChange={onOpenChange} modal={false}>
 			<DialogContent className="sm:max-w-[500px]">
 				<DialogHeader>
 					<DialogTitle>选择K线数据</DialogTitle>
@@ -101,7 +121,7 @@ export default function SymbolListDialog({
 					) : (
 						<div className="grid gap-2 max-h-96 overflow-y-auto">
 							{klineOptions.map((option) => (
-								<Button
+                                <Button
 									key={option.key}
 									variant={
 										selectedKlineCacheKeyStr === option.key
@@ -113,7 +133,7 @@ export default function SymbolListDialog({
 											? "bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
 											: ""
 									}`}
-									onClick={() => handleKlineSelect(option.key)}
+                                    onClick={() => handleKlineClick(option.key)}
 								>
 									{renderKlineItem(option.data)}
 								</Button>
@@ -126,6 +146,11 @@ export default function SymbolListDialog({
 						</div>
 					)}
 				</div>
+                <ConfirmDialog
+                    open={confirmOpen}
+                    onOpenChange={setConfirmOpen}
+                    onConfirm={handleConfirm}
+                />
 			</DialogContent>
 		</Dialog>
 	);

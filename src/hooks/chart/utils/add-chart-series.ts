@@ -11,6 +11,9 @@ export const addKlineSeries = (
 	const klineSeries = chart.addSeries(CandlestickSeries, {
 		visible: config.visible ?? true,
 		priceLineVisible: false,
+		lastValueVisible: true,
+		borderVisible: true,
+		borderColor: "#000000",
 	});
 	return klineSeries;
 };
