@@ -17,7 +17,6 @@ import {
 import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
 import LayoutControl from "../layout-control";
 import AddChartButton from "./add-chart-button";
-import { resetAllBacktestChartStore } from "@/components/chart/backtest-chart-new/backtest-chart-store";
 
 interface BacktestControlProps {
 	strategyId: number;

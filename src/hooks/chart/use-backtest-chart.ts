@@ -10,7 +10,7 @@ import {
 	createChart,
 } from "lightweight-charts";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useBacktestChartStore } from "@/components/chart/backtest-chart-new/backtest-chart-store";
+import { useBacktestChartStore } from "@/components/chart/backtest-chart/backtest-chart-store";
 import { get_play_index } from "@/service/backtest-strategy/backtest-strategy-control";
 import type { IndicatorChartConfig } from "@/types/chart";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";

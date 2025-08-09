@@ -4,7 +4,7 @@ import type {
 	Time,
 } from "lightweight-charts";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useBacktestChartStore } from "@/components/chart/backtest-chart-new/backtest-chart-store";
+import { useBacktestChartStore } from "@/components/chart/backtest-chart/backtest-chart-store";
 import type { IndicatorType } from "@/types/indicator";
 import {
 	getIndicatorConfig,

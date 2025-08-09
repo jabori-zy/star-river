@@ -32,8 +32,14 @@ const IndicatorDebugPanel: React.FC<IndicatorDebugPanelProps> = ({
 	chartApiRef,
 }) => {
 	const [isOpen, setIsOpen] = useState(false);
-	const { getIndicatorVisibility, toggleIndicatorVisibility, indicatorData } =
-		useBacktestChartStore(chartConfig.id);
+	const {
+		getIndicatorVisibility,
+		toggleIndicatorVisibility,
+		indicatorData,
+		getChartRef,
+		getSubChartPaneRef,
+		getKlineSeriesRef,
+	} = useBacktestChartStore(chartConfig.id);
 
 	// 使用全局配置store来删除指标
 	const { removeIndicator } = useBacktestChartConfigStore();
@@ -58,8 +64,9 @@ const IndicatorDebugPanel: React.FC<IndicatorDebugPanelProps> = ({
 		const currentConfig = chartConfig;
 		const mainIndicators = getMainChartIndicators();
 		const subIndicators = getSubChartIndicators();
+		const chartApi = getChartRef();
 
-		console.group("🔧 图表配置调试信息");
+		console.group("🔧 图表配置调试信息 (New Chart)");
 		console.log("📊 完整配置:", currentConfig);
 		console.log("🔑 图表ID:", currentConfig.id);
 		console.log("📈 K线配置:", currentConfig.klineChartConfig);
@@ -77,11 +84,13 @@ const IndicatorDebugPanel: React.FC<IndicatorDebugPanelProps> = ({
 		console.log(`📉 子图指标数量: ${subIndicators.length}`);
 		subIndicators.forEach((indicator, index) => {
 			console.log(`  子图指标${index + 1}:`, indicator);
+			// 打印子图Pane引用信息
+			const paneRef = getSubChartPaneRef(indicator.indicatorKeyStr);
+			console.log(`    Pane引用:`, paneRef);
 		});
 
 		// 打印图表API信息
-		if (chartApiRef?.current) {
-			const chartApi = chartApiRef.current;
+		if (chartApi) {
 			console.log("🎯 图表API信息:");
 			console.log("  - Panes数量:", chartApi.panes().length);
 			console.log("  - 时间范围:", chartApi.timeScale().getVisibleRange());
@@ -139,43 +148,45 @@ const IndicatorDebugPanel: React.FC<IndicatorDebugPanelProps> = ({
 
 	const handleDeleteIndicator = (indicatorKeyStr: IndicatorKeyStr) => {
 		// 只删除配置，让React自然地卸载组件和清理Pane
-		// lightweight-charts-react-components会自动处理series和pane的清理
+		// 新图表组件会自动处理series和pane的清理
 		removeIndicator(chartConfig.id, indicatorKeyStr);
 	};
 
 	// 只删除Pane，不删除配置
 	const handleRemovePaneOnly = (indicatorKeyStr: IndicatorKeyStr) => {
-		// 使用新的store方法获取指标信息
 		const subIndicators = getSubChartIndicators();
 		const targetIndicator = subIndicators.find(
 			(indicator) => indicator.indicatorKeyStr === indicatorKeyStr,
 		);
 
 		// 只处理子图指标的Pane删除
-		if (targetIndicator && chartApiRef?.current) {
-			// 找到该指标在子图中的索引
-			const subChartIndex = subIndicators.findIndex(
-				(indicator) => indicator.indicatorKeyStr === indicatorKeyStr,
-			);
+		if (targetIndicator) {
+			const chartApi = getChartRef();
+			if (chartApi) {
+				// 找到该指标在子图中的索引
+				const subChartIndex = subIndicators.findIndex(
+					(indicator) => indicator.indicatorKeyStr === indicatorKeyStr,
+				);
 
-			if (subChartIndex !== -1) {
-				try {
-					// 获取所有Panes
-					const panes = chartApiRef.current.panes();
-					console.log("只删除Pane - panes", panes);
+				if (subChartIndex !== -1) {
+					try {
+						// 获取所有Panes
+						const panes = chartApi.panes();
+						console.log("只删除Pane - panes", panes);
 
-					// 子图的Pane索引 = 主图(0) + 子图索引 + 1
-					const paneIndex = subChartIndex + 1;
+						// 子图的Pane索引 = 主图(0) + 子图索引 + 1
+						const paneIndex = subChartIndex + 1;
 
-					if (panes[paneIndex]) {
-						chartApiRef.current.removePane(paneIndex);
-						console.log(`已删除Pane ${paneIndex}，但保留配置`);
+						if (panes[paneIndex]) {
+							chartApi.removePane(paneIndex);
+							console.log(`已删除Pane ${paneIndex}，但保留配置`);
 
-						// 注意：删除Pane后，React组件仍然存在但无法正常渲染
-						// 这可能会导致一些显示问题，但配置仍然保留
+							// 注意：删除Pane后，React组件仍然存在但无法正常渲染
+							// 这可能会导致一些显示问题，但配置仍然保留
+						}
+					} catch (error) {
+						console.error("删除Pane失败:", error);
 					}
-				} catch (error) {
-					console.error("删除Pane失败:", error);
 				}
 			}
 		} else {
@@ -185,52 +196,54 @@ const IndicatorDebugPanel: React.FC<IndicatorDebugPanelProps> = ({
 
 	// 通过删除Pane内的所有Series来清空Pane（新方案）
 	const handleClearPaneSeries = (indicatorKeyStr: IndicatorKeyStr) => {
-		// 使用新的store方法获取指标信息
 		const subIndicators = getSubChartIndicators();
 		const targetIndicator = subIndicators.find(
 			(indicator) => indicator.indicatorKeyStr === indicatorKeyStr,
 		);
 
 		// 只处理子图指标的Pane清理
-		if (targetIndicator && chartApiRef?.current) {
-			// 找到该指标在子图中的索引
-			const subChartIndex = subIndicators.findIndex(
-				(indicator) => indicator.indicatorKeyStr === indicatorKeyStr,
-			);
+		if (targetIndicator) {
+			const chartApi = getChartRef();
+			if (chartApi) {
+				// 找到该指标在子图中的索引
+				const subChartIndex = subIndicators.findIndex(
+					(indicator) => indicator.indicatorKeyStr === indicatorKeyStr,
+				);
 
-			if (subChartIndex !== -1) {
-				try {
-					// 获取所有Panes
-					const panes = chartApiRef.current.panes();
-					console.log("清空Pane内Series - panes", panes);
+				if (subChartIndex !== -1) {
+					try {
+						// 获取所有Panes
+						const panes = chartApi.panes();
+						console.log("清空Pane内Series - panes", panes);
 
-					// 子图的Pane索引 = 主图(0) + 子图索引 + 1
-					const paneIndex = subChartIndex + 1;
+						// 子图的Pane索引 = 主图(0) + 子图索引 + 1
+						const paneIndex = subChartIndex + 1;
 
-					if (panes[paneIndex]) {
-						const targetPane = panes[paneIndex];
+						if (panes[paneIndex]) {
+							const targetPane = panes[paneIndex];
 
-						// 获取该Pane内的所有Series
-						const seriesInPane = targetPane.getSeries();
-						console.log(
-							`Pane ${paneIndex} 内的Series数量:`,
-							seriesInPane.length,
-						);
+							// 获取该Pane内的所有Series
+							const seriesInPane = targetPane.getSeries();
+							console.log(
+								`Pane ${paneIndex} 内的Series数量:`,
+								seriesInPane.length,
+							);
 
-						// 删除该Pane内的所有Series
-						seriesInPane.forEach((series, index) => {
-							console.log(`删除Pane ${paneIndex} 内的Series ${index}`);
-							if (chartApiRef.current) {
-								chartApiRef.current.removeSeries(series);
-							}
-						});
+							// 删除该Pane内的所有Series
+							seriesInPane.forEach((series, index) => {
+								console.log(`删除Pane ${paneIndex} 内的Series ${index}`);
+								if (chartApi) {
+									chartApi.removeSeries(series);
+								}
+							});
 
-						console.log(
-							`已清空Pane ${paneIndex} 内的所有Series，Pane会自动消失`,
-						);
+							console.log(
+								`已清空Pane ${paneIndex} 内的所有Series，Pane会自动消失`,
+							);
+						}
+					} catch (error) {
+						console.error("清空Pane内Series失败:", error);
 					}
-				} catch (error) {
-					console.error("清空Pane内Series失败:", error);
 				}
 			}
 		} else {
@@ -249,7 +262,7 @@ const IndicatorDebugPanel: React.FC<IndicatorDebugPanelProps> = ({
 				onClick={() => setIsOpen(true)}
 			>
 				<Bug size={16} />
-				调试面板
+				调试面板 (New)
 			</Button>
 		);
 	}
@@ -258,7 +271,7 @@ const IndicatorDebugPanel: React.FC<IndicatorDebugPanelProps> = ({
 		<Card className="fixed top-4 right-4 z-50 w-80 max-h-96 overflow-auto bg-white shadow-lg">
 			<CardHeader className="pb-2">
 				<div className="flex items-center justify-between">
-					<CardTitle className="text-sm">指标调试面板</CardTitle>
+					<CardTitle className="text-sm">指标调试面板 (New Chart)</CardTitle>
 					<Button
 						variant="ghost"
 						size="sm"
@@ -283,19 +296,58 @@ const IndicatorDebugPanel: React.FC<IndicatorDebugPanelProps> = ({
 						<div>
 							总指标数: {chartConfig.indicatorChartConfigs?.length || 0} 个
 						</div>
-						{chartApiRef?.current && (
-							<div>Pane数量: {chartApiRef.current.panes().length} 个</div>
+						{getChartRef() && (
+							<div>Pane数量: {getChartRef()?.panes().length} 个</div>
 						)}
 					</div>
-					<Button
-						variant="outline"
-						size="sm"
-						className="h-6 text-xs mt-2 w-full"
-						onClick={printChartConfig}
-					>
-						<FileText size={10} className="mr-1" />
-						打印配置到控制台
-					</Button>
+					<div className="flex gap-1 mt-2">
+						<Button
+							variant="outline"
+							size="sm"
+							className="h-6 text-xs flex-1"
+							onClick={printChartConfig}
+						>
+							<FileText size={10} className="mr-1" />
+							打印配置
+						</Button>
+						<Button
+							variant="outline"
+							size="sm"
+							className="h-6 text-xs flex-1"
+							onClick={() => {
+								const chartApi = getChartRef();
+								if (chartApi) {
+									const panes = chartApi.panes();
+									console.group("🔍 K线系列检查");
+									console.log("Pane数量:", panes.length);
+									if (panes[0]) {
+										const mainPaneSeries = panes[0].getSeries();
+										console.log("主图系列数量:", mainPaneSeries.length);
+										console.log("主图所有系列:", mainPaneSeries);
+
+										// 检查K线系列引用
+										const klineSeries = getKlineSeriesRef(
+											chartConfig.klineChartConfig.klineKeyStr,
+										);
+										console.log("K线系列引用:", klineSeries);
+										if (klineSeries) {
+											// 检查K线系列是否在主图中
+											const isKlineInMainPane = mainPaneSeries.some(
+												(series) => series === klineSeries,
+											);
+											console.log("K线系列是否在主图中:", isKlineInMainPane);
+										} else {
+											console.log("K线系列引用为空");
+										}
+									}
+									console.groupEnd();
+								}
+							}}
+						>
+							<RefreshCw size={10} className="mr-1" />
+							检查K线
+						</Button>
+					</div>
 				</div>
 
 				{/* 操作说明 */}
@@ -381,6 +433,11 @@ const IndicatorDebugPanel: React.FC<IndicatorDebugPanelProps> = ({
 													});
 												} else {
 													console.log("暂无数据");
+												}
+												// 打印Pane引用信息（仅子图指标）
+												if (indicator.type === "sub") {
+													const paneRef = getSubChartPaneRef(indicator.keyStr);
+													console.log("Pane引用:", paneRef);
 												}
 												console.groupEnd();
 											}}

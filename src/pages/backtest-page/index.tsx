@@ -16,7 +16,7 @@ import BacktestWindowHeader from "../../components/backtest/backtest-window-head
 import useBacktestStrategySSE from "../../hooks/sse/use-backtest-strategy-sse";
 import BacktestControl from "./components/backtest-control";
 import ChartContainer from "./components/chart-container";
-import { resetAllBacktestChartStore } from "@/components/chart/backtest-chart-new/backtest-chart-store";
+import { resetAllBacktestChartStore } from "@/components/chart/backtest-chart/backtest-chart-store";
 
 export default function BacktestPage() {
 	const navigate = useNavigate();

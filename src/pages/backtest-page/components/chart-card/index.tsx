@@ -1,7 +1,7 @@
 // import RealtimeTickingStockCharts from "@/components/chart/SciChart";
 import { ChartSpline, Ellipsis, Search, Trash2 } from "lucide-react";
 import { useState } from "react";
-import BacktestChartNew from "@/components/chart/backtest-chart-new";
+import BacktestChart from "@/components/chart/backtest-chart";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -85,7 +85,7 @@ const ChartCard: React.FC<ChartCardProps> = ({ chartConfig, strategyId }) => {
 						strategyId={strategyId}
 						chartId={chartConfig.id}
 					/> */}
-				<BacktestChartNew strategyId={strategyId} chartConfig={chartConfig} />
+				<BacktestChart strategyId={strategyId} chartConfig={chartConfig} />
 			</div>
 
 			{/* Symbol选择Dialog */}

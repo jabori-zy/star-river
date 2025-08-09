@@ -1,53 +1,63 @@
-import type { MouseEventParams, SingleValueData } from "lightweight-charts";
-import { forwardRef, useImperativeHandle } from "react";
-import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
-import type { IndicatorValueConfig } from "@/types/indicator/schemas";
-import type { IndicatorKeyStr } from "@/types/symbol-key";
-import { IndicatorLegend, useIndicatorLegend } from "./legend";
+import { useEffect } from "react";
+import { useIndicatorLegend } from "@/hooks/chart";
+import { useBacktestChartStore } from "./backtest-chart-store";
+import { IndicatorLegend } from "./indicator-legend";
 
+
+
+// 将主图指标图例组件提取到外部，避免在渲染时重新创建
 interface MainChartIndicatorLegendProps {
-	indicatorKeyStr: IndicatorKeyStr;
-	data: Record<keyof IndicatorValueConfig, SingleValueData[]>;
-	index: number; // 用于调整位置
-	chartConfig: BacktestChartConfig; // 新增图表配置
+	chartId: number;
+	indicatorKeyStr: string;
+	index: number;
 }
 
-export interface MainChartIndicatorLegendRef {
-	onCrosshairMove: (param: MouseEventParams) => void;
-}
+const MainChartIndicatorLegend = ({
+	chartId,
+	indicatorKeyStr,
+	index,
+}: MainChartIndicatorLegendProps) => {
+	const { legendData: indicatorLegendData, onCrosshairMove } =
+		useIndicatorLegend({
+			chartId,
+			indicatorKeyStr,
+		});
 
-/**
- * 主图指标图例组件
- * 单独的组件确保hooks在正确的位置调用
- */
-const MainChartIndicatorLegend = forwardRef<
-	MainChartIndicatorLegendRef,
-	MainChartIndicatorLegendProps
->(({ indicatorKeyStr, data, index, chartConfig }, ref) => {
-	const { legendData, onCrosshairMove: indicatorOnCrosshairMove } =
-		useIndicatorLegend(indicatorKeyStr, data);
+	// 获取图表API引用 - 使用 useMemo 稳定引用
+	const { getChartRef } = useBacktestChartStore(chartId);
 
-	// 暴露onCrosshairMove方法给父组件
-	useImperativeHandle(
-		ref,
-		() => ({
-			onCrosshairMove: indicatorOnCrosshairMove,
-		}),
-		[indicatorOnCrosshairMove],
-	);
+	// 🔑 为主图指标订阅鼠标事件 - 延迟订阅，确保图表完全初始化
+	useEffect(() => {
+		// 使用 setTimeout 确保在图表完全初始化后再订阅
+		const timer = setTimeout(() => {
+			const chart = getChartRef();
+			if (!chart || !onCrosshairMove || !indicatorLegendData) return;
 
-	// 计算top位置，避免使用动态类名
-	const topPosition = (index + 1) * 32; // 32px = 8 * 4 (Tailwind的top-8)
+			// 订阅鼠标移动事件
+			chart.subscribeCrosshairMove(onCrosshairMove);
+		}, 10); // 稍微延迟，确保图表初始化完成
+
+		return () => {
+			clearTimeout(timer);
+			const chart = getChartRef();
+			if (chart && onCrosshairMove) {
+				chart.unsubscribeCrosshairMove(onCrosshairMove);
+			}
+		};
+	}, [getChartRef, onCrosshairMove, indicatorLegendData]);
 
 	return (
 		<IndicatorLegend
-			indicatorLegendData={legendData}
+			indicatorLegendData={indicatorLegendData}
 			indicatorKeyStr={indicatorKeyStr}
-			chartConfig={chartConfig}
-			className="absolute left-0 z-10 hover:cursor-pointer hover:bg-gray-100 p-2 rounded-sm"
-			style={{ top: `${topPosition}px` }}
+			chartId={chartId}
+			style={{
+				// 主图指标：从40px开始，每个间隔30px
+				top: `${40 + index * 30}px`,
+				left: "0px",
+			}}
 		/>
 	);
-});
+};
 
 export default MainChartIndicatorLegend;

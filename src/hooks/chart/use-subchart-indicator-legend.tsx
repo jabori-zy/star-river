@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import type { Root } from "react-dom/client";
 import { createRoot } from "react-dom/client";
-import { useBacktestChartStore } from "@/components/chart/backtest-chart-new/backtest-chart-store";
-import { IndicatorLegend } from "@/components/chart/backtest-chart-new/indicator-legend";
+import { useBacktestChartStore } from "@/components/chart/backtest-chart/backtest-chart-store";
+import { IndicatorLegend } from "@/components/chart/backtest-chart/indicator-legend";
 import type { IndicatorKeyStr } from "@/types/symbol-key";
 import type { IndicatorLegendData } from "./use-indicator-legend";
 import { useIndicatorLegend } from "./use-indicator-legend";

@@ -7,7 +7,7 @@ import type {
 	WhitespaceData,
 } from "lightweight-charts";
 import { useCallback, useEffect, useState } from "react";
-import { useBacktestChartStore } from "@/components/chart/backtest-chart-new/backtest-chart-store";
+import { useBacktestChartStore } from "@/components/chart/backtest-chart/backtest-chart-store";
 
 export type KlineLegendData = {
 	open?: string;
