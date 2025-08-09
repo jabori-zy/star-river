@@ -430,7 +430,6 @@ export const useBacktestChart = ({
 
 			// 创建订单标记系列
 			const orderMarkers = getOrderMarkers();
-			console.log("orderMarkers", orderMarkers.length);
 			if (orderMarkers.length > 0) {
 				const orderMarkerSeries = createSeriesMarkers(candleSeries, orderMarkers);
 				setOrderMarkerSeriesRef(orderMarkerSeries);

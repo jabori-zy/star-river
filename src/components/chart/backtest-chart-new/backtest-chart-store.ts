@@ -817,12 +817,35 @@ const createBacktestChartStore = (
 
 		// 只把数据相关的数据，全部清除
 		resetData: () => {
+			// 清空图表系列数据
+			const state = get();
+			
+			// 清空K线系列数据
+			const klineSeriesRef = state.getKlineSeriesRef();
+			if (klineSeriesRef) {
+				klineSeriesRef.setData([]);
+			}
+			
+			// 清空所有指标系列数据
+			Object.entries(state.indicatorSeriesRef).forEach(([indicatorKeyStr, indicatorSeries]) => {
+				Object.values(indicatorSeries).forEach((seriesRef) => {
+					if (seriesRef) {
+						seriesRef.setData([]);
+					}
+				});
+			});
+			
+			// 清空订单标记
+			const orderMarkerSeriesRef = state.getOrderMarkerSeriesRef();
+			if (orderMarkerSeriesRef) {
+				orderMarkerSeriesRef.setMarkers([]);
+			}
+			
+			// 清空store状态数据
 			set({
 				klineData: [],
 				indicatorData: {},
 				orderMarkers: [],
-
-				
 				// 重置时保持可见性状态，不清空
 			});
 		},
