@@ -60,7 +60,6 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 			{/* K线图例 */}
 			<KlineLegend
 				klineSeriesData={klineLegendData}
-				klineKeyStr={chartConfig.klineChartConfig.klineKeyStr}
 				chartId={chartConfig.id}
 			/>
 
@@ -92,11 +91,11 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 					);
 				})}
 
-			{/* 调试面板 */}
+			{/* 调试面板
 			<IndicatorDebugPanel
 				chartConfig={chartConfig}
 				chartApiRef={chartApiRef}
-			/>
+			/> */}
 		</div>
 	);
 };

@@ -3,19 +3,16 @@ import type React from "react";
 import { Button } from "@/components/ui/button";
 import type { KlineLegendData } from "@/hooks/chart/use-kline-legend";
 import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
-import type { KlineKeyStr } from "@/types/symbol-key";
-import { useBacktestChartStore } from "./backtest-chart-store";
+
 
 interface KlineLegendProps {
 	klineSeriesData: KlineLegendData | null;
-	klineKeyStr: KlineKeyStr; // K线键字符串，用于控制可见性
 	chartId: number; // 图表ID，用于获取对应的store
 	className?: string;
 }
 
 const KlineLegend: React.FC<KlineLegendProps> = ({
 	klineSeriesData,
-	klineKeyStr,
 	chartId,
 	className = "",
 }) => {
@@ -23,9 +20,9 @@ const KlineLegend: React.FC<KlineLegendProps> = ({
 	const { getKlineVisibility, toggleKlineVisibility } =
 		useBacktestChartConfigStore();
 
-	if (klineSeriesData === null) {
-		return null;
-	}
+	// if (klineSeriesData === null) {
+	// 	return null;
+	// }
 
 	// 获取当前K线的可见性状态
 	const isVisible = getKlineVisibility(chartId);
@@ -47,48 +44,48 @@ const KlineLegend: React.FC<KlineLegendProps> = ({
                         {klineSeriesData.timeString}
                     </span>
                 )} */}
-				{klineSeriesData.open && (
+				
 					<span>
 						O:{" "}
-						<span style={{ color: klineSeriesData.color }}>
-							{klineSeriesData.open}
+						<span style={{ color: klineSeriesData?.color }}>
+							{klineSeriesData?.open || "----"}
 						</span>
 					</span>
-				)}
-				{klineSeriesData.high && (
+				
+				
 					<span>
 						H:{" "}
-						<span style={{ color: klineSeriesData.color }}>
-							{klineSeriesData.high}
+						<span style={{ color: klineSeriesData?.color }}>
+							{klineSeriesData?.high || "----"}
 						</span>
 					</span>
-				)}
-				{klineSeriesData.low && (
+				
+				
 					<span>
 						L:{" "}
-						<span style={{ color: klineSeriesData.color }}>
-							{klineSeriesData.low}
+						<span style={{ color: klineSeriesData?.color }}>
+							{klineSeriesData?.low || "----"}
 						</span>
 					</span>
-				)}
-				{klineSeriesData.close && (
-					<span>
-						C:{" "}
-						<span style={{ color: klineSeriesData.color }}>
-							{klineSeriesData.close}
-						</span>
+				
+				
+				<span>
+					C:{" "}
+					<span style={{ color: klineSeriesData?.color }}>
+						{klineSeriesData?.close || "----"}
 					</span>
-				)}
-				{klineSeriesData.change && (
+				</span>
+				
+				{klineSeriesData?.change && (
 					<span
 						style={{
-							color: klineSeriesData.change.startsWith("+")
+							color: klineSeriesData?.change?.startsWith("+")
 								? "#22c55e"
 								: "#ef4444",
 						}}
 						className="text-xs"
 					>
-						{klineSeriesData.change}
+						{klineSeriesData?.change || "----"}
 					</span>
 				)}
 
