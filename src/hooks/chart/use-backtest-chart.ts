@@ -11,7 +11,7 @@ import {
 } from "lightweight-charts";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useBacktestChartStore } from "@/components/chart/backtest-chart-new/backtest-chart-store";
-import { get_play_index } from "@/service/strategy-control/backtest-strategy-control";
+import { get_play_index } from "@/service/backtest-strategy/backtest-strategy-control";
 import type { IndicatorChartConfig } from "@/types/chart";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import { type KlineLegendData, useKlineLegend } from "./use-kline-legend";
@@ -48,6 +48,7 @@ export const useBacktestChart = ({
 		// indicatorData,
 		initChartData,
 		getKlineData,
+		getOrderMarkers,
 		initKlineData,
 		initIndicatorData,
 		setChartRef,
@@ -68,8 +69,6 @@ export const useBacktestChart = ({
 		deleteKlineSeriesRef,
 		incrementPaneVersion,
 		setOrderMarkerSeriesRef,
-		getOrderMarkerSeriesRef,
-		deleteOrderMarkerSeriesRef,
 	} = useBacktestChartStore(chartConfig.id, chartConfig);
 
 	// 使用状态追踪初始化状态，而不是 ref
@@ -415,7 +414,6 @@ export const useBacktestChart = ({
 			// 确保容器元素真正存在于DOM中
 			// 防止在DOM重排过程中尝试初始化图表
 			if (!document.contains(chartContainerRef.current)) {
-				console.warn(`图表${chartConfig.id}的容器不在DOM中，等待重新挂载`);
 				return;
 			}
 
@@ -431,8 +429,15 @@ export const useBacktestChart = ({
 			setKlineSeriesRef(candleSeries);
 
 			// 创建订单标记系列
-			const orderMarkerSeries = createSeriesMarkers(candleSeries, []);
-			setOrderMarkerSeriesRef(orderMarkerSeries);
+			const orderMarkers = getOrderMarkers();
+			console.log("orderMarkers", orderMarkers.length);
+			if (orderMarkers.length > 0) {
+				const orderMarkerSeries = createSeriesMarkers(candleSeries, orderMarkers);
+				setOrderMarkerSeriesRef(orderMarkerSeries);
+			} else {
+				const orderMarkerSeries = createSeriesMarkers(candleSeries, []);
+				setOrderMarkerSeriesRef(orderMarkerSeries);
+			}
 
 
 			// 创建指标系列
@@ -460,6 +465,7 @@ export const useBacktestChart = ({
 		getChartRef,
 		createIndicatorSeries,
 		setOrderMarkerSeriesRef,
+		getOrderMarkers,
 	]);
 
 	/**
@@ -511,7 +517,7 @@ export const useBacktestChart = ({
 		if (!isInitialized) {
 			get_play_index(strategyId).then((index) => {
 				playIndex.current = index;
-				initChartData(playIndex.current).then(() => {
+				initChartData(playIndex.current, strategyId).then(() => {
 					initializeBacktestChart();
 				});
 			});

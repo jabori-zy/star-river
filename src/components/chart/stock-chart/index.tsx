@@ -20,7 +20,7 @@ import {
 	ResizablePanel,
 	ResizablePanelGroup,
 } from "@/components/ui/resizable";
-import { get_play_index } from "@/service/strategy-control/backtest-strategy-control";
+import { get_play_index } from "@/service/backtest-strategy/backtest-strategy-control";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import { AxisSynchroniser } from "./axis-synchroniser";
 import { ChartGroupLoader } from "./chart-group-loader";

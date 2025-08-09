@@ -14,7 +14,7 @@ export async function playOne(strategyId: number) {
 		if (response.status !== 200) {
 			throw new Error(`playOne error: ${response.status}`);
 		}
-		return response.data["data"];
+		return response.data.data;
 	} catch (error) {
 		console.error("playOne error:", error);
 		throw error;

@@ -10,12 +10,13 @@ import {
 	play,
 	playOne,
 	stop,
-} from "@/service/strategy-control/backtest-strategy-control";
+} from "@/service/backtest-strategy/backtest-strategy-control";
 import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
 import BacktestWindowHeader from "../../components/backtest/backtest-window-header";
 import useBacktestStrategySSE from "../../hooks/sse/use-backtest-strategy-sse";
 import BacktestControl from "./components/backtest-control";
 import ChartContainer from "./components/chart-container";
+import { resetAllBacktestChartStore } from "@/components/chart/backtest-chart-new/backtest-chart-store";
 
 export default function BacktestPage() {
 	const navigate = useNavigate();
@@ -128,6 +129,7 @@ export default function BacktestPage() {
 	const onStop = () => {
 		setIsRunning(false);
 		stop(strategyId);
+		resetAllBacktestChartStore();
 		// 注意：现在使用zustand管理状态，不再需要手动清空图表数据
 	};
 	const onPlayOne = () => {

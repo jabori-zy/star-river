@@ -12,7 +12,7 @@ import {
 	// Pane,
 } from "lightweight-charts-react-components";
 import { Fragment, useCallback, useEffect, useRef } from "react";
-import { get_play_index } from "@/service/strategy-control/backtest-strategy-control";
+import { get_play_index } from "@/service/backtest-strategy/backtest-strategy-control";
 import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";

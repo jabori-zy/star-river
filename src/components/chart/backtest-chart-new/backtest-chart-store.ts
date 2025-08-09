@@ -24,6 +24,8 @@ import type { IndicatorKeyStr, KeyStr, KlineKeyStr } from "@/types/symbol-key";
 import { parseKey } from "@/utils/parse-key";
 import type { VirtualOrder } from "@/types/order";
 import dayjs from "dayjs";
+import { getVirtualOrder } from "@/service/backtest-strategy"
+import { virtualOrderToMarker } from "./utls";
 
 interface BacktestChartStore {
 	chartId: ChartId;
@@ -61,15 +63,16 @@ interface BacktestChartStore {
 	// 存储每个K线的可见性状态，key为klineKeyStr，value为是否可见
 	klineVisibilityMap: Record<KlineKeyStr, boolean>;
 
-	initChartData: (playIndex: number) => Promise<void>;
+	initChartData: (playIndex: number, strategyId: number) => Promise<void>;
 	initKlineData: (playIndex: number) => Promise<void>;
 	initIndicatorData: (
 		indicatorKeyStr: IndicatorKeyStr,
 		playIndex: number,
 	) => Promise<void>;
+	initVirtualOrderData: (strategyId: number) => Promise<void>;
 
 	// 私有方法（内部使用）
-	_processKlineData: (klinekeyStr: KeyStr, playIndex: number) => Promise<void>;
+	_processKlineData: (klineKeyStr: KeyStr, playIndex: number) => Promise<void>;
 	_processIndicatorData: (
 		keyStr: KeyStr,
 		playIndex: number,
@@ -567,19 +570,9 @@ const createBacktestChartStore = (
 		},
 
 		onNewOrder: (orderData: VirtualOrder) => {
-			console.log("onNewOrder", orderData);
 			// 后端返回时间，转换为时间戳：2025-07-25T00:20:00Z -> timestamp
-			const timestampInSeconds = dayjs(orderData.createTime).unix();
-			const orderMarker: OrderMarker = {
-				time: timestampInSeconds as UTCTimestamp,
-				price: orderData.openPrice,
-				position: "belowBar",
-				shape: "arrowUp",
-				color: "#FF0000",
-				text: `${orderData.orderSide} @ ${orderData.openPrice}`,
-			};
-			console.log("orderMarker", orderMarker);
-			get().setOrderMarkers([...get().orderMarkers, orderMarker]);
+			const markers = virtualOrderToMarker(orderData);
+			get().setOrderMarkers([...get().orderMarkers, ...markers]);
 			const orderMarkerSeriesRef = get().getOrderMarkerSeriesRef();
 			if (orderMarkerSeriesRef) {
 				orderMarkerSeriesRef.setMarkers(get().getOrderMarkers());
@@ -677,7 +670,7 @@ const createBacktestChartStore = (
 			}
 		},
 
-		initChartData: async (playIndex: number) => {
+		initChartData: async (playIndex: number, strategyId: number) => {
 			const state = get();
 
 			if (playIndex > -1) {
@@ -685,6 +678,8 @@ const createBacktestChartStore = (
 				const promises = state
 					.getKeyStr()
 					.map((keyStr) => state._initSingleKeyData(keyStr, playIndex));
+				
+				await state.initVirtualOrderData(strategyId);
 
 				// 等待所有数据加载完成
 				await Promise.all(promises);
@@ -728,6 +723,16 @@ const createBacktestChartStore = (
 					`Invalid playIndex: ${playIndex}, skipping indicator data initialization`,
 				);
 			}
+		},
+
+		initVirtualOrderData: async (strategyId: number) => {
+			const virtualOrderData = await getVirtualOrder(strategyId);
+			const orderMarkers: OrderMarker[] = [];
+			virtualOrderData.forEach((order: VirtualOrder) => {
+				const markers = virtualOrderToMarker(order);
+				orderMarkers.push(...markers);
+			});
+			get().setOrderMarkers(orderMarkers);
 		},
 
 		// === 指标可见性控制方法实现 ===
@@ -810,10 +815,14 @@ const createBacktestChartStore = (
 			}));
 		},
 
+		// 只把数据相关的数据，全部清除
 		resetData: () => {
 			set({
 				klineData: [],
 				indicatorData: {},
+				orderMarkers: [],
+
+				
 				// 重置时保持可见性状态，不清空
 			});
 		},
@@ -868,4 +877,11 @@ export const useBacktestChartStore = (chartId: number, chartConfig?: BacktestCha
 // 获取指定chartId的store实例（不是hook）
 export const getBacktestChartStoreInstance = (chartId: number) => {
 	return getBacktestChartStore(chartId);
+};
+
+
+export const resetAllBacktestChartStore = () => {
+	storeInstances.forEach((store) => {
+		store.getState().resetData();
+	});
 };

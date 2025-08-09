@@ -79,7 +79,6 @@ export async function getStrategyById(strategyId: number): Promise<Strategy> {
 export async function getAllStrategies(): Promise<Strategy[]> {
 	try {
 		const response = await axios.get(`${API_BASE_URL}/get_strategies`);
-
 		if (response.status !== 200) {
 			throw new Error(`获取策略列表失败: ${response.status}`);
 		}

@@ -54,11 +54,12 @@ export type KlineChartConfig = {
 
 export type OrderMarker = {
 	time: Time;
-	price: number;
+	price?: number;
 	position: SeriesMarkerBarPosition;
 	shape: SeriesMarkerShape;
 	color: string;
 	text: string;
+	size?: number;
 };
 
 // // 子图配置
