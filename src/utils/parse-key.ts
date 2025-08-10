@@ -20,6 +20,7 @@ export function parseKey(keyStr: string): Key {
 			endTime: parts[5],
 		} as KlineKey;
 	} else if (type === "indicator") {
+		console.log(keyStr);
 		const indicatorConfigStr = parts[4];
 		const indicatorType = indicatorConfigStr.split("(")[0] as IndicatorType;
 

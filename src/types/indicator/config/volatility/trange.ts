@@ -9,13 +9,19 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 // TRANGE 指标配置的 Zod schema
-const TRANGEConfigSchema = z.object({}); // TRANGE没有参数
+const TRANGEConfigSchema = z.object(
+	{
+		timePeriod: z.number().int().positive(),
+	},
+);
 
 export type TRANGEConfigType = z.infer<typeof TRANGEConfigSchema>;
 
 // TRANGE指标的参数映射函数
 function buildTRANGEConfig(): unknown {
-	return {};
+	return {
+		timePeriod: 14,
+	};
 }
 
 // TRANGE指标配置实现
@@ -24,7 +30,14 @@ export const TRANGEConfig: IndicatorConfig<TRANGEConfigType> = {
 	type: IndicatorType.TRANGE,
 	displayName: "TRANGE",
 	description: "True Range",
-	params: {},
+	params: {
+		timePeriod: {
+			label: "时间周期",
+			legendShowName: "timePeriod",
+			required: true,
+			defaultValue: 14,
+		},
+	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },
 		trange: { label: "trange", value: 0, legendShowName: "trange" },
@@ -43,7 +56,9 @@ export const TRANGEConfig: IndicatorConfig<TRANGEConfigType> = {
 	},
 
 	getDefaultConfig(): TRANGEConfigType {
-		const config = {};
+		const config = {
+			timePeriod: 14,
+		};
 
 		// 使用 Zod 验证配置
 		const validatedConfig = TRANGEConfigSchema.parse(config);

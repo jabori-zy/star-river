@@ -50,7 +50,7 @@ export const HtDcperiodConfig: IndicatorConfig<HtDcperiodConfigType> = {
 		ht_dcperiod: { label: "ht_dcperiod", value: 0, legendShowName: "ht_dcperiod" },
 	},
 	chartConfig: {
-		isInMainChart: true,
+		isInMainChart: false,
 		seriesConfigs: [
 			{
 				name: "ht_dcperiod",
@@ -81,7 +81,7 @@ export const HtDcperiodConfig: IndicatorConfig<HtDcperiodConfigType> = {
 
 	// 使用通用解析函数
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
-		IndicatorType.MA,
+		IndicatorType.HT_DCPERIOD,
 		HtDcperiodConfigSchema,
 		buildMAConfig,
 	),

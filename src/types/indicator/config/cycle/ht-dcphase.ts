@@ -46,7 +46,7 @@ export const HtDcphaseConfig: IndicatorConfig<HtDcphaseConfigType> = {
 		ht_dcphase: { label: "ht_dcphase", value: 0, legendShowName: "ht_dcphase" },
 	},
 	chartConfig: {
-		isInMainChart: true,
+		isInMainChart: false,
 		seriesConfigs: [
 			{
 				name: "ht_dcphase",

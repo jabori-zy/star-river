@@ -47,7 +47,7 @@ export const HtSineConfig: IndicatorConfig<HtSineConfigType> = {
 		lead_sine: { label: "lead_sine", value: 0, legendShowName: "lead_sine" },
 	},
 	chartConfig: {
-		isInMainChart: true,
+		isInMainChart: false,
 		seriesConfigs: [
 			{
 				name: "sine",

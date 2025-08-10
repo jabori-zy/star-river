@@ -47,7 +47,7 @@ export const HtPhasorConfig: IndicatorConfig<HtPhasorConfigType> = {
 		quadrature: { label: "quadrature", value: 0, legendShowName: "quadrature" },
 	},
 	chartConfig: {
-		isInMainChart: true,
+		isInMainChart: false,
 		seriesConfigs: [
 			{
 				name: "in_phase",
