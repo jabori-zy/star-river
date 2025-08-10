@@ -58,6 +58,7 @@ export const useBacktestChart = ({
 		setIndicatorSeriesRef,
 		getIndicatorSeriesRef,
 		initObserverSubscriptions,
+		subscribe,
 		setSubChartPaneRef,
 		getIsDataInitialized,
 		getSubChartPaneRef,
@@ -133,6 +134,8 @@ export const useBacktestChart = ({
 					});
 					// 删除store中的seriesRef
 					deleteIndicatorSeriesRef(config.indicatorKeyStr);
+					// 取消订阅指标数据流
+					// unsubscribe(config.indicatorKeyStr);
 				}
 				// 如果是子图指标，则removePane
 				else if (!config.isInMainChart && config.isDelete) {
@@ -167,6 +170,8 @@ export const useBacktestChart = ({
 					}
 					// 删除store中的paneApi
 					deleteSubChartPaneRef(config.indicatorKeyStr);
+					// 取消订阅指标数据流
+					// unsubscribe(config.indicatorKeyStr);
 				}
 			});
 		}
@@ -179,6 +184,7 @@ export const useBacktestChart = ({
 		deleteSubChartPaneRef,
 		setSubChartPaneRef,
 		incrementPaneVersion,
+		// unsubscribe,
 	]);
 
 	const changeKline = useCallback(() => {
@@ -231,11 +237,14 @@ export const useBacktestChart = ({
 					return !config.isDelete
 				},
 			);
+			console.log("indicatorsNeedingData", indicatorsNeedingData);
 			// 并行初始化所有需要数据的指标
 			if (indicatorsNeedingData.length > 0) {
 				await Promise.all(
-					indicatorsNeedingData.map((config) =>
-						initIndicatorData(config.indicatorKeyStr, playIndex.current),
+					indicatorsNeedingData.map((config) => {
+						console.log("初始化时的playIndex", playIndex.current);
+						initIndicatorData(config.indicatorKeyStr, playIndex.current);
+					}
 					),
 				);
 			}
@@ -266,6 +275,8 @@ export const useBacktestChart = ({
 							}
 						}
 					});
+					// 订阅指标数据流
+					subscribe(config.indicatorKeyStr);
 				}
 				// 如果指标是子图指标，并且没有被删除，并且store中没有paneRef，则添加pane
 				else if (!config.isInMainChart && !config.isDelete) {
@@ -288,16 +299,16 @@ export const useBacktestChart = ({
 								);
 							}
 							// 为新创建的系列设置数据
-							const subChartIndicatorData =
-								getIndicatorData(config.indicatorKeyStr);
+							const subChartIndicatorData = getIndicatorData(config.indicatorKeyStr);
 							if (subChartIndicatorData) {
-								const seriesData =
-									subChartIndicatorData[seriesConfig.indicatorValueKey];
+								const seriesData = subChartIndicatorData[seriesConfig.indicatorValueKey];
 								if (seriesData && seriesData.length > 0) {
 									subChartIndicatorSeries.setData(seriesData);
 								}
 							}
 						});
+						// 订阅指标数据流
+						subscribe(config.indicatorKeyStr);
 					}
 				}
 			});
@@ -311,6 +322,7 @@ export const useBacktestChart = ({
 		initIndicatorData,
 		setSubChartPaneRef,
 		getIndicatorData,
+		subscribe,
 	]);
 
 	// 创建指标系列

@@ -122,7 +122,6 @@ export function parseIndicatorConfig(
 ): Record<string, unknown> | undefined {
 	try {
 		// 验证指标类型
-		console.log("indicatorType", indicatorType);
 		const validatedType = IndicatorTypeSchema.parse(indicatorType);
 
 		const config = INDICATOR_CONFIG_MAP[validatedType];

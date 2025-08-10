@@ -187,7 +187,9 @@ interface BacktestChartStore {
 
 	// Observer 相关方法
 	initObserverSubscriptions: () => void; // 初始化Observer订阅
-	addObserverSubscription: (keyStr: KeyStr, subscription: Subscription) => void;
+	subscribe: (keyStr: KeyStr) => void; // 订阅Observer
+	unsubscribe: (keyStr: KeyStr) => void; // 取消订阅Observer
+	_addObserverSubscription: (keyStr: KeyStr, subscription: Subscription) => void; // 添加Observer订阅，私有方法
 	cleanupSubscriptions: () => void;
 	onNewKline: (klineKeyStr: KeyStr, kline: Kline) => void;
 
@@ -254,6 +256,7 @@ const createBacktestChartStore = (
 		deleteIndicatorData: (indicatorKeyStr: IndicatorKeyStr) =>
 			set((state) => {
 				const { [indicatorKeyStr]: _, ...rest } = state.indicatorData;
+				console.log("删除indicatorData:", indicatorKeyStr, rest);
 				return { indicatorData: rest };
 			}),
 
@@ -383,7 +386,7 @@ const createBacktestChartStore = (
 								console.error("K线数据流订阅错误:", error);
 							},
 						});
-						state.addObserverSubscription(keyStr, klineSubscription);
+						state._addObserverSubscription(keyStr, klineSubscription);
 
 						// 订阅与该k线相关的订单数据流
 						const orderStream = createOrderStreamForSymbol(key.exchange,key.symbol);
@@ -392,7 +395,7 @@ const createBacktestChartStore = (
 								state.onNewOrder(orderData);
 							},
 						);
-						state.addObserverSubscription(keyStr, orderSubscription);
+						state._addObserverSubscription(keyStr, orderSubscription);
 					} else if (key.type === "indicator") {
 						const indicatorStream = createIndicatorStreamFromKey(keyStr, true);
 						const indicatorSubscription = indicatorStream.subscribe({
@@ -428,7 +431,7 @@ const createBacktestChartStore = (
 								console.error("指标数据流订阅错误:", error);
 							},
 						});
-						state.addObserverSubscription(keyStr, indicatorSubscription);
+						state._addObserverSubscription(keyStr, indicatorSubscription);
 					}
 				});
 			} catch (error) {
@@ -436,7 +439,79 @@ const createBacktestChartStore = (
 			}
 		},
 
-		addObserverSubscription: (keyStr: KeyStr, subscription: Subscription) => {
+		unsubscribe: (keyStr: KeyStr) => {
+			console.log("取消订阅:", keyStr);
+			const state = get();
+			state.subscriptions[keyStr]?.forEach((subscription) => {
+				subscription.unsubscribe();
+			});
+		},
+
+		subscribe: (keyStr: KeyStr) => {
+			console.log("新增订阅:", keyStr);
+			const state = get();
+			// 判断keyStr是否在state.subscriptions中
+			if (state.subscriptions[keyStr]) {
+				return;
+			}
+
+			const key = parseKey(keyStr);
+			if (key.type === "kline") {
+				const klineStream = createKlineStreamFromKey(keyStr, true);
+				const klineSubscription = klineStream.subscribe({
+					next: (klineData: Kline[]) => {
+						// 更新kline
+						state.onNewKline(keyStr, klineData[klineData.length - 1]);
+					},
+					error: (error) => {
+						console.error("K线数据流订阅错误:", error);
+					},
+				});
+				state._addObserverSubscription(keyStr, klineSubscription);
+
+				// 订阅与该k线相关的订单数据流
+				const orderStream = createOrderStreamForSymbol(key.exchange,key.symbol);
+				const orderSubscription = orderStream.subscribe(
+					(orderData: VirtualOrder) => {
+						state.onNewOrder(orderData);
+					},
+				);
+				state._addObserverSubscription(keyStr, orderSubscription);
+			} 
+			else if (key.type === "indicator") {
+				const indicatorStream = createIndicatorStreamFromKey(keyStr, true);
+				const indicatorSubscription = indicatorStream.subscribe({
+					next: (
+						indicatorData: Record<keyof IndicatorValueConfig, number>[],
+					) => {
+						// 转换指标数据格式为 Record<keyof IndicatorValueConfig, SingleValueData[]>
+						const indicator: Record<keyof IndicatorValueConfig,SingleValueData[]> = {};
+
+						indicatorData.forEach((item) => {
+							Object.entries(item).forEach(([indicatorValueKey, value]) => {
+								indicator[indicatorValueKey as keyof IndicatorValueConfig] =
+									[
+										...(indicator[
+											indicatorValueKey as keyof IndicatorValueConfig
+										] || []),
+										{
+											time: Math.floor(
+												item.timestamp / 1000,
+											) as UTCTimestamp,
+											value: value,
+										} as SingleValueData,
+									];
+							});
+						});
+						// 更新indicator
+						state.onNewIndicator(keyStr, indicator);
+					},
+				});
+				state._addObserverSubscription(keyStr, indicatorSubscription);
+			}
+		},
+
+		_addObserverSubscription: (keyStr: KeyStr, subscription: Subscription) => {
 			set({
 				subscriptions: {
 					...get().subscriptions,
@@ -623,10 +698,7 @@ const createBacktestChartStore = (
 				Array.isArray(initialIndicatorData) &&
 				initialIndicatorData.length > 0
 			) {
-				const indicatorData: Record<
-					keyof IndicatorValueConfig,
-					SingleValueData[]
-				> = {};
+				const indicatorData: Record<keyof IndicatorValueConfig, SingleValueData[]> = {};
 				initialIndicatorData.forEach((item) => {
 					Object.entries(item).forEach(([indicatorValueField, value]) => {
 						// 过滤掉timestamp和value为0的数据
@@ -662,6 +734,7 @@ const createBacktestChartStore = (
 				if (key.type === "kline") {
 					await state._processKlineData(keyStr, playIndex);
 				} else if (key.type === "indicator") {
+					console.log("初始化:", keyStr)
 					return await state._processIndicatorData(keyStr, playIndex);
 				}
 			} catch (error) {
@@ -718,11 +791,12 @@ const createBacktestChartStore = (
 						error,
 					);
 				}
-			} else {
-				console.warn(
-					`Invalid playIndex: ${playIndex}, skipping indicator data initialization`,
-				);
-			}
+			} 
+			// else {
+			// 	console.warn(
+			// 		`Invalid playIndex: ${playIndex}, skipping indicator data initialization`,
+			// 	);
+			// }
 		},
 
 		initVirtualOrderData: async (strategyId: number) => {
