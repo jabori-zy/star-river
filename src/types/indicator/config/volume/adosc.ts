@@ -1,14 +1,13 @@
-import { LineSeries } from "lightweight-charts";
+
 import { z } from "zod";
 import { SeriesType } from "@/types/chart";
-import { IndicatorType } from "@/types/indicator";
+import { IndicatorCategory, IndicatorType } from "@/types/indicator";
 import {
 	createParseIndicatorConfigFromKeyStr,
 	getIndicatorValues,
 	type IndicatorConfig,
 } from "@/types/indicator/indicator-config";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
-import type { IndicatorKey } from "@/types/symbol-key";
 
 // MA 指标配置的 Zod schema
 const ADOSCConfigSchema = z.object({
@@ -28,6 +27,7 @@ function buildADOSCConfig(params: Map<string, string>): unknown {
 
 // AD指标配置实现
 export const ADOSCConfig: IndicatorConfig<ADOSCConfigType> = {
+	category: IndicatorCategory.VOLUME,
 	type: IndicatorType.ADOSC,
 	displayName: "ADOSC",
 	description: "Accumulation/Distribution Oscillator",
@@ -57,9 +57,8 @@ export const ADOSCConfig: IndicatorConfig<ADOSCConfigType> = {
 			{
 				name: "adosc",
 				type: SeriesType.LINE,
-				series: LineSeries,
 				color: "#FF6B6B",
-				strokeThickness: 2,
+				lineWidth: 2,
 				indicatorValueKey: "adosc" as keyof IndicatorValueConfig,
 			},
 		],
@@ -98,24 +97,24 @@ export const ADOSCConfig: IndicatorConfig<ADOSCConfigType> = {
 		}
 	},
 
-	getSeriesName(
-		seriesName: string,
-		indicatorKey: IndicatorKey,
-	): string | undefined {
-		// 如果指标类型为AD，则返回AD-seriesName
-		if (indicatorKey.indicatorType === IndicatorType.ADOSC) {
-			const adoscConfig = indicatorKey.indicatorConfig as ADOSCConfigType;
-			// 找到名称相同的seriesConfig
-			const seriseConfig = this.chartConfig.seriesConfigs.find(
-				(config) => config.name === seriesName,
-			);
-			if (seriseConfig) {
-				return `${indicatorKey.indicatorType} ${adoscConfig.fastPeriod} ${adoscConfig.slowPeriod} : ${seriseConfig.name}`;
-			} else {
-				return undefined;
-			}
-		} else {
-			return undefined;
-		}
-	},
+	// getSeriesName(
+	// 	seriesName: string,
+	// 	indicatorKey: IndicatorKey,
+	// ): string | undefined {
+	// 	// 如果指标类型为AD，则返回AD-seriesName
+	// 	if (indicatorKey.indicatorType === IndicatorType.ADOSC) {
+	// 		const adoscConfig = indicatorKey.indicatorConfig as ADOSCConfigType;
+	// 		// 找到名称相同的seriesConfig
+	// 		const seriseConfig = this.chartConfig.seriesConfigs.find(
+	// 			(config) => config.name === seriesName,
+	// 		);
+	// 		if (seriseConfig) {
+	// 			return `${indicatorKey.indicatorType} ${adoscConfig.fastPeriod} ${adoscConfig.slowPeriod} : ${seriseConfig.name}`;
+	// 		} else {
+	// 			return undefined;
+	// 		}
+	// 	} else {
+	// 		return undefined;
+	// 	}
+	// },
 };

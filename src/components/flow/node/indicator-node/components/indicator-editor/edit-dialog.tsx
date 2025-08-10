@@ -19,11 +19,9 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { IndicatorType, MAType, PriceSource } from "@/types/indicator";
-import {
-	getIndicatorConfig,
-	INDICATOR_CONFIG_MAP,
-} from "@/types/indicator/indicator-config";
+import { getIndicatorConfig } from "@/types/indicator/indicator-config";
 import type { SelectedIndicator } from "@/types/node/indicator-node";
+import IndicatorViewerDialog from "./indicator-viewer-dialog";
 
 interface EditDialogProps {
 	isOpen: boolean;
@@ -33,6 +31,7 @@ interface EditDialogProps {
 	selectedIndicators: SelectedIndicator[];
 	onSave: (config: SelectedIndicator) => void;
 	nodeId: string;
+	initialIndicatorType?: IndicatorType; // 新增：从指标浏览面板传入的指标类型
 }
 
 // 表单数据类型
@@ -80,19 +79,13 @@ const EditDialog: React.FC<EditDialogProps> = ({
 	selectedIndicators,
 	onSave,
 	nodeId,
+	initialIndicatorType,
 }) => {
 	const [indicatorType, setIndicatorType] = useState<IndicatorType>(
-		IndicatorType.MA,
+		initialIndicatorType || IndicatorType.MA,
 	);
 	const [formData, setFormData] = useState<Partial<FormData>>({});
-
-	// 获取指标类型选项（从配置映射中动态生成）
-	const getIndicatorOptions = (): IndicatorOption[] => {
-		return Object.entries(INDICATOR_CONFIG_MAP).map(([type, config]) => ({
-			value: type as IndicatorType,
-			label: config?.displayName || type,
-		}));
-	};
+	const [showIndicatorViewer, setShowIndicatorViewer] = useState(false);
 
 	// 获取当前指标的配置实例
 	const getCurrentConfigInstance = useCallback(() => {
@@ -139,16 +132,18 @@ const EditDialog: React.FC<EditDialogProps> = ({
 					...existingIndicator.indicatorConfig,
 				} as Partial<FormData>);
 			} else {
-				setIndicatorType(IndicatorType.MA);
+				// 使用传入的指标类型或默认值
+				const targetType = initialIndicatorType || IndicatorType.MA;
+				setIndicatorType(targetType);
 				// 设置默认值
-				const configInstance = getIndicatorConfig(IndicatorType.MA);
+				const configInstance = getIndicatorConfig(targetType);
 				if (configInstance) {
 					const defaultConfig = configInstance.getDefaultConfig();
 					setFormData({ ...defaultConfig } as Partial<FormData>);
 				}
 			}
 		}
-	}, [isOpen, isEditing, editingIndex, selectedIndicators]);
+	}, [isOpen, isEditing, editingIndex, selectedIndicators, initialIndicatorType]);
 
 	// 当指标类型改变时，重新初始化表单数据
 	useEffect(() => {
@@ -347,53 +342,41 @@ const EditDialog: React.FC<EditDialogProps> = ({
 
 	const configInstance = getCurrentConfigInstance();
 
+	// 检查是否有可配置的参数
+	const hasConfigurableParams = configInstance && Object.keys(configInstance.params).length > 0;
+
 	return (
-		<Dialog open={isOpen} onOpenChange={onClose} modal={false}>
-			<DialogContent
-				className="sm:max-w-[425px]"
-				onOpenAutoFocus={(e) => e.preventDefault()} // 防止自动聚焦，避免 aria-hidden 警告
-				onInteractOutside={(e) => e.preventDefault()} // 防止点击外部区域关闭对话框
-			>
+		<>
+			<Dialog open={isOpen} onOpenChange={onClose} modal={false}>
+				<DialogContent
+					className="sm:max-w-[425px]"
+					onOpenAutoFocus={(e) => e.preventDefault()} // 防止自动聚焦，避免 aria-hidden 警告
+					onInteractOutside={(e) => e.preventDefault()} // 防止点击外部区域关闭对话框
+				>
 				<DialogHeader>
 					<DialogTitle>
-						{isEditing ? "编辑技术指标" : "添加技术指标"}
+						配置{configInstance?.displayName || indicatorType}
 					</DialogTitle>
-					<DialogDescription>
-						配置技术指标的参数和计算方式。同一指标类型可以配置不同的周期和数据源。
-					</DialogDescription>
+					{/* <DialogDescription>
+						{hasConfigurableParams
+							? "配置技术指标的参数和计算方式。"
+							: "该指标无需配置参数。"
+						}
+					</DialogDescription> */}
 				</DialogHeader>
 				<div className="grid gap-4 py-4">
-					<div className="grid gap-2">
-						<Label htmlFor="indicator-type" className="text-left">
-							指标<span className="text-red-500">*</span>
-						</Label>
-						<Select
-							value={indicatorType}
-							onValueChange={(value: string) => {
-								setIndicatorType(value as IndicatorType);
-							}}
-							disabled={isEditing}
-						>
-							<SelectTrigger id="indicator-type">
-								<SelectValue placeholder="选择指标类型" />
-							</SelectTrigger>
-							<SelectContent>
-								{getIndicatorOptions().map((option) => {
-									return (
-										<SelectItem key={option.value} value={option.value}>
-											<span>{option.label}</span>
-										</SelectItem>
-									);
-								})}
-							</SelectContent>
-						</Select>
-					</div>
-
-					{/* 动态渲染当前指标类型的表单字段 */}
-					{configInstance &&
+					{hasConfigurableParams ? (
+						/* 动态渲染当前指标类型的表单字段 */
+						configInstance &&
 						Object.entries(configInstance.params).map(([key, param]) =>
 							renderFormField(key, param),
-						)}
+						)
+					) : (
+						/* 无参数时显示提示信息 */
+						<div className="text-gray-500">
+							无需配置参数
+						</div>
+					)}
 				</div>
 				<DialogFooter>
 					<Button variant="outline" onClick={onClose}>
@@ -405,12 +388,30 @@ const EditDialog: React.FC<EditDialogProps> = ({
 					>
 						{isIndicatorConfigExists(editingIndex || undefined)
 							? "配置已存在"
-							: "保存"}
+							: hasConfigurableParams
+								? "保存"
+								: "确定"}
 					</Button>
 				</DialogFooter>
 			</DialogContent>
 		</Dialog>
-	);
+
+		{/* 指标浏览面板 */}
+		<IndicatorViewerDialog
+			isOpen={showIndicatorViewer}
+			onClose={() => setShowIndicatorViewer(false)}
+			onSelectIndicator={(selectedType: IndicatorType) => {
+				setIndicatorType(selectedType);
+				// 重新初始化表单数据
+				const configInstance = getIndicatorConfig(selectedType);
+				if (configInstance) {
+					const defaultConfig = configInstance.getDefaultConfig();
+					setFormData({ ...defaultConfig } as Partial<FormData>);
+				}
+			}}
+		/>
+	</>
+);
 };
 
 export default EditDialog;

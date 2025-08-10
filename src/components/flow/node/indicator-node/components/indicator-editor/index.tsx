@@ -6,6 +6,7 @@ import type { IndicatorType } from "@/types/indicator";
 import { getIndicatorConfig } from "@/types/indicator/indicator-config";
 import type { SelectedIndicator } from "@/types/node/indicator-node";
 import EditDialog from "./edit-dialog";
+import IndicatorViewerDialog from "./indicator-viewer-dialog";
 
 interface IndicatorEditorProps {
 	id: string; // 节点ID，用于生成handleId
@@ -22,17 +23,44 @@ const IndicatorEditor: React.FC<IndicatorEditorProps> = ({
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
 	const [isEditing, setIsEditing] = useState(false);
 	const [editingIndex, setEditingIndex] = useState<number | null>(null);
+	const [showIndicatorViewer, setShowIndicatorViewer] = useState(false);
+	const [selectedIndicatorType, setSelectedIndicatorType] = useState<IndicatorType | undefined>(undefined);
+	const [fromIndicatorViewer, setFromIndicatorViewer] = useState(false); // 标记是否从指标浏览窗口打开的
 
 	const handleAddIndicator = () => {
 		setIsEditing(false);
 		setEditingIndex(null);
+		setSelectedIndicatorType(undefined);
+		setShowIndicatorViewer(true);
+	};
+
+	const handleSelectIndicator = (indicatorType: IndicatorType) => {
+		setSelectedIndicatorType(indicatorType);
+		setShowIndicatorViewer(false);
+		setFromIndicatorViewer(true); // 标记从指标浏览窗口打开
 		setIsDialogOpen(true);
 	};
 
 	const handleEditIndicator = (index: number) => {
 		setIsEditing(true);
 		setEditingIndex(index);
+		setSelectedIndicatorType(undefined);
+		setFromIndicatorViewer(false); // 编辑现有指标不是从浏览窗口来的
 		setIsDialogOpen(true);
+	};
+
+	// 处理编辑窗口关闭
+	const handleEditDialogClose = () => {
+		if (fromIndicatorViewer && !isEditing) {
+			// 如果是从指标浏览窗口打开的新增指标，返回指标浏览窗口
+			setIsDialogOpen(false);
+			setFromIndicatorViewer(false);
+			setShowIndicatorViewer(true);
+		} else {
+			// 否则直接关闭
+			setIsDialogOpen(false);
+			setFromIndicatorViewer(false);
+		}
 	};
 
 	const handleDeleteIndicator = (index: number) => {
@@ -50,6 +78,8 @@ const IndicatorEditor: React.FC<IndicatorEditorProps> = ({
 			// 添加新指标
 			onSelectedIndicatorsChange([...selectedIndicators, config]);
 		}
+		setIsDialogOpen(false);
+		setFromIndicatorViewer(false); // 保存后重置状态
 	};
 
 	const getConfigDisplay = (
@@ -134,12 +164,20 @@ const IndicatorEditor: React.FC<IndicatorEditorProps> = ({
 			{/* 编辑对话框 */}
 			<EditDialog
 				isOpen={isDialogOpen}
-				onClose={() => setIsDialogOpen(false)}
+				onClose={handleEditDialogClose}
 				isEditing={isEditing}
 				editingIndex={editingIndex}
 				selectedIndicators={selectedIndicators}
 				onSave={handleSave}
 				nodeId={id}
+				initialIndicatorType={selectedIndicatorType}
+			/>
+
+			{/* 指标浏览面板 */}
+			<IndicatorViewerDialog
+				isOpen={showIndicatorViewer}
+				onClose={() => setShowIndicatorViewer(false)}
+				onSelectIndicator={handleSelectIndicator}
 			/>
 		</div>
 	);

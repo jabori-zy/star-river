@@ -1,26 +1,26 @@
 import { z } from "zod";
 import { SeriesType } from "@/types/chart";
-import { IndicatorType } from "@/types/indicator";
+import { IndicatorCategory, IndicatorType } from "@/types/indicator";
 import {
 	createParseIndicatorConfigFromKeyStr,
 	getIndicatorValues,
 	type IndicatorConfig,
 } from "@/types/indicator/indicator-config";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
-import type { IndicatorKey } from "@/types/symbol-key";
 
 // BOP 指标配置的 Zod schema (无参数)
-const BopConfigSchema = z.object({});
+const BOPConfigSchema = z.object({});
 
-export type BopConfigType = z.infer<typeof BopConfigSchema>;
+export type BOPConfigType = z.infer<typeof BOPConfigSchema>;
 
 // BOP指标的参数映射函数 (无参数)
-function buildBopConfig(): unknown {
+function buildBOPConfig(): unknown {
 	return {};
 }
 
 // BOP指标配置实现
-export const BopConfig: IndicatorConfig<BopConfigType> = {
+export const BOPConfig: IndicatorConfig<BOPConfigType> = {
+	category: IndicatorCategory.MOMENTUM,
 	type: IndicatorType.BOP,
 	displayName: "BOP",
 	description: "Balance Of Power",
@@ -36,15 +36,15 @@ export const BopConfig: IndicatorConfig<BopConfigType> = {
 				name: "bop",
 				type: SeriesType.LINE,
 				color: "#FF6B6B",
-				strokeThickness: 2,
+				lineWidth: 2,
 				indicatorValueKey: "bop" as keyof IndicatorValueConfig,
 			},
 		],
 	},
 
-	getDefaultConfig(): BopConfigType {
+	getDefaultConfig(): BOPConfigType {
 		// BOP指标无参数，返回空对象
-		const validatedConfig = BopConfigSchema.parse({});
+		const validatedConfig = BOPConfigSchema.parse({});
 		return validatedConfig;
 	},
 
@@ -55,36 +55,36 @@ export const BopConfig: IndicatorConfig<BopConfigType> = {
 	// 使用通用解析函数
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
 		IndicatorType.BOP,
-		BopConfigSchema,
-		buildBopConfig,
+		BOPConfigSchema,
+		buildBOPConfig,
 	),
 
-	validateConfig(config: unknown): config is BopConfigType {
+	validateConfig(config: unknown): config is BOPConfigType {
 		try {
-			BopConfigSchema.parse(config);
+			BOPConfigSchema.parse(config);
 			return true;
 		} catch {
 			return false;
 		}
 	},
 
-	getSeriesName(
-		seriesName: string,
-		indicatorKey: IndicatorKey,
-	): string | undefined {
-		// 如果指标类型为BOP，则返回BOP-seriesName
-		if (indicatorKey.indicatorType === IndicatorType.BOP) {
-			// 找到名称相同的seriesConfig
-			const seriseConfig = this.chartConfig.seriesConfigs.find(
-				(config) => config.name === seriesName,
-			);
-			if (seriseConfig) {
-				return `${indicatorKey.indicatorType} : ${seriseConfig.name}`;
-			} else {
-				return undefined;
-			}
-		} else {
-			return undefined;
-		}
-	},
+	// getSeriesName(
+	// 	seriesName: string,
+	// 	indicatorKey: IndicatorKey,
+	// ): string | undefined {
+	// 	// 如果指标类型为BOP，则返回BOP-seriesName
+	// 	if (indicatorKey.indicatorType === IndicatorType.BOP) {
+	// 		// 找到名称相同的seriesConfig
+	// 		const seriseConfig = this.chartConfig.seriesConfigs.find(
+	// 			(config) => config.name === seriesName,
+	// 		);
+	// 		if (seriseConfig) {
+	// 			return `${indicatorKey.indicatorType} : ${seriseConfig.name}`;
+	// 		} else {
+	// 			return undefined;
+	// 		}
+	// 	} else {
+	// 		return undefined;
+	// 	}
+	// },
 };

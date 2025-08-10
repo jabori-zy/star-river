@@ -1,6 +1,10 @@
 import { z } from "zod";
 import { SeriesType } from "@/types/chart";
-import { IndicatorType, PriceSource } from "@/types/indicator";
+import {
+	IndicatorCategory,
+	IndicatorType,
+	PriceSource,
+} from "@/types/indicator";
 import {
 	createParseIndicatorConfigFromKeyStr,
 	getIndicatorValues,
@@ -10,18 +14,17 @@ import {
 	type IndicatorValueConfig,
 	PriceSourceSchema,
 } from "@/types/indicator/schemas";
-import type { IndicatorKey } from "@/types/symbol-key";
 
 // CMO 指标配置的 Zod schema
-const CmoConfigSchema = z.object({
+const CMOConfigSchema = z.object({
 	timePeriod: z.number().int().positive(),
 	priceSource: PriceSourceSchema,
 });
 
-export type CmoConfigType = z.infer<typeof CmoConfigSchema>;
+export type CMOConfigType = z.infer<typeof CMOConfigSchema>;
 
 // CMO指标的参数映射函数
-function buildCmoConfig(params: Map<string, string>): unknown {
+function buildCMOConfig(params: Map<string, string>): unknown {
 	return {
 		timePeriod: parseInt(params.get("time_period") || "0"),
 		priceSource: params.get("price_source") as PriceSource,
@@ -29,7 +32,8 @@ function buildCmoConfig(params: Map<string, string>): unknown {
 }
 
 // CMO指标配置实现
-export const CmoConfig: IndicatorConfig<CmoConfigType> = {
+export const CMOConfig: IndicatorConfig<CMOConfigType> = {
+	category: IndicatorCategory.MOMENTUM,
 	type: IndicatorType.CMO,
 	displayName: "CMO",
 	description: "Chande Momentum Oscillator",
@@ -60,13 +64,13 @@ export const CmoConfig: IndicatorConfig<CmoConfigType> = {
 				name: "cmo",
 				type: SeriesType.LINE,
 				color: "#FF6B6B",
-				strokeThickness: 2,
+				lineWidth: 2,
 				indicatorValueKey: "cmo" as keyof IndicatorValueConfig,
 			},
 		],
 	},
 
-	getDefaultConfig(): CmoConfigType {
+	getDefaultConfig(): CMOConfigType {
 		const config = Object.fromEntries(
 			Object.entries(this.params).map(([key, param]) => [
 				key,
@@ -75,7 +79,7 @@ export const CmoConfig: IndicatorConfig<CmoConfigType> = {
 		);
 
 		// 使用 Zod 验证配置
-		const validatedConfig = CmoConfigSchema.parse(config);
+		const validatedConfig = CMOConfigSchema.parse(config);
 		return validatedConfig;
 	},
 
@@ -86,37 +90,37 @@ export const CmoConfig: IndicatorConfig<CmoConfigType> = {
 	// 使用通用解析函数
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
 		IndicatorType.CMO,
-		CmoConfigSchema,
-		buildCmoConfig,
+		CMOConfigSchema,
+		buildCMOConfig,
 	),
 
-	validateConfig(config: unknown): config is CmoConfigType {
+	validateConfig(config: unknown): config is CMOConfigType {
 		try {
-			CmoConfigSchema.parse(config);
+			CMOConfigSchema.parse(config);
 			return true;
 		} catch {
 			return false;
 		}
 	},
 
-	getSeriesName(
-		seriesName: string,
-		indicatorKey: IndicatorKey,
-	): string | undefined {
-		// 如果指标类型为CMO，则返回CMO-seriesName-timePeriod-priceSource
-		if (indicatorKey.indicatorType === IndicatorType.CMO) {
-			const cmoConfig = indicatorKey.indicatorConfig as CmoConfigType;
-			// 找到名称相同的seriesConfig
-			const seriseConfig = this.chartConfig.seriesConfigs.find(
-				(config) => config.name === seriesName,
-			);
-			if (seriseConfig) {
-				return `${indicatorKey.indicatorType} ${cmoConfig.timePeriod} ${cmoConfig.priceSource.toLowerCase()} : ${seriseConfig.name}`;
-			} else {
-				return undefined;
-			}
-		} else {
-			return undefined;
-		}
-	},
+	// getSeriesName(
+	// 	seriesName: string,
+	// 	indicatorKey: IndicatorKey,
+	// ): string | undefined {
+	// 	// 如果指标类型为CMO，则返回CMO-seriesName-timePeriod-priceSource
+	// 	if (indicatorKey.indicatorType === IndicatorType.CMO) {
+	// 		const CMOConfig = indicatorKey.indicatorConfig as CMOConfigType;
+	// 		// 找到名称相同的seriesConfig
+	// 		const seriseConfig = this.chartConfig.seriesConfigs.find(
+	// 			(config) => config.name === seriesName,
+	// 		);
+	// 		if (seriseConfig) {
+	// 			return `${indicatorKey.indicatorType} ${CMOConfig.timePeriod} ${CMOConfig.priceSource.toLowerCase()} : ${seriseConfig.name}`;
+	// 		} else {
+	// 			return undefined;
+	// 		}
+	// 	} else {
+	// 		return undefined;
+	// 	}
+	// },
 };

@@ -331,7 +331,7 @@ const initIndicatorChart = async (
 					renderableSeriesInstance = new FastLineRenderableSeries(wasmContext, {
 						dataSeries: dataSeriesInstance,
 						stroke: seriesConfig.color || appTheme.ForegroundColor,
-						strokeThickness: seriesConfig.strokeThickness || 2,
+						strokeThickness: seriesConfig.lineWidth || 2,
 						resamplingMode: EResamplingMode.None,
 					});
 					break;
@@ -356,7 +356,7 @@ const initIndicatorChart = async (
 							dataSeries: dataSeriesInstance,
 							fill: seriesConfig.color || appTheme.ForegroundColor,
 							stroke: seriesConfig.color || appTheme.ForegroundColor,
-							strokeThickness: seriesConfig.strokeThickness || 2,
+							strokeThickness: seriesConfig.lineWidth || 2,
 							resamplingMode: EResamplingMode.None,
 						},
 					);
@@ -367,7 +367,7 @@ const initIndicatorChart = async (
 					renderableSeriesInstance = new FastLineRenderableSeries(wasmContext, {
 						dataSeries: dataSeriesInstance,
 						stroke: seriesConfig.color || appTheme.ForegroundColor,
-						strokeThickness: seriesConfig.strokeThickness || 2,
+						strokeThickness: seriesConfig.lineWidth || 2,
 						resamplingMode: EResamplingMode.None,
 					});
 					break;

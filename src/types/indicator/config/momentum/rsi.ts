@@ -1,7 +1,11 @@
-import { LineSeries } from "lightweight-charts";
+
 import { z } from "zod";
 import { SeriesType } from "@/types/chart";
-import { IndicatorType, PriceSource } from "@/types/indicator";
+import {
+	IndicatorCategory,
+	IndicatorType,
+	PriceSource,
+} from "@/types/indicator";
 import {
 	createParseIndicatorConfigFromKeyStr,
 	getIndicatorValues,
@@ -11,7 +15,6 @@ import {
 	type IndicatorValueConfig,
 	PriceSourceSchema,
 } from "@/types/indicator/schemas";
-import type { IndicatorKey } from "@/types/symbol-key";
 
 // RSI 指标配置的 Zod schema
 const RSIConfigSchema = z.object({
@@ -31,6 +34,7 @@ function buildRSIConfig(params: Map<string, string>): unknown {
 
 // RSI指标配置实现
 export const RSIConfig: IndicatorConfig<RSIConfigType> = {
+	category: IndicatorCategory.MOMENTUM,
 	type: IndicatorType.RSI, // 修正：应该是RSI而不是MA
 	displayName: "RSI",
 	description: "计算指定周期的相对强弱指数",
@@ -60,9 +64,8 @@ export const RSIConfig: IndicatorConfig<RSIConfigType> = {
 			{
 				name: "RSI",
 				type: SeriesType.LINE,
-				series: LineSeries,
 				color: "#FF6B6B",
-				strokeThickness: 2,
+				lineWidth: 2,
 				indicatorValueKey: "rsi" as keyof IndicatorValueConfig,
 			},
 		],
@@ -101,22 +104,22 @@ export const RSIConfig: IndicatorConfig<RSIConfigType> = {
 		}
 	},
 
-	getSeriesName(
-		seriesName: string,
-		indicatorKey: IndicatorKey,
-	): string | undefined {
-		if (indicatorKey.indicatorType === IndicatorType.RSI) {
-			const rsiConfig = indicatorKey.indicatorConfig as RSIConfigType;
-			const seriseConfig = this.chartConfig.seriesConfigs.find(
-				(config) => config.name === seriesName,
-			);
-			if (seriseConfig) {
-				return `${indicatorKey.indicatorType} ${rsiConfig.timePeriod} ${rsiConfig.priceSource.toLowerCase()} : ${seriseConfig.name}`;
-			} else {
-				return undefined;
-			}
-		} else {
-			return undefined;
-		}
-	},
+	// getSeriesName(
+	// 	seriesName: string,
+	// 	indicatorKey: IndicatorKey,
+	// ): string | undefined {
+	// 	if (indicatorKey.indicatorType === IndicatorType.RSI) {
+	// 		const RSIConfig = indicatorKey.indicatorConfig as RSIConfigType;
+	// 		const seriseConfig = this.chartConfig.seriesConfigs.find(
+	// 			(config) => config.name === seriesName,
+	// 		);
+	// 		if (seriseConfig) {
+	// 			return `${indicatorKey.indicatorType} ${RSIConfig.timePeriod} ${RSIConfig.priceSource.toLowerCase()} : ${seriseConfig.name}`;
+	// 		} else {
+	// 			return undefined;
+	// 		}
+	// 	} else {
+	// 		return undefined;
+	// 	}
+	// },
 };

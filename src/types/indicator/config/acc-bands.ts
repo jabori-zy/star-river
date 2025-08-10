@@ -1,4 +1,4 @@
-import { LineSeries } from "lightweight-charts";
+
 import { z } from "zod";
 import { SeriesType } from "@/types/chart";
 import { IndicatorType } from "@/types/indicator";
@@ -50,25 +50,22 @@ export const AccBandsConfig: IndicatorConfig<AccBandsConfigType> = {
 			{
 				name: "upper",
 				type: SeriesType.LINE,
-				series: LineSeries,
 				color: "#FF6B6B",
-				strokeThickness: 2,
+				lineWidth: 2,
 				indicatorValueKey: "upper" as keyof IndicatorValueConfig,
 			},
 			{
 				name: "middle",
 				type: SeriesType.DASH,
-				series: LineSeries,
 				color: "#4ECDC4",
-				strokeThickness: 2,
+				lineWidth: 2,
 				indicatorValueKey: "middle" as keyof IndicatorValueConfig,
 			},
 			{
 				name: "lower",
 				type: SeriesType.LINE,
-				series: LineSeries,
 				color: "#45B7D1",
-				strokeThickness: 1,
+				lineWidth: 1,
 				indicatorValueKey: "lower" as keyof IndicatorValueConfig,
 			},
 		],
@@ -107,24 +104,24 @@ export const AccBandsConfig: IndicatorConfig<AccBandsConfigType> = {
 		}
 	},
 
-	getSeriesName(
-		seriesName: string,
-		indicatorKey: IndicatorKey,
-	): string | undefined {
-		// 如果指标类型为ACC_BANDS，则返回ACC_BANDS-seriesName-timePeriod
-		if (indicatorKey.indicatorType === IndicatorType.ACCBANDS) {
-			const accBandsConfig = indicatorKey.indicatorConfig as AccBandsConfigType;
-			// 找到名称相同的seriesConfig
-			const seriseConfig = this.chartConfig.seriesConfigs.find(
-				(config) => config.name === seriesName,
-			);
-			if (seriseConfig) {
-				return `${indicatorKey.indicatorType} ${accBandsConfig.timePeriod} : ${seriseConfig.name}`;
-			} else {
-				return undefined;
-			}
-		} else {
-			return undefined;
-		}
-	},
+	// getSeriesName(
+	// 	seriesName: string,
+	// 	indicatorKey: IndicatorKey,
+	// ): string | undefined {
+	// 	// 如果指标类型为ACC_BANDS，则返回ACC_BANDS-seriesName-timePeriod
+	// 	if (indicatorKey.indicatorType === IndicatorType.ACCBANDS) {
+	// 		const accBandsConfig = indicatorKey.indicatorConfig as AccBandsConfigType;
+	// 		// 找到名称相同的seriesConfig
+	// 		const seriseConfig = this.chartConfig.seriesConfigs.find(
+	// 			(config) => config.name === seriesName,
+	// 		);
+	// 		if (seriseConfig) {
+	// 			return `${indicatorKey.indicatorType} ${accBandsConfig.timePeriod} : ${seriseConfig.name}`;
+	// 		} else {
+	// 			return undefined;
+	// 		}
+	// 	} else {
+	// 		return undefined;
+	// 	}
+	// },
 };

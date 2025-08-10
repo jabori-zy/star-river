@@ -1,7 +1,12 @@
-import { LineSeries } from "lightweight-charts";
+
 import { z } from "zod";
 import { SeriesType } from "@/types/chart";
-import { IndicatorType, MAType, PriceSource } from "@/types/indicator";
+import {
+	IndicatorCategory,
+	IndicatorType,
+	MAType,
+	PriceSource,
+} from "@/types/indicator";
 import {
 	createParseIndicatorConfigFromKeyStr,
 	getIndicatorValues,
@@ -12,9 +17,8 @@ import {
 	MATypeSchema,
 	PriceSourceSchema,
 } from "@/types/indicator/schemas";
-import type { IndicatorKey } from "@/types/symbol-key";
 
-const BBandsConfigSchema = z.object({
+const BBANDSConfigSchema = z.object({
 	timePeriod: z.number().int().positive(), // 时间周期
 	devUp: z.number().positive(), // 上轨标准差 浮点数
 	devDown: z.number().positive(), // 下轨标准差 浮点数
@@ -22,10 +26,10 @@ const BBandsConfigSchema = z.object({
 	priceSource: PriceSourceSchema, // 价格源
 });
 
-export type BBandsConfigType = z.infer<typeof BBandsConfigSchema>;
+export type BBANDSConfigType = z.infer<typeof BBANDSConfigSchema>;
 
 // MACD指标的参数映射函数
-function buildBBandsConfig(params: Map<string, string>): unknown {
+function buildBBANDSConfig(params: Map<string, string>): unknown {
 	return {
 		timePeriod: parseInt(params.get("time_period") || "12"),
 		devUp: parseFloat(params.get("dev_up") || "0.01"),
@@ -35,7 +39,8 @@ function buildBBandsConfig(params: Map<string, string>): unknown {
 	};
 }
 
-export const BBandsConfig: IndicatorConfig<BBandsConfigType> = {
+export const BBANDSConfig: IndicatorConfig<BBANDSConfigType> = {
+	category: IndicatorCategory.OVERLAP,
 	type: IndicatorType.BBANDS,
 	displayName: "BBands",
 	description: "布林带指标",
@@ -88,31 +93,28 @@ export const BBandsConfig: IndicatorConfig<BBandsConfigType> = {
 			{
 				name: "upper",
 				type: SeriesType.LINE,
-				series: LineSeries,
 				color: "#FF6B6B",
-				strokeThickness: 2,
+				lineWidth: 2,
 				indicatorValueKey: "upper" as keyof IndicatorValueConfig,
 			},
 			{
 				name: "middle",
 				type: SeriesType.DASH,
-				series: LineSeries,
 				color: "#4ECDC4",
-				strokeThickness: 2,
+				lineWidth: 2,
 				indicatorValueKey: "middle" as keyof IndicatorValueConfig,
 			},
 			{
 				name: "lower",
 				type: SeriesType.LINE,
-				series: LineSeries,
 				color: "#45B7D1",
-				strokeThickness: 1,
+				lineWidth: 1,
 				indicatorValueKey: "lower" as keyof IndicatorValueConfig,
 			},
 		],
 	},
 
-	getDefaultConfig(): BBandsConfigType {
+	getDefaultConfig(): BBANDSConfigType {
 		const config = Object.fromEntries(
 			Object.entries(this.params).map(([key, param]) => [
 				key,
@@ -121,7 +123,7 @@ export const BBandsConfig: IndicatorConfig<BBandsConfigType> = {
 		);
 
 		// 使用 Zod 验证配置
-		const validatedConfig = BBandsConfigSchema.parse(config);
+		const validatedConfig = BBANDSConfigSchema.parse(config);
 		return validatedConfig;
 	},
 
@@ -132,32 +134,32 @@ export const BBandsConfig: IndicatorConfig<BBandsConfigType> = {
 	// 使用通用解析函数
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
 		IndicatorType.BBANDS,
-		BBandsConfigSchema,
-		buildBBandsConfig,
+		BBANDSConfigSchema,
+		buildBBANDSConfig,
 	),
 
-	validateConfig(config: unknown): config is BBandsConfigType {
+	validateConfig(config: unknown): config is BBANDSConfigType {
 		try {
-			BBandsConfigSchema.parse(config);
+			BBANDSConfigSchema.parse(config);
 			return true;
 		} catch {
 			return false;
 		}
 	},
-	getSeriesName(
-		seriesName: string,
-		indicatorKey: IndicatorKey,
-	): string | undefined {
-		if (indicatorKey.indicatorType === IndicatorType.BBANDS) {
-			const bbandsConfig = indicatorKey.indicatorConfig as BBandsConfigType;
-			const seriseConfig = this.chartConfig.seriesConfigs.find(
-				(config) => config.name === seriesName,
-			);
-			if (seriseConfig) {
-				return `${indicatorKey.indicatorType} ${bbandsConfig.timePeriod} ${bbandsConfig.devUp} ${bbandsConfig.devDown} ${bbandsConfig.maType.toLowerCase()} ${bbandsConfig.priceSource.toLowerCase()} : ${seriseConfig.name}`;
-			}
-		} else {
-			return undefined;
-		}
-	},
+	// getSeriesName(
+	// 	seriesName: string,
+	// 	indicatorKey: IndicatorKey,
+	// ): string | undefined {
+	// 	if (indicatorKey.indicatorType === IndicatorType.BBANDS) {
+	// 		const BBANDSConfig = indicatorKey.indicatorConfig as BBANDSConfigType;
+	// 		const seriseConfig = this.chartConfig.seriesConfigs.find(
+	// 			(config) => config.name === seriesName,
+	// 		);
+	// 		if (seriseConfig) {
+	// 			return `${indicatorKey.indicatorType} ${BBANDSConfig.timePeriod} ${BBANDSConfig.devUp} ${BBANDSConfig.devDown} ${BBANDSConfig.maType.toLowerCase()} ${BBANDSConfig.priceSource.toLowerCase()} : ${seriseConfig.name}`;
+	// 		}
+	// 	} else {
+	// 		return undefined;
+	// 	}
+	// },
 };

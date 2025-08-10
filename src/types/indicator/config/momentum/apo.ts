@@ -1,7 +1,12 @@
-import { LineSeries } from "lightweight-charts";
+
 import { z } from "zod";
 import { SeriesType } from "@/types/chart";
-import { IndicatorType, MAType, PriceSource } from "@/types/indicator";
+import {
+	IndicatorCategory,
+	IndicatorType,
+	MAType,
+	PriceSource,
+} from "@/types/indicator";
 import {
 	createParseIndicatorConfigFromKeyStr,
 	getIndicatorValues,
@@ -12,7 +17,6 @@ import {
 	MATypeSchema,
 	PriceSourceSchema,
 } from "@/types/indicator/schemas";
-import type { IndicatorKey } from "@/types/symbol-key";
 
 // MA 指标配置的 Zod schema
 const APOConfigSchema = z.object({
@@ -36,6 +40,7 @@ function buildAPOConfig(params: Map<string, string>): unknown {
 
 // MA指标配置实现
 export const APOConfig: IndicatorConfig<APOConfigType> = {
+	category: IndicatorCategory.MOMENTUM,
 	type: IndicatorType.APO,
 	displayName: "APO",
 	description: "Absolute Price Oscillator",
@@ -79,9 +84,8 @@ export const APOConfig: IndicatorConfig<APOConfigType> = {
 			{
 				name: "apo",
 				type: SeriesType.LINE,
-				series: LineSeries,
 				color: "#FF6B6B",
-				strokeThickness: 2,
+				lineWidth: 2,
 				indicatorValueKey: "apo" as keyof IndicatorValueConfig,
 			},
 		],
@@ -120,24 +124,24 @@ export const APOConfig: IndicatorConfig<APOConfigType> = {
 		}
 	},
 
-	getSeriesName(
-		seriesName: string,
-		indicatorKey: IndicatorKey,
-	): string | undefined {
-		// 如果指标类型为APO，则返回APO-seriesName-fastPeriod-slowPeriod-maType-priceSource
-		if (indicatorKey.indicatorType === IndicatorType.APO) {
-			const apoConfig = indicatorKey.indicatorConfig as APOConfigType;
-			// 找到名称相同的seriesConfig
-			const seriseConfig = this.chartConfig.seriesConfigs.find(
-				(config) => config.name === seriesName,
-			);
-			if (seriseConfig) {
-				return `${seriseConfig.name} ${apoConfig.fastPeriod} ${apoConfig.slowPeriod} ${apoConfig.maType.toLowerCase()} ${apoConfig.priceSource.toLowerCase()}`;
-			} else {
-				return undefined;
-			}
-		} else {
-			return undefined;
-		}
-	},
+	// getSeriesName(
+	// 	seriesName: string,
+	// 	indicatorKey: IndicatorKey,
+	// ): string | undefined {
+	// 	// 如果指标类型为APO，则返回APO-seriesName-fastPeriod-slowPeriod-maType-priceSource
+	// 	if (indicatorKey.indicatorType === IndicatorType.APO) {
+	// 		const APOConfig = indicatorKey.indicatorConfig as APOConfigType;
+	// 		// 找到名称相同的seriesConfig
+	// 		const seriseConfig = this.chartConfig.seriesConfigs.find(
+	// 			(config) => config.name === seriesName,
+	// 		);
+	// 		if (seriseConfig) {
+	// 			return `${seriseConfig.name} ${APOConfig.fastPeriod} ${APOConfig.slowPeriod} ${APOConfig.maType.toLowerCase()} ${APOConfig.priceSource.toLowerCase()}`;
+	// 		} else {
+	// 			return undefined;
+	// 		}
+	// 	} else {
+	// 		return undefined;
+	// 	}
+	// },
 };

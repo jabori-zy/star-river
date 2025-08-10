@@ -2,25 +2,8 @@ import { z } from "zod";
 import type { IndicatorKey } from "@/types/symbol-key";
 import { parseKey } from "@/utils/parse-key";
 import type { IndicatorChartBaseConfig } from "../chart";
-import { AccBandsConfig } from "./config/acc-bands";
-import { ADConfig } from "./config/ad";
-import { ADOSCConfig } from "./config/adosc";
-import { BBandsConfig } from "./config/bbands";
-// 导入各个指标配置
-import { MAConfig } from "./config/ma";
-import { MACDConfig } from "./config/macd";
-import { ADXConfig } from "./config/momentum/adx";
-import { ADXRConfig } from "./config/momentum/adxr";
-import { APOConfig } from "./config/momentum/apo";
-import { AroonConfig } from "./config/momentum/aroon";
-import { AroonOscConfig } from "./config/momentum/aroonosc";
-import { BopConfig } from "./config/momentum/bop";
-import { CciConfig } from "./config/momentum/cci";
-import { CmoConfig } from "./config/momentum/cmo";
-import { DxConfig } from "./config/momentum/dx";
-import { RSIConfig } from "./config/rsi";
-import { IndicatorType } from "./index";
-
+import type { IndicatorCategory, IndicatorType } from "./index";
+import { INDICATOR_CONFIG_MAP } from "./indicator-config-map";
 import {
 	type IndicatorParam,
 	IndicatorTypeSchema,
@@ -29,16 +12,17 @@ import {
 
 // 基础指标配置接口
 export interface BaseIndicatorConfig {
+	category: IndicatorCategory;
 	type: IndicatorType;
 	displayName: string;
 	description?: string;
 	chartConfig: IndicatorChartBaseConfig;
 	indicatorValueConfig: IndicatorValueConfig;
 	getValue(): Record<keyof IndicatorValueConfig, number>; // 获取指标值
-	getSeriesName(
-		seriesName: string,
-		indicatorKey: IndicatorKey,
-	): string | undefined;
+	// getSeriesName(
+	// 	seriesName: string,
+	// 	indicatorKey: IndicatorKey,
+	// ): string | undefined;
 }
 
 // 默认的getValue实现工具函数
@@ -67,9 +51,7 @@ export function createParseIndicatorConfigFromKeyStr<T>(
 			const params = parseKeyStrToMap(indicatorConfigStr);
 
 			if (indicatorType !== expectedType) {
-				console.warn(
-					`指标类型不匹配，期望: ${expectedType}, 实际: ${indicatorType}`,
-				);
+				console.warn(`指标类型不匹配，期望: ${expectedType}, 实际: ${indicatorType}`);
 				return undefined;
 			}
 
@@ -126,31 +108,7 @@ export function parseKeyStrToMap(keyStr: string): Map<string, string> {
 	return params;
 }
 
-// 配置映射，支持部分指标类型
-export const INDICATOR_CONFIG_MAP: Partial<
-	Record<IndicatorType, IndicatorConfig>
-> = {
-	[IndicatorType.MA]: MAConfig,
-	[IndicatorType.MACD]: MACDConfig,
-	[IndicatorType.RSI]: RSIConfig,
-	[IndicatorType.BBANDS]: BBandsConfig,
-	[IndicatorType.ACCBANDS]: AccBandsConfig,
-	[IndicatorType.AD]: ADConfig,
-	[IndicatorType.ADOSC]: ADOSCConfig,
-	// 动量指标
-	[IndicatorType.ADX]: ADXConfig,
-	[IndicatorType.ADXR]: ADXRConfig,
-	[IndicatorType.APO]: APOConfig,
-	[IndicatorType.AROON]: AroonConfig,
-	[IndicatorType.AROONOSC]: AroonOscConfig,
-	[IndicatorType.BOP]: BopConfig,
-	[IndicatorType.CCI]: CciConfig,
-	[IndicatorType.CMO]: CmoConfig,
-	[IndicatorType.DX]: DxConfig,
-	// TODO: 添加其他指标配置
-	// [IndicatorType.SMA]: SMAConfig,
-	// [IndicatorType.EMA]: EMAConfig,
-};
+
 
 /**
  * 根据指标类型和配置字符串解析指标配置
@@ -229,14 +187,14 @@ export function getIndciatorChartBaseConfigFromKeyStr(
 	return config.chartConfig;
 }
 
-export function getIndicatorSeriesName(
-	seriesName: string,
-	indicatorKey: IndicatorKey,
-): string | undefined {
-	const config = getIndicatorConfig(indicatorKey.indicatorType);
-	if (!config) return undefined;
-	return config.getSeriesName(seriesName, indicatorKey);
-}
+// export function getIndicatorSeriesName(
+// 	seriesName: string,
+// 	indicatorKey: IndicatorKey,
+// ): string | undefined {
+// 	const config = getIndicatorConfig(indicatorKey.indicatorType);
+// 	if (!config) return undefined;
+// 	return config.getSeriesName(seriesName, indicatorKey);
+// }
 
 export function getConfigLegendShowName(
 	indicatorType: IndicatorType,

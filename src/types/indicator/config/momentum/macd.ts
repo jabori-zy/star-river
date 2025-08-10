@@ -1,14 +1,17 @@
-import { HistogramSeries, LineSeries } from "lightweight-charts";
+
 import { z } from "zod";
 import { SeriesType } from "@/types/chart";
-import { IndicatorType, PriceSource } from "@/types/indicator";
+import {
+	IndicatorCategory,
+	IndicatorType,
+	PriceSource,
+} from "@/types/indicator";
 import {
 	createParseIndicatorConfigFromKeyStr,
 	getIndicatorValues,
 	type IndicatorConfig,
 } from "@/types/indicator/indicator-config";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
-import type { IndicatorKey } from "@/types/symbol-key";
 
 const MACDConfigSchema = z.object({
 	fastPeriod: z.number().int().positive(),
@@ -30,6 +33,7 @@ function buildMACDConfig(params: Map<string, string>): unknown {
 }
 
 export const MACDConfig: IndicatorConfig<MACDConfigType> = {
+	category: IndicatorCategory.MOMENTUM,
 	type: IndicatorType.MACD,
 	displayName: "MACD",
 	description: "指数平滑移动平均线收敛发散指标",
@@ -75,25 +79,22 @@ export const MACDConfig: IndicatorConfig<MACDConfigType> = {
 			{
 				name: "MACD",
 				type: SeriesType.LINE,
-				series: LineSeries,
 				color: "#FF6B6B",
-				strokeThickness: 2,
+				lineWidth: 2,
 				indicatorValueKey: "macd" as keyof IndicatorValueConfig,
 			},
 			{
 				name: "Signal",
 				type: SeriesType.LINE,
-				series: LineSeries,
 				color: "#4ECDC4",
-				strokeThickness: 2,
+				lineWidth: 2,
 				indicatorValueKey: "signal" as keyof IndicatorValueConfig,
 			},
 			{
 				name: "Histogram",
 				type: SeriesType.COLUMN,
-				series: HistogramSeries,
 				color: "#45B7D1",
-				strokeThickness: 1,
+				lineWidth: 1,
 				indicatorValueKey: "histogram" as keyof IndicatorValueConfig,
 			},
 		],
@@ -131,22 +132,22 @@ export const MACDConfig: IndicatorConfig<MACDConfigType> = {
 			return false;
 		}
 	},
-	getSeriesName(
-		seriesName: string,
-		indicatorKey: IndicatorKey,
-	): string | undefined {
-		if (indicatorKey.indicatorType === IndicatorType.MACD) {
-			const macdConfig = indicatorKey.indicatorConfig as MACDConfigType;
-			const seriseConfig = this.chartConfig.seriesConfigs.find(
-				(config) => config.name === seriesName,
-			);
-			if (seriseConfig) {
-				return `${indicatorKey.indicatorType} ${macdConfig.fastPeriod} ${macdConfig.slowPeriod} ${macdConfig.signalPeriod} ${macdConfig.priceSource.toLowerCase()} : ${seriseConfig.name}`;
-			} else {
-				return undefined;
-			}
-		} else {
-			return undefined;
-		}
-	},
+	// getSeriesName(
+	// 	seriesName: string,
+	// 	indicatorKey: IndicatorKey,
+	// ): string | undefined {
+	// 	if (indicatorKey.indicatorType === IndicatorType.MACD) {
+	// 		const MACDConfig = indicatorKey.indicatorConfig as MACDConfigType;
+	// 		const seriseConfig = this.chartConfig.seriesConfigs.find(
+	// 			(config) => config.name === seriesName,
+	// 		);
+	// 		if (seriseConfig) {
+	// 			return `${indicatorKey.indicatorType} ${MACDConfig.fastPeriod} ${MACDConfig.slowPeriod} ${MACDConfig.signalPeriod} ${MACDConfig.priceSource.toLowerCase()} : ${seriseConfig.name}`;
+	// 		} else {
+	// 			return undefined;
+	// 		}
+	// 	} else {
+	// 		return undefined;
+	// 	}
+	// },
 };

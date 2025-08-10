@@ -1,7 +1,12 @@
-import { LineSeries } from "lightweight-charts";
+
 import { z } from "zod";
 import { SeriesType } from "@/types/chart";
-import { IndicatorType, MAType, PriceSource } from "@/types/indicator";
+import {
+	IndicatorCategory,
+	IndicatorType,
+	MAType,
+	PriceSource,
+} from "@/types/indicator";
 import {
 	createParseIndicatorConfigFromKeyStr,
 	getIndicatorValues,
@@ -12,7 +17,6 @@ import {
 	MATypeSchema,
 	PriceSourceSchema,
 } from "@/types/indicator/schemas";
-import type { IndicatorKey } from "@/types/symbol-key";
 
 // MA 指标配置的 Zod schema
 const MAConfigSchema = z.object({
@@ -34,6 +38,7 @@ function buildMAConfig(params: Map<string, string>): unknown {
 
 // MA指标配置实现
 export const MAConfig: IndicatorConfig<MAConfigType> = {
+	category: IndicatorCategory.OVERLAP,
 	type: IndicatorType.MA,
 	displayName: "MA",
 	description: "计算指定周期的移动平均线",
@@ -70,9 +75,8 @@ export const MAConfig: IndicatorConfig<MAConfigType> = {
 			{
 				name: "MA",
 				type: SeriesType.LINE,
-				series: LineSeries,
 				color: "#D6D618",
-				strokeThickness: 2,
+				lineWidth: 2,
 				indicatorValueKey: "ma" as keyof IndicatorValueConfig,
 			},
 		],
@@ -111,24 +115,24 @@ export const MAConfig: IndicatorConfig<MAConfigType> = {
 		}
 	},
 
-	getSeriesName(
-		seriesName: string,
-		indicatorKey: IndicatorKey,
-	): string | undefined {
-		// 如果指标类型为MA，则返回MA-seriesName-maType-timePeriod
-		if (indicatorKey.indicatorType === IndicatorType.MA) {
-			const maConfig = indicatorKey.indicatorConfig as MAConfigType;
-			// 找到名称相同的seriesConfig
-			const seriseConfig = this.chartConfig.seriesConfigs.find(
-				(config) => config.name === seriesName,
-			);
-			if (seriseConfig) {
-				return `${seriseConfig.name} ${maConfig.maType.toLowerCase()} ${maConfig.timePeriod} ${maConfig.priceSource.toLowerCase()}`;
-			} else {
-				return undefined;
-			}
-		} else {
-			return undefined;
-		}
-	},
+	// getSeriesName(
+	// 	seriesName: string,
+	// 	indicatorKey: IndicatorKey,
+	// ): string | undefined {
+	// 	// 如果指标类型为MA，则返回MA-seriesName-maType-timePeriod
+	// 	if (indicatorKey.indicatorType === IndicatorType.MA) {
+	// 		const maConfig = indicatorKey.indicatorConfig as MAConfigType;
+	// 		// 找到名称相同的seriesConfig
+	// 		const seriseConfig = this.chartConfig.seriesConfigs.find(
+	// 			(config) => config.name === seriesName,
+	// 		);
+	// 		if (seriseConfig) {
+	// 			return `${seriseConfig.name} ${maConfig.maType.toLowerCase()} ${maConfig.timePeriod} ${maConfig.priceSource.toLowerCase()}`;
+	// 		} else {
+	// 			return undefined;
+	// 		}
+	// 	} else {
+	// 		return undefined;
+	// 	}
+	// },
 };

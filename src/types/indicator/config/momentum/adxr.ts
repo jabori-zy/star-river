@@ -1,14 +1,13 @@
-import { LineSeries } from "lightweight-charts";
+
 import { z } from "zod";
 import { SeriesType } from "@/types/chart";
-import { IndicatorType } from "@/types/indicator";
+import { IndicatorCategory, IndicatorType } from "@/types/indicator";
 import {
 	createParseIndicatorConfigFromKeyStr,
 	getIndicatorValues,
 	type IndicatorConfig,
 } from "@/types/indicator/indicator-config";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
-import type { IndicatorKey } from "@/types/symbol-key";
 
 // MA 指标配置的 Zod schema
 const ADXRConfigSchema = z.object({
@@ -26,6 +25,7 @@ function buildADXRConfig(params: Map<string, string>): unknown {
 
 // MA指标配置实现
 export const ADXRConfig: IndicatorConfig<ADXRConfigType> = {
+	category: IndicatorCategory.MOMENTUM,
 	type: IndicatorType.ADXR,
 	displayName: "ADXR",
 	description: "Average Directional Index Rating",
@@ -48,9 +48,8 @@ export const ADXRConfig: IndicatorConfig<ADXRConfigType> = {
 			{
 				name: "adxr",
 				type: SeriesType.LINE,
-				series: LineSeries,
 				color: "#FF6B6B",
-				strokeThickness: 2,
+				lineWidth: 2,
 				indicatorValueKey: "adxr" as keyof IndicatorValueConfig,
 			},
 		],
@@ -89,24 +88,24 @@ export const ADXRConfig: IndicatorConfig<ADXRConfigType> = {
 		}
 	},
 
-	getSeriesName(
-		seriesName: string,
-		indicatorKey: IndicatorKey,
-	): string | undefined {
-		// 如果指标类型为ADXR，则返回ADXR-seriesName-timePeriod
-		if (indicatorKey.indicatorType === IndicatorType.ADXR) {
-			const adxrConfig = indicatorKey.indicatorConfig as ADXRConfigType;
-			// 找到名称相同的seriesConfig
-			const seriseConfig = this.chartConfig.seriesConfigs.find(
-				(config) => config.name === seriesName,
-			);
-			if (seriseConfig) {
-				return `${seriseConfig.name} ${adxrConfig.timePeriod}`;
-			} else {
-				return undefined;
-			}
-		} else {
-			return undefined;
-		}
-	},
+	// getSeriesName(
+	// 	seriesName: string,
+	// 	indicatorKey: IndicatorKey,
+	// ): string | undefined {
+	// 	// 如果指标类型为ADXR，则返回ADXR-seriesName-timePeriod
+	// 	if (indicatorKey.indicatorType === IndicatorType.ADXR) {
+	// 		const ADXRConfig = indicatorKey.indicatorConfig as ADXRConfigType;
+	// 		// 找到名称相同的seriesConfig
+	// 		const seriseConfig = this.chartConfig.seriesConfigs.find(
+	// 			(config) => config.name === seriesName,
+	// 		);
+	// 		if (seriseConfig) {
+	// 			return `${seriseConfig.name} ${ADXRConfig.timePeriod}`;
+	// 		} else {
+	// 			return undefined;
+	// 		}
+	// 	} else {
+	// 		return undefined;
+	// 	}
+	// },
 };

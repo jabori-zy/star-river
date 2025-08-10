@@ -1,14 +1,13 @@
-import { LineSeries } from "lightweight-charts";
+
 import { z } from "zod";
 import { SeriesType } from "@/types/chart";
-import { IndicatorType } from "@/types/indicator";
+import { IndicatorCategory, IndicatorType } from "@/types/indicator";
 import {
 	createParseIndicatorConfigFromKeyStr,
 	getIndicatorValues,
 	type IndicatorConfig,
 } from "@/types/indicator/indicator-config";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
-import type { IndicatorKey } from "@/types/symbol-key";
 
 // MA 指标配置的 Zod schema
 const ADConfigSchema = z.object({}); // 没有参数
@@ -20,8 +19,9 @@ function buildADConfig(): unknown {
 	return {};
 }
 
-// AD指标配置实现
+// Chaikin A/D Line #钱德动量线
 export const ADConfig: IndicatorConfig<ADConfigType> = {
+	category: IndicatorCategory.VOLUME,
 	type: IndicatorType.AD,
 	displayName: "AD",
 	description: "Accumulation/Distribution",
@@ -36,9 +36,8 @@ export const ADConfig: IndicatorConfig<ADConfigType> = {
 			{
 				name: "ad",
 				type: SeriesType.LINE,
-				series: LineSeries,
 				color: "#FF6B6B",
-				strokeThickness: 2,
+				lineWidth: 2,
 				indicatorValueKey: "ad" as keyof IndicatorValueConfig,
 			},
 		],
@@ -72,24 +71,24 @@ export const ADConfig: IndicatorConfig<ADConfigType> = {
 		}
 	},
 
-	getSeriesName(
-		seriesName: string,
-		indicatorKey: IndicatorKey,
-	): string | undefined {
-		// 如果指标类型为AD，则返回AD-seriesName
-		if (indicatorKey.indicatorType === IndicatorType.AD) {
-			// const adConfig = indicatorKey.indicatorConfig as ADConfigType;
-			// 找到名称相同的seriesConfig
-			const seriseConfig = this.chartConfig.seriesConfigs.find(
-				(config) => config.name === seriesName,
-			);
-			if (seriseConfig) {
-				return `${indicatorKey.indicatorType} : ${seriseConfig.name}`;
-			} else {
-				return undefined;
-			}
-		} else {
-			return undefined;
-		}
-	},
+	// getSeriesName(
+	// 	seriesName: string,
+	// 	indicatorKey: IndicatorKey,
+	// ): string | undefined {
+	// 	// 如果指标类型为AD，则返回AD-seriesName
+	// 	if (indicatorKey.indicatorType === IndicatorType.AD) {
+	// 		// const adConfig = indicatorKey.indicatorConfig as ADConfigType;
+	// 		// 找到名称相同的seriesConfig
+	// 		const seriseConfig = this.chartConfig.seriesConfigs.find(
+	// 			(config) => config.name === seriesName,
+	// 		);
+	// 		if (seriseConfig) {
+	// 			return `${indicatorKey.indicatorType} : ${seriseConfig.name}`;
+	// 		} else {
+	// 			return undefined;
+	// 		}
+	// 	} else {
+	// 		return undefined;
+	// 	}
+	// },
 };
