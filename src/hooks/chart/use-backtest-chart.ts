@@ -191,6 +191,7 @@ export const useBacktestChart = ({
 		deleteSubChartPaneRef,
 		setSubChartPaneRef,
 		incrementPaneVersion,
+		addSubChartPaneHtmlElementRef,
 		// unsubscribe,
 	]);
 
