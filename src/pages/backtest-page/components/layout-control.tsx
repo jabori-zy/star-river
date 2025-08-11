@@ -6,7 +6,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import type { LayoutMode } from "@/types/chart/backtest-chart";
+import type { LayoutMode } from "@/types/chart";
 
 interface LayoutControlProps {
 	value: LayoutMode;

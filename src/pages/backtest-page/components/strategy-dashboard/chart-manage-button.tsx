@@ -1,23 +1,29 @@
-import { AlertCircle, PlusCircle } from "lucide-react";
+import { AlertCircle, Loader2, PlusCircle, Save } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import type { BacktestStrategyChartConfig } from "@/types/chart/backtest-chart";
+import LayoutControl from "../layout-control";
+import type { LayoutMode } from "@/types/chart";
 
-interface AddChartButtonProps {
+interface ChartManageButtonProps {
 	onAddChart: (klineCacheKeyStr: string, chartName: string) => void;
+	saveChartConfig: () => void;
+	isSaving: boolean;
 	showAlert?: boolean;
 	alertMessage?: string;
 	strategyChartConfig: BacktestStrategyChartConfig;
-	strategyId: number;
+	updateLayout: (layout: LayoutMode) => void;
 }
 
-const AddChartButton = ({
+const ChartManageButton = ({
 	onAddChart,
+	saveChartConfig,
+	isSaving,
 	showAlert = false,
 	alertMessage = "",
 	strategyChartConfig,
-	strategyId,
-}: AddChartButtonProps) => {
+	updateLayout,
+}: ChartManageButtonProps) => {
 	// 处理添加图表
 	const handleAddChart = () => {
 		if (strategyChartConfig.charts.length === 0) {
@@ -42,6 +48,12 @@ const AddChartButton = ({
 					<AlertDescription>{alertMessage}</AlertDescription>
 				</Alert>
 			)}
+			{strategyChartConfig.charts.length > 1 && (
+					<LayoutControl
+						value={strategyChartConfig.layout || "vertical"}
+						onChange={updateLayout}
+					/>
+				)}
 
 			<Button
 				variant="outline"
@@ -51,8 +63,16 @@ const AddChartButton = ({
 				<PlusCircle className="h-4 w-4" />
 				添加图表
 			</Button>
+			<Button variant="default" onClick={saveChartConfig} disabled={isSaving}>
+					{isSaving ? (
+						<Loader2 className="w-4 h-4 animate-spin" />
+					) : (
+						<Save className="w-4 h-4" />
+					)}
+					{isSaving ? "保存中..." : "保存图表"}
+				</Button>
 		</div>
 	);
 };
 
-export default AddChartButton;
+export default ChartManageButton;

@@ -14,7 +14,7 @@ import {
 import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
 import BacktestWindowHeader from "../../components/backtest/backtest-window-header";
 import useBacktestStrategySSE from "../../hooks/sse/use-backtest-strategy-sse";
-import BacktestControl from "./components/backtest-control";
+import StrategyDashboard from "./components/strategy-dashboard";
 import ChartContainer from "./components/chart-container";
 import { resetAllBacktestChartStore } from "@/components/chart/backtest-chart/backtest-chart-store";
 
@@ -152,8 +152,7 @@ export default function BacktestPage() {
 					/>
 				</div>
 				<div className="flex items-center p-2 bg-white border-t">
-					<BacktestControl
-						strategyId={strategyId}
+					<StrategyDashboard
 						isRunning={isRunning}
 						onPlay={onPlay}
 						onPlayOne={onPlayOne}

@@ -42,12 +42,14 @@ import { mockVirtualOrders } from "./mock-data";
 interface BacktestOrderRecordTableProps {
 	data?: VirtualOrder[];
 	title?: string;
+	showTitle?: boolean;
 }
 
 // 交易记录表
 export function BacktestOrderRecordTable({
 	data = mockVirtualOrders,
 	title = "交易记录",
+	showTitle = true,
 }: BacktestOrderRecordTableProps) {
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
 	const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -85,14 +87,16 @@ export function BacktestOrderRecordTable({
 	return (
 		<div className="flex w-full flex-col justify-start gap-6">
 			{/* 标题 */}
-			<div className="flex items-center justify-between px-4 lg:px-6">
-				<div className="flex items-center gap-2">
-					<h1 className="text-xl font-semibold">{title}</h1>
+			{showTitle && (
+				<div className="flex items-center justify-between px-4 lg:px-6">
+					<div className="flex items-center gap-2">
+						<h1 className="text-xl font-semibold">{title}</h1>
 					<div className="text-sm text-muted-foreground">
 						({data.length} 条记录)
 					</div>
+					</div>
 				</div>
-			</div>
+			)}
 
 			{/* 表格 */}
 			<div className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
