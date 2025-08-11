@@ -79,13 +79,14 @@ export function BacktestOrderRecordTable({
 		getSortedRowModel: getSortedRowModel(),
 		getFacetedRowModel: getFacetedRowModel(),
 		getFacetedUniqueValues: getFacetedUniqueValues(),
+		columnResizeMode: 'onChange',
 	});
 
 	// 计算总页数
 	const pageCount = table.getPageCount();
 
 	return (
-		<div className="flex w-full flex-col justify-start gap-6">
+		<div className="flex w-full min-w-0 flex-col justify-start gap-6">
 			{/* 标题 */}
 			{showTitle && (
 				<div className="flex items-center justify-between px-4 lg:px-6">
@@ -99,23 +100,32 @@ export function BacktestOrderRecordTable({
 			)}
 
 			{/* 表格 */}
-			<div className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
-				<div className="overflow-hidden rounded-lg border">
-					<div className="overflow-x-auto">
-						<Table>
+			<div className="relative flex flex-col gap-4 w-full min-w-0 px-4 lg:px-6">
+				<div className="w-full min-w-0 overflow-hidden rounded-lg border">
+					<div className="w-full min-w-0">
+						<Table className="w-full table-fixed">
 							<TableHeader className="sticky top-0 z-10 bg-muted">
 								{table.getHeaderGroups().map((headerGroup) => (
 									<TableRow key={headerGroup.id}>
 										{headerGroup.headers.map((header) => (
-											<TableHead key={header.id} colSpan={header.colSpan}>
+											<TableHead 
+												key={header.id} 
+												colSpan={header.colSpan}
+												style={{ 
+													width: header.getSize(),
+													minWidth: header.column.columnDef.minSize || 60,
+													maxWidth: header.column.columnDef.maxSize || 300
+												}}
+												className="px-2"
+											>
 												{header.isPlaceholder ? null : (
 													<div
 														{...(header.column.getCanSort()
 															? {
-																	className: "cursor-pointer select-none hover:bg-accent/50 rounded px-2 py-1",
+																	className: "cursor-pointer select-none hover:bg-accent/50 rounded px-1 py-1 text-xs",
 																	onClick: header.column.getToggleSortingHandler(),
 																}
-															: {})}
+															: { className: "text-xs px-1" })}
 													>
 														{flexRender(
 															header.column.columnDef.header,
@@ -141,7 +151,15 @@ export function BacktestOrderRecordTable({
 											className="border-b transition-colors hover:bg-muted/50"
 										>
 											{row.getVisibleCells().map((cell) => (
-												<TableCell key={cell.id}>
+												<TableCell 
+													key={cell.id}
+													style={{ 
+														width: cell.column.getSize(),
+														minWidth: cell.column.columnDef.minSize || 60,
+														maxWidth: cell.column.columnDef.maxSize || 300
+													}}
+													className="px-2 py-2"
+												>
 													{flexRender(
 														cell.column.columnDef.cell,
 														cell.getContext()

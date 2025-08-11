@@ -23,6 +23,9 @@ interface BacktestInfoTabsProps {
 	saveChartConfig: () => void;
 	isSaving: boolean;
 	updateLayout: (layout: LayoutMode) => void;
+	activeTab?: string;
+	onTabChange?: (value: string) => void;
+	isDashboardExpanded?: boolean;
 }
 
 // 临时占位组件
@@ -66,16 +69,24 @@ const BacktestInfoTabs: React.FC<BacktestInfoTabsProps> = ({
 	chartConfig, 
 	saveChartConfig, 
 	isSaving,
-	updateLayout
+	updateLayout,
+	activeTab,
+	onTabChange,
+	isDashboardExpanded
 }) => {
 	return (
-		<Tabs defaultValue="profit" className="w-full">
-			<div className="flex items-center mb-6">
+		<Tabs value={activeTab} onValueChange={onTabChange} className="w-full h-full flex flex-col">
+			{/* 固定在顶部的头部 */}
+			<div className={`flex items-center p-2 bg-white shrink-0 ${isDashboardExpanded ? 'border-b' : ''}`}>
 				{/* 左侧：Tab组件 */}
-				<TabsList className="grid grid-cols-4 mr-auto">
+				<TabsList className="grid grid-cols-4 mr-auto gap-2">
 					<TabsTrigger value="profit" className="flex items-center gap-1">
 						<TrendingUp className="h-4 w-4" />
 						<span className="hidden sm:inline">收益曲线</span>
+					</TabsTrigger>
+					<TabsTrigger value="positions" className="flex items-center gap-1">
+						<Package className="h-4 w-4" />
+						<span className="hidden sm:inline">仓位</span>
 					</TabsTrigger>
 					<TabsTrigger value="orders" className="flex items-center gap-1">
 						<FileText className="h-4 w-4" />
@@ -85,10 +96,7 @@ const BacktestInfoTabs: React.FC<BacktestInfoTabsProps> = ({
 						<CheckCircle className="h-4 w-4" />
 						<span className="hidden sm:inline">成交记录</span>
 					</TabsTrigger>
-					<TabsTrigger value="positions" className="flex items-center gap-1">
-						<Package className="h-4 w-4" />
-						<span className="hidden sm:inline">仓位</span>
-					</TabsTrigger>
+					
 				</TabsList>
 				
 				{/* 中央：播放控制组件 */}
@@ -112,21 +120,26 @@ const BacktestInfoTabs: React.FC<BacktestInfoTabsProps> = ({
 				/>
 			</div>
 			
-			<TabsContent value="profit" className="mt-4">
-				<ProfitCurvePanel />
-			</TabsContent>
-			
-			<TabsContent value="orders" className="">
-				<BacktestOrderRecordTable title="订单记录" showTitle={false} />
-			</TabsContent>
-			
-			<TabsContent value="trades" className="mt-4">
-				<TradeRecordPanel />
-			</TabsContent>
-			
-			<TabsContent value="positions" className="mt-4">
-				<PositionPanel />
-			</TabsContent>
+			{/* 可滚动的内容区域 */}
+			<div className="flex-1 overflow-y-auto">
+				<TabsContent value="profit" className="mt-4 mx-4">
+					<ProfitCurvePanel />
+				</TabsContent>
+				
+				<TabsContent value="orders" className="w-full overflow-hidden">
+					<div className="w-full min-w-0 p-4">
+						<BacktestOrderRecordTable title="订单记录" showTitle={false} />
+					</div>
+				</TabsContent>
+				
+				<TabsContent value="trades" className="mt-4 mx-4">
+					<TradeRecordPanel />
+				</TabsContent>
+				
+				<TabsContent value="positions" className="mt-4 mx-4">
+					<PositionPanel />
+				</TabsContent>
+			</div>
 		</Tabs>
 	);
 };

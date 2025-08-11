@@ -1,6 +1,7 @@
 import { AlertCircle, ArrowLeft, Loader2 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router";
+import { Panel, PanelGroup, PanelResizeHandle, ImperativePanelHandle } from "react-resizable-panels";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { stopStrategy } from "@/service/strategy";
@@ -42,6 +43,10 @@ export default function BacktestPage() {
 	}, [params]);
 
 	const [isRunning, setIsRunning] = useState<boolean>(false); // 是否正在回测
+	const [activeTab, setActiveTab] = useState<string | undefined>(undefined); // 当前选中的tab
+	const [isDashboardExpanded, setIsDashboardExpanded] = useState<boolean>(false); // dashboard是否处于展开状态
+	const [lastActiveTab, setLastActiveTab] = useState<string | null>(null); // 记录折叠前选择的tab
+	const dashboardPanelRef = useRef<ImperativePanelHandle>(null); // dashboard面板引用
 	const isValidStrategyId = strategyId !== null;
 
 	// 监听策略SSE
@@ -136,6 +141,40 @@ export default function BacktestPage() {
 		playOne(strategyId);
 	};
 
+	// 处理Panel大小变化
+	const handlePanelResize = (sizes: number[]) => {
+		const dashboardSize = sizes[1]; // 第二个panel是dashboard
+		const threshold = 8; // 阈值：当dashboard大小超过8%时激活第一个tab
+		const expandedThreshold = 5; // 判断是否为展开状态的阈值
+		
+		// 更新展开状态
+		setIsDashboardExpanded(dashboardSize > expandedThreshold);
+		
+		if (dashboardSize > threshold && !activeTab) {
+			// 当展开时，恢复之前的tab或默认选择第一个
+			const tabToActivate = lastActiveTab || "profit";
+			setActiveTab(tabToActivate);
+		} else if (dashboardSize <= threshold && activeTab) {
+			// 折叠时，记录当前选中的tab并取消选择
+			setLastActiveTab(activeTab);
+			setActiveTab(undefined);
+		}
+	};
+
+	// 处理tab切换
+	const handleTabChange = (value: string) => {
+		setActiveTab(value);
+		// 更新lastActiveTab记录
+		setLastActiveTab(value);
+		
+		// 只有当dashboard处于未展开状态时，点击tab才需要设置高度
+		if (!isDashboardExpanded && dashboardPanelRef.current) {
+			const minExpandedSize = 50; // 展开后的最小尺寸
+			dashboardPanelRef.current.resize(minExpandedSize);
+			setIsDashboardExpanded(true); // 手动设置为展开状态
+		}
+	};
+
 	return (
 		<div className="h-screen flex flex-col overflow-hidden bg-gray-100">
 			<BacktestWindowHeader
@@ -145,20 +184,32 @@ export default function BacktestPage() {
 
 			{/* 回测窗口内容 */}
 			<div className="flex flex-col h-full overflow-hidden">
-				<div className="flex-1 overflow-hidden m-2 rounded-lg border border-border shadow-md bg-white">
-					<ChartContainer
-						strategyChartConfig={chartConfig}
-						strategyId={strategyId}
-					/>
-				</div>
-				<div className="flex items-center p-2 bg-white border-t">
-					<StrategyDashboard
-						isRunning={isRunning}
-						onPlay={onPlay}
-						onPlayOne={onPlayOne}
-						onPause={onPause}
-						onStop={onStop}
-					/>
+				<div className="m-2 mb-0 flex-1">
+					<PanelGroup direction="vertical" className="h-full" onLayout={handlePanelResize}>
+					<Panel defaultSize={95} minSize={30}>
+						<div className="h-full rounded-lg border border-border shadow-md bg-white overflow-hidden">
+							<ChartContainer
+								strategyChartConfig={chartConfig}
+								strategyId={strategyId}
+							/>
+						</div>
+					</Panel>
+					<PanelResizeHandle className="h-1 hover:bg-gray-400" />
+					<Panel defaultSize={4.7} minSize={4.7} ref={dashboardPanelRef}>
+						<div className="h-full bg-white border-l border-t border-r border-border rounded-t-lg shadow-md flex flex-col overflow-hidden">
+							<StrategyDashboard
+								isRunning={isRunning}
+								onPlay={onPlay}
+								onPlayOne={onPlayOne}
+								onPause={onPause}
+								onStop={onStop}
+								activeTab={activeTab}
+								onTabChange={handleTabChange}
+								isDashboardExpanded={isDashboardExpanded}
+							/>
+						</div>
+					</Panel>
+					</PanelGroup>
 				</div>
 			</div>
 		</div>
