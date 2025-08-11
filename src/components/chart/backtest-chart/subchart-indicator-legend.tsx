@@ -21,7 +21,7 @@ export function SubchartIndicatorLegend({
 	const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(
 		null,
 	);
-	const { getSubChartPaneRef, getChartRef, getPaneVersion } = useBacktestChartStore(chartId);
+	const { getSubChartPaneRef, getChartRef, getPaneVersion, getSubChartPaneHtmlElementRef, subChartPaneHtmlElementRef } = useBacktestChartStore(chartId);
 
 	// 🔑 获取当前的 pane 版本号，用于监听 pane 变化
 	const paneVersion = getPaneVersion();
@@ -56,6 +56,7 @@ export function SubchartIndicatorLegend({
 	useEffect(() => {
 		// 当pane被删除时版本号会变化，触发重新创建容器
 		void paneVersion; // 引用paneVersion以消除ESLint警告
+		void subChartPaneHtmlElementRef; // 引用subChartPaneHtmlElementRef以消除ESLint警告
 
 		const createPortalContainer = () => {
 			const paneRef = getSubChartPaneRef(indicatorKeyStr);
@@ -67,7 +68,8 @@ export function SubchartIndicatorLegend({
 			}
 
 			setTimeout(() => {
-				const htmlElement = paneRef.getHTMLElement();
+				// console.log("subChartPaneHtmlElementRef", subChartPaneHtmlElementRef);
+				const htmlElement = getSubChartPaneHtmlElementRef(indicatorKeyStr);
 				if (!htmlElement) {
 					console.warn(`无法获取子图 HTML 元素: ${indicatorKeyStr}`);
 					return;
@@ -103,7 +105,7 @@ export function SubchartIndicatorLegend({
 				}
 
 				setPortalContainer(container);
-			}, 0);
+			}, 100);
 		};
 
 		createPortalContainer();
@@ -120,7 +122,7 @@ export function SubchartIndicatorLegend({
 			});
 		};
 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [indicatorKeyStr, getSubChartPaneRef, paneVersion]); // 依赖 paneVersion，当 pane 被删除时会重新创建容器
+	}, [indicatorKeyStr, getSubChartPaneRef, paneVersion, getSubChartPaneHtmlElementRef, subChartPaneHtmlElementRef]); // 依赖 paneVersion，当 pane 被删除时会重新创建容器
 
 	// 🔑 使用 Portal 渲染，简单直接
 	if (!portalContainer || !legendData) {

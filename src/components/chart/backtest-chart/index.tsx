@@ -4,7 +4,7 @@ import { useBacktestChart } from "@/hooks/chart";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import { useBacktestChartStore } from "./backtest-chart-store";
 import { chartOptions } from "./chart-config";
-import IndicatorDebugPanel from "./debug/indicator-debug-panel";
+// import IndicatorDebugPanel from "./debug/indicator-debug-panel";
 import { KlineLegend } from "./kline-legend";
 import MainChartIndicatorLegend from "./main-chart-indicator-legend";
 import { SubchartIndicatorLegend } from "./subchart-indicator-legend";

@@ -53,6 +53,10 @@ interface BacktestChartStore {
 	>;
 	orderMarkerSeriesRef: ISeriesMarkersPluginApi<Time> | null;
 	subChartPaneRef: Record<IndicatorKeyStr, IPaneApi<Time> | null>;
+	subChartPaneHtmlElementRef: Record<IndicatorKeyStr, HTMLElement | null>;
+	addSubChartPaneHtmlElementRef: (indicatorKeyStr: IndicatorKeyStr, htmlElement: HTMLElement) => void;
+	getSubChartPaneHtmlElementRef: (indicatorKeyStr: IndicatorKeyStr) => HTMLElement | null;
+
 
 	// === Pane 版本号，用于强制重新渲染 legend ===
 	paneVersion: number;
@@ -226,7 +230,9 @@ const createBacktestChartStore = (
 		indicatorSeriesRef: {},
 		orderMarkerSeriesRef: null,
 		subChartPaneRef: {},
-
+		subChartPaneHtmlElementRef: {},
+		addSubChartPaneHtmlElementRef: (indicatorKeyStr: IndicatorKeyStr, htmlElement: HTMLElement) => set({ subChartPaneHtmlElementRef: { ...get().subChartPaneHtmlElementRef, [indicatorKeyStr]: htmlElement } }),
+		getSubChartPaneHtmlElementRef: (indicatorKeyStr: IndicatorKeyStr) => get().subChartPaneHtmlElementRef[indicatorKeyStr] || null,
 		// === Pane 版本号初始化 ===
 		paneVersion: 0,
 

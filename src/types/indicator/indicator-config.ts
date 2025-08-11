@@ -92,9 +92,8 @@ export interface IndicatorConfig<
 export function parseKeyStrToMap(keyStr: string): Map<string, string> {
 	const paramStr = keyStr.match(/\((.*?)\)/)?.[1] || "";
 	const params = new Map<string, string>();
-
+	// 无参数时返回空Map
 	if (!paramStr) {
-		console.warn("未找到参数字符串");
 		return params;
 	}
 

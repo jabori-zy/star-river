@@ -70,6 +70,8 @@ export const useBacktestChart = ({
 		deleteKlineSeriesRef,
 		incrementPaneVersion,
 		setOrderMarkerSeriesRef,
+		addSubChartPaneHtmlElementRef,
+		getSubChartPaneHtmlElementRef,
 	} = useBacktestChartStore(chartConfig.id, chartConfig);
 
 	// 使用状态追踪初始化状态，而不是 ref
@@ -284,6 +286,12 @@ export const useBacktestChart = ({
 					if (!subChartPane) {
 						const newPane = chart.addPane(false);
 						setSubChartPaneRef(config.indicatorKeyStr, newPane);
+						setTimeout(() => {
+							const htmlElement = newPane.getHTMLElement();
+							if (htmlElement) {
+								addSubChartPaneHtmlElementRef(config.indicatorKeyStr, htmlElement);
+							}
+						}, 10);
 						// 创建子图指标
 						config.seriesConfigs.forEach((seriesConfig) => {
 							const subChartIndicatorSeries = addIndicatorSeries(
@@ -353,6 +361,11 @@ export const useBacktestChart = ({
 
 					// 使用 setTimeout 延迟获取 HTML 元素，因为 pane 还没有完全实例化
 					setTimeout(() => {
+						const htmlElement = subChartPane.getHTMLElement();
+						if (htmlElement) {
+							console.log("htmlElement", htmlElement);
+							addSubChartPaneHtmlElementRef(config.indicatorKeyStr, htmlElement);
+						}
 					}, 100);
 
 					// 创建子图指标
@@ -373,7 +386,7 @@ export const useBacktestChart = ({
 				}
 			});
 		},
-		[setIndicatorSeriesRef, setSubChartPaneRef],
+		[setIndicatorSeriesRef, setSubChartPaneRef, addSubChartPaneHtmlElementRef],
 	);
 
 	useEffect(() => {

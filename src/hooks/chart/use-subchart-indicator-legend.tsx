@@ -170,7 +170,7 @@ export function useSubchartIndicatorLegend({
 					rootRef.current = root;
 
 					console.log(`成功创建子图 legend 容器: ${indicatorKeyStr}`);
-				}, 0);
+				}, 100);
 			} catch (error) {
 				console.error(`添加子图指标 legend 失败: ${indicatorKeyStr}`, error);
 			}
