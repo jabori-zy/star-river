@@ -152,17 +152,22 @@ export const useBacktestChart = ({
 
 						// 🔑 关键修复：更新所有受影响的paneRef
 						// 当删除一个pane后，后续pane的索引会自动减1，需要更新对应的paneRef
+						const updatedPanes = chart.panes();
 						allSubChartConfigs.forEach((subConfig) => {
 							if (subConfig.indicatorKeyStr !== config.indicatorKeyStr) {
 								const currentPaneRef = getSubChartPaneRef(subConfig.indicatorKeyStr);
 								if (currentPaneRef && currentPaneRef.paneIndex() >= removedPaneIndex) {
 									// 重新获取更新后的pane引用
-									const updatedPanes = chart.panes();
 									const newPaneIndex = currentPaneRef.paneIndex();
-									if (updatedPanes[newPaneIndex]) {
-										// 更新store中的paneRef为新的pane对象
-										setSubChartPaneRef(subConfig.indicatorKeyStr, updatedPanes[newPaneIndex]);
+									const newPane = updatedPanes[newPaneIndex];
+									if (newPane) {
+										const newHtmlElement = newPane.getHTMLElement();
+										if (newHtmlElement) {
+											addSubChartPaneHtmlElementRef(subConfig.indicatorKeyStr, newHtmlElement);
+										}
+										setSubChartPaneRef(subConfig.indicatorKeyStr, newPane);
 									}
+									
 								}
 							}
 						});
@@ -331,6 +336,7 @@ export const useBacktestChart = ({
 		setSubChartPaneRef,
 		getIndicatorData,
 		subscribe,
+		addSubChartPaneHtmlElementRef
 	]);
 
 	// 创建指标系列
