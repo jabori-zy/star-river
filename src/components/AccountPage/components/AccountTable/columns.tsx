@@ -21,6 +21,12 @@ import {
 } from "@/components/ui/tooltip";
 import { deleteAccountConfig, startMt5Terminal } from "@/service/account";
 import type { BinanceAccount, MT5Account, OKXAccount } from "@/types/account";
+import {
+	getTerminalStatus,
+	getTerminalStatusStyle,
+	getEAStatus,
+	getEAStatusStyle,
+} from "@/types/order/virtual-order";
 import { DragHandle } from "./DragHandle";
 
 // 格式化日期时间
@@ -69,46 +75,6 @@ function AccountAvaliableSwitch({
 	);
 }
 
-// 终端状态
-const getTerminalStatus = (status: string) => {
-	switch (status) {
-		case "connected":
-			return "已连接";
-		case "disconnected":
-			return "未连接";
-	}
-};
-
-const getTerminalStatusStyle = (status: string) => {
-	switch (status) {
-		case "connected":
-			return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
-		case "disconnected":
-			return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
-		case "connecting":
-			return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300";
-	}
-};
-
-// EA状态样式
-const getEAStatusStyle = (status: string) => {
-	switch (status) {
-		case "open":
-			return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
-		case "close":
-			return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
-	}
-};
-
-// 交易状态文本
-const getEAStatus = (status: string) => {
-	switch (status) {
-		case "open":
-			return "已开启";
-		case "close":
-			return "已关闭";
-	}
-};
 
 // Metatrader5账户列定义
 export const mt5Columns: ColumnDef<MT5Account>[] = [
