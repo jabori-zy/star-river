@@ -77,27 +77,28 @@ const BacktestInfoTabs: React.FC<BacktestInfoTabsProps> = ({
 	return (
 		<Tabs value={activeTab} onValueChange={onTabChange} className="w-full h-full flex flex-col">
 			{/* 固定在顶部的头部 */}
-			<div className={`flex items-center p-2 bg-white shrink-0 ${isDashboardExpanded ? 'border-b' : ''}`}>
-				{/* 左侧：Tab组件 */}
-				<TabsList className="grid grid-cols-4 mr-auto gap-2">
-					<TabsTrigger value="profit" className="flex items-center gap-1">
-						<TrendingUp className="h-4 w-4" />
-						<span className="hidden sm:inline">收益曲线</span>
-					</TabsTrigger>
-					<TabsTrigger value="positions" className="flex items-center gap-1">
-						<Package className="h-4 w-4" />
-						<span className="hidden sm:inline">仓位</span>
-					</TabsTrigger>
-					<TabsTrigger value="orders" className="flex items-center gap-1">
-						<FileText className="h-4 w-4" />
-						<span className="hidden sm:inline">订单记录</span>
-					</TabsTrigger>
-					<TabsTrigger value="trades" className="flex items-center gap-1">
-						<CheckCircle className="h-4 w-4" />
-						<span className="hidden sm:inline">成交记录</span>
-					</TabsTrigger>
-					
-				</TabsList>
+			<div className={`flex items-center p-2 bg-white shrink-0 gap-2 ${isDashboardExpanded ? 'border-b' : ''}`}>
+				{/* 左侧：Tab组件 - 确保最小宽度 */}
+				<div className="flex-shrink-0 min-w-0">
+					<TabsList className="grid grid-cols-4 gap-1">
+						<TabsTrigger value="profit" className="flex items-center gap-1 px-2 py-1">
+							<TrendingUp className="h-4 w-4 flex-shrink-0" />
+							<span className="hidden md:inline text-xs">收益曲线</span>
+						</TabsTrigger>
+						<TabsTrigger value="positions" className="flex items-center gap-1 px-2 py-1">
+							<Package className="h-4 w-4 flex-shrink-0" />
+							<span className="hidden md:inline text-xs">仓位</span>
+						</TabsTrigger>
+						<TabsTrigger value="orders" className="flex items-center gap-1 px-2 py-1">
+							<FileText className="h-4 w-4 flex-shrink-0" />
+							<span className="hidden md:inline text-xs">订单记录</span>
+						</TabsTrigger>
+						<TabsTrigger value="trades" className="flex items-center gap-1 px-2 py-1">
+							<CheckCircle className="h-4 w-4 flex-shrink-0" />
+							<span className="hidden md:inline text-xs">成交记录</span>
+						</TabsTrigger>
+					</TabsList>
+				</div>
 				
 				{/* 中央：播放控制组件 */}
 				<div className="flex-1 flex justify-center">
@@ -110,14 +111,16 @@ const BacktestInfoTabs: React.FC<BacktestInfoTabsProps> = ({
 					/>
 				</div>
 				
-				{/* 右侧：图表管理组件 */}
-				<ChartManageButton
-					onAddChart={addChart}
-					saveChartConfig={saveChartConfig}
-					isSaving={isSaving}
-					strategyChartConfig={chartConfig}
-					updateLayout={updateLayout}
-				/>
+				{/* 右侧：图表管理组件 - 不收缩 */}
+				<div className="flex-shrink-0 ml-auto">
+					<ChartManageButton
+						onAddChart={addChart}
+						saveChartConfig={saveChartConfig}
+						isSaving={isSaving}
+						strategyChartConfig={chartConfig}
+						updateLayout={updateLayout}
+					/>
+				</div>
 			</div>
 			
 			{/* 可滚动的内容区域 */}
