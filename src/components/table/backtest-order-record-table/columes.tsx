@@ -9,27 +9,17 @@ export const virtualOrderColumns: ColumnDef<VirtualOrder>[] = [
 	{
 		accessorKey: "orderId",
 		header: "订单ID",
-		size: 120,
+		size: 80,
 		cell: ({ row }) => (
-			<div className="text-left truncate font-mono text-xs" title={row.getValue("orderId")}>
+			<div className="text-left truncate font-mono text-xs pl-2" title={row.getValue("orderId")}>
 				{row.getValue("orderId")}
 			</div>
 		),
 	},
-	// {
-	// 	accessorKey: "strategyId",
-	// 	header: "策略ID",
-	// 	size: 120,
-	// 	cell: ({ row }) => (
-	// 		<div className="truncate font-mono text-xs" title={row.getValue("strategyId")}>
-	// 			{row.getValue("strategyId")}
-	// 		</div>
-	// 	),
-	// },
 	{
 		accessorKey: "nodeId",
 		header: "节点ID",
-		size: 100,
+		size: 140,
 		cell: ({ row }) => (
 			<div className="text-left truncate font-mono text-xs" title={row.getValue("nodeId")}>
 				{row.getValue("nodeId")}
@@ -38,16 +28,14 @@ export const virtualOrderColumns: ColumnDef<VirtualOrder>[] = [
 	},
 	{
 		accessorKey: "exchange",
-		header: () => (
-			<div className="text-left">交易所</div>
-		),
-		size: 80,
+		header: "交易所",
+		size: 140,
 		cell: ({ row }) => {
 			const exchange = row.getValue("exchange") as string;
 			return (
-				<div className="flex justify-left">
-					<Badge variant="outline" className="text-xs">{exchange}</Badge>
-				</div>
+				
+				<Badge variant="outline" className="text-xs justify-start font-mono overflow-hidden text-ellipsis whitespace-nowrap max-w-full" title={exchange}>{exchange}</Badge>
+				
 			);
 		},
 	},
@@ -63,15 +51,13 @@ export const virtualOrderColumns: ColumnDef<VirtualOrder>[] = [
 	},
 	{
 		accessorKey: "orderSide",
-		header: () => (
-			<div className="text-left">方向</div>
-		),
+		header: "方向",
 		size: 80,
 		cell: ({ row }) => {
 			const side = row.getValue("orderSide") as string;
 			return (
 				<div className="flex justify-start">
-					<Badge className={`${getOrderSideStyle(side)} font-mono text-xs`}>
+					<Badge className={`${getOrderSideStyle(side)} font-mono text-xs overflow-hidden text-ellipsis whitespace-nowrap max-w-full`} title={getOrderSideText(side)}>
 						{getOrderSideText(side)}
 					</Badge>
 				</div>
@@ -80,30 +66,26 @@ export const virtualOrderColumns: ColumnDef<VirtualOrder>[] = [
 	},
 	{
 		accessorKey: "orderType",
-		header: () => (
-			<div className="text-center">类型</div>
-		),
+		header: "类型",
 		size: 90,
 		cell: ({ row }) => {
 			const type = row.getValue("orderType") as string;
 			return (
 				<div className="flex justify-start">
-					<Badge variant="outline" className="text-xs">{getOrderTypeText(type)}</Badge>
+					<Badge variant="outline" className="text-xs overflow-hidden text-ellipsis whitespace-nowrap max-w-full" title={getOrderTypeText(type)}>{getOrderTypeText(type)}</Badge>
 				</div>
 			);
 		},
 	},
 	{
 		accessorKey: "orderStatus",
-		header: () => (
-			<div className="text-center">状态</div>
-		),
+		header: "状态",
 		size: 80,
 		cell: ({ row }) => {
 			const status = row.getValue("orderStatus") as string;
 			return (
 				<div className="flex justify-start">
-					<Badge className={`${getOrderStatusStyle(status)} text-xs px-2`}>
+					<Badge className={`${getOrderStatusStyle(status)} text-xs px-2 overflow-hidden text-ellipsis whitespace-nowrap max-w-full`} title={getOrderStatusText(status)}>
 						{getOrderStatusText(status)}
 					</Badge>
 				</div>
@@ -112,14 +94,12 @@ export const virtualOrderColumns: ColumnDef<VirtualOrder>[] = [
 	},
 	{
 		accessorKey: "quantity",
-		header: () => (
-			<div className="text-left">数量</div>
-		),
+		header: "数量",
 		size: 90,
 		cell: ({ row }) => {
 			const quantity = row.getValue("quantity") as number;
 			return (
-				<div className="text-left font-mono text-sm">
+				<div className="text-left font-mono text-sm pl-2">
 					{quantity.toLocaleString("zh-CN")}
 				</div>
 			);
@@ -127,15 +107,13 @@ export const virtualOrderColumns: ColumnDef<VirtualOrder>[] = [
 	},
 	{
 		accessorKey: "openPrice",
-		header: () => (
-			<div className="text-left">开仓价</div>
-		),
+		header: "开仓价",
 		size: 110,
 		cell: ({ row }) => {
 			const price = row.getValue("openPrice") as number;
 			const formatted = new Intl.NumberFormat("zh-CN", {
-				style: "currency",
-				currency: "USD",
+				// style: "currency",
+				// currency: "USD",
 				minimumFractionDigits: 2,
 				maximumFractionDigits: 4,
 			}).format(price);
@@ -148,9 +126,7 @@ export const virtualOrderColumns: ColumnDef<VirtualOrder>[] = [
 	},
 	{
 		accessorKey: "tp",
-		header: () => (
-			<div className="text-left">止盈</div>
-		),
+		header: "止盈",
 		size: 100,
 		cell: ({ row }) => {
 			const tp = row.getValue("tp") as number | null;
@@ -158,8 +134,8 @@ export const virtualOrderColumns: ColumnDef<VirtualOrder>[] = [
 				return <div className="text-center text-gray-400 text-sm">-</div>;
 			}
 			const formatted = new Intl.NumberFormat("zh-CN", {
-				style: "currency",
-				currency: "USD",
+				// style: "currency",
+				// currency: "USD",
 				minimumFractionDigits: 2,
 				maximumFractionDigits: 4,
 			}).format(tp);
@@ -172,9 +148,7 @@ export const virtualOrderColumns: ColumnDef<VirtualOrder>[] = [
 	},
 	{
 		accessorKey: "sl",
-		header: () => (
-			<div className="text-left">止损</div>
-		),
+		header: "止损",
 		size: 100,
 		cell: ({ row }) => {
 			const sl = row.getValue("sl") as number | null;
@@ -182,8 +156,8 @@ export const virtualOrderColumns: ColumnDef<VirtualOrder>[] = [
 				return <div className="text-center text-gray-400 text-sm">-</div>;
 			}
 			const formatted = new Intl.NumberFormat("zh-CN", {
-				style: "currency",
-				currency: "USD",
+				// style: "currency",
+				// currency: "USD",
 				minimumFractionDigits: 2,
 				maximumFractionDigits: 4,
 			}).format(sl);
