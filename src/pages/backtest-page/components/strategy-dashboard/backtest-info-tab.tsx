@@ -161,7 +161,7 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 			</div>
 			
 			{/* 可滚动的内容区域 */}
-			<div className="flex-1 overflow-y-auto">
+			<div className="flex-1 overflow-y-auto" style={{ scrollbarGutter: 'stable' }}>
 				<TabsContent value="profit" className="mt-4 mx-4">
 					<ProfitCurvePanel />
 				</TabsContent>
