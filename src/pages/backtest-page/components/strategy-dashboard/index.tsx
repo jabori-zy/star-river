@@ -45,7 +45,7 @@ const StrategyDashboard = forwardRef<StrategyDashboardRef, StrategyDashboardProp
 	// 使用store中的状态和方法
 	const { chartConfig, isSaving, updateLayout, addChart, saveChartConfig } = useBacktestChartConfigStore();
 	return (
-		<div className="flex flex-col">
+		<div className="flex flex-col h-full pb-4">
 				<BacktestInfoTabs 
 					ref={backtestInfoTabsRef}
 					strategyId={strategyId}

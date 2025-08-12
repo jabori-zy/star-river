@@ -202,7 +202,7 @@ export default function BacktestPage() {
 			/>
 
 			{/* 回测窗口内容 */}
-			<div className="flex flex-col h-full">
+			<div className="flex flex-col h-full overflow-hidden">
 				<div className="m-2 mb-0 flex-1">
 					<PanelGroup direction="vertical" className="h-full" onLayout={handlePanelResize}>
 					<Panel defaultSize={80} minSize={30}>
