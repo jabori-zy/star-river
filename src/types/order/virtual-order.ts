@@ -2,7 +2,7 @@ import type { Exchange } from "@/types/market";
 import type { FuturesOrderSide, OrderStatus, OrderType } from "./index";
 
 export type VirtualOrder = {
-	orderId: string; // 订单ID
+	orderId: number; // 订单ID
 
 	strategyId: string; // 策略ID
 

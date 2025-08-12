@@ -4,7 +4,7 @@ import { useBacktestKlineDataStore } from "@/store/backtest-replay-store/use-bac
 import { useBacktestOrderDataStore } from "@/store/backtest-replay-store/use-backtest-order-store";
 import type {
 	BacktestStrategyEvent,
-	FuturesOrderFilledEvent,
+	FuturesOrderEvent,
 	indicatorUpdateEvent,
 	klineUpdateEvent,
 } from "@/types/strategy-event/backtest-strategy-event";
@@ -64,7 +64,7 @@ const useBacktestStrategyEventSSE = (enabled: boolean = true) => {
 						addIndicatorData(cacheKeyStr, data);
 					}
 					if (eventName === "futures-order-filled") {
-						const data = (strategyEvent as FuturesOrderFilledEvent)
+						const data = (strategyEvent as FuturesOrderEvent)
 							.futuresOrder;
 						addSingleOrder(data.exchange, data.symbol, data);
 					}

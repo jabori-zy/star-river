@@ -4,7 +4,7 @@ import type { Kline } from "@/types/kline";
 import type { VirtualOrder } from "@/types/order/virtual-order";
 import type {
 	BacktestStrategyEvent,
-	FuturesOrderFilledEvent,
+	FuturesOrderEvent,
 	indicatorUpdateEvent,
 	klineUpdateEvent,
 } from "@/types/strategy-event/backtest-strategy-event";
@@ -31,7 +31,7 @@ class BacktestStrategyDataObservableService {
 	private destroy$ = new Subject<void>();
 	private klineDataSubject = new Subject<klineUpdateEvent>();
 	private indicatorDataSubject = new Subject<indicatorUpdateEvent>();
-	private orderDataSubject = new Subject<FuturesOrderFilledEvent>();
+	private orderDataSubject = new Subject<FuturesOrderEvent>();
 
 	/**
 	 * 获取连接状态Observable
@@ -141,7 +141,7 @@ class BacktestStrategyDataObservableService {
 	 */
 	createOrderStream(
 		enabled: boolean = true,
-	): Observable<FuturesOrderFilledEvent> {
+	): Observable<FuturesOrderEvent> {
 		if (!enabled) {
 			this.disconnect();
 			return new Observable((subscriber) => {
@@ -248,8 +248,8 @@ class BacktestStrategyDataObservableService {
 			}
 
 			// 处理订单成交事件
-			if (strategyEvent.event === "futures-order-filled") {
-				const orderEvent = strategyEvent as FuturesOrderFilledEvent;
+			if (strategyEvent.event === "futures-order-filled" || strategyEvent.event === "futures-order-created") {
+				const orderEvent = strategyEvent as FuturesOrderEvent;
 
 				// console.log("发送订单数据到Observable流:", orderEvent);
 				this.orderDataSubject.next(orderEvent);

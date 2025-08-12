@@ -23,7 +23,6 @@ import type { Kline } from "@/types/kline";
 import type { IndicatorKeyStr, KeyStr, KlineKeyStr } from "@/types/symbol-key";
 import { parseKey } from "@/utils/parse-key";
 import type { VirtualOrder } from "@/types/order";
-import dayjs from "dayjs";
 import { getVirtualOrder } from "@/service/backtest-strategy"
 import { virtualOrderToMarker } from "./utls";
 

@@ -22,7 +22,7 @@ export type LiveStrategyEvent = {
 export type BacktestStrategyEvent =
 	| klineUpdateEvent
 	| indicatorUpdateEvent
-	| FuturesOrderFilledEvent;
+	| FuturesOrderEvent;
 
 export type BaseEventProps = {
 	channel: string;
@@ -45,6 +45,6 @@ export type indicatorUpdateEvent = BaseEventProps & {
 	indicatorSeries: Record<string, number>[];
 };
 
-export type FuturesOrderFilledEvent = BaseEventProps & {
+export type FuturesOrderEvent = BaseEventProps & {
 	futuresOrder: VirtualOrder;
 };

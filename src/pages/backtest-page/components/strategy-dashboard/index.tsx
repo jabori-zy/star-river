@@ -1,9 +1,11 @@
 import type React from "react";
+import { useRef, useImperativeHandle, forwardRef } from "react";
 
 import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
-import BacktestInfoTabs from "./backtest-info-tab";
+import BacktestInfoTabs, { type BacktestInfoTabsRef } from "./backtest-info-tab";
 
 interface StrategyDashboardProps {
+	strategyId: number;
 	isRunning: boolean;
 	onPlay: () => void;
 	onPlayOne: () => void;
@@ -15,7 +17,12 @@ interface StrategyDashboardProps {
 	isDashboardExpanded?: boolean;
 }
 
-const StrategyDashboard: React.FC<StrategyDashboardProps> = ({
+export interface StrategyDashboardRef {
+	clearOrderRecords: () => void;
+}
+
+const StrategyDashboard = forwardRef<StrategyDashboardRef, StrategyDashboardProps>(({
+	strategyId,
 	isRunning,
 	onPlay,
 	onPlayOne,
@@ -25,12 +32,23 @@ const StrategyDashboard: React.FC<StrategyDashboardProps> = ({
 	onTabChange,
 	onCollapseDashboard,
 	isDashboardExpanded,
-}) => {
+}, ref) => {
+	const backtestInfoTabsRef = useRef<BacktestInfoTabsRef>(null);
+
+	// 暴露清空订单记录的方法
+	useImperativeHandle(ref, () => ({
+		clearOrderRecords: () => {
+			backtestInfoTabsRef.current?.clearOrderRecords();
+		}
+	}), []);
+
 	// 使用store中的状态和方法
 	const { chartConfig, isSaving, updateLayout, addChart, saveChartConfig } = useBacktestChartConfigStore();
 	return (
 		<div className="flex flex-col">
 				<BacktestInfoTabs 
+					ref={backtestInfoTabsRef}
+					strategyId={strategyId}
 					isRunning={isRunning} 
 					onPause={onPause} 
 					onPlay={onPlay} 
@@ -48,6 +66,8 @@ const StrategyDashboard: React.FC<StrategyDashboardProps> = ({
 				/>
 		</div>
 	);
-};
+});
+
+StrategyDashboard.displayName = 'StrategyDashboard';
 
 export default StrategyDashboard;

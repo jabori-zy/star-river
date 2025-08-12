@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useImperativeHandle, forwardRef } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
 	TrendingUp, 
@@ -13,8 +13,10 @@ import ChartManageButton from "./chart-manage-button";
 import type { BacktestStrategyChartConfig } from "@/types/chart/backtest-chart";
 import type { LayoutMode } from "@/types/chart";
 import { Button } from "@/components/ui/button";
+import OrderRecord, { type OrderRecordRef } from "./order-record";
 
 interface BacktestInfoTabsProps {
+	strategyId: number;
 	isRunning: boolean;
 	onPause: () => void;
 	onPlay: () => void;
@@ -29,6 +31,10 @@ interface BacktestInfoTabsProps {
 	onTabChange?: (value: string) => void;
 	onCollapseDashboard?: () => void;
 	isDashboardExpanded?: boolean;
+}
+
+export interface BacktestInfoTabsRef {
+	clearOrderRecords: () => void;
 }
 
 // 临时占位组件
@@ -62,7 +68,8 @@ const PositionPanel = () => (
 	</div>
 );
 
-const BacktestInfoTabs: React.FC<BacktestInfoTabsProps> = ({ 
+const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(({ 
+	strategyId,
 	isRunning, 
 	onPause, 
 	onPlay, 
@@ -77,7 +84,16 @@ const BacktestInfoTabs: React.FC<BacktestInfoTabsProps> = ({
 	onTabChange,
 	onCollapseDashboard,
 	isDashboardExpanded
-}) => {
+}, ref) => {
+	const orderRecordRef = useRef<OrderRecordRef>(null);
+
+	// 暴露清空订单记录的方法
+	useImperativeHandle(ref, () => ({
+		clearOrderRecords: () => {
+			orderRecordRef.current?.clearOrders();
+		}
+	}), []);
+
 	// 处理收起dashboard
 	const handleCollapse = () => {
 		onCollapseDashboard?.(); // 收起dashboard
@@ -151,9 +167,7 @@ const BacktestInfoTabs: React.FC<BacktestInfoTabsProps> = ({
 				</TabsContent>
 				
 				<TabsContent value="orders" className="w-full overflow-hidden">
-					<div className="w-full min-w-0 p-4">
-						<BacktestOrderRecordTable title="订单记录" showTitle={false} />
-					</div>
+					<OrderRecord ref={orderRecordRef} strategyId={strategyId} />
 				</TabsContent>
 				
 				<TabsContent value="trades" className="mt-4 mx-4">
@@ -166,6 +180,8 @@ const BacktestInfoTabs: React.FC<BacktestInfoTabsProps> = ({
 			</div>
 		</Tabs>
 	);
-};
+});
+
+BacktestInfoTabs.displayName = 'BacktestInfoTabs';
 
 export default BacktestInfoTabs;

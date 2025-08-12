@@ -37,7 +37,6 @@ import {
 } from "@/components/ui/table";
 import type { VirtualOrder } from "@/types/order/virtual-order";
 import { virtualOrderColumns } from "./columes";
-import { mockVirtualOrders } from "./mock-data";
 
 interface BacktestOrderRecordTableProps {
 	data?: VirtualOrder[];
@@ -47,7 +46,7 @@ interface BacktestOrderRecordTableProps {
 
 // 交易记录表
 export function BacktestOrderRecordTable({
-	data = mockVirtualOrders,
+	data,
 	title = "交易记录",
 	showTitle = true,
 }: BacktestOrderRecordTableProps) {
@@ -60,7 +59,7 @@ export function BacktestOrderRecordTable({
 	});
 
 	const table = useReactTable({
-		data,
+		data: data || [],
 		columns: virtualOrderColumns,
 		state: {
 			sorting,
@@ -93,7 +92,7 @@ export function BacktestOrderRecordTable({
 					<div className="flex items-center gap-2">
 						<h1 className="text-xl font-semibold">{title}</h1>
 					<div className="text-sm text-muted-foreground">
-						({data.length} 条记录)
+						({data?.length || 0} 条记录)
 					</div>
 					</div>
 				</div>

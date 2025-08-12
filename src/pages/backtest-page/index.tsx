@@ -15,7 +15,7 @@ import {
 import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
 import BacktestWindowHeader from "../../components/backtest/backtest-window-header";
 import useBacktestStrategySSE from "../../hooks/sse/use-backtest-strategy-sse";
-import StrategyDashboard from "./components/strategy-dashboard";
+import StrategyDashboard, { type StrategyDashboardRef } from "./components/strategy-dashboard";
 import ChartContainer from "./components/chart-container";
 import { resetAllBacktestChartStore } from "@/components/chart/backtest-chart/backtest-chart-store";
 
@@ -46,10 +46,11 @@ export default function BacktestPage() {
 	// const [activeTab, setActiveTab] = useState<string | undefined>(undefined); // 当前选中的tab
 	const [isDashboardExpanded, setIsDashboardExpanded] = useState<boolean>(false); // dashboard是否处于展开状态
 	const dashboardPanelRef = useRef<ImperativePanelHandle>(null); // dashboard面板引用
+	const strategyDashboardRef = useRef<StrategyDashboardRef>(null); // 策略面板引用
 	const isValidStrategyId = strategyId !== null;
 
 	// 监听策略SSE
-	useBacktestStrategySSE();
+	// useBacktestStrategySSE();
 
 	// 当URL参数变化时，更新store中的strategyId
 	useEffect(() => {
@@ -133,8 +134,10 @@ export default function BacktestPage() {
 	const onStop = () => {
 		setIsRunning(false);
 		stop(strategyId);
-		resetAllBacktestChartStore();
 		// 注意：现在使用zustand管理状态，不再需要手动清空图表数据
+		resetAllBacktestChartStore();
+		// 清空订单记录
+		strategyDashboardRef.current?.clearOrderRecords();
 	};
 	const onPlayOne = () => {
 		playOne(strategyId);
@@ -220,6 +223,8 @@ export default function BacktestPage() {
 						>
 						<div className="h-full bg-white border-l border-t border-r border-border rounded-t-lg shadow-md flex flex-col overflow-hidden">
 							<StrategyDashboard
+								ref={strategyDashboardRef}
+								strategyId={strategyId}
 								isRunning={isRunning}
 								onPlay={onPlay}
 								onPlayOne={onPlayOne}

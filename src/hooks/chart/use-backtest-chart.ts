@@ -1,5 +1,4 @@
 import type {
-	CandlestickData,
 	ChartOptions,
 	DeepPartial,
 	IChartApi,
@@ -244,7 +243,7 @@ export const useBacktestChart = ({
 					return !config.isDelete
 				},
 			);
-			console.log("indicatorsNeedingData", indicatorsNeedingData);
+			// console.log("indicatorsNeedingData", indicatorsNeedingData);
 			// 并行初始化所有需要数据的指标
 			if (indicatorsNeedingData.length > 0) {
 				await Promise.all(
