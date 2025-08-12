@@ -49,16 +49,15 @@ export default function LayoutControl({
 	const currentOption = layoutOptions.find((option) => option.value === value);
 
 	return (
-		<div className="flex items-center gap-2">
-			<span className="text-sm font-medium whitespace-nowrap">布局:</span>
+		<div className="flex items-center gap-1 xl:gap-2">
 			<Select value={value} onValueChange={onChange} disabled={disabled}>
-				<SelectTrigger className="w-[160px]">
+				<SelectTrigger className="w-[56px] xl:w-[160px] min-w-[56px] px-2">
 					<SelectValue>
-						<div className="flex items-center gap-2">
+						<div className="flex items-center gap-1 xl:gap-2 justify-center xl:justify-start w-full">
 							{currentOption && (
 								<>
-									<currentOption.icon className="h-4 w-4" />
-									<span>{currentOption.label}</span>
+									<currentOption.icon className="h-4 w-4 flex-shrink-0" />
+									<span className="hidden xl:inline whitespace-nowrap">{currentOption.label}</span>
 								</>
 							)}
 						</div>

@@ -41,7 +41,7 @@ const ChartManageButton = ({
 	};
 
 	return (
-		<div className="flex items-center gap-3">
+		<div className="flex items-center gap-1 md:gap-2 lg:gap-3">
 			{showAlert && (
 				<Alert variant="destructive" className="w-auto py-2">
 					<AlertCircle className="h-4 w-4" />
@@ -60,16 +60,16 @@ const ChartManageButton = ({
 				className="flex items-center gap-1"
 				onClick={handleAddChart}
 			>
-				<PlusCircle className="h-4 w-4" />
-				添加图表
+				<PlusCircle className="h-4 w-4 flex-shrink-0" />
+				<span className="hidden lg:inline">添加图表</span>
 			</Button>
 			<Button variant="default" onClick={saveChartConfig} disabled={isSaving}>
 					{isSaving ? (
-						<Loader2 className="w-4 h-4 animate-spin" />
+						<Loader2 className="w-4 h-4 animate-spin flex-shrink-0" />
 					) : (
-						<Save className="w-4 h-4" />
+						<Save className="w-4 h-4 flex-shrink-0" />
 					)}
-					{isSaving ? "保存中..." : "保存图表"}
+					<span className="hidden lg:inline">{isSaving ? "保存中..." : "保存图表"}</span>
 				</Button>
 		</div>
 	);

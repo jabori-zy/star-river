@@ -369,7 +369,6 @@ export const useBacktestChart = ({
 					setTimeout(() => {
 						const htmlElement = subChartPane.getHTMLElement();
 						if (htmlElement) {
-							console.log("htmlElement", htmlElement);
 							addSubChartPaneHtmlElementRef(config.indicatorKeyStr, htmlElement);
 						}
 					}, 100);
