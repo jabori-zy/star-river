@@ -54,7 +54,7 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 			<div
 				ref={chartContainerRef}
 				id="chart-container"
-				className="w-full h-full"
+				className="w-full h-full px-2"
 			/>
 
 			{/* K线图例 */}

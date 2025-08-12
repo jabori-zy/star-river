@@ -12,6 +12,7 @@ interface StrategyDashboardProps {
 	activeTab?: string;
 	onTabChange?: (value: string) => void;
 	isDashboardExpanded?: boolean;
+	onCollapseDashboard?: () => void;
 }
 
 const StrategyDashboard: React.FC<StrategyDashboardProps> = ({
@@ -23,11 +24,12 @@ const StrategyDashboard: React.FC<StrategyDashboardProps> = ({
 	activeTab,
 	onTabChange,
 	isDashboardExpanded,
+	onCollapseDashboard,
 }) => {
 	// 使用store中的状态和方法
 	const { chartConfig, isSaving, updateLayout, addChart, saveChartConfig } = useBacktestChartConfigStore();
 	return (
-		<div className="flex flex-col h-full w-full">
+		<div className="flex flex-col">
 				<BacktestInfoTabs 
 					isRunning={isRunning} 
 					onPause={onPause} 
@@ -42,6 +44,7 @@ const StrategyDashboard: React.FC<StrategyDashboardProps> = ({
 					activeTab={activeTab}
 					onTabChange={onTabChange}
 					isDashboardExpanded={isDashboardExpanded}
+					onCollapseDashboard={onCollapseDashboard}
 				/>
 		</div>
 	);

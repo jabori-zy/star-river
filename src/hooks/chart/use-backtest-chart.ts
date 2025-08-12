@@ -71,7 +71,6 @@ export const useBacktestChart = ({
 		incrementPaneVersion,
 		setOrderMarkerSeriesRef,
 		addSubChartPaneHtmlElementRef,
-		getSubChartPaneHtmlElementRef,
 	} = useBacktestChartStore(chartConfig.id, chartConfig);
 
 	// 使用状态追踪初始化状态，而不是 ref
@@ -619,7 +618,8 @@ export const useBacktestChart = ({
 		resizeObserver.current = new ResizeObserver((entries) => {
 			const { width, height } = entries[0].contentRect;
 			const chart = getChartRef();
-			chart?.applyOptions({ width, height });
+			chart?.resize(width, height-0.5);
+			// chart?.applyOptions({ width: width, height: height-0.5 });
 			// setTimeout(() => {
 			//     chart?.timeScale().fitContent();
 			// }, 0);

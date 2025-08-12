@@ -74,17 +74,7 @@ const ChartCard: React.FC<ChartCardProps> = ({ chartConfig, strategyId }) => {
 					</DropdownMenuContent>
 				</DropdownMenu>
 			</div>
-			<div className="flex-1 w-full h-full bg-gray-50">
-				{/* <StockCharts
-						ref={stockChartsRef}
-						strategyId={strategyId}
-						chartConfig={chartConfig}
-						onDeleteSubChart={onDeleteSubChart}
-					/> */}
-				{/* <BacktestChart
-						strategyId={strategyId}
-						chartId={chartConfig.id}
-					/> */}
+			<div className="flex-1 w-full h-full">
 				<BacktestChart strategyId={strategyId} chartConfig={chartConfig} />
 			</div>
 

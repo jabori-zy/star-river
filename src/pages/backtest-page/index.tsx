@@ -175,6 +175,14 @@ export default function BacktestPage() {
 		}
 	};
 
+	// 处理收起dashboard
+	const handleCollapseDashboard = () => {
+		if (dashboardPanelRef.current) {
+			dashboardPanelRef.current.resize(4.8); // 收起到最小尺寸
+			setIsDashboardExpanded(false);
+		}
+	};
+
 	return (
 		<div className="h-screen flex flex-col overflow-hidden bg-gray-100">
 			<BacktestWindowHeader
@@ -183,7 +191,7 @@ export default function BacktestPage() {
 			/>
 
 			{/* 回测窗口内容 */}
-			<div className="flex flex-col h-full overflow-hidden">
+			<div className="flex flex-col h-full">
 				<div className="m-2 mb-0 flex-1">
 					<PanelGroup direction="vertical" className="h-full" onLayout={handlePanelResize}>
 					<Panel defaultSize={95} minSize={30}>
@@ -195,7 +203,7 @@ export default function BacktestPage() {
 						</div>
 					</Panel>
 					<PanelResizeHandle className="h-1 hover:bg-gray-400" />
-					<Panel defaultSize={4.7} minSize={4.7} ref={dashboardPanelRef}>
+					<Panel defaultSize={4.8} minSize={4.8} ref={dashboardPanelRef}>
 						<div className="h-full bg-white border-l border-t border-r border-border rounded-t-lg shadow-md flex flex-col overflow-hidden">
 							<StrategyDashboard
 								isRunning={isRunning}
@@ -206,6 +214,7 @@ export default function BacktestPage() {
 								activeTab={activeTab}
 								onTabChange={handleTabChange}
 								isDashboardExpanded={isDashboardExpanded}
+								onCollapseDashboard={handleCollapseDashboard}
 							/>
 						</div>
 					</Panel>

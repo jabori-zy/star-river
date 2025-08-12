@@ -4,13 +4,15 @@ import {
 	TrendingUp, 
 	FileText, 
 	CheckCircle, 
-	Package 
+	Package,
+	ChevronDown 
 } from "lucide-react";
 import BacktestOrderRecordTable from "@/components/table/backtest-order-record-table";
 import StrategyControl from "./strategy-control";
 import ChartManageButton from "./chart-manage-button";
 import type { BacktestStrategyChartConfig } from "@/types/chart/backtest-chart";
 import type { LayoutMode } from "@/types/chart";
+import { Button } from "@/components/ui/button";
 
 interface BacktestInfoTabsProps {
 	isRunning: boolean;
@@ -26,6 +28,7 @@ interface BacktestInfoTabsProps {
 	activeTab?: string;
 	onTabChange?: (value: string) => void;
 	isDashboardExpanded?: boolean;
+	onCollapseDashboard?: () => void;
 }
 
 // 临时占位组件
@@ -72,14 +75,21 @@ const BacktestInfoTabs: React.FC<BacktestInfoTabsProps> = ({
 	updateLayout,
 	activeTab,
 	onTabChange,
-	isDashboardExpanded
+	isDashboardExpanded,
+	onCollapseDashboard
 }) => {
+	// 处理收起dashboard
+	const handleCollapse = () => {
+		onTabChange?.(undefined); // 取消所有tab选择
+		onCollapseDashboard?.(); // 收起dashboard
+	};
+
 	return (
 		<Tabs value={activeTab} onValueChange={onTabChange} className="w-full h-full flex flex-col">
 			{/* 固定在顶部的头部 */}
 			<div className={`flex items-center p-2 bg-white shrink-0 gap-2 ${isDashboardExpanded ? 'border-b' : ''}`}>
-				{/* 左侧：Tab组件 - 确保最小宽度 */}
-				<div className="flex-shrink-0 min-w-0">
+				{/* 左侧：Tab组件和收起按钮 */}
+				<div className="flex-shrink-0 min-w-0 flex items-center gap-2">
 					<TabsList className="grid grid-cols-4 gap-1">
 						<TabsTrigger value="profit" className="flex items-center gap-1 px-2 py-1">
 							<TrendingUp className="h-4 w-4 flex-shrink-0" />
@@ -98,6 +108,16 @@ const BacktestInfoTabs: React.FC<BacktestInfoTabsProps> = ({
 							<span className="hidden md:inline text-xs">成交记录</span>
 						</TabsTrigger>
 					</TabsList>
+					
+					{/* 收起按钮 */}
+					<Button
+						variant="ghost"
+						onClick={handleCollapse}
+						className="flex items-center justify-center p-1 rounded-md hover:bg-gray-100 transition-colors"
+						title="收起面板"
+					>
+						<ChevronDown className="h-4 w-4 text-muted-foreground" />
+					</Button>
 				</div>
 				
 				{/* 中央：播放控制组件 */}
