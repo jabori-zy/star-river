@@ -25,6 +25,7 @@ import { parseKey } from "@/utils/parse-key";
 import type { VirtualOrder } from "@/types/order";
 import { getVirtualOrder } from "@/service/backtest-strategy"
 import { virtualOrderToMarker } from "./utls";
+import type { VirtualOrderEvent } from "@/types/strategy-event/backtest-strategy-event";
 
 interface BacktestChartStore {
 	chartId: ChartId;
@@ -395,11 +396,12 @@ const createBacktestChartStore = (
 
 						// 订阅与该k线相关的订单数据流
 						const orderStream = createOrderStreamForSymbol(key.exchange,key.symbol);
-						const orderSubscription = orderStream.subscribe(
-							(orderData: VirtualOrder) => {
-								state.onNewOrder(orderData);
-							},
-						);
+						const orderSubscription = orderStream.subscribe((virtualOrderEvent: VirtualOrderEvent) => {
+							if (virtualOrderEvent.event === "futures-order-filled"){
+								state.onNewOrder(virtualOrderEvent.futuresOrder);
+							}
+							
+						});
 						state._addObserverSubscription(keyStr, orderSubscription);
 					} else if (key.type === "indicator") {
 						const indicatorStream = createIndicatorStreamFromKey(keyStr, true);
@@ -476,11 +478,12 @@ const createBacktestChartStore = (
 
 				// 订阅与该k线相关的订单数据流
 				const orderStream = createOrderStreamForSymbol(key.exchange,key.symbol);
-				const orderSubscription = orderStream.subscribe(
-					(orderData: VirtualOrder) => {
-						state.onNewOrder(orderData);
-					},
-				);
+				const orderSubscription = orderStream.subscribe((virtualOrderEvent: VirtualOrderEvent) => {
+					if (virtualOrderEvent.event === "futures-order-filled"){
+						state.onNewOrder(virtualOrderEvent.futuresOrder);
+					}
+					
+				});
 				state._addObserverSubscription(keyStr, orderSubscription);
 			} 
 			else if (key.type === "indicator") {

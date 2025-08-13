@@ -175,14 +175,14 @@ class BacktestStrategyDataObservableService {
 		exchange: string,
 		symbol: string,
 		enabled: boolean = true,
-	): Observable<VirtualOrder> {
+	): Observable<VirtualOrderEvent> {
 		return this.createOrderStream(enabled).pipe(
 			filter(
 				(event) =>
 					event.futuresOrder.exchange === exchange &&
 					event.futuresOrder.symbol === symbol,
 			),
-			map((event) => event.futuresOrder),
+			// map((event) => event),
 			share(),
 		);
 	}

@@ -19,7 +19,7 @@ export function virtualOrderToMarker(virtualOrder: VirtualOrder): OrderMarker[] 
         position: "belowBar",
         shape: "arrowUp",
         color: "#FF0000",
-        text:`Buy # ${virtualOrder.quantity}`,
+        text:`Buy(${virtualOrder.orderId}) # ${virtualOrder.quantity}`,
     };
 
     // 第二行，用于显示价格
@@ -28,22 +28,22 @@ export function virtualOrderToMarker(virtualOrder: VirtualOrder): OrderMarker[] 
         position: "belowBar",
         shape: "circle",
         color: "#FF0000",
-        text: `@ $${virtualOrder.openPrice}`,
+        text: `@ ${virtualOrder.openPrice}`,
         size: 0,
     };
 
     // 显示节点id
-    const marker3: OrderMarker = {
-        time: timestampInSeconds,
-        position: "belowBar",
-        shape: "circle",
-        color: "#FF0000",
-        text: `$ ${virtualOrder.nodeId}`,
-        size: 0,
-    };
+    // const marker3: OrderMarker = {
+    //     time: timestampInSeconds,
+    //     position: "belowBar",
+    //     shape: "circle",
+    //     color: "#FF0000",
+    //     text: `$ ${virtualOrder.nodeId}`,
+    //     size: 0,
+    // };
 
     markers.push(marker1);
     markers.push(marker2);
-    markers.push(marker3);
+    // markers.push(marker3);
     return markers;
 }
