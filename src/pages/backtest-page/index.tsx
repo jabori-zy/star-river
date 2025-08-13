@@ -198,45 +198,49 @@ export default function BacktestPage() {
 
 	return (
 		<div className="h-screen flex flex-col overflow-hidden bg-gray-100">
-			<BacktestWindowHeader
-				strategyName={`策略 ${strategyId} 回测`}
-				onQuit={handleQuit}
-			/>
+			<div className="flex-shrink-0">
+				<BacktestWindowHeader
+					strategyName={`策略 ${strategyId} 回测`}
+					onQuit={handleQuit}
+				/>
+
+			</div>
+			
 
 			{/* 回测窗口内容 */}
 			<div className="flex flex-col h-full overflow-hidden">
-				<div className="m-2 mb-0 flex-1">
+				<div className="mb-0 flex-1">
 					<PanelGroup direction="vertical" className="h-full" onLayout={handlePanelResize}>
-					<Panel defaultSize={94} minSize={30}>
-						<div className="h-full rounded-lg border border-border shadow-md bg-white overflow-hidden">
-							<ChartContainer
-								strategyChartConfig={chartConfig}
-								strategyId={strategyId}
-							/>
-						</div>
-					</Panel>
+						<Panel defaultSize={94} minSize={30}>
+							<div className="h-full border border-border shadow-md bg-white overflow-hidden">
+								<ChartContainer
+									strategyChartConfig={chartConfig}
+									strategyId={strategyId}
+								/>
+							</div>
+						</Panel>
 					<PanelResizeHandle className="h-1 hover:bg-gray-400" />
-					<Panel 
-						defaultSize={6} 
-						minSize={6} 
-						ref={dashboardPanelRef}
-						collapsedSize={6}
-						collapsible={true}
-						>
-						<div className="h-full bg-white border-l border-t border-r border-border rounded-t-lg shadow-md flex flex-col overflow-hidden">
-							<StrategyDashboard
-								ref={strategyDashboardRef}
-								strategyId={strategyId}
-								isRunning={isRunning}
-								onPlay={onPlay}
-								onPlayOne={onPlayOne}
-								onPause={onPause}
-								onStop={onStop}
-								onCollapseDashboard={handleCollapseDashboard}
-								isDashboardExpanded={isDashboardExpanded}
-							/>
-						</div>
-					</Panel>
+						<Panel 
+							defaultSize={6} 
+							minSize={6} 
+							ref={dashboardPanelRef}
+							collapsedSize={6}
+							collapsible={true}
+							>
+							<div className="h-full bg-white border-l border-t border-r border-border rounded-t-lg shadow-md flex flex-col overflow-hidden">
+								<StrategyDashboard
+									ref={strategyDashboardRef}
+									strategyId={strategyId}
+									isRunning={isRunning}
+									onPlay={onPlay}
+									onPlayOne={onPlayOne}
+									onPause={onPause}
+									onStop={onStop}
+									onCollapseDashboard={handleCollapseDashboard}
+									isDashboardExpanded={isDashboardExpanded}
+								/>
+							</div>
+						</Panel>
 					</PanelGroup>
 				</div>
 			</div>
