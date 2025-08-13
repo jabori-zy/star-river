@@ -46,7 +46,7 @@ export default function BacktestPage() {
 
 	const [isRunning, setIsRunning] = useState<boolean>(false); // 是否正在回测
 	const [activeTab, setActiveTab] = useState<string | undefined>(undefined); // 当前选中的tab
-	const [lastActiveTab, setLastActiveTab] = useState<string | undefined>(undefined); // 上一次选中的tab,默认是profit
+	const [lastActiveTab, setLastActiveTab] = useState<string | undefined>(undefined); // 上一次选中的tab
 	const [isDashboardExpanded, setIsDashboardExpanded] = useState<boolean>(false); // dashboard是否处于展开状态
 	const [expandTrigger, setExpandTrigger] = useState<'tab' | 'drag' | null>(null); // 展开触发方式
 	const dashboardPanelRef = useRef<ImperativePanelHandle>(null); // dashboard面板引用
@@ -80,14 +80,6 @@ export default function BacktestPage() {
 		}
 	}, [strategyId, loadChartConfig]);
 
-	// 监听面板展开状态变化，检测拖拽展开
-	useEffect(() => {
-		if (isDashboardExpanded && expandTrigger === null) {
-			// 面板展开了，但没有触发标识，说明是拖拽展开
-			console.log("检测到拖拽展开");
-			setExpandTrigger('drag');
-		}
-	}, [isDashboardExpanded, expandTrigger]);
 
 	// 窗口大小监控
 	useEffect(() => {
@@ -200,32 +192,34 @@ export default function BacktestPage() {
 		playOne(strategyId);
 	};
 
-	// 处理Panel大小变化
-	const handlePanelResize = (_sizes: number[]) => {
+	// 处理面板展开
+	const handlePanelExpand = () => {
+		setIsDashboardExpanded(true);
 		
-		if (dashboardPanelRef.current) {
-			const isExpanded = dashboardPanelRef.current.isExpanded();
-			if (isExpanded) {
-				setIsDashboardExpanded(true);
-				
-				// 只有在拖拽展开时才恢复lastActiveTab
-				if (expandTrigger === 'drag' && lastActiveTab) {
-					setActiveTab(lastActiveTab);
-					console.log("拖拽展开，恢复到:", lastActiveTab);
-				}
-				// 重置触发标识
-				setExpandTrigger(null);
-			} else {
-				setIsDashboardExpanded(false);
-				setActiveTab(undefined);
-				setExpandTrigger(null); // 重置触发标识
-			}
+		// 如果没有触发标识（拖拽展开）且有上次的tab，则恢复
+		if (expandTrigger === "drag" && lastActiveTab) {
+			setActiveTab(lastActiveTab);
 		}
+
+		if (expandTrigger === "drag" && !lastActiveTab) {
+			setActiveTab("profit");
+		}
+		
+		// 重置触发标识
+		setExpandTrigger(null);
+	};
+
+	// 处理面板折叠
+	const handleOnPanelCollapse = () => {
+		setIsDashboardExpanded(false);
+		setLastActiveTab(activeTab);
+		setActiveTab(undefined);
+		setExpandTrigger(null);
+		
 	};
 
 	// 处理tab切换
 	const handleTabChange = (value: string) => {
-		console.log("点击tab:", value);
 		setActiveTab(value); // 设置当前选中的tab
 		
 		// 只有当dashboard处于未展开状态时，点击tab才需要展开
@@ -233,19 +227,21 @@ export default function BacktestPage() {
 			setExpandTrigger('tab'); // 标记为tab触发的展开
 			const minExpandedSize = 50; // 展开后的最小尺寸
 			dashboardPanelRef.current.resize(minExpandedSize);
-			console.log("tab触发展开面板:", value);
+		}
+		// 重置触发标识
+		setExpandTrigger(null);
+	};
+
+	// 处理点击折叠按钮
+	const handleCollapsePanel = () => {
+		if (dashboardPanelRef.current) {
+			setLastActiveTab(activeTab); // 在折叠前保存当前tab
+			dashboardPanelRef.current.collapse(); // 收起到最小尺寸，会触发onCollapse回调
 		}
 	};
 
-	// 处理收起dashboard
-	const handleCollapseDashboard = () => {
-		if (dashboardPanelRef.current) {
-			dashboardPanelRef.current.collapse(); // 收起到最小尺寸
-			setIsDashboardExpanded(false);
-			setLastActiveTab(activeTab);
-			setActiveTab(undefined); // 清除tab选择状态
-		}
-	};
+	const handlePanelPointerUp = () => setExpandTrigger(null);
+	const handlePanelPointerDown = () => setExpandTrigger("drag");
 
 	
 
@@ -264,7 +260,7 @@ export default function BacktestPage() {
 
 			{/* 回测窗口内容 */}
 			<div className="flex-1 flex flex-col overflow-hidden">
-				<PanelGroup direction="vertical" className="flex-1" onLayout={handlePanelResize}>
+				<PanelGroup direction="vertical" className="flex-1">
 					<Panel defaultSize={100 - dashboardDefaultSize} minSize={30} ref={chartContainerPanelRef}>
 						<div className="h-full  bg-white overflow-hidden">
 							<ChartContainer
@@ -273,13 +269,19 @@ export default function BacktestPage() {
 							/>
 						</div>
 					</Panel>
-					<PanelResizeHandle className="h-1 hover:bg-gray-400" />
+					<PanelResizeHandle 
+						className="h-1 hover:bg-gray-400"
+						onPointerUp={handlePanelPointerUp}
+						onPointerDown={handlePanelPointerDown}
+						 />
 					<Panel
 						defaultSize={dashboardDefaultSize}
 						minSize={dashboardMinSize} 
 						ref={dashboardPanelRef}
 						collapsedSize={dashboardCollapsedSize}
 						collapsible={true}
+						onExpand={handlePanelExpand}
+						onCollapse={handleOnPanelCollapse}
 						>
 						<div className="h-full bg-white border-l border-t border-r border-border shadow-md flex flex-col overflow-hidden">
 							<StrategyDashboard
@@ -290,7 +292,7 @@ export default function BacktestPage() {
 								onPlayOne={onPlayOne}
 								onPause={onPause}
 								onStop={onStop}
-								onCollapseDashboard={handleCollapseDashboard}
+								onCollapsePanel={handleCollapsePanel}
 								onTabChange={handleTabChange}
 								activeTab={activeTab}
 								isDashboardExpanded={isDashboardExpanded}

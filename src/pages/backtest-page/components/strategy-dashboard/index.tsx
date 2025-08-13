@@ -13,7 +13,7 @@ interface StrategyDashboardProps {
 	onStop: () => void;
 	activeTab?: string;
 	onTabChange?: (value: string) => void;
-	onCollapseDashboard?: () => void;
+	onCollapsePanel?: () => void;
 	isDashboardExpanded?: boolean;
 }
 
@@ -31,7 +31,7 @@ const StrategyDashboard = forwardRef<StrategyDashboardRef, StrategyDashboardProp
 	onStop,
 	activeTab,
 	onTabChange,
-	onCollapseDashboard,
+	onCollapsePanel,
 	isDashboardExpanded,
 }, ref) => {
 	const backtestInfoTabsRef = useRef<BacktestInfoTabsRef>(null);
@@ -65,7 +65,7 @@ const StrategyDashboard = forwardRef<StrategyDashboardRef, StrategyDashboardProp
 					updateLayout={updateLayout}
 					activeTab={activeTab}
 					onTabChange={onTabChange}
-					onCollapseDashboard={onCollapseDashboard}
+					onCollapsePanel={onCollapsePanel}
 					isDashboardExpanded={isDashboardExpanded}
 				/>
 		</div>

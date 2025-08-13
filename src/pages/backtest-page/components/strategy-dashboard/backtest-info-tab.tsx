@@ -30,7 +30,7 @@ interface BacktestInfoTabsProps {
 	updateLayout: (layout: LayoutMode) => void;
 	activeTab?: string;
 	onTabChange?: (value: string) => void;
-	onCollapseDashboard?: () => void;
+	onCollapsePanel?: () => void;
 	isDashboardExpanded?: boolean;
 }
 
@@ -75,10 +75,9 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 	updateLayout,
 	activeTab,
 	onTabChange,
-	onCollapseDashboard,
+	onCollapsePanel: onCollapseDashboard,
 	isDashboardExpanded
 }, ref) => {
-	console.log("activeTab", activeTab, "isDashboardExpanded", isDashboardExpanded);
 	const orderRecordRef = useRef<OrderRecordRef>(null);
 	const positionRecordRef = useRef<PositionRecordRef>(null);
 
