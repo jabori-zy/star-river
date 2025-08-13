@@ -1,6 +1,7 @@
 import type { Kline } from "@/types/kline";
 import type { VirtualOrder } from "@/types/order/virtual-order";
 import type { KeyStr } from "@/types/symbol-key";
+import type { VirtualPosition } from "../position";
 
 export type LiveStrategyEvent = {
 	channel: string;
@@ -20,9 +21,10 @@ export type LiveStrategyEvent = {
 // }
 
 export type BacktestStrategyEvent =
-	| klineUpdateEvent
-	| indicatorUpdateEvent
-	| FuturesOrderEvent;
+	| KlineUpdateEvent
+	| IndicatorUpdateEvent
+	| VirtualOrderEvent
+	| VirtualPositionEvent;
 
 export type BaseEventProps = {
 	channel: string;
@@ -34,17 +36,22 @@ export type BaseEventProps = {
 	fromNodeHandleId: string;
 };
 
-export type klineUpdateEvent = BaseEventProps & {
+export type KlineUpdateEvent = BaseEventProps & {
 	klineCacheIndex: number;
 	klineKey: KeyStr;
 	kline: Kline[];
 };
 
-export type indicatorUpdateEvent = BaseEventProps & {
+export type IndicatorUpdateEvent = BaseEventProps & {
 	indicatorKey: KeyStr;
 	indicatorSeries: Record<string, number>[];
 };
 
-export type FuturesOrderEvent = BaseEventProps & {
+export type VirtualOrderEvent = BaseEventProps & {
 	futuresOrder: VirtualOrder;
+};
+
+
+export type VirtualPositionEvent = BaseEventProps & {
+	virtualPosition: VirtualPosition;
 };

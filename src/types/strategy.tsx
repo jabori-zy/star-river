@@ -1,6 +1,10 @@
 import type { Edge, Node } from "@xyflow/react";
-import type { Exchange } from "@/types/common";
+import type { Exchange } from "@/types/market";
 import type { StrategyChartConfig } from "@/types/strategyChartConfig";
+
+
+
+export type StrategyId = number;
 
 export enum TradeMode {
 	LIVE = "live",

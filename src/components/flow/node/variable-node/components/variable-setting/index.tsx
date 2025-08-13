@@ -85,6 +85,7 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 				...variableConfig,
 				configId: variableConfigs.length + 1,
 				inputHandleId: `${id}_input${variableConfigs.length + 1}`,
+				outputHandleId: `${id}_output${variableConfigs.length + 1}`,
 			};
 			onVariableConfigsChange([...variableConfigs, newVariableConfig]);
 		}

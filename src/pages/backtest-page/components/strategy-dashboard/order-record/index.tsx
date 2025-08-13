@@ -28,7 +28,6 @@ const OrderRecord = forwardRef<OrderRecordRef, OrderRecordProps>(({ strategyId }
 
     const getVirtualOrderData = useCallback(async () => {
         const virtualOrderData = await getVirtualOrder(strategyId) as VirtualOrder[];
-        console.log("virtualOrderData", virtualOrderData);
         // 倒序排列
         setOrderData(virtualOrderData.reverse());
     }, [strategyId]);

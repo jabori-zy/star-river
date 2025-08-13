@@ -14,6 +14,7 @@ import type { BacktestStrategyChartConfig } from "@/types/chart/backtest-chart";
 import type { LayoutMode } from "@/types/chart";
 import { Button } from "@/components/ui/button";
 import OrderRecord, { type OrderRecordRef } from "./order-record";
+import PositionRecord, { type PositionRecordRef } from "./position-record";
 
 interface BacktestInfoTabsProps {
 	strategyId: number;
@@ -35,6 +36,7 @@ interface BacktestInfoTabsProps {
 
 export interface BacktestInfoTabsRef {
 	clearOrderRecords: () => void;
+	clearPositionRecords: () => void;
 }
 
 // 临时占位组件
@@ -58,15 +60,6 @@ const TradeRecordPanel = () => (
 	</div>
 );
 
-const PositionPanel = () => (
-	<div className="flex items-center justify-center h-40 text-muted-foreground">
-		<div className="text-center">
-			<Package className="h-8 w-8 mx-auto mb-2" />
-			<p>仓位信息</p>
-			<p className="text-sm">即将实现...</p>
-		</div>
-	</div>
-);
 
 const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(({ 
 	strategyId,
@@ -86,11 +79,15 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 	isDashboardExpanded
 }, ref) => {
 	const orderRecordRef = useRef<OrderRecordRef>(null);
+	const positionRecordRef = useRef<PositionRecordRef>(null);
 
-	// 暴露清空订单记录的方法
+	// 暴露清空订单记录和持仓记录的方法
 	useImperativeHandle(ref, () => ({
 		clearOrderRecords: () => {
 			orderRecordRef.current?.clearOrders();
+		},
+		clearPositionRecords: () => {
+			positionRecordRef.current?.clearPositions();
 		}
 	}), []);
 
@@ -102,7 +99,7 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 	return (
 		<Tabs defaultValue="profit" value={activeTab} onValueChange={onTabChange} className="w-full h-full flex flex-col">
 			{/* 固定在顶部的头部 */}
-			<div className="grid grid-cols-3 items-center p-2 bg-white shrink-0 gap-2 border-b">
+			<div className={`grid grid-cols-3 items-center p-2 bg-white shrink-0 gap-2 ${isDashboardExpanded ? 'border-b' : ''}`}>
 				{/* 左侧：Tab组件和收起按钮 */}
 				<div className="flex items-center gap-2 justify-self-start min-w-0">
 					<TabsList className="grid grid-cols-4 gap-1">
@@ -174,8 +171,8 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 					<TradeRecordPanel />
 				</TabsContent>
 				
-				<TabsContent value="positions" className="mt-4 mx-4">
-					<PositionPanel />
+				<TabsContent value="positions" className="w-full overflow-hidden">
+					<PositionRecord ref={positionRecordRef} strategyId={strategyId} />
 				</TabsContent>
 			</div>
 		</Tabs>

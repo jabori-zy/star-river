@@ -4,9 +4,9 @@ import { useBacktestKlineDataStore } from "@/store/backtest-replay-store/use-bac
 import { useBacktestOrderDataStore } from "@/store/backtest-replay-store/use-backtest-order-store";
 import type {
 	BacktestStrategyEvent,
-	FuturesOrderEvent,
-	indicatorUpdateEvent,
-	klineUpdateEvent,
+	VirtualOrderEvent,
+	IndicatorUpdateEvent,
+	KlineUpdateEvent,
 } from "@/types/strategy-event/backtest-strategy-event";
 import { BACKTESET_STRATEGY_SSE_URL } from "./index";
 
@@ -50,21 +50,21 @@ const useBacktestStrategyEventSSE = (enabled: boolean = true) => {
 					if (eventName === "kline-update") {
 						// 将事件添加到对应的存储中
 
-						const cacheKeyStr = (strategyEvent as klineUpdateEvent).klineKey;
-						const data = (strategyEvent as klineUpdateEvent).kline;
+						const cacheKeyStr = (strategyEvent as KlineUpdateEvent).klineKey;
+						const data = (strategyEvent as KlineUpdateEvent).kline;
 						addKlineData(cacheKeyStr, data);
 					}
 					if (eventName === "indicator-update") {
 						// 将事件添加到对应的存储中
-						const cacheKeyStr = (strategyEvent as indicatorUpdateEvent)
+						const cacheKeyStr = (strategyEvent as IndicatorUpdateEvent)
 							.indicatorKey;
-						const data = (strategyEvent as indicatorUpdateEvent)
+						const data = (strategyEvent as IndicatorUpdateEvent)
 							.indicatorSeries;
 						// console.log("添加新指标数据", cacheKeyStr, data);
 						addIndicatorData(cacheKeyStr, data);
 					}
 					if (eventName === "futures-order-filled") {
-						const data = (strategyEvent as FuturesOrderEvent)
+						const data = (strategyEvent as VirtualOrderEvent)
 							.futuresOrder;
 						addSingleOrder(data.exchange, data.symbol, data);
 					}

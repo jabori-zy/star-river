@@ -205,7 +205,7 @@ export default function BacktestPage() {
 			<div className="flex flex-col h-full overflow-hidden">
 				<div className="m-2 mb-0 flex-1">
 					<PanelGroup direction="vertical" className="h-full" onLayout={handlePanelResize}>
-					<Panel defaultSize={80} minSize={30}>
+					<Panel defaultSize={94} minSize={30}>
 						<div className="h-full rounded-lg border border-border shadow-md bg-white overflow-hidden">
 							<ChartContainer
 								strategyChartConfig={chartConfig}
@@ -215,10 +215,10 @@ export default function BacktestPage() {
 					</Panel>
 					<PanelResizeHandle className="h-1 hover:bg-gray-400" />
 					<Panel 
-						defaultSize={20} 
-						minSize={20} 
+						defaultSize={6} 
+						minSize={6} 
 						ref={dashboardPanelRef}
-						collapsedSize={20}
+						collapsedSize={6}
 						collapsible={true}
 						>
 						<div className="h-full bg-white border-l border-t border-r border-border rounded-t-lg shadow-md flex flex-col overflow-hidden">

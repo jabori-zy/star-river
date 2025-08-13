@@ -19,3 +19,17 @@ export async function getVirtualOrder(strateygId: number) {
     }
 
 }
+
+export async function getVirtualPosition(strateygId: number) {
+    try {
+        const response = await axios.get(`${API_URL}/${strateygId}/current-positions`);
+        if (response.status !== 200) {
+            throw new Error(`获取虚拟持仓失败: ${response.status}`);
+        }
+        return response.data.data;
+    } catch (error) {
+        console.error("getVirtualPosition error", error);
+        throw error;
+    }
+
+}

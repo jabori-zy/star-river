@@ -1,1 +1,1 @@
-export { getVirtualOrder } from "./order"
+export { getVirtualOrder, getVirtualPosition } from "./order"
