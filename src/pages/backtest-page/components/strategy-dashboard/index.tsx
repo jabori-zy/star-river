@@ -19,6 +19,7 @@ interface StrategyDashboardProps {
 
 export interface StrategyDashboardRef {
 	clearOrderRecords: () => void;
+	clearPositionRecords: () => void;
 }
 
 const StrategyDashboard = forwardRef<StrategyDashboardRef, StrategyDashboardProps>(({
@@ -39,6 +40,9 @@ const StrategyDashboard = forwardRef<StrategyDashboardRef, StrategyDashboardProp
 	useImperativeHandle(ref, () => ({
 		clearOrderRecords: () => {
 			backtestInfoTabsRef.current?.clearOrderRecords();
+		},
+		clearPositionRecords: () => {
+			backtestInfoTabsRef.current?.clearPositionRecords();
 		}
 	}), []);
 

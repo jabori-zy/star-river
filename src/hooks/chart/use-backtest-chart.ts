@@ -243,7 +243,7 @@ export const useBacktestChart = ({
 					return !config.isDelete
 				},
 			);
-			console.log("indicatorsNeedingData", indicatorsNeedingData);
+			// console.log("indicatorsNeedingData", indicatorsNeedingData);
 			// 并行初始化所有需要数据的指标
 			if (indicatorsNeedingData.length > 0) {
 				await Promise.all(
@@ -270,7 +270,7 @@ export const useBacktestChart = ({
 
 								// 为新创建的系列设置数据 - 现在Promise.all已经完成，数据应该已就绪
 								const indicatorDataForSeries = getIndicatorData(config.indicatorKeyStr);
-								console.log("indicatorDataForSeries", indicatorDataForSeries);
+								// console.log("indicatorDataForSeries", indicatorDataForSeries);	
 								if (indicatorDataForSeries) {
 									const seriesData = indicatorDataForSeries[seriesConfig.indicatorValueKey];
 									if (seriesData && seriesData.length > 0) {

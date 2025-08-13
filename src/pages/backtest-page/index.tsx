@@ -1,7 +1,8 @@
 import { AlertCircle, ArrowLeft, Loader2 } from "lucide-react";
 import { useCallback, useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router";
-import { Panel, PanelGroup, PanelResizeHandle, ImperativePanelHandle } from "react-resizable-panels";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import type { ImperativePanelHandle } from "react-resizable-panels";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { stopStrategy } from "@/service/strategy";
@@ -14,7 +15,7 @@ import {
 } from "@/service/backtest-strategy/backtest-strategy-control";
 import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
 import BacktestWindowHeader from "../../components/backtest/backtest-window-header";
-import useBacktestStrategySSE from "../../hooks/sse/use-backtest-strategy-sse";
+// import useBacktestStrategySSE from "../../hooks/sse/use-backtest-strategy-sse";
 import StrategyDashboard, { type StrategyDashboardRef } from "./components/strategy-dashboard";
 import ChartContainer from "./components/chart-container";
 import { resetAllBacktestChartStore } from "@/components/chart/backtest-chart/backtest-chart-store";
@@ -138,6 +139,7 @@ export default function BacktestPage() {
 		resetAllBacktestChartStore();
 		// 清空订单记录
 		strategyDashboardRef.current?.clearOrderRecords();
+		strategyDashboardRef.current?.clearPositionRecords();
 	};
 	const onPlayOne = () => {
 		playOne(strategyId);

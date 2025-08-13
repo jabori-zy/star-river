@@ -721,7 +721,7 @@ const createBacktestChartStore = (
 						}
 					});
 				});
-				console.log("indicatorInitData", indicatorData);
+				// console.log("indicatorInitData", indicatorData);
 
 				state.setIndicatorData(keyStr, indicatorData);
 				return indicatorData;
