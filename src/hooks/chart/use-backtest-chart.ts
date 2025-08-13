@@ -243,18 +243,17 @@ export const useBacktestChart = ({
 					return !config.isDelete
 				},
 			);
-			// console.log("indicatorsNeedingData", indicatorsNeedingData);
+			console.log("indicatorsNeedingData", indicatorsNeedingData);
 			// 并行初始化所有需要数据的指标
 			if (indicatorsNeedingData.length > 0) {
 				await Promise.all(
-					indicatorsNeedingData.map((config) => {
-						console.log("初始化时的playIndex", playIndex.current);
-						initIndicatorData(config.indicatorKeyStr, playIndex.current);
-					}
+					indicatorsNeedingData.map((config) =>
+						initIndicatorData(config.indicatorKeyStr, playIndex.current)
 					),
 				);
 			}
 
+			// 等待所有指标数据初始化完成后，再处理series创建和数据设置
 			chartConfig.indicatorChartConfigs.forEach((config) => {
 				// 如果指标是主图指标，并且没有被删除，并且store中没有seriesRef，则添加series
 				if (config.isInMainChart && !config.isDelete) {
@@ -269,14 +268,16 @@ export const useBacktestChart = ({
 									newSeries,
 								);
 
-								// 为新创建的系列设置数据
+								// 为新创建的系列设置数据 - 现在Promise.all已经完成，数据应该已就绪
 								const indicatorDataForSeries = getIndicatorData(config.indicatorKeyStr);
+								console.log("indicatorDataForSeries", indicatorDataForSeries);
 								if (indicatorDataForSeries) {
-									const seriesData =
-										indicatorDataForSeries[seriesConfig.indicatorValueKey];
+									const seriesData = indicatorDataForSeries[seriesConfig.indicatorValueKey];
 									if (seriesData && seriesData.length > 0) {
 										newSeries.setData(seriesData);
 									}
+								} else {
+									console.warn(`No indicator data found for ${config.indicatorKeyStr} after initialization`);
 								}
 							}
 						}

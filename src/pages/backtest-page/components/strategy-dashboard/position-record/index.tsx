@@ -45,9 +45,7 @@ const PositionRecord = forwardRef<PositionRecordRef, PositionRecordProps>(({ str
 		if (!positionStreamSubscription.current) {
 			const positionStream = createPositionStream();
 			const subscription = positionStream.subscribe((positionEvent) => {
-                console.log("positionEvent", positionEvent);
 				const position = positionEvent.virtualPosition;
-                console.log("position", position);
                 // 使用函数式更新来避免闭包问题
                 setPositionData((prev) => {
                     const existingPosition = prev.find((p) => p.positionId === position.positionId);
