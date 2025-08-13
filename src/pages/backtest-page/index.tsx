@@ -19,6 +19,7 @@ import BacktestWindowHeader from "../../components/backtest/backtest-window-head
 import StrategyDashboard, { type StrategyDashboardRef } from "./components/strategy-dashboard";
 import ChartContainer from "./components/chart-container";
 import { resetAllBacktestChartStore } from "@/components/chart/backtest-chart/backtest-chart-store";
+import { calculateDashboardSize, getDashboardPanelConfig } from "./utils";
 
 export default function BacktestPage() {
 	const navigate = useNavigate();
@@ -47,8 +48,17 @@ export default function BacktestPage() {
 	// const [activeTab, setActiveTab] = useState<string | undefined>(undefined); // 当前选中的tab
 	const [isDashboardExpanded, setIsDashboardExpanded] = useState<boolean>(false); // dashboard是否处于展开状态
 	const dashboardPanelRef = useRef<ImperativePanelHandle>(null); // dashboard面板引用
+	const chartContainerPanelRef = useRef<ImperativePanelHandle>(null); // 图表容器面板引用
 	const strategyDashboardRef = useRef<StrategyDashboardRef>(null); // 策略面板引用
 	const isValidStrategyId = strategyId !== null;
+	
+	// 计算控制栏的最小高度百分比
+	const initialSize = calculateDashboardSize();
+	const [dashboardMinSize, setDashboardMinSize] = useState<number>(initialSize);
+	const [dashboardCollapsedSize, setDashboardCollapsedSize] = useState<number>(initialSize);
+	const [dashboardDefaultSize, setDashboardDefaultSize] = useState<number>(initialSize);
+
+	
 
 	// 监听策略SSE
 	// useBacktestStrategySSE();
@@ -67,6 +77,41 @@ export default function BacktestPage() {
 			loadChartConfig(strategyId);
 		}
 	}, [strategyId, loadChartConfig]);
+
+
+	// 窗口大小监控
+	useEffect(() => {
+		const handleResize = () => {
+			// 获取新的面板配置
+			const config = getDashboardPanelConfig();
+			
+			// 设置新的尺寸
+			setDashboardMinSize(config.minSize);
+			setDashboardCollapsedSize(config.collapsedSize);
+			setDashboardDefaultSize(config.defaultSize);
+			
+			// 如果面板已存在且未展开，确保其大小正确
+			if (dashboardPanelRef.current && !isDashboardExpanded) {
+				const currentSize = dashboardPanelRef.current.getSize();
+				
+				// 强制调整到精确的最小尺寸，确保贴合底部
+				if (Math.abs(currentSize - config.minSize) > 0.1) {
+					dashboardPanelRef.current.resize(config.minSize);
+				}
+			}
+		};
+
+		// 初始计算
+		handleResize();
+
+		// 添加事件监听器
+		window.addEventListener('resize', handleResize);
+
+		// 清理事件监听器
+		return () => {
+			window.removeEventListener('resize', handleResize);
+		};
+	}, [isDashboardExpanded]);
 
 	// 处理退出确认
 	const handleQuit = async () => {
@@ -156,22 +201,6 @@ export default function BacktestPage() {
 				setIsDashboardExpanded(false);
 			}
 		}
-		// console.log("isDashboardExpanded", isDashboardExpanded)
-		// const threshold = 8; // 阈值：当dashboard大小超过8%时激活第一个tab
-		// const expandedThreshold = 5; // 判断是否为展开状态的阈值
-		
-		// // 更新展开状态
-		// setIsDashboardExpanded(dashboardSize > expandedThreshold);
-		
-		// if (dashboardSize > threshold && !activeTab) {
-		// 	// 当展开时，恢复之前的tab或默认选择第一个
-		// 	const tabToActivate = lastActiveTab || "profit";
-		// 	setActiveTab(tabToActivate);
-		// } else if (dashboardSize <= threshold && activeTab) {
-		// 	// 折叠时，记录当前选中的tab并取消选择
-		// 	setLastActiveTab(activeTab);
-		// 	setActiveTab(undefined);
-		// }
 	};
 
 	// // 处理tab切换
@@ -194,11 +223,13 @@ export default function BacktestPage() {
 		}
 	};
 
+	
+
 
 
 	return (
 		<div className="h-screen flex flex-col overflow-hidden bg-gray-100">
-			<div className="flex-shrink-0">
+			<div className="flex-shrink-0 border-b ">
 				<BacktestWindowHeader
 					strategyName={`策略 ${strategyId} 回测`}
 					onQuit={handleQuit}
@@ -208,41 +239,39 @@ export default function BacktestPage() {
 			
 
 			{/* 回测窗口内容 */}
-			<div className="flex flex-col h-full overflow-hidden">
-				<div className="mb-0 flex-1">
-					<PanelGroup direction="vertical" className="h-full" onLayout={handlePanelResize}>
-						<Panel defaultSize={94} minSize={30}>
-							<div className="h-full border border-border shadow-md bg-white overflow-hidden">
-								<ChartContainer
-									strategyChartConfig={chartConfig}
-									strategyId={strategyId}
-								/>
-							</div>
-						</Panel>
+			<div className="flex-1 flex flex-col overflow-hidden">
+				<PanelGroup direction="vertical" className="flex-1" onLayout={handlePanelResize}>
+					<Panel defaultSize={100 - dashboardDefaultSize} minSize={30} ref={chartContainerPanelRef}>
+						<div className="h-full  bg-white overflow-hidden">
+							<ChartContainer
+								strategyChartConfig={chartConfig}
+								strategyId={strategyId}
+							/>
+						</div>
+					</Panel>
 					<PanelResizeHandle className="h-1 hover:bg-gray-400" />
-						<Panel 
-							defaultSize={6} 
-							minSize={6} 
-							ref={dashboardPanelRef}
-							collapsedSize={6}
-							collapsible={true}
-							>
-							<div className="h-full bg-white border-l border-t border-r border-border rounded-t-lg shadow-md flex flex-col overflow-hidden">
-								<StrategyDashboard
-									ref={strategyDashboardRef}
-									strategyId={strategyId}
-									isRunning={isRunning}
-									onPlay={onPlay}
-									onPlayOne={onPlayOne}
-									onPause={onPause}
-									onStop={onStop}
-									onCollapseDashboard={handleCollapseDashboard}
-									isDashboardExpanded={isDashboardExpanded}
-								/>
-							</div>
-						</Panel>
-					</PanelGroup>
-				</div>
+					<Panel 
+						defaultSize={dashboardDefaultSize}
+						minSize={dashboardMinSize} 
+						ref={dashboardPanelRef}
+						collapsedSize={dashboardCollapsedSize}
+						collapsible={true}
+						>
+						<div className="h-full bg-white border-l border-t border-r border-border shadow-md flex flex-col overflow-hidden">
+							<StrategyDashboard
+								ref={strategyDashboardRef}
+								strategyId={strategyId}
+								isRunning={isRunning}
+								onPlay={onPlay}
+								onPlayOne={onPlayOne}
+								onPause={onPause}
+								onStop={onStop}
+								onCollapseDashboard={handleCollapseDashboard}
+								isDashboardExpanded={isDashboardExpanded}
+							/>
+						</div>
+					</Panel>
+				</PanelGroup>
 			</div>
 		</div>
 	);

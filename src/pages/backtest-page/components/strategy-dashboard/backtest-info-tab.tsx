@@ -99,7 +99,7 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 	return (
 		<Tabs defaultValue="profit" value={activeTab} onValueChange={onTabChange} className="w-full h-full flex flex-col">
 			{/* 固定在顶部的头部 */}
-			<div className={`grid grid-cols-3 items-center p-2 bg-white shrink-0 gap-2 ${isDashboardExpanded ? 'border-b' : ''}`}>
+			<div className={`grid grid-cols-3 items-center p-2 bg-white ${isDashboardExpanded ? 'border-b' : ''}`}>
 				{/* 左侧：Tab组件和收起按钮 */}
 				<div className="flex items-center gap-2 justify-self-start min-w-0">
 					<TabsList className="grid grid-cols-4 gap-1">
