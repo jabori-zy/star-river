@@ -45,8 +45,10 @@ export default function BacktestPage() {
 	}, [params]);
 
 	const [isRunning, setIsRunning] = useState<boolean>(false); // 是否正在回测
-	// const [activeTab, setActiveTab] = useState<string | undefined>(undefined); // 当前选中的tab
+	const [activeTab, setActiveTab] = useState<string | undefined>(undefined); // 当前选中的tab
+	const [lastActiveTab, setLastActiveTab] = useState<string | undefined>(undefined); // 上一次选中的tab,默认是profit
 	const [isDashboardExpanded, setIsDashboardExpanded] = useState<boolean>(false); // dashboard是否处于展开状态
+	const [expandTrigger, setExpandTrigger] = useState<'tab' | 'drag' | null>(null); // 展开触发方式
 	const dashboardPanelRef = useRef<ImperativePanelHandle>(null); // dashboard面板引用
 	const chartContainerPanelRef = useRef<ImperativePanelHandle>(null); // 图表容器面板引用
 	const strategyDashboardRef = useRef<StrategyDashboardRef>(null); // 策略面板引用
@@ -78,6 +80,14 @@ export default function BacktestPage() {
 		}
 	}, [strategyId, loadChartConfig]);
 
+	// 监听面板展开状态变化，检测拖拽展开
+	useEffect(() => {
+		if (isDashboardExpanded && expandTrigger === null) {
+			// 面板展开了，但没有触发标识，说明是拖拽展开
+			console.log("检测到拖拽展开");
+			setExpandTrigger('drag');
+		}
+	}, [isDashboardExpanded, expandTrigger]);
 
 	// 窗口大小监控
 	useEffect(() => {
@@ -192,34 +202,48 @@ export default function BacktestPage() {
 
 	// 处理Panel大小变化
 	const handlePanelResize = (_sizes: number[]) => {
-		// const dashboardSize = sizes[1]; // 第二个panel是dashboard
+		
 		if (dashboardPanelRef.current) {
 			const isExpanded = dashboardPanelRef.current.isExpanded();
 			if (isExpanded) {
 				setIsDashboardExpanded(true);
+				
+				// 只有在拖拽展开时才恢复lastActiveTab
+				if (expandTrigger === 'drag' && lastActiveTab) {
+					setActiveTab(lastActiveTab);
+					console.log("拖拽展开，恢复到:", lastActiveTab);
+				}
+				// 重置触发标识
+				setExpandTrigger(null);
 			} else {
 				setIsDashboardExpanded(false);
+				setActiveTab(undefined);
+				setExpandTrigger(null); // 重置触发标识
 			}
 		}
 	};
 
-	// // 处理tab切换
-	// const handleTabChange = (value: string) => {
-	// 	setActiveTab(value);
+	// 处理tab切换
+	const handleTabChange = (value: string) => {
+		console.log("点击tab:", value);
+		setActiveTab(value); // 设置当前选中的tab
 		
-		// 只有当dashboard处于未展开状态时，点击tab才需要设置高度
-		// if (!isDashboardExpanded && dashboardPanelRef.current) {
-		// 	const minExpandedSize = 50; // 展开后的最小尺寸
-		// 	dashboardPanelRef.current.resize(minExpandedSize);
-		// 	setIsDashboardExpanded(true); // 手动设置为展开状态
-		// }
-	// };
+		// 只有当dashboard处于未展开状态时，点击tab才需要展开
+		if (!isDashboardExpanded && dashboardPanelRef.current) {
+			setExpandTrigger('tab'); // 标记为tab触发的展开
+			const minExpandedSize = 50; // 展开后的最小尺寸
+			dashboardPanelRef.current.resize(minExpandedSize);
+			console.log("tab触发展开面板:", value);
+		}
+	};
 
 	// 处理收起dashboard
 	const handleCollapseDashboard = () => {
 		if (dashboardPanelRef.current) {
 			dashboardPanelRef.current.collapse(); // 收起到最小尺寸
 			setIsDashboardExpanded(false);
+			setLastActiveTab(activeTab);
+			setActiveTab(undefined); // 清除tab选择状态
 		}
 	};
 
@@ -250,7 +274,7 @@ export default function BacktestPage() {
 						</div>
 					</Panel>
 					<PanelResizeHandle className="h-1 hover:bg-gray-400" />
-					<Panel 
+					<Panel
 						defaultSize={dashboardDefaultSize}
 						minSize={dashboardMinSize} 
 						ref={dashboardPanelRef}
@@ -267,6 +291,8 @@ export default function BacktestPage() {
 								onPause={onPause}
 								onStop={onStop}
 								onCollapseDashboard={handleCollapseDashboard}
+								onTabChange={handleTabChange}
+								activeTab={activeTab}
 								isDashboardExpanded={isDashboardExpanded}
 							/>
 						</div>

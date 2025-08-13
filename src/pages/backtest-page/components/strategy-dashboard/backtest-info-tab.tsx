@@ -78,6 +78,7 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 	onCollapseDashboard,
 	isDashboardExpanded
 }, ref) => {
+	console.log("activeTab", activeTab, "isDashboardExpanded", isDashboardExpanded);
 	const orderRecordRef = useRef<OrderRecordRef>(null);
 	const positionRecordRef = useRef<PositionRecordRef>(null);
 
@@ -97,7 +98,12 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 	};
 
 	return (
-		<Tabs defaultValue="profit" value={activeTab} onValueChange={onTabChange} className="w-full h-full flex flex-col">
+		<Tabs 
+			key={`tabs-${isDashboardExpanded ? 'expanded' : 'collapsed'}-${activeTab || 'none'}`}
+			value={activeTab} 
+			onValueChange={onTabChange} 
+			className="w-full h-full flex flex-col"
+		>
 			{/* 固定在顶部的头部 */}
 			<div className={`grid grid-cols-3 items-center p-2 bg-white ${isDashboardExpanded ? 'border-b' : ''}`}>
 				{/* 左侧：Tab组件和收起按钮 */}
@@ -158,23 +164,25 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 			</div>
 			
 			{/* 可滚动的内容区域 */}
-			<div className="flex-1 overflow-y-auto" style={{ scrollbarGutter: 'stable' }}>
-				<TabsContent value="profit" className="mt-4 mx-4">
-					<ProfitCurvePanel />
-				</TabsContent>
-				
-				<TabsContent value="orders" className="w-full overflow-hidden">
-					<OrderRecord ref={orderRecordRef} strategyId={strategyId} />
-				</TabsContent>
-				
-				<TabsContent value="trades" className="mt-4 mx-4">
-					<TradeRecordPanel />
-				</TabsContent>
-				
-				<TabsContent value="positions" className="w-full overflow-hidden">
-					<PositionRecord ref={positionRecordRef} strategyId={strategyId} />
-				</TabsContent>
-			</div>
+			{isDashboardExpanded && activeTab && (
+				<div className="flex-1 overflow-y-auto" style={{ scrollbarGutter: 'stable' }}>
+					<TabsContent value="profit" className="mt-4 mx-4">
+						<ProfitCurvePanel />
+					</TabsContent>
+					
+					<TabsContent value="orders" className="w-full overflow-hidden">
+						<OrderRecord ref={orderRecordRef} strategyId={strategyId} />
+					</TabsContent>
+					
+					<TabsContent value="trades" className="mt-4 mx-4">
+						<TradeRecordPanel />
+					</TabsContent>
+					
+					<TabsContent value="positions" className="w-full overflow-hidden">
+						<PositionRecord ref={positionRecordRef} strategyId={strategyId} />
+					</TabsContent>
+				</div>
+			)}
 		</Tabs>
 	);
 });
