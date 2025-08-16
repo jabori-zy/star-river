@@ -110,7 +110,7 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 					<TabsList className="grid grid-cols-4 gap-1">
 						<TabsTrigger value="profit" className="flex items-center gap-1 px-1 xl:px-2 py-1 min-w-[32px]">
 							<TrendingUp className="h-4 w-4 flex-shrink-0" />
-							<span className="hidden xl:inline text-xs whitespace-nowrap">收益曲线</span>
+							<span className="hidden xl:inline text-xs whitespace-nowrap">策略表现</span>
 						</TabsTrigger>
 						<TabsTrigger value="positions" className="flex items-center gap-1 px-1 xl:px-2 py-1 min-w-[32px]">
 							<Package className="h-4 w-4 flex-shrink-0" />

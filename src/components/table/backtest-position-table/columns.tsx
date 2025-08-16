@@ -281,7 +281,67 @@ export const virtualPositionColumns: ColumnDef<VirtualPosition>[] = [
 		},
 	},
 	{
-		accessorKey: "createTime",
+		accessorKey: "forcePrice",
+		header: "强制平仓价",
+		size: 100,
+		cell: ({ row }) => {
+			const forcePrice = row.getValue("forcePrice") as number;
+			if (forcePrice === null || forcePrice === undefined) {
+				return <div className="text-center text-gray-400 text-sm">-</div>;
+			}
+			const formatted = new Intl.NumberFormat("zh-CN", {
+				minimumFractionDigits: 2,
+				maximumFractionDigits: 4,
+			}).format(forcePrice);
+			return (
+				<div className="text-left font-mono text-sm truncate" title={formatted}>
+					{formatted}
+				</div>
+			);
+		},
+	},
+	{
+		accessorKey: "margin",
+		header: "保证金",
+		size: 100,
+		cell: ({ row }) => {
+			const margin = row.getValue("margin") as number;
+			if (margin === null || margin === undefined) {
+				return <div className="text-center text-gray-400 text-sm">-</div>;
+			}
+			const formatted = new Intl.NumberFormat("zh-CN", {
+				minimumFractionDigits: 2,
+				maximumFractionDigits: 4,
+			}).format(margin);
+			return (
+				<div className="text-left font-mono text-sm truncate" title={formatted}>
+					{formatted}
+				</div>
+			);
+		},
+	},
+	{
+		accessorKey: "marginRatio",
+		header: "保证金比例",
+		size: 100,
+		cell: ({ row }) => {
+			const marginRatio = row.getValue("marginRatio") as number;
+			if (marginRatio === null || marginRatio === undefined) {
+				return <div className="text-center text-gray-400 text-sm">-</div>;
+			}
+			const formatted = new Intl.NumberFormat("zh-CN", {
+				minimumFractionDigits: 2,
+				maximumFractionDigits: 4,
+			}).format(marginRatio);
+			return (
+				<div className="text-left font-mono text-sm truncate" title={formatted}>
+					{formatted}
+				</div>
+			);
+		},
+	},
+	{
+			accessorKey: "createTime",
 		header: "创建时间",
 		size: 140,
 		cell: ({ row }) => {

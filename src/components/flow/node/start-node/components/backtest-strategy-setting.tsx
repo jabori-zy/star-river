@@ -89,15 +89,17 @@ const BacktestStrategySetting: React.FC<BacktestStrategySettingProps> = ({
 			<div className="space-y-2">
 				<div className="flex items-center gap-2">
 					<Play className="h-4 w-4 text-muted-foreground" />
-					<Label className="font-medium">播放速度</Label>
+					<Label className="font-medium">
+						播放速度 ({playSpeed}x)
+					</Label>
 				</div>
 
 				{playSpeed !== undefined && setPlaySpeed && updatePlaySpeed && (
 					<SliderWithTick
 						defaultValue={[playSpeed]}
-						min={0}
-						max={20}
-						step={1}
+						min={5}
+						max={100}
+						step={5}
 						skipInterval={2}
 						onValueChange={(value) => {
 							// 当值为0时，设置为1
