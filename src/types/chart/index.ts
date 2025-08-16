@@ -8,6 +8,7 @@ import type {
 } from "lightweight-charts";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import type { IndicatorKeyStr, KeyStr } from "@/types/symbol-key";
+import type { StrategyStatsName } from "../statistics";
 
 
 export type LayoutMode = "vertical" | "horizontal" | "grid" | "grid-alt";
@@ -22,14 +23,24 @@ export enum SeriesType {
 	DASH = "dash",
 }
 
-// 指标图表数据系列配置
-export type SeriesConfig = {
+
+export type SeriesBaseConfig = {
 	name: string; // 数据系列名称
 	type: SeriesType; // 数据系列类型
-	indicatorValueKey: keyof IndicatorValueConfig; // 指标值的键名
 	color?: string; // 数据系列颜色
 	lineWidth?: number; // 数据系列线宽
-};
+}
+
+// 指标图表数据系列配置
+export type SeriesConfig = {
+	indicatorValueKey: keyof IndicatorValueConfig; // 指标值的键名
+} & SeriesBaseConfig;
+
+
+// 统计图表数据系列配置
+export type StatsSeriesConfig = {
+	statsName: StrategyStatsName; // 统计名称
+} & SeriesBaseConfig;
 
 export type IndicatorChartBaseConfig = {
 	isInMainChart: boolean; // isInMainChart

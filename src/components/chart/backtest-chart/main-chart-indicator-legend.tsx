@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useIndicatorLegend } from "@/hooks/chart";
+import { useIndicatorLegend } from "@/hooks/chart/backtest-chart";
 import { useBacktestChartStore } from "./backtest-chart-store";
 import { IndicatorLegend } from "./indicator-legend";
 

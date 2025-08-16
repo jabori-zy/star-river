@@ -8,6 +8,7 @@ import type {
 	VirtualPositionEvent,
 	IndicatorUpdateEvent,
 	KlineUpdateEvent,
+	BacktestStrategyStatsUpdateEvent,
 } from "@/types/strategy-event/backtest-strategy-event";
 import type { KeyStr } from "@/types/symbol-key";
 import { BACKTESET_STRATEGY_SSE_URL } from "../sse/index";
@@ -34,6 +35,7 @@ class BacktestStrategyDataObservableService {
 	private indicatorDataSubject = new Subject<IndicatorUpdateEvent>();
 	private orderDataSubject = new Subject<VirtualOrderEvent>();
 	private positionDataSubject = new Subject<VirtualPositionEvent>();
+	private statsDataSubject = new Subject<BacktestStrategyStatsUpdateEvent>();
 
 	/**
 	 * 获取连接状态Observable
@@ -208,6 +210,28 @@ class BacktestStrategyDataObservableService {
 			.pipe(takeUntil(this.destroy$), share());
 	}
 
+	createStatsStream(enabled: boolean = true): Observable<BacktestStrategyStatsUpdateEvent> {
+		if (!enabled) {
+			this.disconnect();
+			return new Observable((subscriber) => {
+				subscriber.complete();
+			});
+		}
+
+		if (this.eventSource && this.eventSource.readyState === EventSource.OPEN) {
+			return this.statsDataSubject
+				.asObservable()
+				.pipe(takeUntil(this.destroy$), share());
+		}
+
+		this.connect();
+
+		return this.statsDataSubject
+			.asObservable()
+			.pipe(takeUntil(this.destroy$), share());
+
+	}
+
 	/**
 	 * 建立SSE连接
 	 */
@@ -279,6 +303,12 @@ class BacktestStrategyDataObservableService {
 
 				// console.log("发送仓位数据到Observable流:", positionEvent);
 				this.positionDataSubject.next(positionEvent);
+			}
+			if (strategyEvent.event === "strategy-stats-updated") {
+				const statsEvent = strategyEvent as BacktestStrategyStatsUpdateEvent;
+
+				// console.log("发送策略统计数据到Observable流:", statsEvent);
+				this.statsDataSubject.next(statsEvent);
 			}
 		} catch (error) {
 			console.error("解析SSE消息失败:", error);
@@ -376,6 +406,10 @@ export const createOrderStreamForSymbol = (
 // 仓位相关
 export const createPositionStream = (enabled: boolean = true) =>
 	backtestStrategyDataObservableService.createPositionStream(enabled);
+
+
+export const createStatsStream = (enabled: boolean = true) =>
+	backtestStrategyDataObservableService.createStatsStream(enabled);
 
 // 连接管理
 export const getConnectionState = () =>

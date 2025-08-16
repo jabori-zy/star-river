@@ -2,7 +2,7 @@ import { Bolt, Eye, EyeOff, Trash2 } from "lucide-react";
 import type React from "react";
 import { forwardRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import type { IndicatorLegendData } from "@/hooks/chart/use-indicator-legend";
+import type { IndicatorLegendData } from "@/hooks/chart/backtest-chart/use-indicator-legend";
 import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
 import type { IndicatorKeyStr } from "@/types/symbol-key";
 import { useBacktestChartStore } from "./backtest-chart-store";

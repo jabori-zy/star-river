@@ -1,7 +1,7 @@
 import { Bolt, Eye, EyeOff } from "lucide-react";
 import type React from "react";
 import { Button } from "@/components/ui/button";
-import type { KlineLegendData } from "@/hooks/chart/use-kline-legend";
+import type { KlineLegendData } from "@/hooks/chart/backtest-chart/use-kline-legend";
 import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
 
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { useIndicatorLegend } from "@/hooks/chart/use-indicator-legend";
+import { useIndicatorLegend } from "@/hooks/chart/backtest-chart/use-indicator-legend";
 import type { IndicatorKeyStr } from "@/types/symbol-key";
 import { useBacktestChartStore } from "./backtest-chart-store";
 import { IndicatorLegend } from "./indicator-legend";

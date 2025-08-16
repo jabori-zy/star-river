@@ -1,6 +1,6 @@
 import type { IChartApi } from "lightweight-charts";
 import { useCallback, useEffect, useRef } from "react";
-import { useBacktestChart } from "@/hooks/chart";
+import { useBacktestChart } from "@/hooks/chart/backtest-chart";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import { useBacktestChartStore } from "./backtest-chart-store";
 import { chartOptions } from "./chart-config";
