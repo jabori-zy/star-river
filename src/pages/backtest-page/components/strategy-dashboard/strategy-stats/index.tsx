@@ -1,19 +1,16 @@
 import type React from "react";
 import BacktestStatsChart from "@/components/chart/backtest-stats-chart";
-import type { BacktestStrategyStatsChartConfig } from "@/types/chart/backtest-strategy-stats-chart";
-import { defaultBacktestStrategyStatsChartConfig } from "@/types/chart/backtest-strategy-stats-chart";
 import { useBacktestStatsChartConfigStore } from "@/store/use-backtest-stats-chart-config-store";
+import StatsSelector from "./stats-selector";
 
 interface StrategyStatsProps {
 	strategyId: number;
 }
 
+
 const StrategyStats: React.FC<StrategyStatsProps> = ({
 	strategyId
 }) => {
-	// 使用传入的配置或默认配置
-
-
 	const { getChartConfig } = useBacktestStatsChartConfigStore();
 
 	const chartConfig = getChartConfig();
@@ -21,14 +18,21 @@ const StrategyStats: React.FC<StrategyStatsProps> = ({
 
 
 	return (
-		<div className="h-full w-full bg-gray-100 py-2 rounded-lg">
-			{chartConfig && (
-				<BacktestStatsChart
-					strategyId={strategyId}
-					chartConfig={chartConfig}
-				/>
-			)}
+		<div className="flex flex-col h-full">
+			<div className="flex justify-start mb-2">
+				<StatsSelector />
+			</div>
+			<div className="h-full w-full bg-gray-100 py-2 rounded-lg">
+				{chartConfig && (
+					<BacktestStatsChart
+						strategyId={strategyId}
+						chartConfig={chartConfig}
+					/>
+				)}
+			</div>
+
 		</div>
+		
 	);
 };
 

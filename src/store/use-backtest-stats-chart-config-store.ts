@@ -17,6 +17,9 @@ interface BacktestStatsChartConfigState {
 	getStatsVisibility: (statsName: StrategyStatsName) => boolean;
 	setStatsVisibility: (statsName: StrategyStatsName, visible: boolean) => void;
 	toggleStatsVisibility: (statsName: StrategyStatsName) => void;
+
+	// 统计图表添加管理
+	addStats: (statsName: StrategyStatsName) => void;
 	
 	// 统计图表删除管理
 	removeStats: (statsName: StrategyStatsName) => void;
@@ -77,6 +80,22 @@ const useBacktestStatsChartConfigStore = create<BacktestStatsChartConfigState>((
 	toggleStatsVisibility: (statsName: StrategyStatsName) => {
 		const currentVisibility = get().getStatsVisibility(statsName);
 		get().setStatsVisibility(statsName, !currentVisibility);
+	},
+
+	// 统计图表添加管理,将isDelete设置为false
+	addStats: (statsName: StrategyStatsName) => {
+		const { chartConfig } = get();
+		if (!chartConfig) return;
+
+		const newConfig = {
+			...chartConfig,
+			statsChartConfigs: chartConfig.statsChartConfigs.map((config) =>
+				config.seriesConfigs.statsName === statsName
+					? { ...config, isDelete: false }
+					: config
+			),
+		};
+		set({ chartConfig: newConfig });
 	},
 
 	// 统计图表删除管理（软删除 - 设置为不可见）

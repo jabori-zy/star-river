@@ -186,7 +186,7 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 						className="flex-1 overflow-y-auto"
 						style={{ scrollbarGutter: "stable" }}
 					>
-						<TabsContent value="profit" className="mt-4 mx-4 h-96">
+						<TabsContent value="profit" className="mt-2 mx-2 h-96">
 							<StrategyStats strategyId={strategyId} />
 						</TabsContent>
 
@@ -194,7 +194,7 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 							<OrderRecord ref={orderRecordRef} strategyId={strategyId} />
 						</TabsContent>
 
-						<TabsContent value="trades" className="mt-4 mx-4">
+						<TabsContent value="trades" className="mt-2 mx-2">
 							<TradeRecordPanel />
 						</TabsContent>
 

@@ -32,10 +32,6 @@ export const StatsLegend = forwardRef<HTMLDivElement, StatsLegendProps>(
 			}
 		}, [getChartConfig]);
 
-		useEffect(() => {
-			console.log("statsCount", statsCount)
-		}, [statsCount]);
-
 		if (!statsLegendData) {
 			return null;
 		}

@@ -1,10 +1,10 @@
 import type { ChartOptions, DeepPartial, IChartApi } from "lightweight-charts";
 import { createChart } from "lightweight-charts";
-import {RefObject, useCallback, useState} from "react";
+import { useCallback, useState} from "react";
+import type {RefObject} from "react";
 import { useEffect, useRef } from "react";
 import { useBacktestStatsChartStore } from "@/components/chart/backtest-stats-chart/backtest-stats-chart-store";
 import type { BacktestStrategyStatsChartConfig } from "@/types/chart/backtest-strategy-stats-chart";
-import { defaultBacktestStrategyStatsChartConfig } from "@/types/chart/backtest-strategy-stats-chart";
 import { addStatsSeries } from "./utils";
 import { get_play_index } from "@/service/backtest-strategy/backtest-strategy-control";
 
@@ -38,6 +38,7 @@ export const useBacktestStatsChart = ({
 		getChartRef,
 		setStatsPaneRef,
 		deleteStatsPaneRef,
+		getStatsPaneRef,
 		addStatsPaneHtmlElementRef,
 		setStatsSeriesRef,
 		initObserverSubscriptions,
@@ -111,10 +112,10 @@ export const useBacktestStatsChart = ({
 
 				//4. 创建series
 				// 第一个series创建到主图中
-					const series = addStatsSeries( pane, statsChartConfig, statsChartConfig.seriesConfigs);
-					if (series) {
-						setStatsSeriesRef(statsName, series);
-					}
+				const series = addStatsSeries( pane, statsChartConfig, statsChartConfig.seriesConfigs);
+				if (series) {
+					setStatsSeriesRef(statsName, series);
+				}
 				
 			}
 				
@@ -126,7 +127,6 @@ export const useBacktestStatsChart = ({
 
 	// 删除series
 	const deleteSeries = useCallback(() => {
-		console.log("deleteSeries", chartConfig.statsChartConfigs)
 		const chart = getChartRef();
 		if (chart) {
 			chartConfig.statsChartConfigs.forEach((statsChartConfig) => {
@@ -183,6 +183,50 @@ export const useBacktestStatsChart = ({
 		chartConfig.statsChartConfigs, 
 		incrementPaneVersion,
 	])
+
+
+	const addSeries = useCallback(() => {
+		const chart = getChartRef();
+		if (chart) {
+			const statsChartConfigs = chartConfig.statsChartConfigs.filter((statsChartConfig) => !statsChartConfig.isDelete);
+
+			statsChartConfigs.forEach((statsChartConfig) => {
+				const statsName = statsChartConfig.seriesConfigs.statsName
+				const paneRef = getStatsPaneRef(statsName);
+				if (!paneRef) {
+					const pane = chart.addPane(false);
+					pane.setStretchFactor(2);
+					setStatsPaneRef(statsName, pane);
+					setTimeout(() => {
+						const htmlElement = pane.getHTMLElement();
+						if (htmlElement) {
+							addStatsPaneHtmlElementRef(statsName, htmlElement);
+						}
+					}, 10);
+					const series = addStatsSeries(pane, statsChartConfig, statsChartConfig.seriesConfigs);
+					if (series) {
+						setStatsSeriesRef(statsName, series);
+
+						// 设置数据
+						const statsData = getStatsData(statsName);
+						if (statsData) {
+							series.setData(statsData);
+						}
+					}
+				}
+				
+				
+			});
+		}
+	
+	},[
+		chartConfig.statsChartConfigs, 
+		getStatsPaneRef, 
+		addStatsPaneHtmlElementRef, 
+		setStatsPaneRef, 
+		setStatsSeriesRef, 
+		getChartRef,
+		getStatsData])
 
 
 
@@ -306,9 +350,11 @@ export const useBacktestStatsChart = ({
 				return;
 			}
 			changeSeriesConfig();
+			addSeries();
 			deleteSeries();	
+			
 		}
-	}, [chartConfig, changeSeriesConfig, deleteSeries])
+	}, [chartConfig, changeSeriesConfig, deleteSeries, addSeries])
 
 
 	// 处理图表 resize
