@@ -43,7 +43,7 @@ const StrategyDashboard = forwardRef<StrategyDashboardRef, StrategyDashboardProp
 		},
 		clearPositionRecords: () => {
 			backtestInfoTabsRef.current?.clearPositionRecords();
-		}
+		},
 	}), []);
 
 	// 使用store中的状态和方法

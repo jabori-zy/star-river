@@ -743,7 +743,6 @@ const createBacktestChartStore = (
 				if (key.type === "kline") {
 					await state._processKlineData(keyStr, playIndex);
 				} else if (key.type === "indicator") {
-					console.log("初始化:", keyStr)
 					return await state._processIndicatorData(keyStr, playIndex);
 				}
 			} catch (error) {

@@ -5,11 +5,12 @@ import {
 	Package,
 	TrendingUp,
 } from "lucide-react";
-import { forwardRef, useImperativeHandle, useRef } from "react";
+import { forwardRef, useImperativeHandle, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { LayoutMode } from "@/types/chart";
 import type { BacktestStrategyChartConfig } from "@/types/chart/backtest-chart";
+import { cleanupBacktestStatsChartStore } from "@/components/chart/backtest-stats-chart/backtest-stats-chart-store";
 import ChartManageButton from "./chart-manage-button";
 import OrderRecord, { type OrderRecordRef } from "./order-record";
 import PositionRecord, { type PositionRecordRef } from "./position-record";
@@ -72,7 +73,7 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 	) => {
 		const orderRecordRef = useRef<OrderRecordRef>(null);
 		const positionRecordRef = useRef<PositionRecordRef>(null);
-
+		
 		// 暴露清空订单记录和持仓记录的方法
 		useImperativeHandle(
 			ref,
@@ -87,6 +88,16 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 			[],
 		);
 
+		// 处理tab切换，当从统计图表tab切换到其他tab时清空store数据
+		const handleTabChange = useCallback((value: string) => {
+			// 如果当前是profit tab且要切换到其他tab，清空统计图表store
+			if (activeTab === "profit" && value !== "profit") {
+				cleanupBacktestStatsChartStore(strategyId);
+			}
+			
+			onTabChange?.(value);
+		}, [activeTab, strategyId, onTabChange]);
+
 		// 处理收起dashboard
 		const handleCollapse = () => {
 			onCollapseDashboard?.(); // 收起dashboard
@@ -96,7 +107,7 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 			<Tabs
 				key={`tabs-${isDashboardExpanded ? "expanded" : "collapsed"}-${activeTab || "none"}`}
 				value={activeTab}
-				onValueChange={onTabChange}
+				onValueChange={handleTabChange}
 				className="w-full h-full flex flex-col"
 			>
 				{/* 固定在顶部的头部 */}

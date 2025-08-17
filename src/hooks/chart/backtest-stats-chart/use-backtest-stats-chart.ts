@@ -21,8 +21,6 @@ export const useBacktestStatsChart = ({
 	chartContainerRef,
 	chartOptions,
 }: UseBacktestStatsChartParams) => {
-	console.log("图表刷新了")
-
 	const [isInitialized, setIsInitialized] = useState(false);
 	const resizeObserver = useRef<ResizeObserver>(null);
 	// 获取播放索引并初始化数据
@@ -42,8 +40,6 @@ export const useBacktestStatsChart = ({
 		addStatsPaneHtmlElementRef,
 		setStatsSeriesRef,
 		initObserverSubscriptions,
-		cleanupSubscriptions,
-		resetData,
 		initChartData,
 		getIsDataInitialized,
 		getStatsSeriesRef,
@@ -314,6 +310,7 @@ export const useBacktestStatsChart = ({
 				});
 			});
 		}
+		
 	}, [strategyId, initChartData, initializeBacktestStatsChart, isInitialized]);
 
 	// 图表数据初始化 - 在图表创建后且数据可用时设置数据

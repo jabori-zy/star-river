@@ -70,6 +70,7 @@ interface BacktestStatsChartStore {
 	onNewStatsData: (statsData: StrategyStats) => void;
 
 	resetData: () => void;
+	clearAllData: () => void;
 }
 
 // 创建单个统计图表store的工厂函数
@@ -97,6 +98,7 @@ const createBacktestStatsChartStore = (
 
 		// 数据初始化方法
 		initChartData: async (playIndex: number, strategyId: number) => {
+			// 初始化前，清除所有数据
 			const state = get();
 			if (playIndex > -1) {
 				const initialStatsData = await getStrategyStatsHistory(strategyId, playIndex);
@@ -112,7 +114,7 @@ const createBacktestStatsChartStore = (
 					initialStatsData.forEach((statsData) => {
 						const timestamp = statsData.timestamp / 1000 as UTCTimestamp;
 						balanceStatsData.push({
-							time: statsData.timestamp / 1000 as UTCTimestamp,
+							time: timestamp,
 							value: statsData.balance,
 						});
 						unrealizedPnlStatsData.push({
@@ -145,6 +147,7 @@ const createBacktestStatsChartStore = (
 					state.setStatsData("cumulativeReturn", cumulativeReturnStatsData);
 
 					state.setIsDataInitialized(true);
+
 				}
 			}
 		},
@@ -296,6 +299,31 @@ const createBacktestStatsChartStore = (
 				statsData: {},
 			});
 		},
+
+		// 清空所有状态数据，包括图表引用和订阅
+		clearAllData: () => {
+			const state = get();
+
+			// 1. 清理订阅
+			state.cleanupSubscriptions();
+
+			// 2. 销毁图表实例
+			if (state.chartRef) {
+				state.chartRef.remove();
+			}
+
+			// 3. 重置所有状态
+			set({
+				statsData: {},
+				subscriptions: [],
+				isDataInitialized: false,
+				chartRef: null,
+				statsPaneRefs: {},
+				statsSeriesRefs: {},
+				statsPaneHtmlElementRefs: {},
+				paneVersion: 0,
+			});
+		},
 	}));
 
 // 多实例store管理器
@@ -356,3 +384,6 @@ export const resetAllBacktestStatsChartStore = () => {
 		store.getState().resetData();
 	});
 };
+
+
+

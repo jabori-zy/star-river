@@ -19,6 +19,7 @@ import BacktestWindowHeader from "../../components/backtest/backtest-window-head
 import StrategyDashboard, { type StrategyDashboardRef } from "./components/strategy-dashboard";
 import ChartContainer from "./components/chart-container";
 import { resetAllBacktestChartStore } from "@/components/chart/backtest-chart/backtest-chart-store";
+import { resetAllBacktestStatsChartStore } from "@/components/chart/backtest-stats-chart/backtest-stats-chart-store";
 import { calculateDashboardSize, getDashboardPanelConfig } from "./utils";
 
 export default function BacktestPage() {
@@ -184,9 +185,11 @@ export default function BacktestPage() {
 		stop(strategyId);
 		// 注意：现在使用zustand管理状态，不再需要手动清空图表数据
 		resetAllBacktestChartStore();
+		resetAllBacktestStatsChartStore();
 		// 清空订单记录
 		strategyDashboardRef.current?.clearOrderRecords();
 		strategyDashboardRef.current?.clearPositionRecords();
+		
 	};
 	const onPlayOne = () => {
 		playOne(strategyId);
