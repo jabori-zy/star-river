@@ -28,7 +28,7 @@ export async function play(strategyId: number) {
 		if (response.status !== 200) {
 			throw new Error(`play error: ${response.status}`);
 		}
-		return response.data["data"];
+		return response.data.data;
 	} catch (error) {
 		console.error("play error:", error);
 		throw error;
@@ -41,7 +41,7 @@ export async function pause(strategyId: number) {
 		if (response.status !== 200) {
 			throw new Error(`pause error: ${response.status}`);
 		}
-		return response.data["data"];
+		return response.data.data;
 	} catch (error) {
 		console.error("pause error:", error);
 		throw error;
@@ -54,7 +54,7 @@ export async function stop(strategyId: number) {
 		if (response.status !== 200) {
 			throw new Error(`reset error: ${response.status}`);
 		}
-		return response.data["data"];
+		return response.data.data;
 	} catch (error) {
 		console.error("reset error:", error);
 		throw error;
@@ -67,9 +67,11 @@ export async function get_play_index(strategyId: number) {
 		if (response.status !== 200) {
 			throw new Error(`get_play_index error: ${response.status}`);
 		}
-		return response.data["data"]["play_index"];
+		return response.data.data.play_index;
 	} catch (error) {
 		console.error("get_play_index error:", error);
 		throw error;
 	}
 }
+
+

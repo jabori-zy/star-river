@@ -14,6 +14,8 @@ import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import type { IndicatorKey, IndicatorKeyStr } from "@/types/symbol-key";
 import { parseKey } from "@/utils/parse-key";
 import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
+import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
+import type { IndicatorChartConfig, SeriesConfig } from "@/types/chart";
 
 export type IndicatorLegendData = {
 	indicatorName: string;
@@ -58,15 +60,15 @@ const timeToString = (time: Time): string => {
 const getIndicatorValueColorFromConfig = (
 	indicatorKeyStr: IndicatorKeyStr,
 	valueKey: string,
-	chartConfig: any,
+	chartConfig: BacktestChartConfig,
 ): string => {
 	const indicatorConfig = chartConfig.indicatorChartConfigs?.find(
-		(config: any) => config.indicatorKeyStr === indicatorKeyStr,
+		(config: IndicatorChartConfig) => config.indicatorKeyStr === indicatorKeyStr,
 	);
 
 	if (indicatorConfig) {
 		const seriesConfig = indicatorConfig.seriesConfigs?.find(
-			(config: any) => config.indicatorValueKey === valueKey,
+			(config: SeriesConfig) => config.indicatorValueKey === valueKey,
 		);
 		if (seriesConfig?.color) {
 			return seriesConfig.color;
@@ -92,7 +94,7 @@ const processIndicatorValues = (
 	indicatorKeyStr: IndicatorKeyStr,
 	data: Record<keyof IndicatorValueConfig, SingleValueData[]>,
 	time: Time | null,
-	chartConfig: any,
+	chartConfig: BacktestChartConfig,
 ): Record<string, { label: string; value: string; color?: string }> => {
 	const values: Record<
 		string,
@@ -144,7 +146,7 @@ const mapIndicatorDataToLegendData = (
 	indicatorKeyStr: IndicatorKeyStr,
 	data: Record<keyof IndicatorValueConfig, SingleValueData[]>,
 	time: Time,
-	chartConfig: any,
+	chartConfig: BacktestChartConfig,
 ): IndicatorLegendData => {
 	const indicatorName = parseIndicatorName(indicatorKeyStr);
 	const values = processIndicatorValues(
@@ -166,7 +168,7 @@ const mapIndicatorDataToLegendData = (
 const getLastDataLegendData = (
 	indicatorKeyStr: IndicatorKeyStr,
 	data: Record<keyof IndicatorValueConfig, SingleValueData[]>,
-	chartConfig: any,
+	chartConfig: BacktestChartConfig,
 ): IndicatorLegendData => {
 	let latestTime: Time | null = null;
 	let latestTimestamp = 0;
@@ -213,7 +215,7 @@ export const useIndicatorLegend = ({
 		getSubChartPaneRef,
 	} = useBacktestChartStore(chartId);
 	
-	const chartConfig = useBacktestChartConfigStore.getState().getChartConfig(chartId);
+	const chartConfig = useBacktestChartConfigStore.getState().getChartConfig(chartId) as BacktestChartConfig;
 
 	// 🔑 使用 useMemo 稳定 data 引用，避免无限重新创建 onCrosshairMove
 	const data = useMemo(() => {

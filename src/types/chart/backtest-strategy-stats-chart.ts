@@ -1,5 +1,6 @@
 import type { StatsSeriesConfig } from ".";
 import { SeriesType } from ".";
+import type { StrategyStatsName } from "../statistics";
 
 export type StrategyStatsChartConfig = {
 	chartName: string;
@@ -9,14 +10,10 @@ export type StrategyStatsChartConfig = {
 
 // 回测策略统计图表配置
 export type BacktestStrategyStatsChartConfig = {
-	strategyId: number;
 	statsChartConfigs: StrategyStatsChartConfig[];
 };
 
-export const defaultBacktestStrategyStatsChartConfig: Omit<
-	BacktestStrategyStatsChartConfig,
-	"strategyId"
-> = {
+export const defaultBacktestStrategyStatsChartConfig: BacktestStrategyStatsChartConfig = {
 	statsChartConfigs: [
 		{
 			chartName: "未实现盈亏",
@@ -38,7 +35,7 @@ export const defaultBacktestStrategyStatsChartConfig: Omit<
 				{
 					name: "总资产价值",
 					statsName: "totalEquity",
-					type: SeriesType.LINE,
+					type: SeriesType.MOUNTAIN,
 					color: "#000000",
 					lineWidth: 2,
 				},
@@ -46,3 +43,13 @@ export const defaultBacktestStrategyStatsChartConfig: Omit<
 		},
 	],
 };
+
+
+
+export function getStatsChartConfig(statsName: StrategyStatsName): StrategyStatsChartConfig {
+	const config = defaultBacktestStrategyStatsChartConfig.statsChartConfigs.find(config => config.seriesConfigs.statsName === statsName)
+	if (!config) {
+		throw new Error(`Stats chart config not found for stats name: ${statsName}`)
+	}
+	return config
+}

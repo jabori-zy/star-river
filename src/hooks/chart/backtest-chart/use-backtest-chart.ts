@@ -74,7 +74,7 @@ export const useBacktestChart = ({
 
 	// 使用状态追踪初始化状态，而不是 ref
 	const [isInitialized, setIsInitialized] = useState(false);
-	// 追踪数据是否已在图表中设置
+	// 数据是否已在图表中设置
 	const [isChartDataSet, setIsChartDataSet] = useState(false);
 
 	// 是否是第一次加载

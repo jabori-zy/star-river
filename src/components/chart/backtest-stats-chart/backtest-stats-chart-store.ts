@@ -12,6 +12,7 @@ import { createStatsStream } from "@/hooks/obs/backtest-strategy-data-obs";
 import type { BacktestStrategyStatsChartConfig } from "@/types/chart/backtest-strategy-stats-chart";
 import type { StrategyStats, StrategyStatsName } from "@/types/statistics";
 import type { BacktestStrategyStatsUpdateEvent } from "@/types/strategy-event/backtest-strategy-event";
+import { getStrategyStatsHistory } from "@/service/backtest-strategy/strategy-stats";
 
 interface BacktestStatsChartStore {
 	strategyId: number;
@@ -27,8 +28,9 @@ interface BacktestStatsChartStore {
 	statsSeriesRefs: Partial<Record<StrategyStatsName, ISeriesApi<"Line"> | null>>; // 每个统计数据的series引用
 	statsPaneHtmlElementRefs: Partial<Record<StrategyStatsName, HTMLElement | null>>; // 每个统计图表的pane HTML元素引用
 
-	// 可见性状态
-	statsVisibilityMap: Partial<Record<StrategyStatsName, boolean>>;
+
+	//数据初始化方法
+	initChartData: (playIndex: number, strategyId: number) => Promise<void>;
 
 	// === 数据管理方法 ===
 	setStatsData: (statsName: StrategyStatsName, data: SingleValueData[]) => void;
@@ -38,11 +40,6 @@ interface BacktestStatsChartStore {
 	// 数据初始化状态管理
 	getIsDataInitialized: () => boolean;
 	setIsDataInitialized: (initialized: boolean) => void;
-
-	// === 可见性控制方法 ===
-	setStatsVisibility: (statsName: StrategyStatsName, visible: boolean) => void;
-	toggleStatsVisibility: (statsName: StrategyStatsName) => void;
-	getStatsVisibility: (statsName: StrategyStatsName) => boolean;
 
 	// === ref 管理方法 ===
 	setChartRef: (chart: IChartApi | null) => void;
@@ -86,8 +83,60 @@ const createBacktestStatsChartStore = (
 		statsPaneRefs: {},
 		statsSeriesRefs: {},
 		statsPaneHtmlElementRefs: {},
-		// === 可见性状态初始化 ===
-		statsVisibilityMap: {},
+
+		// 数据初始化方法
+		initChartData: async (playIndex: number, strategyId: number) => {
+			const state = get();
+			if (playIndex > -1) {
+				const initialStatsData = await getStrategyStatsHistory(strategyId, playIndex);
+				if (initialStatsData) {
+
+					const balanceStatsData: SingleValueData[] = []
+					const unrealizedPnlStatsData: SingleValueData[] = []
+					const totalEquityStatsData: SingleValueData[] = []
+					const positionStatsData: SingleValueData[] = []
+					const realizedPnlStatsData: SingleValueData[] = []
+					const cumulativeReturnStatsData: SingleValueData[] = []
+
+					initialStatsData.forEach((statsData) => {
+						const timestamp = statsData.timestamp / 1000 as UTCTimestamp;
+						balanceStatsData.push({
+							time: statsData.timestamp / 1000 as UTCTimestamp,
+							value: statsData.balance,
+						});
+						unrealizedPnlStatsData.push({
+							time: timestamp,
+							value: statsData.unrealizedPnl,
+						});
+						totalEquityStatsData.push({
+							time: timestamp,
+							value: statsData.totalEquity,
+						});
+						positionStatsData.push({
+							time: timestamp,
+							value: statsData.positionCount,
+						});
+						realizedPnlStatsData.push({
+							time: timestamp,
+							value: statsData.realizedPnl,
+						});
+						cumulativeReturnStatsData.push({
+							time: timestamp,
+							value: statsData.cumulativeReturn,
+						});
+					});
+
+					state.setStatsData("balance", balanceStatsData);
+					state.setStatsData("unrealizedPnl", unrealizedPnlStatsData);
+					state.setStatsData("totalEquity", totalEquityStatsData);
+					state.setStatsData("positionCount", positionStatsData);
+					state.setStatsData("realizedPnl", realizedPnlStatsData);
+					state.setStatsData("cumulativeReturn", cumulativeReturnStatsData);
+
+					state.setIsDataInitialized(true);
+				}
+			}
+		},
 
 		// === 数据管理方法 ===
 		setStatsData: (statsName: StrategyStatsName, data: SingleValueData[]) => {
@@ -108,25 +157,6 @@ const createBacktestStatsChartStore = (
 		setIsDataInitialized: (initialized: boolean) =>
 			set({ isDataInitialized: initialized }),
 
-		// === 可见性控制方法实现 ===
-		setStatsVisibility: (chartName: string, visible: boolean) => {
-			set((state) => ({
-				statsVisibilityMap: {
-					...state.statsVisibilityMap,
-					[chartName]: visible,
-				},
-			}));
-		},
-
-		toggleStatsVisibility: (statsName: StrategyStatsName) => {
-			const currentVisibility = get().getStatsVisibility(statsName);
-			get().setStatsVisibility(statsName, !currentVisibility);
-		},
-
-		getStatsVisibility: (statsName: StrategyStatsName) => {
-			const { statsVisibilityMap } = get();
-			return statsVisibilityMap[statsName] ?? true; // 默认可见
-		},
 
 		// === ref 管理方法实现 ===
 		setChartRef: (chart: IChartApi | null) => set({ chartRef: chart }),
@@ -208,9 +238,7 @@ const createBacktestStatsChartStore = (
 
 			// 处理每个统计数据
 			Object.entries(statsData).forEach(([statsName, value]) => {
-				console.log("statsName:", statsName, "value:", value)
 				const existingData = state.getStatsData(statsName as StrategyStatsName);
-				console.log("existingData:", existingData)
 				const newDataPoint: SingleValueData = {
 					time: timestamp,
 					value: value,
@@ -221,7 +249,6 @@ const createBacktestStatsChartStore = (
 
 				// 更新series
 				const seriesRef = state.getStatsSeriesRef(statsName as StrategyStatsName);
-				console.log("seriesRef:", seriesRef)
 				if (seriesRef) {
 					seriesRef.update(newDataPoint);
 				}
