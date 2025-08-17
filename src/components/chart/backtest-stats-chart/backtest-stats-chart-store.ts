@@ -29,6 +29,10 @@ interface BacktestStatsChartStore {
 	statsPaneHtmlElementRefs: Partial<Record<StrategyStatsName, HTMLElement | null>>; // 每个统计图表的pane HTML元素引用
 
 
+	// === Pane 版本号，用于强制重新渲染 legend ===
+	paneVersion: number;
+
+
 	//数据初始化方法
 	initChartData: (playIndex: number, strategyId: number) => Promise<void>;
 
@@ -55,6 +59,10 @@ interface BacktestStatsChartStore {
 
 	addStatsPaneHtmlElementRef: (statsName: StrategyStatsName, htmlElement: HTMLElement) => void;
 	getStatsPaneHtmlElementRef: (statsName: StrategyStatsName) => HTMLElement | null;
+
+	// Pane 版本号管理
+	getPaneVersion: () => number;
+	incrementPaneVersion: () => void;
 
 	// Observer 相关方法
 	initObserverSubscriptions: () => void;
@@ -83,6 +91,9 @@ const createBacktestStatsChartStore = (
 		statsPaneRefs: {},
 		statsSeriesRefs: {},
 		statsPaneHtmlElementRefs: {},
+
+		// === Pane 版本号，用于强制重新渲染 legend ===
+		paneVersion: 0,
 
 		// 数据初始化方法
 		initChartData: async (playIndex: number, strategyId: number) => {
@@ -190,6 +201,11 @@ const createBacktestStatsChartStore = (
 			}),
 		getStatsPaneHtmlElementRef: (statsName: StrategyStatsName) =>
 			get().statsPaneHtmlElementRefs[statsName] || null,
+
+
+		// Pane 版本号管理
+		getPaneVersion: () => get().paneVersion,
+		incrementPaneVersion: () => set((state) => ({ paneVersion: state.paneVersion + 1 })),
 
 		// Observer 相关方法
 		initObserverSubscriptions: () => {

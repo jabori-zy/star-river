@@ -1,6 +1,6 @@
 import { Bolt, Eye, EyeOff, Trash2 } from "lucide-react";
 import type React from "react";
-import { forwardRef, useState } from "react";
+import { forwardRef, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import type { StatsLegendData } from "@/hooks/chart/backtest-stats-chart/use-stats-legend";
 import { useBacktestStatsChartConfigStore } from "@/store/use-backtest-stats-chart-config-store";
@@ -16,20 +16,32 @@ interface StatsLegendProps {
 export const StatsLegend = forwardRef<HTMLDivElement, StatsLegendProps>(
 	({ statsLegendData, className = "", style }, ref) => {
 		// 使用统计图表配置store
-		const { getStatsVisibility, toggleStatsVisibility, removeStats } =
+		const { getChartConfig,getStatsVisibility, toggleStatsVisibility, removeStats } =
 			useBacktestStatsChartConfigStore();
 
 		// 编辑对话框状态
 		const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+
+		// 当前配置个数(不包括被删除的)
+		const [statsCount, setStatsCount] = useState(0);
+
+		useEffect(() => {
+			const chartConfig = getChartConfig();
+			if (chartConfig) {
+				setStatsCount(chartConfig.statsChartConfigs.filter((statsChartConfig) => !statsChartConfig.isDelete).length);
+			}
+		}, [getChartConfig]);
+
+		useEffect(() => {
+			console.log("statsCount", statsCount)
+		}, [statsCount]);
 
 		if (!statsLegendData) {
 			return null;
 		}
 
 		// 获取当前统计的可见性状态
-		const isVisible = getStatsVisibility(
-			statsLegendData.statsName as StrategyStatsName,
-		);
+		const isVisible = getStatsVisibility(statsLegendData.statsName as StrategyStatsName);
 
 		// 处理可见性切换
 		const handleVisibilityToggle = (e: React.MouseEvent) => {
@@ -48,6 +60,10 @@ export const StatsLegend = forwardRef<HTMLDivElement, StatsLegendProps>(
 			e.stopPropagation();
 			setIsEditDialogOpen(true);
 		};
+
+		
+
+		
 
 		return (
 			<div
@@ -94,15 +110,18 @@ export const StatsLegend = forwardRef<HTMLDivElement, StatsLegendProps>(
 						>
 							<Bolt size={12} className="text-yellow-600" />
 						</Button>
-						<Button
-							variant="outline"
-							size="sm"
-							className="h-6 w-6 p-0 border-gray-300 bg-white hover:bg-red-50 hover:border-red-400"
-							title="删除"
-							onClick={handleDeleteStats}
-						>
-							<Trash2 size={12} className="text-red-600" />
-						</Button>
+						{/* 如果statsCount = 1,则不显示删除按钮 */}
+						{statsCount > 1 && (
+							<Button
+								variant="outline"
+								size="sm"
+								className="h-6 w-6 p-0 border-gray-300 bg-white hover:bg-red-50 hover:border-red-400"
+								title="删除"
+								onClick={handleDeleteStats}
+							>
+									<Trash2 size={12} className="text-red-600" />
+								</Button>
+							)}
 					</div>
 				</div>
 

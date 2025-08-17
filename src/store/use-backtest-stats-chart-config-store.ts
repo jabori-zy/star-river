@@ -81,7 +81,18 @@ const useBacktestStatsChartConfigStore = create<BacktestStatsChartConfigState>((
 
 	// 统计图表删除管理（软删除 - 设置为不可见）
 	removeStats: (statsName: StrategyStatsName) => {
-		get().setStatsVisibility(statsName, false);
+		const { chartConfig } = get();
+		if (!chartConfig) return;
+
+		const newConfig = {
+			...chartConfig,
+			statsChartConfigs: chartConfig.statsChartConfigs.map((config) =>
+				config.seriesConfigs.statsName === statsName
+					? { ...config, isDelete: true }
+					: config
+			),
+		};
+		set({ chartConfig: newConfig });
 	},
 
 	// 统计图表配置编辑

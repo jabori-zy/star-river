@@ -5,7 +5,7 @@ import type { StrategyStatsChartConfig } from "@/types/chart/backtest-strategy-s
 import { useBacktestStatsChartStore } from "./backtest-stats-chart-store";
 import { StatsLegend } from "./stats-legend";
 
-interface SubchartStatsLegendProps {
+interface ChartStatsLegendProps {
 	strategyId: number;
 	statsChartConfig: StrategyStatsChartConfig;
 }
@@ -14,24 +14,30 @@ interface SubchartStatsLegendProps {
  * 🔑 优化后的子图统计 Legend 组件
  * 使用 React Portal 而不是 createRoot，简化渲染流程
  */
-export function SubchartStatsLegend({
+export function ChartLegend({
 	strategyId,
 	statsChartConfig,
-}: SubchartStatsLegendProps) {
+}: ChartStatsLegendProps) {
 	const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(
 		null,
 	);
 	
-	const { getStatsPaneRef, getChartRef } = useBacktestStatsChartStore(
+
+	const { getStatsPaneRef, getChartRef, getPaneVersion } = useBacktestStatsChartStore(
 		strategyId,
 		{ statsChartConfigs: [statsChartConfig] },
 	);
+
+	// 🔑 获取 pane 版本号，用于监听 pane 变化
+	const paneVersion = getPaneVersion();
 
 	// 🔑 获取 legend 数据和事件处理器
 	const { statsLegendData, onCrosshairMove } = useStatsLegend({
 		strategyId,
 		statsChartConfig,
 	});
+
+
 
 	const statsName = statsChartConfig.seriesConfigs.statsName;
 
@@ -57,6 +63,9 @@ export function SubchartStatsLegend({
 
 	// 🔑 创建 Portal 容器，响应 paneRef 的变化
 	useEffect(() => {
+		// 当pane被删除时版本号会变化，触发重新创建容器
+		void paneVersion; // 引用paneVersion以消除ESLint警告
+
 		const createPortalContainer = () => {
 			const paneRef = getStatsPaneRef(statsName);
 
@@ -118,7 +127,7 @@ export function SubchartStatsLegend({
 				return null;
 			});
 		};
-	}, [statsName, getStatsPaneRef]); // 依赖 statsName，当 pane 被删除时会重新创建容器
+	}, [statsName, getStatsPaneRef, paneVersion]); // 依赖 statsName，当 pane 被删除时会重新创建容器
 
 	// 🔑 使用 Portal 渲染，简单直接
 	if (!portalContainer || !statsLegendData) {

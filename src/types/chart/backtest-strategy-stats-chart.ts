@@ -5,6 +5,7 @@ import type { StrategyStatsName } from "../statistics";
 export type StrategyStatsChartConfig = {
 	chartName: string;
 	visible: boolean;
+	isDelete: boolean;
 	seriesConfigs: StatsSeriesConfig;
 };
 
@@ -18,6 +19,7 @@ export const defaultBacktestStrategyStatsChartConfig: BacktestStrategyStatsChart
 		{
 			chartName: "未实现盈亏",
 			visible: true,
+			isDelete: false,
 			seriesConfigs: 
 				{
 					name: "未实现盈亏",
@@ -31,6 +33,7 @@ export const defaultBacktestStrategyStatsChartConfig: BacktestStrategyStatsChart
 		{
 			chartName: "总资产价值",
 			visible: true,
+			isDelete: false,
 			seriesConfigs: 
 				{
 					name: "总资产价值",

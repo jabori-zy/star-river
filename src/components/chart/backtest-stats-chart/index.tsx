@@ -1,12 +1,11 @@
 import type { IChartApi } from "lightweight-charts";
 import { useCallback, useEffect, useRef } from "react";
-import { useBacktestStatsChart, useStatsLegend } from "@/hooks/chart/backtest-stats-chart";
+import { useBacktestStatsChart } from "@/hooks/chart/backtest-stats-chart";
 import type { BacktestStrategyStatsChartConfig } from "@/types/chart/backtest-strategy-stats-chart";
 import { useBacktestStatsChartStore } from "./backtest-stats-chart-store";
 import { chartOptions } from "./chart-config";
-import { StatsLegend } from "./stats-legend";
-import { SubchartStatsLegend } from "./subchart-stats-legend";
 import { useBacktestStatsChartConfigStore } from "@/store/use-backtest-stats-chart-config-store";
+import { ChartLegend } from "./chart-legend";
 
 interface BacktestStatsChartProps {
 	strategyId: number;
@@ -72,7 +71,7 @@ const BacktestStatsChart = ({
 			{chartConfig.statsChartConfigs
 				// .slice(1) // 跳过第一个配置（主图），从第二个开始都是子图
 				.map((statsConfig) => (
-					<SubchartStatsLegend
+					<ChartLegend
 						key={statsConfig.seriesConfigs.statsName}
 						strategyId={strategyId}
 						statsChartConfig={statsConfig}

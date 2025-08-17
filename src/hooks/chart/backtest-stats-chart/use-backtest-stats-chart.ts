@@ -34,10 +34,10 @@ export const useBacktestStatsChart = ({
 	const isFirstChartConfigLoad = useRef(true);
 
 	const {
-		statsPaneRefs,
 		setChartRef,
 		getChartRef,
 		setStatsPaneRef,
+		deleteStatsPaneRef,
 		addStatsPaneHtmlElementRef,
 		setStatsSeriesRef,
 		initObserverSubscriptions,
@@ -46,22 +46,25 @@ export const useBacktestStatsChart = ({
 		initChartData,
 		getIsDataInitialized,
 		getStatsSeriesRef,
+		deleteStatsSeriesRef,
 		getStatsData,
+		incrementPaneVersion,
 	} = useBacktestStatsChartStore(strategyId, chartConfig);
 
 
 	// 更改series配置
 	const changeSeriesConfig = useCallback(() => {
-		console.log("changeSeriesConfig", chartConfig.statsChartConfigs)
 
 		chartConfig.statsChartConfigs.forEach((statsChartConfig) => {
-			const statsName = statsChartConfig.seriesConfigs.statsName
-			const statsSeriesRef = getStatsSeriesRef(statsName);
-			if (statsSeriesRef) {
-				statsSeriesRef.applyOptions({
-					visible: statsChartConfig.visible,
-					color: statsChartConfig.seriesConfigs.color,
-				});
+			if (!statsChartConfig.isDelete) {
+				const statsName = statsChartConfig.seriesConfigs.statsName
+				const statsSeriesRef = getStatsSeriesRef(statsName);
+				if (statsSeriesRef) {
+					statsSeriesRef.applyOptions({
+						visible: statsChartConfig.visible,
+						color: statsChartConfig.seriesConfigs.color,
+					});
+				}
 			}
 		});
 
@@ -72,7 +75,7 @@ export const useBacktestStatsChart = ({
 
 	const createStatsPane = useCallback((chart: IChartApi) => {
 		
-		defaultBacktestStrategyStatsChartConfig.statsChartConfigs.forEach((statsChartConfig) => {
+		chartConfig.statsChartConfigs.forEach((statsChartConfig) => {
 			// 如果图表可见，则创建pane
 			
 			const statsName = statsChartConfig.seriesConfigs.statsName
@@ -118,7 +121,68 @@ export const useBacktestStatsChart = ({
 			
 		});
 		
-	}, [setStatsPaneRef, addStatsPaneHtmlElementRef, setStatsSeriesRef]);
+	}, [setStatsPaneRef, addStatsPaneHtmlElementRef, setStatsSeriesRef, chartConfig.statsChartConfigs]);
+
+
+	// 删除series
+	const deleteSeries = useCallback(() => {
+		console.log("deleteSeries", chartConfig.statsChartConfigs)
+		const chart = getChartRef();
+		if (chart) {
+			chartConfig.statsChartConfigs.forEach((statsChartConfig) => {
+				if (statsChartConfig.isDelete) {
+					const statsName = statsChartConfig.seriesConfigs.statsName
+					// 待删除的series引用
+					const removeSeriesRef = getStatsSeriesRef(statsName);
+
+					if (removeSeriesRef) {
+						// series所在的pane引用
+						const removePane = removeSeriesRef.getPane();
+						if (removePane) {
+							const removePaneIndex = removePane.paneIndex();
+							chart.removePane(removePaneIndex);
+							deleteStatsPaneRef(statsName); // 删除store中的pane引用
+							deleteStatsSeriesRef(statsName); // 删除store中的series引用
+
+							
+							chartConfig.statsChartConfigs.forEach((statsChartConfig) => {
+								const statsName = statsChartConfig.seriesConfigs.statsName
+								const seriesRef = getStatsSeriesRef(statsName);
+								if (seriesRef) {
+									const newPane = seriesRef.getPane()
+									if (newPane) {
+										const newHtmlElement = newPane.getHTMLElement();
+										if (newHtmlElement) {
+											addStatsPaneHtmlElementRef(statsName, newHtmlElement);
+										}
+										setStatsPaneRef(statsName, newPane);
+										incrementPaneVersion();
+
+									}
+									
+									
+								}
+
+								
+							});
+						}
+					
+
+					}
+						
+				}
+			});
+		}
+	},[
+		getChartRef, 
+		addStatsPaneHtmlElementRef, 
+		deleteStatsPaneRef, 
+		setStatsPaneRef, 
+		deleteStatsSeriesRef, 
+		getStatsSeriesRef, 
+		chartConfig.statsChartConfigs, 
+		incrementPaneVersion,
+	])
 
 
 
@@ -242,8 +306,9 @@ export const useBacktestStatsChart = ({
 				return;
 			}
 			changeSeriesConfig();
+			deleteSeries();	
 		}
-	}, [chartConfig, changeSeriesConfig])
+	}, [chartConfig, changeSeriesConfig, deleteSeries])
 
 
 	// 处理图表 resize
