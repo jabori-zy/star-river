@@ -35,7 +35,7 @@ export const getOrderTypeLabel = (type: OrderType): string => {
 		[OrderType.MARKET]: "市价",
 		[OrderType.STOP_LIMIT]: "止损限价",
 		[OrderType.STOP_MARKET]: "止损市价",
-		[OrderType.TAKE_PROFIT]: "止盈",
+		[OrderType.TAKE_PROFIT_MARKET]: "止盈",
 		[OrderType.TAKE_PROFIT_LIMIT]: "止盈限价",
 	};
 	return labels[type] || type;

@@ -27,7 +27,7 @@ const OrderConfigItem: React.FC<OrderConfigItemProps> = ({
 			[OrderType.MARKET]: "市价单",
 			[OrderType.STOP_LIMIT]: "止损限价单",
 			[OrderType.STOP_MARKET]: "止损市价单",
-			[OrderType.TAKE_PROFIT]: "止盈单",
+			[OrderType.TAKE_PROFIT_MARKET]: "止盈单",
 			[OrderType.TAKE_PROFIT_LIMIT]: "止盈限价单",
 		};
 		return labels[type] || type;

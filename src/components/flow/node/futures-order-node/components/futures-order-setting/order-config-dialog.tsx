@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -10,6 +10,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import {
 	type FuturesOrderConfig,
 	FuturesOrderSide,
@@ -44,6 +51,21 @@ const OrderConfigDialog: React.FC<OrderConfigDialogProps> = ({
 	const [quantity, setQuantity] = React.useState<number>(0);
 	const [tp, setTp] = React.useState<number | null>(null);
 	const [sl, setSl] = React.useState<number | null>(null);
+	const [tpType, setTpType] = React.useState<"price" | "percentage">("price");
+	const [slType, setSlType] = React.useState<"price" | "percentage">("price");
+
+
+	const resetForm = useCallback(() => {
+		setSymbol("");
+		setOrderType(OrderType.LIMIT);
+		setOrderSide(FuturesOrderSide.OPEN_LONG);
+		setPrice(0);
+		setQuantity(0);
+		setTp(null);
+		setSl(null);
+		setTpType("price");
+		setSlType("price");
+	}, []);
 
 	// 当对话框打开时重置或恢复状态
 	useEffect(() => {
@@ -56,21 +78,16 @@ const OrderConfigDialog: React.FC<OrderConfigDialogProps> = ({
 				setQuantity(editingConfig.quantity);
 				setTp(editingConfig.tp);
 				setSl(editingConfig.sl);
+				// 从编辑配置中恢复止盈止损类型，如果没有则默认为价格
+				setTpType(editingConfig.tpType || "price");
+				setSlType(editingConfig.slType || "price");
 			} else {
 				resetForm();
 			}
 		}
-	}, [isOpen, isEditing, editingConfig]);
+	}, [isOpen, isEditing, editingConfig, resetForm]);
 
-	const resetForm = () => {
-		setSymbol("");
-		setOrderType(OrderType.LIMIT);
-		setOrderSide(FuturesOrderSide.OPEN_LONG);
-		setPrice(0);
-		setQuantity(0);
-		setTp(null);
-		setSl(null);
-	};
+	
 
 	const handleSave = () => {
 		if (!symbol.trim() || quantity <= 0) {
@@ -96,6 +113,8 @@ const OrderConfigDialog: React.FC<OrderConfigDialogProps> = ({
 			quantity,
 			tp,
 			sl,
+			tpType,
+			slType,
 		};
 
 		onSave(orderConfig);
@@ -106,7 +125,7 @@ const OrderConfigDialog: React.FC<OrderConfigDialogProps> = ({
 		orderType === OrderType.MARKET || orderType === OrderType.STOP_MARKET;
 
 	return (
-		<Dialog open={isOpen} onOpenChange={onOpenChange}>
+		<Dialog open={isOpen} onOpenChange={onOpenChange} modal={false}>
 			<DialogContent className="sm:max-w-[500px]">
 				<DialogHeader>
 					<DialogTitle>
@@ -161,39 +180,63 @@ const OrderConfigDialog: React.FC<OrderConfigDialogProps> = ({
 
 					<div className="grid grid-cols-4 items-center gap-4">
 						<Label htmlFor="tp" className="text-right">
-							止盈价
+							止盈
 						</Label>
-						<div className="col-span-3">
-							<Input
-								id="tp"
-								type="number"
-								value={tp || ""}
-								onChange={(e) =>
-									setTp(e.target.value ? Number(e.target.value) : null)
-								}
-								min={0}
-								step={0.01}
-								placeholder="输入止盈价 (可选)"
-							/>
+						<div className="col-span-3 flex gap-2">
+							<div className="flex-1 relative">
+								<Input
+									id="tp"
+									type="number"
+									value={tp || ""}
+									onChange={(e) =>
+										setTp(e.target.value ? Number(e.target.value) : null)
+									}
+									min={0}
+									step={tpType === "percentage" ? 0.1 : 0.01}
+									placeholder={tpType === "price" ? "输入止盈价 (可选)" : "输入止盈百分比 (可选)"}
+									className={tpType === "percentage" ? "pr-6" : ""}
+								/>
+							</div>
+							<Select value={tpType} onValueChange={(value: "price" | "percentage") => setTpType(value)}>
+								<SelectTrigger className="w-16">
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="price">$</SelectItem>
+									<SelectItem value="percentage">%</SelectItem>
+								</SelectContent>
+							</Select>
 						</div>
 					</div>
 
 					<div className="grid grid-cols-4 items-center gap-4">
 						<Label htmlFor="sl" className="text-right">
-							止损价
+							止损
 						</Label>
-						<div className="col-span-3">
-							<Input
-								id="sl"
-								type="number"
-								value={sl || ""}
-								onChange={(e) =>
-									setSl(e.target.value ? Number(e.target.value) : null)
-								}
-								min={0}
-								step={0.01}
-								placeholder="输入止损价 (可选)"
-							/>
+						<div className="col-span-3 flex gap-2">
+							<div className="flex-1 relative">
+								<Input
+									id="sl"
+									type="number"
+									value={sl || ""}
+									onChange={(e) =>
+										setSl(e.target.value ? Number(e.target.value) : null)
+									}
+									min={0}
+									step={slType === "percentage" ? 0.1 : 0.01}
+									placeholder={slType === "price" ? "输入止损价 (可选)" : "输入止损百分比 (可选)"}
+									className={slType === "percentage" ? "pr-6" : ""}
+								/>
+							</div>
+							<Select value={slType} onValueChange={(value: "price" | "percentage") => setSlType(value)}>
+								<SelectTrigger className="w-16">
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="price">$</SelectItem>
+									<SelectItem value="percentage">%</SelectItem>
+								</SelectContent>
+							</Select>
 						</div>
 					</div>
 				</div>

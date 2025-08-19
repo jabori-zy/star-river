@@ -5,6 +5,8 @@ import type {
 	Time,
 	SeriesMarkerBarPosition,
 	SeriesMarkerShape,
+	LineStyle,
+	LineWidth,
 } from "lightweight-charts";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import type { IndicatorKeyStr, KeyStr } from "@/types/symbol-key";
@@ -71,6 +73,54 @@ export type OrderMarker = {
 	text: string;
 	size?: number;
 };
+
+/**
+ * 止盈价格线
+ */
+export type TakeProfitPriceLine = {
+	id: string;
+	price: number;
+	color: string;
+	lineWidth: LineWidth;
+	lineStyle: LineStyle,
+	axisLabelVisible: boolean,
+	title: string;
+};
+
+
+/**
+ * 止损价格线
+ */
+export type StopLossPriceLine = {
+	id: string;
+	price: number;
+	color: string;
+	lineWidth: LineWidth;
+	lineStyle: LineStyle,
+	axisLabelVisible: boolean,
+	title: string;
+};
+
+
+/**
+ * 开仓价格线
+ */
+export type OpenPositionPriceLine = {
+	id: string;
+	price: number;
+	color: string;
+	lineWidth: LineWidth;
+	lineStyle: LineStyle,
+	axisLabelVisible: boolean,
+	title: string;
+};
+
+export type OrderPriceLine = TakeProfitPriceLine | StopLossPriceLine | OpenPositionPriceLine;
+
+
+
+
+
 
 // // 子图配置
 // export type SubChartConfig = {

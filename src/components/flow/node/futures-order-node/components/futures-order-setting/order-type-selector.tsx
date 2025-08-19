@@ -22,7 +22,7 @@ const ORDER_TYPE_OPTIONS = [
 	{ value: OrderType.MARKET, label: "市价单", icon: ShoppingCart },
 	{ value: OrderType.STOP_LIMIT, label: "止损限价单", icon: TrendingUp },
 	{ value: OrderType.STOP_MARKET, label: "止损市价单", icon: ShoppingCart },
-	{ value: OrderType.TAKE_PROFIT, label: "止盈单", icon: TrendingUp },
+	{ value: OrderType.TAKE_PROFIT_MARKET, label: "止盈单", icon: TrendingUp },
 	{ value: OrderType.TAKE_PROFIT_LIMIT, label: "止盈限价单", icon: TrendingUp },
 ];
 

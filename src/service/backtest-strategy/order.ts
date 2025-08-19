@@ -33,3 +33,16 @@ export async function getVirtualPosition(strateygId: number) {
     }
 
 }
+
+export async function getVirtualTransaction(strateygId: number) {
+    try {
+        const response = await axios.get(`${API_URL}/${strateygId}/virtual-transactions`);
+        if (response.status !== 200) {
+            throw new Error(`获取虚拟交易明细失败: ${response.status}`);
+        }
+        return response.data.data;
+    } catch (error) {
+        console.error("getVirtualTransaction error", error);
+        throw error;
+    }
+}

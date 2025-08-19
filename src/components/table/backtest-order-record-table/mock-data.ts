@@ -6,7 +6,7 @@ export function generateMockVirtualOrders(count: number = 50): VirtualOrder[] {
 	const symbols = ["BTCUSDT", "ETHUSDT", "ADAUSDT", "DOGEUSDT", "SOLUSDT", "BNBUSDT"];
 	const exchanges = ["BINANCE", "OKX", "HUOBI", "BYBIT"];
 	const orderSides: FuturesOrderSide[] = [FuturesOrderSide.OPEN_LONG, FuturesOrderSide.OPEN_SHORT, FuturesOrderSide.CLOSE_LONG, FuturesOrderSide.CLOSE_SHORT];
-	const orderTypes: OrderType[] = [OrderType.LIMIT, OrderType.MARKET, OrderType.STOP_LIMIT, OrderType.STOP_MARKET, OrderType.TAKE_PROFIT, OrderType.TAKE_PROFIT_LIMIT];
+	const orderTypes: OrderType[] = [OrderType.LIMIT, OrderType.MARKET, OrderType.STOP_LIMIT, OrderType.STOP_MARKET, OrderType.TAKE_PROFIT_MARKET, OrderType.TAKE_PROFIT_LIMIT];
 	const orderStatuses: OrderStatus[] = [OrderStatus.CREATED, OrderStatus.PLACED, OrderStatus.PARTIAL, OrderStatus.FILLED, OrderStatus.CANCELLED, OrderStatus.REJECTED];
 
 	const mockData: VirtualOrder[] = [];

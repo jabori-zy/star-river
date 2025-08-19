@@ -1,7 +1,8 @@
-import type { OrderMarker } from "@/types/chart";
+import { type OpenPositionPriceLine, type OrderMarker, type StopLossPriceLine, type TakeProfitPriceLine } from "@/types/chart";
 import type { VirtualOrder } from "@/types/order";
 import dayjs from "dayjs";
 import type { UTCTimestamp } from "lightweight-charts";
+import { LineStyle, LineWidth } from "lightweight-charts";
 
 
 
@@ -47,3 +48,41 @@ export function virtualOrderToMarker(virtualOrder: VirtualOrder): OrderMarker[] 
     // markers.push(marker3);
     return markers;
 }
+
+// 虚拟订单转换为开仓价格线
+export function virtualOrderToOpenPositionPriceLine(virtualOrder: VirtualOrder): OpenPositionPriceLine {
+    return {
+        id: virtualOrder.orderId.toString(),
+        price: virtualOrder.openPrice,
+        color: "#F7A200",
+        lineWidth: 1,
+        lineStyle: LineStyle.Dashed,
+        axisLabelVisible: true,
+        title: "Open Position",
+    };
+}
+
+export function virtualOrderToTakeProfitPriceLine(virtualOrder: VirtualOrder): TakeProfitPriceLine {
+    return {
+        id: virtualOrder.orderId.toString(),
+        price: virtualOrder.openPrice,
+        color: "#0FE8D9",
+        lineWidth: 1,
+        lineStyle: LineStyle.Dashed,
+        axisLabelVisible: true,
+        title: "Take Profit",
+    };
+}
+
+export function virtualOrderToStopLossPriceLine(virtualOrder: VirtualOrder): StopLossPriceLine {
+    return {
+        id: virtualOrder.orderId.toString(),
+        price: virtualOrder.openPrice,
+        color: "#FF0000",
+        lineWidth: 1,
+        lineStyle: LineStyle.Dashed,
+        axisLabelVisible: true,
+        title: "Stop Loss",
+    };
+}
+

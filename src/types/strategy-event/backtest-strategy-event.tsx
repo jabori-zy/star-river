@@ -3,6 +3,7 @@ import type { VirtualOrder } from "@/types/order/virtual-order";
 import type { KeyStr } from "@/types/symbol-key";
 import type { VirtualPosition } from "../position";
 import type { StrategyStats } from "../statistics";
+import type { VirtualTransaction } from "../transaction";
 
 export type LiveStrategyEvent = {
 	channel: string;
@@ -26,6 +27,7 @@ export type BacktestStrategyEvent =
 	| IndicatorUpdateEvent
 	| VirtualOrderEvent
 	| VirtualPositionEvent
+	| VirtualTransactionEvent
 	| BacktestStrategyStatsUpdateEvent;
 
 export type BaseEventProps = {
@@ -60,5 +62,9 @@ export type VirtualPositionEvent = BaseEventProps & {
 
 export type BacktestStrategyStatsUpdateEvent = Omit<BaseEventProps, "fromNodeId" | "fromNodeName" | "fromNodeHandleId"> & {
 	statsSnapshot: StrategyStats;
+};
+
+export type VirtualTransactionEvent = BaseEventProps & {
+	transaction: VirtualTransaction;
 };
 

@@ -9,7 +9,7 @@ export enum OrderType {
 	MARKET = "MARKET", // 市价单
 	STOP_LIMIT = "STOP_LIMIT", // 止损限价单
 	STOP_MARKET = "STOP_MARKET", // 止损市价单
-	TAKE_PROFIT = "TAKE_PROFIT", // 止盈单
+	TAKE_PROFIT_MARKET = "TAKE_PROFIT_MARKET", // 止盈市价单
 	TAKE_PROFIT_LIMIT = "TAKE_PROFIT_LIMIT", // 止盈限价单
 }
 
@@ -46,4 +46,6 @@ export type FuturesOrderConfig = {
 	quantity: number;
 	tp: number | null;
 	sl: number | null;
+	tpType: "price" | "percentage" | null;
+	slType: "price" | "percentage" | null;
 };

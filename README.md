@@ -1,11 +1,11 @@
 
-netstat -ano | findstr :5173
+netstat -ano | findstr :5174
 
 
-tasklist /fi "PID eq 44432" /fo table
+tasklist /fi "PID eq 45192" /fo table
 
 中止Node进程
-taskkill /PID 44432 /F
+taskkill /PID 45192 /F
 
 
 ui：heroui，好看，tw + framer motion。唯一缺点是ssr支持不佳动效：framer-motion动画：lottie状态库：react内用jotai+searchParams，库用signal数据请求：swr，一用一个不吱声脚手架：vite +swclintter：biome类型检验：zod表单：react-hook-form，配合zod使用，嘎嘎爽

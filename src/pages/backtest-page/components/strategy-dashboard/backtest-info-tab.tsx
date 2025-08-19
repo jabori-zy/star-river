@@ -14,6 +14,7 @@ import { cleanupBacktestStatsChartStore } from "@/components/chart/backtest-stat
 import ChartManageButton from "./chart-manage-button";
 import OrderRecord, { type OrderRecordRef } from "./order-record";
 import PositionRecord, { type PositionRecordRef } from "./position-record";
+import TransactionRecord, { type TransactionRecordRef } from "./transaction-record";
 import StrategyControl from "./strategy-control";
 import StrategyStats from "./strategy-stats";
 
@@ -38,17 +39,9 @@ interface BacktestInfoTabsProps {
 export interface BacktestInfoTabsRef {
 	clearOrderRecords: () => void;
 	clearPositionRecords: () => void;
+	clearTransactionRecords: () => void;
 }
 
-const TradeRecordPanel = () => (
-	<div className="flex items-center justify-center h-40 text-muted-foreground">
-		<div className="text-center">
-			<CheckCircle className="h-8 w-8 mx-auto mb-2" />
-			<p>成交记录表格</p>
-			<p className="text-sm">即将实现...</p>
-		</div>
-	</div>
-);
 
 const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 	(
@@ -73,6 +66,7 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 	) => {
 		const orderRecordRef = useRef<OrderRecordRef>(null);
 		const positionRecordRef = useRef<PositionRecordRef>(null);
+		const transactionRecordRef = useRef<TransactionRecordRef>(null);
 		
 		// 暴露清空订单记录和持仓记录的方法
 		useImperativeHandle(
@@ -83,6 +77,9 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 				},
 				clearPositionRecords: () => {
 					positionRecordRef.current?.clearPositions();
+				},
+				clearTransactionRecords: () => {
+					transactionRecordRef.current?.clearTransactions();
 				},
 			}),
 			[],
@@ -205,8 +202,8 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 							<OrderRecord ref={orderRecordRef} strategyId={strategyId} />
 						</TabsContent>
 
-						<TabsContent value="trades" className="mt-2 mx-2">
-							<TradeRecordPanel />
+						<TabsContent value="trades" className="w-full overflow-hidden">
+							<TransactionRecord ref={transactionRecordRef} strategyId={strategyId} />
 						</TabsContent>
 
 						<TabsContent value="positions" className="w-full overflow-hidden">

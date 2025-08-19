@@ -48,6 +48,7 @@ export const useBacktestChart = ({
 		initChartData,
 		getKlineData,
 		getOrderMarkers,
+		getOrderPriceLine,
 		initKlineData,
 		initIndicatorData,
 		setChartRef,
@@ -468,6 +469,14 @@ export const useBacktestChart = ({
 				setOrderMarkerSeriesRef(orderMarkerSeries);
 			}
 
+			// 创建订单价格线
+			const orderPriceLine = getOrderPriceLine();
+			if (orderPriceLine.length > 0) {
+				orderPriceLine.forEach((priceLine) => {
+					candleSeries.createPriceLine(priceLine);
+				});
+			}
+
 
 			// 创建指标系列
 			createIndicatorSeries(chart, chartConfig.indicatorChartConfigs);
@@ -495,6 +504,7 @@ export const useBacktestChart = ({
 		createIndicatorSeries,
 		setOrderMarkerSeriesRef,
 		getOrderMarkers,
+		getOrderPriceLine,
 	]);
 
 	/**

@@ -1,14 +1,15 @@
 import { BehaviorSubject, Observable, Subject } from "rxjs";
 import { filter, map, share, takeUntil } from "rxjs/operators";
 import type { Kline } from "@/types/kline";
-import type { VirtualOrder } from "@/types/order/virtual-order";
+import { VirtualOrder } from "@/types/order/virtual-order";
+import { VirtualOrderEvent } from "@/types/strategy-event/backtest-strategy-event";
 import type {
 	BacktestStrategyEvent,
-	VirtualOrderEvent,
 	VirtualPositionEvent,
 	IndicatorUpdateEvent,
 	KlineUpdateEvent,
 	BacktestStrategyStatsUpdateEvent,
+	VirtualTransactionEvent,
 } from "@/types/strategy-event/backtest-strategy-event";
 import type { KeyStr } from "@/types/symbol-key";
 import { BACKTESET_STRATEGY_SSE_URL } from "../sse/index";
@@ -20,6 +21,16 @@ export enum SSEConnectionState {
 	CONNECTED = "connected",
 	ERROR = "error",
 }
+
+
+const orderEvent = [
+	"futures-order-filled",  // 订单成交
+	"futures-order-created",  // 订单创建
+	"futures-order-canceled",  // 订单取消
+	"futures-order-updated",  // 订单更新
+	"take-profit-order-created",  // 止盈单创建
+	"stop-loss-order-created"  // 止损单创建
+]
 
 /**
  * 回测策略数据Observable服务
@@ -36,6 +47,7 @@ class BacktestStrategyDataObservableService {
 	private orderDataSubject = new Subject<VirtualOrderEvent>();
 	private positionDataSubject = new Subject<VirtualPositionEvent>();
 	private statsDataSubject = new Subject<BacktestStrategyStatsUpdateEvent>();
+	private transactionDataSubject = new Subject<VirtualTransactionEvent>();
 
 	/**
 	 * 获取连接状态Observable
@@ -179,14 +191,31 @@ class BacktestStrategyDataObservableService {
 		enabled: boolean = true,
 	): Observable<VirtualOrderEvent> {
 		return this.createOrderStream(enabled).pipe(
-			filter(
-				(event) =>
-					event.futuresOrder.exchange === exchange &&
-					event.futuresOrder.symbol === symbol,
-			),
+			filter((event) => event.futuresOrder.exchange === exchange && event.futuresOrder.symbol === symbol),
 			// map((event) => event),
 			share(),
 		);
+	}
+
+
+	createTransactionStream(enabled: boolean = true): Observable<VirtualTransactionEvent> {
+		if (!enabled) {
+			this.disconnect();
+			return new Observable((subscriber) => {
+				subscriber.complete();
+			});
+		}
+
+		if (this.eventSource && this.eventSource.readyState === EventSource.OPEN) {
+			return this.transactionDataSubject
+				.asObservable()
+				.pipe(takeUntil(this.destroy$), share());
+		}
+
+		this.connect();
+		return this.transactionDataSubject
+			.asObservable()
+			.pipe(takeUntil(this.destroy$), share());
 	}
 
 	createPositionStream(enabled: boolean = true): Observable<VirtualPositionEvent> {
@@ -272,7 +301,7 @@ class BacktestStrategyDataObservableService {
 	 */
 	private handleMessage(event: MessageEvent): void {
 		try {
-			const strategyEvent = JSON.parse(event.data) as BacktestStrategyEvent;
+			const strategyEvent = JSON.parse(event.data);
 			// console.log("收到SSE消息:", strategyEvent);
 
 			// 处理K线更新事件
@@ -292,11 +321,48 @@ class BacktestStrategyDataObservableService {
 			}
 
 			// 处理订单成交事件
-			if (strategyEvent.event === "futures-order-filled" || strategyEvent.event === "futures-order-created") {
-				const orderEvent = strategyEvent as VirtualOrderEvent;
-
-				// console.log("发送订单数据到Observable流:", orderEvent);
-				this.orderDataSubject.next(orderEvent);
+			if (orderEvent.includes(strategyEvent.event)) {
+				if (
+					strategyEvent.event === "futures-order-filled" || 
+					strategyEvent.event === "futures-order-created" || 
+					strategyEvent.event === "futures-order-canceled" || 
+					strategyEvent.event === "futures-order-updated"
+				) {
+					const orderEvent = strategyEvent as VirtualOrderEvent;
+					this.orderDataSubject.next(orderEvent);
+				}
+				if (
+					strategyEvent.event === "take-profit-order-created" || 
+					strategyEvent.event === "take-profit-order-updated"
+				) {
+					const orderEvent = {
+						channel: strategyEvent.channel,
+						event_type: strategyEvent.eventType,
+						event: strategyEvent.event,
+						timestamp: strategyEvent.timestamp,
+						fromNodeId: strategyEvent.fromNodeId,
+						fromNodeName: strategyEvent.fromNodeName,
+						fromNodeHandleId: strategyEvent.fromHandleId,
+						futuresOrder: strategyEvent.takeProfitOrder as VirtualOrder
+					} as VirtualOrderEvent;
+					this.orderDataSubject.next(orderEvent);
+				}
+				if (
+					strategyEvent.event === "stop-loss-order-created" ||
+					strategyEvent.event === "stop-loss-order-updated"
+				) {
+					const orderEvent = {
+						channel: strategyEvent.channel,
+						event_type: strategyEvent.eventType,
+						event: strategyEvent.event,
+						timestamp: strategyEvent.timestamp,
+						fromNodeId: strategyEvent.fromNodeId,
+						fromNodeName: strategyEvent.fromNodeName,
+						fromNodeHandleId: strategyEvent.fromHandleId,
+						futuresOrder: strategyEvent.stopLossOrder as VirtualOrder
+					} as VirtualOrderEvent;
+					this.orderDataSubject.next(orderEvent);
+				}
 			}
 			if (strategyEvent.event === "position-created" || strategyEvent.event === "position-updated") {
 				const positionEvent = strategyEvent as VirtualPositionEvent;
@@ -309,6 +375,10 @@ class BacktestStrategyDataObservableService {
 
 				// console.log("发送策略统计数据到Observable流:", statsEvent);
 				this.statsDataSubject.next(statsEvent);
+			}
+			if (strategyEvent.event === "transaction-created") {
+				const transactionEvent = strategyEvent as VirtualTransactionEvent;
+				this.transactionDataSubject.next(transactionEvent);
 			}
 		} catch (error) {
 			console.error("解析SSE消息失败:", error);
@@ -402,6 +472,9 @@ export const createOrderStreamForSymbol = (
 		symbol,
 		enabled,
 	);
+
+export const createTransactionStream = (enabled: boolean = true) =>
+	backtestStrategyDataObservableService.createTransactionStream(enabled);
 
 // 仓位相关
 export const createPositionStream = (enabled: boolean = true) =>
