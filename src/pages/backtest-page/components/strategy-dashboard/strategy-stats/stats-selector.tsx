@@ -63,7 +63,6 @@ const StatsSelector: React.FC = () => {
 			</PopoverTrigger>
 			<PopoverContent className="w-40" align="start">
 				<div className="space-y-2">
-					<h4 className="font-medium text-sm">选择统计指标</h4>
 					{statsOptions.map((option) => (
 						<div key={option.value} className="flex items-center space-x-2">
 							<Checkbox

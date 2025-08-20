@@ -85,10 +85,10 @@ export function BacktestPositionTable({
 	const pageCount = table.getPageCount();
 
 	return (
-		<div className="flex w-full min-w-0 flex-col justify-start gap-6">
+		<div className="flex w-full min-w-0 flex-col justify-center">
 			{/* 标题 */}
 			{showTitle && (
-				<div className="flex items-center justify-between px-4 lg:px-6">
+				<div className="flex items-center justify-between px-4">
 					<div className="flex items-center gap-2">
 						<h1 className="text-xl font-semibold">{title}</h1>
 					<div className="text-sm text-muted-foreground">
@@ -99,9 +99,9 @@ export function BacktestPositionTable({
 			)}
 
 			{/* 表格 */}
-			<div className="relative flex flex-col gap-4 w-full min-w-0 px-4 lg:px-6">
-				<div className="w-full min-w-0 overflow-hidden rounded-lg border">
-					<div className="w-full min-w-0">
+			<div className="relative flex flex-col gap-4 w-full min-w-0 px-4">
+				<div className="w-full min-w-0 overflow-hidden rounded-lg border mx-0">
+					<div className="w-full min-w-0 overflow-x-auto">
 						<Table className="w-full table-fixed">
 							<TableHeader className="sticky top-0 z-10 bg-muted">
 								{table.getHeaderGroups().map((headerGroup) => (
@@ -115,7 +115,7 @@ export function BacktestPositionTable({
 													minWidth: header.column.columnDef.minSize || 60,
 													maxWidth: header.column.columnDef.maxSize || 300
 												}}
-												className="px-2"
+												className="px-3"
 											>
 												{header.isPlaceholder ? null : (
 													<div
@@ -157,7 +157,7 @@ export function BacktestPositionTable({
 														minWidth: cell.column.columnDef.minSize || 60,
 														maxWidth: cell.column.columnDef.maxSize || 300
 													}}
-													className="px-2 py-2"
+													className="px-3 py-2"
 												>
 													{flexRender(
 														cell.column.columnDef.cell,
@@ -183,7 +183,7 @@ export function BacktestPositionTable({
 				</div>
 
 				{/* 分页 */}
-				<div className="flex flex-col-reverse items-center justify-between gap-4 px-2 md:flex-row">
+				<div className="flex flex-col-reverse items-center justify-between gap-4 md:flex-row px-0">
 					<div className="flex w-full flex-col-reverse items-center gap-4 md:flex-row md:w-auto">
 						<div className="flex items-center gap-2">
 							<Label htmlFor="rows-per-page" className="text-sm font-medium">

@@ -192,22 +192,28 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 				{isDashboardExpanded && activeTab && (
 					<div
 						className="flex-1 overflow-y-auto"
-						style={{ scrollbarGutter: "stable" }}
+						style={{ scrollbarGutter: "stable" }} // 这里会造成右侧边距放大，造成左右边距不一致
 					>
-						<TabsContent value="profit" className="mt-2 mx-2 h-96">
+						<TabsContent value="profit" className="mt-2 mx-6 h-96">
 							<StrategyStats strategyId={strategyId} />
 						</TabsContent>
 
 						<TabsContent value="orders" className="w-full overflow-hidden">
-							<OrderRecord ref={orderRecordRef} strategyId={strategyId} />
+							<div className="flex flex-col h-full pl-2">
+								<OrderRecord ref={orderRecordRef} strategyId={strategyId} />
+							</div>
 						</TabsContent>
 
 						<TabsContent value="trades" className="w-full overflow-hidden">
-							<TransactionRecord ref={transactionRecordRef} strategyId={strategyId} />
+							<div className="flex flex-col h-full pl-2">
+								<TransactionRecord ref={transactionRecordRef} strategyId={strategyId} />
+							</div>
 						</TabsContent>
 
-						<TabsContent value="positions" className="w-full overflow-hidden">
-							<PositionRecord ref={positionRecordRef} strategyId={strategyId} />
+						<TabsContent value="positions" className="w-full overflow-hidden mt-2">
+							<div className="flex flex-col h-full pl-2">
+								<PositionRecord ref={positionRecordRef} strategyId={strategyId} />
+							</div>
 						</TabsContent>
 					</div>
 				)}

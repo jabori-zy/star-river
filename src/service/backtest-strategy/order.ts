@@ -1,5 +1,6 @@
 import axios from "axios";
 import { API_BASE_URL } from "@/service";
+import { VirtualPosition } from "@/types/position/virtual-position";
 
 const ROUTER = "strategy/backtest";
 const API_VERSION = "api/v1";
@@ -32,6 +33,21 @@ export async function getVirtualPosition(strateygId: number) {
         throw error;
     }
 
+}
+
+
+export async function getHisotryVirtualPosition(strateygId: number) : Promise<VirtualPosition[]> {
+    try {
+        const response = await axios.get(`${API_URL}/${strateygId}/history-positions`);
+        if (response.status !== 200) {
+            throw new Error(`获取虚拟持仓历史失败: ${response.status}`);
+        }
+        return response.data.data as VirtualPosition[];
+    }
+    catch (error) {
+        console.error("getHisotryVirtualPosition error", error);
+        throw error;
+    }
 }
 
 export async function getVirtualTransaction(strateygId: number) {
