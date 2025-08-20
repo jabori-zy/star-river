@@ -48,7 +48,7 @@ export const useBacktestChart = ({
 		initChartData,
 		getKlineData,
 		getOrderMarkers,
-		getOrderPriceLine,
+		getPositionPriceLine: getOrderPriceLine,
 		initKlineData,
 		initIndicatorData,
 		setChartRef,

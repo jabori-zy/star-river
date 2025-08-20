@@ -2,7 +2,9 @@ import { type OpenPositionPriceLine, type OrderMarker, type StopLossPriceLine, t
 import type { VirtualOrder } from "@/types/order";
 import dayjs from "dayjs";
 import type { UTCTimestamp } from "lightweight-charts";
-import { LineStyle, LineWidth } from "lightweight-charts";
+import { LineStyle } from "lightweight-charts";
+import type { VirtualPosition } from "@/types/position";
+import { FuturesOrderSide } from "@/types/order";
 
 
 
@@ -12,23 +14,38 @@ import { LineStyle, LineWidth } from "lightweight-charts";
 //一个虚拟订单转换为多个marker，为了换行
 export function virtualOrderToMarker(virtualOrder: VirtualOrder): OrderMarker[] {
     const markers: OrderMarker[] = [];
-    const timestampInSeconds = dayjs(virtualOrder.createTime).unix() as UTCTimestamp;
+    const timestampInSeconds = dayjs(virtualOrder.updateTime).unix() as UTCTimestamp;
+
+    const text = virtualOrder.orderSide === FuturesOrderSide.OPEN_LONG ? `Open Long(${virtualOrder.orderId}) # ${virtualOrder.quantity}` : 
+    virtualOrder.orderSide === FuturesOrderSide.OPEN_SHORT ? `Open Short(${virtualOrder.orderId}) # ${virtualOrder.quantity}` : virtualOrder.orderSide === FuturesOrderSide.CLOSE_LONG ? `Close Long(${virtualOrder.orderId}) # ${virtualOrder.quantity}` : `Close Short(${virtualOrder.orderId}) # ${virtualOrder.quantity}`;
     
+    const color = virtualOrder.orderSide === FuturesOrderSide.OPEN_LONG ? "#14E031" : 
+    virtualOrder.orderSide === FuturesOrderSide.OPEN_SHORT ? "#FF0000" : 
+    virtualOrder.orderSide === FuturesOrderSide.CLOSE_LONG ? "#FF0000" : "#14E031";
+
+    const position = virtualOrder.orderSide === FuturesOrderSide.OPEN_LONG ? "belowBar" : 
+    virtualOrder.orderSide === FuturesOrderSide.OPEN_SHORT ? "aboveBar" : 
+    virtualOrder.orderSide === FuturesOrderSide.CLOSE_LONG ? "aboveBar" : "belowBar";
+
+    const shape = virtualOrder.orderSide === FuturesOrderSide.OPEN_LONG ? "arrowUp" : 
+    virtualOrder.orderSide === FuturesOrderSide.OPEN_SHORT ? "arrowDown" : 
+    virtualOrder.orderSide === FuturesOrderSide.CLOSE_LONG ? "arrowDown" : "arrowUp";
+
     // 第一行，用于显示操作+量
     const marker1: OrderMarker = {
         time: timestampInSeconds,
-        position: "belowBar",
-        shape: "arrowUp",
-        color: "#FF0000",
-        text:`Buy(${virtualOrder.orderId}) # ${virtualOrder.quantity}`,
+        position,
+        shape,
+        color,
+        text,
     };
 
     // 第二行，用于显示价格
     const marker2: OrderMarker = {
         time: timestampInSeconds,
-        position: "belowBar",
-        shape: "circle",
-        color: "#FF0000",
+        position,
+        shape,
+        color,
         text: `@ ${virtualOrder.openPrice}`,
         size: 0,
     };
@@ -50,10 +67,10 @@ export function virtualOrderToMarker(virtualOrder: VirtualOrder): OrderMarker[] 
 }
 
 // 虚拟订单转换为开仓价格线
-export function virtualOrderToOpenPositionPriceLine(virtualOrder: VirtualOrder): OpenPositionPriceLine {
+export function virtualPositionToOpenPositionPriceLine(virtualPosition: VirtualPosition): OpenPositionPriceLine {
     return {
-        id: virtualOrder.orderId.toString(),
-        price: virtualOrder.openPrice,
+        id: `${virtualPosition.positionId.toString()}-open`,
+        price: virtualPosition.openPrice,
         color: "#F7A200",
         lineWidth: 1,
         lineStyle: LineStyle.Dashed,
@@ -62,11 +79,15 @@ export function virtualOrderToOpenPositionPriceLine(virtualOrder: VirtualOrder):
     };
 }
 
-export function virtualOrderToTakeProfitPriceLine(virtualOrder: VirtualOrder): TakeProfitPriceLine {
+
+export function virtualPositionToTakeProfitPriceLine(virtualPosition: VirtualPosition): TakeProfitPriceLine | null {
+    if (!virtualPosition.tp) {
+        return null;
+    }
     return {
-        id: virtualOrder.orderId.toString(),
-        price: virtualOrder.openPrice,
-        color: "#0FE8D9",
+        id: `${virtualPosition.positionId.toString()}-take-profit`,
+        price: virtualPosition.tp as number,
+        color: "#00FF00",
         lineWidth: 1,
         lineStyle: LineStyle.Dashed,
         axisLabelVisible: true,
@@ -74,10 +95,13 @@ export function virtualOrderToTakeProfitPriceLine(virtualOrder: VirtualOrder): T
     };
 }
 
-export function virtualOrderToStopLossPriceLine(virtualOrder: VirtualOrder): StopLossPriceLine {
+export function virtualPositionToStopLossPriceLine(virtualPosition: VirtualPosition): StopLossPriceLine | null {
+    if (!virtualPosition.sl) {
+        return null;
+    }
     return {
-        id: virtualOrder.orderId.toString(),
-        price: virtualOrder.openPrice,
+        id: `${virtualPosition.positionId.toString()}-stop-loss`,
+        price: virtualPosition.sl as number,
         color: "#FF0000",
         lineWidth: 1,
         lineStyle: LineStyle.Dashed,

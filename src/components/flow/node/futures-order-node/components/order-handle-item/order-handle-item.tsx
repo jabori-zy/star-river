@@ -128,7 +128,7 @@ const OrderHandleItem: React.FC<OrderHandleItemProps> = ({
 						{getOrderStatusLabel(OrderStatus.FILLED)}
 					</div>
 					<div className="text-xs text-muted-foreground">
-						{getOrderStatusLabel(OrderStatus.CANCELLED)}
+						{getOrderStatusLabel(OrderStatus.CANCELED)}
 					</div>
 					<div className="text-xs text-muted-foreground">
 						{getOrderStatusLabel(OrderStatus.EXPIRED)}

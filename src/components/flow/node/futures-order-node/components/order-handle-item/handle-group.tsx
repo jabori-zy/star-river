@@ -38,7 +38,7 @@ export const getLimitOrderHandleGroup = (
 				className="translate-x-2 translate-y-20"
 			/>
 			<BaseHandle
-				id={`${nodeId}_cancelled_output${orderConfigId}`}
+				id={`${nodeId}_canceled_output${orderConfigId}`}
 				type="source"
 				position={Position.Right}
 				handleColor="!bg-black-400"
@@ -98,7 +98,7 @@ export const getMarketOrderHandleGroup = (
 				className="translate-x-2 translate-y-14"
 			/>
 			<BaseHandle
-				id={`${nodeId}_cancelled_output${orderConfigId}`}
+				id={`${nodeId}_canceled_output${orderConfigId}`}
 				type="source"
 				position={Position.Right}
 				handleColor="!bg-black-400"

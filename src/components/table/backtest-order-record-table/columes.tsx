@@ -57,7 +57,7 @@ export const virtualOrderColumns: ColumnDef<VirtualOrder>[] = [
 			const side = row.getValue("orderSide") as string;
 			return (
 				<div className="flex justify-start">
-					<Badge className={`${getOrderSideStyle(side)} font-mono text-xs overflow-hidden text-ellipsis whitespace-nowrap max-w-full`} title={getOrderSideText(side)}>
+					<Badge className={`${getOrderSideStyle(side)} text-xs overflow-hidden text-ellipsis whitespace-nowrap max-w-full`} title={getOrderSideText(side)}>
 						{getOrderSideText(side)}
 					</Badge>
 				</div>

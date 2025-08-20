@@ -141,7 +141,7 @@ export const useBacktestOrderDataStore = create<BacktestOrderDataState>(
 			return orders.filter(
 				(order) =>
 					order.orderStatus !== OrderStatus.FILLED &&
-					order.orderStatus !== OrderStatus.CANCELLED &&
+					order.orderStatus !== OrderStatus.CANCELED &&
 					order.orderStatus !== OrderStatus.REJECTED,
 			);
 		},

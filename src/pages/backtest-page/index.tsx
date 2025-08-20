@@ -189,6 +189,7 @@ export default function BacktestPage() {
 		// 清空订单记录
 		strategyDashboardRef.current?.clearOrderRecords();
 		strategyDashboardRef.current?.clearPositionRecords();
+		strategyDashboardRef.current?.clearTransactionRecords();
 		
 	};
 	const onPlayOne = () => {

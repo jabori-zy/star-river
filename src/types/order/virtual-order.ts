@@ -72,12 +72,19 @@ export const getOrderSideStyle = (side: string) => {
 // 订单方向文本
 export const getOrderSideText = (side: string) => {
 	switch (side) {
-		case "buy":
+
 		case "BUY":
 			return "买入";
-		case "sell":
 		case "SELL":
 			return "卖出";
+		case "CLOSE_LONG":
+			return "平多";
+		case "CLOSE_SHORT":
+			return "平空";
+		case "OPEN_LONG":
+			return "开多";
+		case "OPEN_SHORT":
+			return "开空";
 		default:
 			return side;
 	}
@@ -132,12 +139,14 @@ export const getOrderTypeText = (type: string) => {
 		case "LIMIT":
 		case "limit":
 			return "限价单";
-		case "STOP":
-		case "stop":
+		case "STOP_MARKET":
 			return "止损单";
 		case "STOP_LIMIT":
-		case "stop_limit":
 			return "止损限价单";
+		case "TAKE_PROFIT_MARKET":
+			return "止盈单";
+		case "TAKE_PROFIT_LIMIT":
+			return "止盈限价单";
 		default:
 			return type;
 	}

@@ -63,7 +63,7 @@ export const getOrderStatusLabel = (status: OrderStatus): string => {
 		[OrderStatus.PLACED]: "已挂单",
 		[OrderStatus.PARTIAL]: "部分成交",
 		[OrderStatus.FILLED]: "全部成交",
-		[OrderStatus.CANCELLED]: "已取消",
+		[OrderStatus.CANCELED]: "已取消",
 		[OrderStatus.EXPIRED]: "已过期",
 		[OrderStatus.REJECTED]: "已拒绝",
 		[OrderStatus.ERROR]: "错误",

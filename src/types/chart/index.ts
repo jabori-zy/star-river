@@ -115,7 +115,7 @@ export type OpenPositionPriceLine = {
 	title: string;
 };
 
-export type OrderPriceLine = TakeProfitPriceLine | StopLossPriceLine | OpenPositionPriceLine;
+export type PositionPriceLine = TakeProfitPriceLine | StopLossPriceLine | OpenPositionPriceLine;
 
 
 

@@ -14,9 +14,10 @@ import {
 	createIndicatorStreamFromKey,
 	createKlineStreamFromKey,
 	createOrderStreamForSymbol,
+	createPositionStreamForSymbol,
 } from "@/hooks/obs/backtest-strategy-data-obs";
 import { getInitialChartData } from "@/service/chart";
-import type { ChartId, OrderMarker, OrderPriceLine } from "@/types/chart";
+import type { ChartId, OrderMarker, PositionPriceLine } from "@/types/chart";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import type { Kline } from "@/types/kline";
@@ -24,9 +25,12 @@ import type { IndicatorKeyStr, KeyStr, KlineKeyStr } from "@/types/symbol-key";
 import { parseKey } from "@/utils/parse-key";
 import type { VirtualOrder } from "@/types/order";
 import { getVirtualOrder } from "@/service/backtest-strategy"
-import { virtualOrderToMarker, virtualOrderToOpenPositionPriceLine, virtualOrderToTakeProfitPriceLine, virtualOrderToStopLossPriceLine } from "./utls";
+import { virtualOrderToMarker, virtualPositionToOpenPositionPriceLine, virtualPositionToTakeProfitPriceLine, virtualPositionToStopLossPriceLine } from "./utls";
 import type { VirtualOrderEvent } from "@/types/strategy-event/backtest-strategy-event";
 import { OrderStatus, OrderType } from "@/types/order";
+import type { VirtualPositionEvent } from "@/types/strategy-event/backtest-strategy-event";
+import type { VirtualPosition } from "@/types/position";
+import { getVirtualPosition } from "@/service/backtest-strategy";
 
 interface BacktestChartStore {
 	chartId: ChartId;
@@ -37,7 +41,7 @@ interface BacktestChartStore {
 		Record<keyof IndicatorValueConfig, SingleValueData[]>
 	>; // 指标数据
 	orderMarkers: OrderMarker[]; // 订单标记
-	orderPriceLine: OrderPriceLine[]; // 订单价格线
+	positionPriceLine: PositionPriceLine[]; // 订单价格线
 	subscriptions: Record<KeyStr, Subscription[]>; // 订阅集合
 
 	// 数据初始化状态标志
@@ -76,6 +80,7 @@ interface BacktestChartStore {
 		playIndex: number,
 	) => Promise<void>;
 	initVirtualOrderData: (strategyId: number) => Promise<void>;
+	initVirtualPositionData: (strategyId: number) => Promise<void>;
 
 	// 私有方法（内部使用）
 	_processKlineData: (klineKeyStr: KeyStr, playIndex: number) => Promise<void>;
@@ -106,8 +111,9 @@ interface BacktestChartStore {
 	// 订单标记
 	setOrderMarkers: (markers: OrderMarker[]) => void;
 	getOrderMarkers: () => OrderMarker[];
-	setOrderPriceLine: (priceLine: OrderPriceLine[]) => void; // 设置订单价格线
-	getOrderPriceLine: () => OrderPriceLine[];
+	setPositionPriceLine: (priceLine: PositionPriceLine[]) => void; // 设置订单价格线
+	getPositionPriceLine: () => PositionPriceLine[];
+	deletePositionPriceLine: (priceLineId: string) => void;
 
 	// 数据初始化状态管理
 	getIsDataInitialized: () => boolean;
@@ -207,7 +213,9 @@ interface BacktestChartStore {
 		indicatorKeyStr: KeyStr,
 		indicatorData: Record<keyof IndicatorValueConfig, SingleValueData[]>,
 	) => void;
-	onNewOrder: (orderData: VirtualOrder) => void;
+	onNewOrder: (newOrder: VirtualOrder) => void;
+	onNewPosition: (position: VirtualPosition) => void;
+	onPositionClosed: (position: VirtualPosition) => void;
 
 	resetData: () => void;
 }
@@ -226,7 +234,7 @@ const createBacktestChartStore = (
 		indicatorData: {},
 		subscriptions: {},
 		orderMarkers: [], // 订单标记
-		orderPriceLine: [], // 订单价格线
+		positionPriceLine: [], // 订单价格线
 		// 数据初始化状态
 		isDataInitialized: false,
 
@@ -275,9 +283,9 @@ const createBacktestChartStore = (
 		setOrderMarkers: (markers: OrderMarker[]) => set({ orderMarkers: markers }),
 		getOrderMarkers: () => get().orderMarkers,
 
-		setOrderPriceLine: (priceLine: OrderPriceLine[]) => set({ orderPriceLine: priceLine }),
-		getOrderPriceLine: () => get().orderPriceLine,
-
+		setPositionPriceLine: (priceLine: PositionPriceLine[]) => set({ positionPriceLine: priceLine }),
+		getPositionPriceLine: () => get().positionPriceLine,
+		deletePositionPriceLine: (priceLineId: string) => set({ positionPriceLine: get().positionPriceLine.filter((priceLine) => priceLine.id !== priceLineId) }),
 		// 数据初始化状态管理
 		getIsDataInitialized: () => get().isDataInitialized,
 		setIsDataInitialized: (initialized: boolean) =>
@@ -408,14 +416,27 @@ const createBacktestChartStore = (
 						const orderSubscription = orderStream.subscribe((virtualOrderEvent: VirtualOrderEvent) => {
 							if (
 								virtualOrderEvent.event === "futures-order-filled" || 
-								virtualOrderEvent.event === "take-profit-order-created" || 
-								virtualOrderEvent.event === "stop-loss-order-created"
+								virtualOrderEvent.event === "take-profit-order-filled" || 
+								virtualOrderEvent.event === "stop-loss-order-filled"
 							){
 								state.onNewOrder(virtualOrderEvent.futuresOrder);
 							}
 							
 						});
 						state._addObserverSubscription(keyStr, orderSubscription);
+						// 订阅与仓位相关的数据流
+						const positionStream = createPositionStreamForSymbol(key.exchange,key.symbol);
+						const positionSubscription = positionStream.subscribe((positionEvent: VirtualPositionEvent) => {
+							
+							if (positionEvent.event === "position-created") {
+								state.onNewPosition(positionEvent.virtualPosition);
+							}
+							else if (positionEvent.event === "position-closed") {
+								state.onPositionClosed(positionEvent.virtualPosition);
+							}
+							
+						});
+						state._addObserverSubscription(keyStr, positionSubscription);
 					} else if (key.type === "indicator") {
 						const indicatorStream = createIndicatorStreamFromKey(keyStr, true);
 						const indicatorSubscription = indicatorStream.subscribe({
@@ -494,10 +515,11 @@ const createBacktestChartStore = (
 				const orderSubscription = orderStream.subscribe((virtualOrderEvent: VirtualOrderEvent) => {
 					console.log("virtualOrderEvent", virtualOrderEvent);
 					if (
-						virtualOrderEvent.event === "futures-order-filled" || 
-						virtualOrderEvent.event === "take-profit-order-created" || 
-						virtualOrderEvent.event === "stop-loss-order-created"
+						virtualOrderEvent.event === "futures-order-filled" ||
+						virtualOrderEvent.event === "take-profit-order-filled" ||
+						virtualOrderEvent.event === "stop-loss-order-filled"
 					){
+						console.log("virtualOrderEvent", virtualOrderEvent);
 						state.onNewOrder(virtualOrderEvent.futuresOrder);
 					}
 					
@@ -672,35 +694,72 @@ const createBacktestChartStore = (
 
 		onNewOrder: (newOrder: VirtualOrder) => {
 			// 后端返回时间，转换为时间戳：2025-07-25T00:20:00Z -> timestamp
-			if (newOrder.orderStatus === OrderStatus.FILLED && 
-				(newOrder.orderType === OrderType.LIMIT || newOrder.orderType === OrderType.MARKET)) {
+			// 开仓订单
+			if (newOrder.orderType === OrderType.LIMIT || newOrder.orderType === OrderType.MARKET) {
 				const markers = virtualOrderToMarker(newOrder);
 				get().setOrderMarkers([...get().orderMarkers, ...markers]);
 				const orderMarkerSeriesRef = get().getOrderMarkerSeriesRef();
 				if (orderMarkerSeriesRef) {
 					orderMarkerSeriesRef.setMarkers(get().getOrderMarkers());
 				}
-
-				// 创建开仓的价格线
-				// const openPositionPriceLine = virtualOrderToOpenPositionPriceLine(newOrder);
-				// get().setOrderPriceLine([...get().orderPriceLine, openPositionPriceLine]);
-				// const candleSeriesRef = get().getKlineSeriesRef();
-				// if (candleSeriesRef) {
-				// 	const priceLineRef = candleSeriesRef.createPriceLine(openPositionPriceLine);
-				// }
 			}
-			// else if (newOrder.orderStatus === OrderStatus.CREATED &&
-			// 	(newOrder.orderType === OrderType.TAKE_PROFIT_MARKET || newOrder.orderType === OrderType.STOP_MARKET)) {
-			// 	const priceLine = newOrder.orderType === OrderType.TAKE_PROFIT_MARKET ? virtualOrderToTakeProfitPriceLine(newOrder) : virtualOrderToStopLossPriceLine(newOrder);
-			// 	console.log("priceLine", priceLine);
-			// 	get().setOrderPriceLine([...get().orderPriceLine, priceLine]);
-			// 	const candleSeriesRef = get().getKlineSeriesRef();
-			// 	if (candleSeriesRef) {
-			// 		const priceLineRef = candleSeriesRef.createPriceLine(priceLine);
-			// 	}
-			// }
+			// 止盈订单
+			else if (newOrder.orderType === OrderType.TAKE_PROFIT_MARKET) {
+				const markers = virtualOrderToMarker(newOrder);
+				get().setOrderMarkers([...get().orderMarkers, ...markers]);
+				const orderMarkerSeriesRef = get().getOrderMarkerSeriesRef();
+				if (orderMarkerSeriesRef) {
+					orderMarkerSeriesRef.setMarkers(get().getOrderMarkers());
+				}
+			}
+			// 止损订单
+			else if (newOrder.orderType === OrderType.STOP_MARKET) {
+				const markers = virtualOrderToMarker(newOrder);
+				get().setOrderMarkers([...get().orderMarkers, ...markers]);
+				const orderMarkerSeriesRef = get().getOrderMarkerSeriesRef();
+				if (orderMarkerSeriesRef) {
+					orderMarkerSeriesRef.setMarkers(get().getOrderMarkers());
+				}
+			}
 			
 		},
+
+		onNewPosition: (position: VirtualPosition) => {
+			const openPositionPriceLine = virtualPositionToOpenPositionPriceLine(position);
+			const takeProfitPriceLine = virtualPositionToTakeProfitPriceLine(position);
+			const stopLossPriceLine = virtualPositionToStopLossPriceLine(position);
+			if (takeProfitPriceLine) {
+				get().setPositionPriceLine([...get().positionPriceLine, takeProfitPriceLine]);
+			}
+			if (stopLossPriceLine) {
+				get().setPositionPriceLine([...get().positionPriceLine, stopLossPriceLine]);
+			}
+			const candleSeriesRef = get().getKlineSeriesRef();
+			if (candleSeriesRef) {
+				candleSeriesRef.createPriceLine(openPositionPriceLine);
+				if (takeProfitPriceLine) {
+					candleSeriesRef.createPriceLine(takeProfitPriceLine);
+				}
+				if (stopLossPriceLine) {
+					candleSeriesRef.createPriceLine(stopLossPriceLine);
+				}
+			}
+
+		},
+
+		// 仓位关闭后，清除仓位价格线
+		onPositionClosed: (position: VirtualPosition) => {
+			const candleSeriesRef = get().getKlineSeriesRef();
+			if (candleSeriesRef) {
+				const readyToRemovePriceLines = candleSeriesRef.priceLines().filter((priceLine) => priceLine.options().id?.includes(position.positionId.toString()));
+				readyToRemovePriceLines.forEach((priceLine) => {
+					const pricelineId = priceLine.options().id as string;
+					candleSeriesRef.removePriceLine(priceLine);
+					get().deletePositionPriceLine(pricelineId);
+				});
+			}
+		},
+
 
 		// 私有方法：处理K线数据
 		_processKlineData: async (klineKeyStr: KeyStr, playIndex: number) => {
@@ -801,7 +860,7 @@ const createBacktestChartStore = (
 					.map((keyStr) => state._initSingleKeyData(keyStr, playIndex));
 				
 				await state.initVirtualOrderData(strategyId);
-
+				await state.initVirtualPositionData(strategyId);
 				// 等待所有数据加载完成
 				await Promise.all(promises);
 				// 标记数据已初始化
@@ -840,38 +899,56 @@ const createBacktestChartStore = (
 					);
 				}
 			} 
-			// else {
-			// 	console.warn(
-			// 		`Invalid playIndex: ${playIndex}, skipping indicator data initialization`,
-			// 	);
-			// }
+			
 		},
 
 		initVirtualOrderData: async (strategyId: number) => {
 			const virtualOrderData = await getVirtualOrder(strategyId);
 			const orderMarkers: OrderMarker[] = [];
-			const orderPriceLine: OrderPriceLine[] = [];
 			virtualOrderData.forEach((order: VirtualOrder) => {
-				if ((order.orderType === OrderType.LIMIT || order.orderType === OrderType.MARKET) && order.orderStatus === OrderStatus.FILLED) {
-					const markers = virtualOrderToMarker(order);
-					const openPositionPriceLine = virtualOrderToOpenPositionPriceLine(order);
-					orderMarkers.push(...markers);
-					orderPriceLine.push(openPositionPriceLine);
-				}
-
-				if (order.orderType === OrderType.TAKE_PROFIT_MARKET && order.orderStatus === OrderStatus.CREATED) {
-					const takeProfitPriceLine = virtualOrderToTakeProfitPriceLine(order);
-					orderPriceLine.push(takeProfitPriceLine);
-				}
-
-				if (order.orderType === OrderType.STOP_MARKET && order.orderStatus === OrderStatus.CREATED) {
-					const stopLossPriceLine = virtualOrderToStopLossPriceLine(order);
-					orderPriceLine.push(stopLossPriceLine);
+				if (order.orderStatus === OrderStatus.FILLED) {
+					if (
+						order.orderType === OrderType.LIMIT || 
+						order.orderType === OrderType.MARKET ||
+						order.orderType === OrderType.TAKE_PROFIT_MARKET ||
+						order.orderType === OrderType.STOP_MARKET
+					) {
+						console.log("order", order);
+						const markers = virtualOrderToMarker(order);
+						orderMarkers.push(...markers);
+					}
 				}
 			});
 			get().setOrderMarkers(orderMarkers);
-			get().setOrderPriceLine(orderPriceLine);
-			console.log("orderPriceLine", orderPriceLine);
+		},
+
+		initVirtualPositionData: async (strategyId: number) => {
+			
+			const klineKeyStr = chartConfig.klineChartConfig.klineKeyStr;
+			if (klineKeyStr) {
+				const klineKey = parseKey(klineKeyStr);
+				const virtualPositionData = await getVirtualPosition(strategyId);
+				const orderPriceLine: PositionPriceLine[] = [];
+				// 获取当前symbol的仓位
+				const currentSymbolPosition: VirtualPosition[] = virtualPositionData.filter((position: VirtualPosition) => position.symbol === klineKey.symbol && position.exchange === klineKey.exchange);
+				if (currentSymbolPosition.length > 0) {
+					currentSymbolPosition.forEach((position: VirtualPosition) => {
+						const openPositionPriceLine = virtualPositionToOpenPositionPriceLine(position);
+						
+						orderPriceLine.push(openPositionPriceLine);
+						
+						const takeProfitPriceLine = virtualPositionToTakeProfitPriceLine(position);
+						const stopLossPriceLine = virtualPositionToStopLossPriceLine(position);
+						if (takeProfitPriceLine) {
+							orderPriceLine.push(takeProfitPriceLine);
+						}
+						if (stopLossPriceLine) {
+							orderPriceLine.push(stopLossPriceLine);
+						}
+					});
+				}
+				get().setPositionPriceLine(orderPriceLine);
+			}
 		},
 
 		// === 指标可见性控制方法实现 ===
@@ -963,6 +1040,10 @@ const createBacktestChartStore = (
 			const klineSeriesRef = state.getKlineSeriesRef();
 			if (klineSeriesRef) {
 				klineSeriesRef.setData([]);
+
+				klineSeriesRef.priceLines().forEach((priceLine) => {
+					klineSeriesRef.removePriceLine(priceLine);
+				});
 			}
 			
 			// 清空所有指标系列数据
@@ -982,9 +1063,14 @@ const createBacktestChartStore = (
 			
 			// 清空store状态数据
 			set({
+				subscriptions: {},
+				indicatorVisibilityMap: {},
+				klineVisibilityMap: {},
+				paneVersion: 0,
 				klineData: [],
 				indicatorData: {},
 				orderMarkers: [],
+				positionPriceLine: [],
 				// 重置时保持可见性状态，不清空
 			});
 		},

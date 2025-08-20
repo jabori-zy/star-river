@@ -27,9 +27,12 @@ const orderEvent = [
 	"futures-order-filled",  // 订单成交
 	"futures-order-created",  // 订单创建
 	"futures-order-canceled",  // 订单取消
-	"futures-order-updated",  // 订单更新
 	"take-profit-order-created",  // 止盈单创建
-	"stop-loss-order-created"  // 止损单创建
+	"stop-loss-order-created",  // 止损单创建
+	"take-profit-order-filled",  // 止盈单成交
+	"stop-loss-order-filled",  // 止损单成交
+	"take-profit-order-canceled",  // 止盈单取消
+	"stop-loss-order-canceled",  // 止损单取消
 ]
 
 /**
@@ -239,6 +242,18 @@ class BacktestStrategyDataObservableService {
 			.pipe(takeUntil(this.destroy$), share());
 	}
 
+
+	createPositionStreamForSymbol(
+		exchange: string,
+		symbol: string,
+		enabled: boolean = true,
+	): Observable<VirtualPositionEvent> {
+		return this.createPositionStream(enabled).pipe(
+			filter((event) => event.virtualPosition.exchange === exchange && event.virtualPosition.symbol === symbol),
+			share(),
+		);
+	}
+
 	createStatsStream(enabled: boolean = true): Observable<BacktestStrategyStatsUpdateEvent> {
 		if (!enabled) {
 			this.disconnect();
@@ -325,15 +340,15 @@ class BacktestStrategyDataObservableService {
 				if (
 					strategyEvent.event === "futures-order-filled" || 
 					strategyEvent.event === "futures-order-created" || 
-					strategyEvent.event === "futures-order-canceled" || 
-					strategyEvent.event === "futures-order-updated"
+					strategyEvent.event === "futures-order-canceled"
 				) {
 					const orderEvent = strategyEvent as VirtualOrderEvent;
 					this.orderDataSubject.next(orderEvent);
 				}
 				if (
 					strategyEvent.event === "take-profit-order-created" || 
-					strategyEvent.event === "take-profit-order-updated"
+					strategyEvent.event === "take-profit-order-filled" || 
+					strategyEvent.event === "take-profit-order-canceled"
 				) {
 					const orderEvent = {
 						channel: strategyEvent.channel,
@@ -349,7 +364,8 @@ class BacktestStrategyDataObservableService {
 				}
 				if (
 					strategyEvent.event === "stop-loss-order-created" ||
-					strategyEvent.event === "stop-loss-order-updated"
+					strategyEvent.event === "stop-loss-order-filled" ||
+					strategyEvent.event === "stop-loss-order-canceled"
 				) {
 					const orderEvent = {
 						channel: strategyEvent.channel,
@@ -364,10 +380,8 @@ class BacktestStrategyDataObservableService {
 					this.orderDataSubject.next(orderEvent);
 				}
 			}
-			if (strategyEvent.event === "position-created" || strategyEvent.event === "position-updated") {
+			if (strategyEvent.event === "position-created" || strategyEvent.event === "position-updated" || strategyEvent.event === "position-closed") {
 				const positionEvent = strategyEvent as VirtualPositionEvent;
-
-				// console.log("发送仓位数据到Observable流:", positionEvent);
 				this.positionDataSubject.next(positionEvent);
 			}
 			if (strategyEvent.event === "strategy-stats-updated") {
@@ -480,6 +494,17 @@ export const createTransactionStream = (enabled: boolean = true) =>
 export const createPositionStream = (enabled: boolean = true) =>
 	backtestStrategyDataObservableService.createPositionStream(enabled);
 
+// 仓位相关
+export const createPositionStreamForSymbol = (
+	exchange: string,
+	symbol: string,
+	enabled: boolean = true,
+) =>
+	backtestStrategyDataObservableService.createPositionStreamForSymbol(
+		exchange,
+		symbol,
+		enabled,
+	);
 
 export const createStatsStream = (enabled: boolean = true) =>
 	backtestStrategyDataObservableService.createStatsStream(enabled);
