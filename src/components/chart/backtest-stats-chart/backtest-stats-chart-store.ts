@@ -141,7 +141,7 @@ const createBacktestStatsChartStore = (
 
 					state.setStatsData("balance", balanceStatsData);
 					state.setStatsData("unrealizedPnl", unrealizedPnlStatsData);
-					state.setStatsData("totalEquity", totalEquityStatsData);
+					state.setStatsData("equity", totalEquityStatsData);
 					state.setStatsData("positionCount", positionStatsData);
 					state.setStatsData("realizedPnl", realizedPnlStatsData);
 					state.setStatsData("cumulativeReturn", cumulativeReturnStatsData);

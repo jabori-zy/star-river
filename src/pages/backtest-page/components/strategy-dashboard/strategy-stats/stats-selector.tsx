@@ -16,8 +16,8 @@ import { useBacktestStatsChartConfigStore } from "@/store/use-backtest-stats-cha
 const statsOptions: { value: StrategyStatsName; label: string }[] = [
 	{ value: "balance", label: "账户余额" },
 	{ value: "unrealizedPnl", label: "未实现盈亏" },
-	{ value: "totalEquity", label: "总权益" },
-	{ value: "cumulativeReturn", label: "累计收益" },
+	{ value: "equity", label: "净值" },
+	{ value: "cumulativeReturn", label: "累计收益率" },
 	{ value: "realizedPnl", label: "已实现盈亏" },
 	{ value: "positionCount", label: "持仓数量" },
 ];

@@ -2,10 +2,14 @@ import type { StatsSeriesConfig } from ".";
 import { SeriesType } from ".";
 import type { StrategyStatsName } from "../statistics";
 
+
+export type ValueType = "number" | "percentage";
+
 export type StrategyStatsChartConfig = {
 	chartName: string;
 	visible: boolean;
 	isDelete: boolean;
+	valueType: ValueType;
 	seriesConfigs: StatsSeriesConfig;
 };
 
@@ -17,9 +21,40 @@ export type BacktestStrategyStatsChartConfig = {
 export const defaultBacktestStrategyStatsChartConfig: BacktestStrategyStatsChartConfig = {
 	statsChartConfigs: [
 		{
+			chartName: "账户余额",
+			visible: true,
+			isDelete: false,
+			valueType: "number",
+			seriesConfigs: 
+				{
+					name: "账户余额",
+					statsName: "balance",
+					type: SeriesType.LINE,
+					color: "#000000",
+					lineWidth: 2,
+				},
+			
+		},
+		{
+			chartName: "净值",
+			visible: true,
+			isDelete: false,
+			valueType: "number",
+			seriesConfigs: 
+				{
+					name: "净值",
+					statsName: "equity",
+					type: SeriesType.LINE,
+					color: "#000000",
+					lineWidth: 2,
+				},
+			
+		},
+		{
 			chartName: "未实现盈亏",
 			visible: true,
 			isDelete: false,
+			valueType: "number",
 			seriesConfigs: 
 				{
 					name: "未实现盈亏",
@@ -31,14 +66,30 @@ export const defaultBacktestStrategyStatsChartConfig: BacktestStrategyStatsChart
 			
 		},
 		{
-			chartName: "总资产价值",
+			chartName: "已实现盈亏",
 			visible: true,
 			isDelete: false,
+			valueType: "number",
 			seriesConfigs: 
 				{
-					name: "总资产价值",
-					statsName: "totalEquity",
-					type: SeriesType.MOUNTAIN,
+					name: "已实现盈亏",
+					statsName: "realizedPnl",
+					type: SeriesType.LINE,
+					color: "#000000",
+					lineWidth: 2,
+				},
+			
+		},
+		{
+			chartName: "累计收益率",
+			visible: true,
+			isDelete: false,
+			valueType: "percentage",
+			seriesConfigs: 
+				{
+					name: "累计收益率",
+					statsName: "cumulativeReturn",
+					type: SeriesType.LINE,
 					color: "#000000",
 					lineWidth: 2,
 				},

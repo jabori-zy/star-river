@@ -637,14 +637,10 @@ const createBacktestChartStore = (
 			const isInMainChart = indicatorConfig?.isInMainChart;
 
 			// 处理每个指标值字段
-			const updatedIndicator: Record<
-				keyof IndicatorValueConfig,
-				SingleValueData[]
-			> = { ...existingIndicatorData };
+			const updatedIndicator: Record<keyof IndicatorValueConfig,SingleValueData[]> = { ...existingIndicatorData };
 
 			Object.entries(indicator).forEach(([indicatorValueKey, newDataArray]) => {
-				const indicatorValueField =
-					indicatorValueKey as keyof IndicatorValueConfig;
+				const indicatorValueField = indicatorValueKey as keyof IndicatorValueConfig;
 				const existingData = existingIndicatorData[indicatorValueField] || [];
 
 				// 处理新数据数组中的每个数据点
@@ -658,10 +654,7 @@ const createBacktestChartStore = (
 					}
 
 					// update
-					const indicatorSeriesRef = get().getIndicatorSeriesRef(
-						indicatorKeyStr,
-						indicatorValueKey,
-					);
+					const indicatorSeriesRef = get().getIndicatorSeriesRef(indicatorKeyStr,indicatorValueKey);
 					if (indicatorSeriesRef) {
 						indicatorSeriesRef.update(newDataPoint);
 					}
@@ -913,7 +906,6 @@ const createBacktestChartStore = (
 						order.orderType === OrderType.TAKE_PROFIT_MARKET ||
 						order.orderType === OrderType.STOP_MARKET
 					) {
-						console.log("order", order);
 						const markers = virtualOrderToMarker(order);
 						orderMarkers.push(...markers);
 					}

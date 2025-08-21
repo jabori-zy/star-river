@@ -194,7 +194,7 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 						className="flex-1 overflow-y-auto"
 						style={{ scrollbarGutter: "stable" }} // 这里会造成右侧边距放大，造成左右边距不一致
 					>
-						<TabsContent value="profit" className="mt-2 mx-6 h-96">
+						<TabsContent value="profit" className="mt-2 mx-6 h-124">
 							<StrategyStats strategyId={strategyId} />
 						</TabsContent>
 

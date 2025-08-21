@@ -46,7 +46,6 @@ const OrderRecord = forwardRef<OrderRecordRef, OrderRecordProps>(({ strategyId }
 		if (!orderStreamSubscription.current) {
 			const orderStream = createOrderStream();
 			const subscription = orderStream.subscribe((orderEvent) => {
-                console.log("orderEvent", orderEvent);
                 if (orderEvent.event === "futures-order-created" || orderEvent.event === "futures-order-filled" || orderEvent.event === "take-profit-order-filled") {
                     const order = orderEvent.futuresOrder;
                    

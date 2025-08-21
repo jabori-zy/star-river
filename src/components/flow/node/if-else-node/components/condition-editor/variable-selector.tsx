@@ -129,12 +129,12 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 
 	// 处理变量选择
 	const handleVariableChange = (variableValue: string) => {
-		const [nodeId, handleId, valueKey] = variableValue.split("|");
+		const [nodeId, outputHandleId, valueKey] = variableValue.split("|");
 		const selectedNode = variableItemList.find(
 			(item) => item.nodeId === nodeId,
 		);
 		const selectedVar = selectedNode?.variables.find(
-			(v) => v.outputHandleId === handleId,
+			(v) => v.outputHandleId === outputHandleId,
 		);
 
 		let variableId = 0;
@@ -147,10 +147,11 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 				variableId = selectedVar.configId;
 			}
 		}
+		console.log("selectedVar", selectedVar);
 
 		console.log("📊 变量选择:", {
 			variableValue,
-			parsed: { nodeId, handleId, valueKey },
+			parsed: { nodeId, handleId: outputHandleId, valueKey },
 			nodeName: selectedNode?.nodeName,
 			variableType: selectedVar
 				? isSelectedIndicator(selectedVar)
@@ -165,7 +166,7 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 		});
 
 		setVariableString(variableValue);
-		onVariableChange(variableId, valueKey, handleId);
+		onVariableChange(variableId, valueKey, outputHandleId);
 	};
 
 	// 获取选中节点的变量列表
@@ -342,10 +343,10 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 				variableItems.push(
 					<SelectItem
 						className="text-xs font-normal py-2 px-3 hover:bg-purple-50 focus:bg-purple-50"
-						key={`${variable.inputHandleId}_${variable.variable}`}
+						key={`${variable.outputHandleId}_${variable.variable}`}
 						value={generateOptionValue(
 							selectedNodeId,
-							variable.inputHandleId,
+							variable.outputHandleId,
 							variable.variable,
 						)}
 						textValue={`${variable.variableName} • ${variable.variable}`}

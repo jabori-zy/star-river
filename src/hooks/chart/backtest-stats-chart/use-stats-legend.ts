@@ -78,10 +78,18 @@ const mapStatsDataToLegendData = (
 	// 如果没有找到指定时间的数据点，使用最新的数据点
 	const targetData = dataPoint || data[data.length - 1];
 
+	// 根据valueType格式化数值
+	let formattedValue: string;
+	if (config.valueType === "percentage") {
+		formattedValue = `${(targetData.value * 100).toFixed(5)}%`;
+	} else {
+		formattedValue = targetData.value.toFixed(2);
+	}
+
 	return {
 		statsName,
 		displayName: config.seriesConfigs.name,
-		value: targetData.value.toFixed(2),
+		value: formattedValue,
 		color: currentColor,
 		time: targetData.time,
 		timeString: timeToString(targetData.time),
@@ -98,7 +106,6 @@ export const useStatsLegend = ({
 	statsChartConfig,
 }: UseStatsLegendProps) => {
 	const { statsData } = useBacktestStatsChartStore(strategyId, {
-		strategyId,
 		statsChartConfigs: [statsChartConfig],
 	});
 

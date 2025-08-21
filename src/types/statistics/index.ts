@@ -1,7 +1,13 @@
 
 
 
-export type StrategyStatsName = "balance" | "unrealizedPnl" | "totalEquity" | "cumulativeReturn" | "realizedPnl" | "positionCount";
+export type StrategyStatsName = 
+    "balance" | 
+    "unrealizedPnl" | 
+    "equity" | 
+    "cumulativeReturn" | 
+    "realizedPnl" | 
+    "positionCount";
 
 
 
