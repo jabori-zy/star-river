@@ -120,7 +120,7 @@ const IndicatorEditor: React.FC<IndicatorEditorProps> = ({
 				) : (
 					selectedIndicators.map((config, index) => (
 						<div
-							key={`${config.indicatorType}-${config.indicatorId}`}
+							key={`${config.indicatorType}-${config.configId}`}
 							className="flex items-center justify-between p-2 border rounded-md bg-background group"
 						>
 							<div className="flex items-center gap-2">

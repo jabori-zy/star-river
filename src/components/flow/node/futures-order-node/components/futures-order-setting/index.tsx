@@ -1,6 +1,7 @@
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import type { FuturesOrderConfig } from "@/types/order";
 import OrderConfigDialog from "./order-config-dialog";
 import OrderConfigItem from "./order-config-item";
@@ -39,7 +40,7 @@ const FuturesOrderSetting: React.FC<FuturesOrderSettingProps> = ({
 			.map((order, newIndex) => ({
 				...order,
 				orderConfigId: newIndex + 1, // 重新分配orderConfigId，保持连续性
-				inputHandleId: `${nodeId}_input${newIndex + 1}`, // 重新分配inputHandleId
+				inputHandleId: `${nodeId}_input_${newIndex + 1}`, // 重新分配inputHandleId
 			}));
 		onOrderConfigsChange(updatedOrders);
 	};
@@ -55,7 +56,7 @@ const FuturesOrderSetting: React.FC<FuturesOrderSettingProps> = ({
 			const newOrderConfig = {
 				...orderConfig,
 				orderConfigId: newOrderConfigId,
-				inputHandleId: `${nodeId}_input${newOrderConfigId}`,
+				inputHandleId: `${nodeId}_input_${newOrderConfigId}`,
 			};
 			onOrderConfigsChange([...orderConfigs, newOrderConfig]);
 		}
@@ -64,7 +65,7 @@ const FuturesOrderSetting: React.FC<FuturesOrderSettingProps> = ({
 	return (
 		<div className="flex flex-col gap-2">
 			<div className="flex items-center justify-between">
-				<label className="text-sm font-bold text-gray-700">订单配置</label>
+				<Label className="text-sm font-bold text-gray-700">订单配置</Label>
 				<Button variant="ghost" size="icon" onClick={handleAddOrder}>
 					<PlusIcon className="w-4 h-4" />
 				</Button>
@@ -78,7 +79,7 @@ const FuturesOrderSetting: React.FC<FuturesOrderSettingProps> = ({
 				) : (
 					orderConfigs.map((config, index) => (
 						<OrderConfigItem
-							key={index}
+							key={config.orderConfigId}
 							config={config}
 							index={index}
 							onEdit={handleEditOrder}

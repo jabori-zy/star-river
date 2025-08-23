@@ -71,6 +71,7 @@ const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 						onAccountChange={handleDataSourceChange}
 					/>
 					<SymbolSelector
+						nodeId={id}
 						selectedSymbols={
 							backtestConfig?.exchangeModeConfig?.selectedSymbols || []
 						}

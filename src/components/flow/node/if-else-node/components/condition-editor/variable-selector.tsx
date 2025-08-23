@@ -33,7 +33,7 @@ interface VariableSelectorProps {
 const isSelectedIndicator = (
 	variable: SelectedIndicator | SelectedSymbol | VariableConfig,
 ): variable is SelectedIndicator => {
-	return "value" in variable && "indicatorId" in variable;
+	return "value" in variable && "configId" in variable;
 };
 
 // 类型守卫：判断是否为SelectedSymbol
@@ -41,7 +41,7 @@ const isSelectedSymbol = (
 	variable: SelectedIndicator | SelectedSymbol | VariableConfig,
 ): variable is SelectedSymbol => {
 	return (
-		"symbol" in variable && "interval" in variable && "symbolId" in variable
+		"symbol" in variable && "interval" in variable && "configId" in variable
 	);
 };
 
@@ -92,10 +92,10 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 			setSelectedNodeId(variable.nodeId || "");
 
 			// 更新变量字符串
-			if (variable.nodeId && variable.handleId && variable.variable) {
+			if (variable.nodeId && variable.outputHandleId && variable.variable) {
 				const variableString = generateOptionValue(
 					variable.nodeId,
-					variable.handleId,
+					variable.outputHandleId,
 					variable.variable,
 				);
 				setVariableString(variableString);
@@ -139,13 +139,14 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 
 		let variableId = 0;
 		if (selectedVar) {
-			if (isSelectedIndicator(selectedVar)) {
-				variableId = selectedVar.indicatorId;
-			} else if (isSelectedSymbol(selectedVar)) {
-				variableId = selectedVar.symbolId;
-			} else if (isVariableConfig(selectedVar)) {
-				variableId = selectedVar.configId;
-			}
+			variableId = selectedVar.configId;
+			// if (isSelectedIndicator(selectedVar)) {
+			// 	variableId = selectedVar.configId;
+			// } else if (isSelectedSymbol(selectedVar)) {
+			// 	variableId = selectedVar.configId;
+			// } else if (isVariableConfig(selectedVar)) {
+			// 	variableId = selectedVar.configId;
+			// }
 		}
 		console.log("selectedVar", selectedVar);
 
@@ -198,7 +199,7 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 		if (indicators.length > 0) {
 			const groupedByIndicatorId = indicators.reduce(
 				(groups, variable) => {
-					const key = variable.indicatorId;
+					const key = variable.configId;
 					if (!groups[key]) {
 						groups[key] = [];
 					}
@@ -220,6 +221,9 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 				variables.forEach((variable) => {
 					const variableName = Object.keys(variable.value);
 					variableName.forEach((varName) => {
+						if (varName === "timestamp") {
+							return;
+						}
 						groupItems.push(
 							<SelectItem
 								className="text-xs font-normal py-2"
@@ -229,14 +233,14 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 									variable.outputHandleId,
 									varName,
 								)}
-								textValue={`指标${variable.indicatorId} • ${varName}`}
+								textValue={`指标${variable.configId} • ${varName}`}
 							>
 								<div className="flex items-center justify-between w-full gap-1">
 									<Badge
 										variant="outline"
 										className="flex items-center justify-center text-[10px] leading-none py-1 border-gray-400 rounded-sm"
 									>
-										{variable.indicatorId} |{" "}
+										{variable.configId} |{" "}
 										{variable.indicatorType}
 									</Badge>
 
@@ -303,7 +307,7 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 										variant="outline"
 										className="flex items-center justify-center text-[10px] leading-none py-1 border-gray-400 rounded-sm"
 									>
-										{variable.symbolId}|{variable.symbol}|{variable.interval}
+										{variable.configId}|{variable.symbol}|{variable.interval}
 									</Badge>
 								</div>
 								<span className="text-xs text-gray-900 text-right">

@@ -67,8 +67,10 @@ const IfElseNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 
 	// 添加ELIF分支
 	const handleAddElif = () => {
+		const caseId = localBacktestCases?.length + 1 || 1;
 		const newCaseItem: CaseItem = {
-			caseId: localBacktestCases?.length + 1 || 1,
+			caseId: caseId,
+			outputHandleId: `${id}_output_${caseId}`,
 			logicalSymbol: LogicalSymbol.AND,
 			conditions: [],
 		};
@@ -90,6 +92,7 @@ const IfElseNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 		if (filteredCases.length === 0) {
 			const newCase: CaseItem = {
 				caseId: 1,
+				outputHandleId: `${id}_output_1`,
 				logicalSymbol: LogicalSymbol.AND,
 				conditions: [],
 			};
@@ -118,6 +121,7 @@ const IfElseNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 			caseId: index + 1, // 重新设置caseId，确保连续性（1,2,3...）
 			logicalSymbol: c.logicalSymbol,
 			conditions: c.conditions,
+			outputHandleId: `${id}_output_${index + 1}`,
 		}));
 
 		// 更新本地状态
@@ -143,6 +147,7 @@ const IfElseNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 					variableItemList={variableItemList}
 					caseItem={{
 						caseId: 1,
+						outputHandleId: `${id}_output_1`,
 						logicalSymbol: LogicalSymbol.AND,
 						conditions: [],
 					}}

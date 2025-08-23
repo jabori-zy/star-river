@@ -93,7 +93,7 @@ export function IndicatorItem({ indicator, handleId }: IndicatorItemProps) {
 				</div>
 				<div className="text-xs text-muted-foreground font-bold">
 					<Badge variant="outline" className="border-gray-400">
-						指标 {indicator?.indicatorId}
+						指标 {indicator?.configId}
 					</Badge>
 				</div>
 			</div>

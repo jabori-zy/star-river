@@ -22,7 +22,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 	console.log("symbolList", symbolList);
 	const handleSymbolChange = (symbolId: string) => {
 		const selected = symbolList.find(
-			(symbol) => symbol.symbolId.toString() === symbolId,
+			(symbol) => symbol.configId.toString() === symbolId,
 		);
 		if (selected) {
 			onSymbolChange(selected);
@@ -35,7 +35,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 				交易对选择
 			</Label>
 			<Select
-				value={selectedSymbol?.symbolId.toString() || ""}
+				value={selectedSymbol?.configId.toString() || ""}
 				onValueChange={handleSymbolChange}
 			>
 				<SelectTrigger id="symbol-select" className="w-full">
@@ -44,8 +44,8 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 				<SelectContent>
 					{symbolList.map((symbol) => (
 						<SelectItem
-							key={symbol.symbolId}
-							value={symbol.symbolId.toString()}
+							key={symbol.configId}
+							value={symbol.configId.toString()}
 						>
 							<div className="flex items-center justify-between w-full">
 								<span className="font-medium">{symbol.symbol}</span>

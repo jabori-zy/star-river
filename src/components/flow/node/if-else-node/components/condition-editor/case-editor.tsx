@@ -44,8 +44,8 @@ const CaseEditor: React.FC<CaseEditorProps> = ({
 			rightVariable: {
 				varType: VarType.variable,
 				nodeId: null,
-				handleId: null,
-				variableId: null,
+				outputHandleId: null,
+				variableConfigId: null,
 				variable: null,
 			},
 		};
@@ -129,10 +129,9 @@ const CaseEditor: React.FC<CaseEditorProps> = ({
 			{/* 条件 */}
 			{/* 如果caseItem为空，则默认显示一个空的case */}
 			{localCaseItem?.conditions?.length > 0 &&
-				localCaseItem?.conditions?.map((condition, index) => (
-					<div className="flex flex-row">
+				localCaseItem?.conditions?.map((condition) => (
+					<div className="flex flex-row" key={condition.conditionId}>
 						<ConditionSetting
-							key={index}
 							variableItemList={variableItemList}
 							condition={condition}
 							onConditionChange={handleUpdateCondition}

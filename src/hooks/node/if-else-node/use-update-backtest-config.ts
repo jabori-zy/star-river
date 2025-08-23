@@ -47,11 +47,16 @@ export const useUpdateBacktestConfig = ({
 	const getDefaultConfig = useCallback(
 		(prev?: IfElseNodeBacktestConfig): IfElseNodeBacktestConfig => ({
 			cases: prev?.cases || [
-				{ caseId: 1, logicalSymbol: LogicalSymbol.AND, conditions: [] },
+				{
+					caseId: 1,
+					logicalSymbol: LogicalSymbol.AND,
+					conditions: [],
+					outputHandleId: `${id}_output_1`,
+				},
 			],
 			...prev,
 		}),
-		[],
+		[id],
 	);
 
 	// 通用的字段更新方法

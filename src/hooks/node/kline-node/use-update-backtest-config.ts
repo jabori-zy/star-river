@@ -30,7 +30,7 @@ export const useUpdateBacktestConfig = ({
 	// 生成 handleId 的辅助函数
 	const generateHandleId = useCallback(
 		(index: number) => {
-			return `${id}_output${index}`;
+			return `${id}_output_${index}`;
 		},
 		[id],
 	);
@@ -73,7 +73,6 @@ export const useUpdateBacktestConfig = ({
 			const { backtestConfig: startNodeBacktestConfig } =
 				useStartNodeDataStore.getState();
 			const timeRange = startNodeBacktestConfig?.exchangeModeConfig?.timeRange;
-			console.log("获取默认配置", timeRange);
 			return {
 				dataSource: prev?.dataSource || BacktestDataSource.EXCHANGE,
 				fileModeConfig: prev?.fileModeConfig,
@@ -164,8 +163,6 @@ export const useUpdateBacktestConfig = ({
 
 	const updateSelectedSymbols = useCallback(
 		(selectedSymbols: SelectedSymbol[]) => {
-			// 为交易对添加 handleId
-			const symbolsWithHandleIds = addHandleIds(selectedSymbols);
 
 			updateConfig((prev) => ({
 				...getDefaultConfig(prev),
@@ -176,7 +173,7 @@ export const useUpdateBacktestConfig = ({
 						exchange: Exchange.BINANCE,
 						accountName: "",
 					},
-					selectedSymbols: symbolsWithHandleIds,
+					selectedSymbols: selectedSymbols,
 					timeRange: prev?.exchangeModeConfig?.timeRange || {
 						startDate: "",
 						endDate: "",
@@ -184,7 +181,7 @@ export const useUpdateBacktestConfig = ({
 				},
 			}));
 		},
-		[updateConfig, getDefaultConfig, addHandleIds],
+		[updateConfig, getDefaultConfig],
 	);
 
 	const updateTimeRange = useCallback(

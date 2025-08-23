@@ -1,6 +1,7 @@
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import type { PositionOperationConfig } from "@/types/node/position-management-node";
 import OperationConfigDialog from "./operation-config-dialog";
 import OperationConfigItem from "./operation-config-item";
@@ -41,7 +42,7 @@ const OperationSetting: React.FC<OperationSettingProps> = ({
 			.map((operation, newIndex) => ({
 				...operation,
 				positionOperationId: newIndex + 1, // 重新分配id，保持连续性
-				inputHandleId: `${nodeId}_input${newIndex + 1}`, // 重新分配inputHandleId
+				inputHandleId: `${nodeId}_input_${newIndex + 1}`, // 重新分配inputHandleId
 			}));
 		onOperationConfigsChange(updatedOperations);
 	};
@@ -84,7 +85,7 @@ const OperationSetting: React.FC<OperationSettingProps> = ({
 			const newOperationConfig = {
 				...operationConfig,
 				positionOperationId: newOperationId,
-				inputHandleId: `${nodeId}_input${newOperationId}`,
+				inputHandleId: `${nodeId}_input_${newOperationId}`,
 			};
 			onOperationConfigsChange([...operationConfigs, newOperationConfig]);
 		}
@@ -93,7 +94,7 @@ const OperationSetting: React.FC<OperationSettingProps> = ({
 	return (
 		<div className="flex flex-col gap-2">
 			<div className="flex items-center justify-between">
-				<label className="text-sm font-bold text-gray-700">操作配置</label>
+				<Label className="text-sm font-bold text-gray-700">操作配置</Label>
 				<Button variant="ghost" size="icon" onClick={handleAddOperation}>
 					<PlusIcon className="w-4 h-4" />
 				</Button>
@@ -107,7 +108,7 @@ const OperationSetting: React.FC<OperationSettingProps> = ({
 				) : (
 					operationConfigs.map((config, index) => (
 						<OperationConfigItem
-							key={index}
+							key={config.positionOperationId}
 							config={config}
 							index={index}
 							onEdit={handleEditOperation}

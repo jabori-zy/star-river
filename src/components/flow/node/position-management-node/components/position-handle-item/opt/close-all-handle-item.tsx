@@ -25,7 +25,7 @@ export function CloseAllHandleItem({
 				</span>
 				{/* 入口 */}
 				<BaseHandle
-					id={`${id}_input${operationConfig.positionOperationId}`}
+					id={`${id}_input_${operationConfig.positionOperationId}`}
 					type="target"
 					position={Position.Left}
 					handleColor="!bg-black"
@@ -69,14 +69,14 @@ export function CloseAllHandleItem({
 			{/* handle出口 */}
 			<div className="flex flex-row gap-1">
 				<BaseHandle
-					id={`${id}_${operationConfig.positionOperation}_success_output${operationConfig.positionOperationId}`}
+					id={`${id}_${operationConfig.positionOperation}_success_output_${operationConfig.positionOperationId}`}
 					type="source"
 					position={Position.Right}
 					handleColor="!bg-green-400"
 					className="translate-x-2 translate-y-4"
 				/>
 				<BaseHandle
-					id={`${id}_${operationConfig.positionOperation}_failed_output${operationConfig.positionOperationId}`}
+					id={`${id}_${operationConfig.positionOperation}_failed_output_${operationConfig.positionOperationId}`}
 					type="source"
 					position={Position.Right}
 					handleColor="!bg-red-400"

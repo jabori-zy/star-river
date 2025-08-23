@@ -1,6 +1,7 @@
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import type { VariableConfig } from "@/types/node/variable-node";
 import VariableConfigDialog from "./variable-config-dialog";
 import VariableConfigItem from "./variable-config-item";
@@ -39,7 +40,7 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 			.map((variable, newIndex) => ({
 				...variable,
 				configId: newIndex + 1, // 重新分配id，保持连续性
-				inputHandleId: `${id}_input${newIndex + 1}`,
+				inputHandleId: `${id}_input_${newIndex + 1}`,
 			}));
 		onVariableConfigsChange(updatedVariables);
 	};
@@ -84,8 +85,8 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 			const newVariableConfig = {
 				...variableConfig,
 				configId: variableConfigs.length + 1,
-				inputHandleId: `${id}_input${variableConfigs.length + 1}`,
-				outputHandleId: `${id}_output${variableConfigs.length + 1}`,
+				inputHandleId: `${id}_input_${variableConfigs.length + 1}`,
+				outputHandleId: `${id}_output_${variableConfigs.length + 1}`,
 			};
 			onVariableConfigsChange([...variableConfigs, newVariableConfig]);
 		}
@@ -94,7 +95,7 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 	return (
 		<div className="flex flex-col gap-2">
 			<div className="flex items-center justify-between">
-				<label className="text-sm font-bold text-gray-700">变量配置</label>
+				<Label className="text-sm font-bold text-gray-700">变量配置</Label>
 				<Button variant="ghost" size="icon" onClick={handleAddVariable}>
 					<PlusIcon className="w-4 h-4" />
 				</Button>
@@ -108,7 +109,7 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 				) : (
 					variableConfigs.map((config, index) => (
 						<VariableConfigItem
-							key={index}
+							key={config.configId}
 							config={config}
 							index={index}
 							onEdit={handleEditVariable}

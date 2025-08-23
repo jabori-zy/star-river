@@ -35,7 +35,7 @@ export const getVariableLabel = (variable: Variable | null) => {
 	} else if (variable.varType === VarType.variable) {
 		const nodeName = variable.nodeName || "未设置";
 		const variableName = variable.variable || "未设置";
-		const variableId = variable.variableId || "未设置";
+		const variableId = variable.variableConfigId || "未设置";
 		return `${nodeName} - ${variableId}|${variableName}`;
 	}
 

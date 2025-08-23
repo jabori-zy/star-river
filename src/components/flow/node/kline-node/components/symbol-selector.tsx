@@ -1,5 +1,5 @@
 import { Clock, PlusIcon, Settings, TrendingUp, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,10 +18,51 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import * as SelectPrimitive from "@radix-ui/react-select";
+import { cn } from "@/lib/utils";
+import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import type { SelectedSymbol } from "@/types/node/kline-node";
 import type { SelectedAccount } from "@/types/strategy";
 
+// 不使用Portal的SelectContent，避免在Dialog中的焦点冲突
+const DialogSelectContent: React.FC<React.ComponentProps<typeof SelectPrimitive.Content>> = ({
+	className,
+	children,
+	position = "popper",
+	...props
+}) => {
+	return (
+		<SelectPrimitive.Content
+			className={cn(
+				"bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md border shadow-md",
+				position === "popper" &&
+					"data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
+				className,
+			)}
+			position={position}
+			{...props}
+		>
+			<SelectPrimitive.ScrollUpButton className="flex cursor-default items-center justify-center py-1">
+				<ChevronUpIcon className="size-4" />
+			</SelectPrimitive.ScrollUpButton>
+			<SelectPrimitive.Viewport
+				className={cn(
+					"p-1",
+					position === "popper" &&
+						"h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)] scroll-my-1",
+				)}
+			>
+				{children}
+			</SelectPrimitive.Viewport>
+			<SelectPrimitive.ScrollDownButton className="flex cursor-default items-center justify-center py-1">
+				<ChevronDownIcon className="size-4" />
+			</SelectPrimitive.ScrollDownButton>
+		</SelectPrimitive.Content>
+	);
+};
+
 interface SymbolSelectorProps {
+	nodeId: string; // 节点id
 	selectedSymbols: SelectedSymbol[]; // 已选择的交易对
 	selectedDataSource?: SelectedAccount | null; // 已选择的数据源
 	onSymbolsChange: (symbols: SelectedSymbol[]) => void; // 交易对变更回调
@@ -52,6 +93,7 @@ const Symbols = [
 
 // 交易品种选择器
 const SymbolSelector: React.FC<SymbolSelectorProps> = ({
+	nodeId,
 	selectedSymbols,
 	onSymbolsChange,
 	selectedDataSource,
@@ -78,6 +120,12 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 		}
 	}, [selectedSymbols]);
 
+	const resetForm = useCallback(() => {
+		setSymbolName("");
+		setSymbolInterval("1m");
+		setNameError("");
+	}, []);
+
 	// 每次对话框打开时重置状态
 	useEffect(() => {
 		if (isDialogOpen) {
@@ -89,13 +137,9 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 			}
 			setNameError("");
 		}
-	}, [isDialogOpen, editingSymbol]);
+	}, [isDialogOpen, editingSymbol, resetForm]);
 
-	const resetForm = () => {
-		setSymbolName("");
-		setSymbolInterval("1m");
-		setNameError("");
-	};
+	
 
 	// 同步数据到父组件
 	const syncToParent = (newSymbols: SelectedSymbol[]) => {
@@ -167,8 +211,8 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 		const listLength = localSymbols.length;
 
 		const newSymbol: SelectedSymbol = {
-			symbolId: listLength + 1, // 使用时间戳作为临时ID
-			outputHandleId: `kline_node_output_${listLength + 1}`, // handleId 将由 hooks 自动生成
+			configId: listLength + 1, // 配置id
+			outputHandleId: `${nodeId}_output_${listLength + 1}`, // handleId 将由 hooks 自动生成
 			symbol: symbolName,
 			interval: symbolInterval,
 			klineValue: {
@@ -210,7 +254,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 	return (
 		<div className="flex flex-col gap-2">
 			<div className="flex items-center justify-between">
-				<label className="text-sm font-bold text-gray-700">交易品种</label>
+				<Label className="text-sm font-bold text-gray-700">交易品种</Label>
 				<Button
 					variant="ghost"
 					size="icon"
@@ -272,10 +316,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 
 			{/* 添加/编辑交易对对话框 */}
 			<Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-				<DialogContent
-					className="sm:max-w-[425px]"
-					onOpenAutoFocus={(e) => e.preventDefault()}
-				>
+				<DialogContent className="sm:max-w-[425px]">
 					<DialogHeader>
 						<DialogTitle>
 							{editingSymbol ? "编辑交易对" : "添加交易对"}
@@ -305,7 +346,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 									>
 										<SelectValue placeholder="选择交易对" />
 									</SelectTrigger>
-									<SelectContent>
+									<DialogSelectContent>
 										{Symbols.map((symbol) => (
 											<SelectItem key={symbol.value} value={symbol.value}>
 												<div className="flex items-center">
@@ -313,7 +354,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 												</div>
 											</SelectItem>
 										))}
-									</SelectContent>
+									</DialogSelectContent>
 								</Select>
 								{nameError && (
 									<p className="text-xs text-red-500">{nameError}</p>
@@ -337,7 +378,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 									<SelectTrigger id="symbol-interval">
 										<SelectValue placeholder="选择时间周期" />
 									</SelectTrigger>
-									<SelectContent>
+									<DialogSelectContent>
 										{TIME_INTERVALS.map((interval) => (
 											<SelectItem key={interval.value} value={interval.value}>
 												<div className="flex items-center">
@@ -345,7 +386,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 												</div>
 											</SelectItem>
 										))}
-									</SelectContent>
+									</DialogSelectContent>
 								</Select>
 							</div>
 						</div>

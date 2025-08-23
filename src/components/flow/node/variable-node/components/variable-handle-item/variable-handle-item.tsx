@@ -31,7 +31,7 @@ export function VariableHandleItem({
 				{/* 入口 */}
 				{variableConfig.getVariableType === GetVariableType.CONDITION && (
 					<BaseHandle
-						id={`${id}_input${variableConfig.configId}`}
+						id={`${id}_input_${variableConfig.configId}`}
 						type="target"
 						position={Position.Left}
 						handleColor="!bg-black"
@@ -67,7 +67,7 @@ export function VariableHandleItem({
 				</div>
 			</div>
 			<BaseHandle
-				id={`${id}_output${variableConfig.configId}`}
+				id={`${id}_output_${variableConfig.configId}`}
 				type="source"
 				position={Position.Right}
 				handleColor="!bg-black"

@@ -50,7 +50,7 @@ const OrderHandleItem: React.FC<OrderHandleItemProps> = ({
 				</div>
 				{orderConfig.orderSide === FuturesOrderSide.OPEN_LONG ? (
 					<BaseHandle
-						id={`${id}_input${orderConfig.orderConfigId}`}
+						id={`${id}_input_${orderConfig.orderConfigId}`}
 						type="target"
 						position={Position.Left}
 						handleColor="!bg-black-400"
@@ -58,7 +58,7 @@ const OrderHandleItem: React.FC<OrderHandleItemProps> = ({
 					/>
 				) : (
 					<BaseHandle
-						id={`${id}_input${orderConfig.orderConfigId}`}
+						id={`${id}_input_${orderConfig.orderConfigId}`}
 						type="target"
 						position={Position.Left}
 						handleColor="!bg-red-500"

@@ -191,8 +191,8 @@ const EditDialog: React.FC<EditDialogProps> = ({
 		const config = configInstance.getDefaultConfig();
 
 		return {
-			indicatorId: index + 1,
-			outputHandleId: `${nodeId}_output${index + 1}`,
+			configId: index + 1,
+			outputHandleId: `${nodeId}_output_${index + 1}`,
 			indicatorType: type,
 			indicatorConfig: config,
 			value: createInitialValue(type),
@@ -352,18 +352,13 @@ const EditDialog: React.FC<EditDialogProps> = ({
 					className="sm:max-w-[425px]"
 					onOpenAutoFocus={(e) => e.preventDefault()} // 防止自动聚焦，避免 aria-hidden 警告
 					onInteractOutside={(e) => e.preventDefault()} // 防止点击外部区域关闭对话框
+					aria-describedby={undefined}
 				>
-				<DialogHeader>
-					<DialogTitle>
-						配置{configInstance?.displayName || indicatorType}
-					</DialogTitle>
-					{/* <DialogDescription>
-						{hasConfigurableParams
-							? "配置技术指标的参数和计算方式。"
-							: "该指标无需配置参数。"
-						}
-					</DialogDescription> */}
-				</DialogHeader>
+					<DialogHeader>
+						<DialogTitle>
+							配置{configInstance?.displayName || indicatorType}
+						</DialogTitle>
+					</DialogHeader>
 				<div className="grid gap-4 py-4">
 					{hasConfigurableParams ? (
 						/* 动态渲染当前指标类型的表单字段 */

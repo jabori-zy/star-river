@@ -42,8 +42,8 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 		const newLeftVariable: Variable = {
 			varType: VarType.variable,
 			nodeId: nodeId,
-			handleId: localCondition.leftVariable?.handleId || null,
-			variableId: localCondition.leftVariable?.variableId || null,
+			outputHandleId: localCondition.leftVariable?.outputHandleId || null,
+			variableConfigId: localCondition.leftVariable?.variableConfigId || null,
 			variable: localCondition.leftVariable?.variable || null,
 			nodeName: nodeName,
 		};
@@ -61,8 +61,8 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 		const newLeftVariable: Variable = {
 			varType: VarType.variable,
 			nodeId: localCondition.leftVariable?.nodeId || null,
-			handleId: handleId,
-			variableId: variableId,
+			outputHandleId: handleId,
+			variableConfigId: variableId,
 			variable: variableName,
 			nodeName: localCondition.leftVariable?.nodeName || null,
 		};
@@ -77,8 +77,8 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 		const newRightVariable: Variable = {
 			varType: VarType.variable,
 			nodeId: nodeId,
-			handleId: localCondition.rightVariable?.handleId || null,
-			variableId: localCondition.rightVariable?.variableId || null,
+			outputHandleId: localCondition.rightVariable?.outputHandleId || null,
+			variableConfigId: localCondition.rightVariable?.variableConfigId || null,
 			variable: localCondition.rightVariable?.variable || null,
 			nodeName: nodeName,
 		};
@@ -96,8 +96,8 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 		const newRightVariable: Variable = {
 			varType: VarType.variable,
 			nodeId: localCondition.rightVariable?.nodeId || null,
-			handleId: handleId,
-			variableId: variableId,
+			outputHandleId: handleId,
+			variableConfigId: variableId,
 			variable: variableName,
 			nodeName: localCondition.rightVariable?.nodeName || null,
 		};
@@ -123,8 +123,8 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 		const newRightVariable: Variable = {
 			varType: varType,
 			nodeId: null,
-			handleId: null,
-			variableId: null,
+			outputHandleId: null,
+			variableConfigId: null,
 			variable: null,
 			nodeName: null,
 		};
@@ -138,8 +138,8 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 		const newRightVariable: Variable = {
 			varType: VarType.constant,
 			nodeId: null,
-			handleId: null,
-			variableId: null,
+			outputHandleId: null,
+			variableConfigId: null,
 			variable: value.toString(),
 			nodeName: null,
 		};

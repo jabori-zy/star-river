@@ -7,6 +7,7 @@ import {
 	DialogContent,
 	DialogHeader,
 	DialogTitle,
+	DialogDescription,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -155,10 +156,10 @@ const IndicatorViewerDialog: React.FC<IndicatorViewerDialogProps> = ({
 	return (
 		<TooltipProvider>
 			<Dialog open={isOpen} onOpenChange={onClose} modal={false}>
-				<DialogContent className="sm:max-w-[800px] h-[600px] p-0 flex flex-col">
-				<DialogHeader className="px-6 pt-4">
-					<DialogTitle>指标</DialogTitle>
-				</DialogHeader>
+				<DialogContent className="sm:max-w-[800px] h-[600px] p-0 flex flex-col" aria-describedby={undefined}>
+					<DialogHeader className="px-6 pt-4">
+						<DialogTitle>指标</DialogTitle>
+					</DialogHeader>
 
 				{/* 搜索栏 */}
 				<div className="px-6 pb-1">

@@ -25,7 +25,8 @@ export type IfElseNodeData = {
 
 // 条件组
 export type CaseItem = {
-	caseId: number; // 条件id
+	caseId: number; // caseId
+	outputHandleId: string | null; // case输出handleId
 	logicalSymbol: LogicalSymbol | null; // 逻辑运算符
 	conditions: Condition[]; // 条件列表
 };
@@ -64,8 +65,8 @@ export enum VarType {
 export type Variable = {
 	varType: VarType | null; // 变量类型
 	nodeId: string | null; // 节点id
-	handleId: string | null; // 变量handleId
-	variableId: number | null; // 变量id(指标id,K线id)
+	outputHandleId: string | null; // 变量输出handleId
+	variableConfigId: number | null; // 变量配置id(指标配置id,K线配置id)
 	variable: string | number | null; // 变量名称, 如果是常量，则值为常量值
 	nodeName?: string | null; // 节点名称
 };

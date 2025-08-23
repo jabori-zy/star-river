@@ -30,7 +30,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ id, data }) => {
 				<IfElseCaseItem
 					key={caseItem.caseId}
 					caseItem={caseItem}
-					handleId={`${id}_output${caseItem.caseId}`}
+					handleId={`${id}_output_${caseItem.caseId}`}
 				/>
 			))}
 

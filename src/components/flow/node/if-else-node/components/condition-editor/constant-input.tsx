@@ -28,7 +28,7 @@ const ConstantInput: React.FC<ConstantInputProps> = ({
 		setLocalValue(inputValue);
 
 		// 如果输入不为空且是有效数字，立即通知父组件
-		if (inputValue !== "" && !isNaN(Number(inputValue))) {
+		if (inputValue !== "" && !Number.isNaN(Number(inputValue))) {
 			onValueChange(Number(inputValue));
 		}
 	};
