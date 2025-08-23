@@ -18,7 +18,7 @@ export type StrategyStats = {
     playIndex: number;
     balance: number;
     unrealizedPnl: number;
-    totalEquity: number;
+    equity: number;
     cumulativeReturn: number;
     realizedPnl: number;
     positionCount: number;

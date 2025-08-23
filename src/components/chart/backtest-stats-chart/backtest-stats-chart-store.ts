@@ -106,7 +106,7 @@ const createBacktestStatsChartStore = (
 
 					const balanceStatsData: SingleValueData[] = []
 					const unrealizedPnlStatsData: SingleValueData[] = []
-					const totalEquityStatsData: SingleValueData[] = []
+					const equityStatsData: SingleValueData[] = []
 					const positionStatsData: SingleValueData[] = []
 					const realizedPnlStatsData: SingleValueData[] = []
 					const cumulativeReturnStatsData: SingleValueData[] = []
@@ -121,9 +121,9 @@ const createBacktestStatsChartStore = (
 							time: timestamp,
 							value: statsData.unrealizedPnl,
 						});
-						totalEquityStatsData.push({
+						equityStatsData.push({
 							time: timestamp,
-							value: statsData.totalEquity,
+							value: statsData.equity,
 						});
 						positionStatsData.push({
 							time: timestamp,
@@ -141,7 +141,7 @@ const createBacktestStatsChartStore = (
 
 					state.setStatsData("balance", balanceStatsData);
 					state.setStatsData("unrealizedPnl", unrealizedPnlStatsData);
-					state.setStatsData("equity", totalEquityStatsData);
+					state.setStatsData("equity", equityStatsData);
 					state.setStatsData("positionCount", positionStatsData);
 					state.setStatsData("realizedPnl", realizedPnlStatsData);
 					state.setStatsData("cumulativeReturn", cumulativeReturnStatsData);

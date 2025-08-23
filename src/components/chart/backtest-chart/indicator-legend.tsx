@@ -42,7 +42,7 @@ const IndicatorLegend = forwardRef<HTMLDivElement, IndicatorLegendProps>(
 			toggleIndicatorVisibility(chartId, indicatorKeyStr);
 		};
 
-		// 处理删除指标 - 暂时只是占位，不实现功能
+		// 处理删除指标
 		const handleDeleteIndicator = (e: React.MouseEvent) => {
 			e.stopPropagation();
 			removeIndicator(chartId, indicatorKeyStr);

@@ -5,6 +5,9 @@ import type {
 } from "lightweight-charts";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useBacktestChartStore } from "@/components/chart/backtest-chart/backtest-chart-store";
+import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
+import type { IndicatorChartConfig, SeriesConfig } from "@/types/chart";
+import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import type { IndicatorType } from "@/types/indicator";
 import {
 	getIndicatorConfig,
@@ -13,9 +16,6 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import type { IndicatorKey, IndicatorKeyStr } from "@/types/symbol-key";
 import { parseKey } from "@/utils/parse-key";
-import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
-import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
-import type { IndicatorChartConfig, SeriesConfig } from "@/types/chart";
 
 export type IndicatorLegendData = {
 	indicatorName: string;
@@ -32,12 +32,33 @@ const defaultColors = {
 	gray: "#6b7280",
 };
 
-// 解析指标名称从indicatorKeyStr
+// 解析指标名称从indicatorKeyStr，包含配置参数
 const parseIndicatorName = (indicatorKeyStr: IndicatorKeyStr): string => {
 	try {
 		const indicatorKey = parseKey(indicatorKeyStr) as IndicatorKey;
 		const config = getIndicatorConfig(indicatorKey.indicatorType);
-		return config?.displayName || indicatorKey.indicatorType;
+		const displayName = config?.displayName || indicatorKey.indicatorType;
+
+		// 直接使用已解析的配置参数
+		const parsedConfig = indicatorKey.indicatorConfig;
+
+		if (parsedConfig && config?.params) {
+			// 构建参数字符串，直接使用 config.params
+			const paramStrings: string[] = [];
+			Object.entries(config.params).forEach(([key, paramDef]) => {
+				const value = parsedConfig[key as keyof typeof parsedConfig];
+				if (value !== undefined && paramDef.legendShowName) {
+					paramStrings.push(`${paramDef.legendShowName}=${value}`);
+				}
+			});
+
+			// 如果有参数，则格式化为 "指标名(参数1=值1, 参数2=值2)"
+			if (paramStrings.length > 0) {
+				return `${displayName}(${paramStrings.join(", ")}):`;
+			}
+		}
+
+		return displayName;
 	} catch (error) {
 		console.error("解析指标名称失败:", error);
 		return "Unknown";
@@ -63,7 +84,8 @@ const getIndicatorValueColorFromConfig = (
 	chartConfig: BacktestChartConfig,
 ): string => {
 	const indicatorConfig = chartConfig.indicatorChartConfigs?.find(
-		(config: IndicatorChartConfig) => config.indicatorKeyStr === indicatorKeyStr,
+		(config: IndicatorChartConfig) =>
+			config.indicatorKeyStr === indicatorKeyStr,
 	);
 
 	if (indicatorConfig) {
@@ -209,13 +231,12 @@ export const useIndicatorLegend = ({
 	indicatorKeyStr,
 }: UseIndicatorLegendProps) => {
 	// 从 store 获取数据和方法
-	const {
-		indicatorData,
-		getIndicatorSeriesRef,
-		getSubChartPaneRef,
-	} = useBacktestChartStore(chartId);
-	
-	const chartConfig = useBacktestChartConfigStore.getState().getChartConfig(chartId) as BacktestChartConfig;
+	const { indicatorData, getIndicatorSeriesRef, getSubChartPaneRef } =
+		useBacktestChartStore(chartId);
+
+	const chartConfig = useBacktestChartConfigStore
+		.getState()
+		.getChartConfig(chartId) as BacktestChartConfig;
 
 	// 🔑 使用 useMemo 稳定 data 引用，避免无限重新创建 onCrosshairMove
 	const data = useMemo(() => {

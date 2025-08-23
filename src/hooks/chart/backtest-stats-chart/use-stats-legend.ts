@@ -77,13 +77,18 @@ const mapStatsDataToLegendData = (
 
 	// 如果没有找到指定时间的数据点，使用最新的数据点
 	const targetData = dataPoint || data[data.length - 1];
+	console.log("targetData", targetData);
 
 	// 根据valueType格式化数值
 	let formattedValue: string;
 	if (config.valueType === "percentage") {
 		formattedValue = `${(targetData.value * 100).toFixed(5)}%`;
 	} else {
-		formattedValue = targetData.value.toFixed(2);
+		if (targetData.value !== undefined) {
+			formattedValue = targetData.value.toFixed(2);
+		} else {
+			formattedValue = "--";
+		}
 	}
 
 	return {

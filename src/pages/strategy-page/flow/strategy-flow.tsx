@@ -192,10 +192,10 @@ export default function StrategyFlow({ strategy }: { strategy: Strategy }) {
 	}, []);
 
 	// 添加 useEffect 来监听 edges 的变化
-	// useEffect(() => {
-		// console.log("Current nodes:", nodes);
-		// console.log("Current edges:", edges);
-	// }, [nodes, edges]);
+	useEffect(() => {
+		console.log("Current nodes:", nodes);
+		console.log("Current edges:", edges);
+	}, [nodes, edges]);
 
 	return (
 		<div className="flex-1 h-full w-full overflow-x-auto">
