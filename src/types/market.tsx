@@ -3,3 +3,11 @@ export enum Exchange {
 	BINANCE = "binance",
 	OKX = "okx",
 }
+
+
+export type MarketSymbol = {
+    name: string;
+	base: string | null;
+	quote: string | null;
+	exchange: Exchange | string;
+}
