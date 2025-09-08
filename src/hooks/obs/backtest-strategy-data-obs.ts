@@ -1,10 +1,9 @@
 import { BehaviorSubject, Observable, Subject } from "rxjs";
 import { filter, map, share, takeUntil } from "rxjs/operators";
 import type { Kline } from "@/types/kline";
-import { VirtualOrder } from "@/types/order/virtual-order";
-import { VirtualOrderEvent } from "@/types/strategy-event/backtest-strategy-event";
+import type { VirtualOrder } from "@/types/order/virtual-order";
+import type { VirtualOrderEvent } from "@/types/strategy-event/backtest-strategy-event";
 import type {
-	BacktestStrategyEvent,
 	VirtualPositionEvent,
 	IndicatorUpdateEvent,
 	KlineUpdateEvent,
@@ -12,7 +11,7 @@ import type {
 	VirtualTransactionEvent,
 } from "@/types/strategy-event/backtest-strategy-event";
 import type { KeyStr } from "@/types/symbol-key";
-import { BACKTESET_STRATEGY_SSE_URL } from "../sse/index";
+import { BACKTESET_STRATEGY_SSE_URL } from ".";
 
 // SSE连接状态
 export enum SSEConnectionState {

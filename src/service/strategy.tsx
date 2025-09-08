@@ -120,7 +120,6 @@ export async function createStrategy(
 		const response = await axios.post(`${API_URL}`, {
 			name: strategyName,
 			description: strategyDescription,
-			status: 1,
 		});
 
 		console.log("创建策略响应", response);
@@ -322,15 +321,15 @@ export async function getBacktestStrategyChartConfig(
 	}
 }
 
-export async function initStrategy(strategyId: number) {
+export async function initStrategy(strategyId: number) : Promise<void> {
 	try {
 		const response = await axios.post(`${API_URL}/${strategyId}/init`);
 		if (response.status !== 200) {
-			throw new Error(`初始化策略失败: ${response.status}`);
+			throw new Error(`initStrategy error: ${response.status}`);
 		}
-		return response.data.data;
+		return;
 	} catch (error) {
-		console.error("初始化策略错误:", error);
+		console.error("initStrategy error:", error);
 		throw error;
 	}
 }

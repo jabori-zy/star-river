@@ -1,0 +1,180 @@
+import { BehaviorSubject, Observable, Subject } from "rxjs";
+import { share, takeUntil } from "rxjs/operators";
+import type { StrategyStateLogEvent, NodeStateLogEvent } from "@/types/strategy-event/strategy-log-event";
+import { SSEConnectionState } from "./backtest-strategy-data-obs";
+import { BACKTEST_STRATEGY_STATE_LOG_URL } from ".";
+
+/**
+ * 回测策略状态日志Observable服务
+ * 将SSE数据流包装成RxJS Observable，处理策略日志数据更新
+ */
+class BacktestStrategyStateLogObservableService {
+	private eventSource: EventSource | null = null;
+	private connectionState$ = new BehaviorSubject<SSEConnectionState>(
+		SSEConnectionState.DISCONNECTED,
+	);
+	private destroy$ = new Subject<void>();
+	private logDataSubject = new Subject<StrategyStateLogEvent | NodeStateLogEvent>();
+
+	/**
+	 * 获取连接状态Observable
+	 */
+	getConnectionState(): Observable<SSEConnectionState> {
+		return this.connectionState$.asObservable();
+	}
+
+	/**
+	 * 创建策略状态日志数据流Observable
+	 * @param enabled 是否启用连接
+	 * @returns 策略日志数据更新的Observable流
+	 */
+	createBacktestStrategyStateLogStream(enabled: boolean = true): Observable<StrategyStateLogEvent | NodeStateLogEvent> {
+		if (!enabled) {
+			this.disconnect();
+			return new Observable((subscriber) => {
+				// 返回空的Observable
+				subscriber.complete();
+			});
+		}
+
+		// 如果已经连接，直接返回现有的数据流
+		if (this.eventSource && this.eventSource.readyState === EventSource.OPEN) {
+			return this.logDataSubject
+				.asObservable()
+				.pipe(takeUntil(this.destroy$), share());
+		}
+
+		// 建立新连接
+		this.connect();
+
+		return this.logDataSubject
+			.asObservable()
+			.pipe(takeUntil(this.destroy$), share());
+	}
+
+	/**
+	 * 建立SSE连接
+	 */
+	private connect(): void {
+		if (this.eventSource) {
+			this.disconnect();
+		}
+
+		this.connectionState$.next(SSEConnectionState.CONNECTING);
+
+		try {
+			this.eventSource = new EventSource(BACKTEST_STRATEGY_STATE_LOG_URL);
+
+			// 连接成功
+			this.eventSource.onopen = () => {
+				this.connectionState$.next(SSEConnectionState.CONNECTED);
+			};
+
+			// 接收消息
+			this.eventSource.onmessage = (event) => {
+				this.handleMessage(event);
+			};
+
+			// 连接错误
+			this.eventSource.onerror = (error) => {
+				console.error("策略状态日志SSE连接错误:", error);
+				this.connectionState$.next(SSEConnectionState.ERROR);
+				this.handleError();
+			};
+		} catch (error) {
+			console.error("创建策略状态日志SSE连接失败:", error);
+			this.connectionState$.next(SSEConnectionState.ERROR);
+		}
+	}
+
+	/**
+	 * 判断是否为策略状态日志事件
+	 */
+	private isStrategyStateLogEvent(event: StrategyStateLogEvent | NodeStateLogEvent): event is StrategyStateLogEvent {
+		return 'strategyState' in event && 'strategyStateAction' in event;
+	}
+
+	/**
+	 * 判断是否为节点状态日志事件
+	 */
+	private isNodeStateLogEvent(event: StrategyStateLogEvent | NodeStateLogEvent): event is NodeStateLogEvent {
+		return 'nodeId' in event && 'nodeState' in event && 'nodeStateAction' in event;
+	}
+
+	/**
+	 * 处理SSE消息
+	 */
+	private handleMessage(event: MessageEvent): void {
+		try {
+			const logEvent = JSON.parse(event.data) as StrategyStateLogEvent | NodeStateLogEvent;
+			
+			// 通过类型保护函数确定具体类型
+			if (this.isStrategyStateLogEvent(logEvent)) {
+				// 这里 logEvent 的类型被确定为 StrategyStateLogEvent
+				console.log('策略状态日志:', logEvent.strategyState, logEvent.strategyStateAction);
+			} else if (this.isNodeStateLogEvent(logEvent)) {
+				// 这里 logEvent 的类型被确定为 NodeStateLogEvent
+				console.log('节点状态日志:', logEvent.nodeId, logEvent.nodeState, logEvent.nodeStateAction);
+			} else {
+				console.warn('未知的日志事件类型:', logEvent);
+			}
+			
+			this.logDataSubject.next(logEvent);
+		} catch (error) {
+			console.error("解析策略状态日志SSE消息失败:", error);
+		}
+	}
+
+	/**
+	 * 处理连接错误
+	 */
+	private handleError(): void {
+		this.disconnect();
+
+		// 可以在这里添加重连逻辑
+		// setTimeout(() => {
+		//     if (this.connectionState$.value === SSEConnectionState.ERROR) {
+		//         this.connect();
+		//     }
+		// }, 5000);
+	}
+
+	/**
+	 * 断开SSE连接
+	 */
+	disconnect(): void {
+		if (this.eventSource) {
+			this.eventSource.close();
+			this.eventSource = null;
+			this.connectionState$.next(SSEConnectionState.DISCONNECTED);
+		}
+	}
+
+	/**
+	 * 销毁服务，清理所有资源
+	 */
+	destroy(): void {
+		this.destroy$.next();
+		this.destroy$.complete();
+		this.disconnect();
+		this.logDataSubject.complete();
+		this.connectionState$.complete();
+	}
+}
+
+// 创建单例实例
+const backtestStrategyStateLogObservableService =
+	new BacktestStrategyStateLogObservableService();
+
+export default backtestStrategyStateLogObservableService;
+
+// 导出便捷函数
+export const createBacktestStrategyStateLogStream = (enabled: boolean = true) =>
+	backtestStrategyStateLogObservableService.createBacktestStrategyStateLogStream(enabled);
+
+// 连接管理
+export const getStateLogConnectionState = () =>
+	backtestStrategyStateLogObservableService.getConnectionState();
+
+export const disconnectStateLogStream = () =>
+	backtestStrategyStateLogObservableService.disconnect();

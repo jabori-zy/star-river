@@ -1,5 +1,5 @@
 const { ipcMain, BrowserWindow } = require("electron");
-const { createBacktestWindow } = require("./window-manager");
+const { createBacktestWindow } = require("./window-manager.cjs");
 
 const setupIpcHandlers = () => {
 	// 监听来自渲染进程的消息

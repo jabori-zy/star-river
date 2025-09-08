@@ -6,6 +6,7 @@ import type { StartNodeData } from "./start-node";
 
 
 export type NodeId = string;
+export type NodeName = string;
 
 export enum NodeType {
 	StartNode = "startNode",
@@ -17,7 +18,7 @@ export enum NodeType {
 	VariableNode = "variableNode",
 }
 
-export const getNodeDefaultInputHandleId = (id: string, nodeType: NodeType) => {
+export const getNodeDefaultInputHandleId = (id: NodeId, nodeType: NodeType) => {
 	switch (nodeType) {
 		case NodeType.IndicatorNode:
 			return `${id}_default_input`;
@@ -37,7 +38,7 @@ export const getNodeDefaultInputHandleId = (id: string, nodeType: NodeType) => {
 };
 
 export const getNodeDefaultOutputHandleId = (
-	id: string,
+	id: NodeId,
 	nodeType: NodeType,
 ) => {
 	switch (nodeType) {

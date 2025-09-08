@@ -4,10 +4,19 @@ import "./i18n";
 import { useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import useSystemConfigStore from "./store/useSystemConfigStore";
+import { useGlobalStrategyLoading } from "./hooks/useGlobalStrategyLoading";
+import StrategyLoadingDialog from "./components/strategy-loading-dialog";
+import useStrategyLoadingStore from "./store/useStrategyLoadingStore";
 
 function App() {
 	const { loadSystemConfig } = useSystemConfigStore();
 	const [isAppReady, setIsAppReady] = useState(false);
+	
+	// 启用全局策略加载管理
+	const { handleDialogClose } = useGlobalStrategyLoading();
+	
+	// 获取全局状态
+	const { showDialog, logs, isLoading, isFailed, isRunning, isBacktesting } = useStrategyLoadingStore();
 
 	useEffect(() => {
 		const initializeApp = async () => {
@@ -36,6 +45,21 @@ function App() {
 	return (
 		<>
 			<RouterProvider router={router} />
+			
+			{/* 全局策略加载对话框 */}
+			{showDialog && (
+				<StrategyLoadingDialog
+					open={showDialog}
+					onOpenChange={handleDialogClose}
+					logs={logs}
+					currentStage={
+						isFailed ? "failed" : 
+						isBacktesting || isRunning ? "completed" :
+						isLoading ? "strategy-check" : "completed"
+					}
+				/>
+			)}
+			
 			<Toaster
 				position="top-center"
 				toastOptions={{

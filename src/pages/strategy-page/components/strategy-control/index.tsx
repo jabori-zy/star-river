@@ -4,9 +4,7 @@ import {
 	CreditCard,
 	DollarSign,
 	Loader2,
-	Play,
 	Save,
-	Square,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -18,9 +16,11 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { initStrategy, updateStrategy } from "@/service/strategy";
+import { updateStrategy } from "@/service/strategy";
 import useTradingModeStore from "@/store/useTradingModeStore";
 import { type Strategy, TradeMode } from "@/types/strategy";
+import LiveStrategyControl from "./live-strategy-control";
+import BacktestStrategyControl from "./backtest-strategy-control";
 
 // 声明 window.require 类型
 declare global {
@@ -93,7 +93,7 @@ function TradingModeSelector({
 	};
 
 	const handleModeChange = (value: TradeMode) => {
-		if (strategy && strategy.id) {
+		if (strategy) {
 			setStrategy({
 				...strategy,
 				tradeMode: value,
@@ -177,7 +177,6 @@ function SaveStrategyButton({ strategy }: { strategy: Strategy }) {
 			description: strategy?.description,
 			config: strategy?.config,
 			tradeMode, // 使用枚举值
-			status: 1,
 			nodes,
 			edges,
 		};
@@ -220,142 +219,6 @@ function SaveStrategyButton({ strategy }: { strategy: Strategy }) {
 	);
 }
 
-// // 初始化策略
-// function requestInitStrategy(strategyId: number | undefined) {
-//   fetch('http://localhost:3100/init_strategy', {
-//     headers: {
-//       'Content-Type': 'application/json'
-//     },
-//     method: 'POST',
-//     body: JSON.stringify({ "strategy_id": strategyId })
-//   });
-// }
-
-// 运行策略
-function requestRunStrategy(strategyId: number | undefined) {
-	fetch("http://localhost:3100/run_strategy", {
-		headers: {
-			"Content-Type": "application/json",
-		},
-		method: "POST",
-		body: JSON.stringify({ strategy_id: strategyId }),
-	});
-}
-
-// 停止策略
-function requestStopStrategy(strategyId: number | undefined) {
-	fetch("http://localhost:3100/stop_strategy", {
-		headers: {
-			"Content-Type": "application/json",
-		},
-		method: "POST",
-		body: JSON.stringify({ strategy_id: strategyId }),
-	});
-}
-
-// 运行策略按钮组件
-function RunStrategyButton({
-	strategyId,
-	tradeMode,
-}: {
-	strategyId: number | undefined;
-	tradeMode: TradeMode;
-}) {
-	// 策略是否正在运行
-	const [isRunning, setIsRunning] = useState(false);
-
-	const handleRun = async () => {
-		//如果策略是运行状态
-		if (isRunning) {
-			// 停止策略
-			requestStopStrategy(strategyId);
-			// 设置为停止状态
-			setIsRunning(false);
-		}
-		//如果是停止状态
-		else {
-			// 如果是回测模式，打开新窗口
-			if (tradeMode === TradeMode.BACKTEST) {
-				try {
-					// 检查是否在 Electron 环境中
-					if (window.require) {
-						// Electron 环境：打开新窗口
-						const electronModule = window.require("electron");
-						if (electronModule && electronModule.ipcRenderer) {
-							await electronModule.ipcRenderer.invoke(
-								"open-backtest-window",
-								strategyId,
-							);
-						}
-					} else {
-						// 浏览器环境：打开新标签页
-						const backtestUrl = `/backtest/${strategyId}`;
-						window.open(backtestUrl, "_blank", "width=1200,height=800");
-					}
-				} catch (error) {
-					console.error("打开回测窗口失败:", error);
-				}
-			}
-
-			if (strategyId) {
-				// 初始化策略
-				initStrategy(strategyId as number);
-			}
-			// 运行策略
-			requestRunStrategy(strategyId);
-			// 设置为运行状态
-			setIsRunning(true);
-		}
-	};
-
-	return (
-		<Button
-			variant={isRunning ? "destructive" : "default"}
-			size="sm"
-			className="flex items-center gap-2 min-w-[90px]"
-			onClick={handleRun}
-		>
-			{tradeMode === TradeMode.LIVE ? (
-				// 实盘模式
-				isRunning ? (
-					<>
-						<Square className="h-4 w-4" />
-						停止策略
-					</>
-				) : (
-					<>
-						<Play className="h-4 w-4" />
-						开始策略
-					</>
-				)
-			) : tradeMode === TradeMode.BACKTEST ? (
-				// 回测模式
-				isRunning ? (
-					<>
-						<Square className="h-4 w-4" />
-						停止回测
-					</>
-				) : (
-					<>
-						<Play className="h-4 w-4" />
-						开始回测
-					</>
-				)
-			) : // 模拟模式或其他模式
-			isRunning ? (
-				<>
-					<Square className="h-4 w-4" />
-					停止
-				</>
-			) : (
-				<>
-					<Play className="h-4 w-4" />
-					运行
-				</>
-			)}
-		</Button>
-	);
-}
 
 interface StrategyControlProps {
 	strategy: Strategy;
@@ -367,15 +230,44 @@ export function StrategyControl({
 	setStrategy,
 }: StrategyControlProps) {
 	const tradeMode = strategy?.tradeMode;
+	
+	// 根据交易模式渲染不同的策略控制组件
+	const renderStrategyButton = () => {
+		switch (tradeMode) {
+			case TradeMode.BACKTEST:
+				return (
+					<BacktestStrategyControl 
+						strategyId={strategy?.id} 
+						tradeMode={tradeMode} 
+					/>
+				);
+			case TradeMode.LIVE:
+			case TradeMode.SIMULATE:
+				return (
+					<LiveStrategyControl 
+						strategyId={strategy?.id} 
+						tradeMode={tradeMode} 
+					/>
+				);
+			default:
+				return (
+					<LiveStrategyControl 
+						strategyId={strategy?.id} 
+						tradeMode={tradeMode} 
+					/>
+				);
+		}
+	};
+
 	return (
 		<div className="flex items-center justify-end px-6 py-2">
 			<TradingModeSelector strategy={strategy} setStrategy={setStrategy} />
 			<Badge variant="outline" className="font-mono mx-3">
 				最后保存: 10:30:25
 			</Badge>
-			<SaveStrategyButton strategy={strategy} />
-			<div className="ml-3">
-				<RunStrategyButton strategyId={strategy?.id} tradeMode={tradeMode} />
+			<div className="flex items-center gap-2">
+				<SaveStrategyButton strategy={strategy} />
+				{renderStrategyButton()}
 			</div>
 		</div>
 	);
