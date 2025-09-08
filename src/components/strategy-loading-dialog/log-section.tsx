@@ -139,7 +139,7 @@ const LogSection: React.FC<LogSectionProps> = ({ logs }) => {
 
     return (
         <div className="flex flex-col h-full space-y-2">
-            <div className="text-sm font-medium text-gray-700 flex-shrink-0">加载日志</div>
+            <div className="text-sm font-medium text-gray-700 flex-shrink-0">日志</div>
             <div className="border border-gray-300 rounded-lg bg-gray-50 shadow-inner flex-1 min-h-0 relative">
                 <ScrollArea ref={scrollAreaRef} className="h-45">
                     <div className="p-4 space-y-2">

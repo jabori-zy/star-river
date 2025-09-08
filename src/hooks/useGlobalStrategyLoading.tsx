@@ -7,16 +7,17 @@ import useStrategyLoadingStore from '@/store/useStrategyLoadingStore';
 // 全局策略加载管理器
 export const useGlobalStrategyLoading = () => {
   const {
-    isLoading,
     strategyId,
     isSSEEnabled,
     showDialog,
     addLog,
+    clearLogs,
     stopLoading,
     setRunning,
     setInitializing,
     setBacktesting,
     setFailed,
+    setStopped,
     setShowDialog,
   } = useStrategyLoadingStore();
 
@@ -25,7 +26,7 @@ export const useGlobalStrategyLoading = () => {
 
   // 管理SSE订阅
   useEffect(() => {
-    if (!isSSEEnabled || !isLoading) {
+    if (!isSSEEnabled) {
       return;
     }
 
@@ -91,11 +92,35 @@ export const useGlobalStrategyLoading = () => {
               // 等待2秒后先关闭dialog，再打开新窗口
               setTimeout(() => {
                 setShowDialog(false); // 先关闭dialog
+                // 策略加载成功后清空日志，为下次使用做准备
+                clearLogs();
                 // 稍微延迟一下再打开新窗口，让dialog关闭动画完成
                 setTimeout(() => {
                   openBacktestWindow(strategyId);
                 }, 300);
               }, 2000);
+              
+              triggeredStatesRef.current.add(stateKey);
+            } else if (strategyState === StrategyState.Stopped) {
+              // 策略已停止
+              // 只有在对话框关闭时才显示toast
+              if (!showDialog) {
+                toast.success('策略已安全停止', {
+                  duration: 3000,
+                });
+              }
+              
+              setStopped(true); // 设置已停止状态
+              
+              // 延迟1.5秒后关闭dialog并重置状态
+              setTimeout(() => {
+                setShowDialog(false);
+                setTimeout(() => {
+                  // 完全重置状态
+                  const { reset } = useStrategyLoadingStore.getState();
+                  reset();
+                }, 500);
+              }, 1500);
               
               triggeredStatesRef.current.add(stateKey);
             } else if (strategyState === StrategyState.Failed || hasError) {
@@ -145,7 +170,7 @@ export const useGlobalStrategyLoading = () => {
       console.log('清理全局SSE订阅');
       logSub.unsubscribe();
     };
-  }, [isSSEEnabled, isLoading, strategyId, showDialog, addLog, stopLoading, setRunning, setInitializing, setBacktesting, setFailed, setShowDialog]);
+  }, [isSSEEnabled, strategyId, showDialog, addLog, clearLogs, stopLoading, setRunning, setInitializing, setBacktesting, setFailed, setStopped, setShowDialog]);
 
   // 处理对话框关闭
   const handleDialogClose = (open: boolean) => {
@@ -153,8 +178,11 @@ export const useGlobalStrategyLoading = () => {
     if (!open) {
       // 对话框关闭时，如果仍在加载中，则提示用户已切换至后台加载
       const store = useStrategyLoadingStore.getState();
-      if (store.isLoading) {
-        toast.info('策略已切换至后台加载，完成后将自动打开回测窗口', {
+      if (store.isLoading || store.isStopping) {
+        const message = store.isStopping 
+          ? '策略正在后台停止中，完成后将自动重置状态'
+          : '已切换至后台加载，完成后将自动打开回测窗口';
+        toast.info(message, {
           duration: 5000,
         });
       }

@@ -4,7 +4,6 @@ import { createBacktestStrategyStateLogStream, getStateLogConnectionState } from
 import { SSEConnectionState } from "@/hooks/obs/backtest-strategy-data-obs";
 import type { StrategyStateLogEvent, NodeStateLogEvent } from "@/types/strategy-event/strategy-log-event";
 import { LogLevel, StrategyState, NodeState } from "@/types/strategy-event/strategy-log-event";
-import XtermLogViewer from "@/components/terminal/XtermLogViewer";
 import StrategyLoadingDialog from "@/components/strategy-loading-dialog";
 
 const TestPage: React.FC = () => {
@@ -402,7 +401,7 @@ const TestPage: React.FC = () => {
 						? 'bg-gray-900 outline-gray-700 shadow-gray-900/50' 
 						: 'bg-white outline-gray-300 shadow-gray-400/20'
 				}`}>
-					<XtermLogViewer logs={logs} theme={terminalTheme} />
+					{/* <XtermLogViewer logs={logs} theme={terminalTheme} /> */}
 				</div>
 			) : (
 				<div className="bg-white rounded-lg border">

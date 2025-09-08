@@ -1,5 +1,8 @@
 const { BrowserWindow, Menu, MenuItem } = require("electron");
 
+// 用于跟踪策略ID到窗口的映射
+const strategyWindows = new Map();
+
 const createWindow = () => {
 	const mainWindow = new BrowserWindow({
 		width: 1600,
@@ -45,12 +48,38 @@ const createBacktestWindow = (strategyId) => {
 		: "http://localhost:5173/backtest";
 	backtestWindow.loadURL(backtestUrl);
 
+	// 如果有strategyId，将窗口添加到映射中
+	if (strategyId) {
+		strategyWindows.set(strategyId, backtestWindow);
+		console.log(`回测窗口已创建并记录: strategyId=${strategyId}`);
+		
+		// 窗口关闭时从映射中移除
+		backtestWindow.on('closed', () => {
+			strategyWindows.delete(strategyId);
+			console.log(`回测窗口已关闭并清理: strategyId=${strategyId}`);
+		});
+	}
+
 	if (process.env.NODE_ENV !== "production") {
 		backtestWindow.webContents.openDevTools();
 		setupDevContextMenu(backtestWindow);
 	}
 
 	return backtestWindow;
+};
+
+// 关闭指定策略的回测窗口
+const closeBacktestWindow = (strategyId) => {
+	const window = strategyWindows.get(strategyId);
+	if (window && !window.isDestroyed()) {
+		console.log(`正在关闭回测窗口: strategyId=${strategyId}`);
+		window.close();
+		strategyWindows.delete(strategyId);
+		return true;
+	} else {
+		console.log(`未找到或窗口已销毁: strategyId=${strategyId}`);
+		return false;
+	}
 };
 
 const setupDevContextMenu = (window) => {
@@ -94,4 +123,5 @@ const setupDevContextMenu = (window) => {
 module.exports = {
 	createWindow,
 	createBacktestWindow,
+	closeBacktestWindow,
 };

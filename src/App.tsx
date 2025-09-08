@@ -16,7 +16,7 @@ function App() {
 	const { handleDialogClose } = useGlobalStrategyLoading();
 	
 	// 获取全局状态
-	const { showDialog, logs, isLoading, isFailed, isRunning, isBacktesting } = useStrategyLoadingStore();
+	const { showDialog, logs, isLoading, isFailed, isRunning, isBacktesting, isStopping, isStopped, dialogTitle } = useStrategyLoadingStore();
 
 	useEffect(() => {
 		const initializeApp = async () => {
@@ -52,8 +52,11 @@ function App() {
 					open={showDialog}
 					onOpenChange={handleDialogClose}
 					logs={logs}
+					title={dialogTitle}
 					currentStage={
 						isFailed ? "failed" : 
+						isStopped ? "stopped" :
+						isStopping ? "stopping" :
 						isBacktesting || isRunning ? "completed" :
 						isLoading ? "strategy-check" : "completed"
 					}

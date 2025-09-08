@@ -7,7 +7,7 @@ import type { StrategyStateLogEvent, NodeStateLogEvent } from "@/types/strategy-
 import { StrategyState, NodeState, LogLevel } from "@/types/strategy-event/strategy-log-event";
 
 interface StatusSectionProps {
-    currentStage: "strategy-check" | "node-init" | "completed" | "failed";
+    currentStage: "strategy-check" | "node-init" | "completed" | "failed" | "stopping" | "stopped";
     logs: (StrategyStateLogEvent | NodeStateLogEvent)[];
 }
 
@@ -18,7 +18,7 @@ const StatusSection: React.FC<StatusSectionProps> = ({
     // 获取最新的日志事件信息
     const latestEventInfo = useMemo(() => {
         if (logs.length === 0) {
-            return { type: null, isReady: false, displayText: null, statusText: null };
+            return { type: null, isReady: false, isStopped: false, displayText: null, statusText: null };
         }
 
         // 获取最新的日志（按时间戳排序）
@@ -28,6 +28,7 @@ const StatusSection: React.FC<StatusSectionProps> = ({
             // strategy-state-log：只有策略状态为Ready时才是最终成功状态
             const strategyLog = latestLog as StrategyStateLogEvent;
             const isReady = strategyLog.strategyState === StrategyState.Ready;
+            const isStopped = strategyLog.strategyState === StrategyState.Stopped;
             // 策略失败的判断条件：
             // 1. strategyState 明确为 Failed
             // 2. 或者有错误代码且日志级别为 error
@@ -37,6 +38,7 @@ const StatusSection: React.FC<StatusSectionProps> = ({
             return {
                 type: 'strategy-state-log',
                 isReady,
+                isStopped,
                 isFailed,
                 displayText: strategyLog.strategyName,
                 statusText: translateStrategyState(strategyLog.strategyState)
@@ -53,6 +55,7 @@ const StatusSection: React.FC<StatusSectionProps> = ({
             return {
                 type: 'node-state-log',
                 isReady: false, // 节点状态永远不算最终成功
+                isStopped: false, // 节点状态不涉及停止
                 isFailed,
                 displayText: nodeLog.nodeName,
                 statusText: translateStrategyState(nodeLog.nodeState)
@@ -121,6 +124,20 @@ const StatusSection: React.FC<StatusSectionProps> = ({
                     <div className="flex items-center space-x-3">
                         <XCircle className="w-5 h-5 text-red-500" />
                         <div className="font-medium text-red-700">策略加载失败</div>
+                    </div>
+                );
+            case "stopping":
+                return (
+                    <div className="flex items-center space-x-3">
+                        <Loader2 className="w-5 h-5 animate-spin text-orange-500" />
+                        <div className="font-medium text-orange-700">正在停止策略...</div>
+                    </div>
+                );
+            case "stopped":
+                return (
+                    <div className="flex items-center space-x-3">
+                        <CheckCircle className="w-5 h-5 text-green-500" />
+                        <div className="font-medium text-green-700">策略已安全停止</div>
                     </div>
                 );
             default:

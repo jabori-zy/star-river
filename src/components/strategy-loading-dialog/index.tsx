@@ -11,6 +11,7 @@ const StrategyLoadingDialog: React.FC<StrategyLoadingDialogProps> = ({
     onOpenChange,
     logs,
     currentStage,
+    title = "策略加载中", // 默认为策略加载中
     onStrategyStateChange,
 }) => {
     // 用于追踪已触发的回调状态，避免重复调用
@@ -57,7 +58,7 @@ const StrategyLoadingDialog: React.FC<StrategyLoadingDialogProps> = ({
             {/* [&>button:last-child]:hidden */}
             <DialogContent className="max-w-2xl flex flex-col " aria-describedby={undefined}>
                 <DialogHeader className="flex-shrink-0">
-                    <DialogTitle>策略加载</DialogTitle>
+                    <DialogTitle>{title}</DialogTitle>
                 </DialogHeader>
 
                 <div className="flex-1 flex flex-col space-y-4 overflow-hidden">
