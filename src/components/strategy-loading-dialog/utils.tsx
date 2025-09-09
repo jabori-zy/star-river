@@ -1,7 +1,8 @@
 import { XCircle, AlertCircle, Info } from "lucide-react";
 import type { LogEvent } from "./types";
-import type { StrategyStateLogEvent, NodeStateLogEvent } from "@/types/strategy-event/strategy-log-event";
-import { LogLevel, type StrategyState, type NodeState } from "@/types/strategy-event/strategy-log-event";
+import type { StrategyStateLogEvent, NodeStateLogEvent } from "@/types/strategy-event/strategy-state-log-event";
+import type { StrategyState, NodeState } from "@/types/strategy-event/strategy-state-log-event";
+import { LogLevel } from "@/types/strategy-event";
 
 // 状态翻译映射
 export const translateStrategyState = (state: string | null) => {

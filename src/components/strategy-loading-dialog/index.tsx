@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import StatusSection from "./status-section";
 import LogSection from "./log-section";
 import type { StrategyLoadingDialogProps } from "./types";
-import { StrategyState } from "@/types/strategy-event/strategy-log-event";
+import { StrategyState } from "@/types/strategy-event/strategy-state-log-event";
 
 const StrategyLoadingDialog: React.FC<StrategyLoadingDialogProps> = ({
     open,

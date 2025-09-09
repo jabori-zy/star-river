@@ -1,6 +1,6 @@
 import axios from "axios";
 import { API_BASE_URL } from "@/service";
-import { StrategyStats } from "@/types/statistics";
+import type { StrategyStats } from "@/types/statistics";
 
 const ROUTER = "strategy/backtest";
 const API_VERSION = "api/v1";

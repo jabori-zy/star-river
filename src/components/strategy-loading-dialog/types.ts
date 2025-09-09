@@ -1,4 +1,4 @@
-import type { StrategyStateLogEvent, NodeStateLogEvent } from "@/types/strategy-event/strategy-log-event";
+import type { StrategyStateLogEvent, NodeStateLogEvent } from "@/types/strategy-event/strategy-state-log-event";
 
 export interface StrategyLoadingDialogProps {
     open: boolean;

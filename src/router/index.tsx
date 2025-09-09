@@ -7,6 +7,7 @@ import Login from "../pages/login";
 import SettingPage from "../pages/SettingPage";
 import StrategyPage from "../pages/strategy-page";
 import TestPage from "../pages/TestPage/index";
+import TestRunningLogPage from "../pages/test-running-log-page";
 
 const router = createBrowserRouter([
 	{
@@ -36,6 +37,10 @@ const router = createBrowserRouter([
 			{
 				path: "test",
 				element: <TestPage />,
+			},
+			{
+				path: "test-running-log",
+				element: <TestRunningLogPage />,
 			},
 		],
 	},

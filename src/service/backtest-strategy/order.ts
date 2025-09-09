@@ -62,3 +62,4 @@ export async function getVirtualTransaction(strateygId: number) {
         throw error;
     }
 }
+

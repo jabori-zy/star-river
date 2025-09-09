@@ -3,8 +3,10 @@ import { useMemo } from "react";
 import { Loader2, CheckCircle, XCircle } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { translateStrategyState } from "./utils";
-import type { StrategyStateLogEvent, NodeStateLogEvent } from "@/types/strategy-event/strategy-log-event";
-import { StrategyState, NodeState, LogLevel } from "@/types/strategy-event/strategy-log-event";
+import type { StrategyStateLogEvent, NodeStateLogEvent } from "@/types/strategy-event/strategy-state-log-event";
+import { StrategyState, NodeState } from "@/types/strategy-event/strategy-state-log-event";
+import { LogLevel } from "@/types/strategy-event";
+
 
 interface StatusSectionProps {
     currentStage: "strategy-check" | "node-init" | "completed" | "failed" | "stopping" | "stopped";
@@ -36,7 +38,7 @@ const StatusSection: React.FC<StatusSectionProps> = ({
                              (strategyLog.errorCode && strategyLog.logLevel === LogLevel.ERROR);
             
             return {
-                type: 'strategy-state-log',
+                type: 'strategy-state-log-update',
                 isReady,
                 isStopped,
                 isFailed,
@@ -53,7 +55,7 @@ const StatusSection: React.FC<StatusSectionProps> = ({
                              (nodeLog.errorCode && nodeLog.logLevel === LogLevel.ERROR);
             
             return {
-                type: 'node-state-log',
+                type: 'node-state-log-update',
                 isReady: false, // 节点状态永远不算最终成功
                 isStopped: false, // 节点状态不涉及停止
                 isFailed,
@@ -76,8 +78,8 @@ const StatusSection: React.FC<StatusSectionProps> = ({
                         )}
                         <div>
                             <div className="font-medium">
-                                {latestEventInfo.type === 'strategy-state-log' && `策略: ${latestEventInfo.displayText}`}
-                                {latestEventInfo.type === 'node-state-log' && `节点: ${latestEventInfo.displayText}`}
+                                {latestEventInfo.type === 'strategy-state-log-update' && `策略: ${latestEventInfo.displayText}`}
+                                {latestEventInfo.type === 'node-state-log-update' && `节点: ${latestEventInfo.displayText}`}
                                 {!latestEventInfo.type && "等待策略加载..."}
                             </div>
                             {latestEventInfo.statusText && (
@@ -100,8 +102,8 @@ const StatusSection: React.FC<StatusSectionProps> = ({
                         )}
                         <div>
                             <div className="font-medium">
-                                {latestEventInfo.type === 'strategy-state-log' && `策略: ${latestEventInfo.displayText}`}
-                                {latestEventInfo.type === 'node-state-log' && `节点: ${latestEventInfo.displayText}`}
+                                {latestEventInfo.type === 'strategy-state-log-update' && `策略: ${latestEventInfo.displayText}`}
+                                {latestEventInfo.type === 'node-state-log-update' && `节点: ${latestEventInfo.displayText}`}
                                 {!latestEventInfo.type && "等待日志..."}
                             </div>
                             {latestEventInfo.statusText && (

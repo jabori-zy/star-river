@@ -1,15 +1,7 @@
 import type { NodeId, NodeName } from "../node";
+import type { LogLevel } from "./index";
 
-
-
-
-export enum LogLevel {
-    DEBUG = "debug",
-    INFO = "info",
-    WARNING = "warning",
-    ERROR = "error",
-    TRACE = "trace",
-}
+ 
 
 
 

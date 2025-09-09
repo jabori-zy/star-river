@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import { createBacktestStrategyStateLogStream } from '@/hooks/obs/backtest-strategy-state-log-obs';
-import { StrategyState, LogLevel } from '@/types/strategy-event/strategy-log-event';
+import { StrategyState } from '@/types/strategy-event/strategy-state-log-event';
+import { LogLevel } from '@/types/strategy-event';
 import useStrategyLoadingStore from '@/store/useStrategyLoadingStore';
 
 // 全局策略加载管理器

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { StrategyStateLogEvent, NodeStateLogEvent } from '@/types/strategy-event/strategy-log-event';
+import type { StrategyStateLogEvent, NodeStateLogEvent } from '@/types/strategy-event/strategy-state-log-event';
 
 export interface StrategyLoadingState {
   // 加载状态
