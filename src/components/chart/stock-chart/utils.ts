@@ -193,7 +193,7 @@ export const handleFirstKlineData = (
 } => {
 	const { candleDataSeries, volumeDataSeries, xAxis, yAxis, candleInterval } =
 		context;
-	const timestamp = kline.timestamp / 1000;
+	const timestamp = kline.datetime / 1000;
 
 	// 添加数据
 	candleDataSeries.append(
@@ -323,7 +323,7 @@ export const handleUpdateKlineData = (
 	context: KlineUpdateContext,
 ): void => {
 	const { candleDataSeries, volumeDataSeries, yAxis } = context;
-	const timestamp = kline.timestamp / 1000;
+	const timestamp = kline.datetime / 1000;
 	const latestCandleTimestamp = candleDataSeries
 		.getNativeXValues()
 		.get(currentIndex);
@@ -361,7 +361,7 @@ export const handleNewKlineData = (
 		maxVisibleCandles,
 		firstCandleTimestamp,
 	} = context;
-	const timestamp = kline.timestamp / 1000;
+	const timestamp = kline.datetime / 1000;
 
 	// 添加新数据
 	candleDataSeries.append(
@@ -409,7 +409,7 @@ export const processKlineData = (
 	firstKlineLowPrice: number | null;
 } => {
 	const { candleDataSeries, latestPriceAnnotation } = context;
-	const timestamp = kline.timestamp / 1000;
+	const timestamp = kline.datetime / 1000;
 
 	console.log(`=== onNewKlineData调用 ===`);
 	console.log(`当前candleDataSeries.count(): ${candleDataSeries.count()}`);

@@ -97,10 +97,10 @@ const BacktestStrategySetting: React.FC<BacktestStrategySettingProps> = ({
 				{playSpeed !== undefined && setPlaySpeed && updatePlaySpeed && (
 					<SliderWithTick
 						defaultValue={[playSpeed]}
-						min={5}
+						min={0}
 						max={100}
 						step={5}
-						skipInterval={2}
+						skipInterval={10}
 						onValueChange={(value) => {
 							// 当值为0时，设置为1
 							const actualValue = value[0] === 0 ? 1 : value[0];

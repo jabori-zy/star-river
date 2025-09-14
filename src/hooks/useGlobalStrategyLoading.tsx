@@ -69,7 +69,7 @@ export const useGlobalStrategyLoading = () => {
         if ('strategyState' in logEvent) {
           const strategyState = logEvent.strategyState;
           const hasError = logEvent.errorCode && logEvent.logLevel === LogLevel.ERROR;
-          const stateKey = `${strategyState}-${logEvent.timestamp}`;
+          const stateKey = `${strategyState}-${logEvent.datetime}`;
 
           // 检查是否已经触发过这个状态的回调
           if (!triggeredStatesRef.current.has(stateKey)) {
@@ -141,7 +141,7 @@ export const useGlobalStrategyLoading = () => {
           // 检查节点错误
           const hasError = logEvent.errorCode && logEvent.logLevel === LogLevel.ERROR;
           if (hasError) {
-            const stateKey = `node-error-${logEvent.timestamp}`;
+            const stateKey = `node-error-${logEvent.datetime}`;
             if (!triggeredStatesRef.current.has(stateKey)) {
               // 只有在对话框关闭时才显示toast
               if (!showDialog) {

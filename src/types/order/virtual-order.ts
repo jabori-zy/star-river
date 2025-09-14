@@ -33,28 +33,6 @@ export type VirtualOrder = {
 	updateTime: string; // 更新时间
 };
 
-
-// 格式化日期时间
-export const formatDateTime = (dateTimeStr: string) => {
-	if (!dateTimeStr) return "-";
-	try {
-		const date = new Date(dateTimeStr);
-		return date
-			.toLocaleString("zh-CN", {
-				year: "numeric",
-				month: "2-digit",
-				day: "2-digit",
-				hour: "2-digit",
-				minute: "2-digit",
-				second: "2-digit",
-				hour12: false,
-			})
-			.replace(/\//g, "-");
-	} catch {
-		return dateTimeStr;
-	}
-};
-
 // 订单方向样式
 export const getOrderSideStyle = (side: string) => {
 	switch (side) {

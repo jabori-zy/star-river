@@ -170,7 +170,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 			symbol: symbolName,
 			interval: symbolInterval,
 			klineValue: {
-				timestamp: 0,
+				datetime: new Date(0),
 				open: 0,
 				high: 0,
 				low: 0,

@@ -1,7 +1,7 @@
 import { BehaviorSubject, Observable, Subject } from "rxjs";
 import { share, takeUntil } from "rxjs/operators";
 import type { StrategyRunningLogEvent } from "@/types/strategy-event/strategy-running-log-event";
-import { SSEConnectionState } from "./backtest-strategy-data-obs";
+import { SSEConnectionState } from "./backtest-strategy-event-obs";
 import { BACKTEST_STRATEGY_RUNNING_LOG_URL } from ".";
 
 /**
@@ -91,38 +91,13 @@ class BacktestStrategyRunningLogObservableService {
 	 * 处理SSE消息
 	 */
 	private handleMessage(event: MessageEvent): void {
+
 		try {
 			const logEvent = JSON.parse(event.data) as StrategyRunningLogEvent;
-			
-			// 验证数据结构
-			if (this.isValidRunningLogEvent(logEvent)) {
-				console.log('策略运行日志:', logEvent.logLevel, logEvent.message);
-				this.logDataSubject.next(logEvent);
-			} else {
-				console.warn('无效的运行日志事件数据:', logEvent);
-			}
+			this.logDataSubject.next(logEvent);
 		} catch (error) {
 			console.error("解析策略运行日志SSE消息失败:", error);
 		}
-	}
-
-	/**
-	 * 验证是否为有效的运行日志事件
-	 */
-	private isValidRunningLogEvent(event: any): event is StrategyRunningLogEvent {
-		return (
-			typeof event === 'object' &&
-			event !== null &&
-			typeof event.strategyId === 'number' &&
-			typeof event.nodeId === 'string' &&
-			typeof event.nodeName === 'string' &&
-			typeof event.source === 'string' &&
-			typeof event.logLevel === 'string' &&
-			typeof event.logType === 'string' &&
-			typeof event.message === 'string' &&
-			typeof event.detail === 'object' &&
-			typeof event.timestamp === 'number'
-		);
 	}
 
 	/**

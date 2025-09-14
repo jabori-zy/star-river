@@ -28,3 +28,14 @@ export async function updateSystemConfig(
 		throw error;
 	}
 }
+
+
+export async function getTimezones(): Promise<string[]> {
+	try {
+		const response = await axios.get(`${API_URL}/timezones`);
+		return response.data.data as string[];
+	} catch (error) {
+		console.error("获取时区错误:", error);
+		throw error;
+	}
+}

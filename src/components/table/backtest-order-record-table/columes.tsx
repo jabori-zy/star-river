@@ -1,8 +1,8 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import type { VirtualOrder } from "@/types/order/virtual-order";
-import { formatDateTime, getOrderSideStyle, getOrderSideText, getOrderTypeText, getOrderStatusStyle, getOrderStatusText } from "@/types/order/virtual-order";
-
+import { getOrderSideStyle, getOrderSideText, getOrderTypeText, getOrderStatusStyle, getOrderStatusText } from "@/types/order/virtual-order";
+import { DateTime } from "luxon";
 
 // Virtual Order 表格列定义
 export const virtualOrderColumns: ColumnDef<VirtualOrder>[] = [
@@ -173,7 +173,8 @@ export const virtualOrderColumns: ColumnDef<VirtualOrder>[] = [
 		header: "创建时间",
 		size: 140,
 		cell: ({ row }) => {
-			const timeStr = formatDateTime(row.getValue("createTime"));
+			const datetime = row.getValue("createTime") as string;
+			const timeStr = DateTime.fromISO(datetime).toFormat("yyyy-MM-dd HH:mm:ss");
 			return (
 				<div className="text-sm font-mono truncate" title={timeStr}>
 					{timeStr}
@@ -186,7 +187,8 @@ export const virtualOrderColumns: ColumnDef<VirtualOrder>[] = [
 		header: "更新时间",
 		size: 140,
 		cell: ({ row }) => {
-			const timeStr = formatDateTime(row.getValue("updateTime"));
+			const datetime = row.getValue("updateTime") as string;
+			const timeStr = DateTime.fromISO(datetime).toFormat("yyyy-MM-dd HH:mm:ss");
 			return (
 				<div className="text-sm font-mono truncate" title={timeStr}>
 					{timeStr}

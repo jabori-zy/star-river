@@ -15,7 +15,7 @@ import {
 	createKlineStreamFromKey,
 	createOrderStreamForSymbol,
 	createPositionStreamForSymbol,
-} from "@/hooks/obs/backtest-strategy-data-obs";
+} from "@/hooks/obs/backtest-strategy-event-obs";
 import { getInitialChartData } from "@/service/chart";
 import type { ChartId, OrderMarker, PositionPriceLine } from "@/types/chart";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
@@ -31,6 +31,8 @@ import { OrderStatus, OrderType } from "@/types/order";
 import type { VirtualPositionEvent } from "@/types/strategy-event/backtest-strategy-event";
 import type { VirtualPosition } from "@/types/position";
 import { getVirtualPosition } from "@/service/backtest-strategy";
+import { getChartAlignedUtcSeconds } from "@/utils/datetime-offset";
+import { DateTime } from "luxon";
 
 interface BacktestChartStore {
 	chartId: ChartId;
@@ -415,9 +417,9 @@ const createBacktestChartStore = (
 						const orderStream = createOrderStreamForSymbol(key.exchange,key.symbol);
 						const orderSubscription = orderStream.subscribe((virtualOrderEvent: VirtualOrderEvent) => {
 							if (
-								virtualOrderEvent.event === "futures-order-filled" || 
-								virtualOrderEvent.event === "take-profit-order-filled" || 
-								virtualOrderEvent.event === "stop-loss-order-filled"
+								virtualOrderEvent.event === "futures-order-filled-event" || 
+								virtualOrderEvent.event === "take-profit-order-filled-event" || 
+								virtualOrderEvent.event === "stop-loss-order-filled-event"
 							){
 								state.onNewOrder(virtualOrderEvent.futuresOrder);
 							}
@@ -428,10 +430,10 @@ const createBacktestChartStore = (
 						const positionStream = createPositionStreamForSymbol(key.exchange,key.symbol);
 						const positionSubscription = positionStream.subscribe((positionEvent: VirtualPositionEvent) => {
 							
-							if (positionEvent.event === "position-created") {
+							if (positionEvent.event === "position-created-event") {
 								state.onNewPosition(positionEvent.virtualPosition);
 							}
-							else if (positionEvent.event === "position-closed") {
+							else if (positionEvent.event === "position-closed-event") {
 								state.onPositionClosed(positionEvent.virtualPosition);
 							}
 							
@@ -441,7 +443,7 @@ const createBacktestChartStore = (
 						const indicatorStream = createIndicatorStreamFromKey(keyStr, true);
 						const indicatorSubscription = indicatorStream.subscribe({
 							next: (
-								indicatorData: Record<keyof IndicatorValueConfig, number>[],
+								indicatorData: Record<keyof IndicatorValueConfig, number | string>[],
 							) => {
 								// 转换指标数据格式为 Record<keyof IndicatorValueConfig, SingleValueData[]>
 								const indicator: Record<
@@ -451,16 +453,17 @@ const createBacktestChartStore = (
 
 								indicatorData.forEach((item) => {
 									Object.entries(item).forEach(([indicatorValueKey, value]) => {
+										// 跳过datetime字段，只处理指标值
+										if (indicatorValueKey === 'datetime') return;
+										
 										indicator[indicatorValueKey as keyof IndicatorValueConfig] =
 											[
 												...(indicator[
 													indicatorValueKey as keyof IndicatorValueConfig
 												] || []),
 												{
-													time: Math.floor(
-														item.timestamp / 1000,
-													) as UTCTimestamp,
-													value: value,
+													time: getChartAlignedUtcSeconds(item.datetime as unknown as string) as UTCTimestamp,
+													value: value as number,
 												} as SingleValueData,
 											];
 									});
@@ -515,9 +518,9 @@ const createBacktestChartStore = (
 				const orderSubscription = orderStream.subscribe((virtualOrderEvent: VirtualOrderEvent) => {
 					console.log("virtualOrderEvent", virtualOrderEvent);
 					if (
-						virtualOrderEvent.event === "futures-order-filled" ||
-						virtualOrderEvent.event === "take-profit-order-filled" ||
-						virtualOrderEvent.event === "stop-loss-order-filled"
+						virtualOrderEvent.event === "futures-order-filled-event" ||
+						virtualOrderEvent.event === "take-profit-order-filled-event" ||
+						virtualOrderEvent.event === "stop-loss-order-filled-event"
 					){
 						console.log("virtualOrderEvent", virtualOrderEvent);
 						state.onNewOrder(virtualOrderEvent.futuresOrder);
@@ -530,23 +533,24 @@ const createBacktestChartStore = (
 				const indicatorStream = createIndicatorStreamFromKey(keyStr, true);
 				const indicatorSubscription = indicatorStream.subscribe({
 					next: (
-						indicatorData: Record<keyof IndicatorValueConfig, number>[],
+						indicatorData: Record<keyof IndicatorValueConfig, number | string>[],
 					) => {
 						// 转换指标数据格式为 Record<keyof IndicatorValueConfig, SingleValueData[]>
 						const indicator: Record<keyof IndicatorValueConfig,SingleValueData[]> = {};
 
 						indicatorData.forEach((item) => {
 							Object.entries(item).forEach(([indicatorValueKey, value]) => {
+								// 跳过datetime字段，只处理指标值
+								if (indicatorValueKey === 'datetime') return;
+								
 								indicator[indicatorValueKey as keyof IndicatorValueConfig] =
 									[
 										...(indicator[
 											indicatorValueKey as keyof IndicatorValueConfig
 										] || []),
 										{
-											time: Math.floor(
-												item.timestamp / 1000,
-											) as UTCTimestamp,
-											value: value,
+											time: getChartAlignedUtcSeconds(item.datetime as unknown as string) as UTCTimestamp,
+											value: value as number,
 										} as SingleValueData,
 									];
 							});
@@ -586,12 +590,21 @@ const createBacktestChartStore = (
 		},
 
 		onNewKline: (klineKeyStr: KeyStr, kline: Kline) => {
-			// 后端返回毫秒级时间戳，转换为秒级时间戳
-			const timestampInSeconds = Math.floor(
-				kline.timestamp / 1000,
-			) as UTCTimestamp;
+			
+			// const datetime = DateTime.fromISO(kline.datetime);
+			const timestamp = getChartAlignedUtcSeconds(kline.datetime) as UTCTimestamp;
+
+			// console.log(
+			// 	"timezone", datetime.zoneName,
+			// 	"utc datetime", kline.datetime,
+			// 	"datetime with timezone", datetime.toISO(),
+			// 	"timestamp", datetime.toMillis(),
+			// 	"offset", datetime.offset,
+			// 	"offseted timestamp", timestamp,
+			// 	"offseted datetime", DateTime.fromMillis(timestamp * 1000, { zone: "UTC" }).toISO(),
+			// 	);
 			const candlestickData: CandlestickData = {
-				time: timestampInSeconds, // 转换为秒级时间戳
+				time: timestamp, // 转换为秒级时间戳
 				open: kline.open,
 				high: kline.high,
 				low: kline.low,
@@ -608,7 +621,7 @@ const createBacktestChartStore = (
 			const lastData = get().getLastKline(klineKeyStr);
 
 			// 如果最后一根k线的时间戳与新k线的时间戳相同，则替换最后一根k线
-			if (lastData && lastData.time === timestampInSeconds) {
+			if (lastData && lastData.time === timestamp) {
 				const data = get().klineData;
 				// 创建新数组，替换最后一根k线
 				const newData = [...data.slice(0, -1), candlestickData];
@@ -688,31 +701,12 @@ const createBacktestChartStore = (
 		onNewOrder: (newOrder: VirtualOrder) => {
 			// 后端返回时间，转换为时间戳：2025-07-25T00:20:00Z -> timestamp
 			// 开仓订单
-			if (newOrder.orderType === OrderType.LIMIT || newOrder.orderType === OrderType.MARKET) {
-				const markers = virtualOrderToMarker(newOrder);
-				get().setOrderMarkers([...get().orderMarkers, ...markers]);
-				const orderMarkerSeriesRef = get().getOrderMarkerSeriesRef();
-				if (orderMarkerSeriesRef) {
-					orderMarkerSeriesRef.setMarkers(get().getOrderMarkers());
-				}
-			}
-			// 止盈订单
-			else if (newOrder.orderType === OrderType.TAKE_PROFIT_MARKET) {
-				const markers = virtualOrderToMarker(newOrder);
-				get().setOrderMarkers([...get().orderMarkers, ...markers]);
-				const orderMarkerSeriesRef = get().getOrderMarkerSeriesRef();
-				if (orderMarkerSeriesRef) {
-					orderMarkerSeriesRef.setMarkers(get().getOrderMarkers());
-				}
-			}
-			// 止损订单
-			else if (newOrder.orderType === OrderType.STOP_MARKET) {
-				const markers = virtualOrderToMarker(newOrder);
-				get().setOrderMarkers([...get().orderMarkers, ...markers]);
-				const orderMarkerSeriesRef = get().getOrderMarkerSeriesRef();
-				if (orderMarkerSeriesRef) {
-					orderMarkerSeriesRef.setMarkers(get().getOrderMarkers());
-				}
+			const markers = virtualOrderToMarker(newOrder);
+			get().setOrderMarkers([...get().orderMarkers, ...markers]);
+			// console.log("orderMarkers", get().getOrderMarkers());
+			const orderMarkerSeriesRef = get().getOrderMarkerSeriesRef();
+			if (orderMarkerSeriesRef) {
+				orderMarkerSeriesRef.setMarkers(get().getOrderMarkers());
 			}
 			
 		},
@@ -769,13 +763,16 @@ const createBacktestChartStore = (
 				Array.isArray(initialKlines) &&
 				initialKlines.length > 0
 			) {
-				const klineData: CandlestickData[] = initialKlines.map((kline) => ({
-					time: Math.floor(kline.timestamp / 1000) as UTCTimestamp,
-					open: kline.open,
-					high: kline.high,
-					low: kline.low,
-					close: kline.close,
-				}));
+				const klineData: CandlestickData[] = initialKlines.map((kline) => {
+					const timestampInSeconds = getChartAlignedUtcSeconds(kline.datetime) as UTCTimestamp;
+					return {
+						time: timestampInSeconds,
+						open: kline.open,
+						high: kline.high,
+						low: kline.low,
+						close: kline.close,
+					};
+				});
 
 				state.setKlineData(klineData);
 			} else {
@@ -790,7 +787,7 @@ const createBacktestChartStore = (
 				keyStr,
 				playIndex,
 				null,
-			)) as Record<keyof IndicatorValueConfig, number>[];
+			)) as Record<keyof IndicatorValueConfig, number | Date>[];
 
 			// 安全检查：确保指标数据存在
 			if (
@@ -801,16 +798,16 @@ const createBacktestChartStore = (
 				const indicatorData: Record<keyof IndicatorValueConfig, SingleValueData[]> = {};
 				initialIndicatorData.forEach((item) => {
 					Object.entries(item).forEach(([indicatorValueField, value]) => {
-						// 过滤掉timestamp和value为0的数据
-						if (indicatorValueField !== "timestamp" && value !== 0) {
+						// 跳过datetime字段，只处理指标值，并过滤value为0的数据
+						if (indicatorValueField !== "datetime" && value !== 0) {
 							indicatorData[indicatorValueField as keyof IndicatorValueConfig] =
 								[
 									...(indicatorData[
 										indicatorValueField as keyof IndicatorValueConfig
 									] || []),
 									{
-										time: Math.floor(item.timestamp / 1000) as UTCTimestamp,
-										value: value,
+										time: getChartAlignedUtcSeconds(item.datetime as unknown as string) as UTCTimestamp,
+										value: value as number,
 									} as SingleValueData,
 								];
 						}
@@ -897,6 +894,11 @@ const createBacktestChartStore = (
 
 		initVirtualOrderData: async (strategyId: number) => {
 			const virtualOrderData = await getVirtualOrder(strategyId);
+			// 清除订单标记
+			get().setOrderMarkers([]);
+
+			// 按updateTime升序排序
+			virtualOrderData.sort((a, b) => DateTime.fromISO(a.updateTime).toMillis() - DateTime.fromISO(b.updateTime).toMillis());
 			const orderMarkers: OrderMarker[] = [];
 			virtualOrderData.forEach((order: VirtualOrder) => {
 				if (order.orderStatus === OrderStatus.FILLED) {
@@ -911,6 +913,7 @@ const createBacktestChartStore = (
 					}
 				}
 			});
+			console.log("orderMarkers", orderMarkers);
 			get().setOrderMarkers(orderMarkers);
 		},
 

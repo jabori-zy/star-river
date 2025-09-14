@@ -77,7 +77,6 @@ const mapStatsDataToLegendData = (
 
 	// 如果没有找到指定时间的数据点，使用最新的数据点
 	const targetData = dataPoint || data[data.length - 1];
-	console.log("targetData", targetData);
 
 	// 根据valueType格式化数值
 	let formattedValue: string;

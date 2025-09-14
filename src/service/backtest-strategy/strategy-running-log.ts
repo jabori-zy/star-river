@@ -13,7 +13,9 @@ export async function getStrategyRunningLog(strategyId: number): Promise<Strateg
         if (response.status !== 200) {
             throw new Error(`获取策略运行日志失败: ${response.status}`);
         }
-        return response.data.data as StrategyRunningLogEvent[];
+        
+        return response.data.data as StrategyRunningLogEvent[]
+        
     } catch (error) {
         console.error("getStrategyRunningLog error", error);
         throw error;

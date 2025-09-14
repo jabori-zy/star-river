@@ -154,6 +154,7 @@ export const useBacktestConfig = ({
 
 	const updateTimeRange = useCallback(
 		(timeRange: TimeRange) => {
+			console.log("updateTimeRange", timeRange);
 			updateGlobalTimeRange(timeRange);
 			syncToNode((config) => ({
 				...config,

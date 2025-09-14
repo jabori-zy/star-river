@@ -1,7 +1,7 @@
 import type React from "react";
 import { useEffect, useState } from "react";
 import { createBacktestStrategyStateLogStream, getStateLogConnectionState } from "@/hooks/obs/backtest-strategy-state-log-obs";
-import { SSEConnectionState } from "@/hooks/obs/backtest-strategy-data-obs";
+import { SSEConnectionState } from "@/hooks/obs/backtest-strategy-event-obs";
 import type { StrategyStateLogEvent, NodeStateLogEvent } from "@/types/strategy-event/strategy-state-log-event";
 import { LogLevel } from "@/types/strategy-event";
 import StrategyLoadingDialog from "@/components/strategy-loading-dialog";

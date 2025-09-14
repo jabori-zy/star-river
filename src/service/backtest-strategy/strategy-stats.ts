@@ -13,7 +13,11 @@ export async function getStrategyStatsHistory(strategyId: number, playIndex: num
         if (response.status !== 200) {
             throw new Error(`获取策略统计历史失败: ${response.status}`);
         }
-        return response.data.data as StrategyStats[];
+        
+        // 转换datetime字符串为Date对象
+        return response.data.data as StrategyStats[]
+        
+        
     } catch (error) {
         console.error("getStrategyStatsHistory error", error);
         throw error;

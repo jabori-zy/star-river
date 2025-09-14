@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, useImperativeHandle, forwardRef } from "react";
 import type { Subscription } from "rxjs";
-import { createOrderStream } from "@/hooks/obs/backtest-strategy-data-obs";
+import { createOrderStream } from "@/hooks/obs/backtest-strategy-event-obs";
 import type { VirtualOrder } from "@/types/order/virtual-order";
 import BacktestOrderRecordTable from "@/components/table/backtest-order-record-table";
 import { getVirtualOrder } from "@/service/backtest-strategy"

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, useImperativeHandle, forwardRef } from "react";
 import type { Subscription } from "rxjs";
-import { createTransactionStream } from "@/hooks/obs/backtest-strategy-data-obs";
+import { createTransactionStream } from "@/hooks/obs/backtest-strategy-event-obs";
 import type { VirtualTransaction } from "@/types/transaction/virtual-transaction";
 import BacktestTransactionTable from "@/components/table/backtest-transaction-table";
 import { getVirtualTransaction } from "@/service/backtest-strategy"

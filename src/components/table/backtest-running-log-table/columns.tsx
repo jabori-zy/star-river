@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { LogLevel } from "@/types/strategy-event";
 import type { StrategyRunningLogEvent } from "@/types/strategy-event/strategy-running-log-event";
+import { DateTime } from "luxon";
 
 // 日志级别图标映射
 const getLogLevelIcon = (logLevel: LogLevel) => {
@@ -106,15 +107,16 @@ export const createStrategyRunningLogColumns = (isCompactMode: boolean): ColumnD
 		},
 	},
 	{
-		accessorKey: "timestamp",
+		accessorKey: "datetime",
 		header: "时间",
 		size: 180,
 		minSize: 180,
 		maxSize: 180,
 		enableResizing: false,
 		cell: ({ row }) => {
-			const timestamp = row.getValue("timestamp") as number;
-			const timeStr = formatTimestamp(timestamp);
+			const datetime = row.getValue("datetime") as string;
+			const timeStr = DateTime.fromISO(datetime).toFormat("yyyy-MM-dd HH:mm:ss");
+			
 			return (
 				<div className="text-sm font-mono truncate" title={timeStr}>
 					{timeStr}

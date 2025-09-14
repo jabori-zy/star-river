@@ -21,6 +21,7 @@ export interface StrategyDashboardRef {
 	clearOrderRecords: () => void;
 	clearPositionRecords: () => void;
 	clearTransactionRecords: () => void;
+	clearRunningLogs: () => void;
 }
 
 const StrategyDashboard = forwardRef<StrategyDashboardRef, StrategyDashboardProps>(({
@@ -47,6 +48,9 @@ const StrategyDashboard = forwardRef<StrategyDashboardRef, StrategyDashboardProp
 		},
 		clearTransactionRecords: () => {
 			backtestInfoTabsRef.current?.clearTransactionRecords();
+		},
+		clearRunningLogs: () => {
+			backtestInfoTabsRef.current?.clearRunningLogs();
 		},
 	}), []);
 

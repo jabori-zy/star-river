@@ -9,12 +9,12 @@ import {
 import { FunnelPlus } from "lucide-react";
 
 
-interface PositionSelectorProps {
+interface PositionFilterProps {
 	isShowHistoryPositions: boolean;
 	onShowHistoryPositions: (show: boolean) => void;
 }
 
-const PositionSelector: React.FC<PositionSelectorProps> = ({ isShowHistoryPositions, onShowHistoryPositions }) => {
+const PositionFilter: React.FC<PositionFilterProps> = ({ isShowHistoryPositions, onShowHistoryPositions }) => {
 	const [open, setOpen] = useState(false);
 
 	const handleHistoryPositionsToggle = () => {
@@ -51,4 +51,4 @@ const PositionSelector: React.FC<PositionSelectorProps> = ({ isShowHistoryPositi
 	);
 };
 
-export default PositionSelector;
+export default PositionFilter;

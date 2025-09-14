@@ -1,0 +1,58 @@
+import { useTranslation } from "react-i18next";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import { SupportLanguage, type SystemConfig } from "@/types/system";
+
+
+
+
+
+
+// 语言选择下拉框
+export function LocalizationSelect({
+	localSystemConfig,
+	setLocalSystemConfig,
+	setSystemConfigIsChanged,
+}: {
+	localSystemConfig: SystemConfig;
+	setLocalSystemConfig: (config: SystemConfig) => void;
+	setSystemConfigIsChanged: (changed: boolean) => void;
+}) {
+	const { t } = useTranslation();
+
+	const handleLocalizationChange = (value: SupportLanguage) => {
+		// 如果选择的value等于当前配置，则不进行更新
+		if (value === localSystemConfig.localization) {
+			return;
+		}
+		setLocalSystemConfig({ ...localSystemConfig, localization: value });
+		setSystemConfigIsChanged(true);
+	};
+
+	return (
+		<div className="flex flex-col gap-2">
+			<div className="text-sm font-medium">
+				{t("selectLanguage") || "选择语言"}
+			</div>
+			<Select
+				value={localSystemConfig.localization}
+				onValueChange={(value) =>
+					handleLocalizationChange(value as SupportLanguage)
+				}
+			>
+				<SelectTrigger>
+					<SelectValue placeholder={t("selectLanguage") || "选择语言"} />
+				</SelectTrigger>
+				<SelectContent>
+					<SelectItem value={SupportLanguage.ZH_CN}>中文</SelectItem>
+					<SelectItem value={SupportLanguage.EN_US}>English</SelectItem>
+				</SelectContent>
+			</Select>
+		</div>
+	);
+}

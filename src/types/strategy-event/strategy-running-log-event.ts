@@ -39,5 +39,5 @@ export type StrategyRunningLogEvent = {
 
     errorCodeChain: string[] | null,
 
-    timestamp: number,
+    datetime: string,
 }

@@ -12,6 +12,7 @@ import {
 import { getLogLevelStyle } from "./utils";
 import type { LogEvent } from "./types";
 import { ScrollBar } from "@/components/ui/scroll-area";
+import { DateTime } from "luxon";
 
 interface LogSectionProps {
     logs: LogEvent[];
@@ -119,7 +120,7 @@ const LogSection: React.FC<LogSectionProps> = ({ logs }) => {
     }, [handleScroll]); // 依赖handleScroll
 
     const handleCopyError = (log: LogEvent, index: number) => {
-        const logKey = `${log.timestamp}-${index}`;
+        const logKey = `${log.datetime}-${index}`;
         const copyContent = [
             `原因: ${log.message}`,
             `错误代码: ${log.errorCode}`,
@@ -151,14 +152,14 @@ const LogSection: React.FC<LogSectionProps> = ({ logs }) => {
                             logs.map((log, index) => {
                                 const style = getLogLevelStyle(log.logLevel);
                                 const isStrategyLog = log.type === "strategy";
-                                const logKey = `${log.timestamp}-${index}`;
+                                const logKey = `${log.datetime}-${index}`;
                                 
                                 return (
                                     <div key={logKey} className="space-y-1">
                                         <div className="flex items-center space-x-2 text-xs">
                                             {style.icon}
                                             <span className="text-gray-400">
-                                                [{new Date(log.timestamp).toLocaleTimeString()}]
+                                                [{DateTime.fromISO(log.datetime).toFormat("yyyy-MM-dd HH:mm:ss")}]
                                             </span>
                                             <span className="text-gray-600 font-medium">
                                                 {isStrategyLog 

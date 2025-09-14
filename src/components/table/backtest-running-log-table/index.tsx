@@ -57,7 +57,7 @@ export function BacktestRunningLogTable({
 		[],
 	);
 	const [sorting, setSorting] = React.useState<SortingState>([
-		{ id: "timestamp", desc: true }, // 默认按时间倒序排列
+		{ id: "datetime", desc: true }, // 默认按时间倒序排列
 	]);
 	const [rowSelection, setRowSelection] = React.useState({});
 	const [pagination, setPagination] = React.useState({
@@ -199,7 +199,7 @@ export function BacktestRunningLogTable({
 												<TableRow>
 													<TableCell
 														colSpan={row.getVisibleCells().length}
-														className="px-3 py-4 bg-muted/30"
+														className="px-3 py-2 bg-muted/30"
 													>
 														<div className="py-2 px-4">
 															<code>
@@ -216,7 +216,7 @@ export function BacktestRunningLogTable({
 									<TableRow>
 										<TableCell
 											colSpan={columns.length}
-											className="h-24 text-center"
+											className="h-16 text-center"
 										>
 											无日志数据
 										</TableCell>

@@ -14,7 +14,7 @@ export type StrategyStateLogEvent = {
     errorCode: string | null,
     errorCodeChain: string[] | null,
     message: string,
-    timestamp: number,
+    datetime: string,
 
 }
 
@@ -31,7 +31,7 @@ export type NodeStateLogEvent = {
     errorCode: string | null,
     errorCodeChain: string[] | null,
     message: string,
-    timestamp: number,
+    datetime: string,
 }
 
 

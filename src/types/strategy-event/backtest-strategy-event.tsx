@@ -32,7 +32,7 @@ export type BacktestStrategyEvent =
 
 export type BaseEventProps = {
 	channel: string;
-	event_type: string;
+	eventType: string;
 	event: string;
 	timestamp: number;
 	fromNodeId: string;
@@ -48,7 +48,7 @@ export type KlineUpdateEvent = BaseEventProps & {
 
 export type IndicatorUpdateEvent = BaseEventProps & {
 	indicatorKey: KeyStr;
-	indicatorSeries: Record<string, number>[];
+	indicatorSeries: Record<string, number | string>[];
 };
 
 export type VirtualOrderEvent = BaseEventProps & {

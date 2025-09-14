@@ -11,7 +11,7 @@ import {
 	createIndicatorStreamFromKey,
 	createKlineStreamFromKey,
 	createOrderStreamForSymbol,
-} from "@/hooks/obs/backtest-strategy-data-obs";
+} from "@/hooks/obs/backtest-strategy-event-obs";
 import { getInitialChartData } from "@/service/chart";
 import type { KlineChartConfig, SubChartConfig } from "@/types/chart";
 import type { Kline } from "@/types/kline";
@@ -122,8 +122,8 @@ const KlineChart = forwardRef<KlineChartRef, KlineChartProps>(
 						}
 					}
 					controls.setXRange(
-						initialKlines[0].timestamp / 1000,
-						initialKlines[initialKlines.length - 1].timestamp / 1000,
+						initialKlines[0].datetime / 1000,
+						initialKlines[initialKlines.length - 1].datetime / 1000,
 					);
 				}
 

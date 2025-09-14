@@ -389,7 +389,7 @@ export const initKlineChart = async (
 		const closeValues: number[] = [];
 		const volumeValues: number[] = [];
 		klines.forEach((kline: Kline) => {
-			xValues.push(kline.timestamp / 1000);
+			xValues.push(kline.datetime / 1000);
 			openValues.push(kline.open);
 			highValues.push(kline.high);
 			lowValues.push(kline.low);

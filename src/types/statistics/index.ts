@@ -14,7 +14,7 @@ export type StrategyStatsName =
 
 
 export type StrategyStats = {
-	timestamp: number;
+	datetime: string;
     playIndex: number;
     balance: number;
     unrealizedPnl: number;

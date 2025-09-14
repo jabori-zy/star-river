@@ -6,4 +6,5 @@ export enum SupportLanguage {
 export interface SystemConfig {
 	id: number;
 	localization: SupportLanguage;
+	timezone?: string;
 }

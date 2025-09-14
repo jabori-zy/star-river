@@ -8,11 +8,12 @@ import type {
 } from "lightweight-charts";
 import type { Subscription } from "rxjs";
 import { create } from "zustand";
-import { createStatsStream } from "@/hooks/obs/backtest-strategy-data-obs";
+import { createStatsStream } from "@/hooks/obs/backtest-strategy-event-obs";
 import type { BacktestStrategyStatsChartConfig } from "@/types/chart/backtest-strategy-stats-chart";
 import type { StrategyStats, StrategyStatsName } from "@/types/statistics";
 import type { BacktestStrategyStatsUpdateEvent } from "@/types/strategy-event/backtest-strategy-event";
 import { getStrategyStatsHistory } from "@/service/backtest-strategy/strategy-stats";
+import { getChartAlignedUtcSeconds } from "@/utils/datetime-offset";
 
 interface BacktestStatsChartStore {
 	strategyId: number;
@@ -112,7 +113,7 @@ const createBacktestStatsChartStore = (
 					const cumulativeReturnStatsData: SingleValueData[] = []
 
 					initialStatsData.forEach((statsData) => {
-						const timestamp = statsData.timestamp / 1000 as UTCTimestamp;
+						const timestamp = getChartAlignedUtcSeconds(statsData.datetime) as UTCTimestamp;
 						balanceStatsData.push({
 							time: timestamp,
 							value: statsData.balance,
@@ -253,14 +254,14 @@ const createBacktestStatsChartStore = (
 
 		onNewStatsData: (statsData: StrategyStats) => {
 			const state = get();
-			const timestamp = statsData.timestamp / 1000 as UTCTimestamp;
+			const timestamp = getChartAlignedUtcSeconds(statsData.datetime) as UTCTimestamp;
 
 			// 处理每个统计数据
 			Object.entries(statsData).forEach(([statsName, value]) => {
 				const existingData = state.getStatsData(statsName as StrategyStatsName);
 				const newDataPoint: SingleValueData = {
 					time: timestamp,
-					value: value,
+					value: value as number,
 				};
 
 				// 获取最后一个数据点

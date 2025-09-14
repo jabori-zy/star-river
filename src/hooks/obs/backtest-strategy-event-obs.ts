@@ -1,7 +1,6 @@
 import { BehaviorSubject, Observable, Subject } from "rxjs";
 import { filter, map, share, takeUntil } from "rxjs/operators";
 import type { Kline } from "@/types/kline";
-import type { VirtualOrder } from "@/types/order/virtual-order";
 import type { VirtualOrderEvent } from "@/types/strategy-event/backtest-strategy-event";
 import type {
 	VirtualPositionEvent,
@@ -11,7 +10,8 @@ import type {
 	VirtualTransactionEvent,
 } from "@/types/strategy-event/backtest-strategy-event";
 import type { KeyStr } from "@/types/symbol-key";
-import { BACKTESET_STRATEGY_SSE_URL } from ".";
+import { BACKTESET_STRATEGY_EVENT_SSE_URL } from ".";
+import { DateTime } from 'luxon';
 
 // SSE连接状态
 export enum SSEConnectionState {
@@ -23,15 +23,15 @@ export enum SSEConnectionState {
 
 
 const orderEvent = [
-	"futures-order-filled",  // 订单成交
-	"futures-order-created",  // 订单创建
-	"futures-order-canceled",  // 订单取消
-	"take-profit-order-created",  // 止盈单创建
-	"stop-loss-order-created",  // 止损单创建
-	"take-profit-order-filled",  // 止盈单成交
-	"stop-loss-order-filled",  // 止损单成交
-	"take-profit-order-canceled",  // 止盈单取消
-	"stop-loss-order-canceled",  // 止损单取消
+	"futures-order-filled-event",  // 订单成交
+	"futures-order-created-event",  // 订单创建
+	"futures-order-canceled-event",  // 订单取消
+	"take-profit-order-created-event",  // 止盈单创建
+	"stop-loss-order-created-event",  // 止损单创建
+	"take-profit-order-filled-event",  // 止盈单成交
+	"stop-loss-order-filled-event",  // 止损单成交
+	"take-profit-order-canceled-event",  // 止盈单取消
+	"stop-loss-order-canceled-event",  // 止损单取消
 ]
 
 /**
@@ -143,7 +143,7 @@ class BacktestStrategyDataObservableService {
 	createIndicatorStreamFromKey(
 		keyStr: KeyStr,
 		enabled: boolean = true,
-	): Observable<Record<string, number>[]> {
+	): Observable<Record<string, number | string>[]> {
 		return this.createIndicatorStream(enabled).pipe(
 			filter((event) => event.indicatorKey === keyStr),
 			map((event) => event.indicatorSeries),
@@ -286,7 +286,7 @@ class BacktestStrategyDataObservableService {
 		this.connectionState$.next(SSEConnectionState.CONNECTING);
 
 		try {
-			this.eventSource = new EventSource(BACKTESET_STRATEGY_SSE_URL);
+			this.eventSource = new EventSource(BACKTESET_STRATEGY_EVENT_SSE_URL);
 
 			// 连接成功
 			this.eventSource.onopen = () => {
@@ -319,77 +319,98 @@ class BacktestStrategyDataObservableService {
 			// console.log("收到SSE消息:", strategyEvent);
 
 			// 处理K线更新事件
-			if (strategyEvent.event === "kline-update") {
-				const klineEvent = strategyEvent as KlineUpdateEvent;
-
-				// console.log("发送K线数据到Observable流:", klineEvent);
+			if (strategyEvent.event === "kline-update-event") {
+				// 类型安全的事件构建
+					
+				const klineEvent: KlineUpdateEvent = {
+					channel: strategyEvent.channel,
+					eventType: strategyEvent.eventType,
+					event: strategyEvent.event,
+					timestamp: strategyEvent.timestamp,
+					fromNodeId: strategyEvent.fromNodeId,
+					fromNodeName: strategyEvent.fromNodeName,
+					fromNodeHandleId: strategyEvent.fromNodeHandleId,
+					klineCacheIndex: strategyEvent.klineCacheIndex || 0,
+					klineKey: strategyEvent.klineKey,
+					kline: strategyEvent.kline,
+				};
 				this.klineDataSubject.next(klineEvent);
 			}
 
 			// 处理指标更新事件
-			if (strategyEvent.event === "indicator-update") {
+			if (strategyEvent.event === "indicator-update-event") {
 				const indicatorEvent = strategyEvent as IndicatorUpdateEvent;
-
+				
+				// 直接使用原始指标事件，datetime保持为string类型
 				// console.log("发送指标数据到Observable流:", indicatorEvent);
 				this.indicatorDataSubject.next(indicatorEvent);
 			}
 
 			// 处理订单成交事件
 			if (orderEvent.includes(strategyEvent.event)) {
-				if (
-					strategyEvent.event === "futures-order-filled" || 
-					strategyEvent.event === "futures-order-created" || 
-					strategyEvent.event === "futures-order-canceled"
-				) {
-					const orderEvent = strategyEvent as VirtualOrderEvent;
-					this.orderDataSubject.next(orderEvent);
-				}
-				if (
-					strategyEvent.event === "take-profit-order-created" || 
-					strategyEvent.event === "take-profit-order-filled" || 
-					strategyEvent.event === "take-profit-order-canceled"
-				) {
-					const orderEvent = {
-						channel: strategyEvent.channel,
-						event_type: strategyEvent.eventType,
-						event: strategyEvent.event,
-						timestamp: strategyEvent.timestamp,
-						fromNodeId: strategyEvent.fromNodeId,
-						fromNodeName: strategyEvent.fromNodeName,
-						fromNodeHandleId: strategyEvent.fromHandleId,
-						futuresOrder: strategyEvent.takeProfitOrder as VirtualOrder
-					} as VirtualOrderEvent;
-					this.orderDataSubject.next(orderEvent);
-				}
-				if (
-					strategyEvent.event === "stop-loss-order-created" ||
-					strategyEvent.event === "stop-loss-order-filled" ||
-					strategyEvent.event === "stop-loss-order-canceled"
-				) {
-					const orderEvent = {
-						channel: strategyEvent.channel,
-						event_type: strategyEvent.eventType,
-						event: strategyEvent.event,
-						timestamp: strategyEvent.timestamp,
-						fromNodeId: strategyEvent.fromNodeId,
-						fromNodeName: strategyEvent.fromNodeName,
-						fromNodeHandleId: strategyEvent.fromHandleId,
-						futuresOrder: strategyEvent.stopLossOrder as VirtualOrder
-					} as VirtualOrderEvent;
-					this.orderDataSubject.next(orderEvent);
-				}
-			}
-			if (strategyEvent.event === "position-created" || strategyEvent.event === "position-updated" || strategyEvent.event === "position-closed") {
-				const positionEvent = strategyEvent as VirtualPositionEvent;
-				this.positionDataSubject.next(positionEvent);
-			}
-			if (strategyEvent.event === "strategy-stats-updated") {
-				const statsEvent = strategyEvent as BacktestStrategyStatsUpdateEvent;
+				const orderEvent = strategyEvent as VirtualOrderEvent;
 
-				// console.log("发送策略统计数据到Observable流:", statsEvent);
+				
+
+				if (
+					strategyEvent.event === "futures-order-filled-event" || 
+					strategyEvent.event === "futures-order-created-event" || 
+					strategyEvent.event === "futures-order-canceled-event"
+				) {
+					// 转换futuresOrder中的createTime和updateTime字符串为Date对象
+					const orderUpdateEvent : VirtualOrderEvent = {
+						...orderEvent,
+						futuresOrder: orderEvent.futuresOrder
+	
+					}
+					
+					this.orderDataSubject.next(orderUpdateEvent);
+				}
+				if (
+					strategyEvent.event === "take-profit-order-created-event" || 
+					strategyEvent.event === "take-profit-order-filled-event" || 
+					strategyEvent.event === "take-profit-order-canceled-event"
+				) {
+					// 转换futuresOrder中的createTime和updateTime字符串为Date对象
+					const orderUpdateEvent : VirtualOrderEvent = {
+						...orderEvent,
+						futuresOrder: strategyEvent.takeProfitOrder
+					};
+					this.orderDataSubject.next(orderUpdateEvent);
+				}
+				if (
+					strategyEvent.event === "stop-loss-order-created-event" ||
+					strategyEvent.event === "stop-loss-order-filled-event" ||
+					strategyEvent.event === "stop-loss-order-canceled-event"
+				) {
+					// 转换futuresOrder中的createTime和updateTime字符串为Date对象
+					const orderUpdateEvent : VirtualOrderEvent = {
+						...orderEvent,
+						futuresOrder: strategyEvent.stopLossOrder
+					};
+					
+					this.orderDataSubject.next(orderUpdateEvent);
+				}
+			}
+			if (strategyEvent.event === "position-created-event" || 
+				strategyEvent.event === "position-updated-event" || 
+				strategyEvent.event === "position-closed-event"
+			) {
+				const positionEvent = strategyEvent as VirtualPositionEvent;
+				
+				// 转换virtualPosition中的createTime和updateTime字符串为Date对象
+				const positionUpdateEvent : VirtualPositionEvent = {
+					...positionEvent,
+					virtualPosition: positionEvent.virtualPosition
+				};
+				
+				this.positionDataSubject.next(positionUpdateEvent);
+			}
+			if (strategyEvent.event === "strategy-stats-updated-event") {
+				const statsEvent = strategyEvent as BacktestStrategyStatsUpdateEvent;
 				this.statsDataSubject.next(statsEvent);
 			}
-			if (strategyEvent.event === "transaction-created") {
+			if (strategyEvent.event === "transaction-created-event") {
 				const transactionEvent = strategyEvent as VirtualTransactionEvent;
 				this.transactionDataSubject.next(transactionEvent);
 			}

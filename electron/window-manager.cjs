@@ -82,8 +82,22 @@ const closeBacktestWindow = (strategyId) => {
 	}
 };
 
+// 刷新所有回测窗口
+const refreshAllBacktestWindows = () => {
+	let refreshedCount = 0;
+	for (const [strategyId, window] of strategyWindows.entries()) {
+		if (window && !window.isDestroyed()) {
+			console.log(`刷新回测窗口: strategyId=${strategyId}`);
+			window.webContents.reload();
+			refreshedCount++;
+		}
+	}
+	console.log(`已刷新 ${refreshedCount} 个回测窗口`);
+	return refreshedCount;
+};
+
 const setupDevContextMenu = (window) => {
-	window.webContents.on("context-menu", (e, params) => {
+	window.webContents.on("context-menu", (_, params) => {
 		const menu = new Menu();
 
 		menu.append(
@@ -124,4 +138,5 @@ module.exports = {
 	createWindow,
 	createBacktestWindow,
 	closeBacktestWindow,
+	refreshAllBacktestWindows,
 };

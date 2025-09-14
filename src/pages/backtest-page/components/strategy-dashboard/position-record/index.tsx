@@ -8,14 +8,14 @@ import {
 } from "react";
 import type { Subscription } from "rxjs";
 import BacktestPositionTable from "@/components/table/backtest-position-table";
-import { createPositionStream } from "@/hooks/obs/backtest-strategy-data-obs";
+import { createPositionStream } from "@/hooks/obs/backtest-strategy-event-obs";
 import {
 	getHisotryVirtualPosition,
 	getVirtualPosition,
 } from "@/service/backtest-strategy";
 import { useBacktestUIStore } from "@/store/use-backtest-ui-store";
 import type { VirtualPosition } from "@/types/position/virtual-position";
-import PositionSelector from "./position-selector";
+import PositionFilter from "./position-filter";
 
 interface PositionRecordProps {
 	strategyId: number;
@@ -50,12 +50,9 @@ const PositionRecord = forwardRef<PositionRecordRef, PositionRecordProps>(
 		);
 
 		const getVirtualPositionData = useCallback(async () => {
-			const virtualPositionData = (await getVirtualPosition(
-				strategyId,
-			)) as VirtualPosition[];
-			const historyPositionData = (await getHisotryVirtualPosition(
-				strategyId,
-			)) as VirtualPosition[];
+			const virtualPositionData = await getVirtualPosition(strategyId);
+			console.log("virtualPositionData", virtualPositionData);
+			const historyPositionData = await getHisotryVirtualPosition(strategyId);
 			// 如果显示历史持仓，则将当前持仓和历史持仓合并
 			if (isShowHistoryPosition) {
 				setPositionData(
@@ -82,8 +79,8 @@ const PositionRecord = forwardRef<PositionRecordRef, PositionRecordProps>(
 			const positionStream = createPositionStream();
 			const subscription = positionStream.subscribe((positionEvent) => {
 				if (
-					positionEvent.event === "position-created" ||
-					positionEvent.event === "position-updated"
+					positionEvent.event === "position-created-event" ||
+					positionEvent.event === "position-updated-event"
 				) {
 					console.log("positionEvent", positionEvent, isShowHistoryPosition);
 					const position = positionEvent.virtualPosition;
@@ -102,7 +99,7 @@ const PositionRecord = forwardRef<PositionRecordRef, PositionRecordProps>(
 							return [position, ...prev];
 						}
 					});
-				} else if (positionEvent.event === "position-closed") {
+				} else if (positionEvent.event === "position-closed-event") {
 					// 如果显示历史持仓，则不删除已平仓的持仓
 					if (!isShowHistoryPosition) {
 						
@@ -128,7 +125,7 @@ const PositionRecord = forwardRef<PositionRecordRef, PositionRecordProps>(
 		return (
 			<div className="flex flex-col h-full">
 				<div className="flex justify-start pl-4 mb-2">
-					<PositionSelector
+					<PositionFilter
 						isShowHistoryPositions={isShowHistoryPosition}
 						onShowHistoryPositions={setIsShowHistoryPosition}
 					/>

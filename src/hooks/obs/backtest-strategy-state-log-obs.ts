@@ -1,7 +1,7 @@
 import { BehaviorSubject, Observable, Subject } from "rxjs";
 import { share, takeUntil } from "rxjs/operators";
 import type { StrategyStateLogEvent, NodeStateLogEvent } from "@/types/strategy-event/strategy-state-log-event";
-import { SSEConnectionState } from "./backtest-strategy-data-obs";
+import { SSEConnectionState } from "./backtest-strategy-event-obs";
 import { BACKTEST_STRATEGY_STATE_LOG_URL } from ".";
 
 /**

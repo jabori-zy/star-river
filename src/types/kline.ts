@@ -1,5 +1,6 @@
+
 export type Kline = {
-	timestamp: number; // 时间戳
+	datetime: string;
 	open: number; // 开盘价
 	high: number; // 最高价
 	low: number; // 最低价

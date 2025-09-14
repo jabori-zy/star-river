@@ -2,27 +2,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import type { VirtualPosition } from "@/types/position/virtual-position";
 import { PositionSide, PositionState } from "@/types/position";
-
-// 格式化日期时间 - 复用订单表格的格式化函数
-export const formatDateTime = (dateTimeStr: string) => {
-	if (!dateTimeStr) return "-";
-	try {
-		const date = new Date(dateTimeStr);
-		return date
-			.toLocaleString("zh-CN", {
-				year: "numeric",
-				month: "2-digit",
-				day: "2-digit",
-				hour: "2-digit",
-				minute: "2-digit",
-				second: "2-digit",
-				hour12: false,
-			})
-			.replace(/\//g, "-");
-	} catch {
-		return dateTimeStr;
-	}
-};
+import { DateTime } from "luxon";
 
 // 仓位方向样式
 export const getPositionSideStyle = (side: PositionSide) => {
@@ -85,7 +65,10 @@ export const virtualPositionColumns: ColumnDef<VirtualPosition>[] = [
 	{
 		accessorKey: "positionId",
 		header: "仓位ID",
-		size: 80,
+		size: 50,
+		minSize: 50,
+		maxSize: 60,
+		enableResizing: false,
 		cell: ({ row }) => (
 			<div className="text-left truncate font-mono text-xs pl-2" title={row.getValue("positionId")}>
 				{row.getValue("positionId")}
@@ -95,7 +78,10 @@ export const virtualPositionColumns: ColumnDef<VirtualPosition>[] = [
 	{
 		accessorKey: "orderId",
 		header: "订单ID",
-		size: 80,
+		size: 50,
+		minSize: 50,
+		maxSize: 80,
+		enableResizing: false,
 		cell: ({ row }) => (
 			<div className="text-left truncate font-mono text-xs" title={row.getValue("orderId")}>
 				{row.getValue("orderId")}
@@ -168,7 +154,9 @@ export const virtualPositionColumns: ColumnDef<VirtualPosition>[] = [
 	{
 		accessorKey: "quantity",
 		header: "数量",
-		size: 90,
+		size: 60,
+		minSize: 60,
+		maxSize: 60,
 		cell: ({ row }) => {
 			const quantity = row.getValue("quantity") as number;
 			return (
@@ -341,11 +329,13 @@ export const virtualPositionColumns: ColumnDef<VirtualPosition>[] = [
 		},
 	},
 	{
-			accessorKey: "createTime",
+		accessorKey: "createTime",
 		header: "创建时间",
-		size: 140,
+		size: 160,
 		cell: ({ row }) => {
-			const timeStr = formatDateTime(row.getValue("createTime"));
+			const datetime = row.getValue("createTime") as string;
+			const timeStr = DateTime.fromISO(datetime).toFormat("yyyy-MM-dd HH:mm:ss");
+			
 			return (
 				<div className="text-sm font-mono truncate" title={timeStr}>
 					{timeStr}
@@ -356,9 +346,10 @@ export const virtualPositionColumns: ColumnDef<VirtualPosition>[] = [
 	{
 		accessorKey: "updateTime",
 		header: "更新时间",
-		size: 140,
+		size: 160,
 		cell: ({ row }) => {
-			const timeStr = formatDateTime(row.getValue("updateTime"));
+			const datetime = row.getValue("updateTime") as string;
+			const timeStr = DateTime.fromISO(datetime).toFormat("yyyy-MM-dd HH:mm:ss");
 			return (
 				<div className="text-sm font-mono truncate" title={timeStr}>
 					{timeStr}

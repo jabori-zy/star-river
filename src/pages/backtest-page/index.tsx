@@ -190,7 +190,7 @@ export default function BacktestPage() {
 		strategyDashboardRef.current?.clearOrderRecords();
 		strategyDashboardRef.current?.clearPositionRecords();
 		strategyDashboardRef.current?.clearTransactionRecords();
-		
+		strategyDashboardRef.current?.clearRunningLogs();
 	};
 	const onPlayOne = () => {
 		playOne(strategyId);

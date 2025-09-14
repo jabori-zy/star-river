@@ -12,59 +12,14 @@ import {
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
 import useSystemConfigStore from "@/store/useSystemConfigStore";
-import { SupportLanguage, type SystemConfig } from "@/types/system";
+import type { SystemConfig } from "@/types/system";
+import { LocalizationSelect } from "./localization-select";
+import { TimezoneSelect } from "./timezone-select";
+import { Settings } from "luxon";
 
-// 语言选择下拉框
-function LocalizationSelect({
-	localSystemConfig,
-	setLocalSystemConfig,
-	setSystemConfigIsChanged,
-}: {
-	localSystemConfig: SystemConfig;
-	setLocalSystemConfig: (config: SystemConfig) => void;
-	setSystemConfigIsChanged: (changed: boolean) => void;
-}) {
-	const { t } = useTranslation();
 
-	const handleLocalizationChange = (value: SupportLanguage) => {
-		// 如果选择的value等于当前配置，则不进行更新
-		if (value === localSystemConfig.localization) {
-			return;
-		}
-		setLocalSystemConfig({ ...localSystemConfig, localization: value });
-		setSystemConfigIsChanged(true);
-	};
 
-	return (
-		<div className="flex flex-col gap-2">
-			<label className="text-sm font-medium">
-				{t("selectLanguage") || "选择语言"}
-			</label>
-			<Select
-				value={localSystemConfig.localization}
-				onValueChange={(value) =>
-					handleLocalizationChange(value as SupportLanguage)
-				}
-			>
-				<SelectTrigger>
-					<SelectValue placeholder={t("selectLanguage") || "选择语言"} />
-				</SelectTrigger>
-				<SelectContent>
-					<SelectItem value={SupportLanguage.ZH_CN}>中文</SelectItem>
-					<SelectItem value={SupportLanguage.EN_US}>English</SelectItem>
-				</SelectContent>
-			</Select>
-		</div>
-	);
-}
 
 // 保存设置按钮
 const SaveSettingButton = ({
@@ -130,6 +85,13 @@ const SettingPage = () => {
 		setIsSaving(true);
 		try {
 			await updateSystemConfigAction(localSystemConfig);
+			
+			// 保存成功后，应用时区设置到 Luxon 全局配置
+			if (localSystemConfig.timezone) {
+				Settings.defaultZone = localSystemConfig.timezone;
+				console.log(`已将全局时区设置为: ${localSystemConfig.timezone}`);
+			}
+			
 			setSystemConfigIsChanged(false);
 		} catch (error) {
 			console.error("保存设置失败:", error);
@@ -153,6 +115,11 @@ const SettingPage = () => {
 			</h1>
 			<div className="flex flex-col gap-4 min-w-40 max-w-md">
 				<LocalizationSelect
+					localSystemConfig={localSystemConfig}
+					setLocalSystemConfig={setLocalSystemConfig}
+					setSystemConfigIsChanged={setSystemConfigIsChanged}
+				/>
+				<TimezoneSelect
 					localSystemConfig={localSystemConfig}
 					setLocalSystemConfig={setLocalSystemConfig}
 					setSystemConfigIsChanged={setSystemConfigIsChanged}

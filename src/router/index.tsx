@@ -4,7 +4,7 @@ import StrategyListPage from "../components/StrategyListPage";
 import BacktestPage from "../pages/backtest-page";
 import Dashboard from "../pages/Dashboard";
 import Login from "../pages/login";
-import SettingPage from "../pages/SettingPage";
+import SettingPage from "../pages/setting-page";
 import StrategyPage from "../pages/strategy-page";
 import TestPage from "../pages/TestPage/index";
 import TestRunningLogPage from "../pages/test-running-log-page";

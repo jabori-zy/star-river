@@ -15,22 +15,10 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import {
-	Command,
-	CommandEmpty,
-	CommandGroup,
-	CommandInput,
-	CommandItem,
-	CommandList,
-} from "@/components/ui/command";
-import {
-	Popover,
-	PopoverTrigger,
-} from "@/components/ui/popover";
-import * as PopoverPrimitive from "@radix-ui/react-popover";
+import { SelectWithSearch } from "@/components/select-with-search";
 import * as SelectPrimitive from "@radix-ui/react-select";
 import { cn } from "@/lib/utils";
-import { ChevronDownIcon, ChevronUpIcon, Check } from "lucide-react";
+import { ChevronUpIcon, ChevronDownIcon } from "lucide-react";
 import type { SelectedSymbol } from "@/types/node/kline-node";
 import { getSymbolList, getSupportKlineInterval } from "@/service/market";
 import type { MarketSymbol } from "@/types/market";
@@ -72,28 +60,6 @@ const DialogSelectContent: React.FC<React.ComponentProps<typeof SelectPrimitive.
 	);
 };
 
-// Non-portal PopoverContent to avoid focus conflicts in Dialog
-const DialogPopoverContent: React.FC<React.ComponentProps<typeof PopoverPrimitive.Content>> = ({
-	className,
-	children,
-	side = "bottom",
-	sideOffset = 0,
-	...props
-}) => {
-	return (
-		<PopoverPrimitive.Content
-			side={side}
-			sideOffset={sideOffset}
-			className={cn(
-				"z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-0 text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
-				className
-			)}
-			{...props}
-		>
-			{children}
-		</PopoverPrimitive.Content>
-	);
-};
 
 // Time interval value to label mapping
 const INTERVAL_LABEL_MAP: Record<string, string> = {
@@ -148,7 +114,6 @@ export const SymbolSelectDialog: React.FC<SymbolSelectDialogProps> = ({
 
     const [symbolList, setSymbolList] = useState<MarketSymbol[]>([]);
     const [supportKlineInterval, setSupportKlineInterval] = useState<string[]>([]);
-	const [symbolComboboxOpen, setSymbolComboboxOpen] = useState(false);
 
     useEffect(() => {
         if (accountId && isOpen) {
@@ -162,12 +127,6 @@ export const SymbolSelectDialog: React.FC<SymbolSelectDialogProps> = ({
         }
     }, [accountId, isOpen]);
 
-	// Close combobox when dialog closes
-	useEffect(() => {
-		if (!isOpen) {
-			setSymbolComboboxOpen(false);
-		}
-	}, [isOpen]);
 
 	return (
 		<Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -186,52 +145,19 @@ export const SymbolSelectDialog: React.FC<SymbolSelectDialogProps> = ({
 							Symbol
 						</Label>
 						<div className="col-span-3">
-							<Popover open={symbolComboboxOpen} onOpenChange={setSymbolComboboxOpen}>
-								<PopoverTrigger asChild>
-									<Button
-										id="symbol-name"
-										variant="outline"
-										aria-expanded={symbolComboboxOpen}
-										className={cn(
-											"w-full justify-between",
-											nameError ? "border-red-500" : ""
-										)}
-									>
-										{symbolName
-											? symbolList.find((symbol) => symbol.name === symbolName)?.name
-											: "Select Symbol"}
-										<ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-									</Button>
-								</PopoverTrigger>
-								<DialogPopoverContent className="w-[var(--radix-popover-trigger-width)]">
-									<Command>
-										<CommandInput placeholder="Search symbol" />
-										<CommandList>
-											<CommandEmpty>No symbol found.</CommandEmpty>
-											<CommandGroup>
-												{symbolList.map((symbol) => (
-													<CommandItem
-														key={symbol.name}
-														value={symbol.name}
-														onSelect={(currentValue) => {
-															onSymbolNameChange(currentValue === symbolName ? "" : currentValue);
-															setSymbolComboboxOpen(false);
-														}}
-													>
-														<Check
-															className={cn(
-																"mr-2 h-4 w-4",
-																symbolName === symbol.name ? "opacity-100" : "opacity-0"
-															)}
-														/>
-														{symbol.name}
-													</CommandItem>
-												))}
-											</CommandGroup>
-										</CommandList>
-									</Command>
-								</DialogPopoverContent>
-							</Popover>
+							<SelectWithSearch
+								id="symbol-name"
+								options={symbolList.map((symbol) => ({
+									value: symbol.name,
+									label: symbol.name,
+								}))}
+								value={symbolName}
+								onValueChange={onSymbolNameChange}
+								placeholder="Select Symbol"
+								searchPlaceholder="Search symbol"
+								emptyMessage="No symbol found."
+								error={!!nameError}
+							/>
 							{nameError && (
 								<p className="text-xs text-red-500">{nameError}</p>
 							)}

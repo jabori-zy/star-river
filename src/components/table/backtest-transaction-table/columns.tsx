@@ -2,22 +2,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import type { VirtualTransaction } from "@/types/transaction/virtual-transaction";
 import { TransactionSide, TransactionType } from "@/types/transaction";
-
-// 格式化时间显示
-const formatDateTime = (dateString: string): string => {
-	try {
-		return new Date(dateString).toLocaleString("zh-CN", {
-			year: "numeric",
-			month: "2-digit",
-			day: "2-digit",
-			hour: "2-digit",
-			minute: "2-digit",
-			second: "2-digit",
-		});
-	} catch {
-		return dateString;
-	}
-};
+import { DateTime } from "luxon";
 
 // 获取交易类型样式
 const getTransactionTypeStyle = (type: TransactionType): string => {
@@ -80,7 +65,10 @@ export const virtualTransactionColumns: ColumnDef<VirtualTransaction>[] = [
 	{
 		accessorKey: "transactionId",
 		header: "交易ID",
-		size: 80,
+		size: 50,
+		minSize: 50,
+		maxSize: 60,
+		enableResizing: false,
 		cell: ({ row }) => (
 			<div className="text-left truncate font-mono text-xs pl-2" title={String(row.getValue("transactionId"))}>
 				{row.getValue("transactionId")}
@@ -90,7 +78,10 @@ export const virtualTransactionColumns: ColumnDef<VirtualTransaction>[] = [
 	{
 		accessorKey: "orderId",
 		header: "订单ID",
-		size: 80,
+		size: 50,
+		minSize: 50,
+		maxSize: 60,
+		enableResizing: false,
 		cell: ({ row }) => (
 			<div className="text-left truncate font-mono text-xs" title={row.getValue("orderId")}>
 				{row.getValue("orderId")}
@@ -100,7 +91,10 @@ export const virtualTransactionColumns: ColumnDef<VirtualTransaction>[] = [
 	{
 		accessorKey: "positionId",
 		header: "仓位ID",
-		size: 80,
+		size: 50,
+		minSize: 50,
+		maxSize: 60,
+		enableResizing: false,
 		cell: ({ row }) => (
 			<div className="text-left truncate font-mono text-xs" title={row.getValue("positionId")}>
 				{row.getValue("positionId")}
@@ -238,7 +232,9 @@ export const virtualTransactionColumns: ColumnDef<VirtualTransaction>[] = [
 		header: "创建时间",
 		size: 140,
 		cell: ({ row }) => {
-			const timeStr = formatDateTime(row.getValue("createTime"));
+			const datetime = row.getValue("createTime") as string;
+			const timeStr = DateTime.fromISO(datetime).toFormat("yyyy-MM-dd HH:mm:ss");
+			
 			return (
 				<div className="text-sm font-mono truncate" title={timeStr}>
 					{timeStr}

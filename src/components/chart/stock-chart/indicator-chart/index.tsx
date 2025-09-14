@@ -7,7 +7,7 @@ import React, {
 import type { Subscription } from "rxjs";
 import type { AxisBase2D, SciChartSurface, XyDataSeries } from "scichart";
 import { SciChartReact, type TResolvedReturnType } from "scichart-react";
-import { createIndicatorStreamFromKey } from "@/hooks/obs/backtest-strategy-data-obs";
+import { createIndicatorStreamFromKey } from "@/hooks/obs/backtest-strategy-event-obs";
 import type {
 	IndicatorChartConfig,
 	KlineChartConfig,

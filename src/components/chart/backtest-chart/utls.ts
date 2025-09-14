@@ -5,6 +5,7 @@ import type { UTCTimestamp } from "lightweight-charts";
 import { LineStyle } from "lightweight-charts";
 import type { VirtualPosition } from "@/types/position";
 import { FuturesOrderSide } from "@/types/order";
+import { getChartAlignedUtcSeconds } from "@/utils/datetime-offset";
 
 
 
@@ -14,12 +15,17 @@ import { FuturesOrderSide } from "@/types/order";
 //一个虚拟订单转换为多个marker，为了换行
 export function virtualOrderToMarker(virtualOrder: VirtualOrder): OrderMarker[] {
     const markers: OrderMarker[] = [];
-    const timestampInSeconds = dayjs(virtualOrder.updateTime).unix() as UTCTimestamp;
+    const timestampInSeconds = getChartAlignedUtcSeconds(virtualOrder.updateTime) as UTCTimestamp;
 
-    const text = virtualOrder.orderSide === FuturesOrderSide.OPEN_LONG ? `Open Long(${virtualOrder.orderId}) # ${virtualOrder.quantity}` : 
-    virtualOrder.orderSide === FuturesOrderSide.OPEN_SHORT ? `Open Short(${virtualOrder.orderId}) # ${virtualOrder.quantity}` : virtualOrder.orderSide === FuturesOrderSide.CLOSE_LONG ? `Close Long(${virtualOrder.orderId}) # ${virtualOrder.quantity}` : `Close Short(${virtualOrder.orderId}) # ${virtualOrder.quantity}`;
+    const text = virtualOrder.orderSide === FuturesOrderSide.OPEN_LONG ? 
+        `Open Long(${virtualOrder.orderId}) # ${virtualOrder.quantity} @ ${virtualOrder.openPrice}` : 
+        virtualOrder.orderSide === FuturesOrderSide.OPEN_SHORT ? 
+        `Open Short(${virtualOrder.orderId}) # ${virtualOrder.quantity} @ ${virtualOrder.openPrice}` : 
+        virtualOrder.orderSide === FuturesOrderSide.CLOSE_LONG ? 
+        `Close Long(${virtualOrder.orderId}) # ${virtualOrder.quantity} @ ${virtualOrder.openPrice}` : 
+        `Close Short(${virtualOrder.orderId}) # ${virtualOrder.quantity} @ ${virtualOrder.openPrice}`;
     
-    const color = virtualOrder.orderSide === FuturesOrderSide.OPEN_LONG ? "#14E031" : 
+    const color = virtualOrder.orderSide === FuturesOrderSide.OPEN_LONG ? "#14E031" :
     virtualOrder.orderSide === FuturesOrderSide.OPEN_SHORT ? "#FF0000" : 
     virtualOrder.orderSide === FuturesOrderSide.CLOSE_LONG ? "#FF0000" : "#14E031";
 
@@ -41,14 +47,14 @@ export function virtualOrderToMarker(virtualOrder: VirtualOrder): OrderMarker[] 
     };
 
     // 第二行，用于显示价格
-    const marker2: OrderMarker = {
-        time: timestampInSeconds,
-        position,
-        shape,
-        color,
-        text: `@ ${virtualOrder.openPrice}`,
-        size: 0,
-    };
+    // const marker2: OrderMarker = {
+    //     time: timestampInSeconds,
+    //     position,
+    //     shape,
+    //     color,
+    //     text: `@ ${virtualOrder.openPrice}`,
+    //     size: 0,
+    // };
 
     // 显示节点id
     // const marker3: OrderMarker = {
@@ -61,7 +67,7 @@ export function virtualOrderToMarker(virtualOrder: VirtualOrder): OrderMarker[] 
     // };
 
     markers.push(marker1);
-    markers.push(marker2);
+    // markers.push(marker2);
     // markers.push(marker3);
     return markers;
 }
