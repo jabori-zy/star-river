@@ -1,11 +1,17 @@
 const { ipcMain, BrowserWindow } = require("electron");
-const { createBacktestWindow, closeBacktestWindow, refreshAllBacktestWindows } = require("./window-manager.cjs");
+const { createBacktestWindow, closeBacktestWindow, checkOrOpenBacktestWindow, refreshAllBacktestWindows } = require("./window-manager.cjs");
 
 const setupIpcHandlers = () => {
 	// 监听来自渲染进程的消息
 	ipcMain.handle("open-backtest-window", (_, strategyId) => {
 		createBacktestWindow(strategyId);
 		return true;
+	});
+
+	// 检查或打开回测窗口（如果存在则移动到前台，否则创建新窗口）
+	ipcMain.handle("check-or-open-backtest-window", (_, strategyId) => {
+		const result = checkOrOpenBacktestWindow(strategyId);
+		return result;
 	});
 
 	// 关闭指定策略的回测窗口

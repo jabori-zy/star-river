@@ -5,7 +5,7 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import type { ImperativePanelHandle } from "react-resizable-panels";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { stopStrategy } from "@/service/strategy";
+// import { stopStrategy } from "@/service/strategy"; // 注释掉 - 不再停止策略
 
 import {
 	pause,
@@ -119,14 +119,15 @@ export default function BacktestPage() {
 	// 处理退出确认
 	const handleQuit = async () => {
 		try {
-			if (strategyId) {
-				console.log("正在停止策略...");
-				await stopStrategy(strategyId);
-				console.log("策略已停止");
-			}
+			// 注释掉停止策略的逻辑 - 只关闭窗口，不停止策略
+			// if (strategyId) {
+			// 	console.log("正在停止策略...");
+			// 	await stopStrategy(strategyId);
+			// 	console.log("策略已停止");
+			// }
 			return true; // 返回 true 表示可以关闭窗口
 		} catch (error) {
-			console.error("停止策略失败:", error);
+			console.error("关闭窗口失败:", error);
 			return true; // 即使失败也关闭窗口
 		}
 	};

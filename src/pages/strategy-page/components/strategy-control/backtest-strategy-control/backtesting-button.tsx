@@ -1,4 +1,4 @@
-import { Loader2, Square, RefreshCw, ChevronDown } from "lucide-react";
+import { Loader2, Square, RefreshCw, ChevronDown, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -44,6 +44,38 @@ async function closeBacktestWindow(strategyId: number) {
 	}
 }
 
+// 打开回测窗口（检查是否已存在，如果存在则移动到前台，否则创建新窗口）
+async function openBacktestWindow(strategyId: number): Promise<{ created: boolean; focused: boolean }> {
+	try {
+		if (isElectronEnvironment()) {
+			// Electron环境：通过IPC检查或打开窗口
+			const electronModule = window.require("electron");
+			if (electronModule?.ipcRenderer) {
+				const result = await electronModule.ipcRenderer.invoke(
+					"check-or-open-backtest-window", 
+					strategyId
+				) as { created: boolean; focused: boolean };
+				if (result.created) {
+					console.log(`新回测窗口已创建: ${strategyId}`);
+				} else if (result.focused) {
+					console.log(`回测窗口已移动到前台: ${strategyId}`);
+				}
+				return result;
+			}
+		} else {
+			// 浏览器环境：打开新标签页
+			const backtestUrl = `/backtest/${strategyId}`;
+			window.open(backtestUrl, "_blank", "width=1200,height=800");
+			return { created: true, focused: false };
+		}
+		return { created: false, focused: false };
+	} catch (error) {
+		console.error("打开回测窗口失败:", error);
+		toast.error("打开回测窗口失败");
+		return { created: false, focused: false };
+	}
+}
+
 // 停止策略
 async function requestStopStrategy(strategyId: number | undefined) {
 	if (!strategyId) return;
@@ -84,6 +116,14 @@ const BacktestingButton: React.FC<BacktestingButtonProps> = ({ strategyId }) => 
 		}
 	};
 
+	const handleOpenBacktestWindow = async () => {
+		if (!strategyId) {
+			toast.error("策略ID无效");
+			return;
+		}
+		await openBacktestWindow(strategyId);
+	};
+
 	const handleReload = () => {
 		// 重新加载功能留空
 		console.log("重新加载功能待实现");
@@ -121,6 +161,11 @@ const BacktestingButton: React.FC<BacktestingButtonProps> = ({ strategyId }) => 
 					>
 						<Square className="h-4 w-4 mr-2" />
 						结束策略
+					</DropdownMenuItem>
+					<DropdownMenuSeparator />
+					<DropdownMenuItem onClick={handleOpenBacktestWindow}>
+						<ExternalLink className="h-4 w-4 mr-2" />
+						打开回测窗口
 					</DropdownMenuItem>
 					<DropdownMenuSeparator />
 					<DropdownMenuItem onClick={handleReload}>

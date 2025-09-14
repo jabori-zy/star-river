@@ -82,6 +82,24 @@ const closeBacktestWindow = (strategyId) => {
 	}
 };
 
+// 检查指定策略的回测窗口是否存在并处理（打开或移动到前台）
+const checkOrOpenBacktestWindow = (strategyId) => {
+	const existingWindow = strategyWindows.get(strategyId);
+	
+	if (existingWindow && !existingWindow.isDestroyed()) {
+		// 窗口存在，移动到前台
+		console.log(`回测窗口已存在，移动到前台: strategyId=${strategyId}`);
+		existingWindow.show();
+		existingWindow.focus();
+		return { created: false, focused: true };
+	} else {
+		// 窗口不存在，创建新窗口
+		console.log(`回测窗口不存在，创建新窗口: strategyId=${strategyId}`);
+		createBacktestWindow(strategyId);
+		return { created: true, focused: false };
+	}
+};
+
 // 刷新所有回测窗口
 const refreshAllBacktestWindows = () => {
 	let refreshedCount = 0;
@@ -138,5 +156,6 @@ module.exports = {
 	createWindow,
 	createBacktestWindow,
 	closeBacktestWindow,
+	checkOrOpenBacktestWindow,
 	refreshAllBacktestWindows,
 };
