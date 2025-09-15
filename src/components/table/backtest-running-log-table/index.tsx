@@ -202,10 +202,11 @@ export function BacktestRunningLogTable({
 														className="px-3 py-2 bg-muted/30"
 													>
 														<div className="py-2 px-4">
-															<code>
-																{JSON.stringify(row.original.detail, null, 2)}
-															</code>
-
+															<pre className="text-sm whitespace-pre-wrap overflow-x-auto bg-gray-50 dark:bg-gray-800 p-3 rounded border">
+																<code>
+																	{JSON.stringify(row.original.detail, null, 2)}
+																</code>
+															</pre>
 														</div>
 													</TableCell>
 												</TableRow>

@@ -1,11 +1,12 @@
-import { type OpenPositionPriceLine, type OrderMarker, type StopLossPriceLine, type TakeProfitPriceLine } from "@/types/chart";
-import type { VirtualOrder } from "@/types/order";
-import dayjs from "dayjs";
+import type { OpenPositionPriceLine, OrderMarker, StopLossPriceLine, TakeProfitPriceLine } from "@/types/chart";
+import type { VirtualOrder} from "@/types/order";
 import type { UTCTimestamp } from "lightweight-charts";
 import { LineStyle } from "lightweight-charts";
 import type { VirtualPosition } from "@/types/position";
-import { FuturesOrderSide } from "@/types/order";
+import { FuturesOrderSide, OrderType } from "@/types/order";
 import { getChartAlignedUtcSeconds } from "@/utils/datetime-offset";
+import type { LimitOrderPriceLine } from "@/types/chart";
+
 
 
 
@@ -113,6 +114,22 @@ export function virtualPositionToStopLossPriceLine(virtualPosition: VirtualPosit
         lineStyle: LineStyle.Dashed,
         axisLabelVisible: true,
         title: "Stop Loss",
+    };
+}
+
+
+export function virtualOrderToLimitOrderPriceLine(virtualOrder: VirtualOrder): LimitOrderPriceLine | null {
+    if (virtualOrder.orderType !== OrderType.LIMIT) {
+        return null;
+    }
+    return {
+        id: `${virtualOrder.orderId.toString()}-limit`,
+        price: virtualOrder.openPrice,
+        color: virtualOrder.orderSide === FuturesOrderSide.OPEN_LONG ? "#00FF00" : "#FF0000",
+        lineWidth: 1,
+        lineStyle: LineStyle.Dashed,
+        axisLabelVisible: true,
+        title: `Limit Order ${virtualOrder.orderId}`,
     };
 }
 

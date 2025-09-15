@@ -48,7 +48,8 @@ export const useBacktestChart = ({
 		initChartData,
 		getKlineData,
 		getOrderMarkers,
-		getPositionPriceLine: getOrderPriceLine,
+		getPositionPriceLine,
+		getLimitOrderPriceLine,
 		initKlineData,
 		initIndicatorData,
 		setChartRef,
@@ -470,12 +471,19 @@ export const useBacktestChart = ({
 			}
 
 			// 创建订单价格线
-			const orderPriceLine = getOrderPriceLine();
-			if (orderPriceLine.length > 0) {
-				orderPriceLine.forEach((priceLine) => {
+			const positionPriceLine = getPositionPriceLine();
+			if (positionPriceLine.length > 0) {
+				positionPriceLine.forEach((priceLine) => {
 					candleSeries.createPriceLine(priceLine);
 				});
 			}
+			const limitOrderPriceLine = getLimitOrderPriceLine();
+			if (limitOrderPriceLine.length > 0) {
+				limitOrderPriceLine.forEach((priceLine) => {
+					candleSeries.createPriceLine(priceLine);
+				});
+			}
+
 
 
 			// 创建指标系列
@@ -504,7 +512,8 @@ export const useBacktestChart = ({
 		createIndicatorSeries,
 		setOrderMarkerSeriesRef,
 		getOrderMarkers,
-		getOrderPriceLine,
+		getPositionPriceLine,
+		getLimitOrderPriceLine,
 	]);
 
 	/**

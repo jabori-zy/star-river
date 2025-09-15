@@ -45,6 +45,8 @@ export const getOrderSideLabel = (side: FuturesOrderSide): string => {
 	const labels = {
 		[FuturesOrderSide.OPEN_LONG]: "多",
 		[FuturesOrderSide.OPEN_SHORT]: "空",
+		[FuturesOrderSide.CLOSE_LONG]: "平多",
+		[FuturesOrderSide.CLOSE_SHORT]: "平空",
 	};
 	return labels[side] || side;
 };

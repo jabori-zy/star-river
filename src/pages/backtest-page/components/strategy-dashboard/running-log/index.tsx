@@ -68,7 +68,6 @@ const RunningLog = forwardRef<RunningLogRef, RunningLogProps>(
 			const subscription = logStream.subscribe((logEvent) => {
 				// 只处理当前策略的日志
 				if (logEvent.strategyId === strategyId) {
-					console.log('收到运行日志:', logEvent);
 					setLogData((prev) => {
 						// 检查是否已存在相同的日志（基于timestamp和message防重复）
 						const exists = prev.some(

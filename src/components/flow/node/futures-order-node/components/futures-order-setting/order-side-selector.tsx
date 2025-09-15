@@ -19,12 +19,12 @@ interface OrderSideSelectorProps {
 const ORDER_SIDE_OPTIONS = [
 	{ value: FuturesOrderSide.OPEN_LONG, label: "开多", color: "text-green-600" },
 	{ value: FuturesOrderSide.OPEN_SHORT, label: "开空", color: "text-red-600" },
-	{ value: FuturesOrderSide.CLOSE_LONG, label: "平多", color: "text-red-600" },
-	{
-		value: FuturesOrderSide.CLOSE_SHORT,
-		label: "平空",
-		color: "text-green-600",
-	},
+	// { value: FuturesOrderSide.CLOSE_LONG, label: "平多", color: "text-red-600" },
+	// {
+	// 	value: FuturesOrderSide.CLOSE_SHORT,
+	// 	label: "平空",
+	// 	color: "text-green-600",
+	// },
 ];
 
 const OrderSideSelector: React.FC<OrderSideSelectorProps> = ({

@@ -113,6 +113,9 @@ const OrderHandleItem: React.FC<OrderHandleItemProps> = ({
 				{/* 订单状态 */}
 				<div className="flex flex-col gap-2 items-end">
 					<div className="text-xs text-muted-foreground">
+						所有状态
+					</div>
+					<div className="text-xs text-muted-foreground">
 						{getOrderStatusLabel(OrderStatus.CREATED)}
 					</div>
 					{!isMarketOrder && (

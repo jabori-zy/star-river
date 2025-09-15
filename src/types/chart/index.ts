@@ -118,6 +118,20 @@ export type OpenPositionPriceLine = {
 export type PositionPriceLine = TakeProfitPriceLine | StopLossPriceLine | OpenPositionPriceLine;
 
 
+/**
+ * 限价单价格线
+ */
+export type LimitOrderPriceLine = {
+	id: string;
+	price: number;
+	color: string;
+	lineWidth: LineWidth;
+	lineStyle: LineStyle,
+	axisLabelVisible: boolean,
+	title: string;
+};
+
+
 
 
 
