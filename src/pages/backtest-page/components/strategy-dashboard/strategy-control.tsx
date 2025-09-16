@@ -12,14 +12,11 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useBacktestStrategyControlStore } from "@/store/use-backtest-strategy-control-store";
 
 
 
 interface StrategyControlProps {
-	isRunning: boolean;
-	onPause: () => void;
-	onPlay: () => void;
-	onPlayOne: () => void;
 	onStop: () => void;
 }
 
@@ -27,12 +24,15 @@ interface StrategyControlProps {
 
 
 const StrategyControl: React.FC<StrategyControlProps> = ({
-	isRunning,
-	onPause,
-	onPlay,
-	onPlayOne,
 	onStop,
 }) => {
+	// 分别订阅状态，确保组件正确响应变化
+	const isRunning = useBacktestStrategyControlStore((state) => state.isRunning);
+	const isPlayFinished = useBacktestStrategyControlStore((state) => state.isPlayFinished);
+	const onPlay = useBacktestStrategyControlStore((state) => state.onPlay);
+	const onPause = useBacktestStrategyControlStore((state) => state.onPause);
+	const onPlayOne = useBacktestStrategyControlStore((state) => state.onPlayOne);
+
 	return (
 		<TooltipProvider>
 			<div className="flex items-center gap-2">
@@ -56,6 +56,7 @@ const StrategyControl: React.FC<StrategyControlProps> = ({
                 <TooltipTrigger asChild>
                     <Button
                         variant="outline"
+                        disabled={isPlayFinished}
                         onClick={() => {
                             // 如果正在运行，则暂停
                             if (isRunning) {
@@ -81,7 +82,7 @@ const StrategyControl: React.FC<StrategyControlProps> = ({
                 <TooltipTrigger asChild>
                     <Button
                         variant="outline"
-                        disabled={isRunning}
+                        disabled={isRunning || isPlayFinished}
                         onClick={() => onPlayOne()}
                     >
                         <ArrowRightToLine className="w-4 h-4" />

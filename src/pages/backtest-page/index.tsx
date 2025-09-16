@@ -5,28 +5,21 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import type { ImperativePanelHandle } from "react-resizable-panels";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-// import { stopStrategy } from "@/service/strategy"; // 注释掉 - 不再停止策略
+// import { stopStrategy } from "@/service/strategy"; // 注释�?- 不再停止策略
 
-import {
-	pause,
-	play,
-	playOne,
-	stop,
-} from "@/service/backtest-strategy/backtest-strategy-control";
 import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
+import { useBacktestStrategyControlStore } from "@/store/use-backtest-strategy-control-store";
 import BacktestWindowHeader from "../../components/backtest/backtest-window-header";
 // import useBacktestStrategySSE from "../../hooks/sse/use-backtest-strategy-sse";
 import StrategyDashboard, { type StrategyDashboardRef } from "./components/strategy-dashboard";
 import ChartContainer from "./components/chart-container";
-import { resetAllBacktestChartStore } from "@/components/chart/backtest-chart/backtest-chart-store";
-import { resetAllBacktestStatsChartStore } from "@/components/chart/backtest-stats-chart/backtest-stats-chart-store";
 import { calculateDashboardSize, getDashboardPanelConfig } from "./utils";
 
 export default function BacktestPage() {
 	const navigate = useNavigate();
 	const params = useParams<{ strategyId: string }>();
 
-	// 使用zustand store
+	// 使用zustand stores
 	const {
 		chartConfig,
 		isLoading,
@@ -35,6 +28,13 @@ export default function BacktestPage() {
 		setStrategyId,
 		loadChartConfig,
 	} = useBacktestChartConfigStore();
+
+	// 分别订阅所需的状态和方法
+	const isRunning = useBacktestStrategyControlStore((state) => state.isRunning);
+	const onStop = useBacktestStrategyControlStore((state) => state.onStop);
+	const setControlStrategyId = useBacktestStrategyControlStore((state) => state.setStrategyId);
+	const startEventListening = useBacktestStrategyControlStore((state) => state.startEventListening);
+	const stopEventListening = useBacktestStrategyControlStore((state) => state.stopEventListening);
 
 	// 从URL参数获取strategyId
 	const getStrategyIdFromParams = useCallback((): number | null => {
@@ -45,10 +45,9 @@ export default function BacktestPage() {
 		return null;
 	}, [params]);
 
-	const [isRunning, setIsRunning] = useState<boolean>(false); // 是否正在回测
 	const [activeTab, setActiveTab] = useState<string | undefined>(undefined); // 当前选中的tab
 	const [lastActiveTab, setLastActiveTab] = useState<string | undefined>(undefined); // 上一次选中的tab
-	const [isDashboardExpanded, setIsDashboardExpanded] = useState<boolean>(false); // dashboard是否处于展开状态
+	const [isDashboardExpanded, setIsDashboardExpanded] = useState<boolean>(false); // dashboard是否处于展开状�?
 	const [expandTrigger, setExpandTrigger] = useState<'tab' | 'drag' | null>(null); // 展开触发方式
 	const dashboardPanelRef = useRef<ImperativePanelHandle>(null); // dashboard面板引用
 	const chartContainerPanelRef = useRef<ImperativePanelHandle>(null); // 图表容器面板引用
@@ -71,8 +70,9 @@ export default function BacktestPage() {
 		const urlStrategyId = getStrategyIdFromParams();
 		if (urlStrategyId !== strategyId) {
 			setStrategyId(urlStrategyId);
+			setControlStrategyId(urlStrategyId);
 		}
-	}, [getStrategyIdFromParams, setStrategyId, strategyId]);
+	}, [getStrategyIdFromParams, setStrategyId, setControlStrategyId, strategyId]);
 
 	// 当strategyId变化时，重新加载配置
 	useEffect(() => {
@@ -104,17 +104,33 @@ export default function BacktestPage() {
 			}
 		};
 
+
 		// 初始计算
 		handleResize();
 
-		// 添加事件监听器
+		// 添加事件监听�?
 		window.addEventListener('resize', handleResize);
 
-		// 清理事件监听器
+		// 清理事件监听�?
 		return () => {
 			window.removeEventListener('resize', handleResize);
 		};
 	}, [isDashboardExpanded]);
+
+
+	// k线播放完毕监听
+	useEffect(() => {
+		if (isRunning) {
+			startEventListening();
+		} else {
+			stopEventListening();
+		}
+
+		// 组件卸载时清理
+		return () => {
+			stopEventListening();
+		};
+	}, [isRunning, startEventListening, stopEventListening]);
 
 	// 处理退出确认
 	const handleQuit = async () => {
@@ -139,7 +155,7 @@ export default function BacktestPage() {
 				<Alert variant="destructive" className="max-w-md mb-4">
 					<AlertCircle className="h-4 w-4" />
 					<AlertDescription>
-						缺少或无效的策略ID参数。请从策略页面正确启动回测。
+						缺少或无效的策略ID参数。请从策略页面正确启动回测
 					</AlertDescription>
 				</Alert>
 				<Button
@@ -172,29 +188,12 @@ export default function BacktestPage() {
 		);
 	}
 
-	// 播放策略
-	const onPlay = () => {
-		setIsRunning(true);
-		play(strategyId);
-	};
-	const onPause = () => {
-		setIsRunning(false);
-		pause(strategyId);
-	};
-	const onStop = () => {
-		setIsRunning(false);
-		stop(strategyId);
-		// 注意：现在使用zustand管理状态，不再需要手动清空图表数据
-		resetAllBacktestChartStore();
-		resetAllBacktestStatsChartStore();
-		// 清空订单记录
+	// 处理停止时的数据清理
+	const handleClearData = () => {
 		strategyDashboardRef.current?.clearOrderRecords();
 		strategyDashboardRef.current?.clearPositionRecords();
 		strategyDashboardRef.current?.clearTransactionRecords();
 		strategyDashboardRef.current?.clearRunningLogs();
-	};
-	const onPlayOne = () => {
-		playOne(strategyId);
 	};
 
 	// 处理面板展开
@@ -292,11 +291,7 @@ export default function BacktestPage() {
 							<StrategyDashboard
 								ref={strategyDashboardRef}
 								strategyId={strategyId}
-								isRunning={isRunning}
-								onPlay={onPlay}
-								onPlayOne={onPlayOne}
-								onPause={onPause}
-								onStop={onStop}
+								onStop={() => onStop(handleClearData)}
 								onCollapsePanel={handleCollapsePanel}
 								onTabChange={handleTabChange}
 								activeTab={activeTab}
@@ -309,3 +304,4 @@ export default function BacktestPage() {
 		</div>
 	);
 }
+

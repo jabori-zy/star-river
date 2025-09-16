@@ -22,10 +22,6 @@ import StrategyStats from "./strategy-stats";
 
 interface BacktestInfoTabsProps {
 	strategyId: number;
-	isRunning: boolean;
-	onPause: () => void;
-	onPlay: () => void;
-	onPlayOne: () => void;
 	onStop: () => void;
 	addChart: (klineCacheKeyStr: string, chartName: string) => void;
 	chartConfig: BacktestStrategyChartConfig;
@@ -50,10 +46,6 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 	(
 		{
 			strategyId,
-			isRunning,
-			onPause,
-			onPlay,
-			onPlayOne,
 			onStop,
 			addChart,
 			chartConfig,
@@ -184,10 +176,6 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 					{/* 中央：播放控制组件 - 真正居中 */}
 					<div className="flex justify-center">
 						<StrategyControl
-							isRunning={isRunning}
-							onPause={onPause}
-							onPlay={onPlay}
-							onPlayOne={onPlayOne}
 							onStop={onStop}
 						/>
 					</div>

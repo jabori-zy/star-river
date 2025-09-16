@@ -1,4 +1,3 @@
-import type React from "react";
 import { useRef, useImperativeHandle, forwardRef } from "react";
 
 import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
@@ -6,10 +5,6 @@ import BacktestInfoTabs, { type BacktestInfoTabsRef } from "./backtest-info-tab"
 
 interface StrategyDashboardProps {
 	strategyId: number;
-	isRunning: boolean;
-	onPlay: () => void;
-	onPlayOne: () => void;
-	onPause: () => void;
 	onStop: () => void;
 	activeTab?: string;
 	onTabChange?: (value: string) => void;
@@ -26,10 +21,6 @@ export interface StrategyDashboardRef {
 
 const StrategyDashboard = forwardRef<StrategyDashboardRef, StrategyDashboardProps>(({
 	strategyId,
-	isRunning,
-	onPlay,
-	onPlayOne,
-	onPause,
 	onStop,
 	activeTab,
 	onTabChange,
@@ -58,18 +49,14 @@ const StrategyDashboard = forwardRef<StrategyDashboardRef, StrategyDashboardProp
 	const { chartConfig, isSaving, updateLayout, addChart, saveChartConfig } = useBacktestChartConfigStore();
 	return (
 		<div className="flex flex-col h-full pb-4">
-				<BacktestInfoTabs 
+				<BacktestInfoTabs
 					ref={backtestInfoTabsRef}
 					strategyId={strategyId}
-					isRunning={isRunning} 
-					onPause={onPause} 
-					onPlay={onPlay} 
-					onPlayOne={onPlayOne} 
-					onStop={onStop} 
-					addChart={addChart} 
-					chartConfig={chartConfig} 
-					saveChartConfig={saveChartConfig} 
-					isSaving={isSaving} 
+					onStop={onStop}
+					addChart={addChart}
+					chartConfig={chartConfig}
+					saveChartConfig={saveChartConfig}
+					isSaving={isSaving}
 					updateLayout={updateLayout}
 					activeTab={activeTab}
 					onTabChange={onTabChange}
