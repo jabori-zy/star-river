@@ -1,7 +1,7 @@
 import React from "react";
 import AccountSelector from "@/components/flow/account-selector";
 import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
-import { useUpdateSimulateConfig } from "@/hooks/node/variable-node";
+import { useUpdateSimulateConfig } from "@/hooks/node-config/variable-node";
 import type {
 	VariableConfig,
 	VariableNodeSimulateConfig,

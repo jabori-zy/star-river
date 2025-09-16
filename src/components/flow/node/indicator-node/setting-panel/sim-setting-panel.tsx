@@ -5,7 +5,7 @@ import type { SettingProps } from "@/components/flow/base/BasePanel/setting-pane
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
-import { useUpdateLiveConfig } from "@/hooks/node/indicator-node/use-update-live-config";
+import { useUpdateLiveConfig } from "@/hooks/node-config/indicator-node/use-update-live-config";
 import type { IndicatorNodeData } from "@/types/node/indicator-node";
 import { TradeMode } from "@/types/strategy";
 

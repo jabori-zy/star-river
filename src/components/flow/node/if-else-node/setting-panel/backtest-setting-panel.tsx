@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import useStrategyWorkflow, {
 	type VariableItem,
 } from "@/hooks/flow/use-strategy-workflow";
-import { useUpdateBacktestConfig } from "@/hooks/node/if-else-node/use-update-backtest-config";
+import { useUpdateBacktestConfig } from "@/hooks/node-config/if-else-node/use-update-backtest-config";
 import {
 	type CaseItem,
 	type IfElseNodeData,

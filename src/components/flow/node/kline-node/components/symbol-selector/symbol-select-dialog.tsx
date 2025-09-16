@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -97,6 +97,9 @@ interface SymbolSelectDialogProps {
 	onSymbolNameChange: (value: string) => void;
 	onSymbolIntervalChange: (value: string) => void;
 	onSave: () => void;
+	// 添加原始保存的值，用于比较
+	originalSymbolName?: string;
+	originalSymbolInterval?: string;
 }
 
 export const SymbolSelectDialog: React.FC<SymbolSelectDialogProps> = ({
@@ -110,6 +113,8 @@ export const SymbolSelectDialog: React.FC<SymbolSelectDialogProps> = ({
 	onSymbolNameChange,
 	onSymbolIntervalChange,
 	onSave,
+	originalSymbolName = '',
+	originalSymbolInterval = '',
 }) => {
 
     const [symbolList, setSymbolList] = useState<MarketSymbol[]>([]);
@@ -127,9 +132,20 @@ export const SymbolSelectDialog: React.FC<SymbolSelectDialogProps> = ({
         }
     }, [accountId, isOpen]);
 
+    // 判断当前值是否与原始保存值相同
+    // 如果是编辑模式，使用editingSymbol的值；否则使用传入的original值
+    const savedSymbolName = editingSymbol?.symbol || originalSymbolName;
+    const savedSymbolInterval = editingSymbol?.interval || originalSymbolInterval;
+
+    const hasChanges = symbolName !== savedSymbolName ||
+                       symbolInterval !== savedSymbolInterval;
+
+    // Save按钮是否可用：没有错误 && 有变化 && 表单填写完整
+    const isSaveDisabled = !!nameError || !hasChanges || !symbolName.trim();
+
 
 	return (
-		<Dialog open={isOpen} onOpenChange={onOpenChange}>
+		<Dialog open={isOpen} onOpenChange={onOpenChange} modal={false}>
 			<DialogContent className="sm:max-w-[425px]">
 				<DialogHeader>
 					<DialogTitle>
@@ -192,7 +208,9 @@ export const SymbolSelectDialog: React.FC<SymbolSelectDialogProps> = ({
 					<Button variant="outline" onClick={() => onOpenChange(false)}>
 						Cancel
 					</Button>
-					<Button onClick={onSave}>Save</Button>
+					<Button onClick={onSave} disabled={isSaveDisabled}>
+						Save
+					</Button>
 				</DialogFooter>
 			</DialogContent>
 		</Dialog>

@@ -3,8 +3,8 @@ import { Play } from "lucide-react";
 import { useEffect, useRef } from "react";
 import type { BaseHandleProps } from "@/components/flow/base/BaseHandle";
 import BaseNode from "@/components/flow/base/BaseNode";
-import { useUpdateBacktestConfig } from "@/hooks/node/kline-node/use-update-backtest-config";
-import { useUpdateLiveConfig } from "@/hooks/node/kline-node/use-update-live-config";
+import { useUpdateBacktestConfig } from "@/hooks/node-config/kline-node/use-update-backtest-config";
+import { useUpdateLiveConfig } from "@/hooks/node-config/kline-node/use-update-live-config";
 import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
 import useTradingModeStore from "@/store/useTradingModeStore";
 import {

@@ -4,7 +4,7 @@ import type { SettingProps } from "@/components/flow/base/BasePanel/setting-pane
 // import { getNodeDefaultInputHandleId, NodeType } from "@/types/node/index";
 import FileUpload from "@/components/ui/file-upload";
 import { Label } from "@/components/ui/label";
-import { useUpdateBacktestConfig } from "@/hooks/node/kline-node/use-update-backtest-config";
+import { useUpdateBacktestConfig } from "@/hooks/node-config/kline-node/use-update-backtest-config";
 import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
 import type { KlineNodeData } from "@/types/node/kline-node";
 import {

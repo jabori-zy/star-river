@@ -89,7 +89,7 @@ export const updateConnectedKlineNodes = (
 					backtestConfig: {
 						...klineData.backtestConfig,
 						exchangeConfig: {
-							...klineData.backtestConfig?.exchangeConfig,
+							...klineData.backtestConfig?.exchangeModeConfig,
 							timeRange: newTimeRange,
 						},
 					},
@@ -131,7 +131,7 @@ export const cleanupInvalidDataSources = (
 		if (isConnectedKlineNode && node.type === "klineNode") {
 			const klineData = node.data as KlineNodeData;
 			const currentDataSource =
-				klineData.backtestConfig?.exchangeConfig?.selectedAccount;
+				klineData.backtestConfig?.exchangeModeConfig?.selectedAccount;
 
 			// 检查当前数据源是否仍然有效
 			if (
@@ -149,8 +149,8 @@ export const cleanupInvalidDataSources = (
 						...klineData,
 						backtestConfig: {
 							...klineData.backtestConfig,
-							exchangeConfig: {
-								...klineData.backtestConfig?.exchangeConfig,
+							exchangeModeConfig: {
+								...klineData.backtestConfig?.exchangeModeConfig,
 								selectedDataSource: undefined, // 清空无效的数据源
 								selectedSymbols: [], // 同时清空交易品种配置
 							},
@@ -161,6 +161,65 @@ export const cleanupInvalidDataSources = (
 		}
 		return node;
 	});
+};
+
+// 处理startNode变化的逻辑
+export const handleStartNodeChange = (
+	oldNode: Node,
+	newNode: Node,
+	nodes: Node[],
+	edges: Edge[],
+): Node[] => {
+	const startNodeId = newNode.id;
+	const oldStartData = oldNode.data as StartNodeData;
+	const newStartData = newNode.data as StartNodeData;
+
+	// 检查回测配置中的时间范围是否发生变化
+	const oldTimeRange =
+		oldStartData?.backtestConfig?.exchangeModeConfig?.timeRange;
+	const newTimeRange =
+		newStartData?.backtestConfig?.exchangeModeConfig?.timeRange;
+
+	// 检查数据源列表是否发生变化
+	const oldDataSources =
+		oldStartData?.backtestConfig?.exchangeModeConfig?.selectedAccounts;
+	const newDataSources =
+		newStartData?.backtestConfig?.exchangeModeConfig?.selectedAccounts;
+
+	let updatedNodes = nodes;
+	let hasChanges = false;
+
+	// 处理时间范围变化
+	if (hasTimeRangeChanged(oldTimeRange, newTimeRange) && newTimeRange) {
+		console.log("StartNode timeRange changed:", {
+			oldTimeRange,
+			newTimeRange,
+		});
+		updatedNodes = updateConnectedKlineNodes(
+			startNodeId,
+			newTimeRange,
+			updatedNodes,
+			edges,
+		);
+		hasChanges = true;
+	}
+
+	// 处理数据源列表变化
+	if (hasDataSourceListChanged(oldDataSources, newDataSources)) {
+		console.log("StartNode data sources changed:", {
+			oldDataSources,
+			newDataSources,
+		});
+		updatedNodes = cleanupInvalidDataSources(
+			startNodeId,
+			newDataSources || [],
+			updatedNodes,
+			edges,
+		);
+		hasChanges = true;
+	}
+
+	return hasChanges ? updatedNodes : nodes;
 };
 
 // 处理节点变化的主要逻辑
@@ -175,64 +234,14 @@ export const handleNodeChanges = (
 	// 检查是否有startNode的数据发生变化
 	for (const change of changes) {
 		if (change.type === "replace" && change.item.type === "startNode") {
-			const startNodeId = change.item.id;
-			const oldNode = currentNodes.find((n) => n.id === startNodeId);
+			const oldNode = currentNodes.find((n) => n.id === change.item.id);
 			const newNode = change.item;
 
 			if (oldNode && newNode) {
-				const oldStartData = oldNode.data as StartNodeData;
-				const newStartData = newNode.data as StartNodeData;
-
-				// 检查回测配置中的时间范围是否发生变化
-				const oldTimeRange =
-					oldStartData?.backtestConfig?.exchangeConfig?.timeRange;
-				const newTimeRange =
-					newStartData?.backtestConfig?.exchangeConfig?.timeRange;
-
-				// 检查数据源列表是否发生变化
-				const oldDataSources =
-					oldStartData?.backtestConfig?.exchangeConfig?.selectAccount;
-				const newDataSources =
-					newStartData?.backtestConfig?.exchangeConfig?.selectAccount;
-
-				let hasChanges = false;
-
-				// 处理时间范围变化
-				if (hasTimeRangeChanged(oldTimeRange, newTimeRange) && newTimeRange) {
-					console.log("StartNode timeRange changed:", {
-						oldTimeRange,
-						newTimeRange,
-					});
-					updatedNodes = updateConnectedKlineNodes(
-						startNodeId,
-						newTimeRange,
-						updatedNodes,
-						edges,
-					);
-					hasChanges = true;
-				}
-
-				// 处理数据源列表变化
-				if (hasDataSourceListChanged(oldDataSources, newDataSources)) {
-					console.log("StartNode data sources changed:", {
-						oldDataSources,
-						newDataSources,
-					});
-					updatedNodes = cleanupInvalidDataSources(
-						startNodeId,
-						newDataSources || [],
-						updatedNodes,
-						edges,
-					);
-					hasChanges = true;
-				}
-
-				if (hasChanges) {
-					return updatedNodes;
-				}
+				updatedNodes = handleStartNodeChange(oldNode, newNode, updatedNodes, edges);
 			}
 		}
 	}
 
-	return currentNodes;
+	return updatedNodes;
 };

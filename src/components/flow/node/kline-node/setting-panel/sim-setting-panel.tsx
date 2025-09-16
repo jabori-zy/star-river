@@ -1,7 +1,7 @@
 import { useNodeConnections, useReactFlow } from "@xyflow/react";
 import { useEffect, useState } from "react";
 import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
-import { useUpdateLiveConfig } from "@/hooks/node/kline-node/use-update-live-config";
+import { useUpdateLiveConfig } from "@/hooks/node-config/kline-node/use-update-live-config";
 import type { KlineNodeData } from "@/types/node/kline-node";
 import type { StartNode } from "@/types/node/start-node";
 import { TradeMode } from "@/types/strategy";

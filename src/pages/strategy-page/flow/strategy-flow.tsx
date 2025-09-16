@@ -78,10 +78,8 @@ export default function StrategyFlow({ strategy }: { strategy: Strategy }) {
 		}
 	}, [
 		strategy.id,
-		strategy.tradeMode,
 		strategy.nodes,
 		strategy.edges,
-		strategy.name,
 		setNodes,
 		setEdges,
 	]);
@@ -141,6 +139,7 @@ export default function StrategyFlow({ strategy }: { strategy: Strategy }) {
 		(changes: NodeChange[]) => {
 			// 先应用变化，获取更新后的节点状态
 			setNodes((currentNodes: Node[]) => {
+				console.log("changes", changes);
 				const newNodes = applyNodeChanges(changes, currentNodes);
 
 				// 使用抽离的逻辑处理节点变化
@@ -193,8 +192,8 @@ export default function StrategyFlow({ strategy }: { strategy: Strategy }) {
 
 	// 添加 useEffect 来监听 edges 的变化
 	useEffect(() => {
-		console.log("Current nodes:", nodes);
-		console.log("Current edges:", edges);
+		// console.log("Current nodes:", nodes);
+		// console.log("Current edges:", edges);
 	}, [nodes, edges]);
 
 	return (
@@ -207,7 +206,7 @@ export default function StrategyFlow({ strategy }: { strategy: Strategy }) {
 				onEdgesChange={onEdgesChange}
 				onConnect={onConnect}
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				nodeTypes={nodeTypes as any} // 临时使用 any 类型来解决类型兼容性问题
+				nodeTypes={nodeTypes} // 临时使用 any 类型来解决类型兼容性问题
 				edgeTypes={edgeTypes}
 				onDragOver={onDragOver}
 				onDrop={onDrop}

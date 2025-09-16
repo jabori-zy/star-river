@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
-import { useUpdateSimulateConfig } from "@/hooks/node/position-management-node/use-update-simulate-config";
+import { useUpdateSimulateConfig } from "@/hooks/node-config/position-management-node/use-update-simulate-config";
 import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
 import type {
 	PositionManagementNodeData,

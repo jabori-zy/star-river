@@ -65,7 +65,7 @@ const NodeSupportConnectionLimit: Record<NodeType, number> = {
 
 const useStrategyWorkflow = () => {
 	// 获取 ReactFlow 的节点和连接信息
-	const { getNode, getNodeConnections } = useReactFlow();
+	const { getNode, getNodeConnections, getEdges } = useReactFlow();
 
 	/**
 	 * 向变量列表中添加或更新变量项
@@ -151,7 +151,7 @@ const useStrategyWorkflow = () => {
 	};
 
 	/**
-	 * 获取连接节点的变量信息
+	 * 获取连接节点的变量信息(ifelse节点专用)
 	 * 遍历所有连接，收集源节点的变量信息，用于后续节点使用
 	 * @param connections 连接列表
 	 * @param tradeMode 交易模式（实盘/回测）
@@ -297,10 +297,24 @@ const useStrategyWorkflow = () => {
 		return backtestConfig?.exchangeModeConfig?.timeRange;
 	}, []);
 
+	/**
+	 * 获取指定节点作为source连接的所有target节点ID
+	 * @param sourceNodeId 源节点ID
+	 * @returns 目标节点ID数组
+	 */
+	const getTargetNodeIds = useCallback((sourceNodeId: string) => {
+		const edges = getEdges();
+
+		return edges
+			.filter(edge => edge.source === sourceNodeId)
+			.map(edge => edge.target);
+	}, [getEdges]);
+
 	return {
 		checkIsValidConnection,
 		getConnectedNodeVariables,
 		getBacktestTimeRange,
+		getTargetNodeIds,
 	};
 };
 

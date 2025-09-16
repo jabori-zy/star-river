@@ -3,7 +3,7 @@ import { Play } from "lucide-react";
 import { useEffect, useRef } from "react";
 import type { BaseHandleProps } from "@/components/flow/base/BaseHandle";
 import BaseNode from "@/components/flow/base/BaseNode";
-import { useUpdateBacktestConfig } from "@/hooks/node/if-else-node/use-update-backtest-config";
+import { useUpdateBacktestConfig } from "@/hooks/node-config/if-else-node/use-update-backtest-config";
 import useTradingModeStore from "@/store/useTradingModeStore";
 import type { IfElseNode as IfElseNodeType } from "@/types/node/if-else-node";
 import { getNodeDefaultInputHandleId, NodeType } from "@/types/node/index";

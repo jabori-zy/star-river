@@ -6,7 +6,7 @@ import IndicatorEditor from "@/components/flow/node/indicator-node/components/in
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
-import { useUpdateLiveConfig } from "@/hooks/node/indicator-node/use-update-live-config";
+import { useUpdateLiveConfig } from "@/hooks/node-config/indicator-node/use-update-live-config";
 import { getNodeDefaultInputHandleId, NodeType } from "@/types/node/index";
 import type { IndicatorNodeData } from "@/types/node/indicator-node";
 

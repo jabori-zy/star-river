@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
-import { useUpdateSimulateConfig } from "@/hooks/node/futures-order-node/use-update-simulate-config";
+import { useUpdateSimulateConfig } from "@/hooks/node-config/futures-order-node/use-update-simulate-config";
 import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
 import type { FuturesOrderNodeData } from "@/types/node/futures-order-node";
 import type { FuturesOrderConfig } from "@/types/order";
@@ -14,8 +14,8 @@ const FuturesOrderNodeSimSettingPanel: React.FC<SettingProps> = ({
 }) => {
 	// 开始节点的模拟配置 - 注意：这里需要根据实际的store结构来获取simulateConfig
 	// 目前看起来startNodeDataStore中没有simulateConfig，可能需要添加
-	const {/* simulateConfig: startNodeSimulateConfig */} =
-		useStartNodeDataStore();
+	// const {/* simulateConfig: startNodeSimulateConfig */} =
+	// 	useStartNodeDataStore();
 
 	// 获取节点数据
 	const futuresOrderNodeData = data as FuturesOrderNodeData;

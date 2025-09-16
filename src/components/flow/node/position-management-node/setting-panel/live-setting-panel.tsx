@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
-import { useUpdateLiveConfig } from "@/hooks/node/position-management-node/use-update-live-config";
+import { useUpdateLiveConfig } from "@/hooks/node-config/position-management-node/use-update-live-config";
 import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
 import type {
 	PositionManagementNodeData,

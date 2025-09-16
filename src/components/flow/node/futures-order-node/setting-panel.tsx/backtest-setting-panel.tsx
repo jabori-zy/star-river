@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
-import { useUpdateBacktestConfig } from "@/hooks/node/futures-order-node/use-update-backtest-config";
+import { useUpdateBacktestConfig } from "@/hooks/node-config/futures-order-node/use-update-backtest-config";
 import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
 import type { FuturesOrderNodeData } from "@/types/node/futures-order-node";
 import type { FuturesOrderConfig } from "@/types/order";

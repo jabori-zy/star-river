@@ -11,14 +11,14 @@ export default defineConfig({
 		tailwindcss(),
 		viteStaticCopy({
 			targets: [
-				{
-					src: "node_modules/scichart/_wasm/scichart2d.data",
-					dest: "",
-				},
-				{
-					src: "node_modules/scichart/_wasm/scichart2d.wasm",
-					dest: "",
-				},
+				// {
+				// 	src: "node_modules/scichart/_wasm/scichart2d.data",
+				// 	dest: "",
+				// },
+				// {
+				// 	src: "node_modules/scichart/_wasm/scichart2d.wasm",
+				// 	dest: "",
+				// },
 				// 如果需要 3D 图表，取消下面的注释
 				// {
 				//   src: 'node_modules/scichart/_wasm/scichart3d.data',

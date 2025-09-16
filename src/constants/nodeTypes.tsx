@@ -5,8 +5,9 @@ import KlineNode from "@/components/flow/node/kline-node/node"; // 实时数据�
 import PositionManagementNode from "@/components/flow/node/position-management-node/node"; // 持仓管理节点
 import StartNode from "@/components/flow/node/start-node"; // 开始节点
 import VariableNode from "@/components/flow/node/variable-node/node"; // 变量节点
+import { NodeType } from "@/types/node/index";
 
-export const nodeTypes = {
+export const nodeTypes  = {
 	startNode: StartNode,
 	klineNode: KlineNode,
 	indicatorNode: IndicatorNode,

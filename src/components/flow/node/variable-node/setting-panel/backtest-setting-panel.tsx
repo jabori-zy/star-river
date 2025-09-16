@@ -1,7 +1,7 @@
 import React from "react";
 import AccountSelector from "@/components/flow/account-selector";
 import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
-import { useUpdateBacktestConfig } from "@/hooks/node/variable-node";
+import { useUpdateBacktestConfig } from "@/hooks/node-config/variable-node";
 import type {
 	VariableConfig,
 	VariableNodeBacktestConfig,

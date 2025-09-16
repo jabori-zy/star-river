@@ -5,7 +5,7 @@ import type { SettingProps } from "@/components/flow/base/BasePanel/setting-pane
 import IndicatorEditor from "@/components/flow/node/indicator-node/components/indicator-editor";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
-import { useUpdateBacktestConfig } from "@/hooks/node/indicator-node/use-update-backtest-config";
+import { useUpdateBacktestConfig } from "@/hooks/node-config/indicator-node/use-update-backtest-config";
 import {
 	getNodeDefaultInputHandleId,
 	isDefaultOutputHandleId,
@@ -33,8 +33,7 @@ const IndicatorNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	const { getNode } = useReactFlow();
 
 	//
-	const exchangeModeConfig =
-		indicatorNodeData.backtestConfig?.exchangeModeConfig;
+	const exchangeModeConfig = indicatorNodeData.backtestConfig?.exchangeModeConfig;
 
 	// 使用自定义hook管理指标配置
 	const {
@@ -64,14 +63,14 @@ const IndicatorNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 			if (nodeType !== NodeType.KlineNode) continue;
 
 			const klineNodeData = node.data as KlineNodeData;
+			console.log("klineNodeData", klineNodeData);
 			const selectedAccount =
 				klineNodeData.backtestConfig?.exchangeModeConfig?.selectedAccount;
 			if (selectedAccount) {
 				updateSelectedAccount(selectedAccount);
 			}
 
-			const selectedSymbols =
-				klineNodeData.backtestConfig?.exchangeModeConfig?.selectedSymbols;
+			const selectedSymbols = klineNodeData.backtestConfig?.exchangeModeConfig?.selectedSymbols;
 			// 如果是默认Handle,则加载所有的symbol
 			if (isDefaultOutput) {
 				// 默认输出：添加所有K线变量
@@ -96,6 +95,7 @@ const IndicatorNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	]);
 
 	const handleSymbolChange = (symbol: SelectedSymbol) => {
+		console.log("handleSymbolChange", symbol);
 		updateSelectedSymbol(symbol);
 	};
 

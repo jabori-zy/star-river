@@ -2,7 +2,7 @@ import { type NodeProps, useReactFlow } from "@xyflow/react";
 import type { LucideIcon } from "lucide-react";
 import type React from "react";
 import { type ReactNode, useState } from "react";
-import { useChangeNodeName } from "@/hooks/node/use-change-node-name";
+import { useChangeNodeName } from "@/hooks/node-config/use-change-node-name";
 import BaseHandle, { type BaseHandleProps } from "../BaseHandle";
 
 // BaseNode的属性接口
