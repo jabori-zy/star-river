@@ -168,7 +168,6 @@ export const createDataInitializationSlice = (
 
 	initVirtualOrderData: async (strategyId: number) => {
 		const virtualOrderData = await getVirtualOrder(strategyId);
-		console.log("virtualOrderData", virtualOrderData);
 		// 清除订单标记
 		get().setOrderMarkers([]);
 		// 清除限价单价格线

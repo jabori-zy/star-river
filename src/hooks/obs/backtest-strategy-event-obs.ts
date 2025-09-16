@@ -8,10 +8,10 @@ import type {
 	KlineUpdateEvent,
 	BacktestStrategyStatsUpdateEvent,
 	VirtualTransactionEvent,
+	PlayFinishedEvent,
 } from "@/types/strategy-event/backtest-strategy-event";
 import type { KeyStr } from "@/types/symbol-key";
 import { BACKTESET_STRATEGY_EVENT_SSE_URL } from ".";
-import { DateTime } from 'luxon';
 
 // SSE连接状态
 export enum SSEConnectionState {
@@ -50,6 +50,7 @@ class BacktestStrategyDataObservableService {
 	private positionDataSubject = new Subject<VirtualPositionEvent>();
 	private statsDataSubject = new Subject<BacktestStrategyStatsUpdateEvent>();
 	private transactionDataSubject = new Subject<VirtualTransactionEvent>();
+	private playFinishedDataSubject = new Subject<PlayFinishedEvent>();
 
 	/**
 	 * 获取连接状态Observable
@@ -275,6 +276,28 @@ class BacktestStrategyDataObservableService {
 
 	}
 
+	createPlayFinishedStream(enabled: boolean = true): Observable<PlayFinishedEvent> {
+		if (!enabled) {
+			this.disconnect();
+			return new Observable((subscriber) => {
+				subscriber.complete();
+			});
+		}
+
+		if (this.eventSource && this.eventSource.readyState === EventSource.OPEN) {
+			return this.playFinishedDataSubject
+				.asObservable()
+				.pipe(takeUntil(this.destroy$), share());
+		}
+
+		this.connect();
+
+		return this.playFinishedDataSubject
+			.asObservable()
+			.pipe(takeUntil(this.destroy$), share());
+	}
+	
+
 	/**
 	 * 建立SSE连接
 	 */
@@ -415,6 +438,10 @@ class BacktestStrategyDataObservableService {
 				const transactionEvent = strategyEvent as VirtualTransactionEvent;
 				this.transactionDataSubject.next(transactionEvent);
 			}
+			if (strategyEvent.event === "play-finished-event") {
+				const playFinishedEvent = strategyEvent as PlayFinishedEvent;
+				this.playFinishedDataSubject.next(playFinishedEvent);
+			}
 		} catch (error) {
 			console.error("解析SSE消息失败:", error);
 		}
@@ -529,6 +556,9 @@ export const createPositionStreamForSymbol = (
 
 export const createStatsStream = (enabled: boolean = true) =>
 	backtestStrategyDataObservableService.createStatsStream(enabled);
+
+export const createPlayFinishedStream = (enabled: boolean = true) =>
+	backtestStrategyDataObservableService.createPlayFinishedStream(enabled);
 
 // 连接管理
 export const getConnectionState = () =>

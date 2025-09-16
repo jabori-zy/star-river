@@ -28,7 +28,8 @@ export type BacktestStrategyEvent =
 	| VirtualOrderEvent
 	| VirtualPositionEvent
 	| VirtualTransactionEvent
-	| BacktestStrategyStatsUpdateEvent;
+	| BacktestStrategyStatsUpdateEvent
+	| PlayFinishedEvent;
 
 export type BaseEventProps = {
 	channel: string;
@@ -66,5 +67,11 @@ export type BacktestStrategyStatsUpdateEvent = Omit<BaseEventProps, "fromNodeId"
 
 export type VirtualTransactionEvent = BaseEventProps & {
 	transaction: VirtualTransaction;
+};
+
+export type PlayFinishedEvent = Omit<BaseEventProps, "fromNodeId" | "fromNodeName" | "fromNodeHandleId"> & {
+	strategyId: number;
+	strategyName: string;
+	playIndex: number;
 };
 
