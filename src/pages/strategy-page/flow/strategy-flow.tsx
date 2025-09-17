@@ -20,7 +20,6 @@ import {
 	useNodesState,
 } from "@xyflow/react";
 import { useCallback, useEffect, useMemo } from "react";
-import { handleNodeChanges } from "./on-node-change";
 import "@xyflow/react/dist/style.css";
 import { useReactFlow } from "@xyflow/react";
 import { DevTools } from "@/components/flow/devtools"; // 开发者工具
@@ -39,7 +38,7 @@ export default function StrategyFlow({ strategy }: { strategy: Strategy }) {
 	const { dragNodeItem, setDragNodeItem } = useDndNodeStore();
 	const { screenToFlowPosition } = useReactFlow();
 
-	const { checkIsValidConnection } = useStrategyWorkflow();
+	const { checkIsValidConnection, handleNodeChanges } = useStrategyWorkflow();
 
 	// 创建一个唯一的 key 用于强制重新渲染，包含策略ID和交易模式
 	const flowKey = useMemo(() => {
