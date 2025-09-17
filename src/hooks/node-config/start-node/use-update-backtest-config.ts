@@ -59,31 +59,31 @@ export const useBacktestConfig = ({
 		setGlobalDefaultBacktestConfig();
 	}, [setGlobalDefaultBacktestConfig]);
 
-	// 辅助函数：同步节点数据
+	// 监听全局配置变化，同步到节点
+	useEffect(() => {
+		if (nodeId && config) {
+			setNodes((nodes) =>
+				nodes.map((node) =>
+					node.id === nodeId
+						? {
+								...node,
+								data: {
+									...node.data,
+									backtestConfig: config,
+								},
+							}
+						: node,
+				),
+			);
+		}
+	}, [config, nodeId, setNodes]);
+
+	// 辅助函数：同步节点数据（现在只是一个占位符，实际同步通过 useEffect）
 	const syncToNode = useCallback(
-		(updateFn: (config: StrategyBacktestConfig) => StrategyBacktestConfig) => {
-			if (nodeId) {
-				setTimeout(() => {
-					setNodes((nodes) =>
-						nodes.map((node) =>
-							node.id === nodeId
-								? {
-										...node,
-										data: {
-											...node.data,
-											backtestConfig: updateFn(
-												(node.data.backtestConfig ??
-													defaultBacktestConfig) as StrategyBacktestConfig,
-											),
-										},
-									}
-								: node,
-						),
-					);
-				}, 0);
-			}
+		(_updateFn: (config: StrategyBacktestConfig) => StrategyBacktestConfig) => {
+			// 同步现在通过 useEffect 自动完成
 		},
-		[nodeId, setNodes],
+		[],
 	);
 
 	// 具体的更新方法 - 直接调用全局状态方法并同步节点

@@ -20,13 +20,14 @@ export const useUpdateSimulateConfig = ({
 		FuturesOrderNodeSimulateConfig | undefined
 	>(initialConfig);
 
-	// 同步节点数据到本地状态
+	// 监听 config 变化，同步到 ReactFlow
 	useEffect(() => {
-		const node = getNode(id);
-		if (node?.data?.simulateConfig) {
-			setConfig(node.data.simulateConfig as FuturesOrderNodeSimulateConfig);
+		if (config) {
+			updateNodeData(id, {
+				simulateConfig: config,
+			});
 		}
-	}, [id, getNode]);
+	}, [config, id, updateNodeData]);
 
 	// 通用的更新函数
 	const updateConfig = useCallback(
@@ -35,23 +36,9 @@ export const useUpdateSimulateConfig = ({
 				prev: FuturesOrderNodeSimulateConfig | undefined,
 			) => FuturesOrderNodeSimulateConfig,
 		) => {
-			// 获取最新的节点数据，而不是依赖可能过时的state
-			const currentNode = getNode(id);
-			const currentConfig = currentNode?.data?.simulateConfig as
-				| FuturesOrderNodeSimulateConfig
-				| undefined;
-
-			const newConfig = updater(currentConfig);
-
-			// 更新节点数据
-			updateNodeData(id, {
-				simulateConfig: newConfig,
-			});
-
-			// 更新本地状态
-			setConfig(newConfig);
+			setConfig((prevConfig) => updater(prevConfig));
 		},
-		[id, updateNodeData, getNode],
+		[],
 	);
 
 	// 默认配置值

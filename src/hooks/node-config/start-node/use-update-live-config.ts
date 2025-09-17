@@ -42,64 +42,39 @@ export const useLiveConfig = ({
 		setGlobalDefaultLiveConfig();
 	}, [setGlobalDefaultLiveConfig]);
 
-	// 更新实盘账户 - 同时更新节点数据
+	// 监听全局配置变化，同步到节点
+	useEffect(() => {
+		if (nodeId && config) {
+			setNodes((nodes) =>
+				nodes.map((node) =>
+					node.id === nodeId
+						? {
+								...node,
+								data: {
+									...node.data,
+									liveConfig: config,
+								},
+							}
+						: node,
+				),
+			);
+		}
+	}, [config, nodeId, setNodes]);
+
+	// 更新实盘账户 - 只更新全局状态，同步通过 useEffect 完成
 	const updateSelectedAccounts = useCallback(
 		(accounts: SelectedAccount[]) => {
 			updateGlobalLiveAccounts(accounts);
-
-			// 如果提供了nodeId，同步更新节点数据
-			if (nodeId) {
-				setTimeout(() => {
-					setNodes((nodes) =>
-						nodes.map((node) =>
-							node.id === nodeId
-								? {
-										...node,
-										data: {
-											...node.data,
-											liveConfig: {
-												...(node.data.liveConfig || {}),
-												selectedAccounts: accounts,
-											},
-										},
-									}
-								: node,
-						),
-					);
-				}, 0);
-			}
 		},
-		[updateGlobalLiveAccounts, nodeId, setNodes],
+		[updateGlobalLiveAccounts],
 	);
 
-	// 更新实盘变量 - 同时更新节点数据
+	// 更新实盘变量 - 只更新全局状态，同步通过 useEffect 完成
 	const updateVariables = useCallback(
 		(variables: StrategyVariable[]) => {
 			updateGlobalLiveVariables(variables);
-
-			// 如果提供了nodeId，同步更新节点数据
-			if (nodeId) {
-				setTimeout(() => {
-					setNodes((nodes) =>
-						nodes.map((node) =>
-							node.id === nodeId
-								? {
-										...node,
-										data: {
-											...node.data,
-											liveConfig: {
-												...(node.data.liveConfig || {}),
-												variables,
-											},
-										},
-									}
-								: node,
-						),
-					);
-				}, 0);
-			}
 		},
-		[updateGlobalLiveVariables, nodeId, setNodes],
+		[updateGlobalLiveVariables],
 	);
 
 	return {

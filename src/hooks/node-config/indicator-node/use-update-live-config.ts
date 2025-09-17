@@ -1,5 +1,5 @@
 import { useReactFlow } from "@xyflow/react";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import type {
 	IndicatorNodeLiveConfig,
 	SelectedIndicator,
@@ -21,6 +21,15 @@ export const useUpdateLiveConfig = ({
 		IndicatorNodeLiveConfig | undefined
 	>(initialLiveConfig);
 
+	// 监听 liveConfig 变化，同步到 ReactFlow
+	useEffect(() => {
+		if (liveConfig) {
+			updateNodeData(id, {
+				liveConfig: liveConfig,
+			});
+		}
+	}, [liveConfig, id, updateNodeData]);
+
 	// 实盘配置默认值
 	const getDefaultLiveConfig = useCallback(
 		(prev?: IndicatorNodeLiveConfig): IndicatorNodeLiveConfig => ({
@@ -40,18 +49,9 @@ export const useUpdateLiveConfig = ({
 				prev: IndicatorNodeLiveConfig | undefined,
 			) => IndicatorNodeLiveConfig,
 		) => {
-			setLiveConfig((prevConfig) => {
-				const newConfig = updater(prevConfig);
-
-				// 更新节点数据
-				updateNodeData(id, {
-					liveConfig: newConfig,
-				});
-
-				return newConfig;
-			});
+			setLiveConfig((prevConfig) => updater(prevConfig));
 		},
-		[id, updateNodeData],
+		[],
 	);
 
 	// 实盘配置字段更新方法

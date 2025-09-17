@@ -1,5 +1,5 @@
 import { useReactFlow } from "@xyflow/react";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import {
 	type CaseItem,
 	type IfElseNodeLiveConfig,
@@ -22,23 +22,23 @@ export const useUpdateLiveConfig = ({
 		initialConfig,
 	);
 
+	// 监听 config 变化，同步到 ReactFlow
+	useEffect(() => {
+		if (config) {
+			updateNodeData(id, {
+				liveConfig: config,
+			});
+		}
+	}, [config, id, updateNodeData]);
+
 	// 通用的更新函数
 	const updateConfig = useCallback(
 		(
 			updater: (prev: IfElseNodeLiveConfig | undefined) => IfElseNodeLiveConfig,
 		) => {
-			setConfig((prevConfig) => {
-				const newConfig = updater(prevConfig);
-
-				// 更新节点数据
-				updateNodeData(id, {
-					liveConfig: newConfig,
-				});
-
-				return newConfig;
-			});
+			setConfig((prevConfig) => updater(prevConfig));
 		},
-		[id, updateNodeData],
+		[],
 	);
 
 	// 默认配置值

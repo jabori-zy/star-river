@@ -17,14 +17,14 @@ export const useChangeNodeName = ({
 		initialNodeName || "未命名节点",
 	);
 
-	// 监听节点数据变化，同步外部的节点名称更新
+	// 监听 nodeName 变化，同步到 ReactFlow
 	useEffect(() => {
-		const node = getNode(id);
-		if (node && node.data && typeof node.data.nodeName === "string") {
-			const nodeNameFromData = node.data.nodeName || "未命名节点";
-			setNodeName(nodeNameFromData);
+		if (nodeName && nodeName !== initialNodeName) {
+			updateNodeData(id, {
+				nodeName: nodeName,
+			});
 		}
-	}, [id, getNode]);
+	}, [nodeName, id, updateNodeData, initialNodeName]);
 
 	// 监听 initialNodeName 变化
 	useEffect(() => {
@@ -38,13 +38,8 @@ export const useChangeNodeName = ({
 		(newNodeName: string) => {
 			const finalNodeName = newNodeName.trim() || "未命名节点";
 			setNodeName(finalNodeName);
-
-			// 更新节点数据
-			updateNodeData(id, {
-				nodeName: finalNodeName,
-			});
 		},
-		[id, updateNodeData],
+		[],
 	);
 
 	return {

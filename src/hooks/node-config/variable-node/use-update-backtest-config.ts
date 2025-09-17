@@ -23,13 +23,14 @@ export const useUpdateBacktestConfig = ({
 		initialConfig,
 	);
 
-	// 同步节点数据到本地状态
+	// 监听 config 变化，同步到 ReactFlow
 	useEffect(() => {
-		const node = getNode(id);
-		if (node?.data?.backtestConfig) {
-			setConfig(node.data.backtestConfig as VariableNodeBacktestConfig);
+		if (config) {
+			updateNodeData(id, {
+				backtestConfig: config,
+			});
 		}
-	}, [id, getNode]);
+	}, [config, id, updateNodeData]);
 
 	// 通用的更新函数
 	const updateConfig = useCallback(
@@ -38,23 +39,9 @@ export const useUpdateBacktestConfig = ({
 				prev: VariableNodeBacktestConfig | undefined,
 			) => VariableNodeBacktestConfig,
 		) => {
-			// 获取最新的节点数据，而不是依赖可能过时的state
-			const currentNode = getNode(id);
-			const currentConfig = currentNode?.data?.backtestConfig as
-				| VariableNodeBacktestConfig
-				| undefined;
-
-			const newConfig = updater(currentConfig);
-
-			// 更新节点数据
-			updateNodeData(id, {
-				backtestConfig: newConfig,
-			});
-
-			// 更新本地状态
-			setConfig(newConfig);
+			setConfig((prevConfig) => updater(prevConfig));
 		},
-		[id, updateNodeData, getNode],
+		[],
 	);
 
 	// 默认配置值

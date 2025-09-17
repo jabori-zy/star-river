@@ -1,5 +1,5 @@
 import { useReactFlow } from "@xyflow/react";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
 import { Exchange } from "@/types/market";
 import type {
@@ -27,6 +27,15 @@ export const useUpdateBacktestConfig = ({
 		initialBacktestConfig,
 	);
 
+	// 监听 config 变化，同步到 ReactFlow
+	useEffect(() => {
+		if (config) {
+			updateNodeData(id, {
+				backtestConfig: config,
+			});
+		}
+	}, [config, id, updateNodeData]);
+
 	// 生成 handleId 的辅助函数
 	const generateHandleId = useCallback(
 		(index: number) => {
@@ -53,18 +62,9 @@ export const useUpdateBacktestConfig = ({
 				prev: KlineNodeBacktestConfig | undefined,
 			) => KlineNodeBacktestConfig,
 		) => {
-			setConfig((prevConfig) => {
-				const newConfig = updater(prevConfig);
-
-				// 更新节点数据
-				updateNodeData(id, {
-					backtestConfig: newConfig,
-				});
-
-				return newConfig;
-			});
+			setConfig((prevConfig) => updater(prevConfig));
 		},
-		[id, updateNodeData],
+		[],
 	);
 
 	// 默认配置值
