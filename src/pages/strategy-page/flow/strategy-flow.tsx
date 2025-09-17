@@ -13,7 +13,7 @@ import {
 	NodeToolbar,
 	type OnConnect,
 	type OnEdgesChange,
-	type OnEdgesDelete,
+	// type OnEdgesDelete,
 	type OnNodesChange,
 	ReactFlow,
 	useEdgesState,

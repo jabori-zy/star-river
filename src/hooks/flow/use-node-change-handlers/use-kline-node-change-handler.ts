@@ -2,7 +2,6 @@ import {
 	type Edge,
 	getOutgoers,
 	type Node,
-	type NodeChange,
 } from "@xyflow/react";
 import { useCallback } from "react";
 import { NodeType } from "@/types/node/index";
@@ -166,9 +165,9 @@ const updateIfElseNode = (
 };
 
 /**
- * 节点变更处理相关的hook
+ * K线节点变更处理相关的hook
  */
-const useNodeChangeHandlers = () => {
+export const useKlineNodeChangeHandler = () => {
 	/**
 	 * 处理回测配置变化
 	 */
@@ -198,11 +197,6 @@ const useNodeChangeHandlers = () => {
 
 		// 获取k线节点配置的symbol
 		const klineNodeSelectedSymbols = klineNodeData.backtestConfig?.exchangeModeConfig?.selectedSymbols || [];
-		// 如果k线节点配置的symbol为空，则直接返回
-		// if (!klineNodeSelectedSymbols || klineNodeSelectedSymbols.length === 0) {
-		// 	console.warn("KlineNode selectedSymbols is empty, return directly");
-		// 	return nodes;
-		// }
 
 		// 预计算K线节点的symbol配置ID列表
 		const klineNodeSymbolIds = klineNodeSelectedSymbols.map((klineSymbol) => klineSymbol.configId);
@@ -263,38 +257,7 @@ const useNodeChangeHandlers = () => {
 		return hasChanged ? updatedNodes : nodes;
 	}, [handleBacktestConfigChanged]);
 
-	/**
-	 * 处理节点变化的主要逻辑
-	 */
-	const handleNodeChanges = useCallback((
-		changes: NodeChange[],
-		oldNodes: Node[],
-		newNodes: Node[],
-		edges: Edge[],
-	): Node[] => {
-		// 需要更新的节点
-		let updatedNodes = newNodes;
-
-		// 检查是否有节点的数据发生变化
-		for (const change of changes) {
-			if (change.type === "replace") {
-				const newNode = change.item;
-
-				if (change.item.type === "klineNode") {
-					const oldNode = oldNodes.find((n) => n.id === change.item.id);
-					if (oldNode) {
-						updatedNodes = handleKlineNodeChange(oldNode, newNode, newNodes, edges);
-					}
-				}
-			}
-		}
-
-		return updatedNodes;
-	}, [handleKlineNodeChange]);
-
 	return {
-		handleNodeChanges,
+		handleKlineNodeChange,
 	};
 };
-
-export default useNodeChangeHandlers;
