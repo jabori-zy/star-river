@@ -154,7 +154,7 @@ export default function StrategyFlow({ strategy }: { strategy: Strategy }) {
 	// 当拖动或者选择边时，将会触发onEdgesChange事件
 	const onEdgesChange: OnEdgesChange = useCallback(
 		(changes: EdgeChange[]) => {
-			// console.log(changes)
+			// console.log("edges changes", changes)
 			setEdges((eds) => applyEdgeChanges(changes, eds));
 		},
 		[setEdges],

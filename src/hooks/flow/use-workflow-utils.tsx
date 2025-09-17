@@ -6,7 +6,7 @@ import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
  * 工具函数相关的hook
  */
 const useWorkflowUtils = () => {
-	const { getEdges } = useReactFlow();
+	const { getEdges, setEdges } = useReactFlow();
 
 	/**
 	 * 获取回测模式的时间范围
@@ -29,10 +29,27 @@ const useWorkflowUtils = () => {
 			.map(edge => edge.target);
 	}, [getEdges]);
 
+	/**
+	 * 删除指定的source handleId的所有的边
+	 * @param sourceHandleId 源节点handleId
+	 */
+	const deleteSourceHandleEdges = useCallback((sourceHandleId: string) => {
+		const edges = getEdges();
+
+		// 过滤掉指定 sourceHandle 的边
+		const remainingEdges = edges.filter(edge => edge.sourceHandle !== sourceHandleId);
+
+		// 更新边状态
+		setEdges(remainingEdges);
+	}, [getEdges, setEdges]);
+
 	return {
 		getBacktestTimeRange,
 		getTargetNodeIds,
+		deleteSourceHandleEdges,
 	};
+
+	
 };
 
 export default useWorkflowUtils;

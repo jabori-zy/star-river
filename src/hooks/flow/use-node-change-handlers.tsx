@@ -184,23 +184,25 @@ const useNodeChangeHandlers = () => {
 
 		// 找到所有连接的节点
 		const connectedNodes = getOutgoers(klineNode, nodes, edges);
+		// 获取所有连接的指标节点
 		const connectedIndicatorNodes = connectedNodes.filter(
 			(node) => node.type === NodeType.IndicatorNode
 		);
+		// 获取所有连接的ifElse节点
 		const connectedIfElseNodes = connectedNodes.filter(
 			(node) => node.type === NodeType.IfElseNode
 		);
-		console.log("connectedIfElseNodes", connectedIfElseNodes);
 
 		// 如果没有任何连接，则直接返回
 		if (connectedIndicatorNodes.length === 0 && connectedIfElseNodes.length === 0) return nodes;
 
 		// 获取k线节点配置的symbol
-		const klineNodeSelectedSymbols = klineNodeData.backtestConfig?.exchangeModeConfig?.selectedSymbols;
+		const klineNodeSelectedSymbols = klineNodeData.backtestConfig?.exchangeModeConfig?.selectedSymbols || [];
 		// 如果k线节点配置的symbol为空，则直接返回
-		if (!klineNodeSelectedSymbols || klineNodeSelectedSymbols.length === 0) {
-			return nodes;
-		}
+		// if (!klineNodeSelectedSymbols || klineNodeSelectedSymbols.length === 0) {
+		// 	console.warn("KlineNode selectedSymbols is empty, return directly");
+		// 	return nodes;
+		// }
 
 		// 预计算K线节点的symbol配置ID列表
 		const klineNodeSymbolIds = klineNodeSelectedSymbols.map((klineSymbol) => klineSymbol.configId);

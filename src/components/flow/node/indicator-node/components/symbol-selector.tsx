@@ -19,7 +19,6 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 	selectedSymbol,
 	onSymbolChange,
 }) => {
-	console.log("symbolList", symbolList);
 	const handleSymbolChange = (symbolId: string) => {
 		const selected = symbolList.find(
 			(symbol) => symbol.configId.toString() === symbolId,

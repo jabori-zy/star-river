@@ -8,6 +8,7 @@ import type { SelectedAccount } from "@/types/strategy";
 import { SymbolSelectDialog } from "./symbol-select-dialog";
 import { ConfirmDialog } from "./confirm-dialog";
 import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
+import useWorkflowUtils from "@/hooks/flow/use-workflow-utils";
 import { useReactFlow } from "@xyflow/react";
 
 interface SymbolSelectorProps {
@@ -41,8 +42,10 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 		targetNodeCount: number;
 		targetNodeNames: string[];
 	} | null>(null);
+	const [pendingDeleteSymbol, setPendingDeleteSymbol] = useState<SelectedSymbol | null>(null);
 
 	const { getTargetNodeIds } = useStrategyWorkflow();
+	const { deleteSourceHandleEdges } = useWorkflowUtils();
 	const { getNode } = useReactFlow();
 
 	// Check if data source is selected
@@ -159,14 +162,50 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 	};
 
 	const handleDeleteSymbol = (symbolToDelete: SelectedSymbol) => {
+		const targetNodeIds = getTargetNodeIds(nodeId);
+		const targetNodeNames = targetNodeIds.map((id) => getNode(id)?.data.nodeName as string);
+
+		// 如果有连接的目标节点，显示确认对话框
+		if (targetNodeIds.length > 0) {
+			setPendingDeleteSymbol(symbolToDelete);
+			setPendingSymbolData({
+				symbolName: symbolToDelete.symbol,
+				symbolInterval: symbolToDelete.interval,
+				targetNodeCount: targetNodeIds.length,
+				targetNodeNames: targetNodeNames
+			});
+			setIsConfirmDialogOpen(true);
+			return;
+		}
+
+		// 没有连接节点，直接删除
+		performDelete(symbolToDelete);
+	};
+
+	// 执行删除
+	const performDelete = (symbolToDelete?: SelectedSymbol) => {
+		const targetSymbol = symbolToDelete || pendingDeleteSymbol;
+		if (!targetSymbol) return;
+
+		// 删除边
+		const sourceHandleId = targetSymbol.outputHandleId;
+		if (sourceHandleId) {
+			deleteSourceHandleEdges(sourceHandleId);
+		}
+
 		const newSymbols = localSymbols.filter(
 			(s) =>
 				!(
-					s.symbol === symbolToDelete.symbol &&
-					s.interval === symbolToDelete.interval
+					s.symbol === targetSymbol.symbol &&
+					s.interval === targetSymbol.interval
 				),
 		);
 		syncToParent(newSymbols);
+
+		// 清理删除相关状态
+		setPendingDeleteSymbol(null);
+		setIsConfirmDialogOpen(false);
+		setPendingSymbolData(null);
 	};
 
 	const handleSave = () => {
@@ -174,6 +213,13 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 			return;
 		}
 
+		// 如果是新增操作，直接保存，不弹出确认对话框
+		if (!editingSymbol) {
+			performSave();
+			return;
+		}
+
+		// 如果是编辑操作，检查是否有连接的目标节点
 		const targetNodeIds = getTargetNodeIds(nodeId);
 		const targetNodeNames = targetNodeIds.map((id) => getNode(id)?.data.nodeName as string);
 
@@ -252,14 +298,25 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 	};
 
 	const handleConfirmSave = () => {
-		performSave();
+		if (pendingDeleteSymbol) {
+			performDelete();
+		} else {
+			performSave();
+		}
 	};
 
 	const handleCancelSave = () => {
 		// 关闭确认对话框
 		setIsConfirmDialogOpen(false);
 
-		// 短暂延迟后重新打开选择对话框，确保确认对话框完全关闭
+		// 如果是删除操作，直接清理状态
+		if (pendingDeleteSymbol) {
+			setPendingDeleteSymbol(null);
+			setPendingSymbolData(null);
+			return;
+		}
+
+		// 如果是保存操作，短暂延迟后重新打开选择对话框
 		setTimeout(() => {
 			setIsDialogOpen(true);
 		}, 100);
@@ -366,6 +423,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 				affectedNodeNames={pendingSymbolData?.targetNodeNames || []}
 				onConfirm={handleConfirmSave}
 				onCancel={handleCancelSave}
+				operationType={pendingDeleteSymbol ? 'delete' : 'edit'}
 			/>
 		</div>
 	);
