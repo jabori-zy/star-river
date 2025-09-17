@@ -126,7 +126,6 @@ export const SymbolSelectDialog: React.FC<SymbolSelectDialogProps> = ({
                 setSymbolList(data);
             });
             getSupportKlineInterval(accountId).then((data) => {
-                console.log(data);
                 setSupportKlineInterval(data);
             });
         }

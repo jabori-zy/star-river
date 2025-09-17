@@ -78,12 +78,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ data }) => {
 							数据源
 						</Label>
 						<div className="flex flex-col gap-2 bg-gray-100 p-2 rounded-md mt-1">
-							<div className="flex flex-row items-center justify-between gap-2 pr-2">
-								<span className="text-xs font-bold">交易所:</span>
-								<span className="text-xs">
-									{exchangeModeConfig.selectedAccount.exchange}
-								</span>
-							</div>
+							
 							<div className="flex flex-row items-center justify-between gap-2 pr-2">
 								<span className="text-xs font-bold">交易对:</span>
 								<span className="text-xs">
@@ -94,6 +89,12 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ data }) => {
 								<span className="text-xs font-bold">时间周期:</span>
 								<span className="text-xs">
 									{getIntervalLabel(exchangeModeConfig.selectedSymbol.interval)}
+								</span>
+							</div>
+							<div className="flex flex-row items-center justify-between gap-2 pr-2">
+								<span className="text-xs font-bold">交易所:</span>
+								<span className="text-xs">
+									{exchangeModeConfig.selectedAccount.exchange}
 								</span>
 							</div>
 						</div>

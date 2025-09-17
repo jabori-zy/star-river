@@ -90,8 +90,6 @@ const IndicatorNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 		connections,
 		getNode,
 		updateSelectedAccount,
-		updateSelectedIndicators,
-		updateSelectedSymbol,
 	]);
 
 	const handleSymbolChange = (symbol: SelectedSymbol) => {

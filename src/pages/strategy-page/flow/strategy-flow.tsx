@@ -138,17 +138,15 @@ export default function StrategyFlow({ strategy }: { strategy: Strategy }) {
 	const onNodesChange: OnNodesChange = useCallback(
 		(changes: NodeChange[]) => {
 			// 先应用变化，获取更新后的节点状态
-			setNodes((currentNodes: Node[]) => {
-				console.log("changes", changes);
-				const newNodes = applyNodeChanges(changes, currentNodes);
+			setNodes((oldNodes: Node[]) => {
+				// 先应用变化，获取自动更新后的节点状态
+				const newNodes = applyNodeChanges(changes, oldNodes);
 
-				// 使用抽离的逻辑处理节点变化
-				const updatedNodes = handleNodeChanges(changes, currentNodes, edges);
+				// 手动处理节点变化
+				const updatedNodes = handleNodeChanges(changes, oldNodes, newNodes, edges);
 
-				// 如果有节点被更新，则使用更新后的节点，否则使用默认的新节点
-				return updatedNodes !== currentNodes
-					? applyNodeChanges(changes, updatedNodes)
-					: newNodes;
+				// 返回更新后的节点
+				return updatedNodes
 			});
 		},
 		[setNodes, edges],
