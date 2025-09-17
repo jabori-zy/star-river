@@ -181,7 +181,6 @@ export const useUpdateBacktestConfig = ({
 
 	const updateTimeRange = useCallback(
 		(timeRange: TimeRange) => {
-			console.log("updateTimeRange", timeRange);
 			updateConfig((prev) => {
 				// 检查是否需要更新，避免无意义的重复更新
 				const currentTimeRange = prev?.exchangeModeConfig?.timeRange;

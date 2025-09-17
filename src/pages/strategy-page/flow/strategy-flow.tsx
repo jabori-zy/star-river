@@ -38,7 +38,7 @@ export default function StrategyFlow({ strategy }: { strategy: Strategy }) {
 	const { dragNodeItem, setDragNodeItem } = useDndNodeStore();
 	const { screenToFlowPosition } = useReactFlow();
 
-	const { checkIsValidConnection, handleNodeChanges } = useStrategyWorkflow();
+	const { checkIsValidConnection, handleNodeChanges, handleEdgeChanges } = useStrategyWorkflow();
 
 	// 创建一个唯一的 key 用于强制重新渲染，包含策略ID和交易模式
 	const flowKey = useMemo(() => {
@@ -154,8 +154,18 @@ export default function StrategyFlow({ strategy }: { strategy: Strategy }) {
 	// 当拖动或者选择边时，将会触发onEdgesChange事件
 	const onEdgesChange: OnEdgesChange = useCallback(
 		(changes: EdgeChange[]) => {
-			// console.log("edges changes", changes)
-			setEdges((eds) => applyEdgeChanges(changes, eds));
+			setEdges((oldEdges) => {
+				const newEdges = applyEdgeChanges(changes, oldEdges);
+				// 如果changes中都是replace或select类型，则不处理
+				const isAllReplaceOrSelect = changes.every((change) => change.type === "replace" || change.type === "select");
+				if (!isAllReplaceOrSelect) {
+					const [_, updatedNodes] = handleEdgeChanges(changes, oldEdges, newEdges);
+					// 更新节点
+					setNodes(updatedNodes);
+				}
+				
+				return newEdges;
+			});
 		},
 		[setEdges],
 	);
@@ -182,10 +192,10 @@ export default function StrategyFlow({ strategy }: { strategy: Strategy }) {
 		[setEdges],
 	);
 
-	const onEdgesDelete: OnEdgesDelete = useCallback((edges: Edge[]) => {
-		// setEdges((eds) => eds.filter((edge) => !edges.includes(edge)));
-		console.log("边已删除", edges);
-	}, []);
+	// const onEdgesDelete: OnEdgesDelete = useCallback((edges: Edge[]) => {
+	// 	// setEdges((eds) => eds.filter((edge) => !edges.includes(edge)));
+	// 	console.log("边已删除", edges);
+	// }, []);
 
 	// 添加 useEffect 来监听 edges 的变化
 	useEffect(() => {
@@ -207,7 +217,7 @@ export default function StrategyFlow({ strategy }: { strategy: Strategy }) {
 				edgeTypes={edgeTypes}
 				onDragOver={onDragOver}
 				onDrop={onDrop}
-				onEdgesDelete={onEdgesDelete}
+				// onEdgesDelete={onEdgesDelete}
 				isValidConnection={checkIsValidConnection}
 				//   onConnectStart={onConnectStart}
 				//   onConnectEnd={onConnectEnd}

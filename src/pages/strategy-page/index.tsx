@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import useStrategyEventSSE from "@/hooks/use-strategyEventSSE";
+// import useStrategyEventSSE from "@/hooks/use-strategyEventSSE";
 import { getStrategyById } from "@/service/strategy";
 import { useHeaderStore } from "@/store/useHeaderStore";
 import { useStrategyStore } from "@/store/useStrategyStore";
@@ -17,7 +17,7 @@ function StrategyPageMainContent() {
 	const [activeTab, setActiveTab] = useState("flow");
 	const { setCenterContent } = useHeaderStore();
 	// 连接 SSE
-	useStrategyEventSSE(strategyId);
+	// useStrategyEventSSE(strategyId);
 
 	useEffect(() => {
 		// 获取策略信息

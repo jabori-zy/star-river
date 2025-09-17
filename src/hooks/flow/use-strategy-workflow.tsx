@@ -2,6 +2,7 @@ import useNodeValidation from "./use-node-validation";
 import useNodeVariables from "./use-node-variables";
 import useNodeChangeHandlers from "./use-node-change-handlers";
 import useWorkflowUtils from "./use-workflow-utils";
+import useEdgeChangeHandlers from "./use-edge-change-handlers";
 
 // 重新导出类型，保持对外接口一致
 export type { VariableItem } from "./use-node-variables";
@@ -24,6 +25,7 @@ const useStrategyWorkflow = () => {
 
 	// 节点变更处理相关
 	const { handleNodeChanges } = useNodeChangeHandlers();
+	const { handleEdgeChanges } = useEdgeChangeHandlers();
 
 	// 工具函数相关
 	const { getBacktestTimeRange, getTargetNodeIds } = useWorkflowUtils();
@@ -38,6 +40,8 @@ const useStrategyWorkflow = () => {
 		// 节点变更处理
 		handleNodeChanges,
 
+		// 边变更处理
+		handleEdgeChanges,
 		// 工具函数
 		getBacktestTimeRange,
 		getTargetNodeIds,
