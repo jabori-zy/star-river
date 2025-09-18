@@ -55,15 +55,18 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 	// 更新左变量
 	const handleUpdateLeftVariable = (
 		variableId: number,
-		variableName: string,
 		handleId: string,
+		variable: string,
+		variableName: string,
 	) => {
+
 		const newLeftVariable: Variable = {
 			varType: VarType.variable,
 			nodeId: localCondition.leftVariable?.nodeId || null,
 			outputHandleId: handleId,
 			variableConfigId: variableId,
-			variable: variableName,
+			variableName: variableName,
+			variable: variable,
 			nodeName: localCondition.leftVariable?.nodeName || null,
 		};
 		const newCondition = { ...localCondition, leftVariable: newLeftVariable };
@@ -90,15 +93,17 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 	// 更新右变量
 	const handleUpdateRightVariable = (
 		variableId: number,
-		variableName: string,
 		handleId: string,
+		variable: string,
+		variableName: string,
 	) => {
 		const newRightVariable: Variable = {
 			varType: VarType.variable,
 			nodeId: localCondition.rightVariable?.nodeId || null,
 			outputHandleId: handleId,
 			variableConfigId: variableId,
-			variable: variableName,
+			variableName: variableName,
+			variable: variable,
 			nodeName: localCondition.rightVariable?.nodeName || null,
 		};
 		const newCondition = { ...localCondition, rightVariable: newRightVariable };

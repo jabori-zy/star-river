@@ -3,19 +3,27 @@ import { initReactI18next } from "react-i18next";
 import { SupportLanguage } from "@/types/system";
 import enUSSetting from "./en-US/setting";
 import enUSStrategy from "./en-US/strategy";
+import enUSIndicator from "./en-US/indicator";
+import enUSMarket from "./en-US/market";
 // 导入所有语言模块
 import zhCNSetting from "./zh-CN/setting";
 import zhCNStrategy from "./zh-CN/strategy";
+import zhCNIndicator from "./zh-CN/indicator";
+import zhCNMarket from "./zh-CN/market";
 
 // 语言模块映射
 const languageModules = {
 	[SupportLanguage.ZH_CN]: {
 		setting: zhCNSetting,
 		strategy: zhCNStrategy,
+		indicator: zhCNIndicator,
+		market: zhCNMarket,
 	},
 	[SupportLanguage.EN_US]: {
 		setting: enUSSetting,
 		strategy: enUSStrategy,
+		indicator: enUSIndicator,
+		market: enUSMarket,
 	},
 };
 

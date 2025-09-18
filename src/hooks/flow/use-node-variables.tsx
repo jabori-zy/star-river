@@ -31,7 +31,7 @@ const useNodeVariables = () => {
 	const { getNode } = useReactFlow();
 
 	/**
-	 * 向变量列表中添加或更新变量项
+	 * 向变量列表中添加或更新变量选项
 	 * @param variableList 当前变量列表
 	 * @param nodeId 节点ID
 	 * @param nodeName 节点名称
@@ -89,7 +89,7 @@ const useNodeVariables = () => {
 				// 如果sourceHandleId为空，跳过此连接
 				if (!sourceHandleId) continue;
 
-				// 判断是否是默认输出句柄
+				// 判断上游节点是否有default output handle,如果是，则需要添加所有变量
 				const isDefaultOutput = isDefaultOutputHandleId(sourceHandleId);
 				const node = getNode(sourceNodeId);
 
@@ -134,7 +134,9 @@ const useNodeVariables = () => {
 							);
 						}
 					}
-				} else if (nodeType === NodeType.KlineNode) {
+				} 
+				// 收集K线节点变量
+				else if (nodeType === NodeType.KlineNode) {
 					// 处理K线节点
 					const klineNodeData = node.data as KlineNodeData;
 					const selectedSymbols =

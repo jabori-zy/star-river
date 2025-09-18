@@ -34,6 +34,7 @@ const IfElseNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 
 	// 获取所有连接
 	const connections = useNodeConnections({ id, handleType: "target" });
+	// 收集到的所有变量列表
 	const [variableItemList, setVariableItemList] = useState<VariableItem[]>([]);
 
 	useEffect(() => {
@@ -43,7 +44,7 @@ const IfElseNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 			connections,
 			TradeMode.BACKTEST,
 		);
-		// console.log("变量列表", variables);
+		console.log("收集到的所有变量列表", variables);
 		setVariableItemList(variables);
 	}, [connections, getConnectedNodeVariables]);
 
@@ -138,7 +139,7 @@ const IfElseNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	}));
 
 	return (
-		<div className="flex flex-col gap-2">
+		<div className="flex flex-col gap-4 bg-red-100">
 			{/* 如果cases为空，则传一个空的case */}
 			{!localBacktestCases || localBacktestCases.length === 0 ? (
 				<CaseEditor

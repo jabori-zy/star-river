@@ -64,11 +64,13 @@ export enum VarType {
 // 左变量
 export type Variable = {
 	varType: VarType | null; // 变量类型
-	nodeId: string | null; // 节点id
+	nodeId: string | null; // 节点id（这个变量来源的节点id）
 	outputHandleId: string | null; // 变量输出handleId
 	variableConfigId: number | null; // 变量配置id(指标配置id,K线配置id)
-	variable: string | number | null; // 变量名称, 如果是常量，则值为常量值
+	variable: string | number | null; // 变量, 如果是常量，则值为常量值
+	variableName?: string | null; // 变量名称(用户设置的变量名称，或者默认名称)
 	nodeName?: string | null; // 节点名称
+	extraInfo?: Record<string, string | number | boolean | null> | null; // 额外信息
 };
 
 // // 右变量
