@@ -139,7 +139,7 @@ const IfElseNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	}));
 
 	return (
-		<div className="flex flex-col gap-4 bg-red-100">
+		<div className="flex flex-col gap-2">
 			{/* 如果cases为空，则传一个空的case */}
 			{!localBacktestCases || localBacktestCases.length === 0 ? (
 				<CaseEditor

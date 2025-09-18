@@ -12,6 +12,7 @@ import ComparisonSymbolSelector from "./comparison-symbol-selector";
 import ConstantInput from "./constant-input";
 import VarTypeSelector from "./var-type-selector";
 import VariableSelector from "./variable-selector";
+import type { NodeType } from "@/types/node/index";
 
 interface ConditionSettingProps {
 	variableItemList: VariableItem[];
@@ -38,10 +39,11 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 	}, [condition]);
 
 	// 更新左节点
-	const handleUpdateLeftNode = (nodeId: string, nodeName: string) => {
+	const handleUpdateLeftNode = (nodeId: string, nodeType: NodeType | null, nodeName: string) => {
 		const newLeftVariable: Variable = {
 			varType: VarType.variable,
 			nodeId: nodeId,
+			nodeType: nodeType,
 			outputHandleId: localCondition.leftVariable?.outputHandleId || null,
 			variableConfigId: localCondition.leftVariable?.variableConfigId || null,
 			variable: localCondition.leftVariable?.variable || null,
@@ -63,6 +65,7 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 		const newLeftVariable: Variable = {
 			varType: VarType.variable,
 			nodeId: localCondition.leftVariable?.nodeId || null,
+			nodeType: localCondition.leftVariable?.nodeType || null,
 			outputHandleId: handleId,
 			variableConfigId: variableId,
 			variableName: variableName,
@@ -76,10 +79,11 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 	};
 
 	// 更新右节点
-	const handleUpdateRightNode = (nodeId: string, nodeName: string) => {
+	const handleUpdateRightNode = (nodeId: string, nodeType: NodeType | null, nodeName: string) => {
 		const newRightVariable: Variable = {
 			varType: VarType.variable,
 			nodeId: nodeId,
+			nodeType: nodeType,
 			outputHandleId: localCondition.rightVariable?.outputHandleId || null,
 			variableConfigId: localCondition.rightVariable?.variableConfigId || null,
 			variable: localCondition.rightVariable?.variable || null,
@@ -100,6 +104,7 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 		const newRightVariable: Variable = {
 			varType: VarType.variable,
 			nodeId: localCondition.rightVariable?.nodeId || null,
+			nodeType: localCondition.rightVariable?.nodeType || null,
 			outputHandleId: handleId,
 			variableConfigId: variableId,
 			variableName: variableName,
@@ -128,6 +133,7 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 		const newRightVariable: Variable = {
 			varType: varType,
 			nodeId: null,
+			nodeType: null,
 			outputHandleId: null,
 			variableConfigId: null,
 			variable: null,
@@ -143,6 +149,7 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 		const newRightVariable: Variable = {
 			varType: VarType.constant,
 			nodeId: null,
+			nodeType: null,
 			outputHandleId: null,
 			variableConfigId: null,
 			variable: value.toString(),

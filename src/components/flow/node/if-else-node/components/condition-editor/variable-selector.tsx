@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/select";
 import type { VariableItem } from "@/hooks/flow/use-strategy-workflow";
 import { cn } from "@/lib/utils";
+import type { NodeType } from "@/types/node/index";
 import type { Variable } from "@/types/node/if-else-node";
 import type { SelectedIndicator } from "@/types/node/indicator-node";
 import type { SelectedSymbol } from "@/types/node/kline-node";
@@ -21,7 +22,7 @@ import { useTranslation } from "react-i18next";
 interface VariableSelectorProps {
 	variableItemList: VariableItem[];
 	variable: Variable | null;
-	onNodeChange: (nodeId: string, nodeName: string) => void; // 节点选择回调
+	onNodeChange: (nodeId: string, nodeType: NodeType | null, nodeName: string) => void; // 节点选择回调
 	onVariableChange: (
 		variableId: number,
 		handleId: string,
@@ -117,6 +118,7 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 
 	// 处理节点选择
 	const handleNodeChange = (nodeId: string) => {
+		const nodeType = variableItemList.find((item) => item.nodeId === nodeId)?.nodeType;
 		// console.log("🔍 节点选择:", {
 		// 	nodeId,
 		// 	nodeName: variableItemList.find((item) => item.nodeId === nodeId)
@@ -128,6 +130,7 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 		// 清空当前选择
 		onNodeChange(
 			nodeId,
+			nodeType || null,
 			variableItemList.find((item) => item.nodeId === nodeId)?.nodeName || "",
 		);
 	};

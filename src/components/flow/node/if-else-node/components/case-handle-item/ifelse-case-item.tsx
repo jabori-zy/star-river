@@ -12,6 +12,9 @@ import {
 	getLogicalLabel,
 	getVariableLabel,
 } from "./utils";
+import { Badge } from "@/components/ui/badge";
+import { useReactFlow } from "@xyflow/react";
+import { useTranslation } from "react-i18next";
 
 interface IfElseCaseItemProps {
 	caseItem: CaseItem;
@@ -27,24 +30,48 @@ const ConditionItem = ({
 	isLast: boolean;
 	logicalSymbol: LogicalSymbol | null;
 }) => {
+	
+	const { getNodes } = useReactFlow();
+	const nodes = getNodes();
+	const { t } = useTranslation();
+
+
+
 	return (
 		<div className="flex items-center gap-1 flex-wrap">
 			{/* 左变量 */}
-			<span className="bg-blue-100 px-1 rounded text-xs">
-				{getVariableLabel(condition.leftVariable)}
-			</span>
+			<div className="flex flex-col items-start gap-1 bg-blue-100">
+				<Badge variant="outline" className="border-gray-500 text-gray-500">
+					<div className="text-xs">
+						{condition.leftVariable?.nodeName}
+					</div>
+				</Badge>
+				<span className="px-1 rounded text-xs font-bold text-black">
+					{getVariableLabel(condition.leftVariable, nodes, t)}
+				</span>
+			</div>
 
 			{/* 比较符号 */}
-			{condition.comparisonSymbol && (
-				<span className="text-orange-600 font-semibold">
-					{getComparisonLabel(condition.comparisonSymbol)}
-				</span>
-			)}
+			<div className="flex items-center gap-1">
+				{condition.comparisonSymbol && (
+					<span className="text-orange-600 font-semibold">
+						{getComparisonLabel(condition.comparisonSymbol)}
+					</span>
+				)}
+			</div>
 
 			{/* 右变量 */}
-			<span className="bg-green-100 px-1 rounded text-xs">
-				{getVariableLabel(condition.rightVariable)}
-			</span>
+			<div className="flex flex-col items-start gap-1 bg-green-100">
+				<Badge variant="outline" className="border-gray-500 text-gray-500">
+					<div className="text-xs">
+						{condition.rightVariable?.nodeName}
+					</div>
+				</Badge>
+				<span className="px-1 rounded text-xs font-bold text-black">
+					{getVariableLabel(condition.rightVariable, nodes, t)}
+				</span>
+			</div>
+			
 
 			{/* 逻辑符号 (不是最后一个条件时显示) */}
 			{!isLast && logicalSymbol && (
