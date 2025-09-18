@@ -6,8 +6,8 @@ import type {
 import { useCallback } from "react";
 import { useKlineNodeChangeHandler } from "./use-kline-node-change-handler";
 import { useIndicatorNodeChangeHandler } from "./use-indicator-node-change-handler";
-import { useIfElseNodeChangeHandler } from "./use-ifelse-node-change-handler";
 import { NodeType } from "@/types/node";
+import { useVarNodeChangeHandler } from "./use-var-node-change-handler";
 
 /**
  * 节点变更处理相关的hook
@@ -15,7 +15,7 @@ import { NodeType } from "@/types/node";
 const useNodeChangeHandlers = () => {
 	const { handleKlineNodeChange } = useKlineNodeChangeHandler();
 	const { handleIndicatorNodeChange } = useIndicatorNodeChangeHandler();
-	const { handleIfElseNodeChange } = useIfElseNodeChangeHandler();
+	const { handleVarNodeChange } = useVarNodeChangeHandler();
 
 	/**
 	 * 处理节点变化的主要逻辑
@@ -47,11 +47,18 @@ const useNodeChangeHandlers = () => {
 						updatedNodes = handleIndicatorNodeChange(oldNode, newNode, newNodes, edges);
 					}
 				}
+				
+				else if (change.item.type === NodeType.VariableNode) {
+					const oldNode = oldNodes.find((n) => n.id === change.item.id);
+					if (oldNode) {
+						updatedNodes = handleVarNodeChange(oldNode, newNode, newNodes, edges);
+					}
+				}
 			}
 		}
 
 		return updatedNodes;
-	}, [handleKlineNodeChange, handleIndicatorNodeChange]);
+	}, [handleKlineNodeChange, handleIndicatorNodeChange, handleVarNodeChange]);
 
 	return {
 		handleNodeChanges,

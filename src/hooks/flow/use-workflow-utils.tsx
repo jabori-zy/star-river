@@ -40,7 +40,7 @@ const useWorkflowUtils = () => {
 	 * 删除指定的source handleId的所有的边
 	 * @param sourceHandleId 源节点handleId
 	 */
-	const deleteSourceHandleEdges = useCallback((sourceHandleId: string) => {
+	const deleteEdgeBySourceHandleId = useCallback((sourceHandleId: string) => {
 		const edges = getEdges();
 
 		// 过滤掉指定 sourceHandle 的边
@@ -50,11 +50,24 @@ const useWorkflowUtils = () => {
 		setEdges(remainingEdges);
 	}, [getEdges, setEdges]);
 
+
+	/**
+	 * 删除指定的target handleId的所有的边
+	 * @param targetHandleId 目标节点handleId
+	 */
+	const deleteEdgesByTargetHandleId = useCallback((targetHandleId: string) => {
+		const edges = getEdges();
+		const remainingEdges = edges.filter(edge => edge.targetHandle !== targetHandleId);
+		setEdges(remainingEdges);
+	}, [getEdges, setEdges]);
+
+
 	return {
 		getBacktestTimeRange,
 		getTargetNodeIds: getTargetNodeIdsBySourceNodeId,
-		deleteSourceHandleEdges,
+		deleteEdgeBySourceHandleId,
 		getTargetNodeIdsBySourceHandleId,
+		deleteEdgesByTargetHandleId,
 	};
 
 	

@@ -37,7 +37,7 @@ const IndicatorEditor: React.FC<IndicatorEditorProps> = ({
 		targetNodeNames: string[];
 	} | null>(null);
 
-	const { deleteSourceHandleEdges, getTargetNodeIdsBySourceHandleId } = useWorkflowUtils();
+	const { deleteEdgeBySourceHandleId, getTargetNodeIdsBySourceHandleId } = useWorkflowUtils();
 	const { getNode } = useReactFlow();
 
 	const handleAddIndicator = () => {
@@ -113,7 +113,7 @@ const IndicatorEditor: React.FC<IndicatorEditorProps> = ({
 		// 删除边
 		const sourceHandleId = indicatorToDelete.outputHandleId;
 		if (sourceHandleId) {
-			deleteSourceHandleEdges(sourceHandleId);
+			deleteEdgeBySourceHandleId(sourceHandleId);
 		}
 
 		const updatedIndicators = selectedIndicators.filter((_, i) => i !== targetIndex);

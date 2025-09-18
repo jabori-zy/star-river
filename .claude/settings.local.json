@@ -9,7 +9,8 @@
       "mcp__playwright__browser_navigate",
       "mcp__playwright__browser_wait_for",
       "mcp__playwright__browser_press_key",
-      "mcp__context7__get-library-docs"
+      "mcp__context7__get-library-docs",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []

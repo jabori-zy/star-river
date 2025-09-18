@@ -228,7 +228,6 @@ export const useKlineNodeChangeHandler = () => {
 		let hasChanged = false;
 
 		if (oldKlineData.backtestConfig !== newKlineData.backtestConfig) {
-			console.log("KlineNode backtestConfig changed");
 			if (newKlineData.backtestConfig) {
 				updatedNodes = handleBacktestConfigChanged(klineNodeId, updatedNodes, edges);
 				hasChanged = true;

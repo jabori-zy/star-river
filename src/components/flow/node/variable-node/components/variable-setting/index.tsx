@@ -5,6 +5,9 @@ import { Label } from "@/components/ui/label";
 import type { VariableConfig } from "@/types/node/variable-node";
 import VariableConfigDialog from "./variable-config-dialog";
 import VariableConfigItem from "./variable-config-item";
+import useWorkflowUtils from "@/hooks/flow/use-workflow-utils";
+import { useReactFlow } from "@xyflow/react";
+import { NodeOpConfirmDialog } from "@/components/flow/node-op-confirm-dialog";
 
 interface VariableSettingProps {
 	id: string;
@@ -21,6 +24,15 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
 	const [isEditing, setIsEditing] = useState(false);
 	const [editingIndex, setEditingIndex] = useState<number | null>(null);
+	const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+	const [pendingDeleteVariable, setPendingDeleteVariable] = useState<VariableConfig | null>(null);
+	const [pendingVariableData, setPendingVariableData] = useState<{
+		targetNodeCount: number;
+		targetNodeNames: string[];
+	} | null>(null);
+
+	const { getTargetNodeIdsBySourceHandleId } = useWorkflowUtils();
+	const { getNode, getEdges, setEdges } = useReactFlow();
 
 	const handleAddVariable = () => {
 		setIsEditing(false);
@@ -35,14 +47,71 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 	};
 
 	const handleDeleteVariable = (index: number) => {
+		const variableToDelete = variableConfigs[index];
+		const targetNodeIds = getTargetNodeIdsBySourceHandleId(variableToDelete.outputHandleId);
+
+		const targetNodeNames = [...new Set(targetNodeIds.map((nodeId) => getNode(nodeId)?.data.nodeName as string).filter(Boolean))];
+
+		// 如果有连接的目标节点，显示确认对话框
+		if (targetNodeIds.length > 0) {
+			setPendingDeleteVariable(variableToDelete);
+			setPendingVariableData({
+				targetNodeCount: targetNodeIds.length,
+				targetNodeNames: targetNodeNames
+			});
+			setIsConfirmDialogOpen(true);
+			return;
+		}
+
+		// 没有连接节点，直接删除
+		performDelete(index);
+	};
+
+	// 执行删除
+	const performDelete = (index?: number) => {
+		const targetIndex = index !== undefined ? index : variableConfigs.findIndex(
+			variable => pendingDeleteVariable &&
+			variable.configId === pendingDeleteVariable.configId
+		);
+
+		if (targetIndex === -1) return;
+
+		const variableToDelete = variableConfigs[targetIndex];
+
+		// 删除边
+		const sourceHandleId = variableToDelete.outputHandleId;
+		const targetHandleId = variableToDelete.inputHandleId;
+		const edges = getEdges();
+		const remainingEdges = edges.filter(edge => edge.sourceHandle !== sourceHandleId && edge.targetHandle !== targetHandleId);
+		console.log("remainingEdges", remainingEdges);
+		setEdges(remainingEdges);
+		
+
 		const updatedVariables = variableConfigs
-			.filter((_, i) => i !== index)
+			.filter((_, i) => i !== targetIndex)
 			.map((variable, newIndex) => ({
 				...variable,
 				configId: newIndex + 1, // 重新分配id，保持连续性
 				inputHandleId: `${id}_input_${newIndex + 1}`,
+				outputHandleId: `${id}_output_${newIndex + 1}`,
 			}));
 		onVariableConfigsChange(updatedVariables);
+
+		// 清理删除相关状态
+		setPendingDeleteVariable(null);
+		setIsConfirmDialogOpen(false);
+		setPendingVariableData(null);
+	};
+
+	const handleConfirmDelete = () => {
+		performDelete();
+	};
+
+	const handleCancelDelete = () => {
+		// 关闭确认对话框并清理状态
+		setIsConfirmDialogOpen(false);
+		setPendingDeleteVariable(null);
+		setPendingVariableData(null);
 	};
 
 	// 检查交易对+变量类型+触发方式的唯一性
@@ -130,6 +199,17 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 				onSave={handleSave}
 				existingConfigs={variableConfigs}
 				editingIndex={editingIndex}
+			/>
+
+			{/* 确认删除对话框 */}
+			<NodeOpConfirmDialog
+				isOpen={isConfirmDialogOpen}
+				onOpenChange={setIsConfirmDialogOpen}
+				affectedNodeCount={pendingVariableData?.targetNodeCount || 0}
+				affectedNodeNames={pendingVariableData?.targetNodeNames || []}
+				onConfirm={handleConfirmDelete}
+				onCancel={handleCancelDelete}
+				operationType="delete"
 			/>
 		</div>
 	);

@@ -45,7 +45,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 	const [pendingDeleteSymbol, setPendingDeleteSymbol] = useState<SelectedSymbol | null>(null);
 
 	const { getTargetNodeIds } = useStrategyWorkflow();
-	const { deleteSourceHandleEdges } = useWorkflowUtils();
+	const { deleteEdgeBySourceHandleId } = useWorkflowUtils();
 	const { getNode } = useReactFlow();
 
 	// Check if data source is selected
@@ -190,7 +190,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 		// 删除边
 		const sourceHandleId = targetSymbol.outputHandleId;
 		if (sourceHandleId) {
-			deleteSourceHandleEdges(sourceHandleId);
+			deleteEdgeBySourceHandleId(sourceHandleId);
 		}
 
 		const newSymbols = localSymbols.filter(

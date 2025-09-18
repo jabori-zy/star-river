@@ -4,13 +4,14 @@ import { useReactFlow } from "@xyflow/react";
 import { NodeType } from "@/types/node/index";
 import { useKlineNodeEdgeHandler } from "./use-kline-node-edge-handler";
 import { useIndicatorNodeEdgeHandler } from "./use-indicator-node-edge-handler";
-
+import { useVarNodeEdgeHandler } from "./use-var-node-edge-handler";
 
 const useEdgeChangeHandlers = () => {
 
     const { getNodes } = useReactFlow();
     const { handleKlineNodeEdgeRemoved } = useKlineNodeEdgeHandler();
     const { handleIndicatorNodeEdgeRemoved } = useIndicatorNodeEdgeHandler();
+    const { handleVarNodeEdgeRemoved } = useVarNodeEdgeHandler();
 
 	const handleEdgeChanges = useCallback((
 		changes: EdgeChange[],
@@ -22,6 +23,7 @@ const useEdgeChangeHandlers = () => {
         // 收集所有被删除的来自 klineNode 的边，按 sourceNode 分组
         const klineNodeRemovedEdges = new Map<string, Edge[]>();
         const indicatorNodeRemovedEdges = new Map<string, Edge[]>();
+        const varNodeRemovedEdges = new Map<string, Edge[]>();
 
         for (const change of changes) {
             if (change.type === "remove") {
@@ -51,6 +53,15 @@ const useEdgeChangeHandlers = () => {
                             edges.push(removedEdge);
                         }
                     }
+                    else if (sourceNode && sourceNode.type === NodeType.VariableNode) {
+                        if (!varNodeRemovedEdges.has(sourceNodeId)) {
+                            varNodeRemovedEdges.set(sourceNodeId, []);
+                        }
+                        const edges = varNodeRemovedEdges.get(sourceNodeId);
+                        if (edges) {
+                            edges.push(removedEdge);
+                        }
+                    }
                 }
             }
         }
@@ -73,8 +84,16 @@ const useEdgeChangeHandlers = () => {
                 }
             }
         }
+        for (const [sourceNodeId, removedEdges] of varNodeRemovedEdges) {
+            const sourceNode = updatedNodes.find((node) => node.id === sourceNodeId);
+            if (sourceNode) {
+                for (const removedEdge of removedEdges) {
+                    updatedNodes = handleVarNodeEdgeRemoved(sourceNode, removedEdge, updatedNodes);
+                }
+            }
+        }
 		return [updatedEdges, updatedNodes];
-	}, [getNodes, handleKlineNodeEdgeRemoved, handleIndicatorNodeEdgeRemoved]);
+	}, [getNodes, handleKlineNodeEdgeRemoved, handleIndicatorNodeEdgeRemoved, handleVarNodeEdgeRemoved]);
 
 	return {
 		handleEdgeChanges,
