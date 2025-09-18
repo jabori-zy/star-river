@@ -35,13 +35,13 @@ const NodeSupportConnectionMap: Record<NodeType, NodeType[]> = {
 
 // 节点连接数量限制 - 定义每种节点类型最多可以被连接的次数（-1表示无限制）
 const NodeSupportConnectionLimit: Record<NodeType, number> = {
-	[NodeType.StartNode]: 0,
-	[NodeType.KlineNode]: 1,
-	[NodeType.IndicatorNode]: 1,
+	[NodeType.StartNode]: 0, // 开始节点不能连接
+	[NodeType.KlineNode]: 1, // 只能有一个入口
+	[NodeType.IndicatorNode]: 1, // 只能有一个入口
 	[NodeType.IfElseNode]: -1, // -1代表不限制
-	[NodeType.FuturesOrderNode]: -1,
-	[NodeType.PositionManagementNode]: -1,
-	[NodeType.VariableNode]: -1,
+	[NodeType.FuturesOrderNode]: -1, // -1代表不限制
+	[NodeType.PositionManagementNode]: -1, // -1代表不限制
+	[NodeType.VariableNode]: -1, // -1代表不限制
 };
 
 /**

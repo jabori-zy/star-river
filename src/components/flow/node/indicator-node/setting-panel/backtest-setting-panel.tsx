@@ -50,8 +50,9 @@ const IndicatorNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 		setIsConnected(hasConnection);
 		for (const connection of connections) {
 			const sourceNodeId = connection.source;
-			const sourceHandleId = connection.sourceHandle!;
+			const sourceHandleId = connection.sourceHandle;
 			// 判断是否是默认输出句柄
+			if (!sourceHandleId) continue;
 			const isDefaultOutput = isDefaultOutputHandleId(sourceHandleId);
 			const node = getNode(sourceNodeId);
 			// 如果节点不存在，则跳过

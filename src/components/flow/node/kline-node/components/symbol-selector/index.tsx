@@ -6,11 +6,11 @@ import { Label } from "@/components/ui/label";
 import type { SelectedSymbol } from "@/types/node/kline-node";
 import type { SelectedAccount } from "@/types/strategy";
 import { SymbolSelectDialog } from "./symbol-select-dialog";
-import { ConfirmDialog } from "./confirm-dialog";
+// import { ConfirmDialog } from "./confirm-dialog";
 import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 import useWorkflowUtils from "@/hooks/flow/use-workflow-utils";
 import { useReactFlow } from "@xyflow/react";
-
+import { NodeOpConfirmDialog } from "@/components/node-op-confirm-dialog";
 interface SymbolSelectorProps {
 	nodeId: string; // node id
 	selectedSymbols: SelectedSymbol[]; // selected symbols
@@ -416,7 +416,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 			/>
 
 			{/* 确认修改对话框 */}
-			<ConfirmDialog
+			<NodeOpConfirmDialog
 				isOpen={isConfirmDialogOpen}
 				onOpenChange={setIsConfirmDialogOpen}
 				affectedNodeCount={pendingSymbolData?.targetNodeCount || 0}

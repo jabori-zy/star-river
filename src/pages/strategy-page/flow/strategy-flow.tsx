@@ -148,7 +148,7 @@ export default function StrategyFlow({ strategy }: { strategy: Strategy }) {
 				return updatedNodes
 			});
 		},
-		[setNodes, edges],
+		[setNodes, edges, handleNodeChanges],
 	);
 
 	// 当拖动或者选择边时，将会触发onEdgesChange事件
@@ -167,7 +167,7 @@ export default function StrategyFlow({ strategy }: { strategy: Strategy }) {
 				return newEdges;
 			});
 		},
-		[setEdges],
+		[setEdges, handleEdgeChanges, setNodes],
 	);
 
 	// 当连接节点时，将会触发onConnect事件

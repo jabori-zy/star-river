@@ -1,8 +1,8 @@
 import { useCallback } from "react";
-import { type Node, type Edge } from "@xyflow/react";
+import type { Node, Edge } from "@xyflow/react";
 import { NodeType } from "@/types/node/index";
-import { IndicatorNodeData } from "@/types/node/indicator-node";
-import { IfElseNodeData } from "@/types/node/if-else-node";
+import type { IndicatorNodeData } from "@/types/node/indicator-node";
+import type { IfElseNodeData } from "@/types/node/if-else-node";
 
 
 
@@ -49,7 +49,7 @@ export const useKlineNodeEdgeHandler = () => {
                 if (ifElseNodeData.backtestConfig) {
                     const cases = ifElseNodeData.backtestConfig.cases;
 
-                    // 更新cases中与klineNode相关的变量
+                    // 重置cases中与klineNode相关的变量
                     const updatedCases = cases.map((caseItem) => ({
                         ...caseItem,
                         conditions: caseItem.conditions.map((condition) => ({

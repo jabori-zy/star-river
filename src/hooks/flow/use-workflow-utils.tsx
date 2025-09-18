@@ -21,11 +21,18 @@ const useWorkflowUtils = () => {
 	 * @param sourceNodeId 源节点ID
 	 * @returns 目标节点ID数组
 	 */
-	const getTargetNodeIds = useCallback((sourceNodeId: string) => {
+	const getTargetNodeIdsBySourceNodeId = useCallback((sourceNodeId: string) => {
 		const edges = getEdges();
 
 		return edges
 			.filter(edge => edge.source === sourceNodeId)
+			.map(edge => edge.target);
+	}, [getEdges]);
+
+	const getTargetNodeIdsBySourceHandleId = useCallback((sourceHandleId: string) => {
+		const edges = getEdges();
+		return edges
+			.filter(edge => edge.sourceHandle === sourceHandleId)
 			.map(edge => edge.target);
 	}, [getEdges]);
 
@@ -45,8 +52,9 @@ const useWorkflowUtils = () => {
 
 	return {
 		getBacktestTimeRange,
-		getTargetNodeIds,
+		getTargetNodeIds: getTargetNodeIdsBySourceNodeId,
 		deleteSourceHandleEdges,
+		getTargetNodeIdsBySourceHandleId,
 	};
 
 	

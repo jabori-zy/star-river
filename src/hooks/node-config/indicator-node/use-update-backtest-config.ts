@@ -56,7 +56,6 @@ export const useUpdateBacktestConfig = ({
 			const { backtestConfig: startNodeBacktestConfig } =
 				useStartNodeDataStore.getState();
 			const timeRange = startNodeBacktestConfig?.exchangeModeConfig?.timeRange;
-			console.log("获取默认配置", timeRange);
 			return {
 				dataSource: prev?.dataSource || BacktestDataSource.EXCHANGE,
 				fileModeConfig: prev?.fileModeConfig,

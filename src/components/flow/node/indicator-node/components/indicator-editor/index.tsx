@@ -7,6 +7,9 @@ import { getIndicatorConfig } from "@/types/indicator/indicator-config";
 import type { SelectedIndicator } from "@/types/node/indicator-node";
 import EditDialog from "./edit-dialog";
 import IndicatorViewerDialog from "./indicator-viewer-dialog";
+import useWorkflowUtils from "@/hooks/flow/use-workflow-utils";
+import { useReactFlow } from "@xyflow/react";
+import { NodeOpConfirmDialog } from "@/components/node-op-confirm-dialog";
 
 interface IndicatorEditorProps {
 	id: string; // 节点ID，用于生成handleId
@@ -26,6 +29,16 @@ const IndicatorEditor: React.FC<IndicatorEditorProps> = ({
 	const [showIndicatorViewer, setShowIndicatorViewer] = useState(false);
 	const [selectedIndicatorType, setSelectedIndicatorType] = useState<IndicatorType | undefined>(undefined);
 	const [fromIndicatorViewer, setFromIndicatorViewer] = useState(false); // 标记是否从指标浏览窗口打开的
+	const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+	const [pendingDeleteIndicator, setPendingDeleteIndicator] = useState<SelectedIndicator | null>(null);
+	const [pendingIndicatorData, setPendingIndicatorData] = useState<{
+		indicatorType: IndicatorType;
+		targetNodeCount: number;
+		targetNodeNames: string[];
+	} | null>(null);
+
+	const { deleteSourceHandleEdges, getTargetNodeIdsBySourceHandleId } = useWorkflowUtils();
+	const { getNode } = useReactFlow();
 
 	const handleAddIndicator = () => {
 		setIsEditing(false);
@@ -64,8 +77,52 @@ const IndicatorEditor: React.FC<IndicatorEditorProps> = ({
 	};
 
 	const handleDeleteIndicator = (index: number) => {
-		const updatedIndicators = selectedIndicators.filter((_, i) => i !== index);
+		const indicatorToDelete = selectedIndicators[index];
+		const targetNodeIds = getTargetNodeIdsBySourceHandleId(indicatorToDelete.outputHandleId);
+
+		const targetNodeNames = [...new Set(targetNodeIds.map((nodeId) => getNode(nodeId)?.data.nodeName as string).filter(Boolean))];
+
+		// 如果有连接的目标节点，显示确认对话框
+		if (targetNodeIds.length > 0) {
+			setPendingDeleteIndicator(indicatorToDelete);
+			setPendingIndicatorData({
+				indicatorType: indicatorToDelete.indicatorType,
+				targetNodeCount: targetNodeIds.length,
+				targetNodeNames: targetNodeNames
+			});
+			setIsConfirmDialogOpen(true);
+			return;
+		}
+
+		// 没有连接节点，直接删除
+		performDelete(index);
+	};
+
+	// 执行删除
+	const performDelete = (index?: number) => {
+		const targetIndex = index !== undefined ? index : selectedIndicators.findIndex(
+			indicator => pendingDeleteIndicator &&
+			indicator.indicatorType === pendingDeleteIndicator.indicatorType &&
+			indicator.configId === pendingDeleteIndicator.configId
+		);
+
+		if (targetIndex === -1) return;
+
+		const indicatorToDelete = selectedIndicators[targetIndex];
+
+		// 删除边
+		const sourceHandleId = indicatorToDelete.outputHandleId;
+		if (sourceHandleId) {
+			deleteSourceHandleEdges(sourceHandleId);
+		}
+
+		const updatedIndicators = selectedIndicators.filter((_, i) => i !== targetIndex);
 		onSelectedIndicatorsChange(updatedIndicators);
+
+		// 清理删除相关状态
+		setPendingDeleteIndicator(null);
+		setIsConfirmDialogOpen(false);
+		setPendingIndicatorData(null);
 	};
 
 	const handleSave = (config: SelectedIndicator) => {
@@ -80,6 +137,17 @@ const IndicatorEditor: React.FC<IndicatorEditorProps> = ({
 		}
 		setIsDialogOpen(false);
 		setFromIndicatorViewer(false); // 保存后重置状态
+	};
+
+	const handleConfirmDelete = () => {
+		performDelete();
+	};
+
+	const handleCancelDelete = () => {
+		// 关闭确认对话框并清理状态
+		setIsConfirmDialogOpen(false);
+		setPendingDeleteIndicator(null);
+		setPendingIndicatorData(null);
 	};
 
 	const getConfigDisplay = (
@@ -178,6 +246,17 @@ const IndicatorEditor: React.FC<IndicatorEditorProps> = ({
 				isOpen={showIndicatorViewer}
 				onClose={() => setShowIndicatorViewer(false)}
 				onSelectIndicator={handleSelectIndicator}
+			/>
+
+			{/* 确认删除对话框 */}
+			<NodeOpConfirmDialog
+				isOpen={isConfirmDialogOpen}
+				onOpenChange={setIsConfirmDialogOpen}
+				affectedNodeCount={pendingIndicatorData?.targetNodeCount || 0}
+				affectedNodeNames={pendingIndicatorData?.targetNodeNames || []}
+				onConfirm={handleConfirmDelete}
+				onCancel={handleCancelDelete}
+				operationType="delete"
 			/>
 		</div>
 	);
