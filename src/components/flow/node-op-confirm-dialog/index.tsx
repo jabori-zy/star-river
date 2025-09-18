@@ -61,7 +61,7 @@ export const NodeOpConfirmDialog: React.FC<NodeOpConfirmDialogProps> = ({
 
 	// 生成智能的描述文案
 	const generateDescriptionElement = () => {
-		const filteredNames = affectedNodeNames.filter(name => name && name.trim());
+		const filteredNames = affectedNodeNames.filter(name => name?.trim());
 		const count = affectedNodeCount;
 		const actionText = getActionText();
 

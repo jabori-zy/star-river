@@ -9,7 +9,7 @@ import EditDialog from "./edit-dialog";
 import IndicatorViewerDialog from "./indicator-viewer-dialog";
 import useWorkflowUtils from "@/hooks/flow/use-workflow-utils";
 import { useReactFlow } from "@xyflow/react";
-import { NodeOpConfirmDialog } from "@/components/node-op-confirm-dialog";
+import { NodeOpConfirmDialog } from "@/components/flow/node-op-confirm-dialog";
 
 interface IndicatorEditorProps {
 	id: string; // 节点ID，用于生成handleId

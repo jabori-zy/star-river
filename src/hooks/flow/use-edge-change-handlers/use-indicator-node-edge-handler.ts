@@ -24,9 +24,6 @@ export const useIndicatorNodeEdgeHandler = () => {
         // 如果indicatorConfigId为空，说明是sourceHandleId为默认输出句柄，需要清空target节点的所有配置
         const indicatorConfigId = indicatorNodeData.backtestConfig?.exchangeModeConfig?.selectedIndicators?.find((indicator) => indicator.outputHandleId === sourceHandleId)?.configId;
         
-        
-
-        console.log("indicatorConfigId", indicatorConfigId);
         if (!targetNode) return nodes;
         //2. 判断节点类型
         if (targetNode.type === NodeType.IfElseNode) {

@@ -84,7 +84,10 @@ const useNodeVariables = () => {
 			// 遍历所有连接，收集变量信息
 			for (const connection of connections) {
 				const sourceNodeId = connection.source;
-				const sourceHandleId = connection.sourceHandle!;
+				const sourceHandleId = connection.sourceHandle;
+
+				// 如果sourceHandleId为空，跳过此连接
+				if (!sourceHandleId) continue;
 
 				// 判断是否是默认输出句柄
 				const isDefaultOutput = isDefaultOutputHandleId(sourceHandleId);
@@ -188,11 +191,13 @@ const useNodeVariables = () => {
 							);
 						});
 					} else {
+						
 						// 特定输出：只添加匹配的变量配置
 						const variableConfig = variableConfigs?.find(
 							(config: VariableConfig) =>
-								config.inputHandleId === sourceHandleId,
+								config.outputHandleId === sourceHandleId,
 						);
+						console.log("variableConfig", variableConfig);
 						if (variableConfig) {
 							addOrUpdateVariableItem(
 								tempVariableItemList,

@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { type Edge, type EdgeChange, type Node } from "@xyflow/react";
+import type { Edge, EdgeChange, Node } from "@xyflow/react";
 import { useReactFlow } from "@xyflow/react";
 import { NodeType } from "@/types/node/index";
 import { useKlineNodeEdgeHandler } from "./use-kline-node-edge-handler";

@@ -10,7 +10,7 @@ import { SymbolSelectDialog } from "./symbol-select-dialog";
 import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 import useWorkflowUtils from "@/hooks/flow/use-workflow-utils";
 import { useReactFlow } from "@xyflow/react";
-import { NodeOpConfirmDialog } from "@/components/node-op-confirm-dialog";
+import { NodeOpConfirmDialog } from "@/components/flow/node-op-confirm-dialog";
 interface SymbolSelectorProps {
 	nodeId: string; // node id
 	selectedSymbols: SelectedSymbol[]; // selected symbols

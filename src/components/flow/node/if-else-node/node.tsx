@@ -1,6 +1,6 @@
-import { type NodeProps, Position, useReactFlow } from "@xyflow/react";
+import { type NodeProps, Position } from "@xyflow/react";
 import { Play } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import type { BaseHandleProps } from "@/components/flow/base/BaseHandle";
 import BaseNode from "@/components/flow/base/BaseNode";
 import { useUpdateBacktestConfig } from "@/hooks/node-config/if-else-node/use-update-backtest-config";
@@ -18,8 +18,6 @@ const IfElseNode: React.FC<NodeProps<IfElseNodeType>> = ({
 }) => {
 	const nodeName = data?.nodeName || "条件节点";
 	const { tradingMode } = useTradingModeStore();
-	const { getNode } = useReactFlow();
-	const lastConnectionRef = useRef<string | null>(null);
 
 	const { setDefaultBacktestConfig } = useUpdateBacktestConfig({
 		id,

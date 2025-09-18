@@ -1,11 +1,12 @@
-import {
-	type Edge,
-	type Node,
-	type NodeChange,
+import type {
+	Edge,
+	Node,
+	NodeChange,
 } from "@xyflow/react";
 import { useCallback } from "react";
 import { useKlineNodeChangeHandler } from "./use-kline-node-change-handler";
 import { useIndicatorNodeChangeHandler } from "./use-indicator-node-change-handler";
+import { useIfElseNodeChangeHandler } from "./use-ifelse-node-change-handler";
 import { NodeType } from "@/types/node";
 
 /**
@@ -14,6 +15,7 @@ import { NodeType } from "@/types/node";
 const useNodeChangeHandlers = () => {
 	const { handleKlineNodeChange } = useKlineNodeChangeHandler();
 	const { handleIndicatorNodeChange } = useIndicatorNodeChangeHandler();
+	const { handleIfElseNodeChange } = useIfElseNodeChangeHandler();
 
 	/**
 	 * 处理节点变化的主要逻辑
@@ -40,7 +42,6 @@ const useNodeChangeHandlers = () => {
 				}
 
 				else if (change.item.type === NodeType.IndicatorNode) {
-					console.log("IndicatorNode changed", change);
 					const oldNode = oldNodes.find((n) => n.id === change.item.id);
 					if (oldNode) {
 						updatedNodes = handleIndicatorNodeChange(oldNode, newNode, newNodes, edges);

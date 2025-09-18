@@ -1,9 +1,9 @@
 import { useCallback } from "react";
 import type { Edge, Node } from "@xyflow/react";
-import { IndicatorNodeData } from "@/types/node/indicator-node";
+import type { IndicatorNodeData } from "@/types/node/indicator-node";
 import { getOutgoers } from "@xyflow/react";
 import { NodeType } from "@/types/node";
-import { IfElseNodeData, Variable } from "@/types/node/if-else-node";
+import type { IfElseNodeData, Variable } from "@/types/node/if-else-node";
 import { createEmptyRightVariable } from "./utils";
 
 
@@ -57,7 +57,6 @@ export const useIndicatorNodeChangeHandler = () => {
         let hasChanged = false; // 是否发生变化
 
         if (oldIndicatorData.backtestConfig !== newIndicatorData.backtestConfig) {
-            console.log("IndicatorNode backtestConfig changed");
             if (newIndicatorData.backtestConfig) {
                 updatedNodes = handleBacktestConfigChanged(indicatorNodeId, updatedNodes, edges);
                 hasChanged = true;
