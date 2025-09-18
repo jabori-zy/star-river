@@ -13,11 +13,18 @@ export const useIndicatorNodeEdgeHandler = () => {
         deletedEdge: Edge,
         nodes: Node[],
     ): Node[] => {
+        
         //1. 找到targetNode
         const targetNode = nodes.find((node) => node.id === deletedEdge.target);
         const sourceHandleId = deletedEdge.sourceHandle;
+        console.log("sourceHandleId", sourceHandleId);
         // 对应的indicatorNode中的指标配置Id
-        const indicatorConfigId = (indicatorNode.data as IndicatorNodeData).backtestConfig?.exchangeModeConfig?.selectedIndicators?.find((indicator) => indicator.outputHandleId === sourceHandleId)?.configId;
+        const indicatorNodeData = indicatorNode.data as IndicatorNodeData;
+
+        // 如果indicatorConfigId为空，说明是sourceHandleId为默认输出句柄，需要清空target节点的所有配置
+        const indicatorConfigId = indicatorNodeData.backtestConfig?.exchangeModeConfig?.selectedIndicators?.find((indicator) => indicator.outputHandleId === sourceHandleId)?.configId;
+        
+        
 
         console.log("indicatorConfigId", indicatorConfigId);
         if (!targetNode) return nodes;
@@ -33,9 +40,11 @@ export const useIndicatorNodeEdgeHandler = () => {
                     ...caseItem,
                     conditions: caseItem.conditions.map((condition) => ({
                         ...condition,
-                        leftVariable: condition.leftVariable?.nodeId === indicatorNodeId && condition.leftVariable?.variableConfigId === indicatorConfigId
+                        leftVariable: condition.leftVariable?.nodeId === indicatorNodeId &&
+                            (indicatorConfigId === undefined || condition.leftVariable?.variableConfigId === indicatorConfigId)
                             ? null : condition.leftVariable,
-                        rightVariable: condition.rightVariable?.nodeId === indicatorNodeId && condition.rightVariable?.variableConfigId === indicatorConfigId
+                        rightVariable: condition.rightVariable?.nodeId === indicatorNodeId &&
+                            (indicatorConfigId === undefined || condition.rightVariable?.variableConfigId === indicatorConfigId)
                             ? {
                                 varType: condition.rightVariable.varType,
                                 nodeId: null,
