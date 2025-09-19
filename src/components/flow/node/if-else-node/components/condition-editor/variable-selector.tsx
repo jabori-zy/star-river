@@ -19,6 +19,7 @@ import type { SelectedSymbol } from "@/types/node/kline-node";
 import type { VariableConfig } from "@/types/node/variable-node";
 import { useTranslation } from "react-i18next";
 
+
 interface VariableSelectorProps {
 	variableItemList: VariableItem[];
 	variable: Variable | null;
@@ -381,7 +382,7 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 								variant="outline"
 								className="flex items-center justify-center text-[10px] leading-none py-1 border-gray-400 rounded-sm"
 							>
-								{variable.configId}|{variable.symbol || "不限交易对"}
+								{variable.symbol || t("IfElseNode.allSymbols")}
 							</Badge>
 						</div>
 						<div className="flex flex-col items-end">
@@ -396,9 +397,9 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 
 		result.push(
 			<SelectGroup key="variable_group">
-				<SelectLabel className="text-xs font-semibold text-purple-600 px-2 py-1.5">
+				{/* <SelectLabel className="text-xs font-semibold text-purple-600 px-2 py-1.5">
 					变量数据
-				</SelectLabel>
+				</SelectLabel> */}
 				{variableItems}
 			</SelectGroup>,
 		);
@@ -465,7 +466,7 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 				<SelectTrigger
 					className={cn("h-8 text-xs font-normal hover:bg-gray-200 min-w-20")}
 				>
-					<SelectValue placeholder="选择节点" className="truncate" />
+					<SelectValue placeholder={t("IfElseNode.selectNode")} className="truncate" />
 				</SelectTrigger>
 				<SelectContent className="max-h-80">
 					{variableItemList.map((item) => (
@@ -503,7 +504,7 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 						!selectedNodeId && "opacity-50 cursor-not-allowed",
 					)}
 				>
-					<SelectValue placeholder="选择变量" className="truncate" />
+					<SelectValue placeholder={t("IfElseNode.selectVariable")} className="truncate" />
 				</SelectTrigger>
 				<SelectContent className="max-h-80">
 					{renderVariableOptions()}

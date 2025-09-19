@@ -11,6 +11,7 @@ import {
 } from "@/types/node/if-else-node";
 import type { NodeData } from "@/types/node/index";
 import ConditionSetting from "./condition-setting";
+import { useTranslation } from "react-i18next";
 
 interface CaseEditorProps {
 	id: string;
@@ -29,7 +30,7 @@ const CaseEditor: React.FC<CaseEditorProps> = ({
 }) => {
 	// 本地的条件状态，用于编辑时，避免影响其他分支
 	const [localCaseItem, setLocalCaseItem] = useState<CaseItem>(caseItem);
-
+	const { t } = useTranslation();
 	// 当caseItem prop变化时，更新本地状态
 	useEffect(() => {
 		setLocalCaseItem(caseItem);
@@ -47,6 +48,8 @@ const CaseEditor: React.FC<CaseEditorProps> = ({
 				outputHandleId: null,
 				variableConfigId: null,
 				variable: null,
+				nodeType: null,
+				nodeName: null,
 			},
 		};
 		const updatedCaseItem = {
@@ -118,11 +121,11 @@ const CaseEditor: React.FC<CaseEditorProps> = ({
 				<div className="flex flex-row gap-2 items-center">
 					<Button
 						variant="ghost"
-						className="w-22 h-6 text-muted-foreground hover:text-red-500"
+						className="text-muted-foreground hover:text-red-500 h-6 px-2 gap-1 w-fit"
 						onClick={() => onCaseRemove(localCaseItem.caseId)}
 					>
-						<Trash2 className="w-2 h-2" />
-						<span className="text-xs">删除分支</span>
+						<Trash2 className="w-2 h-2 shrink-0" />
+						<span className="text-xs whitespace-nowrap">{t("IfElseNode.deleteBranch")}</span>
 					</Button>
 				</div>
 			</div>
@@ -148,7 +151,7 @@ const CaseEditor: React.FC<CaseEditorProps> = ({
 					className="h-7 text-xs px-3"
 					onClick={handleAddCondition}
 				>
-					添加条件
+					{t("IfElseNode.addCondition")}
 				</Button>
 			</div>
 			{/* 用div模拟分割线 */}

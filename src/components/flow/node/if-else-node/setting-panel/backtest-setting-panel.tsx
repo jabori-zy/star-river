@@ -15,13 +15,14 @@ import {
 } from "@/types/node/if-else-node";
 import { TradeMode } from "@/types/strategy";
 import CaseEditor from "../components/condition-editor/case-editor";
+import { useTranslation } from "react-i18next";
 
 const IfElseNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	id,
 	data,
 }) => {
 	const ifElseNodeData = data as IfElseNodeData;
-
+	const { t } = useTranslation();
 	const [localBacktestCases, setLocalBacktestCases] = useState<CaseItem[]>(
 		ifElseNodeData?.backtestConfig?.cases || [],
 	);
@@ -192,7 +193,7 @@ const IfElseNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 			<div className="flex flex-col gap-2 p-2">
 				<h3 className="text-sm font-bold">ELSE</h3>
 				<div className="text-xs text-muted-foreground">
-					当所有条件都不满足时，则会执行ELSE分支
+					{t("IfElseNode.elseDescription")}
 				</div>
 			</div>
 		</div>

@@ -45,6 +45,7 @@ const IfElseNode: React.FC<NodeProps<IfElseNodeType>> = ({
 			icon={Play}
 			selected={selected}
 			defaultInputHandle={defaultInputHandle}
+			className="!max-w-none"
 		>
 			{tradingMode === TradeMode.BACKTEST && (
 				<BacktestModeShow id={id} data={data} />
