@@ -482,8 +482,6 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
                                         if (klineKeys.length === 0) {
                                                 console.warn("klineKeys 为空，无法修复缺失的 klineKey");
                                         } else {
-                                                console.log("图表的klineKey不在klineKeys中，替换为klineKeys中的第一个");
-                                                console.log("第一个klineKey", klineKeys[0]);
                                                 const klineKey = parseKey(klineKeys[0]) as KlineKey;
                                                 updatedChart.chartName = `${klineKey.symbol} ${klineKey.interval}`;
                                                 updatedChart.klineChartConfig = {
