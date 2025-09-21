@@ -345,6 +345,9 @@ export const useBacktestChart = ({
 	const createIndicatorSeries = useCallback(
 		(chart: IChartApi, indicatorChartConfigs: IndicatorChartConfig[]) => {
 			indicatorChartConfigs.forEach((config) => {
+				if (config.isDelete) {
+					return;
+				}
 				if (config.isInMainChart) {
 					config.seriesConfigs.forEach((seriesConfig) => {
 						const mainChartIndicatorSeries = addIndicatorSeries(
@@ -455,6 +458,7 @@ export const useBacktestChart = ({
 			// 将图表实例保存到store中
 			setChartRef(chart);
 
+			console.log("初始化图表", chartConfig);
 			// 创建K线系列
 			const candleSeries = addKlineSeries(chart, chartConfig.klineChartConfig);
 			setKlineKeyStr(chartConfig.klineChartConfig.klineKeyStr);

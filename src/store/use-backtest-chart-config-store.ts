@@ -73,9 +73,10 @@ interface BacktestChartConfigState {
 	getKlineVisibility: (chartId: number) => boolean;
 
 	// 辅助方法
-	fetchCacheKeys: () => Promise<Record<string, KlineKey | IndicatorKey>>;
+	getKeys: () => Promise<Record<string, KlineKey | IndicatorKey>>;
 	getChartById: (chartId: number) => BacktestChartConfig | undefined;
 	_updateChart: (chartId: number, chartUpdater: (chart: BacktestChartConfig) => BacktestChartConfig) => void;
+	_validateAndFixChartConfig: (chartConfig: BacktestStrategyChartConfig, klineKeys: string[], indicatorKeys: string[]) => BacktestStrategyChartConfig;
 	reset: () => void;
 }
 
@@ -107,7 +108,7 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 		},
 
 		// 获取策略缓存键
-		fetchCacheKeys: async () => {
+		getKeys: async () => {
 			const { strategyId } = get();
 			if (!strategyId) return {};
 
@@ -130,15 +131,15 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 
 		// 创建默认图表配置
 		createDefaultChart: async () => {
-			const { fetchCacheKeys } = get();
+			const { getKeys } = get();
 
 			try {
-				const cacheKeys = await fetchCacheKeys();
+				const cacheKeys = await getKeys();
 				if (cacheKeys && Object.keys(cacheKeys).length > 0) {
 					// 过滤出kline key
 					const klineKeys = Object.keys(cacheKeys).filter((key) => {
 						const parsedKey = cacheKeys[key];
-						return !("indicatorType" in parsedKey);
+						return (parsedKey.type === "kline");
 					});
 
 					if (klineKeys.length > 0) {
@@ -191,23 +192,34 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 		loadChartConfig: async (strategyId: number) => {
 			try {
 				set({ isLoading: true, strategyId });
-				const config = await getBacktestStrategyChartConfig(strategyId);
-				console.log("后端返回的图表配置:", config);
+				const chartConfig = await getBacktestStrategyChartConfig(strategyId);
+				console.log("后端返回的图表配置:", chartConfig);
 
-				// 检查后端返回的配置是否有效
-				const hasValidConfig =
-					config?.charts &&
-					Array.isArray(config.charts) &&
-					config.charts.length > 0;
+				const keys = await get().getKeys();
+				if (keys && Object.keys(keys).length > 0) {
+					// 在一个循环中分离 kline 和 indicator keys
+					const klineKeys: string[] = [];
+					const indicatorKeys: string[] = [];
 
-				if (hasValidConfig) {
-					// 使用后端配置
-					set({
-						chartConfig: {
-							charts: config.charts,
-							layout: config.layout || "vertical",
-						},
+					Object.keys(keys).forEach((k) => {
+						const parsedKey = keys[k];
+						if (parsedKey.type === "kline") {
+							klineKeys.push(k);
+						} else if (parsedKey.type === "indicator") {
+							indicatorKeys.push(k);
+						}
 					});
+
+					// 检查后端返回的配置是否有效
+					const hasValidConfig = chartConfig?.charts && Array.isArray(chartConfig.charts) && chartConfig.charts.length > 0;
+
+					if (hasValidConfig) {
+						// 使用后端配置，验证并修复配置
+						const { _validateAndFixChartConfig } = get();
+						const validatedConfig = _validateAndFixChartConfig(chartConfig, klineKeys, indicatorKeys);
+						console.log("验证并修复后的图表配置: ", validatedConfig);
+						set({ chartConfig: validatedConfig });
+					}
 				} else {
 					// 后端配置无效（null、空数组或不存在），创建默认图表
 					const { createDefaultChart } = get();
@@ -454,6 +466,47 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 		getChartById: (chartId) => {
 			const { chartConfig } = get();
 			return chartConfig.charts.find((chart) => chart.id === chartId);
+		},
+
+		// 验证并修复图表配置
+		_validateAndFixChartConfig: (chartConfig, klineKeys, indicatorKeys) => {
+			const updatedCharts = chartConfig.charts.map((chart) => {
+				const klineChartKey = chart.klineChartConfig.klineKeyStr;
+
+				// 创建新的图表配置对象
+				const updatedChart = { ...chart };
+
+				// 判断klineChartKey是否在klineKeys中
+				// 如果不在，则将该图表的key替换为klineKeys中的第一个
+				if (!klineKeys.includes(klineChartKey)) {
+					console.log("图表的klineKey不在klineKeys中，替换为klineKeys中的第一个");
+					console.log("第一个klineKey", klineKeys[0]);
+					const klineKey = parseKey(klineKeys[0]) as KlineKey;
+					updatedChart.chartName = `${klineKey.symbol} ${klineKey.interval}`;
+					updatedChart.klineChartConfig = {
+						...chart.klineChartConfig,
+						klineKeyStr: klineKeys[0]
+					};
+				}
+
+				// 处理指标配置
+				updatedChart.indicatorChartConfigs = chart.indicatorChartConfigs.map((indicator_chart) => {
+					const indicatorChartKey = indicator_chart.indicatorKeyStr;
+					// 判断indicatorChartKey是否在indicatorKeys中
+					if (!indicatorKeys.includes(indicatorChartKey)) {
+						// 如果不在，则将该指标删除
+						return { ...indicator_chart, isDelete: true };
+					}
+					return indicator_chart;
+				});
+
+				return updatedChart;
+			});
+
+			return {
+				charts: updatedCharts,
+				layout: chartConfig.layout || "vertical",
+			};
 		},
 
 		toggleKlineVisibility: (chartId) => {

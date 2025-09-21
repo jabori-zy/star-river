@@ -20,6 +20,7 @@ export async function getInitialChartData(
 		if (limit !== null) {
 			params.append("limit", limit.toString());
 		}
+		console.log("index", index, "limit", limit);
 		const response = await axios.get(`${API_URL}/value?${params.toString()}`);
 
 		if (response.status !== 200) {

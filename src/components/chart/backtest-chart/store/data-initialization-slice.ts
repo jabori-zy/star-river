@@ -25,12 +25,14 @@ export const createDataInitializationSlice = (
 ): SliceCreator<DataInitializationSlice> => (set, get) => ({
 	// 私有方法：处理K线数据
 	_processKlineData: async (klineKeyStr: KeyStr, playIndex: number) => {
+		console.log("处理K线数据", klineKeyStr, playIndex);
 		const state = get();
 		const initialKlines = (await getInitialChartData(
 			klineKeyStr,
 			playIndex,
 			null,
 		)) as Kline[];
+		console.log("初始K线数据", initialKlines);
 
 		// 安全检查：确保 initialKlines 存在且是数组
 		if (
