@@ -80,7 +80,7 @@ export const createEventHandlerSlice = (
 				const lastData = existingData[existingData.length - 1];
 
 				// 过滤主图指标的0值
-				if (newDataPoint.value === 0 && isInMainChart) {
+				if ((newDataPoint.value === 0 || newDataPoint.value === null) && isInMainChart) {
 					return;
 				}
 

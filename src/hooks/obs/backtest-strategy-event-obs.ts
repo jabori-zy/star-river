@@ -97,7 +97,7 @@ class BacktestStrategyDataObservableService {
 	createKlineStreamFromKey(
 		keyStr: KeyStr,
 		enabled: boolean = true,
-	): Observable<Kline[]> {
+	): Observable<Kline> {
 		return this.createKlineStream(enabled).pipe(
 			filter((event) => event.klineKey === keyStr),
 			map((event) => event.kline),
@@ -144,10 +144,10 @@ class BacktestStrategyDataObservableService {
 	createIndicatorStreamFromKey(
 		keyStr: KeyStr,
 		enabled: boolean = true,
-	): Observable<Record<string, number | string>[]> {
+	): Observable<Record<string, number | string>> {
 		return this.createIndicatorStream(enabled).pipe(
 			filter((event) => event.indicatorKey === keyStr),
-			map((event) => event.indicatorSeries),
+			map((event) => event.indicatorValue),
 			share(),
 		);
 	}

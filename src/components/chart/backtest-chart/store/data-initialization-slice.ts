@@ -63,7 +63,6 @@ export const createDataInitializationSlice = (
 			playIndex,
 			null,
 		)) as Record<keyof IndicatorValueConfig, number | Date>[];
-
 		// 安全检查：确保指标数据存在
 		if (
 			initialIndicatorData &&
@@ -73,8 +72,8 @@ export const createDataInitializationSlice = (
 			const indicatorData: Record<keyof IndicatorValueConfig, SingleValueData[]> = {};
 			initialIndicatorData.forEach((item) => {
 				Object.entries(item).forEach(([indicatorValueField, value]) => {
-					// 跳过datetime字段，只处理指标值，并过滤value为0的数据
-					if (indicatorValueField !== "datetime" && value !== 0) {
+					// 跳过datetime字段，只处理指标值，并过滤value为0的数据和value为空的数据
+					if (indicatorValueField !== "datetime" && (value !== 0 && value !== null)) {
 						indicatorData[indicatorValueField as keyof IndicatorValueConfig] =
 							[
 								...(indicatorData[
