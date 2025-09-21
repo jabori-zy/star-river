@@ -64,7 +64,6 @@ const IndicatorNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 			if (nodeType !== NodeType.KlineNode) continue;
 
 			const klineNodeData = node.data as KlineNodeData;
-			console.log("klineNodeData", klineNodeData);
 			const selectedAccount =
 				klineNodeData.backtestConfig?.exchangeModeConfig?.selectedAccount;
 			if (selectedAccount) {

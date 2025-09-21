@@ -12,6 +12,8 @@ import ComparisonSymbolSelector from "./comparison-symbol-selector";
 import ConstantInput from "./constant-input";
 import VarTypeSelector from "./var-type-selector";
 import VariableSelector from "./variable-selector";
+import type { NodeType } from "@/types/node/index";
+import { useTranslation } from "react-i18next";
 
 interface ConditionSettingProps {
 	variableItemList: VariableItem[];
@@ -31,20 +33,21 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 }) => {
 	// 本地的条件状态，用于编辑时
 	const [localCondition, setLocalCondition] = useState<Condition>(condition);
-
+	const { t } = useTranslation();
 	// 当传入的condition发生变化时，同步更新本地状态
 	useEffect(() => {
 		setLocalCondition(condition);
 	}, [condition]);
 
 	// 更新左节点
-	const handleUpdateLeftNode = (nodeId: string, nodeName: string) => {
+	const handleUpdateLeftNode = (nodeId: string, nodeType: NodeType | null, nodeName: string) => {
 		const newLeftVariable: Variable = {
 			varType: VarType.variable,
 			nodeId: nodeId,
-			outputHandleId: localCondition.leftVariable?.outputHandleId || null,
-			variableConfigId: localCondition.leftVariable?.variableConfigId || null,
-			variable: localCondition.leftVariable?.variable || null,
+			nodeType: nodeType,
+			outputHandleId: null,
+			variableConfigId: null,
+			variable: null,
 			nodeName: nodeName,
 		};
 		const newCondition = { ...localCondition, leftVariable: newLeftVariable };
@@ -55,15 +58,19 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 	// 更新左变量
 	const handleUpdateLeftVariable = (
 		variableId: number,
-		variableName: string,
 		handleId: string,
+		variable: string,
+		variableName: string,
 	) => {
+
 		const newLeftVariable: Variable = {
 			varType: VarType.variable,
 			nodeId: localCondition.leftVariable?.nodeId || null,
+			nodeType: localCondition.leftVariable?.nodeType || null,
 			outputHandleId: handleId,
 			variableConfigId: variableId,
-			variable: variableName,
+			variableName: variableName,
+			variable: variable,
 			nodeName: localCondition.leftVariable?.nodeName || null,
 		};
 		const newCondition = { ...localCondition, leftVariable: newLeftVariable };
@@ -73,13 +80,14 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 	};
 
 	// 更新右节点
-	const handleUpdateRightNode = (nodeId: string, nodeName: string) => {
+	const handleUpdateRightNode = (nodeId: string, nodeType: NodeType | null, nodeName: string) => {
 		const newRightVariable: Variable = {
 			varType: VarType.variable,
 			nodeId: nodeId,
-			outputHandleId: localCondition.rightVariable?.outputHandleId || null,
-			variableConfigId: localCondition.rightVariable?.variableConfigId || null,
-			variable: localCondition.rightVariable?.variable || null,
+			nodeType: nodeType,
+			outputHandleId: null,
+			variableConfigId: null,
+			variable: null,
 			nodeName: nodeName,
 		};
 		const newCondition = { ...localCondition, rightVariable: newRightVariable };
@@ -90,15 +98,18 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 	// 更新右变量
 	const handleUpdateRightVariable = (
 		variableId: number,
-		variableName: string,
 		handleId: string,
+		variable: string,
+		variableName: string,
 	) => {
 		const newRightVariable: Variable = {
 			varType: VarType.variable,
 			nodeId: localCondition.rightVariable?.nodeId || null,
+			nodeType: localCondition.rightVariable?.nodeType || null,
 			outputHandleId: handleId,
 			variableConfigId: variableId,
-			variable: variableName,
+			variableName: variableName,
+			variable: variable,
 			nodeName: localCondition.rightVariable?.nodeName || null,
 		};
 		const newCondition = { ...localCondition, rightVariable: newRightVariable };
@@ -123,6 +134,7 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 		const newRightVariable: Variable = {
 			varType: varType,
 			nodeId: null,
+			nodeType: null,
 			outputHandleId: null,
 			variableConfigId: null,
 			variable: null,
@@ -138,6 +150,7 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 		const newRightVariable: Variable = {
 			varType: VarType.constant,
 			nodeId: null,
+			nodeType: null,
 			outputHandleId: null,
 			variableConfigId: null,
 			variable: value.toString(),
@@ -154,7 +167,7 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 			<div className="flex flex-col flex-1">
 				<div className="flex flex-col gap-1 p-2 min-h-16">
 					<div className="flex flex-row justify-between">
-						<span className="text-sm font-bold text-left">左值</span>
+						<span className="text-sm font-bold text-muted-foreground text-left">{t("IfElseNode.leftVariable")}</span>
 						<Button
 							variant="ghost"
 							size="icon"
@@ -173,7 +186,7 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 					/>
 				</div>
 				<div className="flex flex-col gap-1 px-2 min-h-16">
-					<div className="text-sm font-bold text-left">符号</div>
+					<div className="text-sm font-bold text-muted-foreground text-left">{t("IfElseNode.operator")}</div>
 					<div className="flex flex-row gap-2 items-center">
 						<ComparisonSymbolSelector
 							className="w-16"
@@ -193,7 +206,7 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 					</div>
 				</div>
 				<div className="flex flex-col gap-1 px-2 min-h-16">
-					<div className="text-sm font-bold text-left">右值</div>
+					<div className="text-sm font-bold text-muted-foreground text-left">{t("IfElseNode.rightVariable")}</div>
 					{localCondition.rightVariable?.varType === VarType.variable ? (
 						<VariableSelector
 							variableItemList={variableItemList}

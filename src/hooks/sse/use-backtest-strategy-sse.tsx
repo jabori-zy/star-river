@@ -59,7 +59,7 @@ const useBacktestStrategyEventSSE = (enabled: boolean = true) => {
 						const cacheKeyStr = (strategyEvent as IndicatorUpdateEvent)
 							.indicatorKey;
 						const data = (strategyEvent as IndicatorUpdateEvent)
-							.indicatorSeries;
+							.indicatorValue;
 						// console.log("添加新指标数据", cacheKeyStr, data);
 						addIndicatorData(cacheKeyStr, data);
 					}

@@ -5,13 +5,18 @@ import type {
 	Condition,
 	LogicalSymbol,
 } from "@/types/node/if-else-node";
-// import { Badge } from "@/components/ui/badge";
+import { VarType } from "@/types/node/if-else-node";
 import {
 	getCaseTypeLabel,
 	getComparisonLabel,
 	getLogicalLabel,
 	getVariableLabel,
+	getNodeTypeIcon,
 } from "./utils";
+import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useReactFlow } from "@xyflow/react";
+import { useTranslation } from "react-i18next";
 
 interface IfElseCaseItemProps {
 	caseItem: CaseItem;
@@ -27,30 +32,78 @@ const ConditionItem = ({
 	isLast: boolean;
 	logicalSymbol: LogicalSymbol | null;
 }) => {
+
+	const { getNodes } = useReactFlow();
+	const nodes = getNodes();
+	const { t } = useTranslation();
+
 	return (
-		<div className="flex items-center gap-1 flex-wrap">
+		<div className="flex items-center gap-1 flex-nowrap whitespace-nowrap">
 			{/* 左变量 */}
-			<span className="bg-blue-100 px-1 rounded text-xs">
-				{getVariableLabel(condition.leftVariable)}
-			</span>
+			<Tooltip>
+				<TooltipTrigger asChild>
+					<div className="flex items-center gap-1 px-1 py-1 bg-gray-50 rounded-md border hover:bg-gray-200 transition-colors cursor-default min-w-0">
+						<span className="text-sm shrink-0">
+							{getNodeTypeIcon(condition.leftVariable?.nodeType || undefined)}
+						</span>
+						<span className="text-xs font-medium text-gray-900 truncate">
+							{getVariableLabel(condition.leftVariable, nodes, t)}
+						</span>
+					</div>
+				</TooltipTrigger>
+				<TooltipContent>
+					<p>
+						{condition.leftVariable?.nodeName && condition.leftVariable?.variableConfigId
+							? `${condition.leftVariable.nodeName}-${t("IfElseNode.config")}${condition.leftVariable.variableConfigId}`
+							: t("IfElseNode.notSet")
+						}
+					</p>
+				</TooltipContent>
+			</Tooltip>
 
 			{/* 比较符号 */}
 			{condition.comparisonSymbol && (
-				<span className="text-orange-600 font-semibold">
-					{getComparisonLabel(condition.comparisonSymbol)}
-				</span>
+				<div className="flex items-center justify-center w-5 h-5 bg-orange-100 rounded-full shrink-0">
+					<span className="text-orange-600 font-bold text-xs">
+						{getComparisonLabel(condition.comparisonSymbol)}
+					</span>
+				</div>
 			)}
 
 			{/* 右变量 */}
-			<span className="bg-green-100 px-1 rounded text-xs">
-				{getVariableLabel(condition.rightVariable)}
-			</span>
+			<Tooltip>
+				<TooltipTrigger asChild>
+					<div className="flex items-center gap-1 px-1 py-1 bg-gray-50 rounded-md border hover:bg-gray-200 transition-colors cursor-default min-w-0">
+						<span className="text-sm shrink-0">
+							{condition.rightVariable?.varType === VarType.constant
+								? "🔢"
+								: getNodeTypeIcon(condition.rightVariable?.nodeType || undefined)}
+							
+						</span>
+						<span className="text-xs font-medium text-gray-900 truncate">
+							{getVariableLabel(condition.rightVariable, nodes, t)}
+						</span>
+					</div>
+				</TooltipTrigger>
+				<TooltipContent>
+					<p>
+						{
+							condition.rightVariable?.varType === VarType.constant
+								? condition.rightVariable.variable ? condition.rightVariable.variable : "0"
+								: condition.rightVariable?.nodeName && condition.rightVariable?.variableConfigId
+									? `${condition.rightVariable.nodeName}-${t("IfElseNode.config")}${condition.rightVariable.variableConfigId}`
+									: t("IfElseNode.notSet")
+									}
+					
+					</p>
+				</TooltipContent>
+			</Tooltip>
 
 			{/* 逻辑符号 (不是最后一个条件时显示) */}
 			{!isLast && logicalSymbol && (
-				<span className="text-purple-600 font-semibold mx-1">
+				<Badge variant="secondary" className="bg-purple-100 text-purple-700 border-purple-200 text-xs shrink-0">
 					{getLogicalLabel(logicalSymbol)}
-				</span>
+				</Badge>
 			)}
 		</div>
 	);
@@ -58,6 +111,7 @@ const ConditionItem = ({
 
 export function IfElseCaseItem({ caseItem, handleId }: IfElseCaseItemProps) {
 	const caseTypeLabel = getCaseTypeLabel(caseItem.caseId);
+	const { t } = useTranslation();
 
 	return (
 		<div className="relative">
@@ -84,7 +138,7 @@ export function IfElseCaseItem({ caseItem, handleId }: IfElseCaseItemProps) {
 						{/* 条件列表 */}
 						<div className="text-xs text-muted-foreground space-y-1">
 							{caseItem.conditions.length === 0 ? (
-								<div className="text-xs text-muted-foreground">未配置条件</div>
+								<div className="text-xs text-muted-foreground">{t("IfElseNode.noConditions")}</div>
 							) : (
 								caseItem.conditions.map((condition, index) => (
 									<ConditionItem

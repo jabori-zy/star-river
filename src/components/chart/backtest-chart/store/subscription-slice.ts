@@ -31,9 +31,9 @@ export const createSubscriptionSlice: SliceCreator<SubscriptionSlice> = (set, ge
 					// 订阅K线数据流
 					const klineStream = createKlineStreamFromKey(keyStr, true);
 					const klineSubscription = klineStream.subscribe({
-						next: (klineData: Kline[]) => {
+						next: (klineData: Kline) => {
 							// 更新kline
-							state.onNewKline(keyStr, klineData[klineData.length - 1]);
+							state.onNewKline(keyStr, klineData);
 						},
 						error: (error: Error) => {
 							console.error("K线数据流订阅错误:", error);
@@ -80,7 +80,7 @@ export const createSubscriptionSlice: SliceCreator<SubscriptionSlice> = (set, ge
 					const indicatorStream = createIndicatorStreamFromKey(keyStr, true);
 					const indicatorSubscription = indicatorStream.subscribe({
 						next: (
-							indicatorData: Record<keyof IndicatorValueConfig, number | string>[],
+							indicatorData: Record<keyof IndicatorValueConfig, number | string>,
 						) => {
 							// 转换指标数据格式为 Record<keyof IndicatorValueConfig, SingleValueData[]>
 							const indicator: Record<
@@ -88,8 +88,7 @@ export const createSubscriptionSlice: SliceCreator<SubscriptionSlice> = (set, ge
 								SingleValueData[]
 							> = {};
 
-							indicatorData.forEach((item) => {
-								Object.entries(item).forEach(([indicatorValueKey, value]) => {
+							Object.entries(indicatorData).forEach(([indicatorValueKey, value]) => {
 									// 跳过datetime字段，只处理指标值
 									if (indicatorValueKey === 'datetime') return;
 
@@ -99,11 +98,10 @@ export const createSubscriptionSlice: SliceCreator<SubscriptionSlice> = (set, ge
 												indicatorValueKey as keyof IndicatorValueConfig
 											] || []),
 											{
-												time: getChartAlignedUtcSeconds(item.datetime as unknown as string) as UTCTimestamp,
+												time: getChartAlignedUtcSeconds(indicatorData.datetime as unknown as string) as UTCTimestamp,
 												value: value as number,
-											} as SingleValueData,
-										];
-								});
+										} as SingleValueData,
+									];
 							});
 							// 更新indicator
 							state.onNewIndicator(keyStr, indicator);
@@ -140,9 +138,9 @@ export const createSubscriptionSlice: SliceCreator<SubscriptionSlice> = (set, ge
 		if (key.type === "kline") {
 			const klineStream = createKlineStreamFromKey(keyStr, true);
 			const klineSubscription = klineStream.subscribe({
-				next: (klineData: Kline[]) => {
+				next: (klineData: Kline) => {
 					// 更新kline
-					state.onNewKline(keyStr, klineData[klineData.length - 1]);
+					state.onNewKline(keyStr, klineData);
 				},
 				error: (error: Error) => {
 					console.error("K线数据流订阅错误:", error);
@@ -170,13 +168,12 @@ export const createSubscriptionSlice: SliceCreator<SubscriptionSlice> = (set, ge
 			const indicatorStream = createIndicatorStreamFromKey(keyStr, true);
 			const indicatorSubscription = indicatorStream.subscribe({
 				next: (
-					indicatorData: Record<keyof IndicatorValueConfig, number | string>[],
+					indicatorData: Record<keyof IndicatorValueConfig, number | string>,
 				) => {
 					// 转换指标数据格式为 Record<keyof IndicatorValueConfig, SingleValueData[]>
 					const indicator: Record<keyof IndicatorValueConfig, SingleValueData[]> = {};
 
-					indicatorData.forEach((item) => {
-						Object.entries(item).forEach(([indicatorValueKey, value]) => {
+					Object.entries(indicatorData).forEach(([indicatorValueKey, value]) => {
 							// 跳过datetime字段，只处理指标值
 							if (indicatorValueKey === 'datetime') return;
 
@@ -186,11 +183,10 @@ export const createSubscriptionSlice: SliceCreator<SubscriptionSlice> = (set, ge
 										indicatorValueKey as keyof IndicatorValueConfig
 									] || []),
 									{
-										time: getChartAlignedUtcSeconds(item.datetime as unknown as string) as UTCTimestamp,
+										time: getChartAlignedUtcSeconds(indicatorData.datetime as unknown as string) as UTCTimestamp,
 										value: value as number,
-									} as SingleValueData,
-								];
-						});
+								} as SingleValueData,
+							];
 					});
 					// 更新indicator
 					state.onNewIndicator(keyStr, indicator);

@@ -44,12 +44,12 @@ export type BaseEventProps = {
 export type KlineUpdateEvent = BaseEventProps & {
 	klineCacheIndex: number;
 	klineKey: KeyStr;
-	kline: Kline[];
+	kline: Kline;
 };
 
 export type IndicatorUpdateEvent = BaseEventProps & {
 	indicatorKey: KeyStr;
-	indicatorSeries: Record<string, number | string>[];
+	indicatorValue: Record<string, number | string>;
 };
 
 export type VirtualOrderEvent = BaseEventProps & {

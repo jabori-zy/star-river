@@ -4,6 +4,10 @@ import {
 	type Variable,
 	VarType,
 } from "@/types/node/if-else-node";
+import { NodeType } from "@/types/node/index";
+import type { Node } from "@xyflow/react";
+import type { KlineNodeData } from "@/types/node/kline-node";
+import type { IndicatorNodeData } from "@/types/node/indicator-node";
 
 // 获取条件类型的中文标签
 export const getCaseTypeLabel = (caseId: number) => {
@@ -27,17 +31,77 @@ export const getLogicalLabel = (symbol: LogicalSymbol | null) => {
 };
 
 // 获取变量显示文本
-export const getVariableLabel = (variable: Variable | null) => {
-	if (!variable) return "未设置";
-
+export const getVariableLabel = (variable: Variable | null, nodes: Node[], t: (key: string) => string) => {
+	if (!variable) return t("IfElseNode.notSet");
 	if (variable.varType === VarType.constant) {
+		if (!variable.variable) {
+			return "0";
+		}
 		return `${variable.variable}`;
-	} else if (variable.varType === VarType.variable) {
-		const nodeName = variable.nodeName || "未设置";
-		const variableName = variable.variable || "未设置";
-		const variableId = variable.variableConfigId || "未设置";
-		return `${nodeName} - ${variableId}|${variableName}`;
+	} 
+	
+	else if (variable.varType === VarType.variable) {
+		if (!variable.nodeName || !variable.variable || !variable.variableConfigId) {
+			return t("IfElseNode.notSet");
+		}
+
+		
+		if (variable.nodeType === NodeType.KlineNode) {
+			return getKlineNodeVariableLabel(variable, nodes, t);
+		} else if (variable.nodeType === NodeType.IndicatorNode) {
+			return getIndicatorNodeVariableLabel(variable, nodes, t);
+		}
+		else if (variable.nodeType === NodeType.VariableNode) {
+			return getVariableNodeVariableLable(variable, t);
+		}
 	}
 
-	return "未设置";
+	return t("IfElseNode.notSet");
+};
+
+
+
+export const getKlineNodeVariableLabel = (variable: Variable, nodes: Node[], t: (key: string) => string) => {
+	const klineNode = nodes.find((node) => node.id === variable.nodeId);
+	const klineNodeData = klineNode?.data as KlineNodeData;
+	const selectedSymbols = klineNodeData.backtestConfig?.exchangeModeConfig?.selectedSymbols;
+	const selectedSymbol = selectedSymbols?.find((symbol) => symbol.configId === variable.variableConfigId);
+	if (selectedSymbol) {
+		return `${selectedSymbol.symbol}/${selectedSymbol.interval}/${variable.variableName}`;
+	}
+	return t("IfElseNode.notSet");
+}
+
+
+export const getIndicatorNodeVariableLabel = (variable: Variable, nodes: Node[], t: (key: string) => string) => {
+	const indicatorNode = nodes.find((node) => node.id === variable.nodeId);
+	const indicatorNodeData = indicatorNode?.data as IndicatorNodeData;
+	const selectedIndicators = indicatorNodeData.backtestConfig?.exchangeModeConfig?.selectedIndicators;
+	const selectedIndicator = selectedIndicators?.find((indicator) => indicator.configId === variable.variableConfigId);
+	if (selectedIndicator) {
+		return `${selectedIndicator.indicatorType}-${variable.variableName}`;
+	}
+	return t("IfElseNode.notSet");
+}
+
+
+export const getVariableNodeVariableLable = (variable: Variable, _t: (key: string) => string) => {
+
+	return `${variable.variableName}`;
+}
+
+// 获取节点类型图标
+export const getNodeTypeIcon = (nodeType?: NodeType) => {
+	switch (nodeType) {
+		case NodeType.KlineNode:
+			return "📊";
+		case NodeType.IndicatorNode:
+			return "📈";
+		case NodeType.VariableNode:
+			return "🔢";
+		case NodeType.FuturesOrderNode:
+			return "💰";
+		default:
+			return "❓";
+	}
 };

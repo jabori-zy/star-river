@@ -12,20 +12,23 @@ import {
 } from "@/components/ui/select";
 import type { VariableItem } from "@/hooks/flow/use-strategy-workflow";
 import { cn } from "@/lib/utils";
+import type { NodeType } from "@/types/node/index";
 import type { Variable } from "@/types/node/if-else-node";
-import { NodeType } from "@/types/node/index";
 import type { SelectedIndicator } from "@/types/node/indicator-node";
 import type { SelectedSymbol } from "@/types/node/kline-node";
 import type { VariableConfig } from "@/types/node/variable-node";
+import { useTranslation } from "react-i18next";
+
 
 interface VariableSelectorProps {
 	variableItemList: VariableItem[];
 	variable: Variable | null;
-	onNodeChange: (nodeId: string, nodeName: string) => void; // 节点选择回调
+	onNodeChange: (nodeId: string, nodeType: NodeType | null, nodeName: string) => void; // 节点选择回调
 	onVariableChange: (
 		variableId: number,
-		variableName: string,
 		handleId: string,
+		variable: string,
+		variableName: string,
 	) => void; // 变量选择回调
 }
 
@@ -53,18 +56,18 @@ const isVariableConfig = (
 };
 
 // 获取节点类型的显示名称
-const getNodeTypeDisplayName = (nodeType: NodeType): string => {
-	const nodeTypeMap: Record<NodeType, string> = {
-		[NodeType.StartNode]: "开始",
-		[NodeType.KlineNode]: "K线",
-		[NodeType.IndicatorNode]: "指标",
-		[NodeType.IfElseNode]: "条件",
-		[NodeType.FuturesOrderNode]: "期货订单",
-		[NodeType.PositionManagementNode]: "仓位管理",
-		[NodeType.VariableNode]: "变量",
-	};
-	return nodeTypeMap[nodeType] || nodeType;
-};
+// const getNodeTypeDisplayName = (nodeType: NodeType): string => {
+// 	const nodeTypeMap: Record<NodeType, string> = {
+// 		[NodeType.StartNode]: "开始",
+// 		[NodeType.KlineNode]: "K线",
+// 		[NodeType.IndicatorNode]: "指标",
+// 		[NodeType.IfElseNode]: "条件",
+// 		[NodeType.FuturesOrderNode]: "期货订单",
+// 		[NodeType.PositionManagementNode]: "仓位管理",
+// 		[NodeType.VariableNode]: "变量",
+// 	};
+// 	return nodeTypeMap[nodeType] || nodeType;
+// };
 
 const VariableSelector: React.FC<VariableSelectorProps> = ({
 	variableItemList,
@@ -76,11 +79,14 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 		variable?.nodeId || "",
 	);
 	const [variableString, setVariableString] = useState<string>("");
-
+	const { t } = useTranslation();
 	// 生成选项value，格式：nodeId|handleId|valueKey
 	const generateOptionValue = useCallback(
-		(nodeId: string, handleId: string, valueKey: string | number) => {
-			return `${nodeId}|${handleId}|${valueKey}`;
+		(nodeId: string, handleId: string, variable: string | number, variableName?: string | null) => {
+			if (variableName) {
+				return `${nodeId}|${handleId}|${variableName}|${variable}`;
+			}
+			return `${nodeId}|${handleId}|""|${variable}`;
 		},
 		[],
 	);
@@ -97,9 +103,10 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 					variable.nodeId,
 					variable.outputHandleId,
 					variable.variable,
+					variable.variableName,
 				);
 				setVariableString(variableString);
-				// console.log("variableString", variableString);
+				console.log("variableString", variableString);
 			} else {
 				setVariableString("");
 			}
@@ -112,24 +119,31 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 
 	// 处理节点选择
 	const handleNodeChange = (nodeId: string) => {
-		console.log("🔍 节点选择:", {
-			nodeId,
-			nodeName: variableItemList.find((item) => item.nodeId === nodeId)
-				?.nodeName,
-			nodeType: variableItemList.find((item) => item.nodeId === nodeId)
-				?.nodeType,
-		});
+		const nodeType = variableItemList.find((item) => item.nodeId === nodeId)?.nodeType;
+		// console.log("🔍 节点选择:", {
+		// 	nodeId,
+		// 	nodeName: variableItemList.find((item) => item.nodeId === nodeId)
+		// 		?.nodeName,
+		// 	nodeType: variableItemList.find((item) => item.nodeId === nodeId)
+		// 		?.nodeType,
+		// });
 		setSelectedNodeId(nodeId);
 		// 清空当前选择
 		onNodeChange(
 			nodeId,
+			nodeType || null,
 			variableItemList.find((item) => item.nodeId === nodeId)?.nodeName || "",
 		);
 	};
 
 	// 处理变量选择
 	const handleVariableChange = (variableValue: string) => {
-		const [nodeId, outputHandleId, valueKey] = variableValue.split("|");
+		console.log("variableValue", variableValue);
+		const [nodeId, outputHandleId, variableName, variable] = variableValue.split("|");
+		console.log("variable", variable);
+		console.log("variableName", variableName);
+		console.log("outputHandleId", outputHandleId);
+		console.log("nodeId", nodeId);
 		const selectedNode = variableItemList.find(
 			(item) => item.nodeId === nodeId,
 		);
@@ -152,7 +166,7 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 
 		console.log("📊 变量选择:", {
 			variableValue,
-			parsed: { nodeId, handleId: outputHandleId, valueKey },
+			parsed: { nodeId, handleId: outputHandleId, valueKey: variable },
 			nodeName: selectedNode?.nodeName,
 			variableType: selectedVar
 				? isSelectedIndicator(selectedVar)
@@ -167,7 +181,7 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 		});
 
 		setVariableString(variableValue);
-		onVariableChange(variableId, valueKey, outputHandleId);
+		onVariableChange(variableId, outputHandleId, variable, variableName);
 	};
 
 	// 获取选中节点的变量列表
@@ -176,6 +190,221 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 			(item) => item.nodeId === selectedNodeId,
 		);
 		return selectedNode?.variables || [];
+	};
+
+	// 获取指标选项
+	const getIndicatorOption = (indicators: SelectedIndicator[]) => {
+		const result: React.ReactNode[] = [];
+
+		const groupedByIndicatorId = indicators.reduce(
+			(groups, variable) => {
+				const key = variable.configId;
+				if (!groups[key]) {
+					groups[key] = [];
+				}
+				groups[key].push(variable);
+				return groups;
+			},
+			{} as Record<number, SelectedIndicator[]>,
+		);
+
+		const indicatorIds = Object.keys(groupedByIndicatorId).map(Number).sort();
+
+		indicatorIds.forEach((indicatorId, groupIndex) => {
+			const variables = groupedByIndicatorId[indicatorId];
+
+			// 创建指标组的所有选项
+			const groupItems: React.ReactNode[] = [];
+
+			// 添加每个指标的选项
+			variables.forEach((variable) => {
+				const variableName = Object.keys(variable.value);
+				variableName.forEach((varName) => {
+					if (varName === "timestamp") {
+						return;
+					}
+					groupItems.push(
+						<SelectItem
+							className="text-xs font-normal py-2"
+							key={`${variable.outputHandleId}_${varName}`}
+							value={generateOptionValue(
+								selectedNodeId,
+								variable.outputHandleId,
+								varName,
+								t(`indicatorValueField.${varName}`),
+							)}
+							textValue={`指标${variable.configId} • ${varName}`}
+						>
+							<div className="flex items-center justify-between w-full gap-1">
+								<Badge
+									variant="outline"
+									className="flex items-center justify-center text-[10px] leading-none py-1 border-gray-400 rounded-sm"
+								>
+									{variable.indicatorType}
+								</Badge>
+
+								<span className="font-medium text-gray-900 text-right">
+									{t(`indicatorValueField.${varName}`)}
+								</span>
+							</div>
+						</SelectItem>,
+					);
+				});
+			});
+
+			// 用SelectGroup包装
+			result.push(
+				<SelectGroup key={`indicator_group_${indicatorId}`}>
+					<SelectLabel className="text-xs font-semibold text-blue-600 px-2 py-1.5">
+						指标 {indicatorId}
+					</SelectLabel>
+					{groupItems}
+				</SelectGroup>,
+			);
+
+			// 在不同指标ID组之间添加分隔符（除了最后一组）
+			if (groupIndex < indicatorIds.length - 1) {
+				result.push(
+					<SelectSeparator
+						key={`separator_${indicatorId}`}
+						className="my-1"
+					/>,
+				);
+			}
+		});
+
+		return result;
+	};
+
+	// 获取K线选项
+	const getKlineOption = (klineNodes: SelectedSymbol[]) => {
+		const result: React.ReactNode[] = [];
+
+		const groupedByConfigId = klineNodes.reduce(
+			(groups, variable) => {
+				const key = variable.configId;
+				if (!groups[key]) {
+					groups[key] = [];
+				}
+				groups[key].push(variable);
+				return groups;
+			},
+			{} as Record<number, SelectedSymbol[]>,
+		);
+
+		const configIds = Object.keys(groupedByConfigId).map(Number).sort();
+
+		configIds.forEach((configId, groupIndex) => {
+			const variables = groupedByConfigId[configId];
+
+			// 创建K线组的所有选项
+			const groupItems: React.ReactNode[] = [];
+
+			// 添加每个K线配置的选项
+			variables.forEach((variable) => {
+				const klineFields = ["open", "high", "low", "close", "volume"];
+
+				klineFields.forEach((field) => {
+					groupItems.push(
+						<SelectItem
+							className="text-xs font-normal py-2"
+							key={`${variable.outputHandleId}_${field}`}
+							value={generateOptionValue(
+								selectedNodeId,
+								variable.outputHandleId,
+								field,
+								t(`klineValueField.${field}`),
+							)}
+							textValue={`K线${variable.configId} • ${variable.symbol} ${variable.interval} • ${field}`}
+						>
+							<div className="flex items-center justify-between w-full gap-1">
+								<Badge
+									variant="outline"
+									className="flex items-center justify-center text-[10px] leading-none py-1 border-gray-400 rounded-sm"
+								>
+									{variable.symbol}|{variable.interval}
+								</Badge>
+
+								<span className="font-medium text-gray-900 text-right">
+									{t(`klineValueField.${field}`)}
+								</span>
+							</div>
+						</SelectItem>,
+					);
+				});
+			});
+
+			// 用SelectGroup包装
+			result.push(
+				<SelectGroup key={`kline_group_${configId}`}>
+					<SelectLabel className="text-xs font-semibold text-green-600 px-2 py-1.5">
+						K线 {configId}
+					</SelectLabel>
+					{groupItems}
+				</SelectGroup>,
+			);
+
+			// 在不同K线配置组之间添加分隔符（除了最后一组）
+			if (groupIndex < configIds.length - 1) {
+				result.push(
+					<SelectSeparator
+						key={`separator_${configId}`}
+						className="my-1"
+					/>,
+				);
+			}
+		});
+
+		return result;
+	};
+
+	// 获取变量选项
+	const getVariableOption = (variableConfigs: VariableConfig[]) => {
+		const result: React.ReactNode[] = [];
+		const variableItems: React.ReactNode[] = [];
+
+		variableConfigs.forEach((variable) => {
+			variableItems.push(
+				<SelectItem
+					className="text-xs font-normal py-2 px-3 hover:bg-purple-50 focus:bg-purple-50"
+					key={`${variable.outputHandleId}_${variable.variable}`}
+					value={generateOptionValue(
+						selectedNodeId,
+						variable.outputHandleId,
+						variable.variable,
+						variable.variableName,
+					)}
+					textValue={`${variable.variableName} • ${variable.variable}`}
+				>
+					<div className="flex items-center justify-between w-full gap-2">
+						<div className="flex items-center gap-2 flex-shrink-0">
+							<Badge
+								variant="outline"
+								className="flex items-center justify-center text-[10px] leading-none py-1 border-gray-400 rounded-sm"
+							>
+								{variable.symbol || t("IfElseNode.allSymbols")}
+							</Badge>
+						</div>
+						<div className="flex flex-col items-end">
+							<span className="text-xs text-gray-900 font-medium">
+								{variable.variableName}
+							</span>
+						</div>
+					</div>
+				</SelectItem>,
+			);
+		});
+
+		result.push(
+			<SelectGroup key="variable_group">
+				{/* <SelectLabel className="text-xs font-semibold text-purple-600 px-2 py-1.5">
+					变量数据
+				</SelectLabel> */}
+				{variableItems}
+			</SelectGroup>,
+		);
+
+		return result;
 	};
 
 	// 渲染变量选项
@@ -195,84 +424,9 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 
 		const result: React.ReactNode[] = [];
 
-		// 处理指标节点 - 按indicatorId分组
+		// 处理指标节点
 		if (indicators.length > 0) {
-			const groupedByIndicatorId = indicators.reduce(
-				(groups, variable) => {
-					const key = variable.configId;
-					if (!groups[key]) {
-						groups[key] = [];
-					}
-					groups[key].push(variable);
-					return groups;
-				},
-				{} as Record<number, SelectedIndicator[]>,
-			);
-
-			const indicatorIds = Object.keys(groupedByIndicatorId).map(Number).sort();
-
-			indicatorIds.forEach((indicatorId, groupIndex) => {
-				const variables = groupedByIndicatorId[indicatorId];
-
-				// 创建指标组的所有选项
-				const groupItems: React.ReactNode[] = [];
-
-				// 添加每个指标的选项
-				variables.forEach((variable) => {
-					const variableName = Object.keys(variable.value);
-					variableName.forEach((varName) => {
-						if (varName === "timestamp") {
-							return;
-						}
-						groupItems.push(
-							<SelectItem
-								className="text-xs font-normal py-2"
-								key={`${variable.outputHandleId}_${varName}`}
-								value={generateOptionValue(
-									selectedNodeId,
-									variable.outputHandleId,
-									varName,
-								)}
-								textValue={`指标${variable.configId} • ${varName}`}
-							>
-								<div className="flex items-center justify-between w-full gap-1">
-									<Badge
-										variant="outline"
-										className="flex items-center justify-center text-[10px] leading-none py-1 border-gray-400 rounded-sm"
-									>
-										{variable.configId} |{" "}
-										{variable.indicatorType}
-									</Badge>
-
-									<span className="font-medium text-gray-900 text-right">
-										{varName}
-									</span>
-								</div>
-							</SelectItem>,
-						);
-					});
-				});
-
-				// 用SelectGroup包装
-				result.push(
-					<SelectGroup key={`indicator_group_${indicatorId}`}>
-						<SelectLabel className="text-xs font-semibold text-blue-600 px-2 py-1.5">
-							指标 {indicatorId}
-						</SelectLabel>
-						{groupItems}
-					</SelectGroup>,
-				);
-
-				// 在不同指标ID组之间添加分隔符（除了最后一组）
-				if (groupIndex < indicatorIds.length - 1) {
-					result.push(
-						<SelectSeparator
-							key={`separator_${indicatorId}`}
-							className="my-1"
-						/>,
-					);
-				}
-			});
+			result.push(...getIndicatorOption(indicators));
 		}
 
 		// 如果同时有指标和K线节点，在它们之间添加分隔符
@@ -284,49 +438,7 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 
 		// 处理K线节点
 		if (klineNodes.length > 0) {
-			const klineItems: React.ReactNode[] = [];
-
-			klineNodes.forEach((variable) => {
-				const klineFields = ["open", "high", "low", "close", "volume"];
-
-				klineFields.forEach((field) => {
-					klineItems.push(
-						<SelectItem
-							className="text-xs font-normal py-2 px-3 hover:bg-green-50 focus:bg-green-50"
-							key={`${variable.outputHandleId}_${field}`}
-							value={generateOptionValue(
-								selectedNodeId,
-								variable.outputHandleId,
-								field,
-							)}
-							textValue={`${variable.symbol} ${variable.interval} • ${field}`}
-						>
-							<div className="flex items-center justify-between w-full gap-2">
-								<div className="flex items-center gap-2 flex-shrink-0">
-									<Badge
-										variant="outline"
-										className="flex items-center justify-center text-[10px] leading-none py-1 border-gray-400 rounded-sm"
-									>
-										{variable.configId}|{variable.symbol}|{variable.interval}
-									</Badge>
-								</div>
-								<span className="text-xs text-gray-900 text-right">
-									{field}
-								</span>
-							</div>
-						</SelectItem>,
-					);
-				});
-			});
-
-			result.push(
-				<SelectGroup key="kline_group">
-					<SelectLabel className="text-xs font-semibold text-green-600 px-2 py-1.5">
-						K线数据
-					</SelectLabel>
-					{klineItems}
-				</SelectGroup>,
-			);
+			result.push(...getKlineOption(klineNodes));
 		}
 
 		// 如果同时有K线节点和变量节点，在它们之间添加分隔符
@@ -341,47 +453,7 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 
 		// 处理变量节点
 		if (variableConfigs.length > 0) {
-			const variableItems: React.ReactNode[] = [];
-
-			variableConfigs.forEach((variable) => {
-				variableItems.push(
-					<SelectItem
-						className="text-xs font-normal py-2 px-3 hover:bg-purple-50 focus:bg-purple-50"
-						key={`${variable.outputHandleId}_${variable.variable}`}
-						value={generateOptionValue(
-							selectedNodeId,
-							variable.outputHandleId,
-							variable.variable,
-						)}
-						textValue={`${variable.variableName} • ${variable.variable}`}
-					>
-						<div className="flex items-center justify-between w-full gap-2">
-							<div className="flex items-center gap-2 flex-shrink-0">
-								<Badge
-									variant="outline"
-									className="flex items-center justify-center text-[10px] leading-none py-1 border-gray-400 rounded-sm"
-								>
-									{variable.configId}|{variable.symbol || "不限交易对"}
-								</Badge>
-							</div>
-							<div className="flex flex-col items-end">
-								<span className="text-xs text-gray-900 font-medium">
-									{variable.variableName}
-								</span>
-							</div>
-						</div>
-					</SelectItem>,
-				);
-			});
-
-			result.push(
-				<SelectGroup key="variable_group">
-					<SelectLabel className="text-xs font-semibold text-purple-600 px-2 py-1.5">
-						变量数据
-					</SelectLabel>
-					{variableItems}
-				</SelectGroup>,
-			);
+			result.push(...getVariableOption(variableConfigs));
 		}
 
 		return result;
@@ -392,9 +464,9 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 			{/* 节点选择器 */}
 			<Select value={selectedNodeId} onValueChange={handleNodeChange}>
 				<SelectTrigger
-					className={cn("h-8 text-xs font-normal hover:bg-gray-200 ")}
+					className={cn("h-8 text-xs font-normal hover:bg-gray-200 min-w-20")}
 				>
-					<SelectValue placeholder="选择节点" />
+					<SelectValue placeholder={t("IfElseNode.selectNode")} className="truncate" />
 				</SelectTrigger>
 				<SelectContent className="max-h-80">
 					{variableItemList.map((item) => (
@@ -405,12 +477,12 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 							textValue={item.nodeName}
 						>
 							<div className="flex items-center gap-1">
-								<Badge
+								{/* <Badge
 									variant="outline"
 									className="flex items-center justify-center text-[10px] leading-none py-1 border-gray-400 rounded-sm"
 								>
 									{getNodeTypeDisplayName(item.nodeType)}
-								</Badge>
+								</Badge> */}
 								<span className="font-medium text-gray-900">
 									{item.nodeName}
 								</span>
@@ -428,11 +500,11 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 			>
 				<SelectTrigger
 					className={cn(
-						"h-8 text-xs font-normal hover:bg-gray-200",
+						"h-8 text-xs font-normal hover:bg-gray-200 min-w-20",
 						!selectedNodeId && "opacity-50 cursor-not-allowed",
 					)}
 				>
-					<SelectValue placeholder="选择变量" />
+					<SelectValue placeholder={t("IfElseNode.selectVariable")} className="truncate" />
 				</SelectTrigger>
 				<SelectContent className="max-h-80">
 					{renderVariableOptions()}

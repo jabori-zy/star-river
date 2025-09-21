@@ -32,6 +32,81 @@ const shouldClearVariable = (
 
 
 /**
+ * 检查是否需要清空指标节点的selectedSymbol
+ * @param selectedSymbol 指标节点的selectedSymbol
+ * @param klineNodeSelectedSymbols K线节点的symbol配置列表
+ * @returns 是否需要清空
+ */
+const shouldClearIndicatorSymbol = (
+	selectedSymbol: SelectedSymbol | null,
+	klineNodeSelectedSymbols: SelectedSymbol[]
+): boolean => {
+	if (!selectedSymbol) {
+		return false;
+	}
+	// 如果configId在K线节点的symbol配置中不存在，则需要清空
+	return !klineNodeSelectedSymbols.some(
+		(klineSymbol) => klineSymbol.configId === selectedSymbol.configId
+	);
+};
+
+/**
+ * 检查是否需要更新指标节点的selectedSymbol
+ * @param selectedSymbol 指标节点的selectedSymbol
+ * @param klineNodeSelectedSymbols K线节点的symbol配置列表
+ * @returns 是否需要更新
+ */
+const shouldUpdateIndicatorSymbol = (
+	selectedSymbol: SelectedSymbol | null,
+	klineNodeSelectedSymbols: SelectedSymbol[]
+): boolean => {
+	if (!selectedSymbol) {
+		return false;
+	}
+	// 查找configId相同的K线symbol配置
+	const matchingKlineSymbol = klineNodeSelectedSymbols.find(
+		(klineSymbol) => klineSymbol.configId === selectedSymbol.configId
+	);
+	if (!matchingKlineSymbol) {
+		return false;
+	}
+	// 如果configId相同但symbol或interval不同，则需要更新
+	return matchingKlineSymbol.symbol !== selectedSymbol.symbol ||
+		   matchingKlineSymbol.interval !== selectedSymbol.interval;
+};
+
+/**
+ * 更新指标节点的selectedSymbol配置
+ * @param selectedSymbol 指标节点的selectedSymbol
+ * @param klineNodeSelectedSymbols K线节点的symbol配置列表
+ * @returns 更新后的selectedSymbol或原selectedSymbol
+ */
+const updateIndicatorSymbol = (
+	selectedSymbol: SelectedSymbol | null,
+	klineNodeSelectedSymbols: SelectedSymbol[]
+): SelectedSymbol | null => {
+	if (!selectedSymbol) {
+		return selectedSymbol;
+	}
+
+	// 查找对应的K线symbol配置
+	const matchingKlineSymbol = klineNodeSelectedSymbols.find(
+		(klineSymbol) => klineSymbol.configId === selectedSymbol.configId
+	);
+
+	if (!matchingKlineSymbol) {
+		return selectedSymbol;
+	}
+
+	// 更新symbol和interval字段
+	return {
+		...selectedSymbol,
+		symbol: matchingKlineSymbol.symbol,
+		interval: matchingKlineSymbol.interval,
+	};
+};
+
+/**
  * 更新指标节点的selectedSymbol配置
  * @param node 节点对象
  * @param klineNodeSelectedSymbols K线节点的symbol配置列表
@@ -47,17 +122,13 @@ const updateIndicatorNode = (
 		return null;
 	}
 
-	const indicatorNodeSelectedSymbol = indicatorNodeData.backtestConfig?.exchangeModeConfig?.selectedSymbol;
+	const indicatorNodeSelectedSymbol = indicatorNodeData.backtestConfig?.exchangeModeConfig?.selectedSymbol ?? null;
 
-	// 判断indicatorNodeSelectedSymbol的configId与klineNodeSelectedSymbols中的configId相同的对象中的symbol和interval是否相同
-	const isSymbolSame = indicatorNodeSelectedSymbol && klineNodeSelectedSymbols.some(
-		(klineSymbol) => klineSymbol.configId === indicatorNodeSelectedSymbol.configId &&
-						klineSymbol.symbol === indicatorNodeSelectedSymbol.symbol &&
-						klineSymbol.interval === indicatorNodeSelectedSymbol.interval
-	);
+	// 检查是否需要清空或更新
+	const needsClear = shouldClearIndicatorSymbol(indicatorNodeSelectedSymbol, klineNodeSelectedSymbols);
+	const needsUpdate = shouldUpdateIndicatorSymbol(indicatorNodeSelectedSymbol, klineNodeSelectedSymbols);
 
-	// 如果symbol不相同，清空selectedSymbol
-	if (!isSymbolSame) {
+	if (needsClear || needsUpdate) {
 		return {
 			...node,
 			data: {
@@ -66,7 +137,9 @@ const updateIndicatorNode = (
 					...indicatorNodeData.backtestConfig,
 					exchangeModeConfig: {
 						...indicatorNodeData.backtestConfig?.exchangeModeConfig,
-						selectedSymbol: null,
+						selectedSymbol: needsClear
+							? null
+							: updateIndicatorSymbol(indicatorNodeSelectedSymbol, klineNodeSelectedSymbols),
 					},
 				},
 			},

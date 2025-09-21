@@ -106,13 +106,13 @@ const BasePanel: React.FC<BasePanelProps> = ({
 	);
 
 	// 面板宽度状态
-	const [panelWidth, setPanelWidth] = useState(375);
+	const [panelWidth, setPanelWidth] = useState(400);
 	const [isResizing, setIsResizing] = useState(false);
 	const [startX, setStartX] = useState(0);
 	const [startWidth, setStartWidth] = useState(0);
 
 	// 最小和最大宽度
-	const MIN_WIDTH = 350;
+	const MIN_WIDTH = 375;
 	const MAX_WIDTH = 600;
 
 	// 开始拖拽缩放
