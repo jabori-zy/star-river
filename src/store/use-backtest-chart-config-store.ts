@@ -478,16 +478,18 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 
 				// 判断klineChartKey是否在klineKeys中
 				// 如果不在，则将该图表的key替换为klineKeys中的第一个
-				if (!klineKeys.includes(klineChartKey)) {
-					console.log("图表的klineKey不在klineKeys中，替换为klineKeys中的第一个");
-					console.log("第一个klineKey", klineKeys[0]);
-					const klineKey = parseKey(klineKeys[0]) as KlineKey;
-					updatedChart.chartName = `${klineKey.symbol} ${klineKey.interval}`;
-					updatedChart.klineChartConfig = {
-						...chart.klineChartConfig,
-						klineKeyStr: klineKeys[0]
-					};
-				}
+                                if (!klineKeys.includes(klineChartKey)) {
+                                        if (klineKeys.length === 0) {
+                                                console.warn("klineKeys 为空，无法修复缺失的 klineKey");
+                                        } else {
+                                                const klineKey = parseKey(klineKeys[0]) as KlineKey;
+                                                updatedChart.chartName = `${klineKey.symbol} ${klineKey.interval}`;
+                                                updatedChart.klineChartConfig = {
+                                                        ...chart.klineChartConfig,
+                                                        klineKeyStr: klineKeys[0]
+                                                };
+                                        }
+                                }
 
 				// 处理指标配置
 				updatedChart.indicatorChartConfigs = chart.indicatorChartConfigs.map((indicator_chart) => {
