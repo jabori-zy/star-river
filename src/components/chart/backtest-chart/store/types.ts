@@ -157,19 +157,22 @@ export interface EventHandlerSlice {
 // ==================== Data Initialization Slice Types ====================
 export interface DataInitializationSlice {
 	initChartData: (playIndex: number, strategyId: number) => Promise<void>;
-	initKlineData: (playIndex: number) => Promise<void>;
+	initKlineData: (playIndex: number, strategyId: number) => Promise<void>;
 	initIndicatorData: (
+		strategyId: number,
 		indicatorKeyStr: IndicatorKeyStr,
 		playIndex: number,
 	) => Promise<void>;
 	initVirtualOrderData: (strategyId: number) => Promise<void>;
 	initVirtualPositionData: (strategyId: number) => Promise<void>;
-	_processKlineData: (klineKeyStr: KeyStr, playIndex: number) => Promise<void>;
+	_processKlineData: (strategyId: number, klineKeyStr: KeyStr, playIndex: number) => Promise<void>;
 	_processIndicatorData: (
+		strategyId: number,
 		keyStr: KeyStr,
 		playIndex: number,
 	) => Promise<Record<keyof IndicatorValueConfig, SingleValueData[]> | null>;
 	_initSingleKeyData: (
+		strategyId: number,
 		keyStr: KeyStr,
 		playIndex: number,
 	) => Promise<Record<

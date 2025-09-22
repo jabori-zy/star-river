@@ -201,7 +201,7 @@ export const useBacktestChart = ({
 			// 重置k线key
 			setKlineKeyStr(chartConfig.klineChartConfig.klineKeyStr);
 			// 先获取数据
-			initKlineData(playIndex.current).then(() => {
+			initKlineData(playIndex.current, strategyId).then(() => {
 				// 从图表移除移除当前的klineSeries
 				const chart = getChartRef();
 				if (chart) {
@@ -223,6 +223,7 @@ export const useBacktestChart = ({
 			
 		}
 	}, [
+		strategyId,
 		chartConfig.klineChartConfig,
 		getKlineData,
 		initKlineData,
@@ -250,7 +251,7 @@ export const useBacktestChart = ({
 			if (indicatorsNeedingData.length > 0) {
 				await Promise.all(
 					indicatorsNeedingData.map((config) =>
-						initIndicatorData(config.indicatorKeyStr, playIndex.current)
+						initIndicatorData(strategyId, config.indicatorKeyStr, playIndex.current)
 					),
 				);
 			}
@@ -329,6 +330,7 @@ export const useBacktestChart = ({
 			});
 		}
 	}, [
+		strategyId,
 		chartConfig,
 		getChartRef,
 		getSubChartPaneRef,
@@ -458,7 +460,6 @@ export const useBacktestChart = ({
 			// 将图表实例保存到store中
 			setChartRef(chart);
 
-			console.log("初始化图表", chartConfig);
 			// 创建K线系列
 			const candleSeries = addKlineSeries(chart, chartConfig.klineChartConfig);
 			setKlineKeyStr(chartConfig.klineChartConfig.klineKeyStr);

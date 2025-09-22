@@ -40,7 +40,7 @@ const useSystemConfigStore = create<SystemConfigState>((set, get) => ({
 				changeLanguage(config.localization);
 			}
 
-			console.log("系统配置加载成功:", config);
+			// console.log("系统配置加载成功:", config);
 		} catch (error) {
 			console.error("加载系统配置失败:", error);
 			set({

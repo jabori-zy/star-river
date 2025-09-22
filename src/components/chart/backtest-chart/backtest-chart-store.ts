@@ -1,10 +1,10 @@
 // 重新导出store相关的内容
 export {
-	getBacktestChartStore,
 	cleanupBacktestChartStore,
-	useBacktestChartStore,
+	getBacktestChartStore,
 	getBacktestChartStoreInstance,
 	resetAllBacktestChartStore,
+	useBacktestChartStore,
 } from "./store";
 
 // 导出类型定义

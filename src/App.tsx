@@ -39,7 +39,7 @@ function App() {
 	useEffect(() => {
 		if (systemConfig?.timezone) {
 			Settings.defaultZone = systemConfig.timezone;
-			console.log("应用启动时设置 Luxon 时区:", systemConfig.timezone);
+			// console.log("应用启动时设置 Luxon 时区:", systemConfig.timezone);
 		}
 	}, [systemConfig]);
 

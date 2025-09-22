@@ -193,7 +193,7 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 			try {
 				set({ isLoading: true, strategyId });
 				const chartConfig = await getBacktestStrategyChartConfig(strategyId);
-				console.log("后端返回的图表配置:", chartConfig);
+				// console.log("后端返回的图表配置:", chartConfig);
 
 				const keys = await get().getKeys();
 				if (keys && Object.keys(keys).length > 0) {
@@ -217,7 +217,7 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 						// 使用后端配置，验证并修复配置
 						const { _validateAndFixChartConfig } = get();
 						const validatedConfig = _validateAndFixChartConfig(chartConfig, klineKeys, indicatorKeys);
-						console.log("验证并修复后的图表配置: ", validatedConfig);
+						// console.log("验证并修复后的图表配置: ", validatedConfig);
 						set({ chartConfig: validatedConfig });
 					}
 				} else {

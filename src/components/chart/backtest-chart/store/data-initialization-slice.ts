@@ -24,15 +24,14 @@ export const createDataInitializationSlice = (
 	context: StoreContext
 ): SliceCreator<DataInitializationSlice> => (set, get) => ({
 	// 私有方法：处理K线数据
-	_processKlineData: async (klineKeyStr: KeyStr, playIndex: number) => {
-		console.log("处理K线数据", klineKeyStr, playIndex);
+	_processKlineData: async (strategyId: number, klineKeyStr: KeyStr, playIndex: number) => {
 		const state = get();
 		const initialKlines = (await getInitialChartData(
+			strategyId,
 			klineKeyStr,
 			playIndex,
 			null,
 		)) as Kline[];
-		console.log("初始K线数据", initialKlines);
 
 		// 安全检查：确保 initialKlines 存在且是数组
 		if (
@@ -58,9 +57,10 @@ export const createDataInitializationSlice = (
 	},
 
 	// 私有方法：处理指标数据
-	_processIndicatorData: async (keyStr: KeyStr, playIndex: number) => {
+	_processIndicatorData: async (strategyId: number, keyStr: KeyStr, playIndex: number) => {
 		const state = get();
 		const initialIndicatorData = (await getInitialChartData(
+			strategyId,
 			keyStr,
 			playIndex,
 			null,
@@ -100,15 +100,15 @@ export const createDataInitializationSlice = (
 	},
 
 	// 通用方法：处理单个keyStr的数据初始化
-	_initSingleKeyData: async (keyStr: KeyStr, playIndex: number) => {
+	_initSingleKeyData: async (strategyId: number, keyStr: KeyStr, playIndex: number) => {
 		const state = get();
 		try {
 			const key = parseKey(keyStr);
 
 			if (key.type === "kline") {
-				await state._processKlineData(keyStr, playIndex);
+				await state._processKlineData(strategyId, keyStr, playIndex);
 			} else if (key.type === "indicator") {
-				return await state._processIndicatorData(keyStr, playIndex);
+				return await state._processIndicatorData(strategyId, keyStr, playIndex);
 			}
 		} catch (error) {
 			console.error(`Error loading data for keyStr: ${keyStr}`, error);
@@ -123,7 +123,7 @@ export const createDataInitializationSlice = (
 			// 使用 Promise.all 等待所有异步操作完成
 			const promises = state
 				.getKeyStr()
-				.map((keyStr: KeyStr) => state._initSingleKeyData(keyStr, playIndex));
+				.map((keyStr: KeyStr) => state._initSingleKeyData(strategyId, keyStr, playIndex));
 
 			await state.initVirtualOrderData(strategyId);
 			await state.initVirtualPositionData(strategyId);
@@ -134,15 +134,16 @@ export const createDataInitializationSlice = (
 		}
 	},
 
-	initKlineData: async (playIndex: number) => {
+	initKlineData: async (playIndex: number, strategyId: number) => {
 		const state = get();
 		const klineKeyStr = state.getKlineKeyStr();
 		if (klineKeyStr) {
-			await state._processKlineData(klineKeyStr, playIndex);
+			await state._processKlineData(strategyId, klineKeyStr, playIndex);
 		}
 	},
 
 	initIndicatorData: async (
+		strategyId: number,
 		indicatorKeyStr: IndicatorKeyStr,
 		playIndex: number,
 	) => {
@@ -154,7 +155,7 @@ export const createDataInitializationSlice = (
 
 				// 只处理指标类型的key
 				if (key.type === "indicator") {
-					await state._processIndicatorData(indicatorKeyStr, playIndex);
+					await state._processIndicatorData(strategyId, indicatorKeyStr, playIndex);
 				} else {
 					console.warn(`Key ${indicatorKeyStr} is not an indicator key`);
 				}
