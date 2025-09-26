@@ -83,11 +83,18 @@ export const getMarketOrderHandleGroup = (
 	return (
 		<div className="flex flex-row gap-1">
 			<BaseHandle
-				id={`${nodeId}_created_output_${orderConfigId}`}
+				id={`${nodeId}_all_status_output_${orderConfigId}`}
 				type="source"
 				position={Position.Right}
 				handleColor="!bg-black-400"
 				className="translate-x-2 translate-y-2"
+			/>
+			<BaseHandle
+				id={`${nodeId}_created_output_${orderConfigId}`}
+				type="source"
+				position={Position.Right}
+				handleColor="!bg-black-400"
+				className="translate-x-2 translate-y-8"
 			/>
 
 			<BaseHandle
@@ -95,42 +102,42 @@ export const getMarketOrderHandleGroup = (
 				type="source"
 				position={Position.Right}
 				handleColor="!bg-black-400"
-				className="translate-x-2 translate-y-8"
+				className="translate-x-2 translate-y-14"
 			/>
 			<BaseHandle
 				id={`${nodeId}_filled_output_${orderConfigId}`}
 				type="source"
 				position={Position.Right}
 				handleColor="!bg-black-400"
-				className="translate-x-2 translate-y-14"
+				className="translate-x-2 translate-y-20"
 			/>
 			<BaseHandle
 				id={`${nodeId}_canceled_output_${orderConfigId}`}
 				type="source"
 				position={Position.Right}
 				handleColor="!bg-black-400"
-				className="translate-x-2 translate-y-20"
+				className="translate-x-2 translate-y-26"
 			/>
 			<BaseHandle
 				id={`${nodeId}_expired_output_${orderConfigId}`}
 				type="source"
 				position={Position.Right}
 				handleColor="!bg-black-400"
-				className="translate-x-2 translate-y-26"
+				className="translate-x-2 translate-y-32"
 			/>
 			<BaseHandle
 				id={`${nodeId}_rejected_output_${orderConfigId}`}
 				type="source"
 				position={Position.Right}
 				handleColor="!bg-black-400"
-				className="translate-x-2 translate-y-32"
+				className="translate-x-2 translate-y-38"
 			/>
 			<BaseHandle
 				id={`${nodeId}_error_output_${orderConfigId}`}
 				type="source"
 				position={Position.Right}
 				handleColor="!bg-black-400"
-				className="translate-x-2 translate-y-38"
+				className="translate-x-2 translate-y-44"
 			/>
 		</div>
 	);
