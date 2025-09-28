@@ -1,63 +1,51 @@
 import type React from "react";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
+import { SelectWithSearch } from "@/components/select-components/select-with-search";
+import type { MarketSymbol } from "@/types/market";
 
 interface SymbolSelectorProps {
 	value: string;
 	onChange: (value: string | null) => void;
 	disabled?: boolean;
 	allowEmpty?: boolean;
+	symbolList: MarketSymbol[];
 }
-
-// 常用交易对选项
-const SYMBOL_OPTIONS = [
-	{ value: "BTCUSDm", label: "BTC/USDT" },
-	{ value: "ETHUSDm", label: "ETH/USDT" },
-];
 
 const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 	value,
 	onChange,
 	disabled = false,
 	allowEmpty = false,
+	symbolList,
 }) => {
+
+	// 构建选项列表，包含"不限制交易对"选项和从API获取的交易对
+	const options = [
+		...(allowEmpty ? [{ value: "__EMPTY__", label: "不限制交易对" }] : []),
+		...symbolList.map((symbol) => ({
+			value: symbol.name,
+			label: symbol.name,
+		})),
+	];
+
+	const handleValueChange = (selectedValue: string) => {
+		if (selectedValue === "__EMPTY__" && allowEmpty) {
+			onChange(null);
+		} else {
+			onChange(selectedValue);
+		}
+	};
+
 	return (
-		<Select
+		<SelectWithSearch
+			id="symbol"
+			options={options}
 			value={value || "__EMPTY__"}
-			onValueChange={(selectedValue: string) => {
-				if (selectedValue === "__EMPTY__" && allowEmpty) {
-					onChange(null);
-				} else {
-					onChange(selectedValue);
-				}
-			}}
+			onValueChange={handleValueChange}
+			placeholder={allowEmpty ? "选择交易对 (可选)" : "选择交易对"}
+			searchPlaceholder="搜索交易对"
+			emptyMessage="未找到交易对"
 			disabled={disabled}
-		>
-			<SelectTrigger id="symbol">
-				<SelectValue
-					placeholder={allowEmpty ? "选择交易对 (可选)" : "选择交易对"}
-				/>
-			</SelectTrigger>
-			<SelectContent>
-				{allowEmpty && (
-					<SelectItem value="__EMPTY__">
-						<span className="text-muted-foreground">不限制交易对</span>
-					</SelectItem>
-				)}
-				{SYMBOL_OPTIONS.map((option) => (
-					<SelectItem key={option.value} value={option.value}>
-						<div className="flex items-center justify-between w-full">
-							<span className="font-medium">{option.label}</span>
-						</div>
-					</SelectItem>
-				))}
-			</SelectContent>
-		</Select>
+		/>
 	);
 };
 

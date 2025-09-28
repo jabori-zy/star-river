@@ -79,6 +79,7 @@ const PositionManagementNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 
 			<div className="p-2">
 				<OperationSetting
+					accountId={selectedAccount?.id}
 					nodeId={id}
 					operationConfigs={operationConfigs}
 					onOperationConfigsChange={handleOperationConfigsChange}

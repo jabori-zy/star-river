@@ -7,6 +7,7 @@ import OperationConfigDialog from "./operation-config-dialog";
 import OperationConfigItem from "./operation-config-item";
 
 interface OperationSettingProps {
+	accountId: number | undefined;
 	nodeId: string;
 	operationConfigs: PositionOperationConfig[];
 	onOperationConfigsChange: (
@@ -15,6 +16,7 @@ interface OperationSettingProps {
 }
 
 const OperationSetting: React.FC<OperationSettingProps> = ({
+	accountId,
 	nodeId,
 	operationConfigs,
 	onOperationConfigsChange,
@@ -95,7 +97,7 @@ const OperationSetting: React.FC<OperationSettingProps> = ({
 		<div className="flex flex-col gap-2">
 			<div className="flex items-center justify-between">
 				<Label className="text-sm font-bold text-gray-700">操作配置</Label>
-				<Button variant="ghost" size="icon" onClick={handleAddOperation}>
+				<Button variant="ghost" size="icon" onClick={handleAddOperation} disabled={!accountId}>
 					<PlusIcon className="w-4 h-4" />
 				</Button>
 			</div>
@@ -119,6 +121,7 @@ const OperationSetting: React.FC<OperationSettingProps> = ({
 			</div>
 
 			<OperationConfigDialog
+				accountId={accountId}
 				isOpen={isDialogOpen}
 				isEditing={isEditing}
 				editingConfig={
