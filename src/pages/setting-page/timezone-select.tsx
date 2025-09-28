@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useState, useEffect, useMemo } from "react";
-import { SelectWithSearch } from "@/components/select-with-search";
+import { SelectWithSearch } from "@/components/select-components/select-with-search";
 import type { SystemConfig } from "@/types/system";
 import moment from "moment-timezone";
 

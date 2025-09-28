@@ -11,22 +11,34 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
-import {
 	type FuturesOrderConfig,
 	FuturesOrderSide,
 	OrderType,
 } from "@/types/order";
-import OrderSideSelector from "./order-side-selector";
-import OrderTypeSelector from "./order-type-selector";
 import SymbolSelector from "./symbol-selector";
 import type { MarketSymbol } from "@/types/market";
 import { getSymbolInfo } from "@/service/market";
+import { SelectInDialog } from "@/components/select-components/select-in-dialog";
+import { ShoppingCart, TrendingUp } from "lucide-react";
+
+// 订单类型选项
+const ORDER_TYPE_OPTIONS = [
+	{ value: OrderType.LIMIT, label: "限价单" },
+	{ value: OrderType.MARKET, label: "市价单" },
+];
+
+// 订单方向选项
+const ORDER_SIDE_OPTIONS = [
+	{ value: FuturesOrderSide.OPEN_LONG, label: "开多" },
+	{ value: FuturesOrderSide.OPEN_SHORT, label: "开空" },
+];
+
+// 止盈止损类型选项
+const TP_SL_TYPE_OPTIONS = [
+	{ value: "price", label: "price" },
+	{ value: "percentage", label: "percent" },
+	{ value: "point", label: "point" },
+];
 
 interface OrderConfigDialogProps {
 	accountId: number | undefined;
@@ -175,9 +187,35 @@ const OrderConfigDialog: React.FC<OrderConfigDialogProps> = ({
 				<div className="grid gap-4 py-4">
 					<SymbolSelector value={symbol} onChange={setSymbol} accountId={accountId} />
 
-					<OrderTypeSelector value={orderType} onChange={setOrderType} />
+					<div className="grid grid-cols-4 items-center gap-4">
+						<Label htmlFor="order-type" className="text-right">
+							订单类型
+						</Label>
+						<div className="col-span-3">
+							<SelectInDialog
+								id="order-type"
+								value={orderType}
+								onValueChange={(value) => setOrderType(value as OrderType)}
+								placeholder="选择订单类型"
+								options={ORDER_TYPE_OPTIONS}
+							/>
+						</div>
+					</div>
 
-					<OrderSideSelector value={orderSide} onChange={setOrderSide} />
+					<div className="grid grid-cols-4 items-center gap-4">
+						<Label htmlFor="order-side" className="text-right">
+							买卖方向
+						</Label>
+						<div className="col-span-3">
+							<SelectInDialog
+								id="order-side"
+								value={orderSide}
+								onValueChange={(value) => setOrderSide(value as FuturesOrderSide)}
+								placeholder="选择买卖方向"
+								options={ORDER_SIDE_OPTIONS}
+							/>
+						</div>
+					</div>
 
 					{!isMarketOrder && (
 						<div className="grid grid-cols-4 items-center gap-4">
@@ -234,16 +272,12 @@ const OrderConfigDialog: React.FC<OrderConfigDialogProps> = ({
 									className={tpType === "percentage" ? "pr-6" : ""}
 								/>
 							</div>
-							<Select value={tpType} onValueChange={(value: "price" | "percentage" | "point") => setTpType(value)}>
-								<SelectTrigger className="w-26">
-									<SelectValue />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="price">price</SelectItem>
-									<SelectItem value="percentage">percent</SelectItem>
-									<SelectItem value="point">point</SelectItem>
-								</SelectContent>
-							</Select>
+							<SelectInDialog
+								value={tpType}
+								onValueChange={(value) => setTpType(value as "price" | "percentage" | "point")}
+								options={TP_SL_TYPE_OPTIONS}
+								className="w-26"
+							/>
 						</div>
 					</div>
 
@@ -266,16 +300,12 @@ const OrderConfigDialog: React.FC<OrderConfigDialogProps> = ({
 									className={slType === "percentage" ? "pr-6" : ""}
 								/>
 							</div>
-							<Select value={slType} onValueChange={(value: "price" | "percentage" | "point") => setSlType(value)}>
-								<SelectTrigger className="w-26">
-									<SelectValue />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="price">price</SelectItem>
-									<SelectItem value="percentage">percent</SelectItem>
-									<SelectItem value="point">point</SelectItem>
-								</SelectContent>
-							</Select>
+							<SelectInDialog
+								value={slType}
+								onValueChange={(value) => setSlType(value as "price" | "percentage" | "point")}
+								options={TP_SL_TYPE_OPTIONS}
+								className="w-26"
+							/>
 						</div>
 					</div>
 				</div>

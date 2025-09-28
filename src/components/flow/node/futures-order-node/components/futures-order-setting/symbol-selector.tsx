@@ -1,7 +1,7 @@
 import type React from "react";
 import { useEffect, useState } from "react";
 import { Label } from "@/components/ui/label";
-import { SelectWithSearch } from "@/components/select-with-search";
+import { SelectWithSearch } from "@/components/select-components/select-with-search";
 import { getSymbolList } from "@/service/market";
 import type { MarketSymbol } from "@/types/market";
 
