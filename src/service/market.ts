@@ -27,3 +27,16 @@ export async function getSupportKlineInterval(accountId: number): Promise<string
 		throw error;
 	}
 }
+
+
+
+export async function getSymbolInfo(accountId: number, symbol: string): Promise<MarketSymbol> {
+	try {
+		const response = await axios.get(`${API_URL}/symbol/${accountId}?symbol=${symbol}`);
+		return response.data.data as MarketSymbol;
+	} catch (error) {
+		console.error("getSymbolInfo error:", error);
+		throw error;
+	}
+
+}

@@ -183,23 +183,18 @@ export const SymbolSelectDialog: React.FC<SymbolSelectDialogProps> = ({
 							Interval
 						</Label>
 						<div className="col-span-3">
-							<Select
+							<SelectWithSearch
+								id="symbol-interval"
+								options={supportKlineInterval.map((interval) => ({
+									value: interval,
+									label: INTERVAL_LABEL_MAP[interval] || interval,
+								}))}
 								value={symbolInterval}
 								onValueChange={onSymbolIntervalChange}
-							>
-								<SelectTrigger id="symbol-interval">
-									<SelectValue placeholder="Select Interval" />
-								</SelectTrigger>
-								<DialogSelectContent>
-									{supportKlineInterval.map((interval) => (
-										<SelectItem key={interval} value={interval}>
-											<div className="flex items-center">
-												<span>{INTERVAL_LABEL_MAP[interval] || interval}</span>
-											</div>
-										</SelectItem>
-									))}
-								</DialogSelectContent>
-							</Select>
+								placeholder="Select Interval"
+								searchPlaceholder="Search interval"
+								emptyMessage="No interval found."
+							/>
 						</div>
 					</div>
 				</div>

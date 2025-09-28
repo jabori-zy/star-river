@@ -25,8 +25,11 @@ import {
 import OrderSideSelector from "./order-side-selector";
 import OrderTypeSelector from "./order-type-selector";
 import SymbolSelector from "./symbol-selector";
+import type { MarketSymbol } from "@/types/market";
+import { getSymbolInfo } from "@/service/market";
 
 interface OrderConfigDialogProps {
+	accountId: number | undefined;
 	isOpen: boolean;
 	isEditing: boolean;
 	editingConfig?: FuturesOrderConfig;
@@ -35,6 +38,7 @@ interface OrderConfigDialogProps {
 }
 
 const OrderConfigDialog: React.FC<OrderConfigDialogProps> = ({
+	accountId,
 	isOpen,
 	isEditing,
 	editingConfig,
@@ -51,9 +55,37 @@ const OrderConfigDialog: React.FC<OrderConfigDialogProps> = ({
 	const [quantity, setQuantity] = React.useState<number>(0);
 	const [tp, setTp] = React.useState<number | null>(null);
 	const [sl, setSl] = React.useState<number | null>(null);
-	const [tpType, setTpType] = React.useState<"price" | "percentage">("price");
-	const [slType, setSlType] = React.useState<"price" | "percentage">("price");
+	const [tpType, setTpType] = React.useState<"price" | "percentage" | "point">("price");
+	const [slType, setSlType] = React.useState<"price" | "percentage" | "point">("price");
 
+	// 获取symbol信息
+	const [symbolInfo, setSymbolInfo] = React.useState<MarketSymbol | null>(null);
+
+	// 获取symbol信息的函数
+	const loadSymbolInfo = useCallback(async (symbolName: string) => {
+		if (!accountId || !symbolName.trim()) {
+			setSymbolInfo(null);
+			return;
+		}
+
+		try {
+			const info = await getSymbolInfo(accountId, symbolName);
+			console.log("symbolInfo", info);
+			setSymbolInfo(info);
+		} catch (error) {
+			console.error("获取symbol信息失败:", error);
+			setSymbolInfo(null);
+		}
+	}, [accountId]);
+
+	// 当symbol变化时获取symbol信息
+	useEffect(() => {
+		if (symbol && accountId) {
+			loadSymbolInfo(symbol);
+		} else {
+			setSymbolInfo(null);
+		}
+	}, [symbol, accountId, loadSymbolInfo]);
 
 	const resetForm = useCallback(() => {
 		setSymbol("");
@@ -65,6 +97,7 @@ const OrderConfigDialog: React.FC<OrderConfigDialogProps> = ({
 		setSl(null);
 		setTpType("price");
 		setSlType("price");
+		setSymbolInfo(null);
 	}, []);
 
 	// 当对话框打开时重置或恢复状态
@@ -81,11 +114,15 @@ const OrderConfigDialog: React.FC<OrderConfigDialogProps> = ({
 				// 从编辑配置中恢复止盈止损类型，如果没有则默认为价格
 				setTpType(editingConfig.tpType || "price");
 				setSlType(editingConfig.slType || "price");
+				// 如果有symbol，立即加载symbol信息
+				if (editingConfig.symbol && accountId) {
+					loadSymbolInfo(editingConfig.symbol);
+				}
 			} else {
 				resetForm();
 			}
 		}
-	}, [isOpen, isEditing, editingConfig, resetForm]);
+	}, [isOpen, isEditing, editingConfig, resetForm, accountId, loadSymbolInfo]);
 
 	
 
@@ -136,7 +173,7 @@ const OrderConfigDialog: React.FC<OrderConfigDialogProps> = ({
 					</DialogDescription>
 				</DialogHeader>
 				<div className="grid gap-4 py-4">
-					<SymbolSelector value={symbol} onChange={setSymbol} />
+					<SymbolSelector value={symbol} onChange={setSymbol} accountId={accountId} />
 
 					<OrderTypeSelector value={orderType} onChange={setOrderType} />
 
@@ -192,18 +229,19 @@ const OrderConfigDialog: React.FC<OrderConfigDialogProps> = ({
 										setTp(e.target.value ? Number(e.target.value) : null)
 									}
 									min={0}
-									step={tpType === "percentage" ? 0.1 : 0.01}
-									placeholder={tpType === "price" ? "输入止盈价 (可选)" : "输入止盈百分比 (可选)"}
+									step={tpType === "percentage" ? 0.1 : tpType === "point" ? 1 : 0.01}
+									placeholder={tpType === "price" ? "输入止盈价 (可选)" : tpType === "percentage" ? "输入止盈百分比 (可选)" : `point is ${symbolInfo?.point || 'N/A'}`}
 									className={tpType === "percentage" ? "pr-6" : ""}
 								/>
 							</div>
-							<Select value={tpType} onValueChange={(value: "price" | "percentage") => setTpType(value)}>
-								<SelectTrigger className="w-16">
+							<Select value={tpType} onValueChange={(value: "price" | "percentage" | "point") => setTpType(value)}>
+								<SelectTrigger className="w-26">
 									<SelectValue />
 								</SelectTrigger>
 								<SelectContent>
-									<SelectItem value="price">$</SelectItem>
-									<SelectItem value="percentage">%</SelectItem>
+									<SelectItem value="price">price</SelectItem>
+									<SelectItem value="percentage">percent</SelectItem>
+									<SelectItem value="point">point</SelectItem>
 								</SelectContent>
 							</Select>
 						</div>
@@ -223,18 +261,19 @@ const OrderConfigDialog: React.FC<OrderConfigDialogProps> = ({
 										setSl(e.target.value ? Number(e.target.value) : null)
 									}
 									min={0}
-									step={slType === "percentage" ? 0.1 : 0.01}
-									placeholder={slType === "price" ? "输入止损价 (可选)" : "输入止损百分比 (可选)"}
+									step={slType === "percentage" ? 0.1 : slType === "point" ? 1 : 0.01}
+									placeholder={slType === "price" ? "输入止损价 (可选)" : slType === "percentage" ? "输入止损百分比 (可选)" : `point is ${symbolInfo?.point || 'N/A'}`}
 									className={slType === "percentage" ? "pr-6" : ""}
 								/>
 							</div>
-							<Select value={slType} onValueChange={(value: "price" | "percentage") => setSlType(value)}>
-								<SelectTrigger className="w-16">
+							<Select value={slType} onValueChange={(value: "price" | "percentage" | "point") => setSlType(value)}>
+								<SelectTrigger className="w-26">
 									<SelectValue />
 								</SelectTrigger>
 								<SelectContent>
-									<SelectItem value="price">$</SelectItem>
-									<SelectItem value="percentage">%</SelectItem>
+									<SelectItem value="price">price</SelectItem>
+									<SelectItem value="percentage">percent</SelectItem>
+									<SelectItem value="point">point</SelectItem>
 								</SelectContent>
 							</Select>
 						</div>

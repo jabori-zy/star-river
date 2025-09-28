@@ -7,6 +7,7 @@ import type { FuturesOrderConfig } from "@/types/order";
 import type { SelectedAccount } from "@/types/strategy";
 import FuturesOrderSetting from "../components/futures-order-setting";
 import TradeAccountSelector from "../components/trade-account-selector";
+import { Label } from "@/components/ui/label";
 
 const FuturesOrderNodeLiveSettingPanel: React.FC<SettingProps> = ({
 	id,
@@ -66,7 +67,7 @@ const FuturesOrderNodeLiveSettingPanel: React.FC<SettingProps> = ({
 	return (
 		<div className="flex flex-col gap-2">
 			<div className="flex flex-col items-start justify-start gap-2 p-2">
-				<label className="text-sm font-bold text-gray-700">交易账户</label>
+				<Label htmlFor="trade-account-selector" className="text-sm font-bold text-gray-700">交易账户</Label>
 				<TradeAccountSelector
 					accountList={accountList}
 					selectedAccount={selectedAccount}
@@ -77,6 +78,7 @@ const FuturesOrderNodeLiveSettingPanel: React.FC<SettingProps> = ({
 			<div className="p-2">
 				<FuturesOrderSetting
 					nodeId={id}
+					accountId={selectedAccount?.id || 0}
 					orderConfigs={orderConfigs}
 					onOrderConfigsChange={handleOrderConfigsChange}
 				/>

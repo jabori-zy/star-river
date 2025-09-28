@@ -7,12 +7,14 @@ import OrderConfigDialog from "./order-config-dialog";
 import OrderConfigItem from "./order-config-item";
 
 interface FuturesOrderSettingProps {
+	accountId: number | undefined;
 	nodeId: string;
 	orderConfigs: FuturesOrderConfig[];
 	onOrderConfigsChange: (orderConfigs: FuturesOrderConfig[]) => void;
 }
 
 const FuturesOrderSetting: React.FC<FuturesOrderSettingProps> = ({
+	accountId,
 	nodeId,
 	orderConfigs,
 	onOrderConfigsChange,
@@ -66,7 +68,7 @@ const FuturesOrderSetting: React.FC<FuturesOrderSettingProps> = ({
 		<div className="flex flex-col gap-2">
 			<div className="flex items-center justify-between">
 				<Label className="text-sm font-bold text-gray-700">订单配置</Label>
-				<Button variant="ghost" size="icon" onClick={handleAddOrder}>
+				<Button variant="ghost" size="icon" onClick={handleAddOrder} disabled={!accountId}>
 					<PlusIcon className="w-4 h-4" />
 				</Button>
 			</div>
@@ -90,6 +92,7 @@ const FuturesOrderSetting: React.FC<FuturesOrderSettingProps> = ({
 			</div>
 
 			<OrderConfigDialog
+				accountId={accountId}
 				isOpen={isDialogOpen}
 				isEditing={isEditing}
 				editingConfig={

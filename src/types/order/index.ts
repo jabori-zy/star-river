@@ -46,6 +46,6 @@ export type FuturesOrderConfig = {
 	quantity: number;
 	tp: number | null;
 	sl: number | null;
-	tpType: "price" | "percentage" | null;
-	slType: "price" | "percentage" | null;
+	tpType: "price" | "percentage" | "point" | null;
+	slType: "price" | "percentage" | "point" | null;
 };

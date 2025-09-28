@@ -10,4 +10,5 @@ export type MarketSymbol = {
 	base: string | null;
 	quote: string | null;
 	exchange: Exchange | string;
+	point: number
 }
