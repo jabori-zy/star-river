@@ -2,13 +2,16 @@ import { Outlet } from "react-router";
 import { AppHeader } from "@/app/header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "../../components/app-sidebar";
+import { usePlatform } from "@/store/use-platform";
 
 export default function Dashboard() {
+	const { isWindows } = usePlatform();
+
 	return (
 		<>
 			{/* 侧边栏provider */}
 			<SidebarProvider className="flex flex-col">
-				<AppHeader />
+				{!isWindows && <AppHeader />}
 				{/* 侧边栏 */}
 				<div className="flex flex-1">
 					{/* pb-10: 底部内边距为10 */}
