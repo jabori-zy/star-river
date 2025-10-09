@@ -3,8 +3,9 @@
 import { PlusIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Account } from "@/types/account";
-import { AddAccountPanel } from "./AddAccountPanel";
-import { mt5FormConfig } from "./mt5-form-config";
+import { AddAccountPanel } from "./add-account-panel";
+import { mt5FormConfig } from "./add-account-panel/mt5-form-config";
+import { binanceFormConfig } from "./add-account-panel/binance-form-config";
 
 interface AccountsHeaderProps {
 	activeTab: string;
@@ -32,7 +33,7 @@ export function AccountsHeader({
 				};
 			case "binance":
 				return {
-					formConfig: mt5FormConfig, // 暂时使用MT5配置
+					formConfig: binanceFormConfig, // 暂时使用MT5配置
 					label: "添加Binance账户",
 				};
 			case "okx":

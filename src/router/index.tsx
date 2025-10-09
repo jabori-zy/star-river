@@ -1,5 +1,5 @@
 import { createBrowserRouter } from "react-router";
-import AccountPage from "../components/AccountPage";
+import AccountPage from "../pages/account-page";
 import StrategyListPage from "../components/StrategyListPage";
 import BacktestPage from "../pages/backtest-page";
 import Dashboard from "../pages/Dashboard";

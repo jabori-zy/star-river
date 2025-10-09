@@ -17,7 +17,6 @@ import {
 	verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import {
-	type ColumnDef,
 	type ColumnFiltersState,
 	flexRender,
 	getCoreRowModel,
@@ -54,25 +53,25 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { TableItem } from "./TableItem";
+import type { MT5Account } from "@/types/account";
+import { TableItem } from "../account-table/table-item";
+import { mt5Columns } from "./columns";
 
-interface AccountTableProps<TData> {
-	tableData: TData[];
-	columns: ColumnDef<TData>[];
+interface MT5AccountTableProps {
+	tableData: MT5Account[];
 	title?: string;
 }
 
-// 账户表格组件
-export function AccountTable<TData>({
+// MT5账户表格
+export function MT5AccountTable({
 	tableData: initialTableData,
-	columns,
-	title = "账户",
-}: AccountTableProps<TData>) {
-	const [tableData, setTableData] = React.useState<TData[]>(
+	title = "MT5账户",
+}: MT5AccountTableProps) {
+	const [tableData, setTableData] = React.useState<MT5Account[]>(
 		() => initialTableData,
 	);
 
-	// 当initialTableData更新时，更新内部tableData状态
+	// 当initialTableData变化时更新tableData
 	React.useEffect(() => {
 		setTableData(initialTableData);
 	}, [initialTableData]);
@@ -87,36 +86,36 @@ export function AccountTable<TData>({
 		pageSize: 10,
 	});
 
-	// 创建一个唯一ID用于DndContext
+	// 生成唯一ID用于DndContext
 	const dndId = React.useId();
 
-	// 设置传感器用于拖拽识别，修改为只对拖拽手柄元素反应
+	// 配置传感器，添加激活约束以避免误触
 	const sensors = useSensors(
 		useSensor(MouseSensor, {
-			// 激活条件：只能从拖拽手柄开始拖拽
+			// 鼠标拖动需要移动一定距离才激活
 			activationConstraint: {
-				distance: 10, // 设置最小拖拽距离，防止误触
+				distance: 10, // 需要移动10像素才能开始拖动
 			},
 		}),
 		useSensor(TouchSensor, {
-			// 激活条件：只能从拖拽手柄开始拖拽
+			// 触摸拖动需要长按才激活
 			activationConstraint: {
-				delay: 250, // 触摸必须保持一定时间才能激活，防止与滚动冲突
-				tolerance: 5, // 触摸可移动的最大距离，超过则不激活拖拽
+				delay: 250, // 需要按住250毫秒才能开始拖动
+				tolerance: 5, // 在等待期间允许5像素的移动容差
 			},
 		}),
 		useSensor(KeyboardSensor, {}),
 	);
 
-	// 提取所有数据项的ID，用于排序
+	// 获取所有数据的ID列表
 	const dataIds = React.useMemo<UniqueIdentifier[]>(
-		() => tableData.map((item) => (item as { id: string | number }).id),
+		() => tableData.map((item) => item.id),
 		[tableData],
 	);
 
 	const table = useReactTable({
 		data: tableData,
-		columns,
+		columns: mt5Columns,
 		state: {
 			sorting,
 			columnFilters,
@@ -136,7 +135,7 @@ export function AccountTable<TData>({
 		getFacetedUniqueValues: getFacetedUniqueValues(),
 	});
 
-	// 处理拖拽结束事件
+	// 处理拖拽结束
 	function handleDragEnd(event: DragEndEvent) {
 		const { active, over } = event;
 		if (active && over && active.id !== over.id) {
@@ -148,7 +147,7 @@ export function AccountTable<TData>({
 		}
 	}
 
-	// 计算总页数
+	// 总页数
 	const pageCount = table.getPageCount();
 
 	return (
@@ -203,7 +202,7 @@ export function AccountTable<TData>({
 									) : (
 										<TableRow>
 											<TableCell
-												colSpan={columns.length}
+												colSpan={mt5Columns.length}
 												className="h-24 text-center"
 											>
 												暂无数据
@@ -269,7 +268,7 @@ export function AccountTable<TData>({
 								<ChevronLeftIcon />
 							</Button>
 							<div className="flex items-center gap-2">
-								{/* 页码直接导航按钮 - 仅在页数较少时显示 */}
+								{/* 页码按钮显示逻辑 - 最多显示5个页码 */}
 								{pageCount <= 10 ? (
 									Array.from({ length: pageCount }, (_, i) => (
 										<Button
@@ -287,20 +286,20 @@ export function AccountTable<TData>({
 									))
 								) : (
 									<>
-										{/* 页数较多时显示省略分页 */}
+										{/* 页码较多时只显示5个页码 */}
 										{[...Array(Math.min(5, pageCount))].map((_, idx) => {
 											let pageIdx: number;
 											const currentPage = table.getState().pagination.pageIndex;
 
-											// 计算显示哪些页码
+											// 计算要显示的页码
 											if (currentPage < 3) {
-												// 当前页靠前，显示前5页
+												// 当前页靠前时显示前5页
 												pageIdx = idx;
 											} else if (currentPage > pageCount - 4) {
-												// 当前页靠后，显示后5页
+												// 当前页靠后时显示后5页
 												pageIdx = pageCount - 5 + idx;
 											} else {
-												// 当前页在中间，显示当前页及其前后各2页
+												// 当前页居中时显示当前页为中间的2页
 												pageIdx = currentPage - 2 + idx;
 											}
 
@@ -337,7 +336,7 @@ export function AccountTable<TData>({
 								onClick={() => table.setPageIndex(table.getPageCount() - 1)}
 								disabled={!table.getCanNextPage()}
 							>
-								<span className="sr-only">尾页</span>
+								<span className="sr-only">末页</span>
 								<ChevronsRightIcon />
 							</Button>
 						</div>
@@ -348,4 +347,4 @@ export function AccountTable<TData>({
 	);
 }
 
-export default AccountTable;
+export default MT5AccountTable;

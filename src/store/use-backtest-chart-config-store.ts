@@ -193,9 +193,12 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 			try {
 				set({ isLoading: true, strategyId });
 				const chartConfig = await getBacktestStrategyChartConfig(strategyId);
-				// console.log("后端返回的图表配置:", chartConfig);
+				console.log("后端返回的图表配置:", chartConfig);
 
 				const keys = await get().getKeys();
+				console.log("获取的缓存键:", keys);
+
+				// 判断缓存键是否为空
 				if (keys && Object.keys(keys).length > 0) {
 					// 在一个循环中分离 kline 和 indicator keys
 					const klineKeys: string[] = [];
@@ -210,16 +213,27 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 						}
 					});
 
-					// 检查后端返回的配置是否有效
-					const hasValidConfig = chartConfig?.charts && Array.isArray(chartConfig.charts) && chartConfig.charts.length > 0;
+					// 如果chartConfig不为空，则进行验证和修复
+					if (chartConfig) {
+						// 检查后端返回的配置是否有效
+						// 是否有charts字段，并且charts字段是否为数组，并且charts字段的长度是否大于0
+						const hasValidConfig = chartConfig.charts && Array.isArray(chartConfig.charts) && chartConfig.charts.length > 0;
+						console.log("后端返回的图表配置是否有效:", hasValidConfig);
 
-					if (hasValidConfig) {
-						// 使用后端配置，验证并修复配置
-						const { _validateAndFixChartConfig } = get();
-						const validatedConfig = _validateAndFixChartConfig(chartConfig, klineKeys, indicatorKeys);
-						// console.log("验证并修复后的图表配置: ", validatedConfig);
-						set({ chartConfig: validatedConfig });
+						if (hasValidConfig) {
+							// 使用后端配置，验证并修复配置
+							const { _validateAndFixChartConfig } = get();
+							const validatedConfig = _validateAndFixChartConfig(chartConfig, klineKeys, indicatorKeys);
+							// console.log("验证并修复后的图表配置: ", validatedConfig);
+							set({ chartConfig: validatedConfig });
+						}
+
+					} else {
+						// 后端配置无效（null、空数组或不存在），创建默认图表
+						const { createDefaultChart } = get();
+						await createDefaultChart();
 					}
+					
 				} else {
 					// 后端配置无效（null、空数组或不存在），创建默认图表
 					const { createDefaultChart } = get();

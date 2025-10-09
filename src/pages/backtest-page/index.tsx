@@ -60,10 +60,7 @@ export default function BacktestPage() {
 	const [dashboardCollapsedSize, setDashboardCollapsedSize] = useState<number>(initialSize);
 	const [dashboardDefaultSize, setDashboardDefaultSize] = useState<number>(initialSize);
 
-	
 
-	// 监听策略SSE
-	// useBacktestStrategySSE();
 
 	// 当URL参数变化时，更新store中的strategyId
 	useEffect(() => {

@@ -1,73 +1,49 @@
 "use client";
 
-import axios from "axios";
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Toaster } from "sonner";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import useAccountSSE, { AccountInfo } from "@/hooks/use-accountSSE";
+import useAccountSSE from "@/hooks/use-accountSSE";
 import { addAccountConfig, getAccountConfigs } from "@/service/account";
-import { Account, type MT5Account } from "@/types/account";
-import { AccountsHeader } from "./components/AccountsHeader";
-import { AccountTable } from "./components/AccountTable";
+import { MT5Account, BinanceAccount } from "@/types/account";
+import { AccountsHeader } from "./components/account-header";
+import { AccountTable } from "./components/account-table";
 import {
 	binanceColumns,
-	mt5Columns,
 	okxColumns,
-} from "./components/AccountTable/columns";
-import {
-	binanceAccounts,
-	metatrader5Accounts,
-	okxAccounts,
-} from "./components/AccountTable/data";
+} from "./components/account-table/columns";
+import { MT5AccountTable } from "./components/mt5-account-table";
+import { BinanceAccountTable } from "./components/binance-account-table";
 
 // 定义账户类型
 type AccountType = {
 	id: string;
 	name: string;
-	count: number;
 };
 
 // 账户类型数据
 const accountTypes: AccountType[] = [
 	{
 		id: "metatrader5",
-		name: "Metatrader5",
-		count: metatrader5Accounts.length,
+		name: "Metatrader5"
 	},
 	{
 		id: "binance",
 		name: "Binance",
-		count: binanceAccounts.length,
 	},
 	{
 		id: "okx",
 		name: "OKX",
-		count: okxAccounts.length,
 	},
 ];
 
-// 定义SSE数据类型
-interface AccountSSEData {
-	type?: string;
-	data?: Array<{
-		account_id: number;
-		account_name: string;
-		login: string;
-		server: string;
-		terminal_path: string;
-		status: "normal" | "warning" | "error" | "inactive";
-		is_available: boolean;
-		created_time: string;
-	}>;
-	message?: string;
-}
 
 export default function AccountPage() {
 	// 当前选中的标签页
 	const [activeTab, setActiveTab] = useState("metatrader5");
 	// 账户数据，要么存储MT5账户数据，要么存储Binance账户数据，要么存储OKX账户数据
 	const [mt5AccountData, setMt5AccountData] = useState<MT5Account[]>([]);
+	const [binanceAccountData, setBinanceAccountData] = useState<BinanceAccount[]>([]);
 	// 获取SSE实时数据
 	const accountUpdateMessage = useAccountSSE();
 
@@ -76,7 +52,9 @@ export default function AccountPage() {
 		const accountData = await getAccountConfigs(exchange);
 		console.log("获取到的账户数据:", accountData);
 		if (exchange === "metatrader5") {
-			setMt5AccountData(accountData);
+			setMt5AccountData(accountData as MT5Account[]);
+		} else if (exchange === "binance") {
+			setBinanceAccountData(accountData as BinanceAccount[]);
 		}
 	}, []);
 
@@ -153,24 +131,12 @@ export default function AccountPage() {
 	};
 
 	// 处理添加账户
-	const handleAddMt5Account = async (mt5AccountConfig: {
-		accountName: string;
-		exchange: string;
-		login: string;
-		password: string;
-		server: string;
-		terminalPath: string;
-	}) => {
-		console.log("添加MT5账户数据:", mt5AccountConfig);
-		const accountConfig = {
-			login: mt5AccountConfig.login,
-			password: mt5AccountConfig.password,
-			server: mt5AccountConfig.server,
-			terminal_path: mt5AccountConfig.terminalPath,
-		};
+	const handleAddAccount = async (formData: any) => {
+		console.log("添加账户数据:", formData);
+		const { accountName, exchange, ...accountConfig } = formData;
 		const res = await addAccountConfig(
-			mt5AccountConfig.accountName,
-			mt5AccountConfig.exchange,
+			accountName,
+			exchange,
 			accountConfig,
 		);
 		console.log("添加账户配置成功:", res);
@@ -192,13 +158,7 @@ export default function AccountPage() {
 						<TabsList>
 							{accountTypes.map((type) => (
 								<TabsTrigger key={type.id} value={type.id} className="gap-1">
-									{type.name}{" "}
-									<Badge
-										variant="secondary"
-										className="flex h-5 w-5 items-center justify-center rounded-full bg-muted-foreground/30"
-									>
-										{type.count}
-									</Badge>
+									{type.name}
 								</TabsTrigger>
 							))}
 						</TabsList>
@@ -206,30 +166,28 @@ export default function AccountPage() {
 						{/* 添加账户按钮 */}
 						<AccountsHeader
 							activeTab={activeTab}
-							onAddAccount={handleAddMt5Account}
+							onAddAccount={handleAddAccount}
 						/>
 					</div>
 
 					<TabsContent value="metatrader5">
-						<AccountTable
+						<MT5AccountTable
 							tableData={mt5AccountData}
-							columns={mt5Columns}
 							title="Metatrader5 账户"
 						/>
 					</TabsContent>
 
 					<TabsContent value="binance">
-						<AccountTable
-							tableData={binanceAccounts}
-							columns={binanceColumns}
+						<BinanceAccountTable
+							tableData={binanceAccountData}
 							title="Binance 账户"
 						/>
 					</TabsContent>
 
 					<TabsContent value="okx">
 						<AccountTable
-							tableData={okxAccounts}
-							columns={okxColumns}
+							tableData={mt5AccountData}
+							columns={okxColumns as any}
 							title="OKX 账户"
 						/>
 					</TabsContent>

@@ -11,8 +11,8 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { getAccountConfigs } from "@/service/account";
-import type { MT5Account } from "@/types/account";
-import type { Exchange } from "@/types/common";
+import type { Account } from "@/types/account";
+import type { Exchange } from "@/types/market";
 import type { SelectedAccount } from "@/types/strategy";
 
 interface AccountSelectorProps {
@@ -28,9 +28,7 @@ const AccountSelector = ({
 	updateSelectedAccounts,
 }: AccountSelectorProps) => {
 	// 可用的MT5账户列表
-	const [availableMT5Accounts, setAvailableMT5Accounts] = useState<
-		MT5Account[]
-	>([]);
+	const [availableAccounts, setAvailableAccounts] = useState<Account[]>([]);
 	// 是否正在加载账户
 	const [isLoadingAccounts, setIsLoadingAccounts] = useState<boolean>(false);
 	// 错误信息
@@ -45,13 +43,13 @@ const AccountSelector = ({
 		setIsLoadingAccounts(true);
 		setErrorMessage("");
 		try {
-			const accounts = await getAccountConfigs("metatrader5");
-			setAvailableMT5Accounts(accounts);
-			console.log("获取到的MT5账户配置:", accounts);
+			const accounts = await getAccountConfigs(null) as Account[];
+			setAvailableAccounts(accounts);
+			console.log("获取到的账户配置:", accounts);
 		} catch (error) {
 			console.error("获取账户配置失败:", error);
 			setErrorMessage("获取账户配置失败");
-			setAvailableMT5Accounts([]);
+			setAvailableAccounts([]);
 		} finally {
 			setIsLoadingAccounts(false);
 		}
@@ -113,7 +111,7 @@ const AccountSelector = ({
 			.filter((id) => id !== 0);
 
 		// 过滤出未被选择的账户
-		return availableMT5Accounts.filter(
+		return availableAccounts.filter(
 			(account) => !selectedIds.includes(account.id),
 		);
 	};
@@ -123,7 +121,7 @@ const AccountSelector = ({
 		if (!selectedId) return;
 
 		const numericId = parseInt(selectedId);
-		const selectedAccount = availableMT5Accounts.find(
+		const selectedAccount = availableAccounts.find(
 			(acc) => acc.id === numericId,
 		);
 
@@ -139,7 +137,7 @@ const AccountSelector = ({
 
 	// 处理下拉列表打开事件
 	const handleSelectOpen = async (open: boolean) => {
-		if (open && availableMT5Accounts.length === 0) {
+		if (open && availableAccounts.length === 0) {
 			await fetchAccountConfigs();
 		}
 	};
@@ -182,7 +180,7 @@ const AccountSelector = ({
 							))
 						) : (
 							<div className="flex items-center justify-center p-2 text-xs text-muted-foreground">
-								{availableMT5Accounts.length > 0
+								{availableAccounts.length > 0
 									? "所有账户已选择"
 									: "暂无账户数据"}
 							</div>
@@ -306,9 +304,9 @@ const AccountSelector = ({
 				)}
 
 				{/* 显示可用账户状态 */}
-				{availableMT5Accounts.length > 0 &&
+				{availableAccounts.length > 0 &&
 					localAccounts.filter((acc) => acc.id !== 0).length >=
-						availableMT5Accounts.length && (
+						availableAccounts.length && (
 						<div className="text-xs text-muted-foreground mt-1">
 							所有可用账户已选择完毕
 						</div>

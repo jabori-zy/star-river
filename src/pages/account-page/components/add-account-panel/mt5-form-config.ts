@@ -1,4 +1,4 @@
-import type { FormFieldConfig } from "./AddAccountPanel";
+import type { FormFieldConfig } from ".";
 
 // MT5账户表单配置
 export const mt5FormConfig = {
