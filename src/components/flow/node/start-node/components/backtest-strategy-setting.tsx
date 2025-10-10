@@ -1,8 +1,14 @@
 import { PercentSquare, Play, TrendingUp, Wallet } from "lucide-react";
 import type React from "react";
-import SliderWithTick from "@/components/slider-with-tick";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 
 interface BacktestStrategySettingProps {
 	initialBalance: number;
@@ -89,29 +95,30 @@ const BacktestStrategySetting: React.FC<BacktestStrategySettingProps> = ({
 			<div className="space-y-2">
 				<div className="flex items-center gap-2">
 					<Play className="h-4 w-4 text-muted-foreground" />
-					<Label className="font-medium">
-						播放速度 ({playSpeed}x)
-					</Label>
+					<Label className="font-medium">播放速度</Label>
 				</div>
 
 				{playSpeed !== undefined && setPlaySpeed && updatePlaySpeed && (
-					<SliderWithTick
-						defaultValue={[playSpeed]}
-						min={0}
-						max={100}
-						step={5}
-						skipInterval={10}
+					<Select
+						value={playSpeed.toString()}
 						onValueChange={(value) => {
-							// 当值为0时，设置为1
-							const actualValue = value[0] === 0 ? 1 : value[0];
-							if (setPlaySpeed) {
-								setPlaySpeed(actualValue);
-								updatePlaySpeed(actualValue);
-							}
+							const speed = Number(value);
+							setPlaySpeed(speed);
+							updatePlaySpeed(speed);
 						}}
-						label=""
-						showTicks={true}
-					/>
+					>
+						<SelectTrigger className="h-8 text-sm">
+							<SelectValue placeholder="选择播放速度" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="1">1x</SelectItem>
+							<SelectItem value="3">3x</SelectItem>
+							<SelectItem value="10">10x</SelectItem>
+							<SelectItem value="20">20x</SelectItem>
+							<SelectItem value="50">50x</SelectItem>
+							<SelectItem value="100">100x</SelectItem>
+						</SelectContent>
+					</Select>
 				)}
 			</div>
 		</div>

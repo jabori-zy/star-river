@@ -63,11 +63,11 @@ export function DateTimePicker24h({
         <Button
           variant="outline"
           className={cn(
-            "w-full justify-start text-left font-normal",
+            "w-full text-left font-normal",
             !date && "text-muted-foreground"
           )}
         >
-          <CalendarIcon className="mr-2 h-4 w-4" />
+          <CalendarIcon className="h-4 w-4" />
           {date ? (
             format(date, "yyyy/MM/dd HH:mm")
           ) : (
@@ -81,6 +81,9 @@ export function DateTimePicker24h({
             mode="single"
             selected={date}
             onSelect={handleDateSelect}
+            defaultMonth={date}
+            showOutsideDays={false}
+            captionLayout="dropdown"
           />
           <div className="flex flex-col sm:flex-row sm:h-[300px] divide-y sm:divide-y-0 sm:divide-x">
             <ScrollArea className="w-64 sm:w-auto">

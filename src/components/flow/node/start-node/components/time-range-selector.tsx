@@ -1,10 +1,8 @@
 import { Clock } from "lucide-react";
 import type React from "react";
 import { DateTimePicker24h } from "@/components/datetime-picker";
-import { format } from "date-fns";
 import type { TimeRange } from "@/types/strategy";
 import { DateTime, Settings } from "luxon";
-// import useSystemConfigStore from "@/store/useSystemConfigStore";
 
 interface TimeRangeSelectorProps {
 	timeRange: TimeRange;
@@ -29,8 +27,6 @@ const TimeRangeSelector: React.FC<TimeRangeSelectorProps> = ({
 	// 将Date对象格式化为 'YYYY-MM-DD HH:mm:ss' 格式
 	const formatDate = (date: Date | undefined): string => {
 		if (!date) return '';
-		console.log("Datetime zones", Settings.defaultZone)
-		// console.log(systemConfig)
 		return DateTime.fromJSDate(date).toFormat("yyyy-MM-dd HH:mm:ss ZZ") || '';
 	};
 
