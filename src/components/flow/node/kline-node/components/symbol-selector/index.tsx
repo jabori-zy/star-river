@@ -366,7 +366,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 	};
 
 	return (
-		<div className="flex flex-col gap-2 p-2">
+		<div className="flex flex-col p-2">
 			<div className="flex items-center justify-between">
 				<Label className="text-sm font-bold text-gray-700">交易品种</Label>
 				<Button

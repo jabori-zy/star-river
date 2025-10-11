@@ -72,7 +72,7 @@ const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 
 	return (
 		// space-y-4 是上下间距为4
-		<div className="space-y-4">
+		<div className="space-y-2">
 			{backtestDataSource === BacktestDataSource.EXCHANGE ? (
 				<>
 					<AccountSelector
@@ -96,7 +96,7 @@ const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 						refreshTrigger={refreshTrigger}
 					/>
 					<div className="flex items-center justify-between gap-2 bg-gray-100 p-2 rounded-md">
-						<Label className="text-sm font-bold"> 回测时间范围： </Label>
+						<Label className="text-sm font-bold whitespace-nowrap"> 回测时间范围： </Label>
 						<Label className="text-xs text-muted-foreground">
 							{" "}
 							{timeRange?.startDate} ~ {timeRange?.endDate}{" "}
