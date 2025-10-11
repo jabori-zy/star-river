@@ -7,13 +7,14 @@ import { Label } from "@/components/ui/label";
 import { useUpdateBacktestConfig } from "@/hooks/node-config/kline-node/use-update-backtest-config";
 import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
 import type { KlineNodeData } from "@/types/node/kline-node";
+import type { ExchangeStatus } from "@/types/market";
 import {
 	BacktestDataSource,
 	type SelectedAccount,
 	TradeMode,
 } from "@/types/strategy";
 // import { useNodeConnections, useReactFlow } from "@xyflow/react";
-// import { useEffect, useState } from "react";
+import { useState } from "react";
 // import { StartNodeData } from "@/types/node/start-node";
 import SymbolSelector from "../components/symbol-selector";
 
@@ -37,6 +38,9 @@ const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	// timeRange
 	const timeRange = startNodeBacktestConfig?.exchangeModeConfig?.timeRange;
 
+	// 刷新触发器 - 用于触发 SymbolSelector 重新获取交易对列表
+	const [refreshTrigger, setRefreshTrigger] = useState(0);
+
 	// 使用自定义hook管理回测配置
 	const {
 		config: backtestConfig,
@@ -57,6 +61,15 @@ const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 		});
 	};
 
+	// 处理连接状态变化
+	const handleConnectionStatusChange = (status: ExchangeStatus, accountId: number) => {
+		console.log(`账户 ${accountId} 连接状态变化为: ${status}`);
+		// 当连接状态变为 "Connected" 时，触发 SymbolSelector 刷新
+		if (status === "Connected") {
+			setRefreshTrigger(prev => prev + 1);
+		}
+	};
+
 	return (
 		// space-y-4 是上下间距为4
 		<div className="space-y-4">
@@ -69,6 +82,7 @@ const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 							backtestConfig?.exchangeModeConfig?.selectedAccount || null
 						}
 						onAccountChange={handleDataSourceChange}
+						onConnectionStatusChange={handleConnectionStatusChange}
 					/>
 					<SymbolSelector
 						nodeId={id}
@@ -79,6 +93,7 @@ const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 						selectedDataSource={
 							backtestConfig?.exchangeModeConfig?.selectedAccount
 						}
+						refreshTrigger={refreshTrigger}
 					/>
 					<div className="flex items-center justify-between gap-2 bg-gray-100 p-2 rounded-md">
 						<Label className="text-sm font-bold"> 回测时间范围： </Label>

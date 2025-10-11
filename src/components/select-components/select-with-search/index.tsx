@@ -41,7 +41,7 @@ interface SelectWithSearchProps {
 	options: SelectWithSearchOption[];
 	value: string;
 	onValueChange: (value: string) => void;
-	placeholder?: string;
+	placeholder?: string | null;
 	searchPlaceholder?: string;
 	emptyMessage?: string;
 	className?: string;
@@ -81,7 +81,9 @@ export const SelectWithSearch: React.FC<SelectWithSearchProps> = ({
 					)}
 				>
 					{selectedOption?.label || placeholder}
-					<ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+					{placeholder && (
+						<ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+					)}
 				</Button>
 			</PopoverTrigger>
 			<DialogPopoverContent className="w-[var(--radix-popover-trigger-width)]">

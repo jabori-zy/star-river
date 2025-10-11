@@ -1,4 +1,4 @@
-import { Clock, PlusIcon, Settings, TrendingUp, X } from "lucide-react";
+import { Clock, PlusIcon, Settings, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -6,17 +6,22 @@ import { Label } from "@/components/ui/label";
 import type { SelectedSymbol } from "@/types/node/kline-node";
 import type { SelectedAccount } from "@/types/strategy";
 import { SymbolSelectDialog } from "./symbol-select-dialog";
-// import { ConfirmDialog } from "./confirm-dialog";
 import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 import useWorkflowUtils from "@/hooks/flow/use-workflow-utils";
 import { useReactFlow } from "@xyflow/react";
 import { NodeOpConfirmDialog } from "@/components/flow/node-op-confirm-dialog";
+import { INTERVAL_LABEL_MAP } from "@/types/kline";
+import { getSymbolList, getSupportKlineInterval } from "@/service/market";
+import type { MarketSymbol } from "@/types/market";
+
 interface SymbolSelectorProps {
 	nodeId: string; // node id
 	selectedSymbols: SelectedSymbol[]; // selected symbols
 	selectedDataSource?: SelectedAccount | null; // selected data source
 	onSymbolsChange: (symbols: SelectedSymbol[]) => void; // symbol change callback
+	refreshTrigger?: number; // 刷新触发器，变化时重新获取交易对列表
 }
+
 
 
 // Trading symbol selector
@@ -25,6 +30,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 	selectedSymbols,
 	onSymbolsChange,
 	selectedDataSource,
+	refreshTrigger,
 }) => {
 	// Local state management
 	const [localSymbols, setLocalSymbols] = useState<SelectedSymbol[]>([]);
@@ -43,6 +49,8 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 		targetNodeNames: string[];
 	} | null>(null);
 	const [pendingDeleteSymbol, setPendingDeleteSymbol] = useState<SelectedSymbol | null>(null);
+	const [symbolList, setSymbolList] = useState<MarketSymbol[]>([]);
+	const [supportKlineInterval, setSupportKlineInterval] = useState<string[]>([]);
 
 	const { getTargetNodeIds } = useStrategyWorkflow();
 	const { deleteEdgeBySourceHandleId } = useWorkflowUtils();
@@ -59,6 +67,34 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 			setLocalSymbols([]);
 		}
 	}, [selectedSymbols]);
+
+	// 获取交易对列表和时间间隔的函数
+	const fetchSymbolData = useCallback(() => {
+		if (selectedDataSource?.id) {
+			getSymbolList(selectedDataSource.id).then((data) => {
+				setSymbolList(data);
+			});
+			getSupportKlineInterval(selectedDataSource.id).then((data) => {
+				setSupportKlineInterval(data);
+			});
+		} else {
+			// 如果没有数据源，清空列表
+			setSymbolList([]);
+			setSupportKlineInterval([]);
+		}
+	}, [selectedDataSource?.id]);
+
+	// 当数据源变化时，获取交易对列表和时间间隔
+	useEffect(() => {
+		fetchSymbolData();
+	}, [fetchSymbolData]);
+
+	// 当 refreshTrigger 变化时，重新获取交易对列表
+	useEffect(() => {
+		if (refreshTrigger !== undefined && refreshTrigger > 0) {
+			fetchSymbolData();
+		}
+	}, [refreshTrigger, fetchSymbolData]);
 
 	const resetForm = useCallback(() => {
 		setSymbolName("");
@@ -79,21 +115,9 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 		}
 	}, [isDialogOpen, editingSymbol, resetForm]);
 
-	// Time interval options
-	const TIME_INTERVALS = [
-		{ value: "1m", label: "1 Minute" },
-		{ value: "5m", label: "5 Minutes" },
-		{ value: "15m", label: "15 Minutes" },
-		{ value: "30m", label: "30 Minutes" },
-		{ value: "1h", label: "1 Hour" },
-		{ value: "4h", label: "4 Hours" },
-		{ value: "1d", label: "1 Day" },
-		{ value: "1w", label: "1 Week" },
-	];
-
 	const getIntervalLabel = (interval: string) => {
 		return (
-			TIME_INTERVALS.find((item) => item.value === interval)?.label || interval
+			INTERVAL_LABEL_MAP[interval] || interval
 		);
 	};
 
@@ -342,7 +366,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 	};
 
 	return (
-		<div className="flex flex-col gap-2">
+		<div className="flex flex-col gap-2 p-2">
 			<div className="flex items-center justify-between">
 				<Label className="text-sm font-bold text-gray-700">交易品种</Label>
 				<Button
@@ -369,7 +393,6 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 						>
 							<div className="flex items-center gap-2">
 								<Badge variant="outline" className="h-5 px-1">
-									<TrendingUp className="h-3 w-3 mr-1 text-blue-500" />
 									{symbol.symbol}
 								</Badge>
 								<div className="flex items-center gap-1">
@@ -407,6 +430,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 			{/* 添加/编辑交易对对话框 */}
 			<SymbolSelectDialog
 				accountId={selectedDataSource?.id ?? 0}
+				accountName={selectedDataSource?.accountName || ''}
 				isOpen={isDialogOpen}
 				onOpenChange={handleSelectDialogOpenChange}
 				editingSymbol={editingSymbol}
@@ -418,6 +442,8 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 				onSave={handleSave}
 				originalSymbolName={editingSymbol?.symbol || ''}
 				originalSymbolInterval={editingSymbol?.interval || '1m'}
+				symbolList={symbolList}
+				supportKlineInterval={supportKlineInterval}
 			/>
 
 			{/* 确认修改对话框 */}

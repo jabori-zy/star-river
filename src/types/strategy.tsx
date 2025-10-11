@@ -1,6 +1,6 @@
 import type { Edge, Node } from "@xyflow/react";
 import type { Exchange } from "@/types/market";
-import type { StrategyChartConfig } from "@/types/strategyChartConfig";
+import type { StrategyChartConfig } from "@/types/strategy-chart-config";
 
 
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -12,38 +12,13 @@ import { Label } from "@/components/ui/label";
 import { SelectWithSearch } from "@/components/select-components/select-with-search";
 import { SelectInDialog } from "@/components/select-components/select-in-dialog";
 import type { SelectedSymbol } from "@/types/node/kline-node";
-import { getSymbolList, getSupportKlineInterval } from "@/service/market";
-import type { MarketSymbol } from "@/types/market";
-
-
-
-// Time interval value to label mapping
-const INTERVAL_LABEL_MAP: Record<string, string> = {
-	"1m": "1 Minute",
-	"2m": "2 Minutes",
-	"3m": "3 Minutes",
-	"4m": "4 Minutes",
-	"5m": "5 Minutes",
-	"6m": "6 Minutes",
-	"10m": "10 Minutes",
-	"12m": "12 Minutes",
-	"15m": "15 Minutes",
-	"20m": "20 Minutes",
-	"30m": "30 Minutes",
-	"1h": "1 Hour",
-	"2h": "2 Hours",
-	"3h": "3 Hours",
-	"4h": "4 Hours",
-	"6h": "6 Hours",
-	"8h": "8 Hours",
-	"12h": "12 Hours",
-	"1d": "1 Day",
-	"1w": "1 Week",
-	"1M": "1 Month",
-};
+import type { MarketSymbol, ExchangeStatus } from "@/types/market";
+import { getExchangeStatus } from "@/service/exchange";
+import { INTERVAL_LABEL_MAP } from "@/types/kline";
 
 interface SymbolSelectDialogProps {
     accountId: number | undefined;
+	accountName: string;
 	isOpen: boolean;
 	onOpenChange: (open: boolean) => void;
 	editingSymbol?: SelectedSymbol;
@@ -56,10 +31,14 @@ interface SymbolSelectDialogProps {
 	// 添加原始保存的值，用于比较
 	originalSymbolName?: string;
 	originalSymbolInterval?: string;
+	// 从父组件传入的数据
+	symbolList: MarketSymbol[];
+	supportKlineInterval: string[];
 }
 
 export const SymbolSelectDialog: React.FC<SymbolSelectDialogProps> = ({
     accountId,
+	accountName,
 	isOpen,
 	onOpenChange,
 	editingSymbol,
@@ -71,21 +50,31 @@ export const SymbolSelectDialog: React.FC<SymbolSelectDialogProps> = ({
 	onSave,
 	originalSymbolName = '',
 	originalSymbolInterval = '',
+	symbolList,
+	supportKlineInterval,
 }) => {
 
-    const [symbolList, setSymbolList] = useState<MarketSymbol[]>([]);
-    const [supportKlineInterval, setSupportKlineInterval] = useState<string[]>([]);
+	const [exchangeStatus, setExchangeStatus] = useState<ExchangeStatus | null>(null);
+
+	// 获取交易所状态
+	const fetchExchangeStatus = useCallback(async () => {
+		if (!accountId) return;
+		try {
+			const status = await getExchangeStatus(accountId);
+			setExchangeStatus(status);
+			return status;
+		} catch (error) {
+			console.error("获取交易所状态失败:", error);
+			return null;
+		}
+	}, [accountId]);
 
     useEffect(() => {
         if (accountId && isOpen) {
-            getSymbolList(accountId).then((data) => {
-                setSymbolList(data);
-            });
-            getSupportKlineInterval(accountId).then((data) => {
-                setSupportKlineInterval(data);
-            });
+			// 获取交易所状态
+			fetchExchangeStatus();
         }
-    }, [accountId, isOpen]);
+    }, [accountId, isOpen, fetchExchangeStatus]);
 
     // 判断当前值是否与原始保存值相同
     // 如果是编辑模式，使用editingSymbol的值；否则使用传入的original值
@@ -94,6 +83,9 @@ export const SymbolSelectDialog: React.FC<SymbolSelectDialogProps> = ({
 
     const hasChanges = symbolName !== savedSymbolName ||
                        symbolInterval !== savedSymbolInterval;
+
+	// 判断是否已连接
+	const isConnected = exchangeStatus === "Connected";
 
     // Save按钮是否可用：没有错误 && 有变化 && 表单填写完整
     const isSaveDisabled = !!nameError || !hasChanges || !symbolName.trim();
@@ -107,10 +99,20 @@ export const SymbolSelectDialog: React.FC<SymbolSelectDialogProps> = ({
 						{editingSymbol ? "Edit Symbol" : "Add Symbol"}
 					</DialogTitle>
 					<DialogDescription>
-						Add trading symbols and their corresponding time intervals to get K-line data.
+						Add trading symbols and time intervals to get kline data.
 					</DialogDescription>
 				</DialogHeader>
-				<div className="grid gap-4 py-4">
+
+				{/* 交易所未连接警告 */}
+				{exchangeStatus && exchangeStatus !== "Connected" && (
+					<div className="">
+						<p className="text-sm text-yellow-700">
+							{accountName} 未连接.
+						</p>
+					</div>
+				)}
+
+				<div className="grid gap-4">
 					<div className="grid grid-cols-4 items-center gap-4">
 						<Label htmlFor="symbol-name" className="text-right">
 							Symbol
@@ -124,10 +126,11 @@ export const SymbolSelectDialog: React.FC<SymbolSelectDialogProps> = ({
 								}))}
 								value={symbolName}
 								onValueChange={onSymbolNameChange}
-								placeholder="Select Symbol"
+								placeholder={isConnected ? "Select Symbol" : null}
 								searchPlaceholder="Search symbol"
 								emptyMessage="No symbol found."
 								error={!!nameError}
+								disabled={!isConnected}
 							/>
 							{nameError && (
 								<p className="text-xs text-red-500">{nameError}</p>
@@ -148,6 +151,7 @@ export const SymbolSelectDialog: React.FC<SymbolSelectDialogProps> = ({
 									value: interval,
 									label: INTERVAL_LABEL_MAP[interval] || interval,
 								}))}
+								disabled={!isConnected}
 							/>
 						</div>
 					</div>
