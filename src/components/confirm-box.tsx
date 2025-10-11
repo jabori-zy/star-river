@@ -10,7 +10,7 @@ import {
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-interface QuitConfirmBoxProps {
+interface ConfirmBoxProps {
 	title: string;
 	description: string;
 	confirmText: string;
@@ -20,14 +20,14 @@ interface QuitConfirmBoxProps {
 }
 
 // 退出应用二次确认框
-const QuitConfirmBox = ({
+const ConfirmBox = ({
 	title,
 	description,
 	confirmText,
 	cancelText,
 	onConfirm,
 	children,
-}: QuitConfirmBoxProps) => {
+}: ConfirmBoxProps) => {
 	return (
 		<AlertDialog>
 			<AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
@@ -50,4 +50,4 @@ const QuitConfirmBox = ({
 	);
 };
 
-export default QuitConfirmBox;
+export default ConfirmBox;

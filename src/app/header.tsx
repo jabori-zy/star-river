@@ -7,7 +7,7 @@ import {
 	X,
 } from "lucide-react";
 import { useNavigate } from "react-router";
-import QuitConfirmBox from "@/components/quit-confirm-box";
+import ConfirmBox from "@/components/confirm-box";
 import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/components/ui/sidebar";
 import useSidebarToggleStore from "@/store/use-sidebar-toggle-store";
@@ -120,7 +120,7 @@ function WindowControl() {
 				<Square className="w-3 h-3" />
 			</Button>
 			{/* 关闭 - 使用确认框包装 */}
-			<QuitConfirmBox
+			<ConfirmBox
 				title="确认退出"
 				description="确认退出应用吗？所有未保存的更改可能会丢失。"
 				confirmText="确认"
@@ -130,7 +130,7 @@ function WindowControl() {
 				<Button variant="ghost" size="icon" className="hover:text-red-400">
 					<X className="w-3 h-3" />
 				</Button>
-			</QuitConfirmBox>
+			</ConfirmBox>
 		</div>
 	);
 }

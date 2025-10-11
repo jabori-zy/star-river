@@ -1,6 +1,6 @@
 import { Minus, Square, X } from "lucide-react";
 import type React from "react";
-import QuitConfirmBox from "@/components/quit-confirm-box";
+import ConfirmBox from "@/components/confirm-box";
 import { Button } from "@/components/ui/button";
 
 // 声明electron的require
@@ -62,7 +62,7 @@ function WindowControl({ onQuit }: { onQuit: () => Promise<boolean> }) {
 				<Square className="w-3 h-3" />
 			</Button>
 			{/* 关闭 - 使用确认框包装 */}
-			<QuitConfirmBox
+			<ConfirmBox
 				title="确认关闭"
 				description="确认关闭回测窗口吗？这将停止当前策略运行，所有未保存的更改可能会丢失。"
 				confirmText="确认"
@@ -72,7 +72,7 @@ function WindowControl({ onQuit }: { onQuit: () => Promise<boolean> }) {
 				<Button variant="ghost" size="icon" className="hover:text-red-400">
 					<X className="w-3 h-3" />
 				</Button>
-			</QuitConfirmBox>
+			</ConfirmBox>
 		</div>
 	);
 }

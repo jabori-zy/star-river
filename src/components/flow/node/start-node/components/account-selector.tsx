@@ -1,8 +1,10 @@
-import { AlertCircle, DollarSign, Plus, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { AlertCircle, DollarSign, Lock, LockOpen, Plus, X, Link, Unlink } from "lucide-react";
+import { useEffect, useState, useCallback, useRef } from "react";
+import ConfirmBox from "@/components/confirm-box";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {Spinner} from "@/components/ui/spinner";
 import {
 	Select,
 	SelectContent,
@@ -10,9 +12,17 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { getAccountConfigs } from "@/service/account";
+import { getExchangeStatus, connectExchange } from "@/service/exchange";
 import type { Account } from "@/types/account";
 import type { Exchange } from "@/types/market";
+import { ExchangeStatus } from "@/types/market";
 import type { SelectedAccount } from "@/types/strategy";
 
 interface AccountSelectorProps {
@@ -37,6 +47,12 @@ const AccountSelector = ({
 	const [isLockedSelect, setIsLockedSelect] = useState<boolean>(true);
 	// 本地维护的账户列表 - 仅在内部使用
 	const [localAccounts, setLocalAccounts] = useState<SelectedAccount[]>([]);
+	// 账户连接状态 - key为accountId
+	const [accountStatuses, setAccountStatuses] = useState<Record<number, ExchangeStatus>>({});
+	// 正在连接的账户ID
+	const [connectingAccounts, setConnectingAccounts] = useState<Set<number>>(new Set());
+	// 轮询定时器引用
+	const pollingTimers = useRef<Map<number, NodeJS.Timeout>>(new Map());
 
 	// 获取账户数据
 	const fetchAccountConfigs = async () => {
@@ -55,14 +71,91 @@ const AccountSelector = ({
 		}
 	};
 
-	// 初始化时从props同步到本地状态
+
+	// 获取交易所状态
+	const fetchExchangeStatus = useCallback(async (accountId: number) => {
+		try {
+			const status = await getExchangeStatus(accountId);
+			console.log("获取到的交易所状态:", status);
+			setAccountStatuses(prev => ({ ...prev, [accountId]: status }));
+			return status;
+		} catch (error) {
+			console.error("获取交易所状态失败:", error);
+			return null;
+		}
+	}, []);
+
+	// 清除轮询定时器
+	const clearPollingTimer = useCallback((accountId: number) => {
+		const timer = pollingTimers.current.get(accountId);
+		if (timer) {
+			clearInterval(timer);
+			pollingTimers.current.delete(accountId);
+		}
+	}, []);
+
+	// 开始轮询账户状态
+	const startPolling = useCallback(async (accountId: number) => {
+		// 清除已存在的定时器
+		clearPollingTimer(accountId);
+
+		// 每500ms轮询一次
+		const timer = setInterval(async () => {
+			const status = await fetchExchangeStatus(accountId);
+			if (status === ExchangeStatus.Connected) {
+				// 连接成功，停止轮询
+				clearPollingTimer(accountId);
+				setConnectingAccounts(prev => {
+					const next = new Set(prev);
+					next.delete(accountId);
+					return next;
+				});
+			}
+		}, 500);
+
+		pollingTimers.current.set(accountId, timer);
+	}, [fetchExchangeStatus, clearPollingTimer]);
+
+	// 连接交易所
+	const handleConnectExchange = useCallback(async (accountId: number) => {
+		try {
+			setConnectingAccounts(prev => new Set(prev).add(accountId));
+			await connectExchange(accountId);
+			// 开始轮询状态
+			await startPolling(accountId);
+		} catch (error) {
+			console.error("连接交易所失败:", error);
+			setConnectingAccounts(prev => {
+				const next = new Set(prev);
+				next.delete(accountId);
+				return next;
+			});
+		}
+	}, [startPolling]);
+
+	// 组件卸载时清除所有定时器
+	useEffect(() => {
+		return () => {
+			pollingTimers.current.forEach((timer) => clearInterval(timer));
+			pollingTimers.current.clear();
+		};
+	}, []);
+
+	// 初始化时从props同步到本地状态，并获取账户状态
 	useEffect(() => {
 		if (selectedAccounts && selectedAccounts.length > 0) {
 			setLocalAccounts([...selectedAccounts]);
+
+			// 获取所有已选择账户的交易所连接状态
+			selectedAccounts.forEach((account) => {
+				if (account.id !== 0) {
+					fetchExchangeStatus(account.id);
+				}
+			});
 		} else {
 			setLocalAccounts([]);
 		}
-	}, [selectedAccounts]);
+	}, [selectedAccounts, fetchExchangeStatus]);
 
 	// 添加账户
 	const handleAddAccount = () => {
@@ -117,7 +210,7 @@ const AccountSelector = ({
 	};
 
 	// 处理账户选择变更
-	const handleAccountChange = (index: number, selectedId: string) => {
+	const handleAccountChange = async (index: number, selectedId: string) => {
 		if (!selectedId) return;
 
 		const numericId = parseInt(selectedId);
@@ -132,6 +225,9 @@ const AccountSelector = ({
 				exchange: selectedAccount.exchange as Exchange,
 				availableBalance: 0,
 			});
+
+			// 获取账户的交易所连接状态
+			await fetchExchangeStatus(numericId);
 		}
 	};
 
@@ -188,13 +284,13 @@ const AccountSelector = ({
 					</SelectContent>
 				</Select>
 
-				{account.id !== 0 && !isLockedSelect && (
-					<Button
-						variant="ghost"
-						size="sm"
-						className="h-4 w-4 p-0 absolute right-7 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity"
-						onClick={(e) => {
-							e.stopPropagation();
+				{!isLockedSelect && account.id !== 0 && (
+					<ConfirmBox
+						title="确认清除账户"
+						description={`确定要清除账户 ${account.accountName} 吗？此操作无法撤销。`}
+						confirmText="确认清除"
+						cancelText="取消"
+						onConfirm={() => {
 							updateLocalAccount(index, {
 								id: 0,
 								accountName: "",
@@ -202,8 +298,17 @@ const AccountSelector = ({
 							});
 						}}
 					>
-						<X className="h-3 w-3" />
-					</Button>
+						<Button
+							variant="ghost"
+							size="sm"
+							className="h-4 w-4 p-0 absolute right-7 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity"
+							onClick={(e) => {
+								e.stopPropagation();
+							}}
+						>
+							<X className="h-3 w-3" />
+						</Button>
+					</ConfirmBox>
 				)}
 			</div>
 		);
@@ -220,24 +325,26 @@ const AccountSelector = ({
 					{/* 锁定账户选择 */}
 					{!isLockedSelect ? (
 						<Button
-							variant="default"
-							size="sm"
-							className="flex items-center justify-center text-xs"
+							variant="ghost"
+							size="icon"
+							className="h-8 w-8"
 							onClick={() => {
 								setIsLockedSelect(true);
 								updateSelectedAccounts(localAccounts);
 							}}
+							title="锁定已选账户"
 						>
-							锁定已选账户
+							<LockOpen className="h-4 w-4" />
 						</Button>
 					) : (
 						<Button
-							variant="outline"
-							size="sm"
-							className="flex items-center justify-center text-xs bg-red-200"
+							variant="ghost"
+							size="icon"
+							className="h-8 w-8"
 							onClick={() => setIsLockedSelect(false)}
+							title="解锁已选账户"
 						>
-							解锁已选账户
+							<Lock className="h-4 w-4" />
 						</Button>
 					)}
 				</div>
@@ -250,7 +357,7 @@ const AccountSelector = ({
 				</div>
 			)}
 
-			<div className="space-y-3">
+			<div className="space-y-2">
 				{localAccounts.length === 0 ? (
 					<div className="flex items-center justify-center p-4 border border-dashed rounded-md text-muted-foreground text-sm">
 						暂无账户选择
@@ -261,6 +368,50 @@ const AccountSelector = ({
 							key={`local-account-${index}`}
 							className="flex items-center gap-2"
 						>
+							<div className="flex items-center gap-2">
+								{/* 连接状态图标 */}
+								{account.id !== 0 && (
+									<TooltipProvider>
+										<Tooltip>
+											<TooltipTrigger asChild>
+												<div
+													className={`flex items-center justify-center h-8 w-8 rounded-md transition-colors ${
+														accountStatuses[account.id] === ExchangeStatus.Connected ||
+														connectingAccounts.has(account.id)
+															? "cursor-default"
+															: "cursor-pointer hover:bg-gray-100"
+													}`}
+													onClick={() => {
+														if (
+															accountStatuses[account.id] !== ExchangeStatus.Connected &&
+															!connectingAccounts.has(account.id)
+														) {
+															handleConnectExchange(account.id);
+														}
+													}}
+												>
+													{connectingAccounts.has(account.id) ? (
+														<Spinner className="h-4 w-4" />
+													) : accountStatuses[account.id] === ExchangeStatus.Connected ? (
+														<Link className="h-4 w-4 text-green-600" />
+													) : (
+														<Unlink className="h-4 w-4 text-gray-500" />
+													)}
+												</div>
+											</TooltipTrigger>
+											<TooltipContent>
+												<p>
+													{accountStatuses[account.id] === ExchangeStatus.Connected
+														? "已连接"
+														: connectingAccounts.has(account.id)
+														? "连接中..."
+														: "click to connect"}
+												</p>
+											</TooltipContent>
+										</Tooltip>
+									</TooltipProvider>
+								)}
+							</div>
 							{renderAccountSelector(account, index)}
 							<Input
 								type="number"
@@ -276,14 +427,34 @@ const AccountSelector = ({
 							/>
 							<div className="flex items-center">
 								{!isLockedSelect && (
-									<Button
-										variant="ghost"
-										size="icon"
-										className="h-8 w-8"
-										onClick={() => handleRemoveAccount(index)}
-									>
-										<X className="h-4 w-4" />
-									</Button>
+									<>
+										{account.id !== 0 ? (
+											<ConfirmBox
+												title="确认删除账户"
+												description={`确定要删除账户 ${account.accountName} 吗？此操作无法撤销。`}
+												confirmText="确认删除"
+												cancelText="取消"
+												onConfirm={() => handleRemoveAccount(index)}
+											>
+												<Button
+													variant="ghost"
+													size="icon"
+													className="h-8 w-8"
+												>
+													<X className="h-4 w-4" />
+												</Button>
+											</ConfirmBox>
+										) : (
+											<Button
+												variant="ghost"
+												size="icon"
+												className="h-8 w-8"
+												onClick={() => handleRemoveAccount(index)}
+											>
+												<X className="h-4 w-4" />
+											</Button>
+										)}
+									</>
 								)}
 							</div>
 						</div>
