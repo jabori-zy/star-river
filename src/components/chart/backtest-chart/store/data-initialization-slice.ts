@@ -56,7 +56,7 @@ export const createDataInitializationSlice = (
 				if (klineSeriesRef) {
 					klineSeriesRef.setData(klineData);
 				}
-			}, 10);
+			}, 100);
 		} else {
 			console.warn(`No kline data received for keyStr: ${klineKeyStr}`);
 		}
@@ -65,6 +65,7 @@ export const createDataInitializationSlice = (
 	// 私有方法：处理指标数据
 	_processIndicatorData: async (strategyId: number, keyStr: KeyStr, playIndex: number) => {
 		const state = get();
+		// console.log("playindex: ", playIndex);
 		const initialIndicatorData = (await getInitialChartData(
 			strategyId,
 			keyStr,

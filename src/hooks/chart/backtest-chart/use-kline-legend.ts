@@ -2,11 +2,12 @@ import dayjs from "dayjs";
 import type {
 	CandlestickData,
 	ISeriesApi,
+	DataChangedScope,
 	MouseEventParams,
 	Time,
-	WhitespaceData,
+	WhitespaceData
 } from "lightweight-charts";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import { useBacktestChartStore } from "@/components/chart/backtest-chart/backtest-chart-store";
 
 export type KlineLegendData = {
@@ -98,41 +99,33 @@ export const useKlineLegend = ({chartId}: UseKlineLegendProps) => {
 	// 从 store 获取数据和方法
 	const { getKlineSeriesRef } = useBacktestChartStore(chartId);
 
-	// 获取原始数据
-	const rawData = getKlineSeriesRef()?.data() || [];
-	const dataLength = rawData.length;
-	const lastTime = rawData.length > 0 ? rawData[rawData.length - 1]?.time : null;
-
-	// 使用 useMemo 稳定 data 引用，只有在数据长度或最后一个元素的时间变化时才更新
-	const data = useMemo(() => rawData, [dataLength, lastTime]);
-
-	// 使用传入的数据或默认数据来初始化 legendData
+	// 初始化 legendData
 	const [legendData, setLegendData] = useState<KlineLegendData | null>(() => {
+		const klineSeries = getKlineSeriesRef();
+		if (!klineSeries) return null;
+
+		const data = klineSeries.data();
 		if (data && data.length > 0) {
-			return mapCandlestickDataToLegendData(data[data.length - 1] as CandlestickData);
+			const lastData = data[data.length - 1] as CandlestickData<Time>;
+			return mapCandlestickDataToLegendData(lastData);
 		}
 		return null;
 	});
 
-	// 监听数据变化，自动更新 legendData
-	useEffect(() => {
+	// 监听 K线数据变化事件
+	const onSeriesDataUpdate = useCallback((_scope: DataChangedScope) => {
+		const klineSeries = getKlineSeriesRef();
+		if (!klineSeries) return;
+
+		const data = klineSeries.data();
 		if (data && data.length > 0) {
-			const lastDataPoint = data[data.length - 1];
-			const newLegendData = mapCandlestickDataToLegendData(lastDataPoint as CandlestickData<Time>);
-			setLegendData((prev) => {
-				// 只有在时间和收盘价不同时才更新，避免不必要的渲染
-				const shouldUpdate =
-					prev?.time !== newLegendData.time ||
-					prev?.close !== newLegendData.close;
-				if (shouldUpdate) {
-					return newLegendData;
-				}
-				return prev;
-			});
+			const lastDataPoint = data[data.length - 1] as CandlestickData<Time>;
+			const newLegendData = mapCandlestickDataToLegendData(lastDataPoint);
+			setLegendData(newLegendData);
 		} else {
 			setLegendData(null);
 		}
-	}, [data]);
+	}, [getKlineSeriesRef]);
 
 	const onCrosshairMove = useCallback((param: MouseEventParams) => {
 			const seriesApi = getKlineSeriesRef();
@@ -177,5 +170,6 @@ export const useKlineLegend = ({chartId}: UseKlineLegendProps) => {
 	return {
 		klineLegendData: legendData,
 		onCrosshairMove,
+		onSeriesDataUpdate,
 	};
 };

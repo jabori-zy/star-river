@@ -127,7 +127,7 @@ export const createSubscriptionSlice: SliceCreator<SubscriptionSlice> = (set, ge
 	},
 
 	subscribe: (keyStr: KeyStr) => {
-		console.log("新增订阅:", keyStr);
+		// console.log("新增订阅:", keyStr);
 		const state = get();
 		// 判断keyStr是否在state.subscriptions中
 		if (state.subscriptions[keyStr]) {

@@ -1,11 +1,10 @@
 import { Bolt, Eye, EyeOff, Trash2 } from "lucide-react";
 import type React from "react";
-import { forwardRef, useState } from "react";
+import { forwardRef, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import type { IndicatorLegendData } from "@/hooks/chart/backtest-chart/use-indicator-legend";
 import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
 import type { IndicatorKeyStr } from "@/types/symbol-key";
-import { useBacktestChartStore } from "./backtest-chart-store";
 import { IndicatorLegendEditDialog } from "./indicator-legend-edit-dialog";
 
 interface IndicatorLegendProps {
@@ -35,6 +34,46 @@ const IndicatorLegend = forwardRef<HTMLDivElement, IndicatorLegendProps>(
 
 		// 获取当前指标的可见性状态
 		const isVisible = getIndicatorVisibility(chartId, indicatorKeyStr);
+
+		// 追踪每个指标值的最大字符长度 (用于自适应宽度)
+		const [maxWidths, setMaxWidths] = useState<Record<string, number>>({});
+
+		// 重置机制：当 indicatorKeyStr 变化时，重置最大长度
+		useEffect(() => {
+			setMaxWidths({});
+		}, [indicatorKeyStr]);
+
+		// 计算当前数据的字符长度并更新最大值
+		useEffect(() => {
+			if (!indicatorLegendData?.values) return;
+
+			setMaxWidths((prev) => {
+				let hasChanges = false;
+				let next = prev;
+
+				Object.entries(indicatorLegendData.values).forEach(([key, valueInfo]) => {
+					const currentLength = valueInfo.value.length;
+					const maxLength = prev[key] || 0;
+
+					if (currentLength > maxLength) {
+						if (!hasChanges) {
+							next = { ...prev };
+							hasChanges = true;
+						}
+						next[key] = currentLength;
+					}
+				});
+
+				return hasChanges ? next : prev;
+			});
+		}, [indicatorLegendData]);
+
+		// 获取指定 key 的最大宽度（使用 ch 单位）
+		const getMaxWidth = (key: string): string => {
+			const maxLength = maxWidths[key];
+			// 至少保持 6ch 的最小宽度，加上 0.5ch 的缓冲
+			return `${Math.max(maxLength || 6, 6) + 0.5}ch`;
+		};
 
 		//
 		const handleVisibilityToggle = (e: React.MouseEvent) => {
@@ -74,18 +113,27 @@ const IndicatorLegend = forwardRef<HTMLDivElement, IndicatorLegendProps>(
 						const isSingleValue = valueEntries.length === 1;
 
 						return valueEntries.map(([key, valueInfo]) => (
-							<span key={key}>
+							<span key={key} className="inline-flex items-center">
 								{/* 单个值时不显示field字段，多个值时显示field字段 */}
 								{isSingleValue ? (
-									<span style={{ color: valueInfo.color }}>
+									<span
+										className="font-mono text-center inline-block"
+										style={{
+											color: valueInfo.color,
+											width: getMaxWidth(key),
+										}}
+									>
 										{valueInfo.value}
 									</span>
 								) : (
 									<>
 										{valueInfo.label}:{" "}
 										<span
-											className="text-xs mr-2"
-											style={{ color: valueInfo.color }}
+											className="text-xs mr-2 font-mono text-center inline-block"
+											style={{
+												color: valueInfo.color,
+												width: getMaxWidth(key),
+											}}
 										>
 											{valueInfo.value}
 										</span>

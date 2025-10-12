@@ -13,19 +13,18 @@ import {
 	virtualPositionToStopLossPriceLine,
 	virtualOrderToLimitOrderPriceLine
 } from "../utls";
-import type { SliceCreator, EventHandlerSlice, BacktestChartStore, StoreContext } from "./types";
+import type { SliceCreator, EventHandlerSlice, StoreContext } from "./types";
 
 
 
 
-const MAX_DATA_LENGTH = 100;
-
+const MAX_DATA_LENGTH = 500;
 
 
 
 export const createEventHandlerSlice = (
-	context: StoreContext
-): SliceCreator<EventHandlerSlice> => (set, get) => ({
+	_context: StoreContext
+): SliceCreator<EventHandlerSlice> => (_set, get) => ({
 	onNewKline: (kline: Kline) => {
 		const timestamp = getChartAlignedUtcTimestamp(kline.datetime) as UTCTimestamp;
 
@@ -95,7 +94,7 @@ export const createEventHandlerSlice = (
 			// const existingData = existingIndicatorData[indicatorValueField] || [];
 
 			// 处理新数据数组中的每个数据点
-			newDataArray.forEach((newDataPoint, index) => {
+			newDataArray.forEach((newDataPoint, _) => {
 				// // 获取该指标值字段的最后一个数据点
 				// const lastData = existingData[existingData.length - 1];
 				// 过滤主图指标的0值

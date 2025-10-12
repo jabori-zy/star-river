@@ -1,5 +1,6 @@
 import { Bolt, Eye, EyeOff } from "lucide-react";
 import type React from "react";
+import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import type { KlineLegendData } from "@/hooks/chart/backtest-chart/use-kline-legend";
 import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
@@ -27,6 +28,49 @@ const KlineLegend: React.FC<KlineLegendProps> = ({
 	// 获取当前K线的可见性状态
 	const isVisible = getKlineVisibility(chartId);
 
+	// 追踪每个字段值的最大字符长度 (用于自适应宽度)
+	const maxLengthsRef = useRef<Record<string, number>>({});
+
+	// 重置机制：当 chartId 变化时，重置最大长度
+	useEffect(() => {
+		maxLengthsRef.current = {};
+	}, [chartId]);
+
+	// 计算当前数据的字符长度并更新最大值
+	useEffect(() => {
+		if (!klineSeriesData) return;
+
+		let needsUpdate = false;
+		const newMaxLengths = { ...maxLengthsRef.current };
+
+		// 遍历所有字段：open, high, low, close, change
+		const fields = ['open', 'high', 'low', 'close', 'change'] as const;
+
+		fields.forEach((field) => {
+			const value = klineSeriesData[field];
+			if (value && value !== '----') {
+				const currentLength = value.length;
+				const maxLength = newMaxLengths[field] || 0;
+
+				if (currentLength > maxLength) {
+					newMaxLengths[field] = currentLength;
+					needsUpdate = true;
+				}
+			}
+		});
+
+		if (needsUpdate) {
+			maxLengthsRef.current = newMaxLengths;
+		}
+	}, [klineSeriesData]);
+
+	// 获取指定字段的最大宽度（使用 ch 单位）
+	const getMaxWidth = (field: string): string => {
+		const maxLength = maxLengthsRef.current[field];
+		// 至少保持 6ch 的最小宽度，加上 0.5ch 的缓冲
+		return `${Math.max(maxLength || 6, 6) + 0.5}ch`;
+	};
+
 	// 处理可见性切换
 	const handleVisibilityToggle = (e: React.MouseEvent) => {
 		e.stopPropagation();
@@ -44,46 +88,68 @@ const KlineLegend: React.FC<KlineLegendProps> = ({
                         {klineSeriesData.timeString}
                     </span>
                 )} */}
-				
-					<span>
-						O:{" "}
-						<span style={{ color: klineSeriesData?.color }}>
-							{klineSeriesData?.open || "----"}
-						</span>
+
+				<span className="inline-flex items-center">
+					O:{" "}
+					<span
+						className="font-mono text-center inline-block"
+						style={{
+							color: klineSeriesData?.color,
+							width: getMaxWidth('open'),
+						}}
+					>
+						{klineSeriesData?.open || "----"}
 					</span>
-				
-				
-					<span>
-						H:{" "}
-						<span style={{ color: klineSeriesData?.color }}>
-							{klineSeriesData?.high || "----"}
-						</span>
+				</span>
+
+				<span className="inline-flex items-center">
+					H:{" "}
+					<span
+						className="font-mono text-center inline-block"
+						style={{
+							color: klineSeriesData?.color,
+							width: getMaxWidth('high'),
+						}}
+					>
+						{klineSeriesData?.high || "----"}
 					</span>
-				
-				
-					<span>
-						L:{" "}
-						<span style={{ color: klineSeriesData?.color }}>
-							{klineSeriesData?.low || "----"}
-						</span>
+				</span>
+
+				<span className="inline-flex items-center">
+					L:{" "}
+					<span
+						className="font-mono text-center inline-block"
+						style={{
+							color: klineSeriesData?.color,
+							width: getMaxWidth('low'),
+						}}
+					>
+						{klineSeriesData?.low || "----"}
 					</span>
-				
-				
-				<span>
+				</span>
+
+				<span className="inline-flex items-center">
 					C:{" "}
-					<span style={{ color: klineSeriesData?.color }}>
+					<span
+						className="font-mono text-center inline-block"
+						style={{
+							color: klineSeriesData?.color,
+							width: getMaxWidth('close'),
+						}}
+					>
 						{klineSeriesData?.close || "----"}
 					</span>
 				</span>
-				
+
 				{klineSeriesData?.change && (
 					<span
+						className="font-mono text-center inline-block"
 						style={{
 							color: klineSeriesData?.change?.startsWith("+")
 								? "#22c55e"
 								: "#ef4444",
+							width: getMaxWidth('change'),
 						}}
-						className="text-xs"
 					>
 						{klineSeriesData?.change || "----"}
 					</span>

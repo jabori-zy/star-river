@@ -66,7 +66,6 @@ export const useBacktestChart = ({
 		initObserverSubscriptions,
 		subscribe,
 		setSubChartPaneRef,
-		getIsDataInitialized,
 		getSubChartPaneRef,
 		deleteIndicatorSeriesRef,
 		deleteSubChartPaneRef,
@@ -88,7 +87,7 @@ export const useBacktestChart = ({
 	// 是否是第一次加载
 	const isFirstChartConfigLoad = useRef(true);
 
-	const { klineLegendData, onCrosshairMove } = useKlineLegend({chartId: chartConfig.id,});
+	const { klineLegendData, onCrosshairMove, onSeriesDataUpdate } = useKlineLegend({chartId: chartConfig.id,});
 
 	// 获取播放索引并初始化数据
 	const playIndex = useRef(0);
@@ -213,6 +212,7 @@ export const useBacktestChart = ({
 				if (chart) {
 					const klineSeries = getKlineSeriesRef();
 					if (klineSeries) {
+						klineSeries.unsubscribeDataChanged(onSeriesDataUpdate);
 						chart.removeSeries(klineSeries);
 						// 从store中删除klineSeriesRef
 						deleteKlineSeriesRef();
@@ -221,6 +221,7 @@ export const useBacktestChart = ({
 					// 创建新的klineSeries
 					const newKlineSeries = addKlineSeries(chart, chartConfig.klineChartConfig);
 					if (newKlineSeries) {
+						newKlineSeries.subscribeDataChanged(onSeriesDataUpdate);
 						setKlineSeriesRef(newKlineSeries);
 						// newKlineSeries.setData(getKlineData());
 					}
@@ -239,6 +240,7 @@ export const useBacktestChart = ({
 		getChartRef,
 		getKlineSeriesRef,
 		deleteKlineSeriesRef,
+		onSeriesDataUpdate,
 	]);
 
 	// 添加series
@@ -468,6 +470,7 @@ export const useBacktestChart = ({
 
 			// 创建K线系列
 			const candleSeries = addKlineSeries(chart, chartConfig.klineChartConfig);
+			candleSeries.subscribeDataChanged(onSeriesDataUpdate);
 			setKlineKeyStr(chartConfig.klineChartConfig.klineKeyStr);
 			setKlineSeriesRef(candleSeries);
 

@@ -1,5 +1,5 @@
 import type {
-	CandlestickData,
+	// CandlestickData,
 	IChartApi,
 	IPaneApi,
 	ISeriesApi,

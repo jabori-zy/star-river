@@ -17,34 +17,45 @@ const MainChartIndicatorLegend = ({
 	indicatorKeyStr,
 	index,
 }: MainChartIndicatorLegendProps) => {
-	const { legendData: indicatorLegendData, onCrosshairMove } =
+	const { legendData: indicatorLegendData, onCrosshairMove, onSeriesDataUpdate } =
 		useIndicatorLegend({
 			chartId,
 			indicatorKeyStr,
 		});
 
-	// 获取图表API引用 - 使用 useMemo 稳定引用
-	const { getChartRef } = useBacktestChartStore(chartId);
+	const { chartRef, indicatorSeriesRef } = useBacktestChartStore(chartId);
+	const indicatorSeriesMap = indicatorSeriesRef[indicatorKeyStr] || {};
 
-	// 🔑 为主图指标订阅鼠标事件 - 延迟订阅，确保图表完全初始化
+	// 🔑 订阅主图鼠标事件，当图表引用就绪时立即订阅
 	useEffect(() => {
-		// 使用 setTimeout 确保在图表完全初始化后再订阅
-		const timer = setTimeout(() => {
-			const chart = getChartRef();
-			if (!chart || !onCrosshairMove || !indicatorLegendData) return;
+		if (!chartRef || !onCrosshairMove) return;
 
-			// 订阅鼠标移动事件
-			chart.subscribeCrosshairMove(onCrosshairMove);
-		}, 10); // 稍微延迟，确保图表初始化完成
+		// console.log("订阅鼠标移动事件", indicatorKeyStr);
+		chartRef.subscribeCrosshairMove(onCrosshairMove);
 
 		return () => {
-			clearTimeout(timer);
-			const chart = getChartRef();
-			if (chart && onCrosshairMove) {
-				chart.unsubscribeCrosshairMove(onCrosshairMove);
-			}
+			chartRef.unsubscribeCrosshairMove(onCrosshairMove);
 		};
-	}, [getChartRef, onCrosshairMove, indicatorLegendData]);
+	}, [chartRef, indicatorKeyStr, onCrosshairMove]);
+
+	// 指标数据变动订阅，等待指标 series 准备好后再订阅
+	useEffect(() => {
+		const seriesList = Object.values(indicatorSeriesMap).filter(
+			(seriesRef): seriesRef is NonNullable<typeof seriesRef> => Boolean(seriesRef),
+		);
+
+		if (seriesList.length === 0) return;
+
+		seriesList.forEach((seriesRef) => {
+			seriesRef.subscribeDataChanged(onSeriesDataUpdate);
+		});
+
+		return () => {
+			seriesList.forEach((seriesRef) => {
+				seriesRef.unsubscribeDataChanged(onSeriesDataUpdate);
+			});
+		};
+	}, [indicatorSeriesMap, onSeriesDataUpdate]);
 
 	return (
 		<IndicatorLegend

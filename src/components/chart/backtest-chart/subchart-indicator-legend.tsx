@@ -21,36 +21,58 @@ export function SubchartIndicatorLegend({
 	const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(
 		null,
 	);
-	const { getSubChartPaneRef, getChartRef, getPaneVersion, getSubChartPaneHtmlElementRef, subChartPaneHtmlElementRef } = useBacktestChartStore(chartId);
+	const { 
+		getSubChartPaneRef,
+		getPaneVersion,
+		getSubChartPaneHtmlElementRef,
+		subChartPaneHtmlElementRef,
+		chartRef,
+		indicatorSeriesRef,
+	} = useBacktestChartStore(chartId);
+
+	const indicatorSeriesMap = indicatorSeriesRef[indicatorKeyStr] || {};
 
 	// 🔑 获取当前的 pane 版本号，用于监听 pane 变化
 	const paneVersion = getPaneVersion();
 
 	// 🔑 获取 legend 数据和事件处理器
-	const { legendData, onCrosshairMove } = useIndicatorLegend({
+	const { legendData, onCrosshairMove, onSeriesDataUpdate } = useIndicatorLegend({
 		chartId,
 		indicatorKeyStr,
 	});
 
 	// 🔑 延迟订阅图表事件，确保图表完全初始化
 	useEffect(() => {
-		// 使用 setTimeout 确保在图表完全初始化后再订阅
-		const timer = setTimeout(() => {
-			const chart = getChartRef();
-			// 确保图表存在、回调函数存在、并且有legend数据
-			if (!chart || !onCrosshairMove || !legendData) return;
-			// 直接订阅图表的鼠标移动事件
-			chart.subscribeCrosshairMove(onCrosshairMove);
-		}, 10); // 延迟150ms，确保图表初始化完成
+		if (!chartRef || !onCrosshairMove) {
+			return;
+		}
+
+		chartRef.subscribeCrosshairMove(onCrosshairMove);
 
 		return () => {
-			clearTimeout(timer);
-			const chart = getChartRef();
-			if (chart && onCrosshairMove) {
-				chart.unsubscribeCrosshairMove(onCrosshairMove);
-			}
+			chartRef.unsubscribeCrosshairMove(onCrosshairMove);
 		};
-	}, [getChartRef, onCrosshairMove, legendData]); // 添加legendData作为依赖
+	}, [chartRef, indicatorKeyStr, onCrosshairMove]);
+
+	useEffect(() => {
+		const seriesList = Object.values(indicatorSeriesMap).filter(
+			(seriesRef): seriesRef is NonNullable<typeof seriesRef> => Boolean(seriesRef),
+		);
+
+		if (seriesList.length === 0) {
+			return;
+		}
+
+		seriesList.forEach((seriesRef) => {
+			seriesRef.subscribeDataChanged(onSeriesDataUpdate);
+		});
+
+		return () => {
+			seriesList.forEach((seriesRef) => {
+				seriesRef.unsubscribeDataChanged(onSeriesDataUpdate);
+			});
+		};
+	}, [indicatorSeriesMap, onSeriesDataUpdate]);
 
 	// 🔑 创建 Portal 容器，响应 paneRef 的变化
 	useEffect(() => {
