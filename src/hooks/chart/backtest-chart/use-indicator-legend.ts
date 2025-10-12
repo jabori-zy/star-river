@@ -2,6 +2,7 @@ import type {
 	MouseEventParams,
 	SingleValueData,
 	Time,
+	ISeriesApi,
 } from "lightweight-charts";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useBacktestChartStore } from "@/components/chart/backtest-chart/backtest-chart-store";
@@ -114,14 +115,12 @@ const getIndicatorValueColorFromConfig = (
 // 处理指标值的通用函数
 const processIndicatorValues = (
 	indicatorKeyStr: IndicatorKeyStr,
-	data: Record<keyof IndicatorValueConfig, SingleValueData[]>,
+	indicatorData: Record<keyof IndicatorValueConfig, SingleValueData[]>,
 	time: Time | null,
 	chartConfig: BacktestChartConfig,
 ): Record<string, { label: string; value: string; color?: string }> => {
-	const values: Record<
-		string,
-		{ label: string; value: string; color?: string }
-	> = {};
+	
+	const legendValue: Record<string,{ label: string; value: string; color?: string }> = {};
 
 	// 解析indicatorType用于获取legend名称
 	let indicatorType: string | undefined;
@@ -132,48 +131,36 @@ const processIndicatorValues = (
 		console.error("解析indicatorType失败:", error);
 	}
 
-	// 遍历所有指标值字段
-	Object.entries(data).forEach(([key, seriesData]) => {
-		if (key === "timestamp") return; // 跳过timestamp字段
-
-		// 查找对应时间的数据点
-		const dataPoint = time
-			? seriesData.find((point) => point.time === time)
-			: null;
-
-		// 使用新的方法获取legend显示名称，如果没有则使用原始key
-		const legendShowName = indicatorType
-			? getValueLegendShowName(
-					indicatorType as IndicatorType,
-					key as keyof IndicatorValueConfig,
-				)
-			: undefined;
-
-		values[key] = {
-			label: legendShowName || key,
-			value: dataPoint ? dataPoint.value.toFixed(2) : "--",
+	Object.entries(indicatorData).forEach(([indicatorValueField, indicatorData]) => {
+		
+		// 找到与time相同的数据
+		let dataPoint = indicatorData.find((point) => point.time === time);
+		legendValue[indicatorValueField] = {
+			label: indicatorValueField,
+			value: dataPoint ? (dataPoint as SingleValueData).value?.toFixed(2) : "--",
 			color: getIndicatorValueColorFromConfig(
 				indicatorKeyStr,
-				key,
+				indicatorValueField,
 				chartConfig,
 			),
 		};
+		
 	});
 
-	return values;
+	return legendValue;
 };
 
 // 将指标数据转换为图例数据
 const mapIndicatorDataToLegendData = (
 	indicatorKeyStr: IndicatorKeyStr,
-	data: Record<keyof IndicatorValueConfig, SingleValueData[]>,
+	indicatorData: Record<keyof IndicatorValueConfig, SingleValueData[]>,
 	time: Time,
 	chartConfig: BacktestChartConfig,
 ): IndicatorLegendData => {
 	const indicatorName = parseIndicatorName(indicatorKeyStr);
 	const values = processIndicatorValues(
 		indicatorKeyStr,
-		data,
+		indicatorData,
 		time,
 		chartConfig,
 	);
@@ -189,23 +176,22 @@ const mapIndicatorDataToLegendData = (
 // 获取最新数据点的图例数据
 const getLastDataLegendData = (
 	indicatorKeyStr: IndicatorKeyStr,
-	data: Record<keyof IndicatorValueConfig, SingleValueData[]>,
+	indicatorData: Record<keyof IndicatorValueConfig, SingleValueData[]>,
 	chartConfig: BacktestChartConfig,
 ): IndicatorLegendData => {
 	let latestTime: Time | null = null;
 	let latestTimestamp = 0;
 
-	// 找到最新的时间点
-	Object.entries(data).forEach(([key, seriesData]) => {
-		if (key === "timestamp" || seriesData.length === 0) return;
 
-		const lastPoint = seriesData[seriesData.length - 1];
-		const timestamp = typeof lastPoint.time === "number" ? lastPoint.time : 0;
-
-		if (timestamp > latestTimestamp) {
-			latestTimestamp = timestamp;
-			latestTime = lastPoint.time;
-		}
+	Object.entries(indicatorData).forEach(([_, indicatorData]) => {
+			const lastPoint = indicatorData[indicatorData.length - 1];
+			if (lastPoint) {	
+				const timestamp = typeof lastPoint.time === "number" ? lastPoint.time : 0;
+				if (timestamp > latestTimestamp) {
+					latestTimestamp = timestamp;
+					latestTime = lastPoint.time as Time;
+				}
+			}
 	});
 
 	// 如果没有找到时间点，使用当前时间作为默认值
@@ -215,7 +201,7 @@ const getLastDataLegendData = (
 
 	return mapIndicatorDataToLegendData(
 		indicatorKeyStr,
-		data,
+		indicatorData,
 		latestTime,
 		chartConfig,
 	);
@@ -231,34 +217,52 @@ export const useIndicatorLegend = ({
 	indicatorKeyStr,
 }: UseIndicatorLegendProps) => {
 	// 从 store 获取数据和方法
-	const { indicatorData, getIndicatorSeriesRef, getSubChartPaneRef } =
-		useBacktestChartStore(chartId);
+	const { getIndicatorAllSeriesRef } = useBacktestChartStore(chartId);
+
+
+	const indicatorAllSeriesRef = getIndicatorAllSeriesRef(indicatorKeyStr);
+
+	// 构建原始数据
+	const rawIndicatorData: Record<keyof IndicatorValueConfig, SingleValueData[]> = {};
+	Object.entries(indicatorAllSeriesRef).forEach(([key, seriesRef]) => {
+		if (seriesRef) {
+			rawIndicatorData[key as keyof IndicatorValueConfig] = seriesRef.data() as SingleValueData[];
+		}
+	});
+
+	// 计算用于依赖比较的稳定值（使用原始值而不是对象）
+	// 将所有字段的长度拼接成字符串，例如 "value:10,timestamp:10"
+	const dataLengthStr = Object.entries(rawIndicatorData)
+		.map(([key, data]) => `${key}:${data.length}`)
+		.join(',');
+
+	// 将所有字段的最后时间拼接成字符串
+	const lastTimeStr = Object.entries(rawIndicatorData)
+		.map(([key, data]) => `${key}:${data.length > 0 ? data[data.length - 1]?.time : 'null'}`)
+		.join(',');
+
+	// 使用稳定的字符串作为依赖，只有在数据长度或最后时间真正变化时才更新
+	const indicatorData = useMemo(() => rawIndicatorData, [dataLengthStr, lastTimeStr]);
 
 	const chartConfig = useBacktestChartConfigStore
 		.getState()
 		.getChartConfig(chartId) as BacktestChartConfig;
 
-	// 🔑 使用 useMemo 稳定 data 引用，避免无限重新创建 onCrosshairMove
-	const data = useMemo(() => {
-		return (
-			(indicatorData[indicatorKeyStr] as Record<
-				keyof IndicatorValueConfig,
-				SingleValueData[]
-			>) || {}
-		);
-	}, [indicatorData, indicatorKeyStr]);
 
-	const [legendData, setLegendData] = useState<IndicatorLegendData>(() => {
-		// 总是返回legend数据，即使没有数据也显示空的legend
-		return getLastDataLegendData(indicatorKeyStr, data, chartConfig);
+	const [legendData, setLegendData] = useState<IndicatorLegendData | null>(() => {
+		return getLastDataLegendData(indicatorKeyStr, indicatorData, chartConfig);
 	});
+		// () => {
+		// 总是返回legend数据，即使没有数据也显示空的legend
+		// return getLastDataLegendData(indicatorKeyStr, data, chartConfig);
+	// });
 
 	// 监听数据变化，自动更新图例数据
 	useEffect(() => {
 		// 总是更新legend数据，即使data为空也要显示
 		const newLegendData = getLastDataLegendData(
 			indicatorKeyStr,
-			data,
+			indicatorData,
 			chartConfig,
 		);
 		setLegendData((prev) => {
@@ -266,41 +270,39 @@ export const useIndicatorLegend = ({
 			const shouldUpdate = prev?.time !== newLegendData?.time;
 			return shouldUpdate ? newLegendData : prev;
 		});
-	}, [data, indicatorKeyStr, chartConfig]);
+	}, [indicatorKeyStr, chartConfig, indicatorData]);
 
-	const onCrosshairMove = useCallback(
-		(param: MouseEventParams) => {
-			const indicatorName = parseIndicatorName(indicatorKeyStr);
-			const time = param?.time || null;
+	const onCrosshairMove = useCallback((param: MouseEventParams) => {
+		// console.log("onCrosshairMove", param);
+		const indicatorName = parseIndicatorName(indicatorKeyStr);
+		const time = param?.time || null;
 
-			// 使用通用函数处理指标值
-			const values = processIndicatorValues(
-				indicatorKeyStr,
-				data,
-				time,
-				chartConfig,
-			);
+		// 使用通用函数处理指标值
+		const values = processIndicatorValues(
+			indicatorKeyStr,
+			indicatorData,
+			time,
+			chartConfig,
+		);
 
-			const currentTime = time || (Math.floor(Date.now() / 1000) as Time);
-			const newLegendData = {
-				indicatorName,
-				values,
-				time: currentTime,
-				timeString: timeToString(currentTime),
-			};
+		const currentTime = time || (Math.floor(Date.now() / 1000) as Time);
+		const newLegendData = {
+			indicatorName,
+			values,
+			time: currentTime,
+			timeString: timeToString(currentTime),
+		};
 
-			setLegendData((prev) => {
-				const shouldUpdate = prev?.time !== newLegendData.time;
-				return shouldUpdate ? newLegendData : prev;
-			});
-		},
-		[indicatorKeyStr, data, chartConfig],
-	);
+		setLegendData((prev) => {
+			const shouldUpdate = prev?.time !== newLegendData.time;
+			return shouldUpdate ? newLegendData : prev;
+		});
+	},
+	[indicatorKeyStr, indicatorData, chartConfig],
+);
 
 	return {
 		legendData,
-		onCrosshairMove,
-		getIndicatorSeriesRef,
-		getSubChartPaneRef,
+		onCrosshairMove
 	};
 };

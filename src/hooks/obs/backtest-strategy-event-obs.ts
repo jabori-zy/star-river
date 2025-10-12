@@ -380,7 +380,7 @@ class BacktestStrategyDataObservableService {
 					strategyEvent.event === "futures-order-created-event" || 
 					strategyEvent.event === "futures-order-canceled-event"
 				) {
-					console.log("orderEvent", orderEvent);
+					// console.log("orderEvent", orderEvent);
 					// 转换futuresOrder中的createTime和updateTime字符串为Date对象
 					const orderUpdateEvent : VirtualOrderEvent = {
 						...orderEvent,

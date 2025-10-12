@@ -1,5 +1,6 @@
 import axios from "axios";
-import { API_BASE_URL } from "./index";
+import { API_BASE_URL } from "../index";
+import { Kline } from "@/types/kline";
 
 const ROUTER = "strategy/backtest";
 const API_VERSION = "api/v1";
@@ -36,6 +37,31 @@ export async function getInitialChartData(
 	} catch (error) {
 		console.error("获取数据错误:", error);
 		// 错误回调
+		return [];
+	}
+}
+
+
+export async function getPartialChartData(
+	strategyId: number,
+	datetimeStr: string,
+	limit: number,
+	keyStr: string,
+): Promise<Kline[]> {
+	try {
+		const params = new URLSearchParams();
+		params.append("datetime", datetimeStr);
+		params.append("limit", limit.toString());
+		params.append("key", keyStr);
+		const url = `${API_URL}/${strategyId}/data-by-datetime?${params.toString()}`;
+		const response = await axios.get(url);
+		if (response.status !== 200) {
+			throw new Error(`获取数据失败: ${response.status}`);
+		}
+		return response.data.data;
+	}
+	catch (error) {
+		console.error("获取数据错误:", error);
 		return [];
 	}
 }

@@ -9,6 +9,8 @@ export const createDataSlice: SliceCreator<DataSlice> = (set, get) => ({
 	indicatorData: {},
 	isDataInitialized: false,
 
+	visibleLogicalRangeFrom: null,
+
 	setKlineKeyStr: (klineKeyStr: KlineKeyStr) => set({ klineKeyStr: klineKeyStr }),
 
 	getKlineKeyStr: () => get().klineKeyStr || null,
@@ -47,4 +49,8 @@ export const createDataSlice: SliceCreator<DataSlice> = (set, get) => ({
 		const data = get().klineData || [];
 		return data[data.length - 1] || null;
 	},
+
+	setVisibleLogicalRangeFrom: (from: number) => set({ visibleLogicalRangeFrom: from }),
+
+	getVisibleLogicalRangeFrom: () => get().visibleLogicalRangeFrom,
 });

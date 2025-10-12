@@ -12,7 +12,7 @@ import {
 	createKlineStreamFromKey,
 	createOrderStreamForSymbol,
 } from "@/hooks/obs/backtest-strategy-event-obs";
-import { getInitialChartData } from "@/service/chart";
+import { getInitialChartData } from "@/service/backtest-strategy/chart";
 import type { KlineChartConfig, SubChartConfig } from "@/types/chart";
 import type { Kline } from "@/types/kline";
 import type { VirtualOrder } from "@/types/order/virtual-order";

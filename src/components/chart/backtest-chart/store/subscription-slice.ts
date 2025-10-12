@@ -11,8 +11,8 @@ import type { Kline } from "@/types/kline";
 import type { KeyStr } from "@/types/symbol-key";
 import { parseKey } from "@/utils/parse-key";
 import type { VirtualOrderEvent, VirtualPositionEvent } from "@/types/strategy-event/backtest-strategy-event";
-import { OrderStatus, OrderType } from "@/types/order";
-import { getChartAlignedUtcSeconds } from "@/utils/datetime-offset";
+import { OrderType } from "@/types/order";
+import { getChartAlignedUtcTimestamp } from "../utls";
 import type { SliceCreator, SubscriptionSlice } from "./types";
 
 export const createSubscriptionSlice: SliceCreator<SubscriptionSlice> = (set, get) => ({
@@ -33,7 +33,7 @@ export const createSubscriptionSlice: SliceCreator<SubscriptionSlice> = (set, ge
 					const klineSubscription = klineStream.subscribe({
 						next: (klineData: Kline) => {
 							// 更新kline
-							state.onNewKline(keyStr, klineData);
+							state.onNewKline(klineData);
 						},
 						error: (error: Error) => {
 							console.error("K线数据流订阅错误:", error);
@@ -98,7 +98,7 @@ export const createSubscriptionSlice: SliceCreator<SubscriptionSlice> = (set, ge
 												indicatorValueKey as keyof IndicatorValueConfig
 											] || []),
 											{
-												time: getChartAlignedUtcSeconds(indicatorData.datetime as unknown as string) as UTCTimestamp,
+												time: getChartAlignedUtcTimestamp(indicatorData.datetime as unknown as string) as UTCTimestamp,
 												value: value as number,
 										} as SingleValueData,
 									];
@@ -140,7 +140,7 @@ export const createSubscriptionSlice: SliceCreator<SubscriptionSlice> = (set, ge
 			const klineSubscription = klineStream.subscribe({
 				next: (klineData: Kline) => {
 					// 更新kline
-					state.onNewKline(keyStr, klineData);
+					state.onNewKline(klineData);
 				},
 				error: (error: Error) => {
 					console.error("K线数据流订阅错误:", error);
@@ -183,7 +183,7 @@ export const createSubscriptionSlice: SliceCreator<SubscriptionSlice> = (set, ge
 										indicatorValueKey as keyof IndicatorValueConfig
 									] || []),
 									{
-										time: getChartAlignedUtcSeconds(indicatorData.datetime as unknown as string) as UTCTimestamp,
+										time: getChartAlignedUtcTimestamp(indicatorData.datetime as unknown as string) as UTCTimestamp,
 										value: value as number,
 								} as SingleValueData,
 							];

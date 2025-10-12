@@ -1,6 +1,6 @@
 import type { CandlestickData, SingleValueData, UTCTimestamp } from "lightweight-charts";
 import { DateTime } from "luxon";
-import { getInitialChartData } from "@/service/chart";
+import { getInitialChartData } from "@/service/backtest-strategy/chart";
 import { getVirtualOrder, getVirtualPosition } from "@/service/backtest-strategy";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import type { Kline } from "@/types/kline";
@@ -9,7 +9,7 @@ import type { VirtualOrder } from "@/types/order";
 import type { VirtualPosition } from "@/types/position";
 import { OrderStatus, OrderType } from "@/types/order";
 import { parseKey } from "@/utils/parse-key";
-import { getChartAlignedUtcSeconds } from "@/utils/datetime-offset";
+import { getChartAlignedUtcTimestamp } from "../utls";
 import {
 	virtualOrderToMarker,
 	virtualPositionToOpenPositionPriceLine,
@@ -20,17 +20,19 @@ import {
 import type { OrderMarker, LimitOrderPriceLine, PositionPriceLine } from "@/types/chart";
 import type { SliceCreator, DataInitializationSlice, StoreContext } from "./types";
 
+// 初始化k线长度
+const INITIAL_DATA_LENGTH = 1000;
+
 export const createDataInitializationSlice = (
 	context: StoreContext
-): SliceCreator<DataInitializationSlice> => (set, get) => ({
+): SliceCreator<DataInitializationSlice> => (_set, get) => ({
 	// 私有方法：处理K线数据
 	_processKlineData: async (strategyId: number, klineKeyStr: KeyStr, playIndex: number) => {
-		const state = get();
 		const initialKlines = (await getInitialChartData(
 			strategyId,
 			klineKeyStr,
 			playIndex,
-			null,
+			INITIAL_DATA_LENGTH,
 		)) as Kline[];
 
 		// 安全检查：确保 initialKlines 存在且是数组
@@ -40,7 +42,7 @@ export const createDataInitializationSlice = (
 			initialKlines.length > 0
 		) {
 			const klineData: CandlestickData[] = initialKlines.map((kline) => {
-				const timestampInSeconds = getChartAlignedUtcSeconds(kline.datetime) as UTCTimestamp;
+				const timestampInSeconds = getChartAlignedUtcTimestamp(kline.datetime) as UTCTimestamp;
 				return {
 					time: timestampInSeconds,
 					open: kline.open,
@@ -49,8 +51,12 @@ export const createDataInitializationSlice = (
 					close: kline.close,
 				};
 			});
-
-			state.setKlineData(klineData);
+			setTimeout(() => {
+				let klineSeriesRef = get().getKlineSeriesRef();
+				if (klineSeriesRef) {
+					klineSeriesRef.setData(klineData);
+				}
+			}, 10);
 		} else {
 			console.warn(`No kline data received for keyStr: ${klineKeyStr}`);
 		}
@@ -63,7 +69,7 @@ export const createDataInitializationSlice = (
 			strategyId,
 			keyStr,
 			playIndex,
-			null,
+			INITIAL_DATA_LENGTH,
 		)) as Record<keyof IndicatorValueConfig, number | Date>[];
 		// 安全检查：确保指标数据存在
 		if (
@@ -82,16 +88,30 @@ export const createDataInitializationSlice = (
 									indicatorValueField as keyof IndicatorValueConfig
 								] || []),
 								{
-									time: getChartAlignedUtcSeconds(item.datetime as unknown as string) as UTCTimestamp,
+									time: getChartAlignedUtcTimestamp(item.datetime as unknown as string) as UTCTimestamp,
 									value: value as number,
 								} as SingleValueData,
 							];
 					}
 				});
+				
 			});
-			// console.log("indicatorInitData", indicatorData);
 
-			state.setIndicatorData(keyStr, indicatorData);
+			const indicatorChartConfigs = context.chartConfig.indicatorChartConfigs.find((config) => config.indicatorKeyStr === keyStr);
+			setTimeout(() => {
+				if (indicatorChartConfigs) {
+					indicatorChartConfigs.seriesConfigs.forEach((seriesConfig) => {
+						const indicatorSeriesRef = state.getIndicatorSeriesRef(indicatorChartConfigs.indicatorKeyStr, seriesConfig.indicatorValueKey);
+						if (indicatorSeriesRef) {
+							indicatorSeriesRef.setData(indicatorData[seriesConfig.indicatorValueKey as keyof IndicatorValueConfig]);
+						}
+					});
+				}
+			}, 10);
+			
+			
+
+			// state.setIndicatorData(keyStr, indicatorData);
 			return indicatorData;
 		} else {
 			console.warn(`No indicator data received for keyStr: ${keyStr}`);

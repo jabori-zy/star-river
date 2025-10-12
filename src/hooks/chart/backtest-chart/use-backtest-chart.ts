@@ -2,7 +2,9 @@ import type {
 	ChartOptions,
 	DeepPartial,
 	IChartApi,
+	CandlestickData,
 	SingleValueData,
+	UTCTimestamp,
 } from "lightweight-charts";
 import {
 	createSeriesMarkers,
@@ -15,6 +17,9 @@ import type { IndicatorChartConfig } from "@/types/chart";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import { type KlineLegendData, useKlineLegend } from "./use-kline-legend";
 import { addIndicatorSeries, addKlineSeries } from "./utils/add-chart-series";
+import { getChartAlignedUtcTimestamp, getDateTimeFromChartTimestamp } from "@/components/chart/backtest-chart/utls";
+import { getPartialChartData } from "@/service/backtest-strategy/chart";
+import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 interface UseBacktestChartProps {
 	strategyId: number;
@@ -46,7 +51,7 @@ export const useBacktestChart = ({
 		// klineData,
 		// indicatorData,
 		initChartData,
-		getKlineData,
+		// getKlineData,
 		getOrderMarkers,
 		getPositionPriceLine,
 		getLimitOrderPriceLine,
@@ -65,13 +70,14 @@ export const useBacktestChart = ({
 		getSubChartPaneRef,
 		deleteIndicatorSeriesRef,
 		deleteSubChartPaneRef,
-		getIndicatorData,
+		// getIndicatorData,
 		getKlineKeyStr,
 		setKlineKeyStr,
 		deleteKlineSeriesRef,
 		incrementPaneVersion,
 		setOrderMarkerSeriesRef,
 		addSubChartPaneHtmlElementRef,
+		setVisibleLogicalRangeFrom, // 设置可见逻辑范围逻辑起始点
 	} = useBacktestChartStore(chartConfig.id, chartConfig);
 
 	// 使用状态追踪初始化状态，而不是 ref
@@ -82,7 +88,7 @@ export const useBacktestChart = ({
 	// 是否是第一次加载
 	const isFirstChartConfigLoad = useRef(true);
 
-	const { klineLegendData, onCrosshairMove } = useKlineLegend({chartId: chartConfig.id,klineKeyStr: chartConfig.klineChartConfig.klineKeyStr,});
+	const { klineLegendData, onCrosshairMove } = useKlineLegend({chartId: chartConfig.id,});
 
 	// 获取播放索引并初始化数据
 	const playIndex = useRef(0);
@@ -216,7 +222,7 @@ export const useBacktestChart = ({
 					const newKlineSeries = addKlineSeries(chart, chartConfig.klineChartConfig);
 					if (newKlineSeries) {
 						setKlineSeriesRef(newKlineSeries);
-						newKlineSeries.setData(getKlineData());
+						// newKlineSeries.setData(getKlineData());
 					}
 				}
 			})
@@ -225,7 +231,7 @@ export const useBacktestChart = ({
 	}, [
 		strategyId,
 		chartConfig.klineChartConfig,
-		getKlineData,
+		// getKlineData,
 		initKlineData,
 		setKlineSeriesRef,
 		getKlineKeyStr,
@@ -272,16 +278,16 @@ export const useBacktestChart = ({
 								);
 
 								// 为新创建的系列设置数据 - 现在Promise.all已经完成，数据应该已就绪
-								const indicatorDataForSeries = getIndicatorData(config.indicatorKeyStr);
-								// console.log("indicatorDataForSeries", indicatorDataForSeries);	
-								if (indicatorDataForSeries) {
-									const seriesData = indicatorDataForSeries[seriesConfig.indicatorValueKey];
-									if (seriesData && seriesData.length > 0) {
-										newSeries.setData(seriesData);
-									}
-								} else {
-									console.warn(`No indicator data found for ${config.indicatorKeyStr} after initialization`);
-								}
+								// const indicatorDataForSeries = getIndicatorData(config.indicatorKeyStr);
+								// // console.log("indicatorDataForSeries", indicatorDataForSeries);	
+								// if (indicatorDataForSeries) {
+								// 	const seriesData = indicatorDataForSeries[seriesConfig.indicatorValueKey];
+								// 	if (seriesData && seriesData.length > 0) {
+								// 		newSeries.setData(seriesData);
+								// 	}
+								// } else {
+								// 	console.warn(`No indicator data found for ${config.indicatorKeyStr} after initialization`);
+								// }
 							}
 						}
 					});
@@ -315,13 +321,13 @@ export const useBacktestChart = ({
 								);
 							}
 							// 为新创建的系列设置数据
-							const subChartIndicatorData = getIndicatorData(config.indicatorKeyStr);
-							if (subChartIndicatorData) {
-								const seriesData = subChartIndicatorData[seriesConfig.indicatorValueKey];
-								if (seriesData && seriesData.length > 0) {
-									subChartIndicatorSeries.setData(seriesData);
-								}
-							}
+							// const subChartIndicatorData = getIndicatorData(config.indicatorKeyStr);
+							// if (subChartIndicatorData) {
+							// 	const seriesData = subChartIndicatorData[seriesConfig.indicatorValueKey];
+							// 	if (seriesData && seriesData.length > 0) {
+							// 		subChartIndicatorSeries.setData(seriesData);
+							// 	}
+							// }
 						});
 						// 订阅指标数据流
 						subscribe(config.indicatorKeyStr);
@@ -338,7 +344,7 @@ export const useBacktestChart = ({
 		setIndicatorSeriesRef,
 		initIndicatorData,
 		setSubChartPaneRef,
-		getIndicatorData,
+		// getIndicatorData,
 		subscribe,
 		addSubChartPaneHtmlElementRef
 	]);
@@ -578,62 +584,62 @@ export const useBacktestChart = ({
 	}, [strategyId, initChartData, initializeBacktestChart, isInitialized]);
 
 	// 图表数据初始化 - 在图表创建后且数据可用时设置数据
-	useEffect(() => {
-		// 只在图表已初始化、数据已准备好、但数据还未在图表中设置时执行
-		if (
-			isInitialized &&
-			getChartRef() &&
-			getIsDataInitialized() &&
-			!isChartDataSet
-		) {
-			// 初始化k线数据
-			const klineSeries = getKlineSeriesRef();
-			if (klineSeries) {			
-				if (getKlineData() && getKlineData().length > 0) {
-					klineSeries.setData(getKlineData());
-				}
-			}
+	// useEffect(() => {
+	// 	// 只在图表已初始化、数据已准备好、但数据还未在图表中设置时执行
+	// 	if (
+	// 		isInitialized &&
+	// 		getChartRef() &&
+	// 		getIsDataInitialized() &&
+	// 		!isChartDataSet
+	// 	) {
+	// 		// 初始化k线数据
+	// 		const klineSeries = getKlineSeriesRef();
+	// 		if (klineSeries) {			
+	// 			if (getKlineData() && getKlineData().length > 0) {
+	// 				klineSeries.setData(getKlineData());
+	// 			}
+	// 		}
 
-			// 初始化指标数据
-			chartConfig.indicatorChartConfigs.forEach((config) => {
-				config.seriesConfigs.forEach((seriesConfig) => {
-					const indicatorSeriesRef = getIndicatorSeriesRef(
-						config.indicatorKeyStr,
-						seriesConfig.indicatorValueKey,
-					);
-					if (indicatorSeriesRef) {
-						const indicatorDataArray = getIndicatorData(config.indicatorKeyStr);
-						if (indicatorDataArray) {
-							const indicatorSeriesDataArray = indicatorDataArray[
-								seriesConfig.indicatorValueKey
-							] as SingleValueData[];
-							if (
-								indicatorSeriesDataArray &&
-								indicatorSeriesDataArray.length > 0
-							) {
-								indicatorSeriesRef.setData(indicatorSeriesDataArray);
-							}
-						}
-					}
-				});
-			});
+	// 		// 初始化指标数据
+	// 		chartConfig.indicatorChartConfigs.forEach((config) => {
+	// 			config.seriesConfigs.forEach((seriesConfig) => {
+	// 				const indicatorSeriesRef = getIndicatorSeriesRef(
+	// 					config.indicatorKeyStr,
+	// 					seriesConfig.indicatorValueKey,
+	// 				);
+	// 				if (indicatorSeriesRef) {
+	// 					const indicatorDataArray = getIndicatorData(config.indicatorKeyStr);
+	// 					if (indicatorDataArray) {
+	// 						const indicatorSeriesDataArray = indicatorDataArray[
+	// 							seriesConfig.indicatorValueKey
+	// 						] as SingleValueData[];
+	// 						if (
+	// 							indicatorSeriesDataArray &&
+	// 							indicatorSeriesDataArray.length > 0
+	// 						) {
+	// 							indicatorSeriesRef.setData(indicatorSeriesDataArray);
+	// 						}
+	// 					}
+	// 				}
+	// 			});
+	// 		});
 
-			// 标记数据已在图表中设置
-			setIsChartDataSet(true);
-		}
-	}, [
-		isInitialized,
-		getIsDataInitialized,
-		isChartDataSet,
-		chartConfig,
-		// klineData,
-		// indicatorData,
-		getChartRef,
-		getKlineSeriesRef,
-		getIndicatorSeriesRef,
-		getKlineData,
-		getIndicatorData,
-	]);
+	// 		// 标记数据已在图表中设置
+	// 		setIsChartDataSet(true);
+	// 	}
+	// }, [
+	// 	isInitialized,
+	// 	getIsDataInitialized,
+	// 	isChartDataSet,
+	// 	chartConfig,
+	// 	// klineData,
+	// 	// indicatorData,
+	// 	getChartRef,
+	// 	getKlineSeriesRef,
+	// 	getIndicatorSeriesRef,
+	// 	getKlineData,
+	// 	getIndicatorData,
+	// ]);
 
 
 	// 处理图表 resize
@@ -654,6 +660,132 @@ export const useBacktestChart = ({
 
 		return () => resizeObserver.current?.disconnect();
 	}, [getChartRef, chartContainerRef]);
+	
+	// 订阅图表的可见逻辑范围变化
+	useEffect(() => {
+		const chart = getChartRef();
+		const klineSeries = getKlineSeriesRef();
+		if (chart) {
+			chart.timeScale().subscribeVisibleLogicalRangeChange(logicalRange => {
+				if (logicalRange) {
+					// console.log("from2", logicalRange.from);
+					setVisibleLogicalRangeFrom(logicalRange.from);
+
+					if (logicalRange.from < 30 && klineSeries) {
+						const firstKline = klineSeries.data()[0];
+						const firstKlineDateTime = getDateTimeFromChartTimestamp(firstKline?.time as number);
+						if (firstKlineDateTime) {
+							// 获取第一根k线前的100根k线
+							getPartialChartData(strategyId, firstKlineDateTime, 100, getKlineKeyStr()!).then((data) => {
+
+								// 如果数据长度为0，则不进行处理
+								if (data.slice(0, -1).length == 0) {
+									return;
+								}
+
+								// 剔除最后1根k线
+								const partialKlineData: CandlestickData[] = data.slice(0, -1).map((kline) => {
+									const timestampInSeconds = getChartAlignedUtcTimestamp(kline.datetime) as UTCTimestamp;
+									return {
+										time: timestampInSeconds,
+										open: kline.open,
+										high: kline.high,
+										low: kline.low,
+										close: kline.close,
+									};
+								});
+								let newData = [...partialKlineData,...klineSeries.data()];
+
+								klineSeries.setData(newData as CandlestickData[]);
+								
+							});
+						}
+
+					}
+
+					const indicatorsNeedingData = chartConfig.indicatorChartConfigs.filter(
+						(config) => {
+							// 检查指标是否存在且未被删除，并且store中没有seriesRef
+							return !config.isDelete
+						},
+					);
+
+					if (indicatorsNeedingData.length > 0 && logicalRange.from < 30) {
+						indicatorsNeedingData.forEach((config) => {
+
+							let firstIndicatorDateTime = "";
+							// 获取指标的第一根数据的时间
+							config.seriesConfigs.forEach((seriesConfig) => {
+								const indicatorSeriesRef = getIndicatorSeriesRef(config.indicatorKeyStr, seriesConfig.indicatorValueKey);
+								if (indicatorSeriesRef) {
+									const firstimestamp = indicatorSeriesRef.data()[0]?.time;
+									const firstDataTime = getDateTimeFromChartTimestamp(firstimestamp as number);
+									if (firstDataTime) {
+										firstIndicatorDateTime = firstDataTime;
+										return;
+									}
+								}
+							});
+	
+							
+							if (firstIndicatorDateTime) {
+	
+								
+								// 获取指标的前100根数据
+								getPartialChartData(strategyId, firstIndicatorDateTime, 100, config.indicatorKeyStr).then((data) => {
+	
+									const partialIndicatorData: Record<keyof IndicatorValueConfig, SingleValueData[]> = {};
+	
+									// 如果数据长度为0
+									if (data && Array.isArray(data) && data.slice(0, -1).length > 0) {
+										
+										data.slice(0, -1).forEach((item) => {
+	
+											Object.entries(item).forEach(([indicatorValueField, value]) => {
+												// 跳过datetime字段，只处理指标值，并过滤value为0的数据和value为空的数据
+												if (indicatorValueField !== "datetime" && (value !== 0 && value !== null)) {
+													partialIndicatorData[indicatorValueField as keyof IndicatorValueConfig] =
+													[
+														...(partialIndicatorData[indicatorValueField as keyof IndicatorValueConfig] || []),
+														{
+															time: getChartAlignedUtcTimestamp(item.datetime as unknown as string) as UTCTimestamp,
+															value: value as number,
+														} as SingleValueData,
+													];
+	
+													
+												}
+											});
+											
+										});
+										
+									}
+	
+	
+									config.seriesConfigs.forEach((seriesConfig) => {
+										const indicatorSeriesRef = getIndicatorSeriesRef(config.indicatorKeyStr, seriesConfig.indicatorValueKey);
+										if (indicatorSeriesRef) {
+											const originalData = indicatorSeriesRef.data() as SingleValueData[];
+											const partialData = partialIndicatorData[seriesConfig.indicatorValueKey as keyof IndicatorValueConfig];
+											if (partialData && partialData.length > 0) {
+												let newData = [...partialData,...originalData];
+												indicatorSeriesRef.setData(newData);
+											}
+										}
+									});
+								});
+								
+							}
+							
+						});
+						
+					}
+
+					
+				}
+			});
+		}
+	}, [isInitialized]);
 
 	return {
 		// klineData,

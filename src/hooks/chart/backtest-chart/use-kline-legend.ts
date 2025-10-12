@@ -6,7 +6,7 @@ import type {
 	Time,
 	WhitespaceData,
 } from "lightweight-charts";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useBacktestChartStore } from "@/components/chart/backtest-chart/backtest-chart-store";
 
 export type KlineLegendData = {
@@ -57,7 +57,7 @@ const mapCandlestickDataToLegendData = ({
 	low,
 	close,
 	time,
-}: CandlestickData): KlineLegendData => {
+}: CandlestickData<Time>): KlineLegendData => {
 	const decreased = open > close;
 	const sign = decreased ? "-" : "+";
 	const difference = Math.abs(close - open);
@@ -92,22 +92,24 @@ const getLastBarLegendData = (
 
 interface UseKlineLegendProps {
 	chartId: number;
-	klineKeyStr: string;
 }
 
-export const useKlineLegend = ({
-	chartId,
-	klineKeyStr,
-}: UseKlineLegendProps) => {
+export const useKlineLegend = ({chartId}: UseKlineLegendProps) => {
 	// 从 store 获取数据和方法
-	const { klineData, getKlineSeriesRef } = useBacktestChartStore(chartId);
+	const { getKlineSeriesRef } = useBacktestChartStore(chartId);
 
-	// 从 store 中获取 K线数据
-	const data = klineData || [];
+	// 获取原始数据
+	const rawData = getKlineSeriesRef()?.data() || [];
+	const dataLength = rawData.length;
+	const lastTime = rawData.length > 0 ? rawData[rawData.length - 1]?.time : null;
+
+	// 使用 useMemo 稳定 data 引用，只有在数据长度或最后一个元素的时间变化时才更新
+	const data = useMemo(() => rawData, [dataLength, lastTime]);
+
 	// 使用传入的数据或默认数据来初始化 legendData
 	const [legendData, setLegendData] = useState<KlineLegendData | null>(() => {
 		if (data && data.length > 0) {
-			return mapCandlestickDataToLegendData(data[data.length - 1]);
+			return mapCandlestickDataToLegendData(data[data.length - 1] as CandlestickData);
 		}
 		return null;
 	});
@@ -116,7 +118,7 @@ export const useKlineLegend = ({
 	useEffect(() => {
 		if (data && data.length > 0) {
 			const lastDataPoint = data[data.length - 1];
-			const newLegendData = mapCandlestickDataToLegendData(lastDataPoint);
+			const newLegendData = mapCandlestickDataToLegendData(lastDataPoint as CandlestickData<Time>);
 			setLegendData((prev) => {
 				// 只有在时间和收盘价不同时才更新，避免不必要的渲染
 				const shouldUpdate =
@@ -132,8 +134,7 @@ export const useKlineLegend = ({
 		}
 	}, [data]);
 
-	const onCrosshairMove = useCallback(
-		(param: MouseEventParams) => {
+	const onCrosshairMove = useCallback((param: MouseEventParams) => {
 			const seriesApi = getKlineSeriesRef();
 			if (!seriesApi) {
 				return;

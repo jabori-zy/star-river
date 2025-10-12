@@ -13,7 +13,7 @@ import type { BacktestStrategyStatsChartConfig } from "@/types/chart/backtest-st
 import type { StrategyStats, StrategyStatsName } from "@/types/statistics";
 import type { BacktestStrategyStatsUpdateEvent } from "@/types/strategy-event/backtest-strategy-event";
 import { getStrategyStatsHistory } from "@/service/backtest-strategy/strategy-stats";
-import { getChartAlignedUtcSeconds } from "@/utils/datetime-offset";
+import { getChartAlignedUtcTimestamp } from "../backtest-chart/utls";
 
 interface BacktestStatsChartStore {
 	strategyId: number;
@@ -113,7 +113,7 @@ const createBacktestStatsChartStore = (
 					const cumulativeReturnStatsData: SingleValueData[] = []
 
 					initialStatsData.forEach((statsData) => {
-						const timestamp = getChartAlignedUtcSeconds(statsData.datetime) as UTCTimestamp;
+						const timestamp = getChartAlignedUtcTimestamp(statsData.datetime) as UTCTimestamp;
 						balanceStatsData.push({
 							time: timestamp,
 							value: statsData.balance,
@@ -254,7 +254,7 @@ const createBacktestStatsChartStore = (
 
 		onNewStatsData: (statsData: StrategyStats) => {
 			const state = get();
-			const timestamp = getChartAlignedUtcSeconds(statsData.datetime) as UTCTimestamp;
+			const timestamp = getChartAlignedUtcTimestamp(statsData.datetime) as UTCTimestamp;
 
 			// 处理每个统计数据
 			Object.entries(statsData).forEach(([statsName, value]) => {

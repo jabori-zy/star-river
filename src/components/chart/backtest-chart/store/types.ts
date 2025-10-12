@@ -20,27 +20,32 @@ import type { VirtualPosition } from "@/types/position";
 // ==================== Data Slice Types ====================
 export interface DataSlice {
 	klineKeyStr: KlineKeyStr | null;
-	klineData: CandlestickData[];
-	indicatorData: Record<
-		IndicatorKeyStr,
-		Record<keyof IndicatorValueConfig, SingleValueData[]>
-	>;
+	// klineData: CandlestickData[];
+	// indicatorData: Record<
+	// 	IndicatorKeyStr,
+	// 	Record<keyof IndicatorValueConfig, SingleValueData[]>
+	// >;
 	isDataInitialized: boolean;
+
+	visibleLogicalRangeFrom: number | null; // 可见逻辑范围逻辑起始点
 
 	setKlineKeyStr: (klineKeyStr: KlineKeyStr) => void;
 	getKlineKeyStr: () => KlineKeyStr | null;
-	setKlineData: (data: CandlestickData[]) => void;
-	getKlineData: () => CandlestickData[];
-	deleteKlineData: () => void;
-	setIndicatorData: (
-		keyStr: KeyStr,
-		data: Record<keyof IndicatorValueConfig, SingleValueData[]>,
-	) => void;
-	getIndicatorData: (indicatorKeyStr: IndicatorKeyStr) => Record<keyof IndicatorValueConfig, SingleValueData[]>;
-	deleteIndicatorData: (indicatorKeyStr: IndicatorKeyStr) => void;
+	// setKlineData: (data: CandlestickData[]) => void;
+	// getKlineData: () => CandlestickData[];
+	// deleteKlineData: () => void;
+	// setIndicatorData: (
+	// 	keyStr: KeyStr,
+	// 	data: Record<keyof IndicatorValueConfig, SingleValueData[]>,
+	// ) => void;
+	// getIndicatorData: (indicatorKeyStr: IndicatorKeyStr) => Record<keyof IndicatorValueConfig, SingleValueData[]>;
+	// deleteIndicatorData: (indicatorKeyStr: IndicatorKeyStr) => void;
 	getIsDataInitialized: () => boolean;
 	setIsDataInitialized: (initialized: boolean) => void;
-	getLastKline: (keyStr: KeyStr) => CandlestickData | SingleValueData | null;
+	// getLastKline: (keyStr: KeyStr) => CandlestickData | SingleValueData | null;
+
+	setVisibleLogicalRangeFrom: (from: number) => void;
+	getVisibleLogicalRangeFrom: () => number | null;
 }
 
 // ==================== Refs Slice Types ====================
@@ -73,6 +78,7 @@ export interface RefsSlice {
 		indicatorKeyStr: IndicatorKeyStr,
 		indicatorValueKey: keyof IndicatorValueConfig,
 	) => ISeriesApi<"Line"> | ISeriesApi<"Area"> | ISeriesApi<"Histogram"> | null;
+	getIndicatorAllSeriesRef: (indicatorKeyStr: IndicatorKeyStr) => Record<keyof IndicatorValueConfig, ISeriesApi<"Line"> | ISeriesApi<"Area"> | ISeriesApi<"Histogram"> | null>;
 	deleteIndicatorSeriesRef: (indicatorKeyStr: IndicatorKeyStr) => void;
 	setOrderMarkerSeriesRef: (ref: ISeriesMarkersPluginApi<Time>) => void;
 	getOrderMarkerSeriesRef: () => ISeriesMarkersPluginApi<Time> | null;
@@ -143,7 +149,7 @@ export interface SubscriptionSlice {
 
 // ==================== Event Handler Slice Types ====================
 export interface EventHandlerSlice {
-	onNewKline: (klineKeyStr: KeyStr, kline: Kline) => void;
+	onNewKline: (kline: Kline) => void;
 	onNewIndicator: (
 		indicatorKeyStr: KeyStr,
 		indicatorData: Record<keyof IndicatorValueConfig, SingleValueData[]>,

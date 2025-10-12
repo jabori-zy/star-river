@@ -61,6 +61,8 @@ export const createRefsSlice: SliceCreator<RefsSlice> = (set, get) => ({
 		indicatorValueKey: keyof IndicatorValueConfig,
 	) => get().indicatorSeriesRef[indicatorKeyStr]?.[indicatorValueKey] || null,
 
+	getIndicatorAllSeriesRef: (indicatorKeyStr: IndicatorKeyStr) => get().indicatorSeriesRef[indicatorKeyStr] || {},
+
 	deleteIndicatorSeriesRef: (indicatorKeyStr: IndicatorKeyStr) =>
 		set({
 			indicatorSeriesRef: {
