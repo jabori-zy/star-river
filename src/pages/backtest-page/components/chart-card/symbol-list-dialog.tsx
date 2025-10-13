@@ -91,7 +91,7 @@ export default function SymbolListDialog({
 		<Dialog open={open} onOpenChange={onOpenChange} modal={false}>
 			<DialogContent className="sm:max-w-[500px]">
 				<DialogHeader>
-					<DialogTitle>选择K线数据</DialogTitle>
+					<DialogTitle>选择K线</DialogTitle>
 				</DialogHeader>
 				<DialogDescription/>
 				<div className="grid gap-4 py-4">

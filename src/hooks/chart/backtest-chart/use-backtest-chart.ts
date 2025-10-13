@@ -77,6 +77,7 @@ export const useBacktestChart = ({
 		deleteKlineSeriesRef,
 		incrementPaneVersion,
 		setOrderMarkerSeriesRef,
+		deleteOrderMarkerSeriesRef,
 		addSubChartPaneHtmlElementRef,
 		setVisibleLogicalRange, // 设置可见逻辑范围逻辑起始点
 	} = useBacktestChartStore(chartConfig.id, chartConfig);
@@ -227,6 +228,7 @@ export const useBacktestChart = ({
 						chart.removeSeries(klineSeries);
 						// 从store中删除klineSeriesRef
 						deleteKlineSeriesRef();
+						deleteOrderMarkerSeriesRef();
 					}
 
 					// 创建新的klineSeries
@@ -234,6 +236,28 @@ export const useBacktestChart = ({
 					if (newKlineSeries) {
 						newKlineSeries.subscribeDataChanged(onSeriesDataUpdate);
 						setKlineSeriesRef(newKlineSeries);
+
+						// 恢复订单标记和价格线
+						const currentOrderMarkers = getOrderMarkers();
+						const orderMarkerSeries = createSeriesMarkers(
+							newKlineSeries,
+							currentOrderMarkers.length > 0 ? currentOrderMarkers : [],
+						);
+						setOrderMarkerSeriesRef(orderMarkerSeries);
+
+						const positionPriceLine = getPositionPriceLine();
+						if (positionPriceLine.length > 0) {
+							positionPriceLine.forEach((priceLine) => {
+								newKlineSeries.createPriceLine(priceLine);
+							});
+						}
+
+						const limitOrderPriceLine = getLimitOrderPriceLine();
+						if (limitOrderPriceLine.length > 0) {
+							limitOrderPriceLine.forEach((priceLine) => {
+								newKlineSeries.createPriceLine(priceLine);
+							});
+						}
 
 						// 重置时间轴，避免在切换周期后残留之前的缩放状态
 						const timeScale = chart.timeScale();
@@ -259,6 +283,11 @@ export const useBacktestChart = ({
 		getChartRef,
 		getKlineSeriesRef,
 		deleteKlineSeriesRef,
+		deleteOrderMarkerSeriesRef,
+		getOrderMarkers,
+		getPositionPriceLine,
+		getLimitOrderPriceLine,
+		setOrderMarkerSeriesRef,
 		onSeriesDataUpdate,
 		cleanupSubscriptions,
 		subscribe,
@@ -304,18 +333,6 @@ export const useBacktestChart = ({
 									seriesConfig.indicatorValueKey,
 									newSeries,
 								);
-
-								// 为新创建的系列设置数据 - 现在Promise.all已经完成，数据应该已就绪
-								// const indicatorDataForSeries = getIndicatorData(config.indicatorKeyStr);
-								// // console.log("indicatorDataForSeries", indicatorDataForSeries);	
-								// if (indicatorDataForSeries) {
-								// 	const seriesData = indicatorDataForSeries[seriesConfig.indicatorValueKey];
-								// 	if (seriesData && seriesData.length > 0) {
-								// 		newSeries.setData(seriesData);
-								// 	}
-								// } else {
-								// 	console.warn(`No indicator data found for ${config.indicatorKeyStr} after initialization`);
-								// }
 							}
 						}
 					});
@@ -348,14 +365,6 @@ export const useBacktestChart = ({
 									subChartIndicatorSeries,
 								);
 							}
-							// 为新创建的系列设置数据
-							// const subChartIndicatorData = getIndicatorData(config.indicatorKeyStr);
-							// if (subChartIndicatorData) {
-							// 	const seriesData = subChartIndicatorData[seriesConfig.indicatorValueKey];
-							// 	if (seriesData && seriesData.length > 0) {
-							// 		subChartIndicatorSeries.setData(seriesData);
-							// 	}
-							// }
 						});
 						// 订阅指标数据流
 						subscribe(config.indicatorKeyStr);
@@ -372,7 +381,6 @@ export const useBacktestChart = ({
 		setIndicatorSeriesRef,
 		initIndicatorData,
 		setSubChartPaneRef,
-		// getIndicatorData,
 		subscribe,
 		addSubChartPaneHtmlElementRef
 	]);
@@ -635,64 +643,6 @@ export const useBacktestChart = ({
 		};
 	}, [strategyId, initChartData, initializeBacktestChart, isInitialized]);
 
-	// 图表数据初始化 - 在图表创建后且数据可用时设置数据
-	// useEffect(() => {
-	// 	// 只在图表已初始化、数据已准备好、但数据还未在图表中设置时执行
-	// 	if (
-	// 		isInitialized &&
-	// 		getChartRef() &&
-	// 		getIsDataInitialized() &&
-	// 		!isChartDataSet
-	// 	) {
-	// 		// 初始化k线数据
-	// 		const klineSeries = getKlineSeriesRef();
-	// 		if (klineSeries) {			
-	// 			if (getKlineData() && getKlineData().length > 0) {
-	// 				klineSeries.setData(getKlineData());
-	// 			}
-	// 		}
-
-	// 		// 初始化指标数据
-	// 		chartConfig.indicatorChartConfigs.forEach((config) => {
-	// 			config.seriesConfigs.forEach((seriesConfig) => {
-	// 				const indicatorSeriesRef = getIndicatorSeriesRef(
-	// 					config.indicatorKeyStr,
-	// 					seriesConfig.indicatorValueKey,
-	// 				);
-	// 				if (indicatorSeriesRef) {
-	// 					const indicatorDataArray = getIndicatorData(config.indicatorKeyStr);
-	// 					if (indicatorDataArray) {
-	// 						const indicatorSeriesDataArray = indicatorDataArray[
-	// 							seriesConfig.indicatorValueKey
-	// 						] as SingleValueData[];
-	// 						if (
-	// 							indicatorSeriesDataArray &&
-	// 							indicatorSeriesDataArray.length > 0
-	// 						) {
-	// 							indicatorSeriesRef.setData(indicatorSeriesDataArray);
-	// 						}
-	// 					}
-	// 				}
-	// 			});
-	// 		});
-
-	// 		// 标记数据已在图表中设置
-	// 		setIsChartDataSet(true);
-	// 	}
-	// }, [
-	// 	isInitialized,
-	// 	getIsDataInitialized,
-	// 	isChartDataSet,
-	// 	chartConfig,
-	// 	// klineData,
-	// 	// indicatorData,
-	// 	getChartRef,
-	// 	getKlineSeriesRef,
-	// 	getIndicatorSeriesRef,
-	// 	getKlineData,
-	// 	getIndicatorData,
-	// ]);
-
 
 	// 处理图表 resize
 	useEffect(() => {
@@ -700,10 +650,6 @@ export const useBacktestChart = ({
 			const { width, height } = entries[0].contentRect;
 			const chart = getChartRef();
 			chart?.resize(width, height-0.5);
-			// chart?.applyOptions({ width: width, height: height-0.5 });
-			// setTimeout(() => {
-			//     chart?.timeScale().fitContent();
-			// }, 0);
 		});
 
 		if (chartContainerRef.current) {
