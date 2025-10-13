@@ -28,7 +28,7 @@ const createBacktestChartStore = (
 		...createTradingSlice(...args),
 		...createSubscriptionSlice(...args),
 		...createEventHandlerSlice(context)(...args),
-		...createDataInitializationSlice(context)(...args),
+		...createDataInitializationSlice()(...args),
 		...createUtilitySlice(context)(...args),
 		// 添加chartConfig到store中，某些方法需要访问
 		chartConfig: chartConfig,

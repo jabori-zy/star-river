@@ -11,7 +11,7 @@ import {
 import { getStrategyCacheKeys } from "@/service/strategy";
 import type { IndicatorKey, KlineKey } from "@/types/symbol-key";
 import { parseKey } from "@/utils/parse-key";
-import ConfirmDialog from "./confirm-dialog";
+import ConfirmBox from "@/components/confirm-box";
 
 interface SymbolListDialogProps {
 	open: boolean;
@@ -32,8 +32,6 @@ export default function SymbolListDialog({
 		{ key: string; data: KlineKey }[]
 	>([]);
 	const [loading, setLoading] = useState(false);
-    const [confirmOpen, setConfirmOpen] = useState(false);
-    const [pendingKey, setPendingKey] = useState<string | null>(null);
 
 	// 获取可用的kline数据
 	const fetchKlineOptions = useCallback(async () => {
@@ -74,26 +72,9 @@ export default function SymbolListDialog({
 		}
 	}, [open, fetchKlineOptions]);
 
-    // 处理kline选择（含二次确认）
-    const handleKlineClick = (klineCacheKeyStr: string) => {
-        if (
-            selectedKlineCacheKeyStr &&
-            selectedKlineCacheKeyStr !== klineCacheKeyStr
-        ) {
-            setPendingKey(klineCacheKeyStr);
-            setConfirmOpen(true);
-            return;
-        }
+    // 处理kline选择
+    const handleKlineSelect = (klineCacheKeyStr: string) => {
         onKlineSelect(klineCacheKeyStr);
-        onOpenChange(false);
-    };
-
-    const handleConfirm = () => {
-        if (pendingKey) {
-            onKlineSelect(pendingKey);
-        }
-        setPendingKey(null);
-        setConfirmOpen(false);
         onOpenChange(false);
     };
 
@@ -120,24 +101,49 @@ export default function SymbolListDialog({
 						</div>
 					) : (
 						<div className="grid gap-2 max-h-96 overflow-y-auto">
-							{klineOptions.map((option) => (
-                                <Button
-									key={option.key}
-									variant={
-										selectedKlineCacheKeyStr === option.key
-											? "secondary"
-											: "outline"
-									}
-									className={`flex items-center justify-start gap-2 h-auto p-3 ${
-										selectedKlineCacheKeyStr === option.key
-											? "bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
-											: ""
-									}`}
-                                    onClick={() => handleKlineClick(option.key)}
-								>
-									{renderKlineItem(option.data)}
-								</Button>
-							))}
+							{klineOptions.map((option) => {
+								const needsConfirmation =
+									selectedKlineCacheKeyStr &&
+									selectedKlineCacheKeyStr !== option.key;
+
+								const buttonContent = (
+									<Button
+										key={option.key}
+										variant={
+											selectedKlineCacheKeyStr === option.key
+												? "secondary"
+												: "outline"
+										}
+										className={`flex items-center justify-start gap-2 h-auto p-3 w-full ${
+											selectedKlineCacheKeyStr === option.key
+												? "bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+												: ""
+										}`}
+										onClick={
+											needsConfirmation
+												? undefined
+												: () => handleKlineSelect(option.key)
+										}
+									>
+										{renderKlineItem(option.data)}
+									</Button>
+								);
+
+								return needsConfirmation ? (
+									<ConfirmBox
+										key={option.key}
+										title="确认切换交易对吗？"
+										description="切换后，所有添加的指标将被删除。"
+										confirmText="确认"
+										cancelText="取消"
+										onConfirm={() => handleKlineSelect(option.key)}
+									>
+										{buttonContent}
+									</ConfirmBox>
+								) : (
+									buttonContent
+								);
+							})}
 							{klineOptions.length === 0 && (
 								<div className="text-center py-8 text-gray-500">
 									暂无可用的K线数据
@@ -146,11 +152,6 @@ export default function SymbolListDialog({
 						</div>
 					)}
 				</div>
-                <ConfirmDialog
-                    open={confirmOpen}
-                    onOpenChange={setConfirmOpen}
-                    onConfirm={handleConfirm}
-                />
 			</DialogContent>
 		</Dialog>
 	);

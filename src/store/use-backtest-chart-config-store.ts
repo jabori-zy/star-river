@@ -40,11 +40,11 @@ interface BacktestChartConfigState {
 	createDefaultChart: () => Promise<void>;
 
 	// 图表管理
-	addChart: (klineCacheKeyStr: string, chartName: string) => void;
+	addChart: (klineKeyStr: string) => void;
 	deleteChart: (chartId: number) => void;
 	updateChart: (
 		chartId: number,
-		klineCacheKeyStr: string,
+		klineKeyStr: string,
 		chartName: string,
 	) => void;
 	updateLayout: (layout: LayoutMode) => void;
@@ -190,13 +190,14 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 
 		// 从后端加载图表配置
 		loadChartConfig: async (strategyId: number) => {
+			console.log("从后端加载图表配置");
 			try {
 				set({ isLoading: true, strategyId });
 				const chartConfig = await getBacktestStrategyChartConfig(strategyId);
 				console.log("后端返回的图表配置:", chartConfig);
 
 				const keys = await get().getKeys();
-				console.log("获取的缓存键:", keys);
+				// console.log("获取的缓存键:", keys);
 
 				// 判断缓存键是否为空
 				if (keys && Object.keys(keys).length > 0) {
@@ -290,18 +291,19 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 		},
 
 		// 添加图表
-		addChart: (klineCacheKeyStr, chartName) => {
+		addChart: (klineKeyStr) => {
 			const { chartConfig } = get();
 			const maxChartId = Math.max(
 				...chartConfig.charts.map((chart) => chart.id),
 				0,
 			);
 
+			const klineKey = parseKey(klineKeyStr) as KlineKey;
 			const newChart: BacktestChartConfig = {
 				id: maxChartId + 1,
-				chartName,
+				chartName: `${klineKey.symbol} ${klineKey.interval}`,
 				klineChartConfig: {
-					klineKeyStr: klineCacheKeyStr,
+					klineKeyStr: klineKeyStr,
 					upColor: "#FF0000",
 					downColor: "#0000FF",
 				},
@@ -314,6 +316,7 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 					charts: [...chartConfig.charts, newChart],
 				},
 			});
+			console.log("当前的图表配置: ", get().chartConfig);
 		},
 
 		// 删除图表
@@ -474,6 +477,7 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 					charts: chartConfig.charts.map((chart) => chart.id === chartId ? { ...chart, klineChartConfig: { ...chart.klineChartConfig, klineKeyStr }, chartName: `${klineKey.symbol} ${klineKey.interval}` } : chart),
 				},
 			});
+			console.log("当前的图表配置: ", get().chartConfig);
 		},
 
 		// 根据ID获取图表

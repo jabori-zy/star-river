@@ -23,6 +23,7 @@ export async function getInitialChartData(
 			params.append("limit", limit.toString());
 		}
 		const url = `${API_URL}/${strategyId}/data?${params.toString()}`;
+		console.log("获取数据参数: ", decodeURIComponent(params.toString().replace(/\+/g, ' ')));
 		const response = await axios.get(url);
 
 		if (response.status !== 200) {

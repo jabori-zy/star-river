@@ -18,14 +18,12 @@ import {
 	virtualOrderToLimitOrderPriceLine
 } from "../utls";
 import type { OrderMarker, LimitOrderPriceLine, PositionPriceLine } from "@/types/chart";
-import type { SliceCreator, DataInitializationSlice, StoreContext } from "./types";
+import type { SliceCreator, DataInitializationSlice } from "./types";
 
 // 初始化k线长度
 const INITIAL_DATA_LENGTH = 1000;
 
-export const createDataInitializationSlice = (
-	context: StoreContext
-): SliceCreator<DataInitializationSlice> => (_set, get) => ({
+export const createDataInitializationSlice = (): SliceCreator<DataInitializationSlice> => (_set, get) => ({
 	// 私有方法：处理K线数据
 	_processKlineData: async (strategyId: number, klineKeyStr: KeyStr, playIndex: number) => {
 		const initialKlines = (await getInitialChartData(
@@ -98,7 +96,8 @@ export const createDataInitializationSlice = (
 				
 			});
 
-			const indicatorChartConfigs = context.chartConfig.indicatorChartConfigs.find((config) => config.indicatorKeyStr === keyStr);
+			const currentChartConfig = get().chartConfig;
+			const indicatorChartConfigs = currentChartConfig?.indicatorChartConfigs.find((config) => config.indicatorKeyStr === keyStr);
 			setTimeout(() => {
 				if (indicatorChartConfigs) {
 					indicatorChartConfigs.seriesConfigs.forEach((seriesConfig) => {
@@ -226,7 +225,8 @@ export const createDataInitializationSlice = (
 	},
 
 	initVirtualPositionData: async (strategyId: number) => {
-		const klineKeyStr = context.chartConfig.klineChartConfig.klineKeyStr;
+		const chartConfig = get().chartConfig;
+		const klineKeyStr = chartConfig?.klineChartConfig.klineKeyStr;
 		if (klineKeyStr) {
 			const klineKey = parseKey(klineKeyStr);
 			const virtualPositionData = await getVirtualPosition(strategyId);

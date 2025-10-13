@@ -42,6 +42,7 @@ export const useBacktestChart = ({
 	chartOptions,
 }: UseBacktestChartProps): UseBacktestChartReturn => {
 	
+	// console.log("chartConfig", chartConfig.id, chartConfig);
 	const resizeObserver = useRef<ResizeObserver>(null);
 
 	// 图表数据和ref管理
@@ -65,6 +66,8 @@ export const useBacktestChart = ({
 		getIndicatorSeriesRef,
 		initObserverSubscriptions,
 		subscribe,
+		cleanupSubscriptions,
+		setChartConfig,
 		setSubChartPaneRef,
 		getSubChartPaneRef,
 		deleteIndicatorSeriesRef,
@@ -81,16 +84,18 @@ export const useBacktestChart = ({
 
 	// 使用状态追踪初始化状态，而不是 ref
 	const [isInitialized, setIsInitialized] = useState(false);
-	// 数据是否已在图表中设置
-	const [isChartDataSet, setIsChartDataSet] = useState(false);
+	// // 数据是否已在图表中设置
+	// const [isChartDataSet, setIsChartDataSet] = useState(false);
 
 	// 是否是第一次加载
 	const isFirstChartConfigLoad = useRef(true);
 
 	const { klineLegendData, onCrosshairMove, onSeriesDataUpdate } = useKlineLegend({chartId: chartConfig.id,});
 
-	// 获取播放索引并初始化数据
-	const playIndex = useRef(0);
+	// 同步最新的图表配置到store，避免使用过期的配置
+	useEffect(() => {
+		setChartConfig(chartConfig);
+	}, [chartConfig, setChartConfig]);
 
 	// 更改series配置
 	const changeSeriesConfig = useCallback(() => {
@@ -200,14 +205,21 @@ export const useBacktestChart = ({
 		// unsubscribe,
 	]);
 
-	const changeKline = useCallback(() => {
+	const changeKline = useCallback(async () => {
+		const nextKlineKey = chartConfig.klineChartConfig.klineKeyStr;
+		const currentKlineKey = getKlineKeyStr();
 		// 如果k线key不一致，则切换k线
-		if (getKlineKeyStr() !== chartConfig.klineChartConfig.klineKeyStr) {
-			// 重置k线key
-			setKlineKeyStr(chartConfig.klineChartConfig.klineKeyStr);
-			// 先获取数据
-			initKlineData(playIndex.current, strategyId).then(() => {
-				// 从图表移除移除当前的klineSeries
+		if (currentKlineKey !== nextKlineKey) {
+			try {
+				// 清空现有订阅，确保指标订阅被移除
+				cleanupSubscriptions();
+				// 重置k线key
+				setKlineKeyStr(nextKlineKey);
+				// 先获取数据
+				const playIndexValue = await get_play_index(strategyId);
+				await initKlineData(playIndexValue, strategyId);
+
+				// 从图表移除当前的klineSeries
 				const chart = getChartRef();
 				if (chart) {
 					const klineSeries = getKlineSeriesRef();
@@ -223,16 +235,17 @@ export const useBacktestChart = ({
 					if (newKlineSeries) {
 						newKlineSeries.subscribeDataChanged(onSeriesDataUpdate);
 						setKlineSeriesRef(newKlineSeries);
-						// newKlineSeries.setData(getKlineData());
 					}
 				}
-			})
-			
+				// 重新订阅最新k线的数据流
+				subscribe(nextKlineKey);
+			} catch (error) {
+				console.error("切换K线时出错:", error);
+			}
 		}
 	}, [
 		strategyId,
 		chartConfig.klineChartConfig,
-		// getKlineData,
 		initKlineData,
 		setKlineSeriesRef,
 		getKlineKeyStr,
@@ -241,6 +254,8 @@ export const useBacktestChart = ({
 		getKlineSeriesRef,
 		deleteKlineSeriesRef,
 		onSeriesDataUpdate,
+		cleanupSubscriptions,
+		subscribe,
 	]);
 
 	// 添加series
@@ -257,11 +272,16 @@ export const useBacktestChart = ({
 			// console.log("indicatorsNeedingData", indicatorsNeedingData);
 			// 并行初始化所有需要数据的指标
 			if (indicatorsNeedingData.length > 0) {
-				await Promise.all(
-					indicatorsNeedingData.map((config) =>
-						initIndicatorData(strategyId, config.indicatorKeyStr, playIndex.current)
-					),
-				);
+				try {
+					const playIndexValue = await get_play_index(strategyId);
+					await Promise.all(
+						indicatorsNeedingData.map((config) =>
+							initIndicatorData(strategyId, config.indicatorKeyStr, playIndexValue)
+						),
+					);
+				} catch (error) {
+					console.error("初始化指标数据时出错:", error);
+				}
 			}
 
 			// 等待所有指标数据初始化完成后，再处理series创建和数据设置
@@ -409,6 +429,8 @@ export const useBacktestChart = ({
 		[setIndicatorSeriesRef, setSubChartPaneRef, addSubChartPaneHtmlElementRef],
 	);
 
+
+	// 图表配置发生变化
 	useEffect(() => {
 		if (chartConfig) {
 			// 跳过第一次加载（初始化时），只在后续配置变化时重新创建
@@ -569,21 +591,40 @@ export const useBacktestChart = ({
 				// 步骤3: 重置初始化状态，触发完整的重新初始化流程
 				// 这会导致useEffect重新运行initChartData和initializeBacktestChart
 				setIsInitialized(false);
-				setIsChartDataSet(false);
+				// setIsChartDataSet(false);
 			}
 		}
 	}, [getChartRef, chartContainerRef, setChartRef]);
 
 	// 图表系列初始化
 	useEffect(() => {
-		if (!isInitialized) {
-			get_play_index(strategyId).then((index) => {
-				playIndex.current = index;
-				initChartData(playIndex.current, strategyId).then(() => {
-					initializeBacktestChart();
-				});
-			});
+		if (isInitialized) {
+			return;
 		}
+
+		let isCancelled = false;
+
+		const initialize = async () => {
+			try {
+				const playIndexValue = await get_play_index(strategyId);
+				if (isCancelled) {
+					return;
+				}
+				await initChartData(playIndexValue, strategyId);
+				if (isCancelled) {
+					return;
+				}
+				initializeBacktestChart();
+			} catch (error) {
+				console.error("初始化回测图表时出错:", error);
+			}
+		};
+
+		initialize();
+
+		return () => {
+			isCancelled = true;
+		};
 	}, [strategyId, initChartData, initializeBacktestChart, isInitialized]);
 
 	// 图表数据初始化 - 在图表创建后且数据可用时设置数据

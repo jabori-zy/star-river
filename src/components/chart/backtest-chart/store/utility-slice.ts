@@ -1,16 +1,30 @@
-import type { KeyStr } from "@/types/symbol-key";
+import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import type { SliceCreator, UtilitySlice, StoreContext } from "./types";
 
 export const createUtilitySlice = (
 	context: StoreContext
 ): SliceCreator<UtilitySlice> => (set, get) => ({
 	chartId: context.chartId,
+	chartConfig: context.chartConfig,
+
+	setChartConfig: (chartConfig: BacktestChartConfig) => {
+		if (get().chartConfig === chartConfig) {
+			return;
+		}
+		set({ chartConfig });
+	},
+
+	getChartConfig: () => get().chartConfig,
 
 	getKeyStr: () => {
-		const klineKeyStr = context.chartConfig.klineChartConfig.klineKeyStr;
+		const chartConfig = get().chartConfig;
+		const klineKeyStr = chartConfig?.klineChartConfig.klineKeyStr;
+		if (!klineKeyStr) {
+			return [];
+		}
 
 		// 从 indicatorChartConfigs 数组中获取所有未删除指标的 keyStr
-		const indicatorKeyStrs = (context.chartConfig.indicatorChartConfigs || [])
+		const indicatorKeyStrs = (chartConfig?.indicatorChartConfigs || [])
 			.filter((indicatorConfig) => !indicatorConfig.isDelete)
 			.map((indicatorConfig) => indicatorConfig.indicatorKeyStr);
 
@@ -54,8 +68,6 @@ export const createUtilitySlice = (
 			indicatorVisibilityMap: {},
 			klineVisibilityMap: {},
 			paneVersion: 0,
-			klineData: [],
-			indicatorData: {},
 			orderMarkers: [],
 			positionPriceLine: [],
 			limitOrderPriceLine: [],

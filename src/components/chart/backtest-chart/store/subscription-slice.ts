@@ -127,7 +127,6 @@ export const createSubscriptionSlice: SliceCreator<SubscriptionSlice> = (set, ge
 	},
 
 	subscribe: (keyStr: KeyStr) => {
-		// console.log("新增订阅:", keyStr);
 		const state = get();
 		// 判断keyStr是否在state.subscriptions中
 		if (state.subscriptions[keyStr]) {
@@ -139,7 +138,6 @@ export const createSubscriptionSlice: SliceCreator<SubscriptionSlice> = (set, ge
 			const klineStream = createKlineStreamFromKey(keyStr, true);
 			const klineSubscription = klineStream.subscribe({
 				next: (klineData: Kline) => {
-					// 更新kline
 					state.onNewKline(klineData);
 				},
 				error: (error: Error) => {
@@ -148,21 +146,33 @@ export const createSubscriptionSlice: SliceCreator<SubscriptionSlice> = (set, ge
 			});
 			state._addObserverSubscription(keyStr, klineSubscription);
 
-			// 订阅与该k线相关的订单数据流
 			const orderStream = createOrderStreamForSymbol(key.exchange, key.symbol);
 			const orderSubscription = orderStream.subscribe((virtualOrderEvent: VirtualOrderEvent) => {
-				console.log("virtualOrderEvent", virtualOrderEvent);
 				if (
 					virtualOrderEvent.event === "futures-order-filled-event" ||
 					virtualOrderEvent.event === "take-profit-order-filled-event" ||
 					virtualOrderEvent.event === "stop-loss-order-filled-event"
 				) {
-					console.log("virtualOrderEvent", virtualOrderEvent);
+					if (virtualOrderEvent.event === "futures-order-filled-event" && virtualOrderEvent.futuresOrder.orderType === OrderType.LIMIT) {
+						state.onLimitOrderFilled(virtualOrderEvent.futuresOrder);
+					} else {
+						state.onNewOrder(virtualOrderEvent.futuresOrder);
+					}
+				} else if (virtualOrderEvent.event === "futures-order-created-event" && virtualOrderEvent.futuresOrder.orderType === OrderType.LIMIT) {
 					state.onNewOrder(virtualOrderEvent.futuresOrder);
 				}
-
 			});
 			state._addObserverSubscription(keyStr, orderSubscription);
+
+			const positionStream = createPositionStreamForSymbol(key.exchange, key.symbol);
+			const positionSubscription = positionStream.subscribe((positionEvent: VirtualPositionEvent) => {
+				if (positionEvent.event === "position-created-event") {
+					state.onNewPosition(positionEvent.virtualPosition);
+				} else if (positionEvent.event === "position-closed-event") {
+					state.onPositionClosed(positionEvent.virtualPosition);
+				}
+			});
+			state._addObserverSubscription(keyStr, positionSubscription);
 		}
 		else if (key.type === "indicator") {
 			const indicatorStream = createIndicatorStreamFromKey(keyStr, true);

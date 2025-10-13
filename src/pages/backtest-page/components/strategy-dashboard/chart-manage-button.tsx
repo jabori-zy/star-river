@@ -6,7 +6,7 @@ import LayoutControl from "../layout-control";
 import type { LayoutMode } from "@/types/chart";
 
 interface ChartManageButtonProps {
-	onAddChart: (klineCacheKeyStr: string, chartName: string) => void;
+	onAddChart: (klineKeyStr: string) => void;
 	saveChartConfig: () => void;
 	isSaving: boolean;
 	showAlert?: boolean;
@@ -33,11 +33,9 @@ const ChartManageButton = ({
 		}
 
 		// 复制最后一个图表的配置
-		const lastChart =
-			strategyChartConfig.charts[strategyChartConfig.charts.length - 1];
-		const newChartName = `${lastChart.chartName}`;
+		const lastChart = strategyChartConfig.charts[strategyChartConfig.charts.length - 1];
 
-		onAddChart(lastChart.klineChartConfig.klineKeyStr, newChartName);
+		onAddChart(lastChart.klineChartConfig.klineKeyStr);
 	};
 
 	return (

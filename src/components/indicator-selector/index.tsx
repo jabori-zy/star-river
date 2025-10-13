@@ -68,7 +68,7 @@ export default function IndicatorSelector({
 		if (!klineConfig || Object.keys(keys).length === 0) return [];
 
 		const options: IndicatorOption[] = [];
-		console.log("keys", keys);
+		// console.log("keys", keys);
 
 		Object.entries(keys).forEach(([key, value]) => {
 			if (key.startsWith("indicator|")) {
@@ -94,7 +94,7 @@ export default function IndicatorSelector({
 				}
 			}
 		});
-		console.log("options", options);
+		// console.log("options", options);
 
 		return options;
 	}, [keys, klineConfig]);

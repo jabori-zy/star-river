@@ -23,7 +23,7 @@ import StrategyStats from "./strategy-stats";
 interface BacktestInfoTabsProps {
 	strategyId: number;
 	onStop: () => void;
-	addChart: (klineCacheKeyStr: string, chartName: string) => void;
+	addChart: (klineKeyStr: string) => void;
 	chartConfig: BacktestStrategyChartConfig;
 	saveChartConfig: () => void;
 	isSaving: boolean;

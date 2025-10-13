@@ -190,6 +190,9 @@ export interface DataInitializationSlice {
 // ==================== Utility Slice Types ====================
 export interface UtilitySlice {
 	chartId: ChartId;
+	chartConfig: BacktestChartConfig;
+	setChartConfig: (chartConfig: BacktestChartConfig) => void;
+	getChartConfig: () => BacktestChartConfig;
 	getKeyStr: () => KeyStr[];
 	resetData: () => void;
 }

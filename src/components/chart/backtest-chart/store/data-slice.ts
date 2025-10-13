@@ -1,7 +1,5 @@
-import type { CandlestickData, SingleValueData } from "lightweight-charts";
-import type { IndicatorValueConfig } from "@/types/indicator/schemas";
-import type { IndicatorKeyStr, KeyStr, KlineKeyStr } from "@/types/symbol-key";
-import type { SliceCreator, DataSlice, BacktestChartStore } from "./types";
+import type { KlineKeyStr } from "@/types/symbol-key";
+import type { SliceCreator, DataSlice } from "./types";
 
 export const createDataSlice: SliceCreator<DataSlice> = (set, get) => ({
 	klineKeyStr: null,
