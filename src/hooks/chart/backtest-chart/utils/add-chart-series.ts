@@ -52,6 +52,7 @@ export const addIndicatorSeries = (
 				{
 					visible: config.visible ?? true,
 					priceLineVisible: false,
+					lastValueVisible: false,
 					color: seriesConfig.color,
 				},
 				0,
@@ -63,6 +64,7 @@ export const addIndicatorSeries = (
 				{
 					visible: config.visible ?? true,
 					priceLineVisible: false,
+					lastValueVisible: false,
 				},
 				0,
 			);

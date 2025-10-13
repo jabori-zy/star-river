@@ -85,7 +85,7 @@ export function SubchartIndicatorLegend({
 
 			if (!paneRef) {
 				// 如果 pane 还没准备好，稍后重试
-				setTimeout(createPortalContainer, 100);
+				setTimeout(createPortalContainer, 50);
 				return;
 			}
 
@@ -127,7 +127,7 @@ export function SubchartIndicatorLegend({
 				}
 
 				setPortalContainer(container);
-			}, 100);
+			}, 50);
 		};
 
 		createPortalContainer();

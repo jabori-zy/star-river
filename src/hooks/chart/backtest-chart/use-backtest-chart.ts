@@ -30,8 +30,6 @@ interface UseBacktestChartProps {
 
 interface UseBacktestChartReturn {
 	klineLegendData: KlineLegendData | null; // K线图例数据
-	// klineData: CandlestickData[];
-	// indicatorData: Record<string, Record<string, SingleValueData[]>>;
 	getChartRef: () => IChartApi | null;
 }
 
@@ -406,7 +404,7 @@ export const useBacktestChart = ({
 						if (htmlElement) {
 							addSubChartPaneHtmlElementRef(config.indicatorKeyStr, htmlElement);
 						}
-					}, 100);
+					}, 50);
 
 					// 创建子图指标
 					config.seriesConfigs.forEach((seriesConfig) => {
@@ -708,128 +706,162 @@ export const useBacktestChart = ({
 	// 订阅图表的可见逻辑范围变化
 	useEffect(() => {
 		const chart = getChartRef();
-		const klineSeries = getKlineSeriesRef();
-		if (chart) {
-			chart.timeScale().subscribeVisibleLogicalRangeChange(logicalRange => {
-				if (logicalRange) {
-					// console.log("from2", logicalRange.from);
-					setVisibleLogicalRangeFrom(logicalRange.from);
+		if (!chart || !isInitialized) {
+			return;
+		}
 
-					if (logicalRange.from < 30 && klineSeries) {
-						const firstKline = klineSeries.data()[0];
-						const firstKlineDateTime = getDateTimeFromChartTimestamp(firstKline?.time as number);
-						if (firstKlineDateTime) {
-							// 获取第一根k线前的100根k线
-							getPartialChartData(strategyId, firstKlineDateTime, 100, getKlineKeyStr()!).then((data) => {
+		// 使用ref追踪是否正在加载，防止重复请求
+		const loadingRef = { current: false };
 
-								// 如果数据长度为0，则不进行处理
-								if (data.slice(0, -1).length == 0) {
-									return;
-								}
+		const handleVisibleRangeChange = (logicalRange: { from: number; to: number } | null) => {
+			if (!logicalRange || loadingRef.current) {
+				return;
+			}
 
-								// 剔除最后1根k线
-								const partialKlineData: CandlestickData[] = data.slice(0, -1).map((kline) => {
-									const timestampInSeconds = getChartAlignedUtcTimestamp(kline.datetime) as UTCTimestamp;
-									return {
-										time: timestampInSeconds,
-										open: kline.open,
-										high: kline.high,
-										low: kline.low,
-										close: kline.close,
-									};
-								});
-								let newData = [...partialKlineData,...klineSeries.data()];
+			setVisibleLogicalRangeFrom(logicalRange.from);
 
-								klineSeries.setData(newData as CandlestickData[]);
-								
-							});
+			// 只有在接近边界时才加载更多数据
+			if (logicalRange.from >= 30) {
+				return;
+			}
+
+			// 设置加载标志，防止重复请求
+			loadingRef.current = true;
+
+			// 获取当前的 klineSeries（从最新的 ref 中获取）
+			const currentKlineSeries = getKlineSeriesRef();
+			if (currentKlineSeries) {
+				const klineData = currentKlineSeries.data();
+				const firstKline = klineData[0];
+				const firstKlineDateTime = firstKline ? getDateTimeFromChartTimestamp(firstKline.time as number) : null;
+
+				if (firstKlineDateTime) {
+					// 获取第一根k线前的100根k线
+					getPartialChartData(strategyId, firstKlineDateTime, 100, getKlineKeyStr()!).then((data) => {
+						// 剔除最后1根k线（避免重复计算slice）
+						const trimmedData = data.slice(0, -1);
+
+						// 如果数据长度为0，则不进行处理
+						if (trimmedData.length === 0) {
+							return;
 						}
 
+						const partialKlineData: CandlestickData[] = trimmedData.map((kline) => ({
+							time: getChartAlignedUtcTimestamp(kline.datetime) as UTCTimestamp,
+							open: kline.open,
+							high: kline.high,
+							low: kline.low,
+							close: kline.close,
+						}));
+
+						// 重新获取最新的 klineSeries，确保使用最新的引用
+						const latestKlineSeries = getKlineSeriesRef();
+						if (latestKlineSeries) {
+							const newData = [...partialKlineData, ...latestKlineSeries.data()];
+							latestKlineSeries.setData(newData as CandlestickData[]);
+						}
+					}).catch((error) => {
+						console.error("加载K线历史数据时出错:", error);
+					}).finally(() => {
+						// 重置加载标志
+						loadingRef.current = false;
+					});
+				}
+			}
+
+			// 处理指标数据
+			const indicatorsNeedingData = chartConfig.indicatorChartConfigs.filter(
+				(config) => !config.isDelete
+			);
+
+			if (indicatorsNeedingData.length > 0) {
+				indicatorsNeedingData.forEach((config) => {
+					// 使用 find 代替 forEach + return，更高效地获取第一个时间戳
+					let firstIndicatorDateTime = "";
+
+					for (const seriesConfig of config.seriesConfigs) {
+						const indicatorSeriesRef = getIndicatorSeriesRef(config.indicatorKeyStr, seriesConfig.indicatorValueKey);
+						if (indicatorSeriesRef) {
+							const firstData = indicatorSeriesRef.data()[0];
+							if (firstData) {
+								const firstDataTime = getDateTimeFromChartTimestamp(firstData.time as number);
+								if (firstDataTime) {
+									firstIndicatorDateTime = firstDataTime;
+									break; // 找到第一个有效时间后立即退出
+								}
+							}
+						}
 					}
 
-					const indicatorsNeedingData = chartConfig.indicatorChartConfigs.filter(
-						(config) => {
-							// 检查指标是否存在且未被删除，并且store中没有seriesRef
-							return !config.isDelete
-						},
-					);
+					if (firstIndicatorDateTime) {
+						// 获取指标的前100根数据
+						getPartialChartData(strategyId, firstIndicatorDateTime, 100, config.indicatorKeyStr).then((data) => {
+							if (!data || !Array.isArray(data)) {
+								return;
+							}
 
-					if (indicatorsNeedingData.length > 0 && logicalRange.from < 30) {
-						indicatorsNeedingData.forEach((config) => {
+							// 剔除最后1根数据（避免重复计算slice）
+							const trimmedData = data.slice(0, -1);
+							if (trimmedData.length === 0) {
+								return;
+							}
 
-							let firstIndicatorDateTime = "";
-							// 获取指标的第一根数据的时间
+							const partialIndicatorData: Record<keyof IndicatorValueConfig, SingleValueData[]> = {};
+
+							// 优化：预先构建数据结构，避免重复扩展数组
+							trimmedData.forEach((item) => {
+								Object.entries(item).forEach(([indicatorValueField, value]) => {
+									// 跳过datetime字段，只处理指标值，并过滤value为0的数据和value为空的数据
+									if (indicatorValueField !== "datetime" && value !== 0 && value !== null) {
+										const key = indicatorValueField as keyof IndicatorValueConfig;
+										if (!partialIndicatorData[key]) {
+											partialIndicatorData[key] = [];
+										}
+										partialIndicatorData[key].push({
+											time: getChartAlignedUtcTimestamp(item.datetime as unknown as string) as UTCTimestamp,
+											value: value as number,
+										} as SingleValueData);
+									}
+								});
+							});
+
+							// 更新各个系列的数据
 							config.seriesConfigs.forEach((seriesConfig) => {
 								const indicatorSeriesRef = getIndicatorSeriesRef(config.indicatorKeyStr, seriesConfig.indicatorValueKey);
 								if (indicatorSeriesRef) {
-									const firstimestamp = indicatorSeriesRef.data()[0]?.time;
-									const firstDataTime = getDateTimeFromChartTimestamp(firstimestamp as number);
-									if (firstDataTime) {
-										firstIndicatorDateTime = firstDataTime;
-										return;
+									const originalData = indicatorSeriesRef.data() as SingleValueData[];
+									const partialData = partialIndicatorData[seriesConfig.indicatorValueKey as keyof IndicatorValueConfig];
+									if (partialData && partialData.length > 0) {
+										const newData = [...partialData, ...originalData];
+										indicatorSeriesRef.setData(newData);
 									}
 								}
 							});
-	
-							
-							if (firstIndicatorDateTime) {
-	
-								
-								// 获取指标的前100根数据
-								getPartialChartData(strategyId, firstIndicatorDateTime, 100, config.indicatorKeyStr).then((data) => {
-	
-									const partialIndicatorData: Record<keyof IndicatorValueConfig, SingleValueData[]> = {};
-	
-									// 如果数据长度为0
-									if (data && Array.isArray(data) && data.slice(0, -1).length > 0) {
-										
-										data.slice(0, -1).forEach((item) => {
-	
-											Object.entries(item).forEach(([indicatorValueField, value]) => {
-												// 跳过datetime字段，只处理指标值，并过滤value为0的数据和value为空的数据
-												if (indicatorValueField !== "datetime" && (value !== 0 && value !== null)) {
-													partialIndicatorData[indicatorValueField as keyof IndicatorValueConfig] =
-													[
-														...(partialIndicatorData[indicatorValueField as keyof IndicatorValueConfig] || []),
-														{
-															time: getChartAlignedUtcTimestamp(item.datetime as unknown as string) as UTCTimestamp,
-															value: value as number,
-														} as SingleValueData,
-													];
-	
-													
-												}
-											});
-											
-										});
-										
-									}
-	
-	
-									config.seriesConfigs.forEach((seriesConfig) => {
-										const indicatorSeriesRef = getIndicatorSeriesRef(config.indicatorKeyStr, seriesConfig.indicatorValueKey);
-										if (indicatorSeriesRef) {
-											const originalData = indicatorSeriesRef.data() as SingleValueData[];
-											const partialData = partialIndicatorData[seriesConfig.indicatorValueKey as keyof IndicatorValueConfig];
-											if (partialData && partialData.length > 0) {
-												let newData = [...partialData,...originalData];
-												indicatorSeriesRef.setData(newData);
-											}
-										}
-									});
-								});
-								
-							}
-							
+						}).catch((error) => {
+							console.error(`加载指标 ${config.indicatorKeyStr} 历史数据时出错:`, error);
 						});
-						
 					}
+				});
+			}
+		};
 
-					
-				}
-			});
-		}
-	}, [isInitialized]);
+		// 订阅可见范围变化
+		chart.timeScale().subscribeVisibleLogicalRangeChange(handleVisibleRangeChange);
+
+		// 清理函数：取消订阅
+		return () => {
+			chart.timeScale().unsubscribeVisibleLogicalRangeChange(handleVisibleRangeChange);
+		};
+	}, [
+		isInitialized,
+		strategyId,
+		chartConfig.indicatorChartConfigs,
+		getChartRef,
+		getKlineSeriesRef,
+		getIndicatorSeriesRef,
+		getKlineKeyStr,
+		setVisibleLogicalRangeFrom,
+	]);
 
 	return {
 		// klineData,

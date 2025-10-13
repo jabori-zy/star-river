@@ -190,7 +190,6 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 
 		// 从后端加载图表配置
 		loadChartConfig: async (strategyId: number) => {
-			console.log("从后端加载图表配置");
 			try {
 				set({ isLoading: true, strategyId });
 				const chartConfig = await getBacktestStrategyChartConfig(strategyId);
@@ -219,7 +218,7 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 						// 检查后端返回的配置是否有效
 						// 是否有charts字段，并且charts字段是否为数组，并且charts字段的长度是否大于0
 						const hasValidConfig = chartConfig.charts && Array.isArray(chartConfig.charts) && chartConfig.charts.length > 0;
-						console.log("后端返回的图表配置是否有效:", hasValidConfig);
+						// console.log("后端返回的图表配置是否有效:", hasValidConfig);
 
 						if (hasValidConfig) {
 							// 使用后端配置，验证并修复配置
