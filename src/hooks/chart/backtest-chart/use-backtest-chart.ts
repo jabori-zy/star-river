@@ -233,6 +233,13 @@ export const useBacktestChart = ({
 					if (newKlineSeries) {
 						newKlineSeries.subscribeDataChanged(onSeriesDataUpdate);
 						setKlineSeriesRef(newKlineSeries);
+
+						// 重置时间轴，避免在切换周期后残留之前的缩放状态
+						const timeScale = chart.timeScale();
+						timeScale.resetTimeScale();
+						requestAnimationFrame(() => {
+							timeScale.fitContent();
+						});
 					}
 				}
 				// 重新订阅最新k线的数据流
@@ -404,7 +411,7 @@ export const useBacktestChart = ({
 						if (htmlElement) {
 							addSubChartPaneHtmlElementRef(config.indicatorKeyStr, htmlElement);
 						}
-					}, 50);
+					}, 100);
 
 					// 创建子图指标
 					config.seriesConfigs.forEach((seriesConfig) => {
@@ -570,6 +577,8 @@ export const useBacktestChart = ({
 	 * 2. 清空store中的图表引用（setChartRef(null)）
 	 * 3. 重置初始化状态，触发完整的重新初始化流程
 	 */
+
+	// 监控图表容器引用有效性
 	useEffect(() => {
 		const chart = getChartRef();
 		if (chart && chartContainerRef.current) {

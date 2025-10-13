@@ -71,7 +71,7 @@ export function ChartLegend({
 
 			if (!paneRef) {
 				// 如果 pane 还没准备好，稍后重试
-				setTimeout(createPortalContainer, 50);
+				setTimeout(createPortalContainer, 100);
 				return;
 			}
 

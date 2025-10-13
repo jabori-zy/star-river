@@ -41,11 +41,6 @@ const ChartContainer: React.FC<ChartContainerProps> = ({
 		);
 	}
 
-	// 单个图表时，占满整个布局
-	if (chartCount === 1) {
-		return <div className="w-full h-full p-2">{chartElements[0]}</div>;
-	}
-
 	// 网格布局
 	if (layout === "grid" || layout === "grid-alt") {
 		return renderGridLayout(

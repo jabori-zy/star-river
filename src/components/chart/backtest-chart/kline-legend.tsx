@@ -18,8 +18,7 @@ const KlineLegend: React.FC<KlineLegendProps> = ({
 	className = "",
 }) => {
 	// 使用当前图表的可见性状态管理
-	const { getKlineVisibility, toggleKlineVisibility } =
-		useBacktestChartConfigStore();
+	const { getKlineVisibility, toggleKlineVisibility } = useBacktestChartConfigStore();
 
 	// if (klineSeriesData === null) {
 	// 	return null;
@@ -36,33 +35,20 @@ const KlineLegend: React.FC<KlineLegendProps> = ({
 		maxLengthsRef.current = {};
 	}, [chartId]);
 
-	// 计算当前数据的字符长度并更新最大值
-	useEffect(() => {
-		if (!klineSeriesData) return;
-
-		let needsUpdate = false;
-		const newMaxLengths = { ...maxLengthsRef.current };
-
-		// 遍历所有字段：open, high, low, close, change
-		const fields = ['open', 'high', 'low', 'close', 'change'] as const;
-
+	// 在渲染阶段同步更新最大长度，避免闪烁
+	if (klineSeriesData) {
+		const fields = ["open", "high", "low", "close", "change"] as const;
 		fields.forEach((field) => {
 			const value = klineSeriesData[field];
-			if (value && value !== '----') {
+			if (value && value !== "----") {
 				const currentLength = value.length;
-				const maxLength = newMaxLengths[field] || 0;
-
+				const maxLength = maxLengthsRef.current[field] || 0;
 				if (currentLength > maxLength) {
-					newMaxLengths[field] = currentLength;
-					needsUpdate = true;
+					maxLengthsRef.current[field] = currentLength;
 				}
 			}
 		});
-
-		if (needsUpdate) {
-			maxLengthsRef.current = newMaxLengths;
-		}
-	}, [klineSeriesData]);
+	}
 
 	// 获取指定字段的最大宽度（使用 ch 单位）
 	const getMaxWidth = (field: string): string => {
@@ -81,7 +67,7 @@ const KlineLegend: React.FC<KlineLegendProps> = ({
 		<div
 			className={`absolute top-0 left-0 z-10 hover:cursor-pointer hover:bg-gray-100 px-2 py-1 rounded-sm group ${className}`}
 		>
-			<div className="flex flex-wrap gap-2 text-xs items-center">
+			<div className="flex flex-wrap gap-2 text-xs items-center whitespace-pre">
 				{/* 显示时间
                 {klineSeriesData.timeString && (
                     <span className="font-medium text-gray-700">
