@@ -1,5 +1,6 @@
 import type { KlineKeyStr } from "@/types/symbol-key";
 import type { SliceCreator, DataSlice } from "./types";
+import type { LogicalRange } from "lightweight-charts";
 
 export const createDataSlice: SliceCreator<DataSlice> = (set, get) => ({
 	klineKeyStr: null,
@@ -7,7 +8,7 @@ export const createDataSlice: SliceCreator<DataSlice> = (set, get) => ({
 	indicatorData: {},
 	isDataInitialized: false,
 
-	visibleLogicalRangeFrom: null,
+	visibleLogicalRange: null,
 
 	setKlineKeyStr: (klineKeyStr: KlineKeyStr) => set({ klineKeyStr: klineKeyStr }),
 
@@ -48,7 +49,7 @@ export const createDataSlice: SliceCreator<DataSlice> = (set, get) => ({
 	// 	return data[data.length - 1] || null;
 	// },
 
-	setVisibleLogicalRangeFrom: (from: number) => set({ visibleLogicalRangeFrom: from }),
+	setVisibleLogicalRange: (logicalRange: LogicalRange) => set({ visibleLogicalRange: logicalRange }),
 
-	getVisibleLogicalRangeFrom: () => get().visibleLogicalRangeFrom,
+	getVisibleLogicalRange: () => get().visibleLogicalRange,
 });

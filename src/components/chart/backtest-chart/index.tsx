@@ -1,5 +1,7 @@
 import type { IChartApi } from "lightweight-charts";
 import { useCallback, useEffect, useRef } from "react";
+import { ArrowRightToLine } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useBacktestChart } from "@/hooks/chart/backtest-chart";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import { useBacktestChartStore } from "./backtest-chart-store";
@@ -33,7 +35,11 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 	});
 
 	// 获取图表API引用 - 使用稳定的引用
-	const { getChartRef } = useBacktestChartStore(chartConfig.id, chartConfig);
+	const {
+		getChartRef,
+		getVisibleLogicalRange,
+		getKlineSeriesRef,
+	} = useBacktestChartStore(chartConfig.id, chartConfig);
 
 	// 使用 useCallback 稳定函数引用
 	const updateChartApiRef = useCallback(() => {
@@ -48,6 +54,26 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 		updateChartApiRef();
 	}, [updateChartApiRef]);
 
+	const visibleLogicalRange = getVisibleLogicalRange();
+	const klineSeriesRef = getKlineSeriesRef();
+	const klineDataLength = klineSeriesRef?.data().length ?? 0;
+
+	const showJumpToLatest =
+		!!visibleLogicalRange &&
+		Number.isFinite(visibleLogicalRange.to) &&
+		klineDataLength > 0 &&
+		visibleLogicalRange.to < klineDataLength - 1;
+
+	const handleJumpToLatest = useCallback(() => {
+		const chart = getChartRef();
+		if (!chart) {
+			return;
+		}
+		const timeScale = chart.timeScale();
+		timeScale.scrollToRealTime();
+		timeScale.fitContent();
+	}, [getChartRef]);
+
 	return (
 		<div className="relative w-full h-full">
 			{/* 图表容器div */}
@@ -57,11 +83,23 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 				className="w-full h-full px-2"
 			/>
 
-			{/* K线图例 */}
-			<KlineLegend
-				klineSeriesData={klineLegendData}
-				chartId={chartConfig.id}
-			/>
+		{showJumpToLatest && (
+			<Button
+				variant="ghost"
+				size="icon"
+				onClick={handleJumpToLatest}
+				className="absolute top-0 right-26 z-20 h-8 w-8"
+				title="跳转至最新K线"
+			>
+				<ArrowRightToLine className="h-4 w-4" />
+			</Button>
+		)}
+
+		{/* K线图例 */}
+		<KlineLegend
+			klineSeriesData={klineLegendData}
+			chartId={chartConfig.id}
+		/>
 
 			{/* 主图指标图例 */}
 			{chartConfig.indicatorChartConfigs

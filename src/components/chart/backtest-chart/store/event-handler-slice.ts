@@ -41,10 +41,10 @@ export const createEventHandlerSlice = (
 		if (klineSeries) {
 			klineSeries.update(candlestickData);
 			// 如果k线数据长度大于10， 则删除前5根k线
-			const visibleLogicalRangeFrom = get().getVisibleLogicalRangeFrom();
+			const visibleLogicalRangeFrom = get().getVisibleLogicalRange();
 			// console.log("visibleLogicalRangeFrom", visibleLogicalRangeFrom, "data length", klineSeries.data().length);
 			// 如果可见逻辑范围逻辑起始点大于10， 并且k线数据长度大于200， 则删除前50根k线
-			if (visibleLogicalRangeFrom && visibleLogicalRangeFrom > 100 && klineSeries.data().length > MAX_DATA_LENGTH) {
+			if (visibleLogicalRangeFrom && visibleLogicalRangeFrom.from > 100 && klineSeries.data().length > MAX_DATA_LENGTH) {
 				// console.log("删除前50根k线");
 				const newData = klineSeries.data().slice(50);
 				klineSeries.setData(newData);
@@ -108,8 +108,8 @@ export const createEventHandlerSlice = (
 					indicatorSeriesRef.update(newDataPoint);
 
 					// 如果指标数据长度大于10， 则删除前5根指标数据
-					const visibleLogicalRangeFrom = get().getVisibleLogicalRangeFrom();
-					if (visibleLogicalRangeFrom && visibleLogicalRangeFrom > 100 && indicatorSeriesRef.data().length > MAX_DATA_LENGTH) {
+					const visibleLogicalRangeFrom = get().getVisibleLogicalRange();
+					if (visibleLogicalRangeFrom && visibleLogicalRangeFrom.from > 100 && indicatorSeriesRef.data().length > MAX_DATA_LENGTH) {
 						// console.log("删除前50根指标数据", indicatorValueKey);
 						const newData = indicatorSeriesRef.data().slice(50);
 						indicatorSeriesRef.setData(newData);

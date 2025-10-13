@@ -6,6 +6,7 @@ import type {
 	ISeriesMarkersPluginApi,
 	SingleValueData,
 	Time,
+	LogicalRange,
 } from "lightweight-charts";
 import type { Subscription } from "rxjs";
 import type { StateCreator } from "zustand";
@@ -27,7 +28,7 @@ export interface DataSlice {
 	// >;
 	isDataInitialized: boolean;
 
-	visibleLogicalRangeFrom: number | null; // 可见逻辑范围逻辑起始点
+	visibleLogicalRange: LogicalRange | null; // 可见逻辑范围
 
 	setKlineKeyStr: (klineKeyStr: KlineKeyStr) => void;
 	getKlineKeyStr: () => KlineKeyStr | null;
@@ -44,8 +45,8 @@ export interface DataSlice {
 	setIsDataInitialized: (initialized: boolean) => void;
 	// getLastKline: (keyStr: KeyStr) => CandlestickData | SingleValueData | null;
 
-	setVisibleLogicalRangeFrom: (from: number) => void;
-	getVisibleLogicalRangeFrom: () => number | null;
+	setVisibleLogicalRange: (logicalRange: LogicalRange) => void;
+	getVisibleLogicalRange: () => LogicalRange | null;
 }
 
 // ==================== Refs Slice Types ====================

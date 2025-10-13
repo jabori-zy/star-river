@@ -5,6 +5,7 @@ import type {
 	CandlestickData,
 	SingleValueData,
 	UTCTimestamp,
+	LogicalRange,
 } from "lightweight-charts";
 import {
 	createSeriesMarkers,
@@ -77,7 +78,7 @@ export const useBacktestChart = ({
 		incrementPaneVersion,
 		setOrderMarkerSeriesRef,
 		addSubChartPaneHtmlElementRef,
-		setVisibleLogicalRangeFrom, // 设置可见逻辑范围逻辑起始点
+		setVisibleLogicalRange, // 设置可见逻辑范围逻辑起始点
 	} = useBacktestChartStore(chartConfig.id, chartConfig);
 
 	// 使用状态追踪初始化状态，而不是 ref
@@ -722,12 +723,13 @@ export const useBacktestChart = ({
 		// 使用ref追踪是否正在加载，防止重复请求
 		const loadingRef = { current: false };
 
-		const handleVisibleRangeChange = (logicalRange: { from: number; to: number } | null) => {
+		const handleVisibleRangeChange = (logicalRange: LogicalRange | null) => {
 			if (!logicalRange || loadingRef.current) {
 				return;
 			}
 
-			setVisibleLogicalRangeFrom(logicalRange.from);
+			// console.log("visibleRangeChange", logicalRange);
+			setVisibleLogicalRange(logicalRange);
 
 			// 只有在接近边界时才加载更多数据
 			if (logicalRange.from >= 30) {
@@ -762,6 +764,7 @@ export const useBacktestChart = ({
 							low: kline.low,
 							close: kline.close,
 						}));
+						// console.log("加载k线历史数据", partialKlineData.length);
 
 						// 重新获取最新的 klineSeries，确保使用最新的引用
 						const latestKlineSeries = getKlineSeriesRef();
@@ -814,6 +817,7 @@ export const useBacktestChart = ({
 							if (trimmedData.length === 0) {
 								return;
 							}
+							// console.log("加载指标历史数据", trimmedData.length);
 
 							const partialIndicatorData: Record<keyof IndicatorValueConfig, SingleValueData[]> = {};
 
@@ -869,7 +873,7 @@ export const useBacktestChart = ({
 		getKlineSeriesRef,
 		getIndicatorSeriesRef,
 		getKlineKeyStr,
-		setVisibleLogicalRangeFrom,
+		setVisibleLogicalRange,
 	]);
 
 	return {

@@ -93,7 +93,7 @@ export function SubchartIndicatorLegend({
 				// console.log("subChartPaneHtmlElementRef", subChartPaneHtmlElementRef);
 				const htmlElement = getSubChartPaneHtmlElementRef(indicatorKeyStr);
 				if (!htmlElement) {
-					console.warn(`无法获取子图 HTML 元素: ${indicatorKeyStr}`);
+					// console.warn(`无法获取子图 HTML 元素: ${indicatorKeyStr}`);
 					return;
 				}
 
