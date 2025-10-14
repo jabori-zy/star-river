@@ -45,7 +45,7 @@ export type UpdateVariableConfig = BaseVariableConfig & {
 	varOperation: "update";
 	updateOperationType: UpdateOperationType; // 更新操作类型
 	varTriggerType: "condition" | "dataflow"; // 更新变量的触发方式（条件触发或数据流触发）
-	varValue: string | number | boolean; // 要更新的值
+	updateOperationValue: string | number | boolean; // 更新操作值
 };
 
 // 重置变量配置
@@ -53,6 +53,7 @@ export type ResetVariableConfig = BaseVariableConfig & {
 	varOperation: "reset";
 	varTriggerType: "condition" | "timer"; // 重置变量的触发方式（条件触发或定时触发）
 	timerConfig?: TimerConfig; // 定时触发的时间间隔配置
+	varInitialValue: string | number | boolean; // 初始变量值
 };
 
 // 变量配置联合类型（Discriminated Union）

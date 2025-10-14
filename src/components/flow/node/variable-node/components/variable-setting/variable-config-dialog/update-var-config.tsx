@@ -325,6 +325,13 @@ const UpdateVarConfig: React.FC<UpdateVarConfigProps> = ({
 					)}
 				</div>
 			)}
+
+			{/* 说明文案 */}
+			<div className="rounded-md bg-blue-50 p-3 border border-blue-200">
+				<p className="text-xs text-blue-800">
+					选择一种更新方式，更新自定义变量的值
+				</p>
+			</div>
 		</>
 	);
 };

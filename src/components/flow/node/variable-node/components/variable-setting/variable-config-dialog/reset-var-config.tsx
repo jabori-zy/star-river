@@ -3,6 +3,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { SelectInDialog } from "@/components/select-components/select-in-dialog";
 import type { CustomVariable } from "@/types/variable";
+import { formatVariableValue } from "@/components/flow/node/start-node/components/utils";
 import TimerConfig from "./timer";
 
 interface ResetVarConfigProps {
@@ -12,6 +13,7 @@ interface ResetVarConfigProps {
 	timerUnit: "second" | "minute" | "hour" | "day";
 	customVariables: CustomVariable[];
 	customVariableOptions: Array<{ value: string; label: React.ReactNode }>;
+	varInitialValue: string | number | boolean;
 	onVariableChange: (value: string) => void;
 	onTriggerTypeChange: (value: "condition" | "timer") => void;
 	onTimerIntervalChange: (value: number) => void;
@@ -25,6 +27,7 @@ const ResetVarConfig: React.FC<ResetVarConfigProps> = ({
 	timerUnit,
 	customVariables,
 	customVariableOptions,
+	varInitialValue,
 	onVariableChange,
 	onTriggerTypeChange,
 	onTimerIntervalChange,
@@ -46,6 +49,18 @@ const ResetVarConfig: React.FC<ResetVarConfigProps> = ({
 					disabled={customVariables.length === 0}
 					emptyMessage="未配置自定义变量，请在策略起点配置"
 				/>
+				{variable && (() => {
+					const selectedVar = customVariables.find((v: CustomVariable) => v.varName === variable);
+					const formattedValue = selectedVar
+						? formatVariableValue(varInitialValue, selectedVar.varValueType)
+						: String(varInitialValue);
+
+					return (
+						<p className="text-xs text-muted-foreground">
+							变量值将被重置为: <span className="font-semibold text-blue-600 px-1.5 py-0.5 rounded bg-blue-50">{formattedValue}</span>
+						</p>
+					);
+				})()}
 			</div>
 
 			{/* 触发方式 */}

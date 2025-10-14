@@ -135,6 +135,9 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 	const [dataflowVariableName, setDataflowVariableName] = React.useState<string | null>(null);
 	const [dataflowVariableId, setDataflowVariableId] = React.useState<number | null>(null);
 
+	// reset模式的状态 - 变量初始值
+	const [varInitialValue, setVarInitialValue] = React.useState<string | number | boolean>("");
+
 	// 获取更新操作类型的标签
 	const getUpdateOperationLabel = (type: UpdateOperationType): string => {
 		const labels: Record<UpdateOperationType, string> = {
@@ -182,6 +185,8 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 		setDataflowVariable(null);
 		setDataflowVariableName(null);
 		setDataflowVariableId(null);
+		// 重置reset模式状态
+		setVarInitialValue("");
 	}, []);
 
 	// 当切换到 update 模式时，自动选中第一个自定义变量（如果有），否则清空变量
@@ -223,6 +228,16 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 		}
 	}, [variable, varOperation, customVariables, updateOperationType, updateValue]);
 
+	// 当reset模式下变量改变时，更新初始值
+	React.useEffect(() => {
+		if (varOperation === "reset" && variable) {
+			const selectedVar = customVariables.find((v: CustomVariable) => v.varName === variable);
+			if (selectedVar) {
+				setVarInitialValue(selectedVar.initialValue);
+			}
+		}
+	}, [variable, varOperation, customVariables]);
+
 	// 当对话框打开时重置或恢复状态
 	useEffect(() => {
 		if (isOpen) {
@@ -243,15 +258,16 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 				} else if (editingConfig.varOperation === "update") {
 					// update模式，恢复更新值、操作类型和触发方式
 					setUpdateOperationType(editingConfig.updateOperationType);
-					setUpdateValue(String(editingConfig.varValue || ""));
+					setUpdateValue(String(editingConfig.updateOperationValue || ""));
 					setUpdateTriggerType(editingConfig.varTriggerType);
 				} else {
-					// reset模式，恢复触发方式和定时配置
+					// reset模式，恢复触发方式、定时配置和初始值
 					setTriggerType(editingConfig.varTriggerType);
 					if (editingConfig.timerConfig) {
 						setTimerInterval(editingConfig.timerConfig.interval);
 						setTimerUnit(editingConfig.timerConfig.unit);
 					}
+					setVarInitialValue(editingConfig.varInitialValue);
 				}
 			} else {
 				resetForm();
@@ -383,7 +399,7 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 				varType: "custom", // update 模式下只能是自定义变量
 				varName: variable,
 				varValueType: selectedCustomVar?.varValueType || VariableValueType.NUMBER,
-				varValue: updateOperationType === "toggle" ? true : updateValue, // toggle使用布尔值，其他使用输入值
+				updateOperationValue: updateOperationType === "toggle" ? true : updateValue, // toggle使用布尔值，其他使用输入值
 			};
 			variableConfig = updateConfig;
 		} else {
@@ -400,6 +416,7 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 				varType: "custom", // reset 模式下只能是自定义变量
 				varName: variable,
 				varValueType: selectedCustomVar?.varValueType || VariableValueType.NUMBER,
+				varInitialValue: varInitialValue, // 保存初始值
 			};
 			variableConfig = resetConfig;
 		}
@@ -488,6 +505,7 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 							timerUnit={timerUnit}
 							customVariables={customVariables}
 							customVariableOptions={customVariableOptions}
+							varInitialValue={varInitialValue}
 							onVariableChange={setVariable}
 							onTriggerTypeChange={setTriggerType}
 							onTimerIntervalChange={setTimerInterval}

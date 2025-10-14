@@ -147,6 +147,13 @@ const GetVarConfig: React.FC<GetVarConfigProps> = ({
 					onTimerUnitChange={onTimerUnitChange}
 				/>
 			)}
+
+			{/* 说明文案 */}
+			<div className="rounded-md bg-blue-50 p-3 border border-blue-200">
+				<p className="text-xs text-blue-800">
+					获取系统变量和自定义变量的值
+				</p>
+			</div>
 		</>
 	);
 };
