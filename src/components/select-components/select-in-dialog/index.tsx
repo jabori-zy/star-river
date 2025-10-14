@@ -53,7 +53,7 @@ export const DialogSelectTrigger: React.FC<React.ComponentProps<typeof SelectPri
 	return (
 		<SelectPrimitive.Trigger
 			className={cn(
-				"flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1 hover:bg-accent hover:text-accent-foreground transition-colors",
+				"flex h-9 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1 hover:bg-accent hover:text-accent-foreground transition-colors",
 				className,
 			)}
 			onPointerDown={(e) => {
@@ -74,11 +74,12 @@ export interface SelectInDialogProps {
 	placeholder?: string;
 	options: Array<{
 		value: string;
-		label: string;
+		label: React.ReactNode;
 	}>;
 	disabled?: boolean;
 	className?: string;
 	id?: string;
+	emptyMessage?: React.ReactNode;
 }
 
 // Complete SelectInDialog component that can be used directly in dialogs
@@ -90,6 +91,7 @@ export const SelectInDialog: React.FC<SelectInDialogProps> = ({
 	disabled = false,
 	className,
 	id,
+	emptyMessage,
 }) => {
 	return (
 		<Select
@@ -102,11 +104,17 @@ export const SelectInDialog: React.FC<SelectInDialogProps> = ({
 				<ChevronDownIcon className="h-4 w-4 opacity-50" />
 			</DialogSelectTrigger>
 			<DialogSelectContent>
-				{options.map((option) => (
-					<SelectItem key={option.value} value={option.value}>
-						{option.label}
-					</SelectItem>
-				))}
+				{options.length > 0 ? (
+					options.map((option) => (
+						<SelectItem key={option.value} value={option.value}>
+							{option.label}
+						</SelectItem>
+					))
+				) : emptyMessage ? (
+					<div className="px-2 py-1.5 text-sm text-muted-foreground">
+						{emptyMessage}
+					</div>
+				) : null}
 			</DialogSelectContent>
 		</Select>
 	);

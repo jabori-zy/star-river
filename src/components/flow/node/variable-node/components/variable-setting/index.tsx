@@ -1,5 +1,5 @@
 import { PlusIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import type { VariableConfig } from "@/types/node/variable-node";
@@ -11,6 +11,9 @@ import { TradeMode } from "@/types/strategy";
 import useStrategyWorkflow, { type VariableItem } from "@/hooks/flow/use-strategy-workflow";
 import { useNodeConnections } from "@xyflow/react";
 import React from "react";
+import { useStartNodeDataStore } from "@/store/node/use-start-node-data-store";
+import { getSymbolList } from "@/service/market";
+import type { MarketSymbol } from "@/types/market";
 
 interface VariableSettingProps {
 	id: string;
@@ -25,6 +28,11 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 	variableConfigs,
 	onVariableConfigsChange,
 }) => {
+	const {
+		backtestConfig: startNodeBacktestConfig,
+		liveConfig: startNodeLiveConfig,
+	} = useStartNodeDataStore();
+
 	// 本地状态管理
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
 	const [isEditing, setIsEditing] = useState(false);
@@ -53,6 +61,85 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 		console.log("收集到的所有变量列表", variables);
 		setVariableItemList(variables);
 	}, [connections, getConnectedNodeVariables, id, tradeMode]);
+
+	const selectedAccountId = useMemo(() => {
+		if (tradeMode === TradeMode.BACKTEST) {
+			return (
+				startNodeBacktestConfig?.exchangeModeConfig?.selectedAccounts?.[0]?.id ??
+				undefined
+			);
+		}
+
+		if (tradeMode === TradeMode.LIVE) {
+			return startNodeLiveConfig?.selectedAccounts?.[0]?.id ?? undefined;
+		}
+
+		return undefined;
+	}, [tradeMode, startNodeBacktestConfig, startNodeLiveConfig]);
+
+	const [symbolList, setSymbolList] = useState<MarketSymbol[]>([]);
+	const [isSymbolLoading, setIsSymbolLoading] = useState(false);
+
+	useEffect(() => {
+		let cancelled = false;
+
+		if (!selectedAccountId) {
+			setSymbolList((prev) => (prev.length === 0 ? prev : []));
+			setIsSymbolLoading(false);
+			return () => {
+				cancelled = true;
+			};
+		}
+
+		const fetchSymbols = async () => {
+			setIsSymbolLoading(true);
+			try {
+				const data = await getSymbolList(selectedAccountId);
+				if (!cancelled) {
+					setSymbolList(data);
+				}
+			} catch (error) {
+				console.error("获取交易对列表失败:", error);
+				if (!cancelled) {
+					setSymbolList([]);
+				}
+			} finally {
+				if (!cancelled) {
+					setIsSymbolLoading(false);
+				}
+			}
+		};
+
+		fetchSymbols();
+
+		return () => {
+			cancelled = true;
+		};
+	}, [selectedAccountId]);
+
+	const symbolOptions = useMemo(
+		() =>
+			symbolList.map((symbol) => ({
+				value: symbol.name,
+				label: symbol.name,
+			})),
+		[symbolList],
+	);
+
+	const symbolPlaceholder = useMemo(() => {
+		if (!selectedAccountId) {
+			return "请先选择账户";
+		}
+		if (isSymbolLoading) {
+			return "加载中...";
+		}
+		return "选择交易对 (可选)";
+	}, [selectedAccountId, isSymbolLoading]);
+
+	const symbolEmptyMessage = useMemo(
+		() => (selectedAccountId ? "未找到交易对" : "未选择账户"),
+		[selectedAccountId],
+	);
 
 	const handleAddVariable = () => {
 		setIsEditing(false);
@@ -223,6 +310,10 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 				existingConfigs={variableConfigs}
 				editingIndex={editingIndex}
 				variableItemList={variableItemList}
+				symbolOptions={symbolOptions}
+				symbolPlaceholder={symbolPlaceholder}
+				symbolEmptyMessage={symbolEmptyMessage}
+				isSymbolSelectorDisabled={!selectedAccountId}
 			/>
 
 			{/* 确认删除对话框 */}

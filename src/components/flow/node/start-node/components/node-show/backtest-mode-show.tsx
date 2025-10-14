@@ -1,11 +1,9 @@
 import {
-	AtSign,
 	ChevronDown,
 	ChevronRight,
 	PercentSquare,
 	Play,
 	TrendingUp,
-	Variable,
 	Wallet,
 } from "lucide-react";
 import { useState } from "react";
@@ -19,7 +17,7 @@ import { Label } from "@/components/ui/label";
 import {
 	type StrategyBacktestConfig,
 } from "@/types/strategy";
-import { type CustomVariable } from "@/types/variable";
+import { type CustomVariable, getVariableTypeIcon, getVariableTypeIconColor } from "@/types/variable";
 
 
 interface BacktestModeShowProps {
@@ -122,35 +120,31 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 							<div className="space-y-2">
 								{backtestConfig.customVariables.map(
 									(variable: CustomVariable, index: number) => {
+										const Icon = getVariableTypeIcon(variable.varValueType);
+										const iconColor = getVariableTypeIconColor(variable.varValueType);
+
 										return (
 											<div
 												key={index}
 												className="flex flex-col bg-gray-100 p-2 rounded-md"
 											>
-												{variable.varValueType === "number" && (
-													<div
-														className="flex items-center gap-2"
-														title={variable.varName}
-													>
-														<Variable className="w-4 h-4 text-green-500" />
-														<span className="text-sm">
-															{" "}
-															{variable.varName} = {variable.varValue}
-														</span>
-													</div>
-												)}
-												{variable.varValueType === "string" && (
-													<div
-														className="flex items-center gap-2"
-														title={variable.varName}
-													>
-														<AtSign className="w-4 h-4 text-green-500" />
-														<span className="text-sm">
-															{" "}
-															{variable.varName} = "{variable.varValue}"
-														</span>
-													</div>
-												)}
+												<div
+													className="flex items-center gap-2"
+													title={variable.varName}
+												>
+													<Icon className={`w-4 h-4 ${iconColor}`} />
+													<span className="text-sm">
+														{variable.varDisplayName}
+														<span className="text-muted-foreground">({variable.varName})</span>
+														{" "}= {
+															variable.varValueType === "string"
+																? `"${variable.varValue}"`
+																: variable.varValueType === "boolean"
+																? (variable.varValue ? "true" : "false")
+																: variable.varValue
+														}
+													</span>
+												</div>
 											</div>
 										);
 									},

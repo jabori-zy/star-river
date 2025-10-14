@@ -14,13 +14,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
 import { SelectInDialog } from "@/components/select-components/select-in-dialog";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
@@ -35,7 +28,7 @@ import { SystemVariable, VariableValueType, type CustomVariable, getVariableType
 import { useStartNodeDataStore } from "@/store/node/use-start-node-data-store";
 import useTradingModeStore from "@/store/useTradingModeStore";
 import { TradeMode } from "@/types/strategy";
-import SymbolSelector from "../symbol-selector";
+import SymbolSelector from "./symbol-selector";
 import {
 	generateVariableName,
 	getVariableLabel,
@@ -45,6 +38,7 @@ import {
 import UpdateVariableSelector from "./update-variable-selector";
 import type { VariableItem } from "@/hooks/flow/use-strategy-workflow";
 import type { NodeType } from "@/types/node/index";
+import type { SymbolSelectorOption } from "./symbol-selector";
 
 interface VariableConfigDialogProps {
 	id: string; // 节点id
@@ -56,6 +50,10 @@ interface VariableConfigDialogProps {
 	existingConfigs: VariableConfig[];
 	editingIndex: number | null;
 	variableItemList: VariableItem[];
+	symbolOptions: SymbolSelectorOption[];
+	symbolPlaceholder: string;
+	symbolEmptyMessage: string;
+	isSymbolSelectorDisabled: boolean;
 }
 
 const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
@@ -68,6 +66,10 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 	existingConfigs,
 	editingIndex,
 	variableItemList,
+	symbolOptions,
+	symbolPlaceholder,
+	symbolEmptyMessage,
+	isSymbolSelectorDisabled,
 }) => {
 	// 获取开始节点的配置
 	const {
@@ -87,6 +89,28 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 			return [];
 		}
 	}, [tradingMode, startNodeBacktestConfig, startNodeLiveConfig]);
+
+	const customVariableOptions = React.useMemo(
+		() =>
+			customVariables.map((customVar: CustomVariable) => {
+				const IconComponent = getVariableTypeIcon(customVar.varValueType);
+				const iconColor = getVariableTypeIconColor(customVar.varValueType);
+
+				return {
+					value: customVar.varName,
+					label: (
+						<div className="flex items-center gap-2">
+							<IconComponent className={`h-4 w-4 ${iconColor}`} />
+							<span>{customVar.varDisplayName}</span>
+							<span className="text-xs text-muted-foreground">
+								({customVar.varName})
+							</span>
+						</div>
+					),
+				};
+			}),
+		[customVariables],
+	);
 
 	// 表单状态
 	const [varOperation, setVarOperation] = React.useState<"get" | "update" | "reset">("get");
@@ -431,11 +455,15 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 								</Label>
 								<div className="w-full">
 									<SymbolSelector
+										options={symbolOptions}
 										value={symbol}
 										onChange={(value) => {
 											setSymbol(value || "");
 										}}
 										allowEmpty={true}
+										placeholder={symbolPlaceholder}
+										emptyMessage={symbolEmptyMessage}
+										disabled={isSymbolSelectorDisabled}
 									/>
 								</div>
 							</div>
@@ -526,22 +554,20 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 											}
 											className="h-8 w-20"
 										/>
-										<Select
+										<SelectInDialog
 											value={timerUnit}
-											onValueChange={(
-												value: "second" | "minute" | "hour" | "day",
-											) => setTimerUnit(value)}
-										>
-											<SelectTrigger className="h-8 flex-1">
-												<SelectValue placeholder="选择时间单位" />
-											</SelectTrigger>
-											<SelectContent>
-												<SelectItem value="second">秒</SelectItem>
-												<SelectItem value="minute">分钟</SelectItem>
-												<SelectItem value="hour">小时</SelectItem>
-												<SelectItem value="day">天</SelectItem>
-											</SelectContent>
-										</Select>
+											onValueChange={(value) =>
+												setTimerUnit(value as "second" | "minute" | "hour" | "day")
+											}
+											placeholder="选择时间单位"
+											options={[
+												{ value: "second", label: "秒" },
+												{ value: "minute", label: "分钟" },
+												{ value: "hour", label: "小时" },
+												{ value: "day", label: "天" },
+											]}
+											className="h-8 flex-1"
+										/>
 									</div>
 									<div className="flex flex-wrap gap-2 mt-2">
 										<Badge
@@ -611,33 +637,15 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 								<Label htmlFor="updateVariable" className="text-sm font-medium">
 									选择变量
 								</Label>
-								<Select value={variable} onValueChange={setVariable} disabled={customVariables.length === 0}>
-									<SelectTrigger>
-										<SelectValue placeholder={customVariables.length === 0 ? "无自定义变量" : "选择要更新的变量"} />
-									</SelectTrigger>
-									<SelectContent>
-										{customVariables.length === 0 ? (
-											<div className="px-2 py-1.5 text-sm text-muted-foreground">
-												未配置自定义变量，请在策略起点配置
-											</div>
-										) : (
-											customVariables.map((customVar: CustomVariable) => {
-												const IconComponent = getVariableTypeIcon(customVar.varValueType);
-												const iconColor = getVariableTypeIconColor(customVar.varValueType);
-
-												return (
-													<SelectItem key={customVar.varName} value={customVar.varName}>
-														<div className="flex items-center gap-2">
-															<IconComponent className={`h-4 w-4 ${iconColor}`} />
-															<span>{customVar.varDisplayName}</span>
-															<span className="text-xs text-muted-foreground">({customVar.varName})</span>
-														</div>
-													</SelectItem>
-												);
-											})
-										)}
-									</SelectContent>
-								</Select>
+								<SelectInDialog
+									id="updateVariable"
+									value={variable}
+									onValueChange={setVariable}
+									placeholder={customVariables.length === 0 ? "无自定义变量" : "选择要更新的变量"}
+									options={customVariableOptions}
+									disabled={customVariables.length === 0}
+									emptyMessage="未配置自定义变量，请在策略起点配置"
+								/>
 							</div>
 
 							{/* 触发方式 */}
@@ -696,6 +704,10 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 										const availableOps = getAvailableOperations(
 											selectedVar?.varValueType || VariableValueType.NUMBER
 										);
+										const availableOperationOptions = availableOps.map((op) => ({
+											value: op,
+											label: getUpdateOperationLabel(op),
+										}));
 										const isBooleanType = selectedVar?.varValueType === VariableValueType.BOOLEAN;
 										const isToggleMode = updateOperationType === "toggle";
 
@@ -703,23 +715,14 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 										if (isToggleMode) {
 											return (
 												<div className="flex flex-col gap-2">
-													<Select
+													<SelectInDialog
 														value={updateOperationType}
-														onValueChange={(value: UpdateOperationType) => {
-															setUpdateOperationType(value);
-														}}
-													>
-														<SelectTrigger>
-															<SelectValue />
-														</SelectTrigger>
-														<SelectContent>
-															{availableOps.map((op) => (
-																<SelectItem key={op} value={op}>
-																	{getUpdateOperationLabel(op)}
-																</SelectItem>
-															))}
-														</SelectContent>
-													</Select>
+														onValueChange={(value) =>
+															setUpdateOperationType(value as UpdateOperationType)
+														}
+														placeholder="选择更新操作"
+														options={availableOperationOptions}
+													/>
 													<p className="text-xs text-muted-foreground">
 														如果为 True，则切换为 False；如果为 False，则切换为 True
 													</p>
@@ -731,23 +734,14 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 										if (isBooleanType && updateOperationType === "set") {
 											return (
 												<div className="flex items-center gap-16">
-													<Select
+													<SelectInDialog
 														value={updateOperationType}
-														onValueChange={(value: UpdateOperationType) => {
-															setUpdateOperationType(value);
-														}}
-													>
-														<SelectTrigger className="w-[64px]">
-															{getUpdateOperationLabel(updateOperationType)}
-														</SelectTrigger>
-														<SelectContent className="w-[64px] min-w-0">
-															{availableOps.map((op) => (
-																<SelectItem key={op} value={op}>
-																	{getUpdateOperationLabel(op)}
-																</SelectItem>
-															))}
-														</SelectContent>
-													</Select>
+														onValueChange={(value) =>
+															setUpdateOperationType(value as UpdateOperationType)
+														}
+														options={availableOperationOptions}
+														className="w-[64px]"
+													/>
 													<RadioGroup
 														value={updateValue || "true"}
 														onValueChange={setUpdateValue}
@@ -798,34 +792,28 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 									{updateOperationType === "toggle" ? (
 										// toggle 模式显示选择器和说明文案
 										<div className="flex flex-col gap-2">
-											<Select
+											<SelectInDialog
 												value={updateOperationType}
-												onValueChange={(value: UpdateOperationType) => {
-													setUpdateOperationType(value);
-													if (value === "toggle") {
+												onValueChange={(value) => {
+													const operation = value as UpdateOperationType;
+													setUpdateOperationType(operation);
+													if (operation === "toggle") {
 														setUpdateValue("");
 													}
 												}}
-											>
-												<SelectTrigger>
-													<SelectValue />
-												</SelectTrigger>
-												<SelectContent>
-													{(() => {
-														const selectedVar = customVariables.find(
-															(v: CustomVariable) => v.varName === variable
-														);
-														const availableOps = getAvailableOperations(
-															selectedVar?.varValueType || VariableValueType.NUMBER
-														);
-														return availableOps.map((op) => (
-															<SelectItem key={op} value={op}>
-																{getUpdateOperationLabel(op)}
-															</SelectItem>
-														));
-													})()}
-												</SelectContent>
-											</Select>
+												placeholder="选择更新操作"
+												options={(() => {
+													const selectedVar = customVariables.find(
+														(v: CustomVariable) => v.varName === variable
+													);
+													return getAvailableOperations(
+														selectedVar?.varValueType || VariableValueType.NUMBER
+													).map((op) => ({
+														value: op,
+														label: getUpdateOperationLabel(op),
+													}));
+												})()}
+											/>
 											<p className="text-xs text-muted-foreground">
 												如果为 True，则切换为 False；如果为 False，则切换为 True
 											</p>
@@ -836,6 +824,13 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 											const selectedVar = customVariables.find(
 												(v: CustomVariable) => v.varName === variable
 											);
+											const availableOps = getAvailableOperations(
+												selectedVar?.varValueType || VariableValueType.NUMBER
+											);
+											const availableOperationOptions = availableOps.map((op) => ({
+												value: op,
+												label: getUpdateOperationLabel(op),
+											}));
 											const isBooleanType = selectedVar?.varValueType === VariableValueType.BOOLEAN && updateOperationType === "set";
 
 											return (
@@ -843,31 +838,18 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 													{isBooleanType ? (
 														// BOOLEAN 类型使用 RadioGroup，与 Select 在同一行
 														<div className="flex items-center gap-16">
-															<Select
+															<SelectInDialog
 																value={updateOperationType}
-																onValueChange={(value: UpdateOperationType) => {
-																	setUpdateOperationType(value);
-																	if (value === "toggle") {
+																onValueChange={(value) => {
+																	const operation = value as UpdateOperationType;
+																	setUpdateOperationType(operation);
+																	if (operation === "toggle") {
 																		setUpdateValue("");
 																	}
 																}}
-															>
-																<SelectTrigger className="w-[64px]">
-																	{getUpdateOperationLabel(updateOperationType)}
-																</SelectTrigger>
-																<SelectContent className="w-[64px] min-w-0">
-																	{(() => {
-																		const availableOps = getAvailableOperations(
-																			selectedVar?.varValueType || VariableValueType.NUMBER
-																		);
-																		return availableOps.map((op) => (
-																			<SelectItem key={op} value={op}>
-																				{getUpdateOperationLabel(op)}
-																			</SelectItem>
-																		));
-																	})()}
-																</SelectContent>
-															</Select>
+																options={availableOperationOptions}
+																className="w-[64px]"
+															/>
 															<RadioGroup
 																value={updateValue || "true"}
 																onValueChange={setUpdateValue}
@@ -890,31 +872,18 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 													) : (
 														// 非 BOOLEAN 类型使用 ButtonGroup + Input
 														<ButtonGroup className="w-full">
-															<Select
+															<SelectInDialog
 																value={updateOperationType}
-																onValueChange={(value: UpdateOperationType) => {
-																	setUpdateOperationType(value);
-																	if (value === "toggle") {
+																onValueChange={(value) => {
+																	const operation = value as UpdateOperationType;
+																	setUpdateOperationType(operation);
+																	if (operation === "toggle") {
 																		setUpdateValue("");
 																	}
 																}}
-															>
-																<SelectTrigger className="w-[64px]">
-																	{getUpdateOperationLabel(updateOperationType)}
-																</SelectTrigger>
-																<SelectContent className="w-[64px] min-w-0">
-																	{(() => {
-																		const availableOps = getAvailableOperations(
-																			selectedVar?.varValueType || VariableValueType.NUMBER
-																		);
-																		return availableOps.map((op) => (
-																			<SelectItem key={op} value={op}>
-																				{getUpdateOperationLabel(op)}
-																			</SelectItem>
-																		));
-																	})()}
-																</SelectContent>
-															</Select>
+																options={availableOperationOptions}
+																className="w-[64px]"
+															/>
 															<Input
 																id="updateValue"
 																type="text"
@@ -939,33 +908,15 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 								<Label htmlFor="resetVariable" className="text-sm font-medium">
 									选择变量
 								</Label>
-								<Select value={variable} onValueChange={setVariable} disabled={customVariables.length === 0}>
-									<SelectTrigger>
-										<SelectValue placeholder={customVariables.length === 0 ? "无自定义变量" : "选择要重置的变量"} />
-									</SelectTrigger>
-									<SelectContent>
-										{customVariables.length === 0 ? (
-											<div className="px-2 py-1.5 text-sm text-muted-foreground">
-												未配置自定义变量，请在策略起点配置
-											</div>
-										) : (
-											customVariables.map((customVar: CustomVariable) => {
-												const IconComponent = getVariableTypeIcon(customVar.varValueType);
-												const iconColor = getVariableTypeIconColor(customVar.varValueType);
-
-												return (
-													<SelectItem key={customVar.varName} value={customVar.varName}>
-														<div className="flex items-center gap-2">
-															<IconComponent className={`h-4 w-4 ${iconColor}`} />
-															<span>{customVar.varDisplayName}</span>
-															<span className="text-xs text-muted-foreground">({customVar.varName})</span>
-														</div>
-													</SelectItem>
-												);
-											})
-										)}
-									</SelectContent>
-								</Select>
+								<SelectInDialog
+									id="resetVariable"
+									value={variable}
+									onValueChange={setVariable}
+									placeholder={customVariables.length === 0 ? "无自定义变量" : "选择要重置的变量"}
+									options={customVariableOptions}
+									disabled={customVariables.length === 0}
+									emptyMessage="未配置自定义变量，请在策略起点配置"
+								/>
 							</div>
 
 							{/* 触发方式 */}
@@ -1026,22 +977,20 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 											}
 											className="h-8 w-20"
 										/>
-										<Select
+										<SelectInDialog
 											value={timerUnit}
-											onValueChange={(
-												value: "second" | "minute" | "hour" | "day",
-											) => setTimerUnit(value)}
-										>
-											<SelectTrigger className="h-8 flex-1">
-												<SelectValue placeholder="选择时间单位" />
-											</SelectTrigger>
-											<SelectContent>
-												<SelectItem value="second">秒</SelectItem>
-												<SelectItem value="minute">分钟</SelectItem>
-												<SelectItem value="hour">小时</SelectItem>
-												<SelectItem value="day">天</SelectItem>
-											</SelectContent>
-										</Select>
+											onValueChange={(value) =>
+												setTimerUnit(value as "second" | "minute" | "hour" | "day")
+											}
+											placeholder="选择时间单位"
+											options={[
+												{ value: "second", label: "秒" },
+												{ value: "minute", label: "分钟" },
+												{ value: "hour", label: "小时" },
+												{ value: "day", label: "天" },
+											]}
+											className="h-8 flex-1"
+										/>
 									</div>
 									<div className="flex flex-wrap gap-2 mt-2">
 										<Badge
