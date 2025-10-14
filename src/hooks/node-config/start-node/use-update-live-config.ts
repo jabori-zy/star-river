@@ -1,10 +1,10 @@
 import { useReactFlow } from "@xyflow/react";
 import { useCallback, useEffect } from "react";
-import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
+import { useStartNodeDataStore } from "@/store/node/use-start-node-data-store";
 import type {
 	SelectedAccount,
 	StrategyLiveConfig,
-	StrategyVariable,
+	CustomVariable,
 } from "@/types/strategy";
 
 // 接口定义
@@ -71,7 +71,7 @@ export const useLiveConfig = ({
 
 	// 更新实盘变量 - 只更新全局状态，同步通过 useEffect 完成
 	const updateVariables = useCallback(
-		(variables: StrategyVariable[]) => {
+		(variables: CustomVariable[]) => {
 			updateGlobalLiveVariables(variables);
 		},
 		[updateGlobalLiveVariables],

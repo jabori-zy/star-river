@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
 import { useUpdateBacktestConfig } from "@/hooks/node-config/position-management-node/use-update-backtest-config";
-import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
+import { useStartNodeDataStore } from "@/store/node/use-start-node-data-store";
 import type {
 	PositionManagementNodeData,
 	PositionOperationConfig,

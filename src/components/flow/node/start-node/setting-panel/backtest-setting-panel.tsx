@@ -1,7 +1,7 @@
 import type React from "react";
 import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
 import { useBacktestConfig } from "@/hooks/node-config/start-node/use-update-backtest-config";
-import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
+import { useStartNodeDataStore } from "@/store/node/use-start-node-data-store";
 import type { StartNodeData } from "@/types/node/start-node";
 import { BacktestDataSource } from "@/types/strategy";
 import AccountSelector from "../components/account-selector";
@@ -87,7 +87,7 @@ export const StartNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 			/>
 
 			<VariableEditor
-				variables={globalBacktestConfig?.variables || []}
+				variables={globalBacktestConfig?.customVariables || []}
 				onVariablesChange={updateVariables}
 			/>
 		</div>

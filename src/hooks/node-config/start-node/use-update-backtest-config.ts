@@ -1,11 +1,11 @@
 import { useReactFlow } from "@xyflow/react";
 import { useCallback, useEffect } from "react";
-import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
+import { useStartNodeDataStore } from "@/store/node/use-start-node-data-store";
 import {
 	BacktestDataSource,
 	type SelectedAccount,
 	type StrategyBacktestConfig,
-	type StrategyVariable,
+	type CustomVariable,
 	type TimeRange,
 } from "@/types/strategy";
 
@@ -22,7 +22,7 @@ const defaultBacktestConfig: StrategyBacktestConfig = {
 	leverage: 1,
 	feeRate: 0.001,
 	playSpeed: 1,
-	variables: [],
+	customVariables: [],
 };
 
 export const useBacktestConfig = ({
@@ -128,9 +128,9 @@ export const useBacktestConfig = ({
 	);
 
 	const updateVariables = useCallback(
-		(variables: StrategyVariable[]) => {
+		(variables: CustomVariable[]) => {
 			updateGlobalBacktestVariables(variables);
-			syncToNode((config) => ({ ...config, variables }));
+			syncToNode((config) => ({ ...config, customVariables: variables }));
 		},
 		[updateGlobalBacktestVariables, syncToNode],
 	);

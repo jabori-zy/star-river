@@ -1,19 +1,7 @@
 import type { Node } from "@xyflow/react";
 import type { BacktestDataSource, SelectedAccount } from "@/types/strategy";
+import type { VariableValueType } from "@/types/variable";
 
-// 策略系统变量
-export enum StrategySysVariable {
-	POSITION_NUMBER = "position_number", // 持仓数量
-	Filled_ORDER_NUMBER = "filled_order_number", // 已完成的订单数量
-}
-
-export type VariableValue = number | string | boolean;
-
-// 获取变量的方式：条件触发和定时触发两种
-export enum GetVariableType {
-	CONDITION = "condition", // 条件触发
-	TIMER = "timer", // 定时触发
-}
 
 // 定时触发的时间间隔配置
 export type TimerConfig = {
@@ -21,17 +9,47 @@ export type TimerConfig = {
 	unit: "second" | "minute" | "hour" | "day"; // 时间单位
 };
 
-export type VariableConfig = {
+// 更新操作类型
+export type UpdateOperationType =
+	| "set"      // 直接赋值 (适用所有类型)
+	| "add"      // 加法 += (仅number)
+	| "subtract" // 减法 -= (仅number)
+	| "multiply" // 乘法 *= (仅number)
+	| "divide"   // 除法 /= (仅number)
+	| "max"      // 取最大值 (仅number)
+	| "min"      // 取最小值 (仅number)
+	| "toggle";  // 布尔切换 (仅bool)
+
+// 基础变量配置（所有操作共享）
+type BaseVariableConfig = {
 	configId: number;
 	inputHandleId: string;
 	outputHandleId: string;
-	symbol: string | null; // 交易对
-	getVariableType: GetVariableType; // 获取变量的方式
-	timerConfig?: TimerConfig; // 定时触发的时间间隔配置
-	variableName: string; // 变量名称
-	variable: string; // 变量类型，使用StrategySysVariable的值
-	variableValue: VariableValue; // 变量值
+	varType: "sys" | "custom"; // 变量类型，系统变量和自定义变量
+	varName: string; // 变量名
+	varValueType: VariableValueType; // 变量值类型
 };
+
+// 获取变量配置
+export type GetVariableConfig = BaseVariableConfig & {
+	varOperation: "get";
+	symbol?: string | null; // 交易对，可以为空，表示不限制交易对
+	varTriggerType: "condition" | "timer"; // 获取变量的方式（必填）
+	timerConfig?: TimerConfig; // 定时触发的时间间隔配置
+	varDisplayName: string; // 变量显示名称
+	varValue: string | number | boolean; // 当前变量值
+};
+
+// 更新变量配置
+export type UpdateVariableConfig = BaseVariableConfig & {
+	varOperation: "update";
+	updateOperationType: UpdateOperationType; // 更新操作类型
+	varTriggerType: "condition" | "dataflow"; // 更新变量的触发方式（条件触发或数据流触发）
+	varValue: string | number | boolean; // 要更新的值
+};
+
+// 变量配置联合类型（Discriminated Union）
+export type VariableConfig = GetVariableConfig | UpdateVariableConfig;
 
 export type VariableNodeLiveConfig = {
 	selectedAccount: SelectedAccount | null; // 账户选择

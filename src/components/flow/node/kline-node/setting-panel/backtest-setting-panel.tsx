@@ -5,7 +5,7 @@ import type { SettingProps } from "@/components/flow/base/BasePanel/setting-pane
 import FileUpload from "@/components/ui/file-upload";
 import { Label } from "@/components/ui/label";
 import { useUpdateBacktestConfig } from "@/hooks/node-config/kline-node/use-update-backtest-config";
-import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
+import { useStartNodeDataStore } from "@/store/node/use-start-node-data-store";
 import type { KlineNodeData } from "@/types/node/kline-node";
 import type { ExchangeStatus } from "@/types/market";
 import {

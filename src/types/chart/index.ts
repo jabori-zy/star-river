@@ -1,7 +1,4 @@
 import type {
-	AreaSeries,
-	HistogramSeries,
-	LineSeries,
 	Time,
 	SeriesMarkerBarPosition,
 	SeriesMarkerShape,

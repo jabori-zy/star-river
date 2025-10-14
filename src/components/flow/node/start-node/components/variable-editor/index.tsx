@@ -1,5 +1,6 @@
-import { AlignLeft, Hash, Plus, Settings, Variable, X } from "lucide-react";
+import { Plus, Settings, Variable, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { TbNumber, TbToggleLeft, TbAbc } from "react-icons/tb";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,17 +20,18 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
 	Tooltip,
 	TooltipContent,
 	TooltipProvider,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { type StrategyVariable, StrategyVariableType } from "@/types/strategy";
+import { type CustomVariable, VariableValueType } from "@/types/variable";
 
 interface VariableEditorProps {
-	variables: StrategyVariable[];
-	onVariablesChange: (variables: StrategyVariable[]) => void;
+	variables: CustomVariable[];
+	onVariablesChange: (variables: CustomVariable[]) => void;
 }
 
 // 变量项组件
@@ -38,8 +40,8 @@ const VariableItem = ({
 	onEdit,
 	onDelete,
 }: {
-	variable: StrategyVariable;
-	onEdit: (variable: StrategyVariable) => void;
+	variable: CustomVariable;
+	onEdit: (variable: CustomVariable) => void;
 	onDelete: (name: string) => void;
 }) => {
 	return (
@@ -49,14 +51,18 @@ const VariableItem = ({
 					<Tooltip>
 						<TooltipTrigger asChild>
 							<Badge variant="outline" className="h-5 px-1 cursor-help">
-								{variable.varType === StrategyVariableType.NUMBER ? (
-									<Hash className="h-3 w-3 mr-1 text-blue-500" />
+								{variable.varValueType === VariableValueType.NUMBER ? (
+									<TbNumber className="h-3 w-3 mr-1 text-blue-500" />
+								) : variable.varValueType === VariableValueType.BOOLEAN ? (
+									<TbToggleLeft className="h-3 w-3 mr-1 text-purple-500" />
 								) : (
-									<AlignLeft className="h-3 w-3 mr-1 text-green-500" />
+									<TbAbc className="h-3 w-3 mr-1 text-green-500" />
 								)}
-								{variable.varType === StrategyVariableType.NUMBER
+								{variable.varValueType === VariableValueType.NUMBER
 									? "数字"
-									: "文本"}
+									: variable.varValueType === VariableValueType.BOOLEAN
+										? "布尔"
+										: "文本"}
 							</Badge>
 						</TooltipTrigger>
 						<TooltipContent>
@@ -101,14 +107,14 @@ const VariableDialog = ({
 }: {
 	isOpen: boolean;
 	onOpenChange: (open: boolean) => void;
-	onSave: (variable: StrategyVariable) => void;
-	editingVariable?: StrategyVariable;
-	currentVariables: StrategyVariable[];
+	onSave: (variable: CustomVariable) => void;
+	editingVariable?: CustomVariable;
+	currentVariables: CustomVariable[];
 }) => {
 	const [variableName, setVariableName] = useState<string>("");
 	const [variableDisplayName, setVariableDisplayName] = useState<string>("");
-	const [variableType, setVariableType] = useState<StrategyVariableType>(
-		StrategyVariableType.NUMBER,
+	const [variableType, setVariableType] = useState<VariableValueType>(
+		VariableValueType.NUMBER,
 	);
 	const [variableValue, setVariableValue] = useState<string>("");
 	const [nameError, setNameError] = useState<string>("");
@@ -119,7 +125,7 @@ const VariableDialog = ({
 			if (editingVariable) {
 				setVariableName(editingVariable.varName);
 				setVariableDisplayName(editingVariable.varDisplayName);
-				setVariableType(editingVariable.varType);
+				setVariableType(editingVariable.varValueType);
 				setVariableValue(editingVariable.varValue?.toString() || "");
 			} else {
 				resetForm();
@@ -131,7 +137,7 @@ const VariableDialog = ({
 	const resetForm = () => {
 		setVariableName("");
 		setVariableDisplayName("");
-		setVariableType(StrategyVariableType.NUMBER);
+		setVariableType(VariableValueType.NUMBER);
 		setVariableValue("");
 		setNameError("");
 	};
@@ -172,15 +178,17 @@ const VariableDialog = ({
 		}
 
 		// 根据类型转换值
-		let finalValue: string | number = variableValue;
-		if (variableType === StrategyVariableType.NUMBER) {
+		let finalValue: string | number | boolean = variableValue;
+		if (variableType === VariableValueType.NUMBER) {
 			finalValue = variableValue === "" ? 0 : parseFloat(variableValue);
+		} else if (variableType === VariableValueType.BOOLEAN) {
+			finalValue = variableValue === "true";
 		}
 
 		onSave({
 			varName: variableName,
 			varDisplayName: variableDisplayName,
-			varType: variableType,
+			varValueType: variableType,
 			varValue: finalValue,
 		});
 	};
@@ -202,24 +210,37 @@ const VariableDialog = ({
 						<div className="col-span-3">
 							<Select
 								value={variableType}
-								onValueChange={(value) =>
-									setVariableType(value as StrategyVariableType)
-								}
+								onValueChange={(value) => {
+									const newType = value as VariableValueType;
+									setVariableType(newType);
+									// 切换类型时重置变量值
+									if (newType === VariableValueType.BOOLEAN) {
+										setVariableValue("true");
+									} else {
+										setVariableValue("");
+									}
+								}}
 							>
 								<SelectTrigger id="variable-type">
 									<SelectValue placeholder="选择变量类型" />
 								</SelectTrigger>
 								<SelectContent>
-									<SelectItem value={StrategyVariableType.NUMBER}>
+									<SelectItem value={VariableValueType.NUMBER}>
 										<div className="flex items-center">
-											<Hash className="h-4 w-4 mr-2 text-blue-500" />
+											<TbNumber className="h-4 w-4 mr-2 text-blue-500" />
 											<span>数字</span>
 										</div>
 									</SelectItem>
-									<SelectItem value={StrategyVariableType.STRING}>
+									<SelectItem value={VariableValueType.STRING}>
 										<div className="flex items-center">
-											<AlignLeft className="h-4 w-4 mr-2 text-green-500" />
+											<TbAbc className="h-4 w-4 mr-2 text-green-500" />
 											<span>字符串</span>
+										</div>
+									</SelectItem>
+									<SelectItem value={VariableValueType.BOOLEAN}>
+										<div className="flex items-center">
+											<TbToggleLeft className="h-4 w-4 mr-2 text-purple-500" />
+											<span>布尔</span>
 										</div>
 									</SelectItem>
 								</SelectContent>
@@ -261,20 +282,41 @@ const VariableDialog = ({
 						<Label htmlFor="variable-value" className="text-right">
 							变量值
 						</Label>
-						<Input
-							id="variable-value"
-							value={variableValue}
-							onChange={(e) => handleValueChange(e.target.value)}
-							placeholder={
-								variableType === StrategyVariableType.NUMBER
-									? "如: 0.05"
-									: "如: BTC/USDT"
-							}
-							type={
-								variableType === StrategyVariableType.NUMBER ? "number" : "text"
-							}
-							className="col-span-3"
-						/>
+						{variableType === VariableValueType.BOOLEAN ? (
+							<RadioGroup
+								value={variableValue || "true"}
+								onValueChange={handleValueChange}
+								className="col-span-3 flex items-center gap-4"
+							>
+								<div className="flex items-center space-x-2">
+									<RadioGroupItem value="true" id="bool-true" />
+									<Label htmlFor="bool-true" className="cursor-pointer font-normal">
+										True
+									</Label>
+								</div>
+								<div className="flex items-center space-x-2">
+									<RadioGroupItem value="false" id="bool-false" />
+									<Label htmlFor="bool-false" className="cursor-pointer font-normal">
+										False
+									</Label>
+								</div>
+							</RadioGroup>
+						) : (
+							<Input
+								id="variable-value"
+								value={variableValue}
+								onChange={(e) => handleValueChange(e.target.value)}
+								placeholder={
+									variableType === VariableValueType.NUMBER
+										? "如: 0.05"
+										: "如: BTC/USDT"
+								}
+								type={
+									variableType === VariableValueType.NUMBER ? "number" : "text"
+								}
+								className="col-span-3"
+							/>
+						)}
 					</div>
 				</div>
 				<DialogFooter>
@@ -295,7 +337,7 @@ const VariableEditor = ({
 }: VariableEditorProps) => {
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
 	const [editingVariable, setEditingVariable] = useState<
-		StrategyVariable | undefined
+		CustomVariable | undefined
 	>(undefined);
 
 	const handleAddVariable = () => {
@@ -303,7 +345,7 @@ const VariableEditor = ({
 		setIsDialogOpen(true);
 	};
 
-	const handleEditVariable = (variable: StrategyVariable) => {
+	const handleEditVariable = (variable: CustomVariable) => {
 		setEditingVariable(variable);
 		setIsDialogOpen(true);
 	};
@@ -313,8 +355,8 @@ const VariableEditor = ({
 		onVariablesChange(newVariables);
 	};
 
-	const handleSaveVariable = (variable: StrategyVariable) => {
-		let newVariables: StrategyVariable[];
+	const handleSaveVariable = (variable: CustomVariable) => {
+		let newVariables: CustomVariable[];
 
 		if (editingVariable) {
 			// 编辑现有变量

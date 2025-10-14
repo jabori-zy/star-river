@@ -1,7 +1,7 @@
 import type React from "react";
 import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
 import { useLiveConfig } from "@/hooks/node-config/start-node/use-update-live-config";
-import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
+import { useStartNodeDataStore } from "@/store/node/use-start-node-data-store";
 import type { StartNodeData } from "@/types/node/start-node";
 import AccountSelector from "../components/account-selector";
 import VariableEditor from "../components/variable-editor";
@@ -32,7 +32,7 @@ export const StartNodeLiveSettingPanel: React.FC<SettingProps> = ({
 			/>
 
 			<VariableEditor
-				variables={globalLiveConfig?.variables || []}
+				variables={globalLiveConfig?.customVariables || []}
 				onVariablesChange={updateVariables}
 			/>
 		</div>

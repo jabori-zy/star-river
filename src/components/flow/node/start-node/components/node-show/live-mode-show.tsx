@@ -10,8 +10,8 @@ import { Label } from "@/components/ui/label";
 import type {
 	SelectedAccount,
 	StrategyLiveConfig,
-	StrategyVariable,
 } from "@/types/strategy";
+import { type CustomVariable } from "@/types/variable";
 
 interface LiveNodeShowProps {
 	liveConfig: StrategyLiveConfig;
@@ -24,7 +24,7 @@ const LiveNodeShow: React.FC<LiveNodeShowProps> = ({ liveConfig }) => {
 		<div className="space-y-2">
 			{/* 已选账户展示 */}
 			<div className="space-y-2">
-				{!liveConfig.liveAccounts || liveConfig.liveAccounts.length === 0 ? (
+				{!liveConfig.selectedAccounts || liveConfig.selectedAccounts.length === 0 ? (
 					<div className="flex items-center justify-between gap-2 rounded-md">
 						<Label className="text-xm font-bold text-muted-foreground">
 							账户
@@ -43,12 +43,12 @@ const LiveNodeShow: React.FC<LiveNodeShowProps> = ({ liveConfig }) => {
 								账户
 							</Label>
 							<Badge className="h-4 min-w-4 rounded-full px-1 font-mono tabular-nums text-xs bg-gray-200 text-gray-500">
-								{liveConfig.liveAccounts.length}
+								{liveConfig.selectedAccounts.length}
 							</Badge>
 						</CollapsibleTrigger>
 						<CollapsibleContent className="mt-2">
 							<div>
-								{liveConfig.liveAccounts.map((account: SelectedAccount) => {
+								{liveConfig.selectedAccounts.map((account: SelectedAccount) => {
 									return (
 										<div
 											key={account.id}
@@ -68,7 +68,7 @@ const LiveNodeShow: React.FC<LiveNodeShowProps> = ({ liveConfig }) => {
 			</div>
 			{/* 变量展示 */}
 			<div className="space-y-2">
-				{liveConfig.variables?.length === 0 ? (
+				{liveConfig.customVariables?.length === 0 ? (
 					<div className="flex items-center justify-between gap-2 rounded-md">
 						<Label className="text-xm font-bold text-muted-foreground">
 							变量
@@ -87,19 +87,19 @@ const LiveNodeShow: React.FC<LiveNodeShowProps> = ({ liveConfig }) => {
 								变量
 							</Label>
 							<Badge className="h-4 min-w-4 rounded-full px-1 font-mono tabular-nums text-xs bg-gray-200 text-gray-500">
-								{liveConfig.variables?.length || 0}
+								{liveConfig.customVariables?.length || 0}
 							</Badge>
 						</CollapsibleTrigger>
 						<CollapsibleContent className="mt-2">
 							<div className="space-y-2">
-								{liveConfig.variables?.map(
-									(variable: StrategyVariable, index: number) => {
+								{liveConfig.customVariables?.map(
+									(variable: CustomVariable, index: number) => {
 										return (
 											<div
 												key={index}
 												className="flex flex-col bg-gray-100 p-2 rounded-md"
 											>
-												{variable.varType === "number" && (
+												{variable.varValueType === "number" && (
 													<div
 														className="flex items-center gap-2"
 														title={variable.varName}
@@ -111,7 +111,7 @@ const LiveNodeShow: React.FC<LiveNodeShowProps> = ({ liveConfig }) => {
 														</span>
 													</div>
 												)}
-												{variable.varType === "string" && (
+												{variable.varValueType === "string" && (
 													<div
 														className="flex items-center gap-2"
 														title={variable.varName}

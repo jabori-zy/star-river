@@ -114,35 +114,38 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 		setPendingVariableData(null);
 	};
 
-	// 检查交易对+变量类型+触发方式的唯一性
+	// 检查交易对+变量类型+触发方式的唯一性（仅对 get 操作）
 	const checkUniqueness = (
 		symbol: string | null,
 		variable: string,
-		getVariableType: string,
+		triggerType: "condition" | "timer",
 		excludeIndex?: number,
 	) => {
 		return !variableConfigs.some(
 			(config, index) =>
 				index !== excludeIndex &&
-				config.symbol === (symbol || "") &&
-				config.variable === variable &&
-				config.getVariableType === getVariableType,
+				config.varOperation === "get" && // 只检查 get 操作
+				(config.symbol || "") === (symbol || "") &&
+				config.varName === variable &&
+				config.varTriggerType === triggerType,
 		);
 	};
 
 	const handleSave = (id: string, variableConfig: VariableConfig) => {
-		// 检查唯一性
-		if (
-			!checkUniqueness(
-				variableConfig.symbol || null,
-				variableConfig.variable,
-				variableConfig.getVariableType,
-				isEditing ? editingIndex || undefined : undefined,
-			)
-		) {
-			// 如果不唯一，可以在这里显示错误信息
-			alert("相同交易对、变量类型和触发方式的配置已存在！");
-			return;
+		// 只对 get 操作检查唯一性
+		if (variableConfig.varOperation === "get") {
+			if (
+				!checkUniqueness(
+					variableConfig.symbol || null,
+					variableConfig.varName,
+					variableConfig.varTriggerType,
+					isEditing ? editingIndex || undefined : undefined,
+				)
+			) {
+				// 如果不唯一，可以在这里显示错误信息
+				// alert("相同交易对、变量类型和触发方式的配置已存在！");
+				return;
+			}
 		}
 
 		if (isEditing && editingIndex !== null) {

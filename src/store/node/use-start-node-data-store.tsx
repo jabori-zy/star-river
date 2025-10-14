@@ -5,9 +5,9 @@ import {
 	type SelectedAccount,
 	type StrategyBacktestConfig,
 	type StrategyLiveConfig,
-	type StrategyVariable,
 	type TimeRange,
 } from "@/types/strategy";
+import type { CustomVariable } from "@/types/variable";
 
 // StartNode数据状态接口
 interface StartNodeDataState {
@@ -23,7 +23,7 @@ interface StartNodeDataActions {
 	setLiveConfig: (config: StrategyLiveConfig) => void;
 	setDefaultLiveConfig: () => void;
 	updateLiveAccounts: (accounts: SelectedAccount[]) => void;
-	updateLiveVariables: (variables: StrategyVariable[]) => void;
+	updateLiveVariables: (variables: CustomVariable[]) => void;
 
 	// === Backtest配置相关方法 ===
 	setBacktestConfig: (config: StrategyBacktestConfig) => void;
@@ -35,7 +35,7 @@ interface StartNodeDataActions {
 	updateDataSource: (dataSource: BacktestDataSource) => void;
 	updateBacktestAccounts: (accounts: SelectedAccount[]) => void;
 	updateTimeRange: (timeRange: TimeRange) => void;
-	updateBacktestVariables: (variables: StrategyVariable[]) => void;
+	updateBacktestVariables: (variables: CustomVariable[]) => void;
 
 	// === 重置方法 ===
 	resetLiveConfig: () => void;
@@ -46,7 +46,7 @@ interface StartNodeDataActions {
 // 默认配置生成函数
 const createDefaultLiveConfig = (): StrategyLiveConfig => ({
 	selectedAccounts: [],
-	variables: [],
+	customVariables: [],
 });
 
 const createDefaultBacktestConfig = (): StrategyBacktestConfig => ({
@@ -63,7 +63,7 @@ const createDefaultBacktestConfig = (): StrategyBacktestConfig => ({
 	leverage: 1,
 	feeRate: 0.001,
 	playSpeed: 1,
-	variables: [],
+	customVariables: [],
 });
 
 // 创建zustand store
@@ -98,16 +98,16 @@ export const useStartNodeDataStore = create<
 		}));
 	},
 
-	updateLiveVariables: (variables: StrategyVariable[]) => {
+	updateLiveVariables: (variables: CustomVariable[]) => {
 		set((state) => ({
 			liveConfig: state.liveConfig
 				? {
 						...state.liveConfig,
-						variables,
+						customVariables: variables,
 					}
 				: {
 						...createDefaultLiveConfig(),
-						variables,
+						customVariables: variables,
 					},
 		}));
 	},
@@ -232,16 +232,16 @@ export const useStartNodeDataStore = create<
 		});
 	},
 
-	updateBacktestVariables: (variables: StrategyVariable[]) => {
+	updateBacktestVariables: (variables: CustomVariable[]) => {
 		set((state) => ({
 			backtestConfig: state.backtestConfig
 				? {
 						...state.backtestConfig,
-						variables,
+						customVariables: variables,
 					}
 				: {
 						...createDefaultBacktestConfig(),
-						variables,
+						customVariables: variables,
 					},
 		}));
 	},

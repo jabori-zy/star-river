@@ -372,9 +372,9 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 						selectedNodeId,
 						variable.outputHandleId,
 						variable.variable,
-						variable.variableName,
+						variable.varDisplayName,
 					)}
-					textValue={`${variable.variableName} • ${variable.variable}`}
+					textValue={`${variable.varDisplayName} • ${variable.variable}`}
 				>
 					<div className="flex items-center justify-between w-full gap-2">
 						<div className="flex items-center gap-2 flex-shrink-0">
@@ -387,7 +387,7 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 						</div>
 						<div className="flex flex-col items-end">
 							<span className="text-xs text-gray-900 font-medium">
-								{variable.variableName}
+								{variable.varDisplayName}
 							</span>
 						</div>
 					</div>

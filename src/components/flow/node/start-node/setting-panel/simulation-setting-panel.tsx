@@ -6,7 +6,7 @@ import type { StartNodeData } from "@/types/node/start-node";
 import type {
 	SelectedAccount,
 	StrategySimulateConfig,
-	StrategyVariable,
+	CustomVariable,
 } from "@/types/strategy";
 import AccountSelector from "../components/account-selector";
 import VariableEditor from "../components/variable-editor";
@@ -31,8 +31,8 @@ export const StartNodeSimulationSettingPanel: React.FC<SettingProps> = ({
 		simulateConfig?.simulateAccounts || [],
 	);
 	// 变量列表
-	const [variables, setVariables] = useState<StrategyVariable[]>(
-		simulateConfig?.variables || [],
+	const [variables, setVariables] = useState<CustomVariable[]>(
+		simulateConfig?.customVariables || [],
 	);
 
 	// 更新已选择账户
@@ -47,7 +47,7 @@ export const StartNodeSimulationSettingPanel: React.FC<SettingProps> = ({
 			const newSimulateConfig: StrategySimulateConfig = {
 				...simulateConfig,
 				simulateAccounts: accounts,
-				variables: variables, // 保持变量不变
+				customVariables: variables, // 保持变量不变
 			};
 
 			setSimulateConfig(newSimulateConfig);
@@ -77,7 +77,7 @@ export const StartNodeSimulationSettingPanel: React.FC<SettingProps> = ({
 
 	// 更新变量列表
 	const handleVariablesChange = useCallback(
-		(newVariables: StrategyVariable[]) => {
+		(newVariables: CustomVariable[]) => {
 			console.log("更新模拟变量数据:", newVariables);
 
 			// 更新本地状态
@@ -87,7 +87,7 @@ export const StartNodeSimulationSettingPanel: React.FC<SettingProps> = ({
 			const newSimulateConfig: StrategySimulateConfig = {
 				...simulateConfig,
 				simulateAccounts: selectedAccounts,
-				variables: newVariables,
+				customVariables: newVariables,
 			};
 
 			setSimulateConfig(newSimulateConfig);

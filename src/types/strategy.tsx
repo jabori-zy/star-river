@@ -1,6 +1,7 @@
 import type { Edge, Node } from "@xyflow/react";
 import type { Exchange } from "@/types/market";
-import type { StrategyChartConfig } from "@/types/strategy-chart-config";
+import type { StrategyChartConfig } from "@/types/chart/strategy-chart-config";
+import type { CustomVariable } from "@/types/variable";
 
 
 
@@ -23,13 +24,13 @@ export type SelectedAccount = {
 // 实盘交易配置
 export interface StrategyLiveConfig {
 	selectedAccounts: Array<SelectedAccount>; // 已选账户
-	variables: StrategyVariable[]; // 实盘策略变量
+	customVariables: CustomVariable[]; // 实盘策略自定义变量
 }
 
 // 模拟交易配置
 export interface StrategySimulateConfig {
 	selectedAccounts: Array<SelectedAccount>; // 已选账户
-	variables: StrategyVariable[]; // 模拟策略变量
+	customVariables: CustomVariable[]; // 模拟策略自定义变量
 }
 
 // 回测交易配置
@@ -71,22 +72,13 @@ export interface StrategyBacktestConfig {
 	leverage: number; // 杠杆倍数
 	feeRate: number; // 手续费率
 	playSpeed: number; // 回放速度
-	variables: StrategyVariable[]; // 回测策略变量
+	customVariables: CustomVariable[]; // 回测策略自定义变量
 }
 
-// 策略变量类型
-export enum StrategyVariableType {
-	NUMBER = "number",
-	STRING = "string",
-}
+
 
 // 策略变量定义
-export interface StrategyVariable {
-	varName: string; // 变量名（代码中使用的名称，符合变量命名规则）
-	varDisplayName: string; // 显示名称
-	varType: StrategyVariableType; // 变量类型
-	varValue: string | number; // 变量值
-}
+
 
 // 策略配置
 export interface StrategyConfig {

@@ -5,7 +5,7 @@ import BaseNode from "@/components/flow/base/BaseNode";
 import { useUpdateBacktestConfig } from "@/hooks/node-config/futures-order-node/use-update-backtest-config";
 import { useUpdateLiveConfig } from "@/hooks/node-config/futures-order-node/use-update-live-config";
 import { useUpdateSimulateConfig } from "@/hooks/node-config/futures-order-node/use-update-simulate-config";
-import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
+import { useStartNodeDataStore } from "@/store/node/use-start-node-data-store";
 import useTradingModeStore from "@/store/useTradingModeStore";
 import type { FuturesOrderNode as FuturesOrderNodeType } from "@/types/node/futures-order-node";
 import { type TimeRange, TradeMode } from "@/types/strategy";

@@ -16,10 +16,11 @@ import {
 	CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Label } from "@/components/ui/label";
-import type {
-	StrategyBacktestConfig,
-	StrategyVariable,
+import {
+	type StrategyBacktestConfig,
 } from "@/types/strategy";
+import { type CustomVariable } from "@/types/variable";
+
 
 interface BacktestModeShowProps {
 	backtestConfig: StrategyBacktestConfig;
@@ -95,7 +96,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 
 			{/* 变量展示 */}
 			<div className="space-y-2">
-				{!backtestConfig.variables || backtestConfig.variables.length === 0 ? (
+				{!backtestConfig.customVariables || backtestConfig.customVariables.length === 0 ? (
 					<div className="flex items-center justify-between gap-2 rounded-md">
 						<Label className="text-xm font-bold text-muted-foreground">
 							变量
@@ -114,19 +115,19 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 								变量
 							</Label>
 							<Badge className="h-4 min-w-4 rounded-full px-1 font-mono tabular-nums text-xs bg-gray-200 text-gray-500">
-								{backtestConfig.variables.length}
+								{backtestConfig.customVariables.length}
 							</Badge>
 						</CollapsibleTrigger>
 						<CollapsibleContent className="mt-2">
 							<div className="space-y-2">
-								{backtestConfig.variables.map(
-									(variable: StrategyVariable, index: number) => {
+								{backtestConfig.customVariables.map(
+									(variable: CustomVariable, index: number) => {
 										return (
 											<div
 												key={index}
 												className="flex flex-col bg-gray-100 p-2 rounded-md"
 											>
-												{variable.varType === "number" && (
+												{variable.varValueType === "number" && (
 													<div
 														className="flex items-center gap-2"
 														title={variable.varName}
@@ -138,7 +139,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 														</span>
 													</div>
 												)}
-												{variable.varType === "string" && (
+												{variable.varValueType === "string" && (
 													<div
 														className="flex items-center gap-2"
 														title={variable.varName}

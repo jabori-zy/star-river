@@ -10,7 +10,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
-import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
+import { useStartNodeDataStore } from "@/store/node/use-start-node-data-store";
 import { type SelectedAccount, TradeMode } from "@/types/strategy";
 import type { ExchangeStatus } from "@/types/market";
 import { getExchangeStatus, connectExchange } from "@/service/exchange";

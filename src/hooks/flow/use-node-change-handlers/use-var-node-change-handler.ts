@@ -192,6 +192,6 @@ const updateVariable = (
 	// 更新变量的 variable 字段
 	return {
 		...variable,
-		variable: matchingConfig.variable,
+		variable: matchingConfig.varName,
 	};
 };

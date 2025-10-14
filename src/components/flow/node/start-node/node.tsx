@@ -5,7 +5,7 @@ import type { BaseHandleProps } from "@/components/flow/base/BaseHandle";
 import BaseNode from "@/components/flow/base/BaseNode";
 import { useBacktestConfig } from "@/hooks/node-config/start-node/use-update-backtest-config";
 import { useLiveConfig } from "@/hooks/node-config/start-node/use-update-live-config";
-import { useStartNodeDataStore } from "@/store/use-start-node-data-store";
+import { useStartNodeDataStore } from "@/store/node/use-start-node-data-store";
 import useTradingModeStore from "@/store/useTradingModeStore";
 import { getNodeDefaultOutputHandleId, NodeType } from "@/types/node/index";
 import type { StartNode as StartNodeType } from "@/types/node/start-node";
