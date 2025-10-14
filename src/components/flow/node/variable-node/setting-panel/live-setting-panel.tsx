@@ -47,6 +47,7 @@ const VariableNodeLiveSettingPanel: React.FC<SettingProps> = ({ id, data }) => {
 			/>
 			<VariableSetting
 				id={id}
+				tradeMode={TradeMode.LIVE}
 				variableConfigs={config?.variableConfigs || []}
 				onVariableConfigsChange={handleVariableConfigsChange}
 			/>

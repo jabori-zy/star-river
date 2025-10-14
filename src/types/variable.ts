@@ -39,6 +39,7 @@ export interface CustomVariable {
 	varName: string; // 变量名（代码中使用的名称，符合变量命名规则）
 	varDisplayName: string; // 显示名称
 	varValueType: VariableValueType; // 变量类型
+	initialValue: string | number | boolean; // 初始值
 	varValue: string | number | boolean; // 变量值
 }
 

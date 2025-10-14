@@ -28,7 +28,7 @@ const useStrategyWorkflow = () => {
 	const { handleEdgeChanges } = useEdgeChangeHandlers();
 
 	// 工具函数相关
-	const { getBacktestTimeRange, getTargetNodeIds } = useWorkflowUtils();
+	const { getBacktestTimeRange, getTargetNodeIds, getTargetNodeIdsBySourceHandleId, deleteEdgeBySourceHandleId, deleteEdgesByTargetHandleId } = useWorkflowUtils();
 
 	return {
 		// 节点连接验证
@@ -45,6 +45,9 @@ const useStrategyWorkflow = () => {
 		// 工具函数
 		getBacktestTimeRange,
 		getTargetNodeIds,
+		getTargetNodeIdsBySourceHandleId,
+		deleteEdgeBySourceHandleId,
+		deleteEdgesByTargetHandleId,
 	};
 };
 

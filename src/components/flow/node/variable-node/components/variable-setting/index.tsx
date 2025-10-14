@@ -1,22 +1,27 @@
 import { PlusIcon } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import type { VariableConfig } from "@/types/node/variable-node";
 import VariableConfigDialog from "./variable-config-dialog";
 import VariableConfigItem from "./variable-config-item";
-import useWorkflowUtils from "@/hooks/flow/use-workflow-utils";
 import { useReactFlow } from "@xyflow/react";
 import { NodeOpConfirmDialog } from "@/components/flow/node-op-confirm-dialog";
+import { TradeMode } from "@/types/strategy";
+import useStrategyWorkflow, { type VariableItem } from "@/hooks/flow/use-strategy-workflow";
+import { useNodeConnections } from "@xyflow/react";
+import React from "react";
 
 interface VariableSettingProps {
 	id: string;
+	tradeMode: TradeMode;
 	variableConfigs: VariableConfig[];
 	onVariableConfigsChange: (variableConfigs: VariableConfig[]) => void;
 }
 
 const VariableSetting: React.FC<VariableSettingProps> = ({
 	id,
+	tradeMode,
 	variableConfigs,
 	onVariableConfigsChange,
 }) => {
@@ -31,8 +36,23 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 		targetNodeNames: string[];
 	} | null>(null);
 
-	const { getTargetNodeIdsBySourceHandleId } = useWorkflowUtils();
+	const { getTargetNodeIdsBySourceHandleId, getConnectedNodeVariables } = useStrategyWorkflow();
 	const { getNode, getEdges, setEdges } = useReactFlow();
+
+	const connections = useNodeConnections({ id, handleType: "target" });
+
+	// 存储上游节点的变量列表
+	const [variableItemList, setVariableItemList] = React.useState<VariableItem[]>([]);
+
+	useEffect(() => {
+		// 获取连接节点的变量并更新状态
+		const variables = getConnectedNodeVariables(
+			connections,
+			tradeMode,
+		);
+		console.log("收集到的所有变量列表", variables);
+		setVariableItemList(variables);
+	}, [connections, getConnectedNodeVariables, id, tradeMode]);
 
 	const handleAddVariable = () => {
 		setIsEditing(false);
@@ -202,6 +222,7 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 				onSave={handleSave}
 				existingConfigs={variableConfigs}
 				editingIndex={editingIndex}
+				variableItemList={variableItemList}
 			/>
 
 			{/* 确认删除对话框 */}

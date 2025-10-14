@@ -48,8 +48,15 @@ export type UpdateVariableConfig = BaseVariableConfig & {
 	varValue: string | number | boolean; // 要更新的值
 };
 
+// 重置变量配置
+export type ResetVariableConfig = BaseVariableConfig & {
+	varOperation: "reset";
+	varTriggerType: "condition" | "timer"; // 重置变量的触发方式（条件触发或定时触发）
+	timerConfig?: TimerConfig; // 定时触发的时间间隔配置
+};
+
 // 变量配置联合类型（Discriminated Union）
-export type VariableConfig = GetVariableConfig | UpdateVariableConfig;
+export type VariableConfig = GetVariableConfig | UpdateVariableConfig | ResetVariableConfig;
 
 export type VariableNodeLiveConfig = {
 	selectedAccount: SelectedAccount | null; // 账户选择

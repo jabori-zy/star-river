@@ -48,6 +48,8 @@ const VariableNodeSimSettingPanel: React.FC<SettingProps> = ({ id, data }) => {
 				onAccountChange={handleAccountChange}
 			/>
 			<VariableSetting
+				id={id}
+				tradeMode={TradeMode.SIMULATE}
 				variableConfigs={config?.variableConfigs || []}
 				onVariableConfigsChange={handleVariableConfigsChange}
 			/>

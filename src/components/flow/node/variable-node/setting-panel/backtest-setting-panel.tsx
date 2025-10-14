@@ -62,6 +62,7 @@ const VariableNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 			/>
 			<VariableSetting
 				id={id}
+				tradeMode={TradeMode.BACKTEST}
 				variableConfigs={config?.variableConfigs || []}
 				onVariableConfigsChange={handleVariableConfigsChange}
 			/>

@@ -14,7 +14,7 @@ import {
 	LogicalSymbol,
 } from "@/types/node/if-else-node";
 import { TradeMode } from "@/types/strategy";
-import CaseEditor from "../components/condition-editor/case-editor";
+import CaseEditor from "../components/case-editor";
 
 const IfElseNodeLiveSettingPanel: React.FC<SettingProps> = ({ id, data }) => {
 	const ifElseNodeData = data as IfElseNodeData;
