@@ -1,9 +1,5 @@
-import { Clock, Filter, Workflow } from "lucide-react";
 import React, { useCallback, useEffect } from "react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ButtonGroup } from "@/components/ui/button-group";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
 	Dialog,
 	DialogContent,
@@ -12,10 +8,8 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SelectInDialog } from "@/components/select-components/select-in-dialog";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
 	type TimerConfig,
 	type VariableConfig,
@@ -28,17 +22,16 @@ import { SystemVariable, VariableValueType, type CustomVariable, getVariableType
 import { useStartNodeDataStore } from "@/store/node/use-start-node-data-store";
 import useTradingModeStore from "@/store/useTradingModeStore";
 import { TradeMode } from "@/types/strategy";
-import SymbolSelector from "./symbol-selector";
 import {
 	generateVariableName,
-	getVariableLabel,
 	isDuplicateConfig,
-	getUpdateOperationPlaceholder,
 } from "../utils";
-import UpdateVariableSelector from "./update-variable-selector";
 import type { VariableItem } from "@/hooks/flow/use-strategy-workflow";
 import type { NodeType } from "@/types/node/index";
 import type { SymbolSelectorOption } from "./symbol-selector";
+import GetVarConfig from "./get-var-config";
+import UpdateVarConfig from "./update-var-config";
+import ResetVarConfig from "./reset-var-config";
 
 interface VariableConfigDialogProps {
 	id: string; // 节点id
@@ -228,7 +221,7 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 				}
 			}
 		}
-	}, [variable, varOperation, customVariables, updateOperationType]);
+	}, [variable, varOperation, customVariables, updateOperationType, updateValue]);
 
 	// 当对话框打开时重置或恢复状态
 	useEffect(() => {
@@ -447,618 +440,59 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 					</div>
 
 					{varOperation === "get" ? (
-						<>
-							{/* GET 模式的 UI */}
-							<div className="flex flex-col gap-2">
-								<Label htmlFor="symbol" className="text-sm font-medium">
-									交易对
-								</Label>
-								<div className="w-full">
-									<SymbolSelector
-										options={symbolOptions}
-										value={symbol}
-										onChange={(value) => {
-											setSymbol(value || "");
-										}}
-										allowEmpty={true}
-										placeholder={symbolPlaceholder}
-										emptyMessage={symbolEmptyMessage}
-										disabled={isSymbolSelectorDisabled}
-									/>
-								</div>
-							</div>
-
-							<div className="flex flex-col gap-2">
-								<Label htmlFor="variableName" className="text-sm font-medium">
-									变量名称
-								</Label>
-								<Input
-									id="variableName"
-									type="text"
-									value={variableName}
-									onChange={(e) => handleVariableNameChange(e.target.value)}
-									placeholder="输入变量名称"
-									className="w-full"
-								/>
-							</div>
-
-							<div className="flex flex-col gap-2">
-								<Label htmlFor="variable" className="text-sm font-medium">
-									变量
-								</Label>
-								<SelectInDialog
-									id="variable"
-									value={variable}
-									onValueChange={handleVariableTypeChange}
-									placeholder="选择变量"
-									options={[
-										{ value: SystemVariable.POSITION_NUMBER, label: getVariableLabel(SystemVariable.POSITION_NUMBER) },
-										{ value: SystemVariable.Filled_ORDER_NUMBER, label: getVariableLabel(SystemVariable.Filled_ORDER_NUMBER) },
-									]}
-								/>
-							</div>
-
-							<div className="space-y-1">
-								<Label className="text-sm font-medium">触发方式</Label>
-								<div className="flex items-center space-x-6 pt-1">
-									<div className="flex items-center space-x-2">
-										<Checkbox
-											id="condition-trigger"
-											checked={triggerType === "condition"}
-											onCheckedChange={(checked) => {
-												if (checked) {
-													setTriggerType("condition");
-												}
-											}}
-										/>
-										<Label
-											htmlFor="condition-trigger"
-											className="text-sm cursor-pointer flex items-center"
-										>
-											<Filter className="h-3.5 w-3.5 mr-1 text-orange-500" />
-											条件触发
-										</Label>
-									</div>
-									<div className="flex items-center space-x-2">
-										<Checkbox
-											id="timer-trigger"
-											checked={triggerType === "timer"}
-											onCheckedChange={(checked) => {
-												if (checked) {
-													setTriggerType("timer");
-												}
-											}}
-										/>
-										<Label
-											htmlFor="timer-trigger"
-											className="text-sm cursor-pointer flex items-center"
-										>
-											<Clock className="h-3.5 w-3.5 mr-1 text-blue-500" />
-											定时触发
-										</Label>
-									</div>
-								</div>
-							</div>
-
-							{triggerType === "timer" && (
-								<div className="space-y-1">
-									<Label className="text-sm font-medium">定时配置</Label>
-									<div className="flex items-center space-x-2">
-										<Input
-											type="number"
-											min="1"
-											step="1"
-											value={timerInterval}
-											onChange={(e) =>
-												setTimerInterval(parseInt(e.target.value) || 1)
-											}
-											className="h-8 w-20"
-										/>
-										<SelectInDialog
-											value={timerUnit}
-											onValueChange={(value) =>
-												setTimerUnit(value as "second" | "minute" | "hour" | "day")
-											}
-											placeholder="选择时间单位"
-											options={[
-												{ value: "second", label: "秒" },
-												{ value: "minute", label: "分钟" },
-												{ value: "hour", label: "小时" },
-												{ value: "day", label: "天" },
-											]}
-											className="h-8 flex-1"
-										/>
-									</div>
-									<div className="flex flex-wrap gap-2 mt-2">
-										<Badge
-											variant="outline"
-											className="bg-blue-50 text-blue-800 cursor-pointer hover:bg-blue-100"
-											onClick={() => {
-												setTimerInterval(1);
-												setTimerUnit("second");
-											}}
-										>
-											<Clock className="h-3 w-3 mr-1" />
-											1s
-										</Badge>
-
-										<Badge
-											variant="outline"
-											className="bg-blue-50 text-blue-800 cursor-pointer hover:bg-blue-100"
-											onClick={() => {
-												setTimerInterval(1);
-												setTimerUnit("minute");
-											}}
-										>
-											<Clock className="h-3 w-3 mr-1" />
-											1m
-										</Badge>
-										<Badge
-											variant="outline"
-											className="bg-blue-50 text-blue-800 cursor-pointer hover:bg-blue-100"
-											onClick={() => {
-												setTimerInterval(5);
-												setTimerUnit("minute");
-											}}
-										>
-											<Clock className="h-3 w-3 mr-1" />
-											5m
-										</Badge>
-										<Badge
-											variant="outline"
-											className="bg-blue-50 text-blue-800 cursor-pointer hover:bg-blue-100"
-											onClick={() => {
-												setTimerInterval(1);
-												setTimerUnit("hour");
-											}}
-										>
-											<Clock className="h-3 w-3 mr-1" />
-											1h
-										</Badge>
-										<Badge
-											variant="outline"
-											className="bg-blue-50 text-blue-800 cursor-pointer hover:bg-blue-100"
-											onClick={() => {
-												setTimerInterval(1);
-												setTimerUnit("day");
-											}}
-										>
-											<Clock className="h-3 w-3 mr-1" />
-											1d
-										</Badge>
-									</div>
-								</div>
-							)}
-						</>
+						<GetVarConfig
+							symbol={symbol}
+							variableName={variableName}
+							variable={variable}
+							triggerType={triggerType}
+							timerInterval={timerInterval}
+							timerUnit={timerUnit}
+							symbolOptions={symbolOptions}
+							symbolPlaceholder={symbolPlaceholder}
+							symbolEmptyMessage={symbolEmptyMessage}
+							isSymbolSelectorDisabled={isSymbolSelectorDisabled}
+							onSymbolChange={setSymbol}
+							onVariableNameChange={handleVariableNameChange}
+							onVariableChange={handleVariableTypeChange}
+							onTriggerTypeChange={setTriggerType}
+							onTimerIntervalChange={setTimerInterval}
+							onTimerUnitChange={setTimerUnit}
+						/>
 					) : varOperation === "update" ? (
-						<>
-							{/* UPDATE 模式的 UI */}
-							<div className="flex flex-col gap-2">
-								<Label htmlFor="updateVariable" className="text-sm font-medium">
-									选择变量
-								</Label>
-								<SelectInDialog
-									id="updateVariable"
-									value={variable}
-									onValueChange={setVariable}
-									placeholder={customVariables.length === 0 ? "无自定义变量" : "选择要更新的变量"}
-									options={customVariableOptions}
-									disabled={customVariables.length === 0}
-									emptyMessage="未配置自定义变量，请在策略起点配置"
-								/>
-							</div>
-
-							{/* 触发方式 */}
-							<div className="space-y-1">
-								<Label className="text-sm font-medium">触发方式</Label>
-								<div className="flex items-center space-x-6 pt-1">
-									<div className="flex items-center space-x-2">
-										<Checkbox
-											id="update-condition-trigger"
-											checked={updateTriggerType === "condition"}
-											onCheckedChange={(checked) => {
-												if (checked) {
-													setUpdateTriggerType("condition");
-												}
-											}}
-										/>
-										<Label
-											htmlFor="update-condition-trigger"
-											className="text-sm cursor-pointer flex items-center"
-										>
-											<Filter className="h-3.5 w-3.5 mr-1 text-orange-500" />
-											条件触发
-										</Label>
-									</div>
-									<div className="flex items-center space-x-2">
-										<Checkbox
-											id="update-dataflow-trigger"
-											checked={updateTriggerType === "dataflow"}
-											onCheckedChange={(checked) => {
-												if (checked) {
-													setUpdateTriggerType("dataflow");
-												}
-											}}
-										/>
-										<Label
-											htmlFor="update-dataflow-trigger"
-											className="text-sm cursor-pointer flex items-center"
-										>
-											<Workflow className="h-3.5 w-3.5 mr-1 text-blue-500" />
-											数据流触发
-										</Label>
-									</div>
-								</div>
-							</div>
-
-							{/* 数据流模式：操作符 + 上游节点变量选择器 */}
-							{updateTriggerType === "dataflow" && variable && (
-								<div className="flex flex-col gap-2">
-									<Label htmlFor="dataflowOperation" className="text-sm font-medium">
-										更新操作
-									</Label>
-									{(() => {
-										const selectedVar = customVariables.find(
-											(v: CustomVariable) => v.varName === variable
-										);
-										const availableOps = getAvailableOperations(
-											selectedVar?.varValueType || VariableValueType.NUMBER
-										);
-										const availableOperationOptions = availableOps.map((op) => ({
-											value: op,
-											label: getUpdateOperationLabel(op),
-										}));
-										const isBooleanType = selectedVar?.varValueType === VariableValueType.BOOLEAN;
-										const isToggleMode = updateOperationType === "toggle";
-
-										// toggle模式单独显示
-										if (isToggleMode) {
-											return (
-												<div className="flex flex-col gap-2">
-													<SelectInDialog
-														value={updateOperationType}
-														onValueChange={(value) =>
-															setUpdateOperationType(value as UpdateOperationType)
-														}
-														placeholder="选择更新操作"
-														options={availableOperationOptions}
-													/>
-													<p className="text-xs text-muted-foreground">
-														如果为 True，则切换为 False；如果为 False，则切换为 True
-													</p>
-												</div>
-											);
-										}
-
-										// BOOLEAN类型的set操作
-										if (isBooleanType && updateOperationType === "set") {
-											return (
-												<div className="flex items-center gap-16">
-													<SelectInDialog
-														value={updateOperationType}
-														onValueChange={(value) =>
-															setUpdateOperationType(value as UpdateOperationType)
-														}
-														options={availableOperationOptions}
-														className="w-[64px]"
-													/>
-													<RadioGroup
-														value={updateValue || "true"}
-														onValueChange={setUpdateValue}
-														className="flex items-center gap-4 flex-1 pl-1"
-													>
-														<div className="flex items-center space-x-2">
-															<RadioGroupItem value="true" id="dataflow-bool-true" />
-															<Label htmlFor="dataflow-bool-true" className="cursor-pointer font-normal text-sm">
-																True
-															</Label>
-														</div>
-														<div className="flex items-center space-x-2">
-															<RadioGroupItem value="false" id="dataflow-bool-false" />
-															<Label htmlFor="dataflow-bool-false" className="cursor-pointer font-normal text-sm">
-																False
-															</Label>
-														</div>
-													</RadioGroup>
-												</div>
-											);
-										}
-
-										// 数字/字符串类型：操作符 + 上游变量选择器（集成在UpdateVariableSelector内部）
-										return (
-											<UpdateVariableSelector
-												variableItemList={variableItemList}
-												selectedNodeId={dataflowNodeId}
-												selectedHandleId={dataflowHandleId}
-												selectedVariable={dataflowVariable}
-												selectedVariableName={dataflowVariableName}
-												updateOperationType={updateOperationType}
-												availableOperations={availableOps}
-												onNodeChange={handleDataflowNodeChange}
-												onVariableChange={handleDataflowVariableChange}
-												onOperationTypeChange={setUpdateOperationType}
-											/>
-										);
-									})()}
-								</div>
-							)}
-
-							{/* 条件触发模式：更新操作和值 - 组合在一起 */}
-							{variable && updateTriggerType === "condition" && (
-								<div className="flex flex-col gap-2">
-									<Label htmlFor="updateOperation" className="text-sm font-medium">
-										{updateOperationType === "toggle" ? "更新方式" : "更新操作"}
-									</Label>
-									{updateOperationType === "toggle" ? (
-										// toggle 模式显示选择器和说明文案
-										<div className="flex flex-col gap-2">
-											<SelectInDialog
-												value={updateOperationType}
-												onValueChange={(value) => {
-													const operation = value as UpdateOperationType;
-													setUpdateOperationType(operation);
-													if (operation === "toggle") {
-														setUpdateValue("");
-													}
-												}}
-												placeholder="选择更新操作"
-												options={(() => {
-													const selectedVar = customVariables.find(
-														(v: CustomVariable) => v.varName === variable
-													);
-													return getAvailableOperations(
-														selectedVar?.varValueType || VariableValueType.NUMBER
-													).map((op) => ({
-														value: op,
-														label: getUpdateOperationLabel(op),
-													}));
-												})()}
-											/>
-											<p className="text-xs text-muted-foreground">
-												如果为 True，则切换为 False；如果为 False，则切换为 True
-											</p>
-										</div>
-									) : (
-										// 其他模式显示组合控件
-										(() => {
-											const selectedVar = customVariables.find(
-												(v: CustomVariable) => v.varName === variable
-											);
-											const availableOps = getAvailableOperations(
-												selectedVar?.varValueType || VariableValueType.NUMBER
-											);
-											const availableOperationOptions = availableOps.map((op) => ({
-												value: op,
-												label: getUpdateOperationLabel(op),
-											}));
-											const isBooleanType = selectedVar?.varValueType === VariableValueType.BOOLEAN && updateOperationType === "set";
-
-											return (
-												<>
-													{isBooleanType ? (
-														// BOOLEAN 类型使用 RadioGroup，与 Select 在同一行
-														<div className="flex items-center gap-16">
-															<SelectInDialog
-																value={updateOperationType}
-																onValueChange={(value) => {
-																	const operation = value as UpdateOperationType;
-																	setUpdateOperationType(operation);
-																	if (operation === "toggle") {
-																		setUpdateValue("");
-																	}
-																}}
-																options={availableOperationOptions}
-																className="w-[64px]"
-															/>
-															<RadioGroup
-																value={updateValue || "true"}
-																onValueChange={setUpdateValue}
-																className="flex items-center gap-4 flex-1 pl-1"
-															>
-																<div className="flex items-center space-x-2">
-																	<RadioGroupItem value="true" id="update-bool-true" />
-																	<Label htmlFor="update-bool-true" className="cursor-pointer font-normal text-sm">
-																		True
-																	</Label>
-																</div>
-																<div className="flex items-center space-x-2">
-																	<RadioGroupItem value="false" id="update-bool-false" />
-																	<Label htmlFor="update-bool-false" className="cursor-pointer font-normal text-sm">
-																		False
-																	</Label>
-																</div>
-															</RadioGroup>
-														</div>
-													) : (
-														// 非 BOOLEAN 类型使用 ButtonGroup + Input
-														<ButtonGroup className="w-full">
-															<SelectInDialog
-																value={updateOperationType}
-																onValueChange={(value) => {
-																	const operation = value as UpdateOperationType;
-																	setUpdateOperationType(operation);
-																	if (operation === "toggle") {
-																		setUpdateValue("");
-																	}
-																}}
-																options={availableOperationOptions}
-																className="w-[64px]"
-															/>
-															<Input
-																id="updateValue"
-																type="text"
-																value={updateValue}
-																onChange={(e) => setUpdateValue(e.target.value)}
-																placeholder={getUpdateOperationPlaceholder(updateOperationType)}
-																className="flex-1"
-															/>
-														</ButtonGroup>
-													)}
-												</>
-											);
-										})()
-									)}
-								</div>
-							)}
-						</>
+						<UpdateVarConfig
+							variable={variable}
+							updateOperationType={updateOperationType}
+							updateValue={updateValue}
+							updateTriggerType={updateTriggerType}
+							customVariables={customVariables}
+							customVariableOptions={customVariableOptions}
+							variableItemList={variableItemList}
+							dataflowNodeId={dataflowNodeId}
+							dataflowHandleId={dataflowHandleId}
+							dataflowVariable={dataflowVariable}
+							dataflowVariableName={dataflowVariableName}
+							onVariableChange={setVariable}
+							onUpdateOperationTypeChange={setUpdateOperationType}
+							onUpdateValueChange={setUpdateValue}
+							onUpdateTriggerTypeChange={setUpdateTriggerType}
+							onDataflowNodeChange={handleDataflowNodeChange}
+							onDataflowVariableChange={handleDataflowVariableChange}
+							getAvailableOperations={getAvailableOperations}
+							getUpdateOperationLabel={getUpdateOperationLabel}
+						/>
 					) : (
-						<>
-							{/* RESET 模式的 UI */}
-							<div className="flex flex-col gap-2">
-								<Label htmlFor="resetVariable" className="text-sm font-medium">
-									选择变量
-								</Label>
-								<SelectInDialog
-									id="resetVariable"
-									value={variable}
-									onValueChange={setVariable}
-									placeholder={customVariables.length === 0 ? "无自定义变量" : "选择要重置的变量"}
-									options={customVariableOptions}
-									disabled={customVariables.length === 0}
-									emptyMessage="未配置自定义变量，请在策略起点配置"
-								/>
-							</div>
-
-							{/* 触发方式 */}
-							<div className="space-y-1">
-								<Label className="text-sm font-medium">触发方式</Label>
-								<div className="flex items-center space-x-6 pt-1">
-									<div className="flex items-center space-x-2">
-										<Checkbox
-											id="reset-condition-trigger"
-											checked={triggerType === "condition"}
-											onCheckedChange={(checked) => {
-												if (checked) {
-													setTriggerType("condition");
-												}
-											}}
-										/>
-										<Label
-											htmlFor="reset-condition-trigger"
-											className="text-sm cursor-pointer flex items-center"
-										>
-											<Filter className="h-3.5 w-3.5 mr-1 text-orange-500" />
-											条件触发
-										</Label>
-									</div>
-									<div className="flex items-center space-x-2">
-										<Checkbox
-											id="reset-timer-trigger"
-											checked={triggerType === "timer"}
-											onCheckedChange={(checked) => {
-												if (checked) {
-													setTriggerType("timer");
-												}
-											}}
-										/>
-										<Label
-											htmlFor="reset-timer-trigger"
-											className="text-sm cursor-pointer flex items-center"
-										>
-											<Clock className="h-3.5 w-3.5 mr-1 text-blue-500" />
-											定时触发
-										</Label>
-									</div>
-								</div>
-							</div>
-
-							{/* 定时配置 */}
-							{triggerType === "timer" && (
-								<div className="space-y-1">
-									<Label className="text-sm font-medium">定时配置</Label>
-									<div className="flex items-center space-x-2">
-										<Input
-											type="number"
-											min="1"
-											step="1"
-											value={timerInterval}
-											onChange={(e) =>
-												setTimerInterval(parseInt(e.target.value) || 1)
-											}
-											className="h-8 w-20"
-										/>
-										<SelectInDialog
-											value={timerUnit}
-											onValueChange={(value) =>
-												setTimerUnit(value as "second" | "minute" | "hour" | "day")
-											}
-											placeholder="选择时间单位"
-											options={[
-												{ value: "second", label: "秒" },
-												{ value: "minute", label: "分钟" },
-												{ value: "hour", label: "小时" },
-												{ value: "day", label: "天" },
-											]}
-											className="h-8 flex-1"
-										/>
-									</div>
-									<div className="flex flex-wrap gap-2 mt-2">
-										<Badge
-											variant="outline"
-											className="bg-blue-50 text-blue-800 cursor-pointer hover:bg-blue-100"
-											onClick={() => {
-												setTimerInterval(1);
-												setTimerUnit("second");
-											}}
-										>
-											<Clock className="h-3 w-3 mr-1" />
-											1s
-										</Badge>
-										<Badge
-											variant="outline"
-											className="bg-blue-50 text-blue-800 cursor-pointer hover:bg-blue-100"
-											onClick={() => {
-												setTimerInterval(1);
-												setTimerUnit("minute");
-											}}
-										>
-											<Clock className="h-3 w-3 mr-1" />
-											1m
-										</Badge>
-										<Badge
-											variant="outline"
-											className="bg-blue-50 text-blue-800 cursor-pointer hover:bg-blue-100"
-											onClick={() => {
-												setTimerInterval(5);
-												setTimerUnit("minute");
-											}}
-										>
-											<Clock className="h-3 w-3 mr-1" />
-											5m
-										</Badge>
-										<Badge
-											variant="outline"
-											className="bg-blue-50 text-blue-800 cursor-pointer hover:bg-blue-100"
-											onClick={() => {
-												setTimerInterval(1);
-												setTimerUnit("hour");
-											}}
-										>
-											<Clock className="h-3 w-3 mr-1" />
-											1h
-										</Badge>
-										<Badge
-											variant="outline"
-											className="bg-blue-50 text-blue-800 cursor-pointer hover:bg-blue-100"
-											onClick={() => {
-												setTimerInterval(1);
-												setTimerUnit("day");
-											}}
-										>
-											<Clock className="h-3 w-3 mr-1" />
-											1d
-										</Badge>
-									</div>
-								</div>
-							)}
-
-							{/* 说明文案 */}
-							<div className="rounded-md bg-blue-50 p-3 border border-blue-200">
-								<p className="text-xs text-blue-800">
-									<strong>重置操作</strong>将把变量恢复为在策略起点定义的初始值。
-								</p>
-							</div>
-						</>
+						<ResetVarConfig
+							variable={variable}
+							triggerType={triggerType}
+							timerInterval={timerInterval}
+							timerUnit={timerUnit}
+							customVariables={customVariables}
+							customVariableOptions={customVariableOptions}
+							onVariableChange={setVariable}
+							onTriggerTypeChange={setTriggerType}
+							onTimerIntervalChange={setTimerInterval}
+							onTimerUnitChange={setTimerUnit}
+						/>
 					)}
 				</div>
 				<DialogFooter>

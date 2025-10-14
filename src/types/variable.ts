@@ -40,7 +40,7 @@ export interface CustomVariable {
 	varDisplayName: string; // 显示名称
 	varValueType: VariableValueType; // 变量类型
 	initialValue: string | number | boolean; // 初始值
-	varValue: string | number | boolean; // 变量值
+	varValue: string | number | boolean; // 当前变量值
 }
 
 

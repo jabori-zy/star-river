@@ -1,7 +1,5 @@
-import { Plus, Settings, Variable, X } from "lucide-react";
+import { Plus, Variable } from "lucide-react";
 import { useEffect, useState } from "react";
-import { TbNumber, TbToggleLeft, TbAbc } from "react-icons/tb";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -13,89 +11,18 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
+import { SelectInDialog } from "@/components/select-components/select-in-dialog";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipProvider,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { type CustomVariable, VariableValueType } from "@/types/variable";
+import { VariableItem } from "./variable-config-item";
+import { VARIABLE_TYPE_OPTIONS } from "./constant";
 
 interface VariableEditorProps {
 	variables: CustomVariable[];
 	onVariablesChange: (variables: CustomVariable[]) => void;
 }
 
-// 变量项组件
-const VariableItem = ({
-	variable,
-	onEdit,
-	onDelete,
-}: {
-	variable: CustomVariable;
-	onEdit: (variable: CustomVariable) => void;
-	onDelete: (name: string) => void;
-}) => {
-	return (
-		<div className="flex items-center justify-between p-2 border rounded-md bg-background group">
-			<div className="flex items-center gap-2">
-				<TooltipProvider>
-					<Tooltip>
-						<TooltipTrigger asChild>
-							<Badge variant="outline" className="h-5 px-1 cursor-help">
-								{variable.varValueType === VariableValueType.NUMBER ? (
-									<TbNumber className="h-3 w-3 mr-1 text-blue-500" />
-								) : variable.varValueType === VariableValueType.BOOLEAN ? (
-									<TbToggleLeft className="h-3 w-3 mr-1 text-purple-500" />
-								) : (
-									<TbAbc className="h-3 w-3 mr-1 text-green-500" />
-								)}
-								{variable.varValueType === VariableValueType.NUMBER
-									? "数字"
-									: variable.varValueType === VariableValueType.BOOLEAN
-										? "布尔"
-										: "文本"}
-							</Badge>
-						</TooltipTrigger>
-						<TooltipContent>
-							<p className="text-xs">{variable.varName}</p>
-						</TooltipContent>
-					</Tooltip>
-				</TooltipProvider>
-				<span className="font-medium">{variable.varDisplayName}</span>
-			</div>
-			<div className="flex items-center gap-1">
-				<div className="text-sm">{variable.varValue?.toString()}</div>
-				<div className="flex opacity-0 group-hover:opacity-100 transition-opacity">
-					<Button
-						variant="ghost"
-						size="icon"
-						className="h-6 w-6"
-						onClick={() => onEdit(variable)}
-					>
-						<Settings className="h-3 w-3" />
-					</Button>
-					<Button
-						variant="ghost"
-						size="icon"
-						className="h-6 w-6 text-destructive"
-						onClick={() => onDelete(variable.varName)}
-					>
-						<X className="h-3 w-3" />
-					</Button>
-				</div>
-			</div>
-		</div>
-	);
-};
+
 
 // 变量对话框组件
 const VariableDialog = ({
@@ -189,6 +116,7 @@ const VariableDialog = ({
 			varName: variableName,
 			varDisplayName: variableDisplayName,
 			varValueType: variableType,
+			initialValue: finalValue,
 			varValue: finalValue,
 		});
 	};
@@ -208,7 +136,8 @@ const VariableDialog = ({
 							变量类型
 						</Label>
 						<div className="col-span-3">
-							<Select
+							<SelectInDialog
+								id="variable-type"
 								value={variableType}
 								onValueChange={(value) => {
 									const newType = value as VariableValueType;
@@ -220,31 +149,9 @@ const VariableDialog = ({
 										setVariableValue("");
 									}
 								}}
-							>
-								<SelectTrigger id="variable-type">
-									<SelectValue placeholder="选择变量类型" />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value={VariableValueType.NUMBER}>
-										<div className="flex items-center">
-											<TbNumber className="h-4 w-4 mr-2 text-blue-500" />
-											<span>数字</span>
-										</div>
-									</SelectItem>
-									<SelectItem value={VariableValueType.STRING}>
-										<div className="flex items-center">
-											<TbAbc className="h-4 w-4 mr-2 text-green-500" />
-											<span>字符串</span>
-										</div>
-									</SelectItem>
-									<SelectItem value={VariableValueType.BOOLEAN}>
-										<div className="flex items-center">
-											<TbToggleLeft className="h-4 w-4 mr-2 text-purple-500" />
-											<span>布尔</span>
-										</div>
-									</SelectItem>
-								</SelectContent>
-							</Select>
+								placeholder="选择变量类型"
+								options={VARIABLE_TYPE_OPTIONS}
+							/>
 						</div>
 					</div>
 					<div className="grid grid-cols-4 items-center gap-4">
@@ -280,7 +187,7 @@ const VariableDialog = ({
 					</div>
 					<div className="grid grid-cols-4 items-center gap-4">
 						<Label htmlFor="variable-value" className="text-right">
-							变量值
+							初始值
 						</Label>
 						{variableType === VariableValueType.BOOLEAN ? (
 							<RadioGroup

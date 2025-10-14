@@ -15,10 +15,20 @@ import {
 } from "@/components/ui/collapsible";
 import { Label } from "@/components/ui/label";
 import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
 	type StrategyBacktestConfig,
 } from "@/types/strategy";
-import { type CustomVariable, getVariableTypeIcon, getVariableTypeIconColor } from "@/types/variable";
-
+import {
+	type CustomVariable,
+	getVariableTypeIcon,
+	getVariableTypeIconColor,
+} from "@/types/variable";
+import { formatVariableValue } from "../utils";
 
 interface BacktestModeShowProps {
 	backtestConfig: StrategyBacktestConfig;
@@ -122,28 +132,47 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 									(variable: CustomVariable, index: number) => {
 										const Icon = getVariableTypeIcon(variable.varValueType);
 										const iconColor = getVariableTypeIconColor(variable.varValueType);
+										const formattedInitialValue = formatVariableValue(
+											variable.initialValue,
+											variable.varValueType,
+										);
+										const formattedCurrentValue = formatVariableValue(
+											variable.varValue,
+											variable.varValueType,
+										);
 
 										return (
 											<div
 												key={index}
-												className="flex flex-col bg-gray-100 p-2 rounded-md"
+												className="flex flex-col bg-gray-100 p-2 rounded-md gap-1"
 											>
-												<div
-													className="flex items-center gap-2"
-													title={variable.varName}
-												>
-													<Icon className={`w-4 h-4 ${iconColor}`} />
-													<span className="text-sm">
-														{variable.varDisplayName}
-														<span className="text-muted-foreground">({variable.varName})</span>
-														{" "}= {
-															variable.varValueType === "string"
-																? `"${variable.varValue}"`
-																: variable.varValueType === "boolean"
-																? (variable.varValue ? "true" : "false")
-																: variable.varValue
-														}
-													</span>
+												<TooltipProvider>
+													<Tooltip>
+														<TooltipTrigger asChild>
+															<div className="flex items-center gap-2 cursor-pointer">
+																<Icon className={`w-4 h-4 ${iconColor}`} />
+																<span className="text-sm font-semibold">
+																	{variable.varDisplayName}
+																</span>
+															</div>
+														</TooltipTrigger>
+														<TooltipContent>
+															<p className="text-xs">{variable.varName}</p>
+														</TooltipContent>
+													</Tooltip>
+												</TooltipProvider>
+												<div className="flex items-center gap-2 text-xs text-gray-600">
+													<div className="w-4" />
+													<div className="flex items-center gap-4">
+														<div className="flex items-center gap-1">
+															<span>初始值:</span>
+															<span className="font-medium">{formattedInitialValue}</span>
+														</div>
+														<div className="flex items-center gap-1">
+															<span>当前值:</span>
+															<span className="font-medium">{formattedCurrentValue}</span>
+														</div>
+													</div>
 												</div>
 											</div>
 										);
