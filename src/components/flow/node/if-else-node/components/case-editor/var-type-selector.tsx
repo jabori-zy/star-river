@@ -7,12 +7,14 @@ interface VarTypeSelectorProps {
 	className?: string;
 	varType: VarType;
 	onVarTypeChange: (varType: VarType) => void;
+	disabled?: boolean;
 }
 
 const VarTypeSelector: React.FC<VarTypeSelectorProps> = ({
 	className,
 	varType,
 	onVarTypeChange,
+	disabled,
 }) => {
 	const [localVarType, setLocalVarType] = useState<VarType>(varType);
 
@@ -32,6 +34,7 @@ const VarTypeSelector: React.FC<VarTypeSelectorProps> = ({
 			defaultValue={localVarType}
 			className={className}
 			onValueChange={handleVarTypeChange}
+			disabled={disabled}
 		>
 			{Object.values(VarType).map((value) => (
 				<SelectItem key={value} value={value}>

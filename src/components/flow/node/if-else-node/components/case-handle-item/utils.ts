@@ -1,3 +1,4 @@
+import type { Node } from "@xyflow/react";
 import {
 	type ComparisonSymbol,
 	LogicalSymbol,
@@ -5,9 +6,8 @@ import {
 	VarType,
 } from "@/types/node/if-else-node";
 import { NodeType } from "@/types/node/index";
-import type { Node } from "@xyflow/react";
-import type { KlineNodeData } from "@/types/node/kline-node";
 import type { IndicatorNodeData } from "@/types/node/indicator-node";
+import type { KlineNodeData } from "@/types/node/kline-node";
 
 // 获取条件类型的中文标签
 export const getCaseTypeLabel = (caseId: number) => {
@@ -31,27 +31,27 @@ export const getLogicalLabel = (symbol: LogicalSymbol | null) => {
 };
 
 // 获取变量显示文本
-export const getVariableLabel = (variable: Variable | null, nodes: Node[], t: (key: string) => string) => {
+export const getVariableLabel = (
+	variable: Variable | null,
+	nodes: Node[],
+	t: (key: string) => string,
+) => {
 	if (!variable) return t("IfElseNode.notSet");
 	if (variable.varType === VarType.constant) {
-		if (!variable.variable) {
+		if (!variable.varName) {
 			return "0";
 		}
-		return `${variable.variable}`;
-	} 
-	
-	else if (variable.varType === VarType.variable) {
-		if (!variable.nodeName || !variable.variable || !variable.variableConfigId) {
+		return `${variable.varName}`;
+	} else if (variable.varType === VarType.variable) {
+		if (!variable.nodeName || !variable.varName || !variable.varConfigId) {
 			return t("IfElseNode.notSet");
 		}
 
-		
 		if (variable.nodeType === NodeType.KlineNode) {
 			return getKlineNodeVariableLabel(variable, nodes, t);
 		} else if (variable.nodeType === NodeType.IndicatorNode) {
 			return getIndicatorNodeVariableLabel(variable, nodes, t);
-		}
-		else if (variable.nodeType === NodeType.VariableNode) {
+		} else if (variable.nodeType === NodeType.VariableNode) {
 			return getVariableNodeVariableLable(variable, t);
 		}
 	}
@@ -59,36 +59,48 @@ export const getVariableLabel = (variable: Variable | null, nodes: Node[], t: (k
 	return t("IfElseNode.notSet");
 };
 
-
-
-export const getKlineNodeVariableLabel = (variable: Variable, nodes: Node[], t: (key: string) => string) => {
+export const getKlineNodeVariableLabel = (
+	variable: Variable,
+	nodes: Node[],
+	t: (key: string) => string,
+) => {
 	const klineNode = nodes.find((node) => node.id === variable.nodeId);
 	const klineNodeData = klineNode?.data as KlineNodeData;
-	const selectedSymbols = klineNodeData.backtestConfig?.exchangeModeConfig?.selectedSymbols;
-	const selectedSymbol = selectedSymbols?.find((symbol) => symbol.configId === variable.variableConfigId);
+	const selectedSymbols =
+		klineNodeData.backtestConfig?.exchangeModeConfig?.selectedSymbols;
+	const selectedSymbol = selectedSymbols?.find(
+		(symbol) => symbol.configId === variable.varConfigId,
+	);
 	if (selectedSymbol) {
-		return `${selectedSymbol.symbol}/${selectedSymbol.interval}/${variable.variableName}`;
+		return `${selectedSymbol.symbol}/${selectedSymbol.interval}/${variable.varDisplayName}`;
 	}
 	return t("IfElseNode.notSet");
-}
+};
 
-
-export const getIndicatorNodeVariableLabel = (variable: Variable, nodes: Node[], t: (key: string) => string) => {
+export const getIndicatorNodeVariableLabel = (
+	variable: Variable,
+	nodes: Node[],
+	t: (key: string) => string,
+) => {
 	const indicatorNode = nodes.find((node) => node.id === variable.nodeId);
 	const indicatorNodeData = indicatorNode?.data as IndicatorNodeData;
-	const selectedIndicators = indicatorNodeData.backtestConfig?.exchangeModeConfig?.selectedIndicators;
-	const selectedIndicator = selectedIndicators?.find((indicator) => indicator.configId === variable.variableConfigId);
+	const selectedIndicators =
+		indicatorNodeData.backtestConfig?.exchangeModeConfig?.selectedIndicators;
+	const selectedIndicator = selectedIndicators?.find(
+		(indicator) => indicator.configId === variable.varConfigId,
+	);
 	if (selectedIndicator) {
-		return `${selectedIndicator.indicatorType}-${variable.variableName}`;
+		return `${selectedIndicator.indicatorType}-${variable.varDisplayName}`;
 	}
 	return t("IfElseNode.notSet");
-}
+};
 
-
-export const getVariableNodeVariableLable = (variable: Variable, _t: (key: string) => string) => {
-
-	return `${variable.variableName}`;
-}
+export const getVariableNodeVariableLable = (
+	variable: Variable,
+	_t: (key: string) => string,
+) => {
+	return `${variable.varDisplayName}`;
+};
 
 // 获取节点类型图标
 export const getNodeTypeIcon = (nodeType?: NodeType) => {

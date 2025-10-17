@@ -82,7 +82,10 @@ export function BacktestRunningLogTable({
 		return () => observer.disconnect();
 	}, []);
 
-	const columns = React.useMemo(() => createStrategyRunningLogColumns(isCompactMode), [isCompactMode]);
+	const columns = React.useMemo(
+		() => createStrategyRunningLogColumns(isCompactMode),
+		[isCompactMode],
+	);
 
 	const table = useReactTable({
 		data: data || [],
@@ -120,7 +123,8 @@ export function BacktestRunningLogTable({
 					<div className="flex items-center gap-2">
 						<h1 className="text-xl font-semibold">{title}</h1>
 						<div className="text-sm text-muted-foreground">
-							({table.getFilteredRowModel().rows.length} / {data?.length || 0} 条记录)
+							({table.getFilteredRowModel().rows.length} / {data?.length || 0}{" "}
+							条记录)
 						</div>
 					</div>
 				</div>
@@ -128,10 +132,13 @@ export function BacktestRunningLogTable({
 
 			{/* 表格 */}
 			<div className="relative flex flex-col gap-4 w-full min-w-0 px-4">
-				<div className="w-full min-w-0 overflow-hidden rounded-lg border mx-0" ref={tableContainerRef}>
+				<div
+					className="w-full min-w-0 overflow-hidden rounded-lg border mx-0"
+					ref={tableContainerRef}
+				>
 					{/* 筛选器 */}
 					<LogTableFilters table={table} />
-					
+
 					<div className="w-full min-w-0 overflow-x-auto">
 						<Table className="w-full table-fixed">
 							<TableHeader className="sticky top-0 z-10 bg-muted">

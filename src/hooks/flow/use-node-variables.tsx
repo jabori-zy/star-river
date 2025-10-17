@@ -1,8 +1,6 @@
-import {
-	type Connection,
-	useReactFlow,
-} from "@xyflow/react";
+import { type Connection, useReactFlow } from "@xyflow/react";
 import { useCallback } from "react";
+import type { CaseItem } from "@/types/node/if-else-node";
 import { isDefaultOutputHandleId, NodeType } from "@/types/node/index";
 import type {
 	IndicatorNodeData,
@@ -105,7 +103,7 @@ const useNodeVariables = () => {
 						tradeMode === TradeMode.LIVE
 							? indicatorNodeData?.liveConfig?.selectedIndicators
 							: indicatorNodeData?.backtestConfig?.exchangeModeConfig
-								?.selectedIndicators;
+									?.selectedIndicators;
 
 					if (isDefaultOutput) {
 						// 默认输出：添加所有指标变量
@@ -134,7 +132,7 @@ const useNodeVariables = () => {
 							);
 						}
 					}
-				} 
+				}
 				// 收集K线节点变量
 				else if (nodeType === NodeType.KlineNode) {
 					// 处理K线节点
@@ -143,7 +141,7 @@ const useNodeVariables = () => {
 						tradeMode === TradeMode.LIVE
 							? klineNodeData?.liveConfig?.selectedSymbols
 							: klineNodeData?.backtestConfig?.exchangeModeConfig
-								?.selectedSymbols;
+									?.selectedSymbols;
 
 					if (isDefaultOutput) {
 						// 默认输出：添加所有K线变量
@@ -193,13 +191,11 @@ const useNodeVariables = () => {
 							);
 						});
 					} else {
-						
 						// 特定输出：只添加匹配的变量配置
 						const variableConfig = variableConfigs?.find(
 							(config: VariableConfig) =>
 								config.outputHandleId === sourceHandleId,
 						);
-						console.log("variableConfig", variableConfig);
 						if (variableConfig) {
 							addOrUpdateVariableItem(
 								tempVariableItemList,
@@ -218,8 +214,71 @@ const useNodeVariables = () => {
 		[getNode, addOrUpdateVariableItem],
 	);
 
+	/**
+	 * 获取上游 if-else 节点的 case 信息
+	 * 用于收集连接到当前节点的 if-else 节点的 case 配置
+	 * @param connections 连接列表
+	 * @param tradeMode 交易模式（实盘/回测）
+	 * @returns case 信息列表，包含节点信息和对应的 case 配置
+	 */
+	const getIfElseNodeCases = useCallback(
+		(connections: Connection[], tradeMode: TradeMode) => {
+			// 导入 IfElseNodeData 和 CaseItem 类型
+			const tempCaseList: Array<{
+				nodeId: string;
+				nodeName: string;
+				nodeType: NodeType;
+				caseItem: CaseItem;
+			}> = [];
+
+			// 遍历所有连接，收集 if-else 节点的 case 信息
+			for (const connection of connections) {
+				const sourceNodeId = connection.source;
+				const sourceHandleId = connection.sourceHandle;
+
+				// 如果 sourceHandleId 为空，跳过此连接
+				if (!sourceHandleId) continue;
+
+				const node = getNode(sourceNodeId);
+				if (!node) continue;
+
+				const nodeType = node.type as NodeType;
+
+				// 只处理 if-else 节点
+				if (nodeType === NodeType.IfElseNode) {
+					// 动态导入类型以避免循环依赖
+					const ifElseNodeData = node.data as any; // 使用 any 避免直接导入 IfElseNodeData
+
+					// 根据交易模式获取对应的配置
+					const cases =
+						tradeMode === TradeMode.LIVE
+							? ifElseNodeData?.liveConfig?.cases
+							: ifElseNodeData?.backtestConfig?.cases;
+
+					// 查找匹配的 case（通过 outputHandleId）
+					const matchedCase = cases?.find(
+						(caseItem: any) => caseItem.outputHandleId === sourceHandleId,
+					);
+
+					if (matchedCase) {
+						tempCaseList.push({
+							nodeId: node.id,
+							nodeName: ifElseNodeData.nodeName,
+							nodeType: NodeType.IfElseNode,
+							caseItem: matchedCase,
+						});
+					}
+				}
+			}
+
+			return tempCaseList;
+		},
+		[getNode],
+	);
+
 	return {
 		getConnectedNodeVariables,
+		getIfElseNodeCases,
 	};
 };
 

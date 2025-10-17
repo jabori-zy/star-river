@@ -1,10 +1,10 @@
 import type { IChartApi } from "lightweight-charts";
 import { useCallback, useEffect, useRef } from "react";
 import { useBacktestStatsChart } from "@/hooks/chart/backtest-stats-chart";
+import { useBacktestStatsChartConfigStore } from "@/store/use-backtest-stats-chart-config-store";
 import type { BacktestStrategyStatsChartConfig } from "@/types/chart/backtest-strategy-stats-chart";
 import { useBacktestStatsChartStore } from "./backtest-stats-chart-store";
 import { chartOptions } from "./chart-config";
-import { useBacktestStatsChartConfigStore } from "@/store/use-backtest-stats-chart-config-store";
 import { ChartLegend } from "./chart-legend";
 
 interface BacktestStatsChartProps {
@@ -39,11 +39,7 @@ const BacktestStatsChart = ({
 	});
 
 	// 获取图表API引用
-	const { getChartRef } = useBacktestStatsChartStore(
-		strategyId,
-		chartConfig,
-	);
-
+	const { getChartRef } = useBacktestStatsChartStore(strategyId, chartConfig);
 
 	// 使用 useCallback 稳定函数引用
 	const updateChartApiRef = useCallback(() => {
@@ -77,7 +73,6 @@ const BacktestStatsChart = ({
 						statsChartConfig={statsConfig}
 					/>
 				))}
-			
 		</div>
 	);
 };

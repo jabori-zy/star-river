@@ -1,5 +1,5 @@
 import { useReactFlow } from "@xyflow/react";
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useStartNodeDataStore } from "@/store/node/use-start-node-data-store";
 import type {
 	IndicatorNodeBacktestConfig,

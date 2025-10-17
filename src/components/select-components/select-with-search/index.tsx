@@ -34,7 +34,8 @@ const DialogPopoverContent: React.FC<
 
 export interface SelectWithSearchOption {
 	value: string;
-	label: string;
+	label: string | React.ReactNode;
+	searchText?: string; // 可选的搜索文本，用于纯文本搜索
 }
 
 interface SelectWithSearchProps {
@@ -63,11 +64,40 @@ export const SelectWithSearch: React.FC<SelectWithSearchProps> = ({
 	error = false,
 }) => {
 	const [open, setOpen] = useState(false);
+	const [searchTerm, setSearchTerm] = useState("");
 
 	const selectedOption = options.find((option) => option.value === value);
 
+	// 提取纯文本用于搜索
+	const getSearchText = (option: SelectWithSearchOption): string => {
+		if (option.searchText) {
+			return option.searchText;
+		}
+		if (typeof option.label === "string") {
+			return option.label;
+		}
+		// 如果 label 是 React 节点，使用 value 作为搜索文本
+		return option.value;
+	};
+
+	// 过滤选项
+	const filteredOptions = options.filter((option) => {
+		if (!searchTerm) return true;
+		return getSearchText(option)
+			.toLowerCase()
+			.includes(searchTerm.toLowerCase());
+	});
+
+	// 重置搜索词当关闭时
+	const handleOpenChange = (newOpen: boolean) => {
+		setOpen(newOpen);
+		if (!newOpen) {
+			setSearchTerm("");
+		}
+	};
+
 	return (
-		<Popover open={open} onOpenChange={setOpen}>
+		<Popover open={open} onOpenChange={handleOpenChange}>
 			<PopoverTrigger asChild>
 				<Button
 					id={id}
@@ -80,37 +110,44 @@ export const SelectWithSearch: React.FC<SelectWithSearchProps> = ({
 						className,
 					)}
 				>
-					{selectedOption?.label || placeholder}
-					{placeholder && (
-						<ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-					)}
+					<span className="truncate flex-1 text-left">
+						{selectedOption?.label || placeholder}
+					</span>
+					<ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
 				</Button>
 			</PopoverTrigger>
 			<DialogPopoverContent className="w-[var(--radix-popover-trigger-width)]">
-				<Command>
-					<CommandInput placeholder={searchPlaceholder} />
+				<Command shouldFilter={false}>
+					<CommandInput
+						placeholder={searchPlaceholder}
+						value={searchTerm}
+						onValueChange={setSearchTerm}
+					/>
 					<CommandList>
-						<CommandEmpty>{emptyMessage}</CommandEmpty>
-						<CommandGroup>
-							{options.map((option) => (
-								<CommandItem
-									key={option.value}
-									value={option.value}
-									onSelect={(currentValue) => {
-										onValueChange(currentValue === value ? "" : currentValue);
-										setOpen(false);
-									}}
-								>
-									<Check
-										className={cn(
-											"mr-2 h-4 w-4",
-											value === option.value ? "opacity-100" : "opacity-0",
-										)}
-									/>
-									{option.label}
-								</CommandItem>
-							))}
-						</CommandGroup>
+						{filteredOptions.length === 0 ? (
+							<CommandEmpty>{emptyMessage}</CommandEmpty>
+						) : (
+							<CommandGroup>
+								{filteredOptions.map((option) => (
+									<CommandItem
+										key={option.value}
+										value={option.value}
+										onSelect={(currentValue) => {
+											onValueChange(currentValue === value ? "" : currentValue);
+											setOpen(false);
+										}}
+									>
+										<Check
+											className={cn(
+												"mr-2 h-4 w-4 flex-shrink-0",
+												value === option.value ? "opacity-100" : "opacity-0",
+											)}
+										/>
+										<div className="flex-1 truncate">{option.label}</div>
+									</CommandItem>
+								))}
+							</CommandGroup>
+						)}
 					</CommandList>
 				</Command>
 			</DialogPopoverContent>

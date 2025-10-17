@@ -1,8 +1,8 @@
+import useEdgeChangeHandlers from "./use-edge-change-handlers";
+import useNodeChangeHandlers from "./use-node-change-handlers";
 import useNodeValidation from "./use-node-validation";
 import useNodeVariables from "./use-node-variables";
-import useNodeChangeHandlers from "./use-node-change-handlers";
 import useWorkflowUtils from "./use-workflow-utils";
-import useEdgeChangeHandlers from "./use-edge-change-handlers";
 
 // 重新导出类型，保持对外接口一致
 export type { VariableItem } from "./use-node-variables";
@@ -21,14 +21,20 @@ const useStrategyWorkflow = () => {
 	const { checkIsValidConnection } = useNodeValidation();
 
 	// 节点变量管理相关
-	const { getConnectedNodeVariables } = useNodeVariables();
+	const { getConnectedNodeVariables, getIfElseNodeCases } = useNodeVariables();
 
 	// 节点变更处理相关
 	const { handleNodeChanges } = useNodeChangeHandlers();
 	const { handleEdgeChanges } = useEdgeChangeHandlers();
 
 	// 工具函数相关
-	const { getBacktestTimeRange, getTargetNodeIds, getTargetNodeIdsBySourceHandleId, deleteEdgeBySourceHandleId, deleteEdgesByTargetHandleId } = useWorkflowUtils();
+	const {
+		getBacktestTimeRange,
+		getTargetNodeIds,
+		getTargetNodeIdsBySourceHandleId,
+		deleteEdgeBySourceHandleId,
+		deleteEdgesByTargetHandleId,
+	} = useWorkflowUtils();
 
 	return {
 		// 节点连接验证
@@ -36,7 +42,7 @@ const useStrategyWorkflow = () => {
 
 		// 节点变量管理
 		getConnectedNodeVariables,
-
+		getIfElseNodeCases,
 		// 节点变更处理
 		handleNodeChanges,
 

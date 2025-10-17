@@ -21,12 +21,11 @@ export function ChartLegend({
 	const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(
 		null,
 	);
-	
 
-	const { getStatsPaneRef, getChartRef, getPaneVersion } = useBacktestStatsChartStore(
-		strategyId,
-		{ statsChartConfigs: [statsChartConfig] },
-	);
+	const { getStatsPaneRef, getChartRef, getPaneVersion } =
+		useBacktestStatsChartStore(strategyId, {
+			statsChartConfigs: [statsChartConfig],
+		});
 
 	// 🔑 获取 pane 版本号，用于监听 pane 变化
 	const paneVersion = getPaneVersion();
@@ -36,8 +35,6 @@ export function ChartLegend({
 		strategyId,
 		statsChartConfig,
 	});
-
-
 
 	const statsName = statsChartConfig.seriesConfigs.statsName;
 
@@ -135,9 +132,7 @@ export function ChartLegend({
 	}
 
 	return createPortal(
-		<StatsLegend
-			statsLegendData={statsLegendData}
-		/>,
+		<StatsLegend statsLegendData={statsLegendData} />,
 		portalContainer,
 	);
 }

@@ -1,11 +1,11 @@
 import dayjs from "dayjs";
 import type {
 	CandlestickData,
-	ISeriesApi,
 	DataChangedScope,
+	ISeriesApi,
 	MouseEventParams,
 	Time,
-	WhitespaceData
+	WhitespaceData,
 } from "lightweight-charts";
 import { useCallback, useState } from "react";
 import { useBacktestChartStore } from "@/components/chart/backtest-chart/backtest-chart-store";
@@ -95,7 +95,7 @@ interface UseKlineLegendProps {
 	chartId: number;
 }
 
-export const useKlineLegend = ({chartId}: UseKlineLegendProps) => {
+export const useKlineLegend = ({ chartId }: UseKlineLegendProps) => {
 	// 从 store 获取数据和方法
 	const { getKlineSeriesRef } = useBacktestChartStore(chartId);
 
@@ -113,21 +113,25 @@ export const useKlineLegend = ({chartId}: UseKlineLegendProps) => {
 	});
 
 	// 监听 K线数据变化事件
-	const onSeriesDataUpdate = useCallback((_scope: DataChangedScope) => {
-		const klineSeries = getKlineSeriesRef();
-		if (!klineSeries) return;
+	const onSeriesDataUpdate = useCallback(
+		(_scope: DataChangedScope) => {
+			const klineSeries = getKlineSeriesRef();
+			if (!klineSeries) return;
 
-		const data = klineSeries.data();
-		if (data && data.length > 0) {
-			const lastDataPoint = data[data.length - 1] as CandlestickData<Time>;
-			const newLegendData = mapCandlestickDataToLegendData(lastDataPoint);
-			setLegendData(newLegendData);
-		} else {
-			setLegendData(null);
-		}
-	}, [getKlineSeriesRef]);
+			const data = klineSeries.data();
+			if (data && data.length > 0) {
+				const lastDataPoint = data[data.length - 1] as CandlestickData<Time>;
+				const newLegendData = mapCandlestickDataToLegendData(lastDataPoint);
+				setLegendData(newLegendData);
+			} else {
+				setLegendData(null);
+			}
+		},
+		[getKlineSeriesRef],
+	);
 
-	const onCrosshairMove = useCallback((param: MouseEventParams) => {
+	const onCrosshairMove = useCallback(
+		(param: MouseEventParams) => {
 			const seriesApi = getKlineSeriesRef();
 			if (!seriesApi) {
 				return;

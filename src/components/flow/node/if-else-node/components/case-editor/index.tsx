@@ -1,5 +1,6 @@
 import { GripVertical, RefreshCcw, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import type { VariableItem } from "@/hooks/flow/use-strategy-workflow";
 import {
@@ -10,8 +11,8 @@ import {
 	VarType,
 } from "@/types/node/if-else-node";
 import type { NodeData } from "@/types/node/index";
+import { VariableValueType } from "@/types/variable";
 import ConditionSetting from "./condition-setting";
-import { useTranslation } from "react-i18next";
 
 interface CaseEditorProps {
 	id: string;
@@ -46,10 +47,11 @@ const CaseEditor: React.FC<CaseEditorProps> = ({
 				varType: VarType.variable,
 				nodeId: null,
 				outputHandleId: null,
-				variableConfigId: null,
-				variable: null,
+				varConfigId: null,
+				varName: null,
 				nodeType: null,
 				nodeName: null,
+				varValueType: VariableValueType.NUMBER,
 			},
 		};
 		const updatedCaseItem = {
@@ -125,7 +127,9 @@ const CaseEditor: React.FC<CaseEditorProps> = ({
 						onClick={() => onCaseRemove(localCaseItem.caseId)}
 					>
 						<Trash2 className="w-2 h-2 shrink-0" />
-						<span className="text-xs whitespace-nowrap">{t("IfElseNode.deleteBranch")}</span>
+						<span className="text-xs whitespace-nowrap">
+							{t("IfElseNode.deleteBranch")}
+						</span>
 					</Button>
 				</div>
 			</div>

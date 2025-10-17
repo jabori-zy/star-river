@@ -5,15 +5,12 @@ import { Toaster } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import useAccountSSE from "@/hooks/use-accountSSE";
 import { addAccountConfig, getAccountConfigs } from "@/service/account";
-import { MT5Account, BinanceAccount } from "@/types/account";
+import type { BinanceAccount, MT5Account } from "@/types/account";
 import { AccountsHeader } from "./components/account-header";
 import { AccountTable } from "./components/account-table";
-import {
-	binanceColumns,
-	okxColumns,
-} from "./components/account-table/columns";
-import { MT5AccountTable } from "./components/mt5-account-table";
+import { binanceColumns, okxColumns } from "./components/account-table/columns";
 import { BinanceAccountTable } from "./components/binance-account-table";
+import { MT5AccountTable } from "./components/mt5-account-table";
 
 // 定义账户类型
 type AccountType = {
@@ -25,7 +22,7 @@ type AccountType = {
 const accountTypes: AccountType[] = [
 	{
 		id: "metatrader5",
-		name: "Metatrader5"
+		name: "Metatrader5",
 	},
 	{
 		id: "binance",
@@ -37,13 +34,14 @@ const accountTypes: AccountType[] = [
 	},
 ];
 
-
 export default function AccountPage() {
 	// 当前选中的标签页
 	const [activeTab, setActiveTab] = useState("metatrader5");
 	// 账户数据，要么存储MT5账户数据，要么存储Binance账户数据，要么存储OKX账户数据
 	const [mt5AccountData, setMt5AccountData] = useState<MT5Account[]>([]);
-	const [binanceAccountData, setBinanceAccountData] = useState<BinanceAccount[]>([]);
+	const [binanceAccountData, setBinanceAccountData] = useState<
+		BinanceAccount[]
+	>([]);
 	// 获取SSE实时数据
 	const accountUpdateMessage = useAccountSSE();
 
@@ -134,11 +132,7 @@ export default function AccountPage() {
 	const handleAddAccount = async (formData: any) => {
 		console.log("添加账户数据:", formData);
 		const { accountName, exchange, ...accountConfig } = formData;
-		const res = await addAccountConfig(
-			accountName,
-			exchange,
-			accountConfig,
-		);
+		const res = await addAccountConfig(accountName, exchange, accountConfig);
 		console.log("添加账户配置成功:", res);
 		if (res.code === 200) {
 			// 刷新页面

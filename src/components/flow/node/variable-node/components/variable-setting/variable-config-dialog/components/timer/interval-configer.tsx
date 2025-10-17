@@ -1,41 +1,49 @@
 import { Clock } from "lucide-react";
+import { SelectInDialog } from "@/components/select-components/select-in-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { SelectInDialog } from "@/components/select-components/select-in-dialog";
+import type {
+	IntervalTimerConfig,
+	TimerUnit,
+} from "@/types/node/variable-node";
 
-interface TimerConfigProps {
-	timerInterval: number;
-	timerUnit: "second" | "minute" | "hour" | "day";
-	onTimerIntervalChange: (value: number) => void;
-	onTimerUnitChange: (value: "second" | "minute" | "hour" | "day") => void;
+interface IntervalConfigerProps {
+	config: IntervalTimerConfig;
+	onChange: (config: IntervalTimerConfig) => void;
 }
 
-const TimerConfig: React.FC<TimerConfigProps> = ({
-	timerInterval,
-	timerUnit,
-	onTimerIntervalChange,
-	onTimerUnitChange,
+const IntervalConfiger: React.FC<IntervalConfigerProps> = ({
+	config,
+	onChange,
 }) => {
+	const handleIntervalChange = (interval: number) => {
+		onChange({
+			...config,
+			interval,
+		});
+	};
+
+	const handleUnitChange = (unit: TimerUnit) => {
+		onChange({
+			...config,
+			unit,
+		});
+	};
+
 	return (
-		<div className="space-y-1">
-			<Label className="text-sm font-medium">定时配置</Label>
+		<>
 			<div className="flex items-center space-x-2">
 				<Input
 					type="number"
 					min="1"
 					step="1"
-					value={timerInterval}
-					onChange={(e) =>
-						onTimerIntervalChange(parseInt(e.target.value) || 1)
-					}
+					value={config.interval}
+					onChange={(e) => handleIntervalChange(parseInt(e.target.value) || 1)}
 					className="h-8 w-20"
 				/>
 				<SelectInDialog
-					value={timerUnit}
-					onValueChange={(value) =>
-						onTimerUnitChange(value as "second" | "minute" | "hour" | "day")
-					}
+					value={config.unit}
+					onValueChange={(value) => handleUnitChange(value as TimerUnit)}
 					placeholder="选择时间单位"
 					options={[
 						{ value: "second", label: "秒" },
@@ -46,13 +54,16 @@ const TimerConfig: React.FC<TimerConfigProps> = ({
 					className="h-8 flex-1"
 				/>
 			</div>
-			<div className="flex flex-wrap gap-2 mt-2">
+			<div className="flex flex-wrap gap-2">
 				<Badge
 					variant="outline"
 					className="bg-blue-50 text-blue-800 cursor-pointer hover:bg-blue-100"
 					onClick={() => {
-						onTimerIntervalChange(1);
-						onTimerUnitChange("second");
+						onChange({
+							mode: "interval",
+							interval: 1,
+							unit: "second",
+						});
 					}}
 				>
 					<Clock className="h-3 w-3 mr-1" />
@@ -62,8 +73,11 @@ const TimerConfig: React.FC<TimerConfigProps> = ({
 					variant="outline"
 					className="bg-blue-50 text-blue-800 cursor-pointer hover:bg-blue-100"
 					onClick={() => {
-						onTimerIntervalChange(1);
-						onTimerUnitChange("minute");
+						onChange({
+							mode: "interval",
+							interval: 1,
+							unit: "minute",
+						});
 					}}
 				>
 					<Clock className="h-3 w-3 mr-1" />
@@ -73,8 +87,11 @@ const TimerConfig: React.FC<TimerConfigProps> = ({
 					variant="outline"
 					className="bg-blue-50 text-blue-800 cursor-pointer hover:bg-blue-100"
 					onClick={() => {
-						onTimerIntervalChange(5);
-						onTimerUnitChange("minute");
+						onChange({
+							mode: "interval",
+							interval: 5,
+							unit: "minute",
+						});
 					}}
 				>
 					<Clock className="h-3 w-3 mr-1" />
@@ -84,8 +101,11 @@ const TimerConfig: React.FC<TimerConfigProps> = ({
 					variant="outline"
 					className="bg-blue-50 text-blue-800 cursor-pointer hover:bg-blue-100"
 					onClick={() => {
-						onTimerIntervalChange(1);
-						onTimerUnitChange("hour");
+						onChange({
+							mode: "interval",
+							interval: 1,
+							unit: "hour",
+						});
 					}}
 				>
 					<Clock className="h-3 w-3 mr-1" />
@@ -95,16 +115,19 @@ const TimerConfig: React.FC<TimerConfigProps> = ({
 					variant="outline"
 					className="bg-blue-50 text-blue-800 cursor-pointer hover:bg-blue-100"
 					onClick={() => {
-						onTimerIntervalChange(1);
-						onTimerUnitChange("day");
+						onChange({
+							mode: "interval",
+							interval: 1,
+							unit: "day",
+						});
 					}}
 				>
 					<Clock className="h-3 w-3 mr-1" />
 					1d
 				</Badge>
 			</div>
-		</div>
+		</>
 	);
 };
 
-export default TimerConfig;
+export default IntervalConfiger;

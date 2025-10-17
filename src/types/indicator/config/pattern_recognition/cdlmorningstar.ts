@@ -1,9 +1,6 @@
 import { z } from "zod";
 import { SeriesType } from "@/types/chart";
-import {
-	IndicatorCategory,
-	IndicatorType,
-} from "@/types/indicator";
+import { IndicatorCategory, IndicatorType } from "@/types/indicator";
 import {
 	createParseIndicatorConfigFromKeyStr,
 	getIndicatorValues,
@@ -15,7 +12,9 @@ const CDLMORNINGSTARConfigSchema = z.object({
 	penetration: z.number(),
 });
 
-export type CDLMORNINGSTARConfigType = z.infer<typeof CDLMORNINGSTARConfigSchema>;
+export type CDLMORNINGSTARConfigType = z.infer<
+	typeof CDLMORNINGSTARConfigSchema
+>;
 
 function buildCDLMORNINGSTARConfig(params: Map<string, string>): unknown {
 	return {
@@ -39,7 +38,11 @@ export const CDLMORNINGSTARConfig: IndicatorConfig<CDLMORNINGSTARConfigType> = {
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },
-		morning_star: { label: "morning_star", value: 0, legendShowName: "morningstar" },
+		morning_star: {
+			label: "morning_star",
+			value: 0,
+			legendShowName: "morningstar",
+		},
 	},
 	chartConfig: {
 		isInMainChart: false,

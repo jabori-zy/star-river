@@ -1,9 +1,6 @@
 import { z } from "zod";
 import { SeriesType } from "@/types/chart";
-import {
-	IndicatorCategory,
-	IndicatorType,
-} from "@/types/indicator";
+import { IndicatorCategory, IndicatorType } from "@/types/indicator";
 import {
 	createParseIndicatorConfigFromKeyStr,
 	getIndicatorValues,
@@ -15,7 +12,9 @@ const CDLDRAGONFLYDOJIConfigSchema = z.object({
 	// CDLDRAGONFLYDOJI 没有参数
 });
 
-export type CDLDRAGONFLYDOJIConfigType = z.infer<typeof CDLDRAGONFLYDOJIConfigSchema>;
+export type CDLDRAGONFLYDOJIConfigType = z.infer<
+	typeof CDLDRAGONFLYDOJIConfigSchema
+>;
 
 function buildCDLDRAGONFLYDOJIConfig(_params: Map<string, string>): unknown {
 	return {
@@ -23,58 +22,61 @@ function buildCDLDRAGONFLYDOJIConfig(_params: Map<string, string>): unknown {
 	};
 }
 
-export const CDLDRAGONFLYDOJIConfig: IndicatorConfig<CDLDRAGONFLYDOJIConfigType> = {
-	category: IndicatorCategory.PATTERN_RECOGNITION,
-	type: IndicatorType.CDLDRAGONFLYDOJI,
-	displayName: "CDLDRAGONFLYDOJI",
-	description: "Dragonfly Doji",
-	params: {
-		// CDLDRAGONFLYDOJI 没有参数
-	},
-	indicatorValueConfig: {
-		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },
-		dragonfly_doji: { label: "dragonfly_doji", value: 0, legendShowName: "dragonflydoji" },
-	},
-	chartConfig: {
-		isInMainChart: false,
-		seriesConfigs: [
-			{
-				name: "dragonfly_doji",
-				type: SeriesType.COLUMN,
-				color: "#30D158",
-				lineWidth: 1,
-				indicatorValueKey: "dragonfly_doji" as keyof IndicatorValueConfig,
+export const CDLDRAGONFLYDOJIConfig: IndicatorConfig<CDLDRAGONFLYDOJIConfigType> =
+	{
+		category: IndicatorCategory.PATTERN_RECOGNITION,
+		type: IndicatorType.CDLDRAGONFLYDOJI,
+		displayName: "CDLDRAGONFLYDOJI",
+		description: "Dragonfly Doji",
+		params: {
+			// CDLDRAGONFLYDOJI 没有参数
+		},
+		indicatorValueConfig: {
+			timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },
+			dragonfly_doji: {
+				label: "dragonfly_doji",
+				value: 0,
+				legendShowName: "dragonflydoji",
 			},
-		],
-	},
+		},
+		chartConfig: {
+			isInMainChart: false,
+			seriesConfigs: [
+				{
+					name: "dragonfly_doji",
+					type: SeriesType.COLUMN,
+					color: "#30D158",
+					lineWidth: 1,
+					indicatorValueKey: "dragonfly_doji" as keyof IndicatorValueConfig,
+				},
+			],
+		},
 
-	getDefaultConfig(): CDLDRAGONFLYDOJIConfigType {
-		const config = Object.fromEntries(
-			Object.entries(this.params).map(([_key, _param]) => [
-				{},
-			]),
-		);
+		getDefaultConfig(): CDLDRAGONFLYDOJIConfigType {
+			const config = Object.fromEntries(
+				Object.entries(this.params).map(([_key, _param]) => [{}]),
+			);
 
-		const validatedConfig = CDLDRAGONFLYDOJIConfigSchema.parse(config);
-		return validatedConfig;
-	},
+			const validatedConfig = CDLDRAGONFLYDOJIConfigSchema.parse(config);
+			return validatedConfig;
+		},
 
-	getValue() {
-		return getIndicatorValues(this.indicatorValueConfig);
-	},
+		getValue() {
+			return getIndicatorValues(this.indicatorValueConfig);
+		},
 
-	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
-		IndicatorType.CDLDRAGONFLYDOJI,
-		CDLDRAGONFLYDOJIConfigSchema,
-		buildCDLDRAGONFLYDOJIConfig,
-	),
+		parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
+			IndicatorType.CDLDRAGONFLYDOJI,
+			CDLDRAGONFLYDOJIConfigSchema,
+			buildCDLDRAGONFLYDOJIConfig,
+		),
 
-	validateConfig(config: unknown): config is CDLDRAGONFLYDOJIConfigType {
-		try {
-			CDLDRAGONFLYDOJIConfigSchema.parse(config);
-			return true;
-		} catch {
-			return false;
-		}
-	},
-};
+		validateConfig(config: unknown): config is CDLDRAGONFLYDOJIConfigType {
+			try {
+				CDLDRAGONFLYDOJIConfigSchema.parse(config);
+				return true;
+			} catch {
+				return false;
+			}
+		},
+	};

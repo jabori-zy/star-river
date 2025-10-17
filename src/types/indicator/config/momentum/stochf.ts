@@ -1,10 +1,6 @@
 import { z } from "zod";
 import { SeriesType } from "@/types/chart";
-import {
-	IndicatorCategory,
-	IndicatorType,
-	MAType,
-} from "@/types/indicator";
+import { IndicatorCategory, IndicatorType, MAType } from "@/types/indicator";
 import {
 	createParseIndicatorConfigFromKeyStr,
 	getIndicatorValues,

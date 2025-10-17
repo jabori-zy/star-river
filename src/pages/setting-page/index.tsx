@@ -1,3 +1,4 @@
+import { Settings } from "luxon";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -16,10 +17,6 @@ import useSystemConfigStore from "@/store/useSystemConfigStore";
 import type { SystemConfig } from "@/types/system";
 import { LocalizationSelect } from "./localization-select";
 import { TimezoneSelect } from "./timezone-select";
-import { Settings } from "luxon";
-
-
-
 
 // 保存设置按钮
 const SaveSettingButton = ({
@@ -85,13 +82,13 @@ const SettingPage = () => {
 		setIsSaving(true);
 		try {
 			await updateSystemConfigAction(localSystemConfig);
-			
+
 			// 保存成功后，应用时区设置到 Luxon 全局配置
 			if (localSystemConfig.timezone) {
 				Settings.defaultZone = localSystemConfig.timezone;
 				console.log(`已将全局时区设置为: ${localSystemConfig.timezone}`);
 			}
-			
+
 			setSystemConfigIsChanged(false);
 		} catch (error) {
 			console.error("保存设置失败:", error);

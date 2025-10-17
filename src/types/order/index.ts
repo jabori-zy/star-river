@@ -1,7 +1,5 @@
 export type { VirtualOrder } from "./virtual-order";
 
-
-
 export type OrderId = number;
 
 export enum OrderType {

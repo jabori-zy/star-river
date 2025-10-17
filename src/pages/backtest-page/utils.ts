@@ -7,13 +7,13 @@ export const calculateDashboardSize = (): number => {
 	const HEADER_HEIGHT = 48;
 	// 控制栏需要的固定高度（像素）
 	const CONTROL_BAR_HEIGHT = 56;
-	
+
 	// 计算可用的内容高度
 	const availableHeight = window.innerHeight - HEADER_HEIGHT;
-	
+
 	// 计算控制栏高度占可用高度的百分比
 	const sizePercent = (CONTROL_BAR_HEIGHT / availableHeight) * 100;
-	
+
 	return sizePercent;
 };
 
@@ -23,7 +23,7 @@ export const calculateDashboardSize = (): number => {
  */
 export const getDashboardPanelConfig = () => {
 	const size = calculateDashboardSize();
-	
+
 	return {
 		defaultSize: size,
 		minSize: size,

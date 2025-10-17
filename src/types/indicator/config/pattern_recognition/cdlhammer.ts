@@ -1,9 +1,6 @@
 import { z } from "zod";
 import { SeriesType } from "@/types/chart";
-import {
-	IndicatorCategory,
-	IndicatorType,
-} from "@/types/indicator";
+import { IndicatorCategory, IndicatorType } from "@/types/indicator";
 import {
 	createParseIndicatorConfigFromKeyStr,
 	getIndicatorValues,
@@ -50,9 +47,7 @@ export const CDLHAMMERConfig: IndicatorConfig<CDLHAMMERConfigType> = {
 
 	getDefaultConfig(): CDLHAMMERConfigType {
 		const config = Object.fromEntries(
-			Object.entries(this.params).map(([_key, _param]) => [
-				{},
-			]),
+			Object.entries(this.params).map(([_key, _param]) => [{}]),
 		);
 
 		const validatedConfig = CDLHAMMERConfigSchema.parse(config);

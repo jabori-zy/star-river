@@ -1,16 +1,20 @@
 import { useEffect, useState } from "react";
+import { DateTimePicker24h } from "@/components/datetime-picker";
+import { formatDate } from "@/components/flow/node/node-utils";
 import { Input } from "@/components/ui/input";
 
 interface ConstantInputProps {
 	className?: string;
-	value: number;
-	onValueChange: (value: number) => void;
+	value: number | string; // 支持数字和字符串
+	onValueChange: (value: number | string) => void; // 支持数字和字符串
+	inputType?: "number" | "time"; // 输入类型：数字或时间
 }
 
 const ConstantInput: React.FC<ConstantInputProps> = ({
 	className,
 	value,
 	onValueChange,
+	inputType = "number", // 默认为数字类型
 }) => {
 	// 使用字符串来保存本地输入状态，这样可以处理空值和避免格式问题
 	const [localValue, setLocalValue] = useState<string>(value.toString());
@@ -18,10 +22,11 @@ const ConstantInput: React.FC<ConstantInputProps> = ({
 
 	useEffect(() => {
 		// 只有在组件不处于焦点状态时才更新本地值，避免用户输入时被覆盖
-		if (!isFocused) {
+		// 时间类型不需要更新 localValue，因为它使用独立的状态管理
+		if (!isFocused && inputType === "number") {
 			setLocalValue(value.toString());
 		}
-	}, [value, isFocused]);
+	}, [value, isFocused, inputType]);
 
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const inputValue = e.target.value;
@@ -71,6 +76,56 @@ const ConstantInput: React.FC<ConstantInputProps> = ({
 		}
 	};
 
+	// 将字符串转换为Date对象（参考 time-range-selector.tsx）
+	const parseDatetime = (datetimeString: string): Date | undefined => {
+		if (!datetimeString) return undefined;
+		try {
+			return new Date(datetimeString);
+		} catch {
+			return undefined;
+		}
+	};
+
+	// 时间选择处理（使用 formatDate 格式化，参考 time-range-selector.tsx）
+	const handleTimeChange = (date: Date | undefined) => {
+		// 将 Date 对象格式化为字符串保存
+		const formattedDate = formatDate(date);
+		onValueChange(formattedDate);
+	};
+
+	// 如果是时间类型，渲染时间选择器
+	if (inputType === "time") {
+		// 将字符串转换为 Date 对象
+		const dateValue =
+			typeof value === "string" ? parseDatetime(value) : undefined;
+
+		return (
+			<div className={className}>
+				<style>{`
+					/* 覆盖时间选择器按钮样式 */
+					.time-picker-override button {
+						background-color: transparent !important;
+						border-color: rgb(209 213 219) !important;
+						height: 2rem !important;
+						font-size: 0.75rem !important;
+						line-height: 1rem !important;
+					}
+					.time-picker-override button:hover {
+						background-color: rgb(229 231 235) !important;
+					}
+				`}</style>
+				<div className="time-picker-override">
+					<DateTimePicker24h
+						value={dateValue}
+						onChange={handleTimeChange}
+						showSeconds={true}
+					/>
+				</div>
+			</div>
+		);
+	}
+
+	// 默认渲染数字输入
 	return (
 		<Input
 			type="text" // 改为text类型以获得更好的控制

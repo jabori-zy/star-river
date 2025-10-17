@@ -1,4 +1,3 @@
-
 import { z } from "zod";
 import { SeriesType } from "@/types/chart";
 import {
@@ -47,7 +46,11 @@ export const HtDcperiodConfig: IndicatorConfig<HtDcperiodConfigType> = {
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },
-		ht_dcperiod: { label: "ht_dcperiod", value: 0, legendShowName: "ht_dcperiod" },
+		ht_dcperiod: {
+			label: "ht_dcperiod",
+			value: 0,
+			legendShowName: "ht_dcperiod",
+		},
 	},
 	chartConfig: {
 		isInMainChart: false,

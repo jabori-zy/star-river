@@ -1,8 +1,11 @@
 import { BehaviorSubject, Observable, Subject } from "rxjs";
 import { share, takeUntil } from "rxjs/operators";
-import type { StrategyStateLogEvent, NodeStateLogEvent } from "@/types/strategy-event/strategy-state-log-event";
-import { SSEConnectionState } from "./backtest-strategy-event-obs";
+import type {
+	NodeStateLogEvent,
+	StrategyStateLogEvent,
+} from "@/types/strategy-event/strategy-state-log-event";
 import { BACKTEST_STRATEGY_STATE_LOG_URL } from ".";
+import { SSEConnectionState } from "./backtest-strategy-event-obs";
 
 /**
  * 回测策略状态日志Observable服务
@@ -14,7 +17,9 @@ class BacktestStrategyStateLogObservableService {
 		SSEConnectionState.DISCONNECTED,
 	);
 	private destroy$ = new Subject<void>();
-	private logDataSubject = new Subject<StrategyStateLogEvent | NodeStateLogEvent>();
+	private logDataSubject = new Subject<
+		StrategyStateLogEvent | NodeStateLogEvent
+	>();
 
 	/**
 	 * 获取连接状态Observable
@@ -28,7 +33,9 @@ class BacktestStrategyStateLogObservableService {
 	 * @param enabled 是否启用连接
 	 * @returns 策略日志数据更新的Observable流
 	 */
-	createBacktestStrategyStateLogStream(enabled: boolean = true): Observable<StrategyStateLogEvent | NodeStateLogEvent> {
+	createBacktestStrategyStateLogStream(
+		enabled: boolean = true,
+	): Observable<StrategyStateLogEvent | NodeStateLogEvent> {
 		if (!enabled) {
 			this.disconnect();
 			return new Observable((subscriber) => {
@@ -90,15 +97,21 @@ class BacktestStrategyStateLogObservableService {
 	/**
 	 * 判断是否为策略状态日志事件
 	 */
-	private isStrategyStateLogEvent(event: StrategyStateLogEvent | NodeStateLogEvent): event is StrategyStateLogEvent {
-		return 'strategyState' in event && 'strategyStateAction' in event;
+	private isStrategyStateLogEvent(
+		event: StrategyStateLogEvent | NodeStateLogEvent,
+	): event is StrategyStateLogEvent {
+		return "strategyState" in event && "strategyStateAction" in event;
 	}
 
 	/**
 	 * 判断是否为节点状态日志事件
 	 */
-	private isNodeStateLogEvent(event: StrategyStateLogEvent | NodeStateLogEvent): event is NodeStateLogEvent {
-		return 'nodeId' in event && 'nodeState' in event && 'nodeStateAction' in event;
+	private isNodeStateLogEvent(
+		event: StrategyStateLogEvent | NodeStateLogEvent,
+	): event is NodeStateLogEvent {
+		return (
+			"nodeId" in event && "nodeState" in event && "nodeStateAction" in event
+		);
 	}
 
 	/**
@@ -106,19 +119,30 @@ class BacktestStrategyStateLogObservableService {
 	 */
 	private handleMessage(event: MessageEvent): void {
 		try {
-			const logEvent = JSON.parse(event.data) as StrategyStateLogEvent | NodeStateLogEvent;
-			
+			const logEvent = JSON.parse(event.data) as
+				| StrategyStateLogEvent
+				| NodeStateLogEvent;
+
 			// 通过类型保护函数确定具体类型
 			if (this.isStrategyStateLogEvent(logEvent)) {
 				// 这里 logEvent 的类型被确定为 StrategyStateLogEvent
-				console.log('策略状态日志:', logEvent.strategyState, logEvent.strategyStateAction);
+				console.log(
+					"策略状态日志:",
+					logEvent.strategyState,
+					logEvent.strategyStateAction,
+				);
 			} else if (this.isNodeStateLogEvent(logEvent)) {
 				// 这里 logEvent 的类型被确定为 NodeStateLogEvent
-				console.log('节点状态日志:', logEvent.nodeId, logEvent.nodeState, logEvent.nodeStateAction);
+				console.log(
+					"节点状态日志:",
+					logEvent.nodeId,
+					logEvent.nodeState,
+					logEvent.nodeStateAction,
+				);
 			} else {
-				console.warn('未知的日志事件类型:', logEvent);
+				console.warn("未知的日志事件类型:", logEvent);
 			}
-			
+
 			this.logDataSubject.next(logEvent);
 		} catch (error) {
 			console.error("解析策略状态日志SSE消息失败:", error);
@@ -170,7 +194,9 @@ export default backtestStrategyStateLogObservableService;
 
 // 导出便捷函数
 export const createBacktestStrategyStateLogStream = (enabled: boolean = true) =>
-	backtestStrategyStateLogObservableService.createBacktestStrategyStateLogStream(enabled);
+	backtestStrategyStateLogObservableService.createBacktestStrategyStateLogStream(
+		enabled,
+	);
 
 // 连接管理
 export const getStateLogConnectionState = () =>

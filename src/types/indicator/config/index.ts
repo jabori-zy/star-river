@@ -3,6 +3,7 @@
 
 // 重叠指标 (Overlap Studies) - 16个指标
 export * from "./overlap";
+
 import type {
 	BBANDSConfigType,
 	DEMAConfigType,
@@ -24,6 +25,7 @@ import type {
 
 // 动量指标 (Momentum Indicators) - 30个指标
 export * from "./momentum";
+
 import type {
 	ADXConfigType,
 	ADXRConfigType,
@@ -46,8 +48,8 @@ import type {
 	PPOConfigType,
 	ROCConfigType,
 	ROCPConfigType,
-	ROCRConfigType,
 	ROCR100ConfigType,
+	ROCRConfigType,
 	RSIConfigType,
 	STOCHConfigType,
 	STOCHFConfigType,
@@ -59,14 +61,12 @@ import type {
 
 // 成交量指标 (Volume Indicators) - 3个指标
 export * from "./volume";
-import type {
-	ADConfigType,
-	ADOSCConfigType,
-	OBVConfigType,
-} from "./volume";
+
+import type { ADConfigType, ADOSCConfigType, OBVConfigType } from "./volume";
 
 // 波动性指标 (Volatility Indicators) - 3个指标
 export * from "./volatility";
+
 import type {
 	ATRConfigType,
 	NATRConfigType,
@@ -75,6 +75,7 @@ import type {
 
 // 周期指标 (Cycle Indicators) - 5个指标
 export * from "./cycle";
+
 import type {
 	HtDcperiodConfigType,
 	HtDcphaseConfigType,
@@ -85,6 +86,7 @@ import type {
 
 // 价格变换指标 (Price Transform Indicators) - 4个指标
 export * from "./price_transform";
+
 import type {
 	AVGPRICEConfigType,
 	MEDPRICEConfigType,
@@ -94,6 +96,7 @@ import type {
 
 // K线形态识别指标 (Pattern Recognition Indicators) - 61个指标
 export * from "./pattern_recognition";
+
 import type {
 	CDL2CROWSConfigType,
 	CDL3BLACKCROWSConfigType,
@@ -129,8 +132,8 @@ import type {
 	CDLIDENTICAL3CROWSConfigType,
 	CDLINNECKConfigType,
 	CDLINVERTEDHAMMERConfigType,
-	CDLKICKINGConfigType,
 	CDLKICKINGBYLENGTHConfigType,
+	CDLKICKINGConfigType,
 	CDLLADDERBOTTOMConfigType,
 	CDLLONGLEGGEDDOJIConfigType,
 	CDLLONGLINEConfigType,

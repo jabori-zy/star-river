@@ -16,8 +16,12 @@ interface StatsLegendProps {
 export const StatsLegend = forwardRef<HTMLDivElement, StatsLegendProps>(
 	({ statsLegendData, className = "", style }, ref) => {
 		// 使用统计图表配置store
-		const { getChartConfig,getStatsVisibility, toggleStatsVisibility, removeStats } =
-			useBacktestStatsChartConfigStore();
+		const {
+			getChartConfig,
+			getStatsVisibility,
+			toggleStatsVisibility,
+			removeStats,
+		} = useBacktestStatsChartConfigStore();
 
 		// 编辑对话框状态
 		const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -28,7 +32,11 @@ export const StatsLegend = forwardRef<HTMLDivElement, StatsLegendProps>(
 		useEffect(() => {
 			const chartConfig = getChartConfig();
 			if (chartConfig) {
-				setStatsCount(chartConfig.statsChartConfigs.filter((statsChartConfig) => !statsChartConfig.isDelete).length);
+				setStatsCount(
+					chartConfig.statsChartConfigs.filter(
+						(statsChartConfig) => !statsChartConfig.isDelete,
+					).length,
+				);
 			}
 		}, [getChartConfig]);
 
@@ -37,7 +45,9 @@ export const StatsLegend = forwardRef<HTMLDivElement, StatsLegendProps>(
 		}
 
 		// 获取当前统计的可见性状态
-		const isVisible = getStatsVisibility(statsLegendData.statsName as StrategyStatsName);
+		const isVisible = getStatsVisibility(
+			statsLegendData.statsName as StrategyStatsName,
+		);
 
 		// 处理可见性切换
 		const handleVisibilityToggle = (e: React.MouseEvent) => {
@@ -56,10 +66,6 @@ export const StatsLegend = forwardRef<HTMLDivElement, StatsLegendProps>(
 			e.stopPropagation();
 			setIsEditDialogOpen(true);
 		};
-
-		
-
-		
 
 		return (
 			<div
@@ -115,9 +121,9 @@ export const StatsLegend = forwardRef<HTMLDivElement, StatsLegendProps>(
 								title="删除"
 								onClick={handleDeleteStats}
 							>
-									<Trash2 size={12} className="text-red-600" />
-								</Button>
-							)}
+								<Trash2 size={12} className="text-red-600" />
+							</Button>
+						)}
 					</div>
 				</div>
 

@@ -1,11 +1,10 @@
-
 import {
 	type ChartOptions,
 	CrosshairMode,
 	type DeepPartial,
 	type Time,
 } from "lightweight-charts";
-import {DateTime} from "luxon";
+import { DateTime } from "luxon";
 
 export const chartOptions: DeepPartial<ChartOptions> = {
 	grid: {
@@ -36,7 +35,9 @@ export const chartOptions: DeepPartial<ChartOptions> = {
 		timeFormatter: (time: Time) => {
 			// 将时间戳转换为 yyyy-mm-dd hh:mm 格式
 			if (typeof time === "number") {
-				return DateTime.fromMillis(time * 1000).toUTC().toFormat("yyyy-MM-dd HH:mm");
+				return DateTime.fromMillis(time * 1000)
+					.toUTC()
+					.toFormat("yyyy-MM-dd HH:mm");
 			}
 
 			if (typeof time === "object" && time !== null && "year" in time) {

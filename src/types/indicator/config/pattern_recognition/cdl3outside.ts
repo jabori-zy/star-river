@@ -1,9 +1,6 @@
 import { z } from "zod";
 import { SeriesType } from "@/types/chart";
-import {
-	IndicatorCategory,
-	IndicatorType,
-} from "@/types/indicator";
+import { IndicatorCategory, IndicatorType } from "@/types/indicator";
 import {
 	createParseIndicatorConfigFromKeyStr,
 	getIndicatorValues,
@@ -33,7 +30,11 @@ export const CDL3OUTSIDEConfig: IndicatorConfig<CDL3OUTSIDEConfigType> = {
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },
-		three_outside: { label: "three_outside", value: 0, legendShowName: "3outside" },
+		three_outside: {
+			label: "three_outside",
+			value: 0,
+			legendShowName: "3outside",
+		},
 	},
 	chartConfig: {
 		isInMainChart: false,
@@ -50,9 +51,7 @@ export const CDL3OUTSIDEConfig: IndicatorConfig<CDL3OUTSIDEConfigType> = {
 
 	getDefaultConfig(): CDL3OUTSIDEConfigType {
 		const config = Object.fromEntries(
-			Object.entries(this.params).map(([_key, _param]) => [
-				{},
-			]),
+			Object.entries(this.params).map(([_key, _param]) => [{}]),
 		);
 
 		const validatedConfig = CDL3OUTSIDEConfigSchema.parse(config);

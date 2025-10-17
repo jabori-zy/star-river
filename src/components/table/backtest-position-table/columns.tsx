@@ -1,8 +1,8 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { Badge } from "@/components/ui/badge";
-import type { VirtualPosition } from "@/types/position/virtual-position";
-import { PositionSide, PositionState } from "@/types/position";
 import { DateTime } from "luxon";
+import { Badge } from "@/components/ui/badge";
+import { PositionSide, PositionState } from "@/types/position";
+import type { VirtualPosition } from "@/types/position/virtual-position";
 
 // 仓位方向样式
 export const getPositionSideStyle = (side: PositionSide) => {
@@ -70,7 +70,10 @@ export const virtualPositionColumns: ColumnDef<VirtualPosition>[] = [
 		maxSize: 60,
 		enableResizing: false,
 		cell: ({ row }) => (
-			<div className="text-left truncate font-mono text-xs pl-2" title={row.getValue("positionId")}>
+			<div
+				className="text-left truncate font-mono text-xs pl-2"
+				title={row.getValue("positionId")}
+			>
 				{row.getValue("positionId")}
 			</div>
 		),
@@ -83,7 +86,10 @@ export const virtualPositionColumns: ColumnDef<VirtualPosition>[] = [
 		maxSize: 80,
 		enableResizing: false,
 		cell: ({ row }) => (
-			<div className="text-left truncate font-mono text-xs" title={row.getValue("orderId")}>
+			<div
+				className="text-left truncate font-mono text-xs"
+				title={row.getValue("orderId")}
+			>
 				{row.getValue("orderId")}
 			</div>
 		),
@@ -93,7 +99,10 @@ export const virtualPositionColumns: ColumnDef<VirtualPosition>[] = [
 		header: "节点ID",
 		size: 140,
 		cell: ({ row }) => (
-			<div className="text-left truncate font-mono text-xs" title={row.getValue("nodeId")}>
+			<div
+				className="text-left truncate font-mono text-xs"
+				title={row.getValue("nodeId")}
+			>
 				{row.getValue("nodeId")}
 			</div>
 		),
@@ -105,7 +114,11 @@ export const virtualPositionColumns: ColumnDef<VirtualPosition>[] = [
 		cell: ({ row }) => {
 			const exchange = row.getValue("exchange") as string;
 			return (
-				<Badge variant="outline" className="text-xs justify-start font-mono overflow-hidden text-ellipsis whitespace-nowrap max-w-full" title={exchange}>
+				<Badge
+					variant="outline"
+					className="text-xs justify-start font-mono overflow-hidden text-ellipsis whitespace-nowrap max-w-full"
+					title={exchange}
+				>
 					{exchange}
 				</Badge>
 			);
@@ -116,7 +129,10 @@ export const virtualPositionColumns: ColumnDef<VirtualPosition>[] = [
 		header: "交易对",
 		size: 100,
 		cell: ({ row }) => (
-			<div className="text-left truncate font-mono text-xs" title={row.getValue("symbol")}>
+			<div
+				className="text-left truncate font-mono text-xs"
+				title={row.getValue("symbol")}
+			>
 				{row.getValue("symbol")}
 			</div>
 		),
@@ -129,7 +145,10 @@ export const virtualPositionColumns: ColumnDef<VirtualPosition>[] = [
 			const side = row.getValue("positionSide") as PositionSide;
 			return (
 				<div className="flex justify-start">
-					<Badge className={`${getPositionSideStyle(side)} font-mono text-xs overflow-hidden text-ellipsis whitespace-nowrap max-w-full`} title={getPositionSideText(side)}>
+					<Badge
+						className={`${getPositionSideStyle(side)} font-mono text-xs overflow-hidden text-ellipsis whitespace-nowrap max-w-full`}
+						title={getPositionSideText(side)}
+					>
 						{getPositionSideText(side)}
 					</Badge>
 				</div>
@@ -144,7 +163,10 @@ export const virtualPositionColumns: ColumnDef<VirtualPosition>[] = [
 			const state = row.getValue("positionState") as PositionState;
 			return (
 				<div className="flex justify-start">
-					<Badge className={`${getPositionStateStyle(state)} text-xs px-2 overflow-hidden text-ellipsis whitespace-nowrap max-w-full`} title={getPositionStateText(state)}>
+					<Badge
+						className={`${getPositionStateStyle(state)} text-xs px-2 overflow-hidden text-ellipsis whitespace-nowrap max-w-full`}
+						title={getPositionStateText(state)}
+					>
 						{getPositionStateText(state)}
 					</Badge>
 				</div>
@@ -213,17 +235,18 @@ export const virtualPositionColumns: ColumnDef<VirtualPosition>[] = [
 			const isPositive = profit > 0;
 			const isNegative = profit < 0;
 			return (
-				<div 
+				<div
 					className={`text-left font-mono text-sm truncate ${
-						isPositive 
-							? "text-green-600 dark:text-green-400" 
-							: isNegative 
-								? "text-red-600 dark:text-red-400" 
+						isPositive
+							? "text-green-600 dark:text-green-400"
+							: isNegative
+								? "text-red-600 dark:text-red-400"
 								: "text-gray-600 dark:text-gray-400"
-					}`} 
+					}`}
 					title={formatted}
 				>
-					{isPositive ? "+" : ""}{formatted}
+					{isPositive ? "+" : ""}
+					{formatted}
 				</div>
 			);
 		},
@@ -242,7 +265,10 @@ export const virtualPositionColumns: ColumnDef<VirtualPosition>[] = [
 				maximumFractionDigits: 4,
 			}).format(tp);
 			return (
-				<div className="text-left font-mono text-green-600 dark:text-green-400 text-sm truncate" title={formatted}>
+				<div
+					className="text-left font-mono text-green-600 dark:text-green-400 text-sm truncate"
+					title={formatted}
+				>
 					{formatted}
 				</div>
 			);
@@ -262,7 +288,10 @@ export const virtualPositionColumns: ColumnDef<VirtualPosition>[] = [
 				maximumFractionDigits: 4,
 			}).format(sl);
 			return (
-				<div className="text-left font-mono text-red-600 dark:text-red-400 text-sm truncate" title={formatted}>
+				<div
+					className="text-left font-mono text-red-600 dark:text-red-400 text-sm truncate"
+					title={formatted}
+				>
 					{formatted}
 				</div>
 			);
@@ -334,8 +363,10 @@ export const virtualPositionColumns: ColumnDef<VirtualPosition>[] = [
 		size: 160,
 		cell: ({ row }) => {
 			const datetime = row.getValue("createTime") as string;
-			const timeStr = DateTime.fromISO(datetime).toFormat("yyyy-MM-dd HH:mm:ss");
-			
+			const timeStr = DateTime.fromISO(datetime).toFormat(
+				"yyyy-MM-dd HH:mm:ss",
+			);
+
 			return (
 				<div className="text-sm font-mono truncate" title={timeStr}>
 					{timeStr}
@@ -349,7 +380,9 @@ export const virtualPositionColumns: ColumnDef<VirtualPosition>[] = [
 		size: 160,
 		cell: ({ row }) => {
 			const datetime = row.getValue("updateTime") as string;
-			const timeStr = DateTime.fromISO(datetime).toFormat("yyyy-MM-dd HH:mm:ss");
+			const timeStr = DateTime.fromISO(datetime).toFormat(
+				"yyyy-MM-dd HH:mm:ss",
+			);
 			return (
 				<div className="text-sm font-mono truncate" title={timeStr}>
 					{timeStr}

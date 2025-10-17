@@ -22,7 +22,8 @@ interface ChartCardProps {
 
 const ChartCard: React.FC<ChartCardProps> = ({ chartConfig, strategyId }) => {
 	// 使用store中的方法
-	const { deleteChart, addIndicator, changeKline } = useBacktestChartConfigStore();
+	const { deleteChart, addIndicator, changeKline } =
+		useBacktestChartConfigStore();
 
 	const [isSymbolDialogOpen, setIsSymbolDialogOpen] = useState(false);
 	const [isIndicatorDialogOpen, setIsIndicatorDialogOpen] = useState(false);

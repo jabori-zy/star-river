@@ -1,4 +1,11 @@
-import { Loader2, Square, RefreshCw, ChevronDown, ExternalLink } from "lucide-react";
+import {
+	ChevronDown,
+	ExternalLink,
+	Loader2,
+	RefreshCw,
+	Square,
+} from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -8,12 +15,11 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { stopStrategy } from "@/service/strategy";
-import { toast } from "sonner";
 import useStrategyLoadingStore from "@/store/useStrategyLoadingStore";
 
 // 检测当前运行环境
 function isElectronEnvironment() {
-	return !!(window.require?.("electron"));
+	return !!window.require?.("electron");
 }
 
 // 关闭指定策略的回测窗口
@@ -24,8 +30,8 @@ async function closeBacktestWindow(strategyId: number) {
 			const electronModule = window.require("electron");
 			if (electronModule?.ipcRenderer) {
 				const closed = await electronModule.ipcRenderer.invoke(
-					"close-backtest-window", 
-					strategyId
+					"close-backtest-window",
+					strategyId,
 				);
 				if (closed) {
 					console.log(`回测窗口已关闭: ${strategyId}`);
@@ -45,16 +51,18 @@ async function closeBacktestWindow(strategyId: number) {
 }
 
 // 打开回测窗口（检查是否已存在，如果存在则移动到前台，否则创建新窗口）
-async function openBacktestWindow(strategyId: number): Promise<{ created: boolean; focused: boolean }> {
+async function openBacktestWindow(
+	strategyId: number,
+): Promise<{ created: boolean; focused: boolean }> {
 	try {
 		if (isElectronEnvironment()) {
 			// Electron环境：通过IPC检查或打开窗口
 			const electronModule = window.require("electron");
 			if (electronModule?.ipcRenderer) {
-				const result = await electronModule.ipcRenderer.invoke(
-					"check-or-open-backtest-window", 
-					strategyId
-				) as { created: boolean; focused: boolean };
+				const result = (await electronModule.ipcRenderer.invoke(
+					"check-or-open-backtest-window",
+					strategyId,
+				)) as { created: boolean; focused: boolean };
 				if (result.created) {
 					console.log(`新回测窗口已创建: ${strategyId}`);
 				} else if (result.focused) {
@@ -79,10 +87,10 @@ async function openBacktestWindow(strategyId: number): Promise<{ created: boolea
 // 停止策略
 async function requestStopStrategy(strategyId: number | undefined) {
 	if (!strategyId) return;
-	
+
 	// 停止后端策略
 	await stopStrategy(strategyId);
-	
+
 	// 关闭对应的回测窗口
 	await closeBacktestWindow(strategyId);
 }
@@ -91,8 +99,11 @@ interface BacktestingButtonProps {
 	strategyId: number | undefined;
 }
 
-const BacktestingButton: React.FC<BacktestingButtonProps> = ({ strategyId }) => {
-	const { reset, setShowDialog, setStopping, clearLogs, setDialogTitle } = useStrategyLoadingStore();
+const BacktestingButton: React.FC<BacktestingButtonProps> = ({
+	strategyId,
+}) => {
+	const { reset, setShowDialog, setStopping, clearLogs, setDialogTitle } =
+		useStrategyLoadingStore();
 
 	const handleStop = async () => {
 		// 先清空旧日志，设置停止标题，然后显示dialog并设置停止中状态
@@ -100,11 +111,11 @@ const BacktestingButton: React.FC<BacktestingButtonProps> = ({ strategyId }) => 
 		setDialogTitle("策略停止中");
 		setShowDialog(true);
 		setStopping(true);
-		
+
 		try {
 			await requestStopStrategy(strategyId);
 			console.log("策略停止请求已发送，等待SSE确认...");
-			
+
 			// 不再自动关闭dialog，等待SSE事件通知策略已停止
 		} catch (error) {
 			console.error("停止策略失败:", error);
@@ -142,20 +153,12 @@ const BacktestingButton: React.FC<BacktestingButtonProps> = ({ strategyId }) => 
 			</Button>
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild>
-					<Button 
-						variant="secondary"
-						size="sm"
-						className="px-2 rounded-l-none"
-					>
+					<Button variant="secondary" size="sm" className="px-2 rounded-l-none">
 						<ChevronDown className="h-4 w-4" />
 					</Button>
 				</DropdownMenuTrigger>
-				<DropdownMenuContent 
-					className="min-w-32" 
-					align="end"
-					sideOffset={4}
-				>
-					<DropdownMenuItem 
+				<DropdownMenuContent className="min-w-32" align="end" sideOffset={4}>
+					<DropdownMenuItem
 						onClick={handleStop}
 						className="text-red-600 focus:text-red-600"
 					>

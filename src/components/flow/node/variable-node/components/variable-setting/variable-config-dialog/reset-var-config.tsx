@@ -1,127 +1,129 @@
-import { Filter, Clock } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { SelectInDialog } from "@/components/select-components/select-in-dialog";
-import type { CustomVariable } from "@/types/variable";
 import { formatVariableValue } from "@/components/flow/node/start-node/components/utils";
-import TimerConfig from "./timer";
+import { SelectInDialog } from "@/components/select-components/select-in-dialog";
+import { Label } from "@/components/ui/label";
+import type { TimerConfig, TriggerCase } from "@/types/node/variable-node";
+import type { CustomVariable } from "@/types/variable";
+import { getTriggerCaseLabel } from "../../../variable-node-utils";
+import CaseSelector, { type CaseItemInfo } from "./components/case-selector";
+import TimerConfigComponent from "./components/timer";
+import TriggerTypeConfig from "./components/trigger-type-config";
 
 interface ResetVarConfigProps {
 	variable: string;
-	triggerType: "condition" | "timer";
-	timerInterval: number;
-	timerUnit: "second" | "minute" | "hour" | "day";
+	triggerType: "condition" | "timer" | "dataflow";
+	timerConfig: TimerConfig;
 	customVariables: CustomVariable[];
 	customVariableOptions: Array<{ value: string; label: React.ReactNode }>;
-	varInitialValue: string | number | boolean;
+	caseItemList: CaseItemInfo[];
+	selectedTriggerCase: TriggerCase | null;
+	varInitialValue: string | number | boolean | string[];
 	onVariableChange: (value: string) => void;
-	onTriggerTypeChange: (value: "condition" | "timer") => void;
-	onTimerIntervalChange: (value: number) => void;
-	onTimerUnitChange: (value: "second" | "minute" | "hour" | "day") => void;
+	onTriggerTypeChange: (value: "condition" | "timer" | "dataflow") => void;
+	onTimerConfigChange: (value: TimerConfig) => void;
+	onTriggerCaseChange: (value: TriggerCase | null) => void;
 }
 
 const ResetVarConfig: React.FC<ResetVarConfigProps> = ({
 	variable,
 	triggerType,
-	timerInterval,
-	timerUnit,
+	timerConfig,
 	customVariables,
 	customVariableOptions,
+	caseItemList,
+	selectedTriggerCase,
 	varInitialValue,
 	onVariableChange,
 	onTriggerTypeChange,
-	onTimerIntervalChange,
-	onTimerUnitChange,
+	onTimerConfigChange,
+	onTriggerCaseChange,
 }) => {
 	return (
 		<>
 			{/* RESET 模式的 UI */}
 			<div className="flex flex-col gap-2">
-				<Label htmlFor="resetVariable" className="text-sm font-medium">
+				<Label
+					htmlFor="resetVariable"
+					className="text-sm font-medium pointer-events-none"
+				>
 					选择变量
 				</Label>
 				<SelectInDialog
 					id="resetVariable"
 					value={variable}
 					onValueChange={onVariableChange}
-					placeholder={customVariables.length === 0 ? "无自定义变量" : "选择要重置的变量"}
+					placeholder={
+						customVariables.length === 0 ? "无自定义变量" : "选择要重置的变量"
+					}
 					options={customVariableOptions}
 					disabled={customVariables.length === 0}
 					emptyMessage="未配置自定义变量，请在策略起点配置"
 				/>
-				{variable && (() => {
-					const selectedVar = customVariables.find((v: CustomVariable) => v.varName === variable);
-					const formattedValue = selectedVar
-						? formatVariableValue(varInitialValue, selectedVar.varValueType)
-						: String(varInitialValue);
+				{variable &&
+					(() => {
+						const selectedVar = customVariables.find(
+							(v: CustomVariable) => v.varName === variable,
+						);
+						const formattedValue = selectedVar
+							? formatVariableValue(varInitialValue, selectedVar.varValueType)
+							: String(varInitialValue);
 
-					return (
-						<p className="text-xs text-muted-foreground">
-							变量值将被重置为: <span className="font-semibold text-blue-600 px-1.5 py-0.5 rounded bg-blue-50">{formattedValue}</span>
-						</p>
-					);
-				})()}
+						// 获取触发信息
+						const triggerNodeName = selectedTriggerCase?.fromNodeName;
+						const triggerCaseLabel = getTriggerCaseLabel(selectedTriggerCase);
+
+						return (
+							<p className="text-xs text-muted-foreground">
+								{triggerType === "condition" &&
+									triggerNodeName &&
+									triggerCaseLabel && (
+										<>
+											当{" "}
+											<span className="text-blue-600 font-medium">
+												{triggerNodeName}/{triggerCaseLabel}
+											</span>{" "}
+											分支满足时，
+										</>
+									)}
+								变量值将被重置为:{" "}
+								<span className="font-semibold text-blue-600 px-1.5 py-0.5 rounded bg-blue-50">
+									{formattedValue}
+								</span>
+							</p>
+						);
+					})()}
 			</div>
 
 			{/* 触发方式 */}
-			<div className="space-y-1">
-				<Label className="text-sm font-medium">触发方式</Label>
-				<div className="flex items-center space-x-6 pt-1">
-					<div className="flex items-center space-x-2">
-						<Checkbox
-							id="reset-condition-trigger"
-							checked={triggerType === "condition"}
-							onCheckedChange={(checked) => {
-								if (checked) {
-									onTriggerTypeChange("condition");
-								}
-							}}
-						/>
-						<Label
-							htmlFor="reset-condition-trigger"
-							className="text-sm cursor-pointer flex items-center"
-						>
-							<Filter className="h-3.5 w-3.5 mr-1 text-orange-500" />
-							条件触发
-						</Label>
-					</div>
-					<div className="flex items-center space-x-2">
-						<Checkbox
-							id="reset-timer-trigger"
-							checked={triggerType === "timer"}
-							onCheckedChange={(checked) => {
-								if (checked) {
-									onTriggerTypeChange("timer");
-								}
-							}}
-						/>
-						<Label
-							htmlFor="reset-timer-trigger"
-							className="text-sm cursor-pointer flex items-center"
-						>
-							<Clock className="h-3.5 w-3.5 mr-1 text-blue-500" />
-							定时触发
-						</Label>
-					</div>
+			<TriggerTypeConfig
+				triggerType={triggerType}
+				onTriggerTypeChange={onTriggerTypeChange}
+				availableTriggers={["condition", "timer"]}
+				idPrefix="reset"
+			/>
+
+			{/* 条件触发模式：Case 选择器 */}
+			{triggerType === "condition" && (
+				<div className="flex flex-col gap-2">
+					<Label className="text-sm font-medium pointer-events-none">
+						触发条件
+					</Label>
+					<CaseSelector
+						caseList={caseItemList}
+						selectedTriggerCase={selectedTriggerCase}
+						onTriggerCaseChange={onTriggerCaseChange}
+					/>
 				</div>
-			</div>
+			)}
 
 			{/* 定时配置 */}
 			{triggerType === "timer" && (
-				<TimerConfig
-					timerInterval={timerInterval}
-					timerUnit={timerUnit}
-					onTimerIntervalChange={onTimerIntervalChange}
-					onTimerUnitChange={onTimerUnitChange}
-				/>
+				<div className="rounded-md border border-gray-200 p-3">
+					<TimerConfigComponent
+						timerConfig={timerConfig}
+						onTimerConfigChange={onTimerConfigChange}
+					/>
+				</div>
 			)}
-
-			{/* 说明文案 */}
-			<div className="rounded-md bg-blue-50 p-3 border border-blue-200">
-				<p className="text-xs text-blue-800">
-					<strong>重置操作</strong>将把变量恢复为在策略起点定义的初始值。
-				</p>
-			</div>
 		</>
 	);
 };

@@ -1,4 +1,6 @@
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { SelectInDialog } from "@/components/select-components/select-in-dialog";
+import { SelectWithSearch } from "@/components/select-components/select-with-search";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -9,15 +11,13 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { SelectWithSearch } from "@/components/select-components/select-with-search";
-import { SelectInDialog } from "@/components/select-components/select-in-dialog";
-import type { SelectedSymbol } from "@/types/node/kline-node";
-import type { MarketSymbol, ExchangeStatus } from "@/types/market";
 import { getExchangeStatus } from "@/service/exchange";
 import { INTERVAL_LABEL_MAP } from "@/types/kline";
+import type { ExchangeStatus, MarketSymbol } from "@/types/market";
+import type { SelectedSymbol } from "@/types/node/kline-node";
 
 interface SymbolSelectDialogProps {
-    accountId: number | undefined;
+	accountId: number | undefined;
 	accountName: string;
 	isOpen: boolean;
 	onOpenChange: (open: boolean) => void;
@@ -37,7 +37,7 @@ interface SymbolSelectDialogProps {
 }
 
 export const SymbolSelectDialog: React.FC<SymbolSelectDialogProps> = ({
-    accountId,
+	accountId,
 	accountName,
 	isOpen,
 	onOpenChange,
@@ -48,13 +48,14 @@ export const SymbolSelectDialog: React.FC<SymbolSelectDialogProps> = ({
 	onSymbolNameChange,
 	onSymbolIntervalChange,
 	onSave,
-	originalSymbolName = '',
-	originalSymbolInterval = '',
+	originalSymbolName = "",
+	originalSymbolInterval = "",
 	symbolList,
 	supportKlineInterval,
 }) => {
-
-	const [exchangeStatus, setExchangeStatus] = useState<ExchangeStatus | null>(null);
+	const [exchangeStatus, setExchangeStatus] = useState<ExchangeStatus | null>(
+		null,
+	);
 
 	// 获取交易所状态
 	const fetchExchangeStatus = useCallback(async () => {
@@ -69,27 +70,26 @@ export const SymbolSelectDialog: React.FC<SymbolSelectDialogProps> = ({
 		}
 	}, [accountId]);
 
-    useEffect(() => {
-        if (accountId && isOpen) {
+	useEffect(() => {
+		if (accountId && isOpen) {
 			// 获取交易所状态
 			fetchExchangeStatus();
-        }
-    }, [accountId, isOpen, fetchExchangeStatus]);
+		}
+	}, [accountId, isOpen, fetchExchangeStatus]);
 
-    // 判断当前值是否与原始保存值相同
-    // 如果是编辑模式，使用editingSymbol的值；否则使用传入的original值
-    const savedSymbolName = editingSymbol?.symbol || originalSymbolName;
-    const savedSymbolInterval = editingSymbol?.interval || originalSymbolInterval;
+	// 判断当前值是否与原始保存值相同
+	// 如果是编辑模式，使用editingSymbol的值；否则使用传入的original值
+	const savedSymbolName = editingSymbol?.symbol || originalSymbolName;
+	const savedSymbolInterval = editingSymbol?.interval || originalSymbolInterval;
 
-    const hasChanges = symbolName !== savedSymbolName ||
-                       symbolInterval !== savedSymbolInterval;
+	const hasChanges =
+		symbolName !== savedSymbolName || symbolInterval !== savedSymbolInterval;
 
 	// 判断是否已连接
 	const isConnected = exchangeStatus === "Connected";
 
-    // Save按钮是否可用：没有错误 && 有变化 && 表单填写完整
-    const isSaveDisabled = !!nameError || !hasChanges || !symbolName.trim();
-
+	// Save按钮是否可用：没有错误 && 有变化 && 表单填写完整
+	const isSaveDisabled = !!nameError || !hasChanges || !symbolName.trim();
 
 	return (
 		<Dialog open={isOpen} onOpenChange={onOpenChange} modal={false}>
@@ -106,9 +106,7 @@ export const SymbolSelectDialog: React.FC<SymbolSelectDialogProps> = ({
 				{/* 交易所未连接警告 */}
 				{exchangeStatus && exchangeStatus !== "Connected" && (
 					<div className="">
-						<p className="text-sm text-yellow-700">
-							{accountName} 未连接.
-						</p>
+						<p className="text-sm text-yellow-700">{accountName} 未连接.</p>
 					</div>
 				)}
 
@@ -132,9 +130,7 @@ export const SymbolSelectDialog: React.FC<SymbolSelectDialogProps> = ({
 								error={!!nameError}
 								disabled={!isConnected}
 							/>
-							{nameError && (
-								<p className="text-xs text-red-500">{nameError}</p>
-							)}
+							{nameError && <p className="text-xs text-red-500">{nameError}</p>}
 						</div>
 					</div>
 					<div className="grid grid-cols-4 items-center gap-4">

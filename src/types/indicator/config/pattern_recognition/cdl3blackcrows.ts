@@ -1,9 +1,6 @@
 import { z } from "zod";
 import { SeriesType } from "@/types/chart";
-import {
-	IndicatorCategory,
-	IndicatorType,
-} from "@/types/indicator";
+import { IndicatorCategory, IndicatorType } from "@/types/indicator";
 import {
 	createParseIndicatorConfigFromKeyStr,
 	getIndicatorValues,
@@ -15,7 +12,9 @@ const CDL3BLACKCROWSConfigSchema = z.object({
 	// CDL3BLACKCROWS 没有参数
 });
 
-export type CDL3BLACKCROWSConfigType = z.infer<typeof CDL3BLACKCROWSConfigSchema>;
+export type CDL3BLACKCROWSConfigType = z.infer<
+	typeof CDL3BLACKCROWSConfigSchema
+>;
 
 function buildCDL3BLACKCROWSConfig(_params: Map<string, string>): unknown {
 	return {
@@ -33,7 +32,11 @@ export const CDL3BLACKCROWSConfig: IndicatorConfig<CDL3BLACKCROWSConfigType> = {
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },
-		three_black_crows: { label: "three_black_crows", value: 0, legendShowName: "3blackcrows" },
+		three_black_crows: {
+			label: "three_black_crows",
+			value: 0,
+			legendShowName: "3blackcrows",
+		},
 	},
 	chartConfig: {
 		isInMainChart: false,
@@ -50,9 +53,7 @@ export const CDL3BLACKCROWSConfig: IndicatorConfig<CDL3BLACKCROWSConfigType> = {
 
 	getDefaultConfig(): CDL3BLACKCROWSConfigType {
 		const config = Object.fromEntries(
-			Object.entries(this.params).map(([_key, _param]) => [
-				{},
-			]),
+			Object.entries(this.params).map(([_key, _param]) => [{}]),
 		);
 
 		const validatedConfig = CDL3BLACKCROWSConfigSchema.parse(config);

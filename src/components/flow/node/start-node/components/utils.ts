@@ -7,7 +7,7 @@ import { VariableValueType } from "@/types/variable";
  * @returns 格式化后的字符串
  */
 export const formatVariableValue = (
-	value: string | number | boolean,
+	value: string | number | boolean | string[],
 	type: VariableValueType,
 ): string => {
 	if (type === VariableValueType.BOOLEAN) {
@@ -15,6 +15,14 @@ export const formatVariableValue = (
 	}
 	if (type === VariableValueType.STRING) {
 		return `"${value}"`;
+	}
+	if (type === VariableValueType.ENUM) {
+		return Array.isArray(value)
+			? `[${value.map((v) => `"${v}"`).join(", ")}]`
+			: "[]";
+	}
+	if (type === VariableValueType.PERCENTAGE) {
+		return `${value}%`;
 	}
 	return value?.toString() || "";
 };

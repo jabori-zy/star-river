@@ -1,9 +1,6 @@
 import { z } from "zod";
 import { SeriesType } from "@/types/chart";
-import {
-	IndicatorCategory,
-	IndicatorType,
-} from "@/types/indicator";
+import { IndicatorCategory, IndicatorType } from "@/types/indicator";
 import {
 	createParseIndicatorConfigFromKeyStr,
 	getIndicatorValues,
@@ -15,7 +12,9 @@ const CDLMATCHINGLOWConfigSchema = z.object({
 	// CDLMATCHINGLOW 没有参数
 });
 
-export type CDLMATCHINGLOWConfigType = z.infer<typeof CDLMATCHINGLOWConfigSchema>;
+export type CDLMATCHINGLOWConfigType = z.infer<
+	typeof CDLMATCHINGLOWConfigSchema
+>;
 
 function buildCDLMATCHINGLOWConfig(_params: Map<string, string>): unknown {
 	return {
@@ -33,7 +32,11 @@ export const CDLMATCHINGLOWConfig: IndicatorConfig<CDLMATCHINGLOWConfigType> = {
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },
-		matching_low: { label: "matching_low", value: 0, legendShowName: "matchinglow" },
+		matching_low: {
+			label: "matching_low",
+			value: 0,
+			legendShowName: "matchinglow",
+		},
 	},
 	chartConfig: {
 		isInMainChart: false,
@@ -50,9 +53,7 @@ export const CDLMATCHINGLOWConfig: IndicatorConfig<CDLMATCHINGLOWConfigType> = {
 
 	getDefaultConfig(): CDLMATCHINGLOWConfigType {
 		const config = Object.fromEntries(
-			Object.entries(this.params).map(([_key, _param]) => [
-				{},
-			]),
+			Object.entries(this.params).map(([_key, _param]) => [{}]),
 		);
 
 		const validatedConfig = CDLMATCHINGLOWConfigSchema.parse(config);

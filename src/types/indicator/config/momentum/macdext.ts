@@ -3,8 +3,8 @@ import { SeriesType } from "@/types/chart";
 import {
 	IndicatorCategory,
 	IndicatorType,
-	PriceSource,
 	MAType,
+	PriceSource,
 } from "@/types/indicator";
 import {
 	createParseIndicatorConfigFromKeyStr,
@@ -13,8 +13,8 @@ import {
 } from "@/types/indicator/indicator-config";
 import {
 	type IndicatorValueConfig,
-	PriceSourceSchema,
 	MATypeSchema,
+	PriceSourceSchema,
 } from "@/types/indicator/schemas";
 
 const MACDEXTConfigSchema = z.object({

@@ -38,7 +38,8 @@ export default function StrategyFlow({ strategy }: { strategy: Strategy }) {
 	const { dragNodeItem, setDragNodeItem } = useDndNodeStore();
 	const { screenToFlowPosition } = useReactFlow();
 
-	const { checkIsValidConnection, handleNodeChanges, handleEdgeChanges } = useStrategyWorkflow();
+	const { checkIsValidConnection, handleNodeChanges, handleEdgeChanges } =
+		useStrategyWorkflow();
 
 	// 创建一个唯一的 key 用于强制重新渲染，包含策略ID和交易模式
 	const flowKey = useMemo(() => {
@@ -75,13 +76,7 @@ export default function StrategyFlow({ strategy }: { strategy: Strategy }) {
 				setNodes([startNode]);
 			}, 0);
 		}
-	}, [
-		strategy.id,
-		strategy.nodes,
-		strategy.edges,
-		setNodes,
-		setEdges,
-	]);
+	}, [strategy.id, strategy.nodes, strategy.edges, setNodes, setEdges]);
 
 	const onDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
 		event.preventDefault();
@@ -142,10 +137,15 @@ export default function StrategyFlow({ strategy }: { strategy: Strategy }) {
 				const newNodes = applyNodeChanges(changes, oldNodes);
 
 				// 手动处理节点变化
-				const updatedNodes = handleNodeChanges(changes, oldNodes, newNodes, edges);
+				const updatedNodes = handleNodeChanges(
+					changes,
+					oldNodes,
+					newNodes,
+					edges,
+				);
 
 				// 返回更新后的节点
-				return updatedNodes
+				return updatedNodes;
 			});
 		},
 		[setNodes, edges, handleNodeChanges],
@@ -157,13 +157,19 @@ export default function StrategyFlow({ strategy }: { strategy: Strategy }) {
 			setEdges((oldEdges) => {
 				const newEdges = applyEdgeChanges(changes, oldEdges);
 				// 如果changes中都是replace或select类型，则不处理
-				const isAllReplaceOrSelect = changes.every((change) => change.type === "replace" || change.type === "select");
+				const isAllReplaceOrSelect = changes.every(
+					(change) => change.type === "replace" || change.type === "select",
+				);
 				if (!isAllReplaceOrSelect) {
-					const [_, updatedNodes] = handleEdgeChanges(changes, oldEdges, newEdges);
+					const [_, updatedNodes] = handleEdgeChanges(
+						changes,
+						oldEdges,
+						newEdges,
+					);
 					// 更新节点
 					setNodes(updatedNodes);
 				}
-				
+
 				return newEdges;
 			});
 		},

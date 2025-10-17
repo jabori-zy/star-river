@@ -68,7 +68,12 @@ const FuturesOrderSetting: React.FC<FuturesOrderSettingProps> = ({
 		<div className="flex flex-col gap-2">
 			<div className="flex items-center justify-between">
 				<Label className="text-sm font-bold text-gray-700">订单配置</Label>
-				<Button variant="ghost" size="icon" onClick={handleAddOrder} disabled={!accountId}>
+				<Button
+					variant="ghost"
+					size="icon"
+					onClick={handleAddOrder}
+					disabled={!accountId}
+				>
 					<PlusIcon className="w-4 h-4" />
 				</Button>
 			</div>

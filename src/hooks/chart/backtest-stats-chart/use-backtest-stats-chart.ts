@@ -1,12 +1,11 @@
 import type { ChartOptions, DeepPartial, IChartApi } from "lightweight-charts";
 import { createChart } from "lightweight-charts";
-import { useCallback, useState} from "react";
-import type {RefObject} from "react";
-import { useEffect, useRef } from "react";
+import type { RefObject } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useBacktestStatsChartStore } from "@/components/chart/backtest-stats-chart/backtest-stats-chart-store";
+import { get_play_index } from "@/service/backtest-strategy/backtest-strategy-control";
 import type { BacktestStrategyStatsChartConfig } from "@/types/chart/backtest-strategy-stats-chart";
 import { addStatsSeries } from "./utils";
-import { get_play_index } from "@/service/backtest-strategy/backtest-strategy-control";
 
 interface UseBacktestStatsChartParams {
 	strategyId: number;
@@ -48,13 +47,11 @@ export const useBacktestStatsChart = ({
 		incrementPaneVersion,
 	} = useBacktestStatsChartStore(strategyId, chartConfig);
 
-
 	// 更改series配置
 	const changeSeriesConfig = useCallback(() => {
-
 		chartConfig.statsChartConfigs.forEach((statsChartConfig) => {
 			if (!statsChartConfig.isDelete) {
-				const statsName = statsChartConfig.seriesConfigs.statsName
+				const statsName = statsChartConfig.seriesConfigs.statsName;
 				const statsSeriesRef = getStatsSeriesRef(statsName);
 				if (statsSeriesRef) {
 					statsSeriesRef.applyOptions({
@@ -64,62 +61,65 @@ export const useBacktestStatsChart = ({
 				}
 			}
 		});
+	}, [chartConfig.statsChartConfigs, getStatsSeriesRef]);
 
+	const createStatsPane = useCallback(
+		(chart: IChartApi) => {
+			chartConfig.statsChartConfigs.forEach((statsChartConfig) => {
+				// 如果图表可见，则创建pane
 
+				const statsName = statsChartConfig.seriesConfigs.statsName;
+				// 判断chart中是否有series
+				const mainPane = chart.panes()[0];
+				// 将主图的pane添加到引用中
+				setStatsPaneRef(statsName, mainPane);
+				const mainChartSeries = mainPane.getSeries();
 
-	},[chartConfig.statsChartConfigs, getStatsSeriesRef])
-
-
-	const createStatsPane = useCallback((chart: IChartApi) => {
-		
-		chartConfig.statsChartConfigs.forEach((statsChartConfig) => {
-			// 如果图表可见，则创建pane
-			
-			const statsName = statsChartConfig.seriesConfigs.statsName
-			// 判断chart中是否有series
-			const mainPane = chart.panes()[0];
-			// 将主图的pane添加到引用中
-			setStatsPaneRef(statsName, mainPane);
-			const mainChartSeries = mainPane.getSeries();
-			
-			// 如果等于0， 则将series创建到主图中
-			if (mainChartSeries.length === 0) {
-				const series = addStatsSeries(mainPane, statsChartConfig, statsChartConfig.seriesConfigs);
-				if (series) {
-					setStatsSeriesRef(statsName, series);
-				}
-			}
-			else{
-
-			
-				//1. 创建pane
-				const pane = chart.addPane(false);
-				pane.setStretchFactor(2);
-				//2. 设置pane
-				setStatsPaneRef(statsName, pane);
-
-				//3. 使用 setTimeout 延迟获取 HTML 元素，因为 pane 还没有完全实例化
-				setTimeout(() => {
-					const htmlElement = pane.getHTMLElement();
-					if (htmlElement) {
-						addStatsPaneHtmlElementRef(statsName, htmlElement);
+				// 如果等于0， 则将series创建到主图中
+				if (mainChartSeries.length === 0) {
+					const series = addStatsSeries(
+						mainPane,
+						statsChartConfig,
+						statsChartConfig.seriesConfigs,
+					);
+					if (series) {
+						setStatsSeriesRef(statsName, series);
 					}
-				}, 100);
+				} else {
+					//1. 创建pane
+					const pane = chart.addPane(false);
+					pane.setStretchFactor(2);
+					//2. 设置pane
+					setStatsPaneRef(statsName, pane);
 
-				//4. 创建series
-				// 第一个series创建到主图中
-				const series = addStatsSeries( pane, statsChartConfig, statsChartConfig.seriesConfigs);
-				if (series) {
-					setStatsSeriesRef(statsName, series);
+					//3. 使用 setTimeout 延迟获取 HTML 元素，因为 pane 还没有完全实例化
+					setTimeout(() => {
+						const htmlElement = pane.getHTMLElement();
+						if (htmlElement) {
+							addStatsPaneHtmlElementRef(statsName, htmlElement);
+						}
+					}, 100);
+
+					//4. 创建series
+					// 第一个series创建到主图中
+					const series = addStatsSeries(
+						pane,
+						statsChartConfig,
+						statsChartConfig.seriesConfigs,
+					);
+					if (series) {
+						setStatsSeriesRef(statsName, series);
+					}
 				}
-				
-			}
-				
-			
-		});
-		
-	}, [setStatsPaneRef, addStatsPaneHtmlElementRef, setStatsSeriesRef, chartConfig.statsChartConfigs]);
-
+			});
+		},
+		[
+			setStatsPaneRef,
+			addStatsPaneHtmlElementRef,
+			setStatsSeriesRef,
+			chartConfig.statsChartConfigs,
+		],
+	);
 
 	// 删除series
 	const deleteSeries = useCallback(() => {
@@ -127,7 +127,7 @@ export const useBacktestStatsChart = ({
 		if (chart) {
 			chartConfig.statsChartConfigs.forEach((statsChartConfig) => {
 				if (statsChartConfig.isDelete) {
-					const statsName = statsChartConfig.seriesConfigs.statsName
+					const statsName = statsChartConfig.seriesConfigs.statsName;
 					// 待删除的series引用
 					const removeSeriesRef = getStatsSeriesRef(statsName);
 
@@ -140,12 +140,11 @@ export const useBacktestStatsChart = ({
 							deleteStatsPaneRef(statsName); // 删除store中的pane引用
 							deleteStatsSeriesRef(statsName); // 删除store中的series引用
 
-							
 							chartConfig.statsChartConfigs.forEach((statsChartConfig) => {
-								const statsName = statsChartConfig.seriesConfigs.statsName
+								const statsName = statsChartConfig.seriesConfigs.statsName;
 								const seriesRef = getStatsSeriesRef(statsName);
 								if (seriesRef) {
-									const newPane = seriesRef.getPane()
+									const newPane = seriesRef.getPane();
 									if (newPane) {
 										const newHtmlElement = newPane.getHTMLElement();
 										if (newHtmlElement) {
@@ -153,41 +152,34 @@ export const useBacktestStatsChart = ({
 										}
 										setStatsPaneRef(statsName, newPane);
 										incrementPaneVersion();
-
 									}
-									
-									
 								}
-
-								
 							});
 						}
-					
-
 					}
-						
 				}
 			});
 		}
-	},[
-		getChartRef, 
-		addStatsPaneHtmlElementRef, 
-		deleteStatsPaneRef, 
-		setStatsPaneRef, 
-		deleteStatsSeriesRef, 
-		getStatsSeriesRef, 
-		chartConfig.statsChartConfigs, 
+	}, [
+		getChartRef,
+		addStatsPaneHtmlElementRef,
+		deleteStatsPaneRef,
+		setStatsPaneRef,
+		deleteStatsSeriesRef,
+		getStatsSeriesRef,
+		chartConfig.statsChartConfigs,
 		incrementPaneVersion,
-	])
-
+	]);
 
 	const addSeries = useCallback(() => {
 		const chart = getChartRef();
 		if (chart) {
-			const statsChartConfigs = chartConfig.statsChartConfigs.filter((statsChartConfig) => !statsChartConfig.isDelete);
+			const statsChartConfigs = chartConfig.statsChartConfigs.filter(
+				(statsChartConfig) => !statsChartConfig.isDelete,
+			);
 
 			statsChartConfigs.forEach((statsChartConfig) => {
-				const statsName = statsChartConfig.seriesConfigs.statsName
+				const statsName = statsChartConfig.seriesConfigs.statsName;
 				const paneRef = getStatsPaneRef(statsName);
 				if (!paneRef) {
 					const pane = chart.addPane(false);
@@ -199,7 +191,11 @@ export const useBacktestStatsChart = ({
 							addStatsPaneHtmlElementRef(statsName, htmlElement);
 						}
 					}, 10);
-					const series = addStatsSeries(pane, statsChartConfig, statsChartConfig.seriesConfigs);
+					const series = addStatsSeries(
+						pane,
+						statsChartConfig,
+						statsChartConfig.seriesConfigs,
+					);
 					if (series) {
 						setStatsSeriesRef(statsName, series);
 
@@ -210,27 +206,21 @@ export const useBacktestStatsChart = ({
 						}
 					}
 				}
-				
-				
 			});
 		}
-	
-	},[
-		chartConfig.statsChartConfigs, 
-		getStatsPaneRef, 
-		addStatsPaneHtmlElementRef, 
-		setStatsPaneRef, 
-		setStatsSeriesRef, 
+	}, [
+		chartConfig.statsChartConfigs,
+		getStatsPaneRef,
+		addStatsPaneHtmlElementRef,
+		setStatsPaneRef,
+		setStatsSeriesRef,
 		getChartRef,
-		getStatsData])
-
-
-
+		getStatsData,
+	]);
 
 	const initializeBacktestStatsChart = useCallback(() => {
 		const existingChart = getChartRef();
 		if (chartContainerRef.current && !existingChart) {
-
 			// 确保容器元素真正存在于DOM中
 			// 防止在DOM重排过程中尝试初始化图表
 			if (!document.contains(chartContainerRef.current)) {
@@ -252,23 +242,30 @@ export const useBacktestStatsChart = ({
 				setIsInitialized(true);
 			}, 100);
 		}
-	}, [chartContainerRef, chartOptions, setChartRef, getChartRef, createStatsPane, initObserverSubscriptions]);
+	}, [
+		chartContainerRef,
+		chartOptions,
+		setChartRef,
+		getChartRef,
+		createStatsPane,
+		initObserverSubscriptions,
+	]);
 
 	/**
 	 * 容器引用有效性监控
-	 * 
+	 *
 	 * 关键修复：自动检测并修复图表容器引用丢失问题
-	 * 
+	 *
 	 * 触发场景：
 	 * - 添加新图表时React重新渲染，导致现有图表的DOM容器被重新创建
 	 * - ResizablePanel布局变化导致DOM结构调整
 	 * - 其他任何导致DOM重排的操作
-	 * 
+	 *
 	 * 检测逻辑：
 	 * 1. 获取图表实例和当前容器引用
 	 * 2. 通过chart.chartElement()获取图表实际绑定的DOM元素
 	 * 3. 比较实际绑定的DOM元素是否仍然是当前容器的子元素
-	 * 
+	 *
 	 * 修复流程：
 	 * 1. 销毁旧的图表实例（chart.remove()）
 	 * 2. 清空store中的图表引用（setChartRef(null)）
@@ -279,17 +276,16 @@ export const useBacktestStatsChart = ({
 		if (chart && chartContainerRef.current) {
 			// 获取图表实际绑定的DOM容器元素
 			const container = chart.chartElement();
-			
+
 			// 检查图表是否仍然正确绑定到当前的容器
 			// 如果container不存在或者其父元素不是当前容器，说明引用已丢失
 			if (!container || container.parentElement !== chartContainerRef.current) {
-				
 				// 步骤1: 销毁旧的图表实例，释放资源
 				chart.remove();
-				
+
 				// 步骤2: 清空store中的图表引用，确保后续初始化能够正常进行
 				setChartRef(null);
-				
+
 				// 步骤3: 重置初始化状态，触发完整的重新初始化流程
 				// 这会导致useEffect重新运行initChartData和initializeBacktestChart
 				setIsInitialized(false);
@@ -297,9 +293,7 @@ export const useBacktestStatsChart = ({
 			}
 		}
 	}, [getChartRef, chartContainerRef, setChartRef]);
-	
 
-	
 	// 图表系列初始化
 	useEffect(() => {
 		if (!isInitialized) {
@@ -310,15 +304,19 @@ export const useBacktestStatsChart = ({
 				});
 			});
 		}
-		
 	}, [strategyId, initChartData, initializeBacktestStatsChart, isInitialized]);
 
 	// 图表数据初始化 - 在图表创建后且数据可用时设置数据
 	useEffect(() => {
 		// 如果图表已初始化，且数据已准备好，并且数据未设置，则设置数据
-		if (isInitialized && getChartRef() && getIsDataInitialized() && !isChartDataSet) {
+		if (
+			isInitialized &&
+			getChartRef() &&
+			getIsDataInitialized() &&
+			!isChartDataSet
+		) {
 			chartConfig.statsChartConfigs.forEach((statsChartConfig) => {
-				const statsName = statsChartConfig.seriesConfigs.statsName
+				const statsName = statsChartConfig.seriesConfigs.statsName;
 				const statsSeriesRef = getStatsSeriesRef(statsName);
 				if (statsSeriesRef) {
 					statsSeriesRef.setData(getStatsData(statsName));
@@ -334,9 +332,8 @@ export const useBacktestStatsChart = ({
 		isChartDataSet,
 		chartConfig,
 		getStatsSeriesRef,
-		getStatsData]);
-
-
+		getStatsData,
+	]);
 
 	// 处理series配置变化
 	useEffect(() => {
@@ -348,18 +345,16 @@ export const useBacktestStatsChart = ({
 			}
 			changeSeriesConfig();
 			addSeries();
-			deleteSeries();	
-			
+			deleteSeries();
 		}
-	}, [chartConfig, changeSeriesConfig, deleteSeries, addSeries])
-
+	}, [chartConfig, changeSeriesConfig, deleteSeries, addSeries]);
 
 	// 处理图表 resize
 	useEffect(() => {
 		resizeObserver.current = new ResizeObserver((entries) => {
 			const { width, height } = entries[0].contentRect;
 			const chart = getChartRef();
-			chart?.resize(width, height-0.5);
+			chart?.resize(width, height - 0.5);
 			// chart?.applyOptions({ width: width, height: height-0.5 });
 			// setTimeout(() => {
 			//     chart?.timeScale().fitContent();

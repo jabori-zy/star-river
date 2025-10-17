@@ -14,8 +14,8 @@ import {
 } from "@/types/node/index";
 import type { IndicatorNode as IndicatorNodeType } from "@/types/node/indicator-node";
 import { TradeMode } from "@/types/strategy";
-import BacktestModeShow from "./components/backtest-mode-show";
-import LiveModeShow from "./components/live-mode-show";
+import BacktestModeShow from "./components/node-show/backtest-mode-show";
+import LiveModeShow from "./components/node-show/live-mode-show";
 
 const IndicatorNode: React.FC<NodeProps<IndicatorNodeType>> = ({
 	id,

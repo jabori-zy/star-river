@@ -34,3 +34,7 @@ npx biome check src/types/node/indicator-node.tsx
 
 npm run format        # 格式化整个项目
 npm run format:check  # 检查格式
+
+
+todo:
+计时器节点

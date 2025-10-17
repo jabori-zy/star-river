@@ -1,9 +1,6 @@
 import { z } from "zod";
 import { SeriesType } from "@/types/chart";
-import {
-	IndicatorCategory,
-	IndicatorType,
-} from "@/types/indicator";
+import { IndicatorCategory, IndicatorType } from "@/types/indicator";
 import {
 	createParseIndicatorConfigFromKeyStr,
 	getIndicatorValues,
@@ -15,7 +12,9 @@ const CDLHARAMICROSSConfigSchema = z.object({
 	// CDLHARAMICROSS 没有参数
 });
 
-export type CDLHARAMICROSSConfigType = z.infer<typeof CDLHARAMICROSSConfigSchema>;
+export type CDLHARAMICROSSConfigType = z.infer<
+	typeof CDLHARAMICROSSConfigSchema
+>;
 
 function buildCDLHARAMICROSSConfig(_params: Map<string, string>): unknown {
 	return {
@@ -33,7 +32,11 @@ export const CDLHARAMICROSSConfig: IndicatorConfig<CDLHARAMICROSSConfigType> = {
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },
-		harami_cross: { label: "harami_cross", value: 0, legendShowName: "haramicross" },
+		harami_cross: {
+			label: "harami_cross",
+			value: 0,
+			legendShowName: "haramicross",
+		},
 	},
 	chartConfig: {
 		isInMainChart: false,
@@ -50,9 +53,7 @@ export const CDLHARAMICROSSConfig: IndicatorConfig<CDLHARAMICROSSConfigType> = {
 
 	getDefaultConfig(): CDLHARAMICROSSConfigType {
 		const config = Object.fromEntries(
-			Object.entries(this.params).map(([_key, _param]) => [
-				{},
-			]),
+			Object.entries(this.params).map(([_key, _param]) => [{}]),
 		);
 
 		const validatedConfig = CDLHARAMICROSSConfigSchema.parse(config);

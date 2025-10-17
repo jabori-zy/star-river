@@ -1,6 +1,7 @@
 import { Position } from "@xyflow/react";
 import { Clock, TrendingUp } from "lucide-react";
 import BaseHandle from "@/components/flow/base/BaseHandle";
+import { Badge } from "@/components/ui/badge";
 import type { SelectedSymbol } from "@/types/node/kline-node";
 
 const getIntervalLabel = (interval: string) => {
@@ -20,22 +21,24 @@ const getIntervalLabel = (interval: string) => {
 export function SymbolItem({ symbol }: { symbol: SelectedSymbol }) {
 	return (
 		<div className="flex items-center justify-between px-2 py-2 bg-gray-100 rounded-md relative">
-			<div className="flex items-center gap-2 ">
-				<TrendingUp className="w-4 h-4 text-blue-500" />
+			<div className="flex flex-col gap-1 flex-1">
 				<span className="text-sm font-medium">{symbol.symbol}</span>
+				<div className="flex items-center gap-1">
+					<Clock className="w-3 h-3 text-muted-foreground" />
+					<span className="text-xs text-muted-foreground">
+						{getIntervalLabel(symbol.interval)}
+					</span>
+				</div>
 			</div>
-			<div className="flex items-center gap-1">
-				<Clock className="w-3 h-3 text-muted-foreground" />
-				<span className="text-sm text-muted-foreground">
-					{getIntervalLabel(symbol.interval)}
-				</span>
-			</div>
+			<Badge variant="outline" className="border-gray-400">
+				K线 {symbol.configId}
+			</Badge>
 			<BaseHandle
 				id={symbol.outputHandleId}
 				type="source"
 				position={Position.Right}
 				handleColor="!bg-red-400"
-				className="translate-x-2 -translate-y-0.75"
+				className="translate-x-2 translate-y-2"
 			/>
 		</div>
 	);

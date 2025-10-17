@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
+import { Label } from "@/components/ui/label";
 import { useUpdateBacktestConfig } from "@/hooks/node-config/futures-order-node/use-update-backtest-config";
 import { useStartNodeDataStore } from "@/store/node/use-start-node-data-store";
 import type { FuturesOrderNodeData } from "@/types/node/futures-order-node";
@@ -7,7 +8,6 @@ import type { FuturesOrderConfig } from "@/types/order";
 import type { SelectedAccount } from "@/types/strategy";
 import FuturesOrderSetting from "../components/futures-order-setting";
 import TradeAccountSelector from "../components/trade-account-selector";
-import { Label } from "@/components/ui/label";
 
 const FuturesOrderNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	id,
@@ -81,7 +81,12 @@ const FuturesOrderNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	return (
 		<div className="flex flex-col gap-2">
 			<div className="flex flex-col items-start justify-start gap-2 p-2">
-				<Label htmlFor="trade-account-selector" className="text-sm font-bold text-gray-700">交易账户</Label>
+				<Label
+					htmlFor="trade-account-selector"
+					className="text-sm font-bold text-gray-700"
+				>
+					交易账户
+				</Label>
 				<TradeAccountSelector
 					accountList={accountList}
 					selectedAccount={selectedAccount}

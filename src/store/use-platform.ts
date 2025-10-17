@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 
 interface PlatformState {
 	isWindows: boolean;
@@ -8,12 +8,13 @@ interface PlatformState {
 }
 
 export const usePlatform = create<PlatformState>(() => {
-	const platform = typeof process !== 'undefined' ? process.platform : 'unknown';
+	const platform =
+		typeof process !== "undefined" ? process.platform : "unknown";
 
 	return {
-		isWindows: platform === 'win32',
-		isMac: platform === 'darwin',
-		isLinux: platform === 'linux',
+		isWindows: platform === "win32",
+		isMac: platform === "darwin",
+		isLinux: platform === "linux",
 		platform,
 	};
 });

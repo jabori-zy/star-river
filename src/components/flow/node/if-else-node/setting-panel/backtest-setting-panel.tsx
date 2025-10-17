@@ -1,5 +1,6 @@
 import { useNodeConnections } from "@xyflow/react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ReactSortable } from "react-sortablejs";
 import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,6 @@ import {
 } from "@/types/node/if-else-node";
 import { TradeMode } from "@/types/strategy";
 import CaseEditor from "../components/case-editor";
-import { useTranslation } from "react-i18next";
 
 const IfElseNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	id,

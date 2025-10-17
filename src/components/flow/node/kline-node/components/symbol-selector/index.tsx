@@ -1,18 +1,18 @@
+import { useReactFlow } from "@xyflow/react";
 import { Clock, PlusIcon, Settings, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { NodeOpConfirmDialog } from "@/components/flow/node-op-confirm-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
+import useWorkflowUtils from "@/hooks/flow/use-workflow-utils";
+import { getSupportKlineInterval, getSymbolList } from "@/service/market";
+import { INTERVAL_LABEL_MAP } from "@/types/kline";
+import type { MarketSymbol } from "@/types/market";
 import type { SelectedSymbol } from "@/types/node/kline-node";
 import type { SelectedAccount } from "@/types/strategy";
 import { SymbolSelectDialog } from "./symbol-select-dialog";
-import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
-import useWorkflowUtils from "@/hooks/flow/use-workflow-utils";
-import { useReactFlow } from "@xyflow/react";
-import { NodeOpConfirmDialog } from "@/components/flow/node-op-confirm-dialog";
-import { INTERVAL_LABEL_MAP } from "@/types/kline";
-import { getSymbolList, getSupportKlineInterval } from "@/service/market";
-import type { MarketSymbol } from "@/types/market";
 
 interface SymbolSelectorProps {
 	nodeId: string; // node id
@@ -21,8 +21,6 @@ interface SymbolSelectorProps {
 	onSymbolsChange: (symbols: SelectedSymbol[]) => void; // symbol change callback
 	refreshTrigger?: number; // 刷新触发器，变化时重新获取交易对列表
 }
-
-
 
 // Trading symbol selector
 const SymbolSelector: React.FC<SymbolSelectorProps> = ({
@@ -48,9 +46,12 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 		targetNodeCount: number;
 		targetNodeNames: string[];
 	} | null>(null);
-	const [pendingDeleteSymbol, setPendingDeleteSymbol] = useState<SelectedSymbol | null>(null);
+	const [pendingDeleteSymbol, setPendingDeleteSymbol] =
+		useState<SelectedSymbol | null>(null);
 	const [symbolList, setSymbolList] = useState<MarketSymbol[]>([]);
-	const [supportKlineInterval, setSupportKlineInterval] = useState<string[]>([]);
+	const [supportKlineInterval, setSupportKlineInterval] = useState<string[]>(
+		[],
+	);
 
 	const { getTargetNodeIds } = useStrategyWorkflow();
 	const { deleteEdgeBySourceHandleId } = useWorkflowUtils();
@@ -116,9 +117,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 	}, [isDialogOpen, editingSymbol, resetForm]);
 
 	const getIntervalLabel = (interval: string) => {
-		return (
-			INTERVAL_LABEL_MAP[interval] || interval
-		);
+		return INTERVAL_LABEL_MAP[interval] || interval;
 	};
 
 	const handleSymbolNameChange = (value: string) => {
@@ -187,7 +186,9 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 
 	const handleDeleteSymbol = (symbolToDelete: SelectedSymbol) => {
 		const targetNodeIds = getTargetNodeIds(nodeId);
-		const targetNodeNames = targetNodeIds.map((id) => getNode(id)?.data.nodeName as string);
+		const targetNodeNames = targetNodeIds.map(
+			(id) => getNode(id)?.data.nodeName as string,
+		);
 
 		// 如果有连接的目标节点，显示确认对话框
 		if (targetNodeIds.length > 0) {
@@ -196,7 +197,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 				symbolName: symbolToDelete.symbol,
 				symbolInterval: symbolToDelete.interval,
 				targetNodeCount: targetNodeIds.length,
-				targetNodeNames: targetNodeNames
+				targetNodeNames: targetNodeNames,
 			});
 			setIsConfirmDialogOpen(true);
 			return;
@@ -245,7 +246,9 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 
 		// 如果是编辑操作，检查是否有连接的目标节点
 		const targetNodeIds = getTargetNodeIds(nodeId);
-		const targetNodeNames = targetNodeIds.map((id) => getNode(id)?.data.nodeName as string);
+		const targetNodeNames = targetNodeIds.map(
+			(id) => getNode(id)?.data.nodeName as string,
+		);
 
 		// 如果有连接的目标节点，先关闭选择对话框，然后显示确认对话框
 		if (targetNodeIds.length > 0) {
@@ -257,7 +260,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 				symbolName,
 				symbolInterval,
 				targetNodeCount: targetNodeIds.length,
-				targetNodeNames: targetNodeNames
+				targetNodeNames: targetNodeNames,
 			});
 
 			// 短暂延迟后显示确认对话框，确保选择对话框完全关闭
@@ -274,7 +277,8 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 	// 执行保存
 	const performSave = () => {
 		const currentSymbolName = pendingSymbolData?.symbolName || symbolName;
-		const currentSymbolInterval = pendingSymbolData?.symbolInterval || symbolInterval;
+		const currentSymbolInterval =
+			pendingSymbolData?.symbolInterval || symbolInterval;
 
 		let newSymbols: SelectedSymbol[];
 
@@ -296,7 +300,10 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 			);
 		} else {
 			// 新增symbol时才计算新的configId
-			const maxConfigId = localSymbols.reduce((max, symbol) => Math.max(max, symbol.configId), 0);
+			const maxConfigId = localSymbols.reduce(
+				(max, symbol) => Math.max(max, symbol.configId),
+				0,
+			);
 			const newSymbol: SelectedSymbol = {
 				configId: maxConfigId + 1, // config id
 				outputHandleId: `${nodeId}_output_${maxConfigId + 1}`, // handleId will be auto-generated by hooks
@@ -430,7 +437,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 			{/* 添加/编辑交易对对话框 */}
 			<SymbolSelectDialog
 				accountId={selectedDataSource?.id ?? 0}
-				accountName={selectedDataSource?.accountName || ''}
+				accountName={selectedDataSource?.accountName || ""}
 				isOpen={isDialogOpen}
 				onOpenChange={handleSelectDialogOpenChange}
 				editingSymbol={editingSymbol}
@@ -440,8 +447,8 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 				onSymbolNameChange={handleSymbolNameChange}
 				onSymbolIntervalChange={handleSymbolIntervalChange}
 				onSave={handleSave}
-				originalSymbolName={editingSymbol?.symbol || ''}
-				originalSymbolInterval={editingSymbol?.interval || '1m'}
+				originalSymbolName={editingSymbol?.symbol || ""}
+				originalSymbolInterval={editingSymbol?.interval || "1m"}
 				symbolList={symbolList}
 				supportKlineInterval={supportKlineInterval}
 			/>
@@ -454,7 +461,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 				affectedNodeNames={pendingSymbolData?.targetNodeNames || []}
 				onConfirm={handleConfirmSave}
 				onCancel={handleCancelSave}
-				operationType={pendingDeleteSymbol ? 'delete' : 'edit'}
+				operationType={pendingDeleteSymbol ? "delete" : "edit"}
 			/>
 		</div>
 	);

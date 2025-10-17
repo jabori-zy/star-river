@@ -56,12 +56,14 @@ export type VirtualOrderEvent = BaseEventProps & {
 	futuresOrder: VirtualOrder;
 };
 
-
 export type VirtualPositionEvent = BaseEventProps & {
 	virtualPosition: VirtualPosition;
 };
 
-export type BacktestStrategyStatsUpdateEvent = Omit<BaseEventProps, "fromNodeId" | "fromNodeName" | "fromNodeHandleId"> & {
+export type BacktestStrategyStatsUpdateEvent = Omit<
+	BaseEventProps,
+	"fromNodeId" | "fromNodeName" | "fromNodeHandleId"
+> & {
 	statsSnapshot: StrategyStats;
 };
 
@@ -69,9 +71,11 @@ export type VirtualTransactionEvent = BaseEventProps & {
 	transaction: VirtualTransaction;
 };
 
-export type PlayFinishedEvent = Omit<BaseEventProps, "fromNodeId" | "fromNodeName" | "fromNodeHandleId"> & {
+export type PlayFinishedEvent = Omit<
+	BaseEventProps,
+	"fromNodeId" | "fromNodeName" | "fromNodeHandleId"
+> & {
 	strategyId: number;
 	strategyName: string;
 	playIndex: number;
 };
-

@@ -1,8 +1,8 @@
 import { AlertCircle, ArrowLeft, Loader2 } from "lucide-react";
-import { useCallback, useEffect, useState, useRef } from "react";
-import { useNavigate, useParams } from "react-router";
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { ImperativePanelHandle } from "react-resizable-panels";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import { useNavigate, useParams } from "react-router";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 // import { stopStrategy } from "@/service/strategy"; // 注释�?- 不再停止策略
@@ -10,9 +10,11 @@ import { Button } from "@/components/ui/button";
 import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
 import { useBacktestStrategyControlStore } from "@/store/use-backtest-strategy-control-store";
 import BacktestWindowHeader from "../../components/backtest/backtest-window-header";
-// import useBacktestStrategySSE from "../../hooks/sse/use-backtest-strategy-sse";
-import StrategyDashboard, { type StrategyDashboardRef } from "./components/strategy-dashboard";
 import ChartContainer from "./components/chart-container";
+// import useBacktestStrategySSE from "../../hooks/sse/use-backtest-strategy-sse";
+import StrategyDashboard, {
+	type StrategyDashboardRef,
+} from "./components/strategy-dashboard";
 import { calculateDashboardSize, getDashboardPanelConfig } from "./utils";
 
 export default function BacktestPage() {
@@ -32,9 +34,15 @@ export default function BacktestPage() {
 	// 分别订阅所需的状态和方法
 	const isRunning = useBacktestStrategyControlStore((state) => state.isRunning);
 	const onStop = useBacktestStrategyControlStore((state) => state.onStop);
-	const setControlStrategyId = useBacktestStrategyControlStore((state) => state.setStrategyId);
-	const startEventListening = useBacktestStrategyControlStore((state) => state.startEventListening);
-	const stopEventListening = useBacktestStrategyControlStore((state) => state.stopEventListening);
+	const setControlStrategyId = useBacktestStrategyControlStore(
+		(state) => state.setStrategyId,
+	);
+	const startEventListening = useBacktestStrategyControlStore(
+		(state) => state.startEventListening,
+	);
+	const stopEventListening = useBacktestStrategyControlStore(
+		(state) => state.stopEventListening,
+	);
 
 	// 从URL参数获取strategyId
 	const getStrategyIdFromParams = useCallback((): number | null => {
@@ -46,21 +54,26 @@ export default function BacktestPage() {
 	}, [params]);
 
 	const [activeTab, setActiveTab] = useState<string | undefined>(undefined); // 当前选中的tab
-	const [lastActiveTab, setLastActiveTab] = useState<string | undefined>(undefined); // 上一次选中的tab
-	const [isDashboardExpanded, setIsDashboardExpanded] = useState<boolean>(false); // dashboard是否处于展开状�?
-	const [expandTrigger, setExpandTrigger] = useState<'tab' | 'drag' | null>(null); // 展开触发方式
+	const [lastActiveTab, setLastActiveTab] = useState<string | undefined>(
+		undefined,
+	); // 上一次选中的tab
+	const [isDashboardExpanded, setIsDashboardExpanded] =
+		useState<boolean>(false); // dashboard是否处于展开状�?
+	const [expandTrigger, setExpandTrigger] = useState<"tab" | "drag" | null>(
+		null,
+	); // 展开触发方式
 	const dashboardPanelRef = useRef<ImperativePanelHandle>(null); // dashboard面板引用
 	const chartContainerPanelRef = useRef<ImperativePanelHandle>(null); // 图表容器面板引用
 	const strategyDashboardRef = useRef<StrategyDashboardRef>(null); // 策略面板引用
 	const isValidStrategyId = strategyId !== null;
-	
+
 	// 计算控制栏的最小高度百分比
 	const initialSize = calculateDashboardSize();
 	const [dashboardMinSize, setDashboardMinSize] = useState<number>(initialSize);
-	const [dashboardCollapsedSize, setDashboardCollapsedSize] = useState<number>(initialSize);
-	const [dashboardDefaultSize, setDashboardDefaultSize] = useState<number>(initialSize);
-
-
+	const [dashboardCollapsedSize, setDashboardCollapsedSize] =
+		useState<number>(initialSize);
+	const [dashboardDefaultSize, setDashboardDefaultSize] =
+		useState<number>(initialSize);
 
 	// 当URL参数变化时，更新store中的strategyId
 	useEffect(() => {
@@ -69,7 +82,12 @@ export default function BacktestPage() {
 			setStrategyId(urlStrategyId);
 			setControlStrategyId(urlStrategyId);
 		}
-	}, [getStrategyIdFromParams, setStrategyId, setControlStrategyId, strategyId]);
+	}, [
+		getStrategyIdFromParams,
+		setStrategyId,
+		setControlStrategyId,
+		strategyId,
+	]);
 
 	// 当strategyId变化时，重新加载配置
 	useEffect(() => {
@@ -78,22 +96,21 @@ export default function BacktestPage() {
 		}
 	}, [strategyId, loadChartConfig]);
 
-
 	// 窗口大小监控
 	useEffect(() => {
 		const handleResize = () => {
 			// 获取新的面板配置
 			const config = getDashboardPanelConfig();
-			
+
 			// 设置新的尺寸
 			setDashboardMinSize(config.minSize);
 			setDashboardCollapsedSize(config.collapsedSize);
 			setDashboardDefaultSize(config.defaultSize);
-			
+
 			// 如果面板已存在且未展开，确保其大小正确
 			if (dashboardPanelRef.current && !isDashboardExpanded) {
 				const currentSize = dashboardPanelRef.current.getSize();
-				
+
 				// 强制调整到精确的最小尺寸，确保贴合底部
 				if (Math.abs(currentSize - config.minSize) > 0.1) {
 					dashboardPanelRef.current.resize(config.minSize);
@@ -101,19 +118,17 @@ export default function BacktestPage() {
 			}
 		};
 
-
 		// 初始计算
 		handleResize();
 
 		// 添加事件监听�?
-		window.addEventListener('resize', handleResize);
+		window.addEventListener("resize", handleResize);
 
 		// 清理事件监听�?
 		return () => {
-			window.removeEventListener('resize', handleResize);
+			window.removeEventListener("resize", handleResize);
 		};
 	}, [isDashboardExpanded]);
-
 
 	// k线播放完毕监听
 	useEffect(() => {
@@ -196,7 +211,7 @@ export default function BacktestPage() {
 	// 处理面板展开
 	const handlePanelExpand = () => {
 		setIsDashboardExpanded(true);
-		
+
 		// 如果没有触发标识（拖拽展开）且有上次的tab，则恢复
 		if (expandTrigger === "drag" && lastActiveTab) {
 			setActiveTab(lastActiveTab);
@@ -205,7 +220,7 @@ export default function BacktestPage() {
 		if (expandTrigger === "drag" && !lastActiveTab) {
 			setActiveTab("profit");
 		}
-		
+
 		// 重置触发标识
 		setExpandTrigger(null);
 	};
@@ -216,16 +231,15 @@ export default function BacktestPage() {
 		setLastActiveTab(activeTab);
 		setActiveTab(undefined);
 		setExpandTrigger(null);
-		
 	};
 
 	// 处理tab切换
 	const handleTabChange = (value: string) => {
 		setActiveTab(value); // 设置当前选中的tab
-		
+
 		// 只有当dashboard处于未展开状态时，点击tab才需要展开
 		if (!isDashboardExpanded && dashboardPanelRef.current) {
-			setExpandTrigger('tab'); // 标记为tab触发的展开
+			setExpandTrigger("tab"); // 标记为tab触发的展开
 			const minExpandedSize = 50; // 展开后的最小尺寸
 			dashboardPanelRef.current.resize(minExpandedSize);
 		}
@@ -244,10 +258,6 @@ export default function BacktestPage() {
 	const handlePanelPointerUp = () => setExpandTrigger(null);
 	const handlePanelPointerDown = () => setExpandTrigger("drag");
 
-	
-
-
-
 	return (
 		<div className="h-screen flex flex-col overflow-hidden bg-gray-100">
 			<div className="flex-shrink-0 border-b ">
@@ -255,14 +265,16 @@ export default function BacktestPage() {
 					strategyName={`策略 ${strategyId} 回测`}
 					onQuit={handleQuit}
 				/>
-
 			</div>
-			
 
 			{/* 回测窗口内容 */}
 			<div className="flex-1 flex flex-col overflow-hidden">
 				<PanelGroup direction="vertical" className="flex-1">
-					<Panel defaultSize={100 - dashboardDefaultSize} minSize={30} ref={chartContainerPanelRef}>
+					<Panel
+						defaultSize={100 - dashboardDefaultSize}
+						minSize={30}
+						ref={chartContainerPanelRef}
+					>
 						<div className="h-full  bg-white overflow-hidden">
 							<ChartContainer
 								strategyChartConfig={chartConfig}
@@ -270,20 +282,20 @@ export default function BacktestPage() {
 							/>
 						</div>
 					</Panel>
-					<PanelResizeHandle 
+					<PanelResizeHandle
 						className="h-1 hover:bg-gray-400"
 						onPointerUp={handlePanelPointerUp}
 						onPointerDown={handlePanelPointerDown}
-						 />
+					/>
 					<Panel
 						defaultSize={dashboardDefaultSize}
-						minSize={dashboardMinSize} 
+						minSize={dashboardMinSize}
 						ref={dashboardPanelRef}
 						collapsedSize={dashboardCollapsedSize}
 						collapsible={true}
 						onExpand={handlePanelExpand}
 						onCollapse={handleOnPanelCollapse}
-						>
+					>
 						<div className="h-full bg-white border-l border-t border-r border-border shadow-md flex flex-col overflow-hidden">
 							<StrategyDashboard
 								ref={strategyDashboardRef}
@@ -301,4 +313,3 @@ export default function BacktestPage() {
 		</div>
 	);
 }
-

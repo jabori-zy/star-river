@@ -30,7 +30,7 @@ const NodeSupportConnectionMap: Record<NodeType, NodeType[]> = {
 		NodeType.IfElseNode,
 		NodeType.VariableNode,
 	],
-	[NodeType.VariableNode]: [NodeType.IfElseNode],
+	[NodeType.VariableNode]: [NodeType.IfElseNode, NodeType.VariableNode],
 };
 
 // 节点连接数量限制 - 定义每种节点类型最多可以被连接的次数（-1表示无限制）
@@ -55,44 +55,47 @@ const useNodeValidation = () => {
 	 * 检查连接是否有效
 	 * 根据节点类型和连接限制来判断两个节点之间是否可以建立连接
 	 */
-	const checkIsValidConnection: IsValidConnection = useCallback((
-		connection: Connection | Edge,
-	): boolean => {
-		const sourceNodeId = connection.source;
-		const targetNodeId = connection.target;
+	const checkIsValidConnection: IsValidConnection = useCallback(
+		(connection: Connection | Edge): boolean => {
+			const sourceNodeId = connection.source;
+			const targetNodeId = connection.target;
 
-		// 获取源节点和目标节点
-		const sourceNode = getNode(sourceNodeId);
-		const targetNode = getNode(targetNodeId);
+			// 获取源节点和目标节点
+			const sourceNode = getNode(sourceNodeId);
+			const targetNode = getNode(targetNodeId);
 
-		// 节点不存在则连接无效
-		if (!sourceNode || !targetNode) {
-			return false;
-		}
+			// 节点不存在则连接无效
+			if (!sourceNode || !targetNode) {
+				return false;
+			}
 
-		// 检查源节点是否支持连接到目标节点类型
-		const supportedConnections =
-			NodeSupportConnectionMap[sourceNode.type as NodeType];
-		if (
-			!supportedConnections ||
-			!supportedConnections.includes(targetNode.type as NodeType)
-		) {
-			return false;
-		}
+			// 检查源节点是否支持连接到目标节点类型
+			const supportedConnections =
+				NodeSupportConnectionMap[sourceNode.type as NodeType];
+			if (
+				!supportedConnections ||
+				!supportedConnections.includes(targetNode.type as NodeType)
+			) {
+				return false;
+			}
 
-		// 检查目标节点的连接数量限制
-		const targetNodeConnections = getNodeConnections({ nodeId: targetNodeId });
-		const targetNodeSupportConnectionLimit =
-			NodeSupportConnectionLimit[targetNode.type as NodeType];
+			// 检查目标节点的连接数量限制
+			const targetNodeConnections = getNodeConnections({
+				nodeId: targetNodeId,
+			});
+			const targetNodeSupportConnectionLimit =
+				NodeSupportConnectionLimit[targetNode.type as NodeType];
 
-		// -1表示无限制，直接允许连接
-		if (targetNodeSupportConnectionLimit === -1) {
-			return true;
-		}
+			// -1表示无限制，直接允许连接
+			if (targetNodeSupportConnectionLimit === -1) {
+				return true;
+			}
 
-		// 检查是否超过连接数量限制
-		return targetNodeSupportConnectionLimit > targetNodeConnections.length;
-	}, [getNode, getNodeConnections]);
+			// 检查是否超过连接数量限制
+			return targetNodeSupportConnectionLimit > targetNodeConnections.length;
+		},
+		[getNode, getNodeConnections],
+	);
 
 	return {
 		checkIsValidConnection,

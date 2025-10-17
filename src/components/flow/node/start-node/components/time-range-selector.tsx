@@ -1,8 +1,8 @@
 import { Clock } from "lucide-react";
 import type React from "react";
 import { DateTimePicker24h } from "@/components/datetime-picker";
+import { formatDate } from "@/components/flow/node/node-utils";
 import type { TimeRange } from "@/types/strategy";
-import { DateTime, Settings } from "luxon";
 
 interface TimeRangeSelectorProps {
 	timeRange: TimeRange;
@@ -25,10 +25,6 @@ const TimeRangeSelector: React.FC<TimeRangeSelectorProps> = ({
 	};
 
 	// 将Date对象格式化为 'YYYY-MM-DD HH:mm:ss' 格式
-	const formatDate = (date: Date | undefined): string => {
-		if (!date) return '';
-		return DateTime.fromJSDate(date).toFormat("yyyy-MM-dd HH:mm:ss ZZ") || '';
-	};
 
 	return (
 		<div className="grid grid-cols-2 gap-2">
@@ -39,6 +35,7 @@ const TimeRangeSelector: React.FC<TimeRangeSelectorProps> = ({
 				</div>
 				<DateTimePicker24h
 					value={parseDatetime(timeRange.startDate)}
+					showSeconds={false}
 					onChange={(date) =>
 						setTimeRange({
 							...timeRange,

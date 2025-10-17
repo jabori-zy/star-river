@@ -26,29 +26,51 @@ export const VariableItem = ({
 }: VariableItemProps) => {
 	const IconComponent = getVariableTypeIcon(variable.varValueType);
 	const colorClass = getVariableTypeIconColor(variable.varValueType);
-	const formattedValue = formatVariableValue(
+	const formattedInitialValue = formatVariableValue(
+		variable.initialValue,
+		variable.varValueType,
+	);
+	const formattedCurrentValue = formatVariableValue(
 		variable.varValue,
 		variable.varValueType,
 	);
 
 	return (
 		<div className="flex items-center justify-between p-2 border rounded-md bg-background group">
-			<div className="flex items-center gap-2">
-				<TooltipProvider>
+			<div className="flex flex-col gap-1 min-w-0 flex-1">
+				<TooltipProvider delayDuration={300}>
 					<Tooltip>
 						<TooltipTrigger asChild>
-							<IconComponent className={`h-4 w-4 mr-1 ${colorClass}`} />
+							<div className="flex items-center gap-2 cursor-pointer">
+								<IconComponent className={`h-4 w-4 shrink-0 ${colorClass}`} />
+								<span className="font-medium text-sm">
+									{variable.varDisplayName}
+								</span>
+							</div>
 						</TooltipTrigger>
-						<TooltipContent>
+						<TooltipContent side="top" align="start">
 							<p className="text-xs">{variable.varName}</p>
 						</TooltipContent>
 					</Tooltip>
 				</TooltipProvider>
-				<span className="font-medium">{variable.varDisplayName}</span>
-                
+				<div className="flex items-start gap-2 text-xs text-gray-600 ml-6">
+					<div className="flex flex-wrap items-start gap-x-4 gap-y-1 min-w-0 flex-1">
+						<div className="flex items-start gap-1">
+							<span className="shrink-0">初始值:</span>
+							<span className="font-medium break-all">
+								{formattedInitialValue}
+							</span>
+						</div>
+						<div className="flex items-start gap-1">
+							<span className="shrink-0">当前值:</span>
+							<span className="font-medium break-all">
+								{formattedCurrentValue}
+							</span>
+						</div>
+					</div>
+				</div>
 			</div>
-			<div className="flex items-center gap-1">
-            <div className="pr-4 text-sm">{formattedValue}</div>
+			<div className="flex items-center gap-1 shrink-0 self-center">
 				<div className="flex opacity-0 group-hover:opacity-100 transition-opacity">
 					<Button
 						variant="ghost"

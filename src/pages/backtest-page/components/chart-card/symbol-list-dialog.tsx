@@ -1,17 +1,17 @@
 import { useCallback, useEffect, useState } from "react";
+import ConfirmBox from "@/components/confirm-box";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
 	DialogContent,
+	DialogDescription,
 	DialogHeader,
 	DialogTitle,
-	DialogDescription,
 } from "@/components/ui/dialog";
 import { getStrategyCacheKeys } from "@/service/strategy";
 import type { IndicatorKey, KlineKey } from "@/types/symbol-key";
 import { parseKey } from "@/utils/parse-key";
-import ConfirmBox from "@/components/confirm-box";
 
 interface SymbolListDialogProps {
 	open: boolean;
@@ -72,11 +72,11 @@ export default function SymbolListDialog({
 		}
 	}, [open, fetchKlineOptions]);
 
-    // 处理kline选择
-    const handleKlineSelect = (klineCacheKeyStr: string) => {
-        onKlineSelect(klineCacheKeyStr);
-        onOpenChange(false);
-    };
+	// 处理kline选择
+	const handleKlineSelect = (klineCacheKeyStr: string) => {
+		onKlineSelect(klineCacheKeyStr);
+		onOpenChange(false);
+	};
 
 	// 渲染kline项目
 	const renderKlineItem = (klineCacheKey: KlineKey) => (
@@ -93,7 +93,7 @@ export default function SymbolListDialog({
 				<DialogHeader>
 					<DialogTitle>选择K线</DialogTitle>
 				</DialogHeader>
-				<DialogDescription/>
+				<DialogDescription />
 				<div className="grid gap-4 py-4">
 					{loading ? (
 						<div className="flex items-center justify-center py-8">

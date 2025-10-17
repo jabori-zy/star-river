@@ -65,12 +65,15 @@ const getIndicatorParams = (
 	return paramParts.join(" | ");
 };
 
-interface IndicatorItemProps {
+interface IndicatorConfigShowItemProps {
 	indicator: SelectedIndicator;
 	handleId: string;
 }
 
-export function IndicatorItem({ indicator, handleId }: IndicatorItemProps) {
+export function IndicatorConfigShowItem({
+	indicator,
+	handleId,
+}: IndicatorConfigShowItemProps) {
 	const priceSource = indicator.indicatorConfig.priceSource as PriceSource;
 
 	return (
@@ -93,7 +96,7 @@ export function IndicatorItem({ indicator, handleId }: IndicatorItemProps) {
 				</div>
 				<div className="text-xs text-muted-foreground font-bold">
 					<Badge variant="outline" className="border-gray-400">
-						指标 {indicator?.configId}
+						指标 {indicator.configId}
 					</Badge>
 				</div>
 			</div>

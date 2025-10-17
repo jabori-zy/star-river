@@ -1,10 +1,18 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { AlertCircle, AlertTriangle, Bug, Info, X, ChevronRight, ChevronDown } from "lucide-react";
+import {
+	AlertCircle,
+	AlertTriangle,
+	Bug,
+	ChevronDown,
+	ChevronRight,
+	Info,
+	X,
+} from "lucide-react";
+import { DateTime } from "luxon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { LogLevel } from "@/types/strategy-event";
 import type { StrategyRunningLogEvent } from "@/types/strategy-event/strategy-running-log-event";
-import { DateTime } from "luxon";
 
 // 日志级别图标映射
 const getLogLevelIcon = (logLevel: LogLevel) => {
@@ -55,7 +63,9 @@ const formatTimestamp = (timestamp: number) => {
 };
 
 // Strategy Running Log 表格列定义
-export const createStrategyRunningLogColumns = (isCompactMode: boolean): ColumnDef<StrategyRunningLogEvent>[] => [
+export const createStrategyRunningLogColumns = (
+	isCompactMode: boolean,
+): ColumnDef<StrategyRunningLogEvent>[] => [
 	{
 		id: "expander",
 		header: "",
@@ -92,11 +102,9 @@ export const createStrategyRunningLogColumns = (isCompactMode: boolean): ColumnD
 		filterFn: "equals",
 		cell: ({ row }) => {
 			const logLevel = row.getValue("logLevel") as LogLevel;
-			
+
 			return isCompactMode ? (
-				<div className="flex justify-center">
-					{getLogLevelIcon(logLevel)}
-				</div>
+				<div className="flex justify-center">{getLogLevelIcon(logLevel)}</div>
 			) : (
 				<div className="flex justify-start">
 					<Badge className={`${getLogLevelStyle(logLevel)} text-xs px-2 py-1`}>
@@ -115,8 +123,10 @@ export const createStrategyRunningLogColumns = (isCompactMode: boolean): ColumnD
 		enableResizing: false,
 		cell: ({ row }) => {
 			const datetime = row.getValue("datetime") as string;
-			const timeStr = DateTime.fromISO(datetime).toFormat("yyyy-MM-dd HH:mm:ss");
-			
+			const timeStr = DateTime.fromISO(datetime).toFormat(
+				"yyyy-MM-dd HH:mm:ss",
+			);
+
 			return (
 				<div className="text-sm font-mono truncate" title={timeStr}>
 					{timeStr}

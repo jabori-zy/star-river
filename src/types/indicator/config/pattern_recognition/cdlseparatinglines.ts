@@ -1,9 +1,6 @@
 import { z } from "zod";
 import { SeriesType } from "@/types/chart";
-import {
-	IndicatorCategory,
-	IndicatorType,
-} from "@/types/indicator";
+import { IndicatorCategory, IndicatorType } from "@/types/indicator";
 import {
 	createParseIndicatorConfigFromKeyStr,
 	getIndicatorValues,
@@ -15,7 +12,9 @@ const CDLSEPARATINGLINESConfigSchema = z.object({
 	// CDLSEPARATINGLINES 没有参数
 });
 
-export type CDLSEPARATINGLINESConfigType = z.infer<typeof CDLSEPARATINGLINESConfigSchema>;
+export type CDLSEPARATINGLINESConfigType = z.infer<
+	typeof CDLSEPARATINGLINESConfigSchema
+>;
 
 function buildCDLSEPARATINGLINESConfig(_params: Map<string, string>): unknown {
 	return {
@@ -23,58 +22,61 @@ function buildCDLSEPARATINGLINESConfig(_params: Map<string, string>): unknown {
 	};
 }
 
-export const CDLSEPARATINGLINESConfig: IndicatorConfig<CDLSEPARATINGLINESConfigType> = {
-	category: IndicatorCategory.PATTERN_RECOGNITION,
-	type: IndicatorType.CDLSEPARATINGLINES,
-	displayName: "CDLSEPARATINGLINES",
-	description: "Separating Lines",
-	params: {
-		// CDLSEPARATINGLINES 没有参数
-	},
-	indicatorValueConfig: {
-		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },
-		separating_lines: { label: "separating_lines", value: 0, legendShowName: "separatinglines" },
-	},
-	chartConfig: {
-		isInMainChart: false,
-		seriesConfigs: [
-			{
-				name: "separating_lines",
-				type: SeriesType.COLUMN,
-				color: "#E91E63",
-				lineWidth: 1,
-				indicatorValueKey: "separating_lines" as keyof IndicatorValueConfig,
+export const CDLSEPARATINGLINESConfig: IndicatorConfig<CDLSEPARATINGLINESConfigType> =
+	{
+		category: IndicatorCategory.PATTERN_RECOGNITION,
+		type: IndicatorType.CDLSEPARATINGLINES,
+		displayName: "CDLSEPARATINGLINES",
+		description: "Separating Lines",
+		params: {
+			// CDLSEPARATINGLINES 没有参数
+		},
+		indicatorValueConfig: {
+			timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },
+			separating_lines: {
+				label: "separating_lines",
+				value: 0,
+				legendShowName: "separatinglines",
 			},
-		],
-	},
+		},
+		chartConfig: {
+			isInMainChart: false,
+			seriesConfigs: [
+				{
+					name: "separating_lines",
+					type: SeriesType.COLUMN,
+					color: "#E91E63",
+					lineWidth: 1,
+					indicatorValueKey: "separating_lines" as keyof IndicatorValueConfig,
+				},
+			],
+		},
 
-	getDefaultConfig(): CDLSEPARATINGLINESConfigType {
-		const config = Object.fromEntries(
-			Object.entries(this.params).map(([_key, _param]) => [
-				{},
-			]),
-		);
+		getDefaultConfig(): CDLSEPARATINGLINESConfigType {
+			const config = Object.fromEntries(
+				Object.entries(this.params).map(([_key, _param]) => [{}]),
+			);
 
-		const validatedConfig = CDLSEPARATINGLINESConfigSchema.parse(config);
-		return validatedConfig;
-	},
+			const validatedConfig = CDLSEPARATINGLINESConfigSchema.parse(config);
+			return validatedConfig;
+		},
 
-	getValue() {
-		return getIndicatorValues(this.indicatorValueConfig);
-	},
+		getValue() {
+			return getIndicatorValues(this.indicatorValueConfig);
+		},
 
-	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
-		IndicatorType.CDLSEPARATINGLINES,
-		CDLSEPARATINGLINESConfigSchema,
-		buildCDLSEPARATINGLINESConfig,
-	),
+		parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
+			IndicatorType.CDLSEPARATINGLINES,
+			CDLSEPARATINGLINESConfigSchema,
+			buildCDLSEPARATINGLINESConfig,
+		),
 
-	validateConfig(config: unknown): config is CDLSEPARATINGLINESConfigType {
-		try {
-			CDLSEPARATINGLINESConfigSchema.parse(config);
-			return true;
-		} catch {
-			return false;
-		}
-	},
-};
+		validateConfig(config: unknown): config is CDLSEPARATINGLINESConfigType {
+			try {
+				CDLSEPARATINGLINESConfigSchema.parse(config);
+				return true;
+			} catch {
+				return false;
+			}
+		},
+	};

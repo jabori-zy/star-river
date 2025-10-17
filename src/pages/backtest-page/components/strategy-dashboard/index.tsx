@@ -1,7 +1,9 @@
-import { useRef, useImperativeHandle, forwardRef } from "react";
+import { forwardRef, useImperativeHandle, useRef } from "react";
 
 import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
-import BacktestInfoTabs, { type BacktestInfoTabsRef } from "./backtest-info-tab";
+import BacktestInfoTabs, {
+	type BacktestInfoTabsRef,
+} from "./backtest-info-tab";
 
 interface StrategyDashboardProps {
 	strategyId: number;
@@ -19,36 +21,48 @@ export interface StrategyDashboardRef {
 	clearRunningLogs: () => void;
 }
 
-const StrategyDashboard = forwardRef<StrategyDashboardRef, StrategyDashboardProps>(({
-	strategyId,
-	onStop,
-	activeTab,
-	onTabChange,
-	onCollapsePanel,
-	isDashboardExpanded,
-}, ref) => {
-	const backtestInfoTabsRef = useRef<BacktestInfoTabsRef>(null);
+const StrategyDashboard = forwardRef<
+	StrategyDashboardRef,
+	StrategyDashboardProps
+>(
+	(
+		{
+			strategyId,
+			onStop,
+			activeTab,
+			onTabChange,
+			onCollapsePanel,
+			isDashboardExpanded,
+		},
+		ref,
+	) => {
+		const backtestInfoTabsRef = useRef<BacktestInfoTabsRef>(null);
 
-	// 暴露清空订单记录的方法
-	useImperativeHandle(ref, () => ({
-		clearOrderRecords: () => {
-			backtestInfoTabsRef.current?.clearOrderRecords();
-		},
-		clearPositionRecords: () => {
-			backtestInfoTabsRef.current?.clearPositionRecords();
-		},
-		clearTransactionRecords: () => {
-			backtestInfoTabsRef.current?.clearTransactionRecords();
-		},
-		clearRunningLogs: () => {
-			backtestInfoTabsRef.current?.clearRunningLogs();
-		},
-	}), []);
+		// 暴露清空订单记录的方法
+		useImperativeHandle(
+			ref,
+			() => ({
+				clearOrderRecords: () => {
+					backtestInfoTabsRef.current?.clearOrderRecords();
+				},
+				clearPositionRecords: () => {
+					backtestInfoTabsRef.current?.clearPositionRecords();
+				},
+				clearTransactionRecords: () => {
+					backtestInfoTabsRef.current?.clearTransactionRecords();
+				},
+				clearRunningLogs: () => {
+					backtestInfoTabsRef.current?.clearRunningLogs();
+				},
+			}),
+			[],
+		);
 
-	// 使用store中的状态和方法
-	const { chartConfig, isSaving, updateLayout, addChart, saveChartConfig } = useBacktestChartConfigStore();
-	return (
-		<div className="flex flex-col h-full pb-4">
+		// 使用store中的状态和方法
+		const { chartConfig, isSaving, updateLayout, addChart, saveChartConfig } =
+			useBacktestChartConfigStore();
+		return (
+			<div className="flex flex-col h-full pb-4">
 				<BacktestInfoTabs
 					ref={backtestInfoTabsRef}
 					strategyId={strategyId}
@@ -63,10 +77,11 @@ const StrategyDashboard = forwardRef<StrategyDashboardRef, StrategyDashboardProp
 					onCollapsePanel={onCollapsePanel}
 					isDashboardExpanded={isDashboardExpanded}
 				/>
-		</div>
-	);
-});
+			</div>
+		);
+	},
+);
 
-StrategyDashboard.displayName = 'StrategyDashboard';
+StrategyDashboard.displayName = "StrategyDashboard";
 
 export default StrategyDashboard;

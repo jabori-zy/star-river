@@ -4,9 +4,9 @@ import { useCallback, useState } from "react";
 import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
 import type { StartNodeData } from "@/types/node/start-node";
 import type {
+	CustomVariable,
 	SelectedAccount,
 	StrategySimulateConfig,
-	CustomVariable,
 } from "@/types/strategy";
 import AccountSelector from "../components/account-selector";
 import VariableEditor from "../components/variable-editor";

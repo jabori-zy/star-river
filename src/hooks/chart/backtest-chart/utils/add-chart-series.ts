@@ -1,8 +1,16 @@
 import type { IChartApi, IPaneApi, ISeriesApi, Time } from "lightweight-charts";
-import { AreaSeries, CandlestickSeries, HistogramSeries, LineSeries } from "lightweight-charts";
-import type { IndicatorChartConfig, KlineChartConfig, SeriesConfig } from "@/types/chart";
+import {
+	AreaSeries,
+	CandlestickSeries,
+	HistogramSeries,
+	LineSeries,
+} from "lightweight-charts";
+import type {
+	IndicatorChartConfig,
+	KlineChartConfig,
+	SeriesConfig,
+} from "@/types/chart";
 import { SeriesType } from "@/types/chart";
-
 
 export const addKlineSeries = (
 	chart: IChartApi | IPaneApi<Time>,
@@ -17,10 +25,6 @@ export const addKlineSeries = (
 	});
 	return klineSeries;
 };
-
-
-
-
 
 export const addIndicatorSeries = (
 	chart: IChartApi | IPaneApi<Time>,

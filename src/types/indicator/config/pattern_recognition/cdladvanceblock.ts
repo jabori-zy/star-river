@@ -1,9 +1,6 @@
 import { z } from "zod";
 import { SeriesType } from "@/types/chart";
-import {
-	IndicatorCategory,
-	IndicatorType,
-} from "@/types/indicator";
+import { IndicatorCategory, IndicatorType } from "@/types/indicator";
 import {
 	createParseIndicatorConfigFromKeyStr,
 	getIndicatorValues,
@@ -15,7 +12,9 @@ const CDLADVANCEBLOCKConfigSchema = z.object({
 	// CDLADVANCEBLOCK 没有参数
 });
 
-export type CDLADVANCEBLOCKConfigType = z.infer<typeof CDLADVANCEBLOCKConfigSchema>;
+export type CDLADVANCEBLOCKConfigType = z.infer<
+	typeof CDLADVANCEBLOCKConfigSchema
+>;
 
 function buildCDLADVANCEBLOCKConfig(_params: Map<string, string>): unknown {
 	return {
@@ -23,58 +22,61 @@ function buildCDLADVANCEBLOCKConfig(_params: Map<string, string>): unknown {
 	};
 }
 
-export const CDLADVANCEBLOCKConfig: IndicatorConfig<CDLADVANCEBLOCKConfigType> = {
-	category: IndicatorCategory.PATTERN_RECOGNITION,
-	type: IndicatorType.CDLADVANCEBLOCK,
-	displayName: "CDLADVANCEBLOCK",
-	description: "Advance Block",
-	params: {
-		// CDLADVANCEBLOCK 没有参数
-	},
-	indicatorValueConfig: {
-		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },
-		advance_block: { label: "advance_block", value: 0, legendShowName: "advanceblock" },
-	},
-	chartConfig: {
-		isInMainChart: false,
-		seriesConfigs: [
-			{
-				name: "advance_block",
-				type: SeriesType.COLUMN,
-				color: "#FF2D92",
-				lineWidth: 1,
-				indicatorValueKey: "advance_block" as keyof IndicatorValueConfig,
+export const CDLADVANCEBLOCKConfig: IndicatorConfig<CDLADVANCEBLOCKConfigType> =
+	{
+		category: IndicatorCategory.PATTERN_RECOGNITION,
+		type: IndicatorType.CDLADVANCEBLOCK,
+		displayName: "CDLADVANCEBLOCK",
+		description: "Advance Block",
+		params: {
+			// CDLADVANCEBLOCK 没有参数
+		},
+		indicatorValueConfig: {
+			timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },
+			advance_block: {
+				label: "advance_block",
+				value: 0,
+				legendShowName: "advanceblock",
 			},
-		],
-	},
+		},
+		chartConfig: {
+			isInMainChart: false,
+			seriesConfigs: [
+				{
+					name: "advance_block",
+					type: SeriesType.COLUMN,
+					color: "#FF2D92",
+					lineWidth: 1,
+					indicatorValueKey: "advance_block" as keyof IndicatorValueConfig,
+				},
+			],
+		},
 
-	getDefaultConfig(): CDLADVANCEBLOCKConfigType {
-		const config = Object.fromEntries(
-			Object.entries(this.params).map(([_key, _param]) => [
-				{},
-			]),
-		);
+		getDefaultConfig(): CDLADVANCEBLOCKConfigType {
+			const config = Object.fromEntries(
+				Object.entries(this.params).map(([_key, _param]) => [{}]),
+			);
 
-		const validatedConfig = CDLADVANCEBLOCKConfigSchema.parse(config);
-		return validatedConfig;
-	},
+			const validatedConfig = CDLADVANCEBLOCKConfigSchema.parse(config);
+			return validatedConfig;
+		},
 
-	getValue() {
-		return getIndicatorValues(this.indicatorValueConfig);
-	},
+		getValue() {
+			return getIndicatorValues(this.indicatorValueConfig);
+		},
 
-	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
-		IndicatorType.CDLADVANCEBLOCK,
-		CDLADVANCEBLOCKConfigSchema,
-		buildCDLADVANCEBLOCKConfig,
-	),
+		parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
+			IndicatorType.CDLADVANCEBLOCK,
+			CDLADVANCEBLOCKConfigSchema,
+			buildCDLADVANCEBLOCKConfig,
+		),
 
-	validateConfig(config: unknown): config is CDLADVANCEBLOCKConfigType {
-		try {
-			CDLADVANCEBLOCKConfigSchema.parse(config);
-			return true;
-		} catch {
-			return false;
-		}
-	},
-};
+		validateConfig(config: unknown): config is CDLADVANCEBLOCKConfigType {
+			try {
+				CDLADVANCEBLOCKConfigSchema.parse(config);
+				return true;
+			} catch {
+				return false;
+			}
+		},
+	};

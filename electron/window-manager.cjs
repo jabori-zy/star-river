@@ -52,9 +52,9 @@ const createBacktestWindow = (strategyId) => {
 	if (strategyId) {
 		strategyWindows.set(strategyId, backtestWindow);
 		console.log(`回测窗口已创建并记录: strategyId=${strategyId}`);
-		
+
 		// 窗口关闭时从映射中移除
-		backtestWindow.on('closed', () => {
+		backtestWindow.on("closed", () => {
 			strategyWindows.delete(strategyId);
 			console.log(`回测窗口已关闭并清理: strategyId=${strategyId}`);
 		});
@@ -85,7 +85,7 @@ const closeBacktestWindow = (strategyId) => {
 // 检查指定策略的回测窗口是否存在并处理（打开或移动到前台）
 const checkOrOpenBacktestWindow = (strategyId) => {
 	const existingWindow = strategyWindows.get(strategyId);
-	
+
 	if (existingWindow && !existingWindow.isDestroyed()) {
 		// 窗口存在，移动到前台
 		console.log(`回测窗口已存在，移动到前台: strategyId=${strategyId}`);

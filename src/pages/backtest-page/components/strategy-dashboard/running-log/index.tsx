@@ -1,3 +1,4 @@
+import { DateTime } from "luxon";
 import {
 	forwardRef,
 	useCallback,
@@ -11,7 +12,6 @@ import BacktestRunningLogTable from "@/components/table/backtest-running-log-tab
 import { createBacktestStrategyRunningLogStream } from "@/hooks/obs/backtest-strategy-running-log-obs";
 import { getStrategyRunningLog } from "@/service/backtest-strategy";
 import type { StrategyRunningLogEvent } from "@/types/strategy-event/strategy-running-log-event";
-import { DateTime } from "luxon";
 
 interface RunningLogProps {
 	strategyId: number;
@@ -43,7 +43,13 @@ const RunningLog = forwardRef<RunningLogRef, RunningLogProps>(
 				// 尝试从API获取数据
 				const logData = await getStrategyRunningLog(strategyId);
 				console.log("获取策略运行日志数据:", logData);
-				setLogData(logData.sort((a, b) => DateTime.fromISO(b.datetime).toMillis() - DateTime.fromISO(a.datetime).toMillis()));
+				setLogData(
+					logData.sort(
+						(a, b) =>
+							DateTime.fromISO(b.datetime).toMillis() -
+							DateTime.fromISO(a.datetime).toMillis(),
+					),
+				);
 			} catch (error) {
 				console.warn("获取策略运行日志失败", error);
 				// API失败时使用mock数据
@@ -71,7 +77,9 @@ const RunningLog = forwardRef<RunningLogRef, RunningLogProps>(
 					setLogData((prev) => {
 						// 检查是否已存在相同的日志（基于timestamp和message防重复）
 						const exists = prev.some(
-							(log) => log.datetime === logEvent.datetime && log.message === logEvent.message
+							(log) =>
+								log.datetime === logEvent.datetime &&
+								log.message === logEvent.message,
 						);
 						if (!exists) {
 							// 倒序插入，最新的日志在前面

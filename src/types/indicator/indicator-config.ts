@@ -51,7 +51,9 @@ export function createParseIndicatorConfigFromKeyStr<T>(
 			const params = parseKeyStrToMap(indicatorConfigStr);
 
 			if (indicatorType !== expectedType) {
-				console.warn(`指标类型不匹配，期望: ${expectedType}, 实际: ${indicatorType}`);
+				console.warn(
+					`指标类型不匹配，期望: ${expectedType}, 实际: ${indicatorType}`,
+				);
 				return undefined;
 			}
 
@@ -106,8 +108,6 @@ export function parseKeyStrToMap(keyStr: string): Map<string, string> {
 
 	return params;
 }
-
-
 
 /**
  * 根据指标类型和配置字符串解析指标配置

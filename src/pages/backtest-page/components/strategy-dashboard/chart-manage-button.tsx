@@ -1,9 +1,9 @@
 import { AlertCircle, Loader2, PlusCircle, Save } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import type { LayoutMode } from "@/types/chart";
 import type { BacktestStrategyChartConfig } from "@/types/chart/backtest-chart";
 import LayoutControl from "../layout-control";
-import type { LayoutMode } from "@/types/chart";
 
 interface ChartManageButtonProps {
 	onAddChart: (klineKeyStr: string) => void;
@@ -33,7 +33,8 @@ const ChartManageButton = ({
 		}
 
 		// 复制最后一个图表的配置
-		const lastChart = strategyChartConfig.charts[strategyChartConfig.charts.length - 1];
+		const lastChart =
+			strategyChartConfig.charts[strategyChartConfig.charts.length - 1];
 
 		onAddChart(lastChart.klineChartConfig.klineKeyStr);
 	};
@@ -47,11 +48,11 @@ const ChartManageButton = ({
 				</Alert>
 			)}
 			{strategyChartConfig.charts.length > 1 && (
-					<LayoutControl
-						value={strategyChartConfig.layout || "vertical"}
-						onChange={updateLayout}
-					/>
-				)}
+				<LayoutControl
+					value={strategyChartConfig.layout || "vertical"}
+					onChange={updateLayout}
+				/>
+			)}
 
 			<Button
 				variant="outline"
@@ -62,13 +63,15 @@ const ChartManageButton = ({
 				<span className="hidden lg:inline">添加图表</span>
 			</Button>
 			<Button variant="default" onClick={saveChartConfig} disabled={isSaving}>
-					{isSaving ? (
-						<Loader2 className="w-4 h-4 animate-spin flex-shrink-0" />
-					) : (
-						<Save className="w-4 h-4 flex-shrink-0" />
-					)}
-					<span className="hidden lg:inline">{isSaving ? "保存中..." : "保存图表"}</span>
-				</Button>
+				{isSaving ? (
+					<Loader2 className="w-4 h-4 animate-spin flex-shrink-0" />
+				) : (
+					<Save className="w-4 h-4 flex-shrink-0" />
+				)}
+				<span className="hidden lg:inline">
+					{isSaving ? "保存中..." : "保存图表"}
+				</span>
+			</Button>
 		</div>
 	);
 };

@@ -2,9 +2,9 @@ import { useReactFlow } from "@xyflow/react";
 import { useCallback, useEffect } from "react";
 import { useStartNodeDataStore } from "@/store/node/use-start-node-data-store";
 import type {
+	CustomVariable,
 	SelectedAccount,
 	StrategyLiveConfig,
-	CustomVariable,
 } from "@/types/strategy";
 
 // 接口定义

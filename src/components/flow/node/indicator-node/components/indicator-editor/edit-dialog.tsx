@@ -143,7 +143,13 @@ const EditDialog: React.FC<EditDialogProps> = ({
 				}
 			}
 		}
-	}, [isOpen, isEditing, editingIndex, selectedIndicators, initialIndicatorType]);
+	}, [
+		isOpen,
+		isEditing,
+		editingIndex,
+		selectedIndicators,
+		initialIndicatorType,
+	]);
 
 	// 当指标类型改变时，重新初始化表单数据
 	useEffect(() => {
@@ -343,7 +349,8 @@ const EditDialog: React.FC<EditDialogProps> = ({
 	const configInstance = getCurrentConfigInstance();
 
 	// 检查是否有可配置的参数
-	const hasConfigurableParams = configInstance && Object.keys(configInstance.params).length > 0;
+	const hasConfigurableParams =
+		configInstance && Object.keys(configInstance.params).length > 0;
 
 	return (
 		<>
@@ -359,54 +366,52 @@ const EditDialog: React.FC<EditDialogProps> = ({
 							配置{configInstance?.displayName || indicatorType}
 						</DialogTitle>
 					</DialogHeader>
-				<div className="grid gap-4 py-4">
-					{hasConfigurableParams ? (
-						/* 动态渲染当前指标类型的表单字段 */
-						configInstance &&
-						Object.entries(configInstance.params).map(([key, param]) =>
-							renderFormField(key, param),
-						)
-					) : (
-						/* 无参数时显示提示信息 */
-						<div className="text-gray-500">
-							无需配置参数
-						</div>
-					)}
-				</div>
-				<DialogFooter>
-					<Button variant="outline" onClick={onClose}>
-						取消
-					</Button>
-					<Button
-						onClick={handleSave}
-						disabled={isIndicatorConfigExists(editingIndex || undefined)}
-					>
-						{isIndicatorConfigExists(editingIndex || undefined)
-							? "配置已存在"
-							: hasConfigurableParams
-								? "保存"
-								: "确定"}
-					</Button>
-				</DialogFooter>
-			</DialogContent>
-		</Dialog>
+					<div className="grid gap-4 py-4">
+						{hasConfigurableParams ? (
+							/* 动态渲染当前指标类型的表单字段 */
+							configInstance &&
+							Object.entries(configInstance.params).map(([key, param]) =>
+								renderFormField(key, param),
+							)
+						) : (
+							/* 无参数时显示提示信息 */
+							<div className="text-gray-500">无需配置参数</div>
+						)}
+					</div>
+					<DialogFooter>
+						<Button variant="outline" onClick={onClose}>
+							取消
+						</Button>
+						<Button
+							onClick={handleSave}
+							disabled={isIndicatorConfigExists(editingIndex || undefined)}
+						>
+							{isIndicatorConfigExists(editingIndex || undefined)
+								? "配置已存在"
+								: hasConfigurableParams
+									? "保存"
+									: "确定"}
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
 
-		{/* 指标浏览面板 */}
-		<IndicatorViewerDialog
-			isOpen={showIndicatorViewer}
-			onClose={() => setShowIndicatorViewer(false)}
-			onSelectIndicator={(selectedType: IndicatorType) => {
-				setIndicatorType(selectedType);
-				// 重新初始化表单数据
-				const configInstance = getIndicatorConfig(selectedType);
-				if (configInstance) {
-					const defaultConfig = configInstance.getDefaultConfig();
-					setFormData({ ...defaultConfig } as Partial<FormData>);
-				}
-			}}
-		/>
-	</>
-);
+			{/* 指标浏览面板 */}
+			<IndicatorViewerDialog
+				isOpen={showIndicatorViewer}
+				onClose={() => setShowIndicatorViewer(false)}
+				onSelectIndicator={(selectedType: IndicatorType) => {
+					setIndicatorType(selectedType);
+					// 重新初始化表单数据
+					const configInstance = getIndicatorConfig(selectedType);
+					if (configInstance) {
+						const defaultConfig = configInstance.getDefaultConfig();
+						setFormData({ ...defaultConfig } as Partial<FormData>);
+					}
+				}}
+			/>
+		</>
+	);
 };
 
 export default EditDialog;

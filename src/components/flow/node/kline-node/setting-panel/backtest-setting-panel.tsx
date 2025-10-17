@@ -1,4 +1,7 @@
 // import { FileWithPreview } from "@/hooks/use-file-upload"
+
+// import { useNodeConnections, useReactFlow } from "@xyflow/react";
+import { useState } from "react";
 import AccountSelector from "@/components/flow/account-selector";
 import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
 // import { getNodeDefaultInputHandleId, NodeType } from "@/types/node/index";
@@ -6,15 +9,13 @@ import FileUpload from "@/components/ui/file-upload";
 import { Label } from "@/components/ui/label";
 import { useUpdateBacktestConfig } from "@/hooks/node-config/kline-node/use-update-backtest-config";
 import { useStartNodeDataStore } from "@/store/node/use-start-node-data-store";
-import type { KlineNodeData } from "@/types/node/kline-node";
 import type { ExchangeStatus } from "@/types/market";
+import type { KlineNodeData } from "@/types/node/kline-node";
 import {
 	BacktestDataSource,
 	type SelectedAccount,
 	TradeMode,
 } from "@/types/strategy";
-// import { useNodeConnections, useReactFlow } from "@xyflow/react";
-import { useState } from "react";
 // import { StartNodeData } from "@/types/node/start-node";
 import SymbolSelector from "../components/symbol-selector";
 
@@ -62,11 +63,14 @@ const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	};
 
 	// 处理连接状态变化
-	const handleConnectionStatusChange = (status: ExchangeStatus, accountId: number) => {
+	const handleConnectionStatusChange = (
+		status: ExchangeStatus,
+		accountId: number,
+	) => {
 		console.log(`账户 ${accountId} 连接状态变化为: ${status}`);
 		// 当连接状态变为 "Connected" 时，触发 SymbolSelector 刷新
 		if (status === "Connected") {
-			setRefreshTrigger(prev => prev + 1);
+			setRefreshTrigger((prev) => prev + 1);
 		}
 	};
 
@@ -96,7 +100,10 @@ const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 						refreshTrigger={refreshTrigger}
 					/>
 					<div className="flex items-center justify-between gap-2 bg-gray-100 p-2 rounded-md">
-						<Label className="text-sm font-bold whitespace-nowrap"> 回测时间范围： </Label>
+						<Label className="text-sm font-bold whitespace-nowrap">
+							{" "}
+							回测时间范围：{" "}
+						</Label>
 						<Label className="text-xs text-muted-foreground">
 							{" "}
 							{timeRange?.startDate} ~ {timeRange?.endDate}{" "}

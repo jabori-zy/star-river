@@ -1,4 +1,3 @@
-
 export type Kline = {
 	datetime: string;
 	open: number; // 开盘价

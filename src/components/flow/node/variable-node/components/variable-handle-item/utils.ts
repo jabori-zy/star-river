@@ -1,15 +1,15 @@
-import {
-	type TimerConfig,
-	type VariableConfig,
-	type UpdateOperationType,
+import type {
+	TimerConfig,
+	UpdateOperationType,
+	VariableConfig,
 } from "@/types/node/variable-node";
-import { SystemVariable} from "@/types/variable";
+import { SystemVariable } from "@/types/variable";
 
 // 获取变量类型的中文标签
 export const getVariableLabel = (variable: string): string => {
 	const variableMap: Record<string, string> = {
 		[SystemVariable.POSITION_NUMBER]: "持仓数量",
-		[SystemVariable.Filled_ORDER_NUMBER]: "已成交订单数量",
+		[SystemVariable.FILLED_ORDER_NUMBER]: "已成交订单数量",
 	};
 	return variableMap[variable] || variable;
 };
@@ -31,14 +31,49 @@ export const formatSymbolDisplay = (symbol: string | null): string => {
 
 // 格式化定时配置显示
 export const getTimerConfigDisplay = (timerConfig: TimerConfig): string => {
-	const unitMap = {
-		second: "秒",
-		minute: "分钟",
-		hour: "小时",
-		day: "天",
-	};
+	if (timerConfig.mode === "interval") {
+		const unitMap = {
+			second: "秒",
+			minute: "分钟",
+			hour: "小时",
+			day: "天",
+		};
+		return `${timerConfig.interval}${unitMap[timerConfig.unit]}`;
+	} else {
+		// scheduled 模式
+		let description = "";
 
-	return `${timerConfig.interval}${unitMap[timerConfig.unit]}`;
+		// 每小时模式：显示间隔
+		if (timerConfig.repeatMode === "hourly") {
+			const interval = timerConfig.hourlyInterval || 1;
+			description = interval === 1 ? "每小时" : `每${interval}小时`;
+		} else {
+			const repeatMap = {
+				daily: "每天",
+				weekly: "每周",
+				monthly: "每月",
+			};
+			description =
+				repeatMap[timerConfig.repeatMode as "daily" | "weekly" | "monthly"];
+		}
+
+		// 每月模式：添加日期信息
+		if (timerConfig.repeatMode === "monthly" && timerConfig.dayOfMonth) {
+			const dayOfMonth = timerConfig.dayOfMonth;
+			if (typeof dayOfMonth === "number") {
+				description += ` 第${dayOfMonth}天`;
+			} else {
+				const dayMap: Record<string, string> = {
+					first: "第一天",
+					last: "最后一天",
+				};
+				description += ` ${dayMap[dayOfMonth]}`;
+			}
+		}
+
+		description += ` ${timerConfig.time}`;
+		return description;
+	}
 };
 
 // 获取更新操作类型的显示文本
@@ -52,6 +87,9 @@ export const getUpdateOperationLabel = (type: UpdateOperationType): string => {
 		max: "max",
 		min: "min",
 		toggle: "toggle",
+		append: "追加",
+		remove: "移除",
+		clear: "清空",
 	};
 	return labels[type];
 };
@@ -73,13 +111,23 @@ export const getVariableConfigDescription = (
 		}
 
 		return description;
-	} else {
+	} else if (config.varOperation === "update") {
 		// update 模式
 		const opLabel = getUpdateOperationLabel(config.updateOperationType);
 		if (config.updateOperationType === "toggle") {
 			return `更新变量 - ${variableText} (${opLabel})`;
 		}
-		return `更新变量 - ${variableText} ${opLabel} ${String(config.varValue)}`;
+		return `更新变量 - ${variableText} ${opLabel}`;
+	} else {
+		// reset 模式
+		const typeText = getVariableTypeLabel(config.varTriggerType);
+		let description = `重置变量 - ${variableText} (${typeText})`;
+
+		if (config.varTriggerType === "timer" && config.timerConfig) {
+			description += ` - ${getTimerConfigDisplay(config.timerConfig)}`;
+		}
+
+		return description;
 	}
 };
 
@@ -98,11 +146,19 @@ export const getVariableConfigStatusLabel = (
 		if (config.varTriggerType === "timer" && !config.timerConfig) {
 			return "未配置定时器";
 		}
-	} else {
+	} else if (config.varOperation === "update") {
 		// update 模式
-		// toggle 不需要更新值，其他操作需要
-		if (config.updateOperationType !== "toggle" && !config.varValue) {
-			return "未设置更新值";
+		// toggle 和 clear 不需要更新值，其他操作需要
+		if (
+			config.updateOperationType !== "toggle" &&
+			config.updateOperationType !== "clear"
+		) {
+			// 这里不检查 varValue，因为 update 模式没有 varValue 字段
+		}
+	} else {
+		// reset 模式
+		if (config.varTriggerType === "timer" && !config.timerConfig) {
+			return "未配置定时器";
 		}
 	}
 
@@ -122,10 +178,13 @@ export const isVariableConfigComplete = (config: VariableConfig): boolean => {
 		if (config.varTriggerType === "timer" && !config.timerConfig) {
 			return false;
 		}
-	} else {
+	} else if (config.varOperation === "update") {
 		// update 模式
-		// toggle 不需要更新值，其他操作需要
-		if (config.updateOperationType !== "toggle" && !config.varValue) {
+		// toggle 和 clear 不需要更新值，其他操作需要
+		// 这里不检查具体的值，因为 update 模式的值验证由组件内部处理
+	} else {
+		// reset 模式
+		if (config.varTriggerType === "timer" && !config.timerConfig) {
 			return false;
 		}
 	}

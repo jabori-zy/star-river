@@ -3,7 +3,11 @@ import { Play } from "lucide-react";
 import type { BaseHandleProps } from "@/components/flow/base/BaseHandle";
 import BaseNode from "@/components/flow/base/BaseNode";
 import useTradingModeStore from "@/store/useTradingModeStore";
-import { getNodeDefaultOutputHandleId, NodeType } from "@/types/node/index";
+import {
+	getNodeDefaultInputHandleId,
+	getNodeDefaultOutputHandleId,
+	NodeType,
+} from "@/types/node/index";
 import type { VariableNode as VariableNodeType } from "@/types/node/variable-node";
 import { TradeMode } from "@/types/strategy";
 import BacktestModeShow from "./components/node-show/backtest-mode-show";
@@ -40,12 +44,20 @@ const VariableNode: React.FC<NodeProps<VariableNodeType>> = ({
 		handleColor: "!bg-red-400",
 	};
 
+	const defaultInputHandle: BaseHandleProps = {
+		type: "target",
+		position: Position.Left,
+		id: getNodeDefaultInputHandleId(id, NodeType.VariableNode),
+		handleColor: "!bg-red-400",
+	};
+
 	return (
 		<BaseNode
 			id={id}
 			nodeName={nodeName}
 			icon={Play}
 			selected={selected}
+			defaultInputHandle={defaultInputHandle}
 			selectedBorderColor="border-red-400"
 			defaultOutputHandle={defaultOutputHandle}
 		>

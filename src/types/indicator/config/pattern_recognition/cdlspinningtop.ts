@@ -1,9 +1,6 @@
 import { z } from "zod";
 import { SeriesType } from "@/types/chart";
-import {
-	IndicatorCategory,
-	IndicatorType,
-} from "@/types/indicator";
+import { IndicatorCategory, IndicatorType } from "@/types/indicator";
 import {
 	createParseIndicatorConfigFromKeyStr,
 	getIndicatorValues,
@@ -15,7 +12,9 @@ const CDLSPINNINGTOPConfigSchema = z.object({
 	// CDLSPINNINGTOP 没有参数
 });
 
-export type CDLSPINNINGTOPConfigType = z.infer<typeof CDLSPINNINGTOPConfigSchema>;
+export type CDLSPINNINGTOPConfigType = z.infer<
+	typeof CDLSPINNINGTOPConfigSchema
+>;
 
 function buildCDLSPINNINGTOPConfig(_params: Map<string, string>): unknown {
 	return {
@@ -33,7 +32,11 @@ export const CDLSPINNINGTOPConfig: IndicatorConfig<CDLSPINNINGTOPConfigType> = {
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },
-		spinning_top: { label: "spinning_top", value: 0, legendShowName: "spinningtop" },
+		spinning_top: {
+			label: "spinning_top",
+			value: 0,
+			legendShowName: "spinningtop",
+		},
 	},
 	chartConfig: {
 		isInMainChart: false,
@@ -50,9 +53,7 @@ export const CDLSPINNINGTOPConfig: IndicatorConfig<CDLSPINNINGTOPConfigType> = {
 
 	getDefaultConfig(): CDLSPINNINGTOPConfigType {
 		const config = Object.fromEntries(
-			Object.entries(this.params).map(([_key, _param]) => [
-				{},
-			]),
+			Object.entries(this.params).map(([_key, _param]) => [{}]),
 		);
 
 		const validatedConfig = CDLSPINNINGTOPConfigSchema.parse(config);

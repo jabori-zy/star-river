@@ -4,7 +4,6 @@ import type { KlineNodeData } from "./kline-node";
 import type { PositionManagementNodeData } from "./position-management-node";
 import type { StartNodeData } from "./start-node";
 
-
 export type NodeId = string;
 export type NodeName = string;
 

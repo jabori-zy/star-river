@@ -97,7 +97,12 @@ const OperationSetting: React.FC<OperationSettingProps> = ({
 		<div className="flex flex-col gap-2">
 			<div className="flex items-center justify-between">
 				<Label className="text-sm font-bold text-gray-700">操作配置</Label>
-				<Button variant="ghost" size="icon" onClick={handleAddOperation} disabled={!accountId}>
+				<Button
+					variant="ghost"
+					size="icon"
+					onClick={handleAddOperation}
+					disabled={!accountId}
+				>
 					<PlusIcon className="w-4 h-4" />
 				</Button>
 			</div>

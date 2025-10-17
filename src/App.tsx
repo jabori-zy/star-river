@@ -1,24 +1,35 @@
 import { RouterProvider } from "react-router";
 import router from "./router";
 import "./i18n";
+import { Settings } from "luxon";
 import { useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/sonner";
-import useSystemConfigStore from "./store/useSystemConfigStore";
-import { useGlobalStrategyLoading } from "./hooks/useGlobalStrategyLoading";
 import StrategyLoadingDialog from "./components/strategy-loading-dialog";
+import { useGlobalStrategyLoading } from "./hooks/useGlobalStrategyLoading";
 import useStrategyLoadingStore from "./store/useStrategyLoadingStore";
-import { Settings } from "luxon";
+import useSystemConfigStore from "./store/useSystemConfigStore";
 
 function App() {
 	const { loadSystemConfig, systemConfig } = useSystemConfigStore();
 	const [isAppReady, setIsAppReady] = useState(false);
-	const [lastSystemConfig, setLastSystemConfig] = useState<typeof systemConfig>(null);
-	
+	const [lastSystemConfig, setLastSystemConfig] =
+		useState<typeof systemConfig>(null);
+
 	// 启用全局策略加载管理
 	const { handleDialogClose } = useGlobalStrategyLoading();
-	
+
 	// 获取全局状态
-	const { showDialog, logs, isLoading, isFailed, isRunning, isBacktesting, isStopping, isStopped, dialogTitle } = useStrategyLoadingStore();
+	const {
+		showDialog,
+		logs,
+		isLoading,
+		isFailed,
+		isRunning,
+		isBacktesting,
+		isStopping,
+		isStopped,
+		dialogTitle,
+	} = useStrategyLoadingStore();
 
 	useEffect(() => {
 		const initializeApp = async () => {
@@ -52,14 +63,17 @@ function App() {
 		}
 
 		// 如果配置发生了变化，刷新页面
-		if (lastSystemConfig && systemConfig && 
-			(lastSystemConfig.localization !== systemConfig.localization || 
-			 lastSystemConfig.timezone !== systemConfig.timezone)) {
+		if (
+			lastSystemConfig &&
+			systemConfig &&
+			(lastSystemConfig.localization !== systemConfig.localization ||
+				lastSystemConfig.timezone !== systemConfig.timezone)
+		) {
 			console.log("系统配置发生变化，刷新页面...", {
 				old: lastSystemConfig,
-				new: systemConfig
+				new: systemConfig,
 			});
-			
+
 			// 如果在 Electron 环境中，通知所有回测窗口刷新
 			if (window.require) {
 				try {
@@ -71,7 +85,7 @@ function App() {
 					console.error("通知回测窗口刷新失败:", error);
 				}
 			}
-			
+
 			// 延迟一点时间让用户看到保存成功的提示
 			setTimeout(() => {
 				window.location.reload();
@@ -91,7 +105,7 @@ function App() {
 	return (
 		<>
 			<RouterProvider router={router} />
-			
+
 			{/* 全局策略加载对话框 */}
 			{showDialog && (
 				<StrategyLoadingDialog
@@ -100,15 +114,21 @@ function App() {
 					logs={logs}
 					title={dialogTitle}
 					currentStage={
-						isFailed ? "failed" : 
-						isStopped ? "stopped" :
-						isStopping ? "stopping" :
-						isBacktesting || isRunning ? "completed" :
-						isLoading ? "strategy-check" : "completed"
+						isFailed
+							? "failed"
+							: isStopped
+								? "stopped"
+								: isStopping
+									? "stopping"
+									: isBacktesting || isRunning
+										? "completed"
+										: isLoading
+											? "strategy-check"
+											: "completed"
 					}
 				/>
 			)}
-			
+
 			<Toaster
 				position="top-center"
 				toastOptions={{

@@ -21,7 +21,7 @@ export function SubchartIndicatorLegend({
 	const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(
 		null,
 	);
-	const { 
+	const {
 		getSubChartPaneRef,
 		getPaneVersion,
 		getSubChartPaneHtmlElementRef,
@@ -36,10 +36,11 @@ export function SubchartIndicatorLegend({
 	const paneVersion = getPaneVersion();
 
 	// 🔑 获取 legend 数据和事件处理器
-	const { legendData, onCrosshairMove, onSeriesDataUpdate } = useIndicatorLegend({
-		chartId,
-		indicatorKeyStr,
-	});
+	const { legendData, onCrosshairMove, onSeriesDataUpdate } =
+		useIndicatorLegend({
+			chartId,
+			indicatorKeyStr,
+		});
 
 	// 🔑 延迟订阅图表事件，确保图表完全初始化
 	useEffect(() => {
@@ -56,7 +57,8 @@ export function SubchartIndicatorLegend({
 
 	useEffect(() => {
 		const seriesList = Object.values(indicatorSeriesMap).filter(
-			(seriesRef): seriesRef is NonNullable<typeof seriesRef> => Boolean(seriesRef),
+			(seriesRef): seriesRef is NonNullable<typeof seriesRef> =>
+				Boolean(seriesRef),
 		);
 
 		if (seriesList.length === 0) {
@@ -131,7 +133,6 @@ export function SubchartIndicatorLegend({
 		};
 
 		createPortalContainer();
-		
 
 		// 清理函数
 		return () => {
@@ -143,8 +144,14 @@ export function SubchartIndicatorLegend({
 				return null;
 			});
 		};
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [indicatorKeyStr, getSubChartPaneRef, paneVersion, getSubChartPaneHtmlElementRef, subChartPaneHtmlElementRef]); // 依赖 paneVersion，当 pane 被删除时会重新创建容器
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [
+		indicatorKeyStr,
+		getSubChartPaneRef,
+		paneVersion,
+		getSubChartPaneHtmlElementRef,
+		subChartPaneHtmlElementRef,
+	]); // 依赖 paneVersion，当 pane 被删除时会重新创建容器
 
 	// 🔑 使用 Portal 渲染，简单直接
 	if (!portalContainer || !legendData) {

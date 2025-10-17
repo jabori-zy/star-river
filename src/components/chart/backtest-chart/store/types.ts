@@ -4,19 +4,24 @@ import type {
 	IPaneApi,
 	ISeriesApi,
 	ISeriesMarkersPluginApi,
+	LogicalRange,
 	SingleValueData,
 	Time,
-	LogicalRange,
 } from "lightweight-charts";
 import type { Subscription } from "rxjs";
 import type { StateCreator } from "zustand";
-import type { ChartId, OrderMarker, PositionPriceLine, LimitOrderPriceLine } from "@/types/chart";
+import type {
+	ChartId,
+	LimitOrderPriceLine,
+	OrderMarker,
+	PositionPriceLine,
+} from "@/types/chart";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import type { Kline } from "@/types/kline";
-import type { IndicatorKeyStr, KeyStr, KlineKeyStr } from "@/types/symbol-key";
 import type { VirtualOrder } from "@/types/order";
 import type { VirtualPosition } from "@/types/position";
+import type { IndicatorKeyStr, KeyStr, KlineKeyStr } from "@/types/symbol-key";
 
 // ==================== Data Slice Types ====================
 export interface DataSlice {
@@ -79,7 +84,12 @@ export interface RefsSlice {
 		indicatorKeyStr: IndicatorKeyStr,
 		indicatorValueKey: keyof IndicatorValueConfig,
 	) => ISeriesApi<"Line"> | ISeriesApi<"Area"> | ISeriesApi<"Histogram"> | null;
-	getIndicatorAllSeriesRef: (indicatorKeyStr: IndicatorKeyStr) => Record<keyof IndicatorValueConfig, ISeriesApi<"Line"> | ISeriesApi<"Area"> | ISeriesApi<"Histogram"> | null>;
+	getIndicatorAllSeriesRef: (
+		indicatorKeyStr: IndicatorKeyStr,
+	) => Record<
+		keyof IndicatorValueConfig,
+		ISeriesApi<"Line"> | ISeriesApi<"Area"> | ISeriesApi<"Histogram"> | null
+	>;
 	deleteIndicatorSeriesRef: (indicatorKeyStr: IndicatorKeyStr) => void;
 	setOrderMarkerSeriesRef: (ref: ISeriesMarkersPluginApi<Time>) => void;
 	getOrderMarkerSeriesRef: () => ISeriesMarkersPluginApi<Time> | null;
@@ -92,8 +102,13 @@ export interface RefsSlice {
 	getSubChartPaneRef: (
 		indicatorKeyStr: IndicatorKeyStr,
 	) => IPaneApi<Time> | null;
-	addSubChartPaneHtmlElementRef: (indicatorKeyStr: IndicatorKeyStr, htmlElement: HTMLElement) => void;
-	getSubChartPaneHtmlElementRef: (indicatorKeyStr: IndicatorKeyStr) => HTMLElement | null;
+	addSubChartPaneHtmlElementRef: (
+		indicatorKeyStr: IndicatorKeyStr,
+		htmlElement: HTMLElement,
+	) => void;
+	getSubChartPaneHtmlElementRef: (
+		indicatorKeyStr: IndicatorKeyStr,
+	) => HTMLElement | null;
 	getPaneVersion: () => number;
 	incrementPaneVersion: () => void;
 }
@@ -144,7 +159,10 @@ export interface SubscriptionSlice {
 	initObserverSubscriptions: () => void;
 	subscribe: (keyStr: KeyStr) => void;
 	unsubscribe: (keyStr: KeyStr) => void;
-	_addObserverSubscription: (keyStr: KeyStr, subscription: Subscription) => void;
+	_addObserverSubscription: (
+		keyStr: KeyStr,
+		subscription: Subscription,
+	) => void;
 	cleanupSubscriptions: () => void;
 }
 
@@ -172,7 +190,11 @@ export interface DataInitializationSlice {
 	) => Promise<void>;
 	initVirtualOrderData: (strategyId: number) => Promise<void>;
 	initVirtualPositionData: (strategyId: number) => Promise<void>;
-	_processKlineData: (strategyId: number, klineKeyStr: KeyStr, playIndex: number) => Promise<void>;
+	_processKlineData: (
+		strategyId: number,
+		klineKeyStr: KeyStr,
+		playIndex: number,
+	) => Promise<void>;
 	_processIndicatorData: (
 		strategyId: number,
 		keyStr: KeyStr,
@@ -182,10 +204,9 @@ export interface DataInitializationSlice {
 		strategyId: number,
 		keyStr: KeyStr,
 		playIndex: number,
-	) => Promise<Record<
-		keyof IndicatorValueConfig,
-		SingleValueData[]
-	> | null | undefined>;
+	) => Promise<
+		Record<keyof IndicatorValueConfig, SingleValueData[]> | null | undefined
+	>;
 }
 
 // ==================== Utility Slice Types ====================
@@ -199,15 +220,15 @@ export interface UtilitySlice {
 }
 
 // ==================== Complete Store Type ====================
-export interface BacktestChartStore extends
-	DataSlice,
-	RefsSlice,
-	VisibilitySlice,
-	TradingSlice,
-	SubscriptionSlice,
-	EventHandlerSlice,
-	DataInitializationSlice,
-	UtilitySlice {}
+export interface BacktestChartStore
+	extends DataSlice,
+		RefsSlice,
+		VisibilitySlice,
+		TradingSlice,
+		SubscriptionSlice,
+		EventHandlerSlice,
+		DataInitializationSlice,
+		UtilitySlice {}
 
 // ==================== Slice Creation Function Types ====================
 export type SliceCreator<TSlice> = StateCreator<

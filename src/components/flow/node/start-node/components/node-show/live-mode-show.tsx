@@ -7,11 +7,8 @@ import {
 	CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Label } from "@/components/ui/label";
-import type {
-	SelectedAccount,
-	StrategyLiveConfig,
-} from "@/types/strategy";
-import { type CustomVariable } from "@/types/variable";
+import type { SelectedAccount, StrategyLiveConfig } from "@/types/strategy";
+import type { CustomVariable } from "@/types/variable";
 
 interface LiveNodeShowProps {
 	liveConfig: StrategyLiveConfig;
@@ -24,7 +21,8 @@ const LiveNodeShow: React.FC<LiveNodeShowProps> = ({ liveConfig }) => {
 		<div className="space-y-2">
 			{/* 已选账户展示 */}
 			<div className="space-y-2">
-				{!liveConfig.selectedAccounts || liveConfig.selectedAccounts.length === 0 ? (
+				{!liveConfig.selectedAccounts ||
+				liveConfig.selectedAccounts.length === 0 ? (
 					<div className="flex items-center justify-between gap-2 rounded-md">
 						<Label className="text-xm font-bold text-muted-foreground">
 							账户

@@ -1,9 +1,6 @@
 import { z } from "zod";
 import { SeriesType } from "@/types/chart";
-import {
-	IndicatorCategory,
-	IndicatorType,
-} from "@/types/indicator";
+import { IndicatorCategory, IndicatorType } from "@/types/indicator";
 import {
 	createParseIndicatorConfigFromKeyStr,
 	getIndicatorValues,
@@ -15,7 +12,9 @@ const CDL3LINESTRIKEConfigSchema = z.object({
 	// CDL3LINESTRIKE 没有参数
 });
 
-export type CDL3LINESTRIKEConfigType = z.infer<typeof CDL3LINESTRIKEConfigSchema>;
+export type CDL3LINESTRIKEConfigType = z.infer<
+	typeof CDL3LINESTRIKEConfigSchema
+>;
 
 function buildCDL3LINESTRIKEConfig(_params: Map<string, string>): unknown {
 	return {
@@ -33,7 +32,11 @@ export const CDL3LINESTRIKEConfig: IndicatorConfig<CDL3LINESTRIKEConfigType> = {
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },
-		three_line_strike: { label: "three_line_strike", value: 0, legendShowName: "3linestrike" },
+		three_line_strike: {
+			label: "three_line_strike",
+			value: 0,
+			legendShowName: "3linestrike",
+		},
 	},
 	chartConfig: {
 		isInMainChart: false,
@@ -50,9 +53,7 @@ export const CDL3LINESTRIKEConfig: IndicatorConfig<CDL3LINESTRIKEConfigType> = {
 
 	getDefaultConfig(): CDL3LINESTRIKEConfigType {
 		const config = Object.fromEntries(
-			Object.entries(this.params).map(([_key, _param]) => [
-				{},
-			]),
+			Object.entries(this.params).map(([_key, _param]) => [{}]),
 		);
 
 		const validatedConfig = CDL3LINESTRIKEConfigSchema.parse(config);

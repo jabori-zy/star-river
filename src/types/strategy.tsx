@@ -1,9 +1,7 @@
 import type { Edge, Node } from "@xyflow/react";
-import type { Exchange } from "@/types/market";
 import type { StrategyChartConfig } from "@/types/chart/strategy-chart-config";
+import type { Exchange } from "@/types/market";
 import type { CustomVariable } from "@/types/variable";
-
-
 
 export type StrategyId = number;
 
@@ -75,10 +73,7 @@ export interface StrategyBacktestConfig {
 	customVariables: CustomVariable[]; // 回测策略自定义变量
 }
 
-
-
 // 策略变量定义
-
 
 // 策略配置
 export interface StrategyConfig {

@@ -6,7 +6,7 @@ import PositionManagementNode from "@/components/flow/node/position-management-n
 import StartNode from "@/components/flow/node/start-node"; // 开始节点
 import VariableNode from "@/components/flow/node/variable-node/node"; // 变量节点
 
-export const nodeTypes  = {
+export const nodeTypes = {
 	startNode: StartNode,
 	klineNode: KlineNode,
 	indicatorNode: IndicatorNode,

@@ -9,10 +9,10 @@ import type {
 import type { Subscription } from "rxjs";
 import { create } from "zustand";
 import { createStatsStream } from "@/hooks/obs/backtest-strategy-event-obs";
+import { getStrategyStatsHistory } from "@/service/backtest-strategy/strategy-stats";
 import type { BacktestStrategyStatsChartConfig } from "@/types/chart/backtest-strategy-stats-chart";
 import type { StrategyStats, StrategyStatsName } from "@/types/statistics";
 import type { BacktestStrategyStatsUpdateEvent } from "@/types/strategy-event/backtest-strategy-event";
-import { getStrategyStatsHistory } from "@/service/backtest-strategy/strategy-stats";
 import { getChartAlignedUtcTimestamp } from "../backtest-chart/utls";
 
 interface BacktestStatsChartStore {
@@ -26,13 +26,15 @@ interface BacktestStatsChartStore {
 	// 各种ref引用存储
 	chartRef: IChartApi | null;
 	statsPaneRefs: Partial<Record<StrategyStatsName, IPaneApi<Time> | null>>; // 每个统计图表的pane引用
-	statsSeriesRefs: Partial<Record<StrategyStatsName, ISeriesApi<"Line"> | null>>; // 每个统计数据的series引用
-	statsPaneHtmlElementRefs: Partial<Record<StrategyStatsName, HTMLElement | null>>; // 每个统计图表的pane HTML元素引用
-
+	statsSeriesRefs: Partial<
+		Record<StrategyStatsName, ISeriesApi<"Line"> | null>
+	>; // 每个统计数据的series引用
+	statsPaneHtmlElementRefs: Partial<
+		Record<StrategyStatsName, HTMLElement | null>
+	>; // 每个统计图表的pane HTML元素引用
 
 	// === Pane 版本号，用于强制重新渲染 legend ===
 	paneVersion: number;
-
 
 	//数据初始化方法
 	initChartData: (playIndex: number, strategyId: number) => Promise<void>;
@@ -54,12 +56,22 @@ interface BacktestStatsChartStore {
 	deleteStatsPaneRef: (statsName: StrategyStatsName) => void;
 	getStatsPaneRef: (statsName: StrategyStatsName) => IPaneApi<Time> | null;
 
-	setStatsSeriesRef: (statsName: StrategyStatsName, ref: ISeriesApi<"Line"> | ISeriesApi<"Area"> | ISeriesApi<"Histogram">) => void;
+	setStatsSeriesRef: (
+		statsName: StrategyStatsName,
+		ref: ISeriesApi<"Line"> | ISeriesApi<"Area"> | ISeriesApi<"Histogram">,
+	) => void;
 	deleteStatsSeriesRef: (statsName: StrategyStatsName) => void;
-	getStatsSeriesRef: (statsName: StrategyStatsName) => ISeriesApi<"Line"> | ISeriesApi<"Area"> | ISeriesApi<"Histogram"> | null;
+	getStatsSeriesRef: (
+		statsName: StrategyStatsName,
+	) => ISeriesApi<"Line"> | ISeriesApi<"Area"> | ISeriesApi<"Histogram"> | null;
 
-	addStatsPaneHtmlElementRef: (statsName: StrategyStatsName, htmlElement: HTMLElement) => void;
-	getStatsPaneHtmlElementRef: (statsName: StrategyStatsName) => HTMLElement | null;
+	addStatsPaneHtmlElementRef: (
+		statsName: StrategyStatsName,
+		htmlElement: HTMLElement,
+	) => void;
+	getStatsPaneHtmlElementRef: (
+		statsName: StrategyStatsName,
+	) => HTMLElement | null;
 
 	// Pane 版本号管理
 	getPaneVersion: () => number;
@@ -102,18 +114,22 @@ const createBacktestStatsChartStore = (
 			// 初始化前，清除所有数据
 			const state = get();
 			if (playIndex > -1) {
-				const initialStatsData = await getStrategyStatsHistory(strategyId, playIndex);
+				const initialStatsData = await getStrategyStatsHistory(
+					strategyId,
+					playIndex,
+				);
 				if (initialStatsData) {
-
-					const balanceStatsData: SingleValueData[] = []
-					const unrealizedPnlStatsData: SingleValueData[] = []
-					const equityStatsData: SingleValueData[] = []
-					const positionStatsData: SingleValueData[] = []
-					const realizedPnlStatsData: SingleValueData[] = []
-					const cumulativeReturnStatsData: SingleValueData[] = []
+					const balanceStatsData: SingleValueData[] = [];
+					const unrealizedPnlStatsData: SingleValueData[] = [];
+					const equityStatsData: SingleValueData[] = [];
+					const positionStatsData: SingleValueData[] = [];
+					const realizedPnlStatsData: SingleValueData[] = [];
+					const cumulativeReturnStatsData: SingleValueData[] = [];
 
 					initialStatsData.forEach((statsData) => {
-						const timestamp = getChartAlignedUtcTimestamp(statsData.datetime) as UTCTimestamp;
+						const timestamp = getChartAlignedUtcTimestamp(
+							statsData.datetime,
+						) as UTCTimestamp;
 						balanceStatsData.push({
 							time: timestamp,
 							value: statsData.balance,
@@ -148,7 +164,6 @@ const createBacktestStatsChartStore = (
 					state.setStatsData("cumulativeReturn", cumulativeReturnStatsData);
 
 					state.setIsDataInitialized(true);
-
 				}
 			}
 		},
@@ -172,7 +187,6 @@ const createBacktestStatsChartStore = (
 		setIsDataInitialized: (initialized: boolean) =>
 			set({ isDataInitialized: initialized }),
 
-
 		// === ref 管理方法实现 ===
 		setChartRef: (chart: IChartApi | null) => set({ chartRef: chart }),
 		getChartRef: () => get().chartRef,
@@ -188,7 +202,10 @@ const createBacktestStatsChartStore = (
 				statsPaneRefs: { ...get().statsPaneRefs, [statsName]: null },
 			}),
 
-		setStatsSeriesRef: (statsName: StrategyStatsName, ref: ISeriesApi<"Line"> | ISeriesApi<"Area"> | ISeriesApi<"Histogram">) =>
+		setStatsSeriesRef: (
+			statsName: StrategyStatsName,
+			ref: ISeriesApi<"Line"> | ISeriesApi<"Area"> | ISeriesApi<"Histogram">,
+		) =>
 			set({
 				statsSeriesRefs: { ...get().statsSeriesRefs, [statsName]: ref },
 			}),
@@ -199,17 +216,23 @@ const createBacktestStatsChartStore = (
 				statsSeriesRefs: { ...get().statsSeriesRefs, [statsName]: null },
 			}),
 
-		addStatsPaneHtmlElementRef: (statsName: StrategyStatsName, htmlElement: HTMLElement) =>
+		addStatsPaneHtmlElementRef: (
+			statsName: StrategyStatsName,
+			htmlElement: HTMLElement,
+		) =>
 			set({
-				statsPaneHtmlElementRefs: { ...get().statsPaneHtmlElementRefs, [statsName]: htmlElement },
+				statsPaneHtmlElementRefs: {
+					...get().statsPaneHtmlElementRefs,
+					[statsName]: htmlElement,
+				},
 			}),
 		getStatsPaneHtmlElementRef: (statsName: StrategyStatsName) =>
 			get().statsPaneHtmlElementRefs[statsName] || null,
 
-
 		// Pane 版本号管理
 		getPaneVersion: () => get().paneVersion,
-		incrementPaneVersion: () => set((state) => ({ paneVersion: state.paneVersion + 1 })),
+		incrementPaneVersion: () =>
+			set((state) => ({ paneVersion: state.paneVersion + 1 })),
 
 		// Observer 相关方法
 		initObserverSubscriptions: () => {
@@ -254,7 +277,9 @@ const createBacktestStatsChartStore = (
 
 		onNewStatsData: (statsData: StrategyStats) => {
 			const state = get();
-			const timestamp = getChartAlignedUtcTimestamp(statsData.datetime) as UTCTimestamp;
+			const timestamp = getChartAlignedUtcTimestamp(
+				statsData.datetime,
+			) as UTCTimestamp;
 
 			// 处理每个统计数据
 			Object.entries(statsData).forEach(([statsName, value]) => {
@@ -268,7 +293,9 @@ const createBacktestStatsChartStore = (
 				const lastData = existingData[existingData.length - 1];
 
 				// 更新series
-				const seriesRef = state.getStatsSeriesRef(statsName as StrategyStatsName);
+				const seriesRef = state.getStatsSeriesRef(
+					statsName as StrategyStatsName,
+				);
 				if (seriesRef) {
 					seriesRef.update(newDataPoint);
 				}
@@ -385,6 +412,3 @@ export const resetAllBacktestStatsChartStore = () => {
 		store.getState().resetData();
 	});
 };
-
-
-

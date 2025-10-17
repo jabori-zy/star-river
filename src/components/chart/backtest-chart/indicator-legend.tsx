@@ -51,18 +51,20 @@ const IndicatorLegend = forwardRef<HTMLDivElement, IndicatorLegendProps>(
 				let hasChanges = false;
 				let next = prev;
 
-				Object.entries(indicatorLegendData.values).forEach(([key, valueInfo]) => {
-					const currentLength = valueInfo.value.length;
-					const maxLength = prev[key] || 0;
+				Object.entries(indicatorLegendData.values).forEach(
+					([key, valueInfo]) => {
+						const currentLength = valueInfo.value.length;
+						const maxLength = prev[key] || 0;
 
-					if (currentLength > maxLength) {
-						if (!hasChanges) {
-							next = { ...prev };
-							hasChanges = true;
+						if (currentLength > maxLength) {
+							if (!hasChanges) {
+								next = { ...prev };
+								hasChanges = true;
+							}
+							next[key] = currentLength;
 						}
-						next[key] = currentLength;
-					}
-				});
+					},
+				);
 
 				return hasChanges ? next : prev;
 			});

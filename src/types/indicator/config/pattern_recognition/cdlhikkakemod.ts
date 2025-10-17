@@ -1,9 +1,6 @@
 import { z } from "zod";
 import { SeriesType } from "@/types/chart";
-import {
-	IndicatorCategory,
-	IndicatorType,
-} from "@/types/indicator";
+import { IndicatorCategory, IndicatorType } from "@/types/indicator";
 import {
 	createParseIndicatorConfigFromKeyStr,
 	getIndicatorValues,
@@ -33,7 +30,11 @@ export const CDLHIKKAKEMODConfig: IndicatorConfig<CDLHIKKAKEMODConfigType> = {
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },
-		hikkake_mod: { label: "hikkake_mod", value: 0, legendShowName: "hikkakemod" },
+		hikkake_mod: {
+			label: "hikkake_mod",
+			value: 0,
+			legendShowName: "hikkakemod",
+		},
 	},
 	chartConfig: {
 		isInMainChart: false,
@@ -50,9 +51,7 @@ export const CDLHIKKAKEMODConfig: IndicatorConfig<CDLHIKKAKEMODConfigType> = {
 
 	getDefaultConfig(): CDLHIKKAKEMODConfigType {
 		const config = Object.fromEntries(
-			Object.entries(this.params).map(([_key, _param]) => [
-				{},
-			]),
+			Object.entries(this.params).map(([_key, _param]) => [{}]),
 		);
 
 		const validatedConfig = CDLHIKKAKEMODConfigSchema.parse(config);

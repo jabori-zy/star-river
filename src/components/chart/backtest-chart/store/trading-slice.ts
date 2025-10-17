@@ -1,4 +1,8 @@
-import type { OrderMarker, PositionPriceLine, LimitOrderPriceLine } from "@/types/chart";
+import type {
+	LimitOrderPriceLine,
+	OrderMarker,
+	PositionPriceLine,
+} from "@/types/chart";
 import type { SliceCreator, TradingSlice } from "./types";
 
 export const createTradingSlice: SliceCreator<TradingSlice> = (set, get) => ({
@@ -10,21 +14,27 @@ export const createTradingSlice: SliceCreator<TradingSlice> = (set, get) => ({
 
 	getOrderMarkers: () => get().orderMarkers,
 
-	setPositionPriceLine: (priceLine: PositionPriceLine[]) => set({ positionPriceLine: priceLine }),
+	setPositionPriceLine: (priceLine: PositionPriceLine[]) =>
+		set({ positionPriceLine: priceLine }),
 
 	getPositionPriceLine: () => get().positionPriceLine,
 
 	deletePositionPriceLine: (priceLineId: string) =>
 		set({
-			positionPriceLine: get().positionPriceLine.filter((priceLine) => priceLine.id !== priceLineId)
+			positionPriceLine: get().positionPriceLine.filter(
+				(priceLine) => priceLine.id !== priceLineId,
+			),
 		}),
 
-	setLimitOrderPriceLine: (priceLine: LimitOrderPriceLine[]) => set({ limitOrderPriceLine: priceLine }),
+	setLimitOrderPriceLine: (priceLine: LimitOrderPriceLine[]) =>
+		set({ limitOrderPriceLine: priceLine }),
 
 	getLimitOrderPriceLine: () => get().limitOrderPriceLine,
 
 	deleteLimitOrderPriceLine: (priceLineId: string) =>
 		set({
-			limitOrderPriceLine: get().limitOrderPriceLine.filter((priceLine) => priceLine.id !== priceLineId)
+			limitOrderPriceLine: get().limitOrderPriceLine.filter(
+				(priceLine) => priceLine.id !== priceLineId,
+			),
 		}),
 });

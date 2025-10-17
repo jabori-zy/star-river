@@ -1,17 +1,17 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import { SupportLanguage } from "@/types/system";
-import enUSSetting from "./en-US/setting";
-import enUSStrategy from "./en-US/strategy";
 import enUSIndicator from "./en-US/indicator";
 import enUSMarket from "./en-US/market";
 import enUSNode from "./en-US/node";
-// 导入所有语言模块
-import zhCNSetting from "./zh-CN/setting";
-import zhCNStrategy from "./zh-CN/strategy";
+import enUSSetting from "./en-US/setting";
+import enUSStrategy from "./en-US/strategy";
 import zhCNIndicator from "./zh-CN/indicator";
 import zhCNMarket from "./zh-CN/market";
 import zhCNNode from "./zh-CN/node";
+// 导入所有语言模块
+import zhCNSetting from "./zh-CN/setting";
+import zhCNStrategy from "./zh-CN/strategy";
 
 // 语言模块映射
 const languageModules = {

@@ -1,9 +1,6 @@
 import { z } from "zod";
 import { SeriesType } from "@/types/chart";
-import {
-	IndicatorCategory,
-	IndicatorType,
-} from "@/types/indicator";
+import { IndicatorCategory, IndicatorType } from "@/types/indicator";
 import {
 	createParseIndicatorConfigFromKeyStr,
 	getIndicatorValues,
@@ -33,7 +30,11 @@ export const CDL3INSIDEConfig: IndicatorConfig<CDL3INSIDEConfigType> = {
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },
-		three_inside: { label: "three_inside", value: 0, legendShowName: "3inside" },
+		three_inside: {
+			label: "three_inside",
+			value: 0,
+			legendShowName: "3inside",
+		},
 	},
 	chartConfig: {
 		isInMainChart: false,
@@ -50,9 +51,7 @@ export const CDL3INSIDEConfig: IndicatorConfig<CDL3INSIDEConfigType> = {
 
 	getDefaultConfig(): CDL3INSIDEConfigType {
 		const config = Object.fromEntries(
-			Object.entries(this.params).map(([_key, _param]) => [
-				{},
-			]),
+			Object.entries(this.params).map(([_key, _param]) => [{}]),
 		);
 
 		const validatedConfig = CDL3INSIDEConfigSchema.parse(config);

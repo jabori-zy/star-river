@@ -1,4 +1,6 @@
+import { ShoppingCart, TrendingUp } from "lucide-react";
 import React, { useCallback, useEffect } from "react";
+import { SelectInDialog } from "@/components/select-components/select-in-dialog";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -10,16 +12,14 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { getSymbolInfo } from "@/service/market";
+import type { MarketSymbol } from "@/types/market";
 import {
 	type FuturesOrderConfig,
 	FuturesOrderSide,
 	OrderType,
 } from "@/types/order";
 import SymbolSelector from "./symbol-selector";
-import type { MarketSymbol } from "@/types/market";
-import { getSymbolInfo } from "@/service/market";
-import { SelectInDialog } from "@/components/select-components/select-in-dialog";
-import { ShoppingCart, TrendingUp } from "lucide-react";
 
 // 订单类型选项
 const ORDER_TYPE_OPTIONS = [
@@ -67,28 +67,35 @@ const OrderConfigDialog: React.FC<OrderConfigDialogProps> = ({
 	const [quantity, setQuantity] = React.useState<number>(0);
 	const [tp, setTp] = React.useState<number | null>(null);
 	const [sl, setSl] = React.useState<number | null>(null);
-	const [tpType, setTpType] = React.useState<"price" | "percentage" | "point">("price");
-	const [slType, setSlType] = React.useState<"price" | "percentage" | "point">("price");
+	const [tpType, setTpType] = React.useState<"price" | "percentage" | "point">(
+		"price",
+	);
+	const [slType, setSlType] = React.useState<"price" | "percentage" | "point">(
+		"price",
+	);
 
 	// 获取symbol信息
 	const [symbolInfo, setSymbolInfo] = React.useState<MarketSymbol | null>(null);
 
 	// 获取symbol信息的函数
-	const loadSymbolInfo = useCallback(async (symbolName: string) => {
-		if (!accountId || !symbolName.trim()) {
-			setSymbolInfo(null);
-			return;
-		}
+	const loadSymbolInfo = useCallback(
+		async (symbolName: string) => {
+			if (!accountId || !symbolName.trim()) {
+				setSymbolInfo(null);
+				return;
+			}
 
-		try {
-			const info = await getSymbolInfo(accountId, symbolName);
-			console.log("symbolInfo", info);
-			setSymbolInfo(info);
-		} catch (error) {
-			console.error("获取symbol信息失败:", error);
-			setSymbolInfo(null);
-		}
-	}, [accountId]);
+			try {
+				const info = await getSymbolInfo(accountId, symbolName);
+				console.log("symbolInfo", info);
+				setSymbolInfo(info);
+			} catch (error) {
+				console.error("获取symbol信息失败:", error);
+				setSymbolInfo(null);
+			}
+		},
+		[accountId],
+	);
 
 	// 当symbol变化时获取symbol信息
 	useEffect(() => {
@@ -135,8 +142,6 @@ const OrderConfigDialog: React.FC<OrderConfigDialogProps> = ({
 			}
 		}
 	}, [isOpen, isEditing, editingConfig, resetForm, accountId, loadSymbolInfo]);
-
-	
 
 	const handleSave = () => {
 		if (!symbol.trim() || quantity <= 0) {
@@ -185,7 +190,11 @@ const OrderConfigDialog: React.FC<OrderConfigDialogProps> = ({
 					</DialogDescription>
 				</DialogHeader>
 				<div className="grid gap-4 py-4">
-					<SymbolSelector value={symbol} onChange={setSymbol} accountId={accountId} />
+					<SymbolSelector
+						value={symbol}
+						onChange={setSymbol}
+						accountId={accountId}
+					/>
 
 					<div className="grid grid-cols-4 items-center gap-4">
 						<Label htmlFor="order-type" className="text-right">
@@ -210,7 +219,9 @@ const OrderConfigDialog: React.FC<OrderConfigDialogProps> = ({
 							<SelectInDialog
 								id="order-side"
 								value={orderSide}
-								onValueChange={(value) => setOrderSide(value as FuturesOrderSide)}
+								onValueChange={(value) =>
+									setOrderSide(value as FuturesOrderSide)
+								}
 								placeholder="选择买卖方向"
 								options={ORDER_SIDE_OPTIONS}
 							/>
@@ -267,14 +278,28 @@ const OrderConfigDialog: React.FC<OrderConfigDialogProps> = ({
 										setTp(e.target.value ? Number(e.target.value) : null)
 									}
 									min={0}
-									step={tpType === "percentage" ? 0.1 : tpType === "point" ? 1 : 0.01}
-									placeholder={tpType === "price" ? "输入止盈价 (可选)" : tpType === "percentage" ? "输入止盈百分比 (可选)" : `point is ${symbolInfo?.point || 'N/A'}`}
+									step={
+										tpType === "percentage"
+											? 0.1
+											: tpType === "point"
+												? 1
+												: 0.01
+									}
+									placeholder={
+										tpType === "price"
+											? "输入止盈价 (可选)"
+											: tpType === "percentage"
+												? "输入止盈百分比 (可选)"
+												: `point is ${symbolInfo?.point || "N/A"}`
+									}
 									className={tpType === "percentage" ? "pr-6" : ""}
 								/>
 							</div>
 							<SelectInDialog
 								value={tpType}
-								onValueChange={(value) => setTpType(value as "price" | "percentage" | "point")}
+								onValueChange={(value) =>
+									setTpType(value as "price" | "percentage" | "point")
+								}
 								options={TP_SL_TYPE_OPTIONS}
 								className="w-26"
 							/>
@@ -295,14 +320,28 @@ const OrderConfigDialog: React.FC<OrderConfigDialogProps> = ({
 										setSl(e.target.value ? Number(e.target.value) : null)
 									}
 									min={0}
-									step={slType === "percentage" ? 0.1 : slType === "point" ? 1 : 0.01}
-									placeholder={slType === "price" ? "输入止损价 (可选)" : slType === "percentage" ? "输入止损百分比 (可选)" : `point is ${symbolInfo?.point || 'N/A'}`}
+									step={
+										slType === "percentage"
+											? 0.1
+											: slType === "point"
+												? 1
+												: 0.01
+									}
+									placeholder={
+										slType === "price"
+											? "输入止损价 (可选)"
+											: slType === "percentage"
+												? "输入止损百分比 (可选)"
+												: `point is ${symbolInfo?.point || "N/A"}`
+									}
 									className={slType === "percentage" ? "pr-6" : ""}
 								/>
 							</div>
 							<SelectInDialog
 								value={slType}
-								onValueChange={(value) => setSlType(value as "price" | "percentage" | "point")}
+								onValueChange={(value) =>
+									setSlType(value as "price" | "percentage" | "point")
+								}
 								options={TP_SL_TYPE_OPTIONS}
 								className="w-26"
 							/>

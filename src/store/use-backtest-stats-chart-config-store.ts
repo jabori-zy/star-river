@@ -1,5 +1,9 @@
 import { create } from "zustand";
-import { defaultBacktestStrategyStatsChartConfig, type BacktestStrategyStatsChartConfig, type StrategyStatsChartConfig } from "@/types/chart/backtest-strategy-stats-chart";
+import {
+	type BacktestStrategyStatsChartConfig,
+	defaultBacktestStrategyStatsChartConfig,
+	type StrategyStatsChartConfig,
+} from "@/types/chart/backtest-strategy-stats-chart";
 import type { StrategyStatsName } from "@/types/statistics";
 
 interface BacktestStatsChartConfigState {
@@ -11,8 +15,10 @@ interface BacktestStatsChartConfigState {
 	// 基础操作
 	setChartConfig: (config: BacktestStrategyStatsChartConfig) => void;
 	getChartConfig: () => BacktestStrategyStatsChartConfig | null;
-	getStatsChartConfig: (statsName: StrategyStatsName) => StrategyStatsChartConfig | undefined;
-	
+	getStatsChartConfig: (
+		statsName: StrategyStatsName,
+	) => StrategyStatsChartConfig | undefined;
+
 	// 统计图表可见性管理
 	getStatsVisibility: (statsName: StrategyStatsName) => boolean;
 	setStatsVisibility: (statsName: StrategyStatsName, visible: boolean) => void;
@@ -20,131 +26,133 @@ interface BacktestStatsChartConfigState {
 
 	// 统计图表添加管理
 	addStats: (statsName: StrategyStatsName) => void;
-	
+
 	// 统计图表删除管理
 	removeStats: (statsName: StrategyStatsName) => void;
-	
+
 	// 统计图表配置编辑
 	updateStatsColor: (statsName: StrategyStatsName, color: string) => void;
-	
+
 	// 重置配置
 	reset: () => void;
 }
 
-const useBacktestStatsChartConfigStore = create<BacktestStatsChartConfigState>((set, get) => ({
-	// 初始状态
-	chartConfig: defaultBacktestStrategyStatsChartConfig,
-	
-	isLoading: false,
-	isSaving: false,
+const useBacktestStatsChartConfigStore = create<BacktestStatsChartConfigState>(
+	(set, get) => ({
+		// 初始状态
+		chartConfig: defaultBacktestStrategyStatsChartConfig,
 
-	// 基础操作
-	setChartConfig: (config: BacktestStrategyStatsChartConfig) => {
-		set({ chartConfig: config });
-	},
+		isLoading: false,
+		isSaving: false,
 
-	getChartConfig: () => {
-		const { chartConfig } = get();
-		return chartConfig;
-	},
+		// 基础操作
+		setChartConfig: (config: BacktestStrategyStatsChartConfig) => {
+			set({ chartConfig: config });
+		},
 
-	getStatsChartConfig: (statsName: StrategyStatsName) => {
-		const { chartConfig } = get();
-		return chartConfig?.statsChartConfigs.find(
-			(config) => config.seriesConfigs.statsName === statsName
-		);
-	},
+		getChartConfig: () => {
+			const { chartConfig } = get();
+			return chartConfig;
+		},
 
-	// 统计图表可见性管理
-	getStatsVisibility: (statsName: StrategyStatsName) => {
-		const config = get().getStatsChartConfig(statsName);
-		return config?.visible ?? true;
-	},
+		getStatsChartConfig: (statsName: StrategyStatsName) => {
+			const { chartConfig } = get();
+			return chartConfig?.statsChartConfigs.find(
+				(config) => config.seriesConfigs.statsName === statsName,
+			);
+		},
 
-	setStatsVisibility: (statsName: StrategyStatsName, visible: boolean) => {
-		const { chartConfig } = get();
-		if (!chartConfig) return;
+		// 统计图表可见性管理
+		getStatsVisibility: (statsName: StrategyStatsName) => {
+			const config = get().getStatsChartConfig(statsName);
+			return config?.visible ?? true;
+		},
 
-		const newConfig = {
-			...chartConfig,
-			statsChartConfigs: chartConfig.statsChartConfigs.map((config) =>
-				config.seriesConfigs.statsName === statsName
-					? { ...config, visible }
-					: config
-			),
-		};
-		
-		set({ chartConfig: newConfig });
-	},
+		setStatsVisibility: (statsName: StrategyStatsName, visible: boolean) => {
+			const { chartConfig } = get();
+			if (!chartConfig) return;
 
-	toggleStatsVisibility: (statsName: StrategyStatsName) => {
-		const currentVisibility = get().getStatsVisibility(statsName);
-		get().setStatsVisibility(statsName, !currentVisibility);
-	},
+			const newConfig = {
+				...chartConfig,
+				statsChartConfigs: chartConfig.statsChartConfigs.map((config) =>
+					config.seriesConfigs.statsName === statsName
+						? { ...config, visible }
+						: config,
+				),
+			};
 
-	// 统计图表添加管理,将isDelete设置为false
-	addStats: (statsName: StrategyStatsName) => {
-		const { chartConfig } = get();
-		if (!chartConfig) return;
+			set({ chartConfig: newConfig });
+		},
 
-		const newConfig = {
-			...chartConfig,
-			statsChartConfigs: chartConfig.statsChartConfigs.map((config) =>
-				config.seriesConfigs.statsName === statsName
-					? { ...config, isDelete: false }
-					: config
-			),
-		};
-		set({ chartConfig: newConfig });
-	},
+		toggleStatsVisibility: (statsName: StrategyStatsName) => {
+			const currentVisibility = get().getStatsVisibility(statsName);
+			get().setStatsVisibility(statsName, !currentVisibility);
+		},
 
-	// 统计图表删除管理（软删除 - 设置为不可见）
-	removeStats: (statsName: StrategyStatsName) => {
-		const { chartConfig } = get();
-		if (!chartConfig) return;
+		// 统计图表添加管理,将isDelete设置为false
+		addStats: (statsName: StrategyStatsName) => {
+			const { chartConfig } = get();
+			if (!chartConfig) return;
 
-		const newConfig = {
-			...chartConfig,
-			statsChartConfigs: chartConfig.statsChartConfigs.map((config) =>
-				config.seriesConfigs.statsName === statsName
-					? { ...config, isDelete: true }
-					: config
-			),
-		};
-		set({ chartConfig: newConfig });
-	},
+			const newConfig = {
+				...chartConfig,
+				statsChartConfigs: chartConfig.statsChartConfigs.map((config) =>
+					config.seriesConfigs.statsName === statsName
+						? { ...config, isDelete: false }
+						: config,
+				),
+			};
+			set({ chartConfig: newConfig });
+		},
 
-	// 统计图表配置编辑
-	updateStatsColor: (statsName: StrategyStatsName, color: string) => {
-		const { chartConfig } = get();
-		if (!chartConfig) return;
+		// 统计图表删除管理（软删除 - 设置为不可见）
+		removeStats: (statsName: StrategyStatsName) => {
+			const { chartConfig } = get();
+			if (!chartConfig) return;
 
-		const newConfig = {
-			...chartConfig,
-			statsChartConfigs: chartConfig.statsChartConfigs.map((config) =>
-				config.seriesConfigs.statsName === statsName
-					? {
-						...config,
-						seriesConfigs: {
-							...config.seriesConfigs,
-							color,
-						},
-					}
-					: config
-			),
-		};
-		
-		set({ chartConfig: newConfig });
-	},
+			const newConfig = {
+				...chartConfig,
+				statsChartConfigs: chartConfig.statsChartConfigs.map((config) =>
+					config.seriesConfigs.statsName === statsName
+						? { ...config, isDelete: true }
+						: config,
+				),
+			};
+			set({ chartConfig: newConfig });
+		},
 
-	// 重置配置
-	reset: () => {
-		set({
-			chartConfig: null,
-			isLoading: false,
-			isSaving: false,
-		});
-	},
-}));
+		// 统计图表配置编辑
+		updateStatsColor: (statsName: StrategyStatsName, color: string) => {
+			const { chartConfig } = get();
+			if (!chartConfig) return;
+
+			const newConfig = {
+				...chartConfig,
+				statsChartConfigs: chartConfig.statsChartConfigs.map((config) =>
+					config.seriesConfigs.statsName === statsName
+						? {
+								...config,
+								seriesConfigs: {
+									...config.seriesConfigs,
+									color,
+								},
+							}
+						: config,
+				),
+			};
+
+			set({ chartConfig: newConfig });
+		},
+
+		// 重置配置
+		reset: () => {
+			set({
+				chartConfig: null,
+				isLoading: false,
+				isSaving: false,
+			});
+		},
+	}),
+);
 
 export { useBacktestStatsChartConfigStore };

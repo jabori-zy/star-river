@@ -3,8 +3,6 @@ import { useIndicatorLegend } from "@/hooks/chart/backtest-chart";
 import { useBacktestChartStore } from "./backtest-chart-store";
 import { IndicatorLegend } from "./indicator-legend";
 
-
-
 // 将主图指标图例组件提取到外部，避免在渲染时重新创建
 interface MainChartIndicatorLegendProps {
 	chartId: number;
@@ -17,11 +15,14 @@ const MainChartIndicatorLegend = ({
 	indicatorKeyStr,
 	index,
 }: MainChartIndicatorLegendProps) => {
-	const { legendData: indicatorLegendData, onCrosshairMove, onSeriesDataUpdate } =
-		useIndicatorLegend({
-			chartId,
-			indicatorKeyStr,
-		});
+	const {
+		legendData: indicatorLegendData,
+		onCrosshairMove,
+		onSeriesDataUpdate,
+	} = useIndicatorLegend({
+		chartId,
+		indicatorKeyStr,
+	});
 
 	const { chartRef, indicatorSeriesRef } = useBacktestChartStore(chartId);
 	const indicatorSeriesMap = indicatorSeriesRef[indicatorKeyStr] || {};
@@ -41,7 +42,8 @@ const MainChartIndicatorLegend = ({
 	// 指标数据变动订阅，等待指标 series 准备好后再订阅
 	useEffect(() => {
 		const seriesList = Object.values(indicatorSeriesMap).filter(
-			(seriesRef): seriesRef is NonNullable<typeof seriesRef> => Boolean(seriesRef),
+			(seriesRef): seriesRef is NonNullable<typeof seriesRef> =>
+				Boolean(seriesRef),
 		);
 
 		if (seriesList.length === 0) return;

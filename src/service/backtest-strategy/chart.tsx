@@ -1,6 +1,6 @@
 import axios from "axios";
+import type { Kline } from "@/types/kline";
 import { API_BASE_URL } from "../index";
-import { Kline } from "@/types/kline";
 
 const ROUTER = "strategy/backtest";
 const API_VERSION = "api/v1";
@@ -42,7 +42,6 @@ export async function getInitialChartData(
 	}
 }
 
-
 export async function getPartialChartData(
 	strategyId: number,
 	datetimeStr: string,
@@ -60,8 +59,7 @@ export async function getPartialChartData(
 			throw new Error(`获取数据失败: ${response.status}`);
 		}
 		return response.data.data;
-	}
-	catch (error) {
+	} catch (error) {
 		console.error("获取数据错误:", error);
 		return [];
 	}

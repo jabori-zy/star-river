@@ -34,13 +34,10 @@ export const useChangeNodeName = ({
 	}, [initialNodeName]);
 
 	// 更新节点名称（供外部调用）
-	const updateNodeName = useCallback(
-		(newNodeName: string) => {
-			const finalNodeName = newNodeName.trim() || "未命名节点";
-			setNodeName(finalNodeName);
-		},
-		[],
-	);
+	const updateNodeName = useCallback((newNodeName: string) => {
+		const finalNodeName = newNodeName.trim() || "未命名节点";
+		setNodeName(finalNodeName);
+	}, []);
 
 	return {
 		nodeName,

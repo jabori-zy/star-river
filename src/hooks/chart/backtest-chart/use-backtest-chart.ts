@@ -1,26 +1,26 @@
 import type {
+	CandlestickData,
 	ChartOptions,
 	DeepPartial,
 	IChartApi,
-	CandlestickData,
+	LogicalRange,
 	SingleValueData,
 	UTCTimestamp,
-	LogicalRange,
 } from "lightweight-charts";
-import {
-	createSeriesMarkers,
-	createChart,
-} from "lightweight-charts";
+import { createChart, createSeriesMarkers } from "lightweight-charts";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useBacktestChartStore } from "@/components/chart/backtest-chart/backtest-chart-store";
+import {
+	getChartAlignedUtcTimestamp,
+	getDateTimeFromChartTimestamp,
+} from "@/components/chart/backtest-chart/utls";
 import { get_play_index } from "@/service/backtest-strategy/backtest-strategy-control";
+import { getPartialChartData } from "@/service/backtest-strategy/chart";
 import type { IndicatorChartConfig } from "@/types/chart";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
+import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import { type KlineLegendData, useKlineLegend } from "./use-kline-legend";
 import { addIndicatorSeries, addKlineSeries } from "./utils/add-chart-series";
-import { getChartAlignedUtcTimestamp, getDateTimeFromChartTimestamp } from "@/components/chart/backtest-chart/utls";
-import { getPartialChartData } from "@/service/backtest-strategy/chart";
-import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 interface UseBacktestChartProps {
 	strategyId: number;
@@ -40,7 +40,6 @@ export const useBacktestChart = ({
 	chartContainerRef,
 	chartOptions,
 }: UseBacktestChartProps): UseBacktestChartReturn => {
-	
 	// console.log("chartConfig", chartConfig.id, chartConfig);
 	const resizeObserver = useRef<ResizeObserver>(null);
 
@@ -90,7 +89,8 @@ export const useBacktestChart = ({
 	// 是否是第一次加载
 	const isFirstChartConfigLoad = useRef(true);
 
-	const { klineLegendData, onCrosshairMove, onSeriesDataUpdate } = useKlineLegend({chartId: chartConfig.id,});
+	const { klineLegendData, onCrosshairMove, onSeriesDataUpdate } =
+		useKlineLegend({ chartId: chartConfig.id });
 
 	// 同步最新的图表配置到store，避免使用过期的配置
 	useEffect(() => {
@@ -156,7 +156,9 @@ export const useBacktestChart = ({
 						const removedPaneIndex = subChartPane.paneIndex();
 
 						// 获取所有当前的子图配置，用于后续更新paneRef
-						const allSubChartConfigs = chartConfig.indicatorChartConfigs.filter(c => !c.isInMainChart);
+						const allSubChartConfigs = chartConfig.indicatorChartConfigs.filter(
+							(c) => !c.isInMainChart,
+						);
 
 						chart.removePane(removedPaneIndex);
 
@@ -165,19 +167,26 @@ export const useBacktestChart = ({
 						const updatedPanes = chart.panes();
 						allSubChartConfigs.forEach((subConfig) => {
 							if (subConfig.indicatorKeyStr !== config.indicatorKeyStr) {
-								const currentPaneRef = getSubChartPaneRef(subConfig.indicatorKeyStr);
-								if (currentPaneRef && currentPaneRef.paneIndex() >= removedPaneIndex) {
+								const currentPaneRef = getSubChartPaneRef(
+									subConfig.indicatorKeyStr,
+								);
+								if (
+									currentPaneRef &&
+									currentPaneRef.paneIndex() >= removedPaneIndex
+								) {
 									// 重新获取更新后的pane引用
 									const newPaneIndex = currentPaneRef.paneIndex();
 									const newPane = updatedPanes[newPaneIndex];
 									if (newPane) {
 										const newHtmlElement = newPane.getHTMLElement();
 										if (newHtmlElement) {
-											addSubChartPaneHtmlElementRef(subConfig.indicatorKeyStr, newHtmlElement);
+											addSubChartPaneHtmlElementRef(
+												subConfig.indicatorKeyStr,
+												newHtmlElement,
+											);
 										}
 										setSubChartPaneRef(subConfig.indicatorKeyStr, newPane);
 									}
-									
 								}
 							}
 						});
@@ -232,7 +241,10 @@ export const useBacktestChart = ({
 					}
 
 					// 创建新的klineSeries
-					const newKlineSeries = addKlineSeries(chart, chartConfig.klineChartConfig);
+					const newKlineSeries = addKlineSeries(
+						chart,
+						chartConfig.klineChartConfig,
+					);
 					if (newKlineSeries) {
 						newKlineSeries.subscribeDataChanged(onSeriesDataUpdate);
 						setKlineSeriesRef(newKlineSeries);
@@ -301,7 +313,7 @@ export const useBacktestChart = ({
 			const indicatorsNeedingData = chartConfig.indicatorChartConfigs.filter(
 				(config) => {
 					// 检查指标是否存在且未被删除，并且store中没有seriesRef
-					return !config.isDelete
+					return !config.isDelete;
 				},
 			);
 			// console.log("indicatorsNeedingData", indicatorsNeedingData);
@@ -311,7 +323,11 @@ export const useBacktestChart = ({
 					const playIndexValue = await get_play_index(strategyId);
 					await Promise.all(
 						indicatorsNeedingData.map((config) =>
-							initIndicatorData(strategyId, config.indicatorKeyStr, playIndexValue)
+							initIndicatorData(
+								strategyId,
+								config.indicatorKeyStr,
+								playIndexValue,
+							),
 						),
 					);
 				} catch (error) {
@@ -324,7 +340,10 @@ export const useBacktestChart = ({
 				// 如果指标是主图指标，并且没有被删除，并且store中没有seriesRef，则添加series
 				if (config.isInMainChart && !config.isDelete) {
 					config.seriesConfigs.forEach((seriesConfig) => {
-						const seriesApi = getIndicatorSeriesRef(config.indicatorKeyStr,seriesConfig.indicatorValueKey);
+						const seriesApi = getIndicatorSeriesRef(
+							config.indicatorKeyStr,
+							seriesConfig.indicatorValueKey,
+						);
 						if (!seriesApi) {
 							const newSeries = addIndicatorSeries(chart, config, seriesConfig);
 							if (newSeries) {
@@ -348,7 +367,10 @@ export const useBacktestChart = ({
 						setTimeout(() => {
 							const htmlElement = newPane.getHTMLElement();
 							if (htmlElement) {
-								addSubChartPaneHtmlElementRef(config.indicatorKeyStr, htmlElement);
+								addSubChartPaneHtmlElementRef(
+									config.indicatorKeyStr,
+									htmlElement,
+								);
 							}
 						}, 10);
 						// 创建子图指标
@@ -382,7 +404,7 @@ export const useBacktestChart = ({
 		initIndicatorData,
 		setSubChartPaneRef,
 		subscribe,
-		addSubChartPaneHtmlElementRef
+		addSubChartPaneHtmlElementRef,
 	]);
 
 	// 创建指标系列
@@ -418,7 +440,10 @@ export const useBacktestChart = ({
 					setTimeout(() => {
 						const htmlElement = subChartPane.getHTMLElement();
 						if (htmlElement) {
-							addSubChartPaneHtmlElementRef(config.indicatorKeyStr, htmlElement);
+							addSubChartPaneHtmlElementRef(
+								config.indicatorKeyStr,
+								htmlElement,
+							);
 						}
 					}, 100);
 
@@ -442,7 +467,6 @@ export const useBacktestChart = ({
 		},
 		[setIndicatorSeriesRef, setSubChartPaneRef, addSubChartPaneHtmlElementRef],
 	);
-
 
 	// 图表配置发生变化
 	useEffect(() => {
@@ -470,28 +494,26 @@ export const useBacktestChart = ({
 
 	/**
 	 * 初始化回测图表实例
-	 * 
+	 *
 	 * 关键修复：解决多图表添加时第一个图表变空白的问题
-	 * 
+	 *
 	 * 问题原因：
 	 * - 当添加新图表时，React重新渲染导致现有图表的DOM容器被重新创建
 	 * - 但旧的图表实例仍然存在且引用着已失效的DOM容器
 	 * - 导致已存在的图表无法正确重新初始化
-	 * 
+	 *
 	 * 解决方案：
 	 * 1. 检查现有图表实例是否存在，避免重复初始化
 	 * 2. 确保容器DOM元素真正存在于文档中
 	 * 3. 配合容器引用监控机制，在容器失效时清理旧实例
 	 */
 	const initializeBacktestChart = useCallback(() => {
-		
 		// 获取现有的图表实例引用
 		const existingChart = getChartRef();
-		
+
 		// 只有在容器存在且没有现有图表实例时才进行初始化
 		// 这是关键修复：避免在图表实例已存在时重复初始化
 		if (chartContainerRef.current && !existingChart) {
-			
 			// 确保容器元素真正存在于DOM中
 			// 防止在DOM重排过程中尝试初始化图表
 			if (!document.contains(chartContainerRef.current)) {
@@ -500,7 +522,7 @@ export const useBacktestChart = ({
 
 			// 创建新的LightweightCharts实例
 			const chart = createChart(chartContainerRef.current, chartOptions);
-			
+
 			// 将图表实例保存到store中
 			setChartRef(chart);
 
@@ -513,7 +535,10 @@ export const useBacktestChart = ({
 			// 创建订单标记系列
 			const orderMarkers = getOrderMarkers();
 			if (orderMarkers.length > 0) {
-				const orderMarkerSeries = createSeriesMarkers(candleSeries, orderMarkers);
+				const orderMarkerSeries = createSeriesMarkers(
+					candleSeries,
+					orderMarkers,
+				);
 				setOrderMarkerSeriesRef(orderMarkerSeries);
 			} else {
 				const orderMarkerSeries = createSeriesMarkers(candleSeries, []);
@@ -533,8 +558,6 @@ export const useBacktestChart = ({
 					candleSeries.createPriceLine(priceLine);
 				});
 			}
-
-
 
 			// 创建指标系列
 			createIndicatorSeries(chart, chartConfig.indicatorChartConfigs);
@@ -568,19 +591,19 @@ export const useBacktestChart = ({
 
 	/**
 	 * 容器引用有效性监控
-	 * 
+	 *
 	 * 关键修复：自动检测并修复图表容器引用丢失问题
-	 * 
+	 *
 	 * 触发场景：
 	 * - 添加新图表时React重新渲染，导致现有图表的DOM容器被重新创建
 	 * - ResizablePanel布局变化导致DOM结构调整
 	 * - 其他任何导致DOM重排的操作
-	 * 
+	 *
 	 * 检测逻辑：
 	 * 1. 获取图表实例和当前容器引用
 	 * 2. 通过chart.chartElement()获取图表实际绑定的DOM元素
 	 * 3. 比较实际绑定的DOM元素是否仍然是当前容器的子元素
-	 * 
+	 *
 	 * 修复流程：
 	 * 1. 销毁旧的图表实例（chart.remove()）
 	 * 2. 清空store中的图表引用（setChartRef(null)）
@@ -593,17 +616,16 @@ export const useBacktestChart = ({
 		if (chart && chartContainerRef.current) {
 			// 获取图表实际绑定的DOM容器元素
 			const container = chart.chartElement();
-			
+
 			// 检查图表是否仍然正确绑定到当前的容器
 			// 如果container不存在或者其父元素不是当前容器，说明引用已丢失
 			if (!container || container.parentElement !== chartContainerRef.current) {
-				
 				// 步骤1: 销毁旧的图表实例，释放资源
 				chart.remove();
-				
+
 				// 步骤2: 清空store中的图表引用，确保后续初始化能够正常进行
 				setChartRef(null);
-				
+
 				// 步骤3: 重置初始化状态，触发完整的重新初始化流程
 				// 这会导致useEffect重新运行initChartData和initializeBacktestChart
 				setIsInitialized(false);
@@ -643,13 +665,12 @@ export const useBacktestChart = ({
 		};
 	}, [strategyId, initChartData, initializeBacktestChart, isInitialized]);
 
-
 	// 处理图表 resize
 	useEffect(() => {
 		resizeObserver.current = new ResizeObserver((entries) => {
 			const { width, height } = entries[0].contentRect;
 			const chart = getChartRef();
-			chart?.resize(width, height-0.5);
+			chart?.resize(width, height - 0.5);
 		});
 
 		if (chartContainerRef.current) {
@@ -658,7 +679,7 @@ export const useBacktestChart = ({
 
 		return () => resizeObserver.current?.disconnect();
 	}, [getChartRef, chartContainerRef]);
-	
+
 	// 订阅图表的可见逻辑范围变化
 	useEffect(() => {
 		const chart = getChartRef();
@@ -690,46 +711,63 @@ export const useBacktestChart = ({
 			if (currentKlineSeries) {
 				const klineData = currentKlineSeries.data();
 				const firstKline = klineData[0];
-				const firstKlineDateTime = firstKline ? getDateTimeFromChartTimestamp(firstKline.time as number) : null;
+				const firstKlineDateTime = firstKline
+					? getDateTimeFromChartTimestamp(firstKline.time as number)
+					: null;
 
 				if (firstKlineDateTime) {
 					// 获取第一根k线前的100根k线
-					getPartialChartData(strategyId, firstKlineDateTime, 100, getKlineKeyStr()!).then((data) => {
-						// 剔除最后1根k线（避免重复计算slice）
-						const trimmedData = data.slice(0, -1);
+					getPartialChartData(
+						strategyId,
+						firstKlineDateTime,
+						100,
+						getKlineKeyStr()!,
+					)
+						.then((data) => {
+							// 剔除最后1根k线（避免重复计算slice）
+							const trimmedData = data.slice(0, -1);
 
-						// 如果数据长度为0，则不进行处理
-						if (trimmedData.length === 0) {
-							return;
-						}
+							// 如果数据长度为0，则不进行处理
+							if (trimmedData.length === 0) {
+								return;
+							}
 
-						const partialKlineData: CandlestickData[] = trimmedData.map((kline) => ({
-							time: getChartAlignedUtcTimestamp(kline.datetime) as UTCTimestamp,
-							open: kline.open,
-							high: kline.high,
-							low: kline.low,
-							close: kline.close,
-						}));
-						// console.log("加载k线历史数据", partialKlineData.length);
+							const partialKlineData: CandlestickData[] = trimmedData.map(
+								(kline) => ({
+									time: getChartAlignedUtcTimestamp(
+										kline.datetime,
+									) as UTCTimestamp,
+									open: kline.open,
+									high: kline.high,
+									low: kline.low,
+									close: kline.close,
+								}),
+							);
+							// console.log("加载k线历史数据", partialKlineData.length);
 
-						// 重新获取最新的 klineSeries，确保使用最新的引用
-						const latestKlineSeries = getKlineSeriesRef();
-						if (latestKlineSeries) {
-							const newData = [...partialKlineData, ...latestKlineSeries.data()];
-							latestKlineSeries.setData(newData as CandlestickData[]);
-						}
-					}).catch((error) => {
-						console.error("加载K线历史数据时出错:", error);
-					}).finally(() => {
-						// 重置加载标志
-						loadingRef.current = false;
-					});
+							// 重新获取最新的 klineSeries，确保使用最新的引用
+							const latestKlineSeries = getKlineSeriesRef();
+							if (latestKlineSeries) {
+								const newData = [
+									...partialKlineData,
+									...latestKlineSeries.data(),
+								];
+								latestKlineSeries.setData(newData as CandlestickData[]);
+							}
+						})
+						.catch((error) => {
+							console.error("加载K线历史数据时出错:", error);
+						})
+						.finally(() => {
+							// 重置加载标志
+							loadingRef.current = false;
+						});
 				}
 			}
 
 			// 处理指标数据
 			const indicatorsNeedingData = chartConfig.indicatorChartConfigs.filter(
-				(config) => !config.isDelete
+				(config) => !config.isDelete,
 			);
 
 			if (indicatorsNeedingData.length > 0) {
@@ -738,11 +776,16 @@ export const useBacktestChart = ({
 					let firstIndicatorDateTime = "";
 
 					for (const seriesConfig of config.seriesConfigs) {
-						const indicatorSeriesRef = getIndicatorSeriesRef(config.indicatorKeyStr, seriesConfig.indicatorValueKey);
+						const indicatorSeriesRef = getIndicatorSeriesRef(
+							config.indicatorKeyStr,
+							seriesConfig.indicatorValueKey,
+						);
 						if (indicatorSeriesRef) {
 							const firstData = indicatorSeriesRef.data()[0];
 							if (firstData) {
-								const firstDataTime = getDateTimeFromChartTimestamp(firstData.time as number);
+								const firstDataTime = getDateTimeFromChartTimestamp(
+									firstData.time as number,
+								);
 								if (firstDataTime) {
 									firstIndicatorDateTime = firstDataTime;
 									break; // 找到第一个有效时间后立即退出
@@ -753,63 +796,96 @@ export const useBacktestChart = ({
 
 					if (firstIndicatorDateTime) {
 						// 获取指标的前100根数据
-						getPartialChartData(strategyId, firstIndicatorDateTime, 100, config.indicatorKeyStr).then((data) => {
-							if (!data || !Array.isArray(data)) {
-								return;
-							}
+						getPartialChartData(
+							strategyId,
+							firstIndicatorDateTime,
+							100,
+							config.indicatorKeyStr,
+						)
+							.then((data) => {
+								if (!data || !Array.isArray(data)) {
+									return;
+								}
 
-							// 剔除最后1根数据（避免重复计算slice）
-							const trimmedData = data.slice(0, -1);
-							if (trimmedData.length === 0) {
-								return;
-							}
-							// console.log("加载指标历史数据", trimmedData.length);
+								// 剔除最后1根数据（避免重复计算slice）
+								const trimmedData = data.slice(0, -1);
+								if (trimmedData.length === 0) {
+									return;
+								}
+								// console.log("加载指标历史数据", trimmedData.length);
 
-							const partialIndicatorData: Record<keyof IndicatorValueConfig, SingleValueData[]> = {};
+								const partialIndicatorData: Record<
+									keyof IndicatorValueConfig,
+									SingleValueData[]
+								> = {};
 
-							// 优化：预先构建数据结构，避免重复扩展数组
-							trimmedData.forEach((item) => {
-								Object.entries(item).forEach(([indicatorValueField, value]) => {
-									// 跳过datetime字段，只处理指标值，并过滤value为0的数据和value为空的数据
-									if (indicatorValueField !== "datetime" && value !== 0 && value !== null) {
-										const key = indicatorValueField as keyof IndicatorValueConfig;
-										if (!partialIndicatorData[key]) {
-											partialIndicatorData[key] = [];
+								// 优化：预先构建数据结构，避免重复扩展数组
+								trimmedData.forEach((item) => {
+									Object.entries(item).forEach(
+										([indicatorValueField, value]) => {
+											// 跳过datetime字段，只处理指标值，并过滤value为0的数据和value为空的数据
+											if (
+												indicatorValueField !== "datetime" &&
+												value !== 0 &&
+												value !== null
+											) {
+												const key =
+													indicatorValueField as keyof IndicatorValueConfig;
+												if (!partialIndicatorData[key]) {
+													partialIndicatorData[key] = [];
+												}
+												partialIndicatorData[key].push({
+													time: getChartAlignedUtcTimestamp(
+														item.datetime as unknown as string,
+													) as UTCTimestamp,
+													value: value as number,
+												} as SingleValueData);
+											}
+										},
+									);
+								});
+
+								// 更新各个系列的数据
+								config.seriesConfigs.forEach((seriesConfig) => {
+									const indicatorSeriesRef = getIndicatorSeriesRef(
+										config.indicatorKeyStr,
+										seriesConfig.indicatorValueKey,
+									);
+									if (indicatorSeriesRef) {
+										const originalData =
+											indicatorSeriesRef.data() as SingleValueData[];
+										const partialData =
+											partialIndicatorData[
+												seriesConfig.indicatorValueKey as keyof IndicatorValueConfig
+											];
+										if (partialData && partialData.length > 0) {
+											const newData = [...partialData, ...originalData];
+											indicatorSeriesRef.setData(newData);
 										}
-										partialIndicatorData[key].push({
-											time: getChartAlignedUtcTimestamp(item.datetime as unknown as string) as UTCTimestamp,
-											value: value as number,
-										} as SingleValueData);
 									}
 								});
+							})
+							.catch((error) => {
+								console.error(
+									`加载指标 ${config.indicatorKeyStr} 历史数据时出错:`,
+									error,
+								);
 							});
-
-							// 更新各个系列的数据
-							config.seriesConfigs.forEach((seriesConfig) => {
-								const indicatorSeriesRef = getIndicatorSeriesRef(config.indicatorKeyStr, seriesConfig.indicatorValueKey);
-								if (indicatorSeriesRef) {
-									const originalData = indicatorSeriesRef.data() as SingleValueData[];
-									const partialData = partialIndicatorData[seriesConfig.indicatorValueKey as keyof IndicatorValueConfig];
-									if (partialData && partialData.length > 0) {
-										const newData = [...partialData, ...originalData];
-										indicatorSeriesRef.setData(newData);
-									}
-								}
-							});
-						}).catch((error) => {
-							console.error(`加载指标 ${config.indicatorKeyStr} 历史数据时出错:`, error);
-						});
 					}
 				});
 			}
 		};
 
 		// 订阅可见范围变化
-		chart.timeScale().subscribeVisibleLogicalRangeChange(handleVisibleRangeChange);
+		chart
+			.timeScale()
+			.subscribeVisibleLogicalRangeChange(handleVisibleRangeChange);
 
 		// 清理函数：取消订阅
 		return () => {
-			chart.timeScale().unsubscribeVisibleLogicalRangeChange(handleVisibleRangeChange);
+			chart
+				.timeScale()
+				.unsubscribeVisibleLogicalRangeChange(handleVisibleRangeChange);
 		};
 	}, [
 		isInitialized,

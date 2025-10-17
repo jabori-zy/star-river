@@ -1,9 +1,7 @@
 import { Position } from "@xyflow/react";
 import { Clock, Filter } from "lucide-react";
 import BaseHandle from "@/components/flow/base/BaseHandle";
-import {
-	type VariableConfig,
-} from "@/types/node/variable-node";
+import type { VariableConfig } from "@/types/node/variable-node";
 import {
 	formatSymbolDisplay,
 	getTimerConfigDisplay,
@@ -58,7 +56,9 @@ export function VariableHandleItem({
 								variableConfig.timerConfig && (
 									<>
 										<span>•</span>
-										<span>{getTimerConfigDisplay(variableConfig.timerConfig)}</span>
+										<span>
+											{getTimerConfigDisplay(variableConfig.timerConfig)}
+										</span>
 									</>
 								)}
 						</div>

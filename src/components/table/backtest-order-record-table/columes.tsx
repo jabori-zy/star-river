@@ -1,8 +1,14 @@
 import type { ColumnDef } from "@tanstack/react-table";
+import { DateTime } from "luxon";
 import { Badge } from "@/components/ui/badge";
 import type { VirtualOrder } from "@/types/order/virtual-order";
-import { getOrderSideStyle, getOrderSideText, getOrderTypeText, getOrderStatusStyle, getOrderStatusText } from "@/types/order/virtual-order";
-import { DateTime } from "luxon";
+import {
+	getOrderSideStyle,
+	getOrderSideText,
+	getOrderStatusStyle,
+	getOrderStatusText,
+	getOrderTypeText,
+} from "@/types/order/virtual-order";
 
 // Virtual Order 表格列定义
 export const virtualOrderColumns: ColumnDef<VirtualOrder>[] = [
@@ -11,7 +17,10 @@ export const virtualOrderColumns: ColumnDef<VirtualOrder>[] = [
 		header: "订单ID",
 		size: 80,
 		cell: ({ row }) => (
-			<div className="text-left truncate font-mono text-xs pl-2" title={row.getValue("orderId")}>
+			<div
+				className="text-left truncate font-mono text-xs pl-2"
+				title={row.getValue("orderId")}
+			>
 				{row.getValue("orderId")}
 			</div>
 		),
@@ -21,7 +30,10 @@ export const virtualOrderColumns: ColumnDef<VirtualOrder>[] = [
 		header: "节点ID",
 		size: 140,
 		cell: ({ row }) => (
-			<div className="text-left truncate font-mono text-xs" title={row.getValue("nodeId")}>
+			<div
+				className="text-left truncate font-mono text-xs"
+				title={row.getValue("nodeId")}
+			>
 				{row.getValue("nodeId")}
 			</div>
 		),
@@ -33,9 +45,13 @@ export const virtualOrderColumns: ColumnDef<VirtualOrder>[] = [
 		cell: ({ row }) => {
 			const exchange = row.getValue("exchange") as string;
 			return (
-				
-				<Badge variant="outline" className="text-xs justify-start font-mono overflow-hidden text-ellipsis whitespace-nowrap max-w-full" title={exchange}>{exchange}</Badge>
-				
+				<Badge
+					variant="outline"
+					className="text-xs justify-start font-mono overflow-hidden text-ellipsis whitespace-nowrap max-w-full"
+					title={exchange}
+				>
+					{exchange}
+				</Badge>
 			);
 		},
 	},
@@ -44,7 +60,10 @@ export const virtualOrderColumns: ColumnDef<VirtualOrder>[] = [
 		header: "交易对",
 		size: 100,
 		cell: ({ row }) => (
-			<div className="text-left truncate font-mono text-xs" title={row.getValue("symbol")}>
+			<div
+				className="text-left truncate font-mono text-xs"
+				title={row.getValue("symbol")}
+			>
 				{row.getValue("symbol")}
 			</div>
 		),
@@ -57,7 +76,10 @@ export const virtualOrderColumns: ColumnDef<VirtualOrder>[] = [
 			const side = row.getValue("orderSide") as string;
 			return (
 				<div className="flex justify-start">
-					<Badge className={`${getOrderSideStyle(side)} text-xs overflow-hidden text-ellipsis whitespace-nowrap max-w-full`} title={getOrderSideText(side)}>
+					<Badge
+						className={`${getOrderSideStyle(side)} text-xs overflow-hidden text-ellipsis whitespace-nowrap max-w-full`}
+						title={getOrderSideText(side)}
+					>
 						{getOrderSideText(side)}
 					</Badge>
 				</div>
@@ -72,7 +94,13 @@ export const virtualOrderColumns: ColumnDef<VirtualOrder>[] = [
 			const type = row.getValue("orderType") as string;
 			return (
 				<div className="flex justify-start">
-					<Badge variant="outline" className="text-xs overflow-hidden text-ellipsis whitespace-nowrap max-w-full" title={getOrderTypeText(type)}>{getOrderTypeText(type)}</Badge>
+					<Badge
+						variant="outline"
+						className="text-xs overflow-hidden text-ellipsis whitespace-nowrap max-w-full"
+						title={getOrderTypeText(type)}
+					>
+						{getOrderTypeText(type)}
+					</Badge>
 				</div>
 			);
 		},
@@ -85,7 +113,10 @@ export const virtualOrderColumns: ColumnDef<VirtualOrder>[] = [
 			const status = row.getValue("orderStatus") as string;
 			return (
 				<div className="flex justify-start">
-					<Badge className={`${getOrderStatusStyle(status)} text-xs px-2 overflow-hidden text-ellipsis whitespace-nowrap max-w-full`} title={getOrderStatusText(status)}>
+					<Badge
+						className={`${getOrderStatusStyle(status)} text-xs px-2 overflow-hidden text-ellipsis whitespace-nowrap max-w-full`}
+						title={getOrderStatusText(status)}
+					>
 						{getOrderStatusText(status)}
 					</Badge>
 				</div>
@@ -140,7 +171,10 @@ export const virtualOrderColumns: ColumnDef<VirtualOrder>[] = [
 				maximumFractionDigits: 4,
 			}).format(tp);
 			return (
-				<div className="text-left font-mono text-green-600 dark:text-green-400 text-sm truncate" title={formatted}>
+				<div
+					className="text-left font-mono text-green-600 dark:text-green-400 text-sm truncate"
+					title={formatted}
+				>
 					{formatted}
 				</div>
 			);
@@ -162,7 +196,10 @@ export const virtualOrderColumns: ColumnDef<VirtualOrder>[] = [
 				maximumFractionDigits: 4,
 			}).format(sl);
 			return (
-				<div className="text-left font-mono text-red-600 dark:text-red-400 text-sm truncate" title={formatted}>
+				<div
+					className="text-left font-mono text-red-600 dark:text-red-400 text-sm truncate"
+					title={formatted}
+				>
 					{formatted}
 				</div>
 			);
@@ -174,7 +211,9 @@ export const virtualOrderColumns: ColumnDef<VirtualOrder>[] = [
 		size: 140,
 		cell: ({ row }) => {
 			const datetime = row.getValue("createTime") as string;
-			const timeStr = DateTime.fromISO(datetime).toFormat("yyyy-MM-dd HH:mm:ss");
+			const timeStr = DateTime.fromISO(datetime).toFormat(
+				"yyyy-MM-dd HH:mm:ss",
+			);
 			return (
 				<div className="text-sm font-mono truncate" title={timeStr}>
 					{timeStr}
@@ -188,7 +227,9 @@ export const virtualOrderColumns: ColumnDef<VirtualOrder>[] = [
 		size: 140,
 		cell: ({ row }) => {
 			const datetime = row.getValue("updateTime") as string;
-			const timeStr = DateTime.fromISO(datetime).toFormat("yyyy-MM-dd HH:mm:ss");
+			const timeStr = DateTime.fromISO(datetime).toFormat(
+				"yyyy-MM-dd HH:mm:ss",
+			);
 			return (
 				<div className="text-sm font-mono truncate" title={timeStr}>
 					{timeStr}

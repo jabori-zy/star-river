@@ -1,3 +1,4 @@
+import { FunnelPlus } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -7,11 +8,8 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
-import { FunnelPlus } from "lucide-react";
-import type { StrategyStatsName } from "@/types/statistics";
 import { useBacktestStatsChartConfigStore } from "@/store/use-backtest-stats-chart-config-store";
-
-
+import type { StrategyStatsName } from "@/types/statistics";
 
 const statsOptions: { value: StrategyStatsName; label: string }[] = [
 	{ value: "balance", label: "账户余额" },
@@ -24,14 +22,15 @@ const statsOptions: { value: StrategyStatsName; label: string }[] = [
 
 const StatsSelector: React.FC = () => {
 	const [open, setOpen] = useState(false);
-	const { addStats, removeStats, chartConfig } = useBacktestStatsChartConfigStore();
+	const { addStats, removeStats, chartConfig } =
+		useBacktestStatsChartConfigStore();
 
 	// 获取当前选中的统计项（isDelete为false的项）
 	const getSelectedStats = (): StrategyStatsName[] => {
 		if (!chartConfig) return [];
 		return chartConfig.statsChartConfigs
-			.filter(config => !config.isDelete)
-			.map(config => config.seriesConfigs.statsName);
+			.filter((config) => !config.isDelete)
+			.map((config) => config.seriesConfigs.statsName);
 	};
 
 	const selectedStats = getSelectedStats();
@@ -76,8 +75,8 @@ const StatsSelector: React.FC = () => {
 							<label
 								htmlFor={option.value}
 								className={`text-sm font-normal leading-none ${
-									isCheckboxDisabled(option.value) 
-										? "cursor-not-allowed opacity-50" 
+									isCheckboxDisabled(option.value)
+										? "cursor-not-allowed opacity-50"
 										: "peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
 								}`}
 							>

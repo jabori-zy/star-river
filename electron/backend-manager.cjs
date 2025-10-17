@@ -7,42 +7,42 @@ let backendHealthCheckInterval = null;
 
 const getBackendPath = () => {
 	const __dirname = path.resolve();
-	
+
 	// 根据不同环境和平台确定后端路径
 	let backendName = "star-river-backend";
-	
+
 	// Windows平台添加.exe后缀
 	if (process.platform === "win32") {
 		backendName += ".exe";
 	}
-	
+
 	// 优先查找本地service目录
 	let backendPath = path.join(__dirname, "service", backendName);
 	if (fs.existsSync(backendPath)) {
 		return backendPath;
 	}
-	
+
 	// 生产环境可能在resources目录
 	backendPath = path.join(process.resourcesPath, "service", backendName);
 	if (fs.existsSync(backendPath)) {
 		return backendPath;
 	}
-	
+
 	// 如果都找不到，返回默认路径
 	return path.join(__dirname, "service", backendName);
 };
 
 const createRustBackend = () => {
 	const backendPath = getBackendPath();
-	
+
 	// 检查后端可执行文件是否存在
 	if (!fs.existsSync(backendPath)) {
 		console.error(`后端可执行文件不存在：${backendPath}`);
 		return false;
 	}
-	
+
 	console.log(`尝试启动后端服务：${backendPath}`);
-	
+
 	try {
 		backendProcess = spawn(backendPath, [], {
 			stdio: ["pipe", "pipe", "pipe"],
@@ -75,12 +75,11 @@ const createRustBackend = () => {
 		});
 
 		console.log(`后端服务已启动，PID：${backendProcess.pid}`);
-		
+
 		// 启动健康检查
 		startBackendHealthCheck();
-		
+
 		return true;
-		
 	} catch (error) {
 		console.error(`启动后端服务时出错：${error.message}`);
 		return false;
@@ -106,13 +105,13 @@ const killBackendProcess = () => {
 		clearInterval(backendHealthCheckInterval);
 		backendHealthCheckInterval = null;
 	}
-	
+
 	if (backendProcess && !backendProcess.killed) {
 		console.log("正在终止后端进程...");
 		try {
 			// 先尝试优雅关闭
 			backendProcess.kill("SIGTERM");
-			
+
 			// 如果5秒后仍未关闭，强制终止
 			setTimeout(() => {
 				if (backendProcess && !backendProcess.killed) {

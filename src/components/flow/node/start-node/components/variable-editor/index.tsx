@@ -1,5 +1,12 @@
 import { Plus, Variable } from "lucide-react";
 import { useEffect, useState } from "react";
+import { DateTimePicker24h } from "@/components/datetime-picker";
+import { formatDate } from "@/components/flow/node/node-utils";
+import { PercentInput } from "@/components/percent-input";
+import MultipleSelector, {
+	type Option,
+} from "@/components/select-components/multi-select";
+import { SelectInDialog } from "@/components/select-components/select-in-dialog";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -11,18 +18,15 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { SelectInDialog } from "@/components/select-components/select-in-dialog";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { type CustomVariable, VariableValueType } from "@/types/variable";
-import { VariableItem } from "./variable-config-item";
 import { VARIABLE_TYPE_OPTIONS } from "./constant";
+import { VariableItem } from "./variable-config-item";
 
 interface VariableEditorProps {
 	variables: CustomVariable[];
 	onVariablesChange: (variables: CustomVariable[]) => void;
 }
-
-
 
 // 变量对话框组件
 const VariableDialog = ({
@@ -53,7 +57,16 @@ const VariableDialog = ({
 				setVariableName(editingVariable.varName);
 				setVariableDisplayName(editingVariable.varDisplayName);
 				setVariableType(editingVariable.varValueType);
-				setVariableValue(editingVariable.varValue?.toString() || "");
+				// 如果是 ENUM 类型，需要将数组转换为 JSON 字符串
+				if (editingVariable.varValueType === VariableValueType.ENUM) {
+					setVariableValue(
+						Array.isArray(editingVariable.varValue)
+							? JSON.stringify(editingVariable.varValue)
+							: "[]",
+					);
+				} else {
+					setVariableValue(editingVariable.varValue?.toString() || "");
+				}
 			} else {
 				resetForm();
 			}
@@ -105,11 +118,21 @@ const VariableDialog = ({
 		}
 
 		// 根据类型转换值
-		let finalValue: string | number | boolean = variableValue;
+		let finalValue: string | number | boolean | string[] = variableValue;
 		if (variableType === VariableValueType.NUMBER) {
+			finalValue = variableValue === "" ? 0 : parseFloat(variableValue);
+		} else if (variableType === VariableValueType.PERCENTAGE) {
+			// 百分比类型也保存为数字
 			finalValue = variableValue === "" ? 0 : parseFloat(variableValue);
 		} else if (variableType === VariableValueType.BOOLEAN) {
 			finalValue = variableValue === "true";
+		} else if (variableType === VariableValueType.ENUM) {
+			// 将 JSON 字符串解析为数组
+			try {
+				finalValue = JSON.parse(variableValue || "[]");
+			} catch {
+				finalValue = [];
+			}
 		}
 
 		onSave({
@@ -131,83 +154,121 @@ const VariableDialog = ({
 					</DialogDescription>
 				</DialogHeader>
 				<div className="grid gap-4 py-4">
-					<div className="grid grid-cols-4 items-center gap-4">
-						<Label htmlFor="variable-type" className="text-right">
-							变量类型
-						</Label>
-						<div className="col-span-3">
-							<SelectInDialog
-								id="variable-type"
-								value={variableType}
-								onValueChange={(value) => {
-									const newType = value as VariableValueType;
-									setVariableType(newType);
-									// 切换类型时重置变量值
-									if (newType === VariableValueType.BOOLEAN) {
-										setVariableValue("true");
-									} else {
-										setVariableValue("");
-									}
-								}}
-								placeholder="选择变量类型"
-								options={VARIABLE_TYPE_OPTIONS}
-							/>
-						</div>
+					<div className="space-y-2">
+						<Label>变量类型</Label>
+						<SelectInDialog
+							id="variable-type"
+							value={variableType}
+							onValueChange={(value) => {
+								const newType = value as VariableValueType;
+								setVariableType(newType);
+								// 切换类型时重置变量值
+								if (newType === VariableValueType.BOOLEAN) {
+									setVariableValue("true");
+								} else if (newType === VariableValueType.TIME) {
+									setVariableValue(formatDate(new Date()));
+								} else if (newType === VariableValueType.ENUM) {
+									setVariableValue(JSON.stringify([])); // 枚举类型默认为空数组
+								} else {
+									setVariableValue("");
+								}
+							}}
+							placeholder="选择变量类型"
+							options={VARIABLE_TYPE_OPTIONS}
+						/>
 					</div>
-					<div className="grid grid-cols-4 items-center gap-4">
-						<Label htmlFor="variable-name" className="text-right">
-							变量名
-						</Label>
-						<div className="col-span-3 space-y-1">
-							<Input
-								id="variable-name"
-								value={variableName}
-								onChange={(e) => {
-									setVariableName(e.target.value);
-									validateVariableName(e.target.value);
-								}}
-								placeholder="如: threshold_value"
-								className={nameError ? "border-red-500" : ""}
-								disabled={!!editingVariable} // 编辑模式下不允许修改变量名
-							/>
-							{nameError && <p className="text-xs text-red-500">{nameError}</p>}
-						</div>
+					<div className="space-y-2">
+						<Label htmlFor="variable-name">变量名</Label>
+						<Input
+							id="variable-name"
+							value={variableName}
+							onChange={(e) => {
+								setVariableName(e.target.value);
+								validateVariableName(e.target.value);
+							}}
+							placeholder="如: threshold_value"
+							className={nameError ? "border-red-500" : ""}
+							disabled={!!editingVariable} // 编辑模式下不允许修改变量名
+						/>
+						{nameError && <p className="text-xs text-red-500">{nameError}</p>}
 					</div>
-					<div className="grid grid-cols-4 items-center gap-4">
-						<Label htmlFor="variable-display-name" className="text-right">
-							显示名称
-						</Label>
+					<div className="space-y-2">
+						<Label htmlFor="variable-display-name">显示名称</Label>
 						<Input
 							id="variable-display-name"
 							value={variableDisplayName}
 							onChange={(e) => setVariableDisplayName(e.target.value)}
 							placeholder="如: 阈值"
-							className="col-span-3"
 						/>
 					</div>
-					<div className="grid grid-cols-4 items-center gap-4">
-						<Label htmlFor="variable-value" className="text-right">
-							初始值
-						</Label>
+					<div className="space-y-2">
+						<Label htmlFor="variable-value">初始值</Label>
 						{variableType === VariableValueType.BOOLEAN ? (
 							<RadioGroup
 								value={variableValue || "true"}
 								onValueChange={handleValueChange}
-								className="col-span-3 flex items-center gap-4"
+								className="flex items-center gap-4"
 							>
 								<div className="flex items-center space-x-2">
 									<RadioGroupItem value="true" id="bool-true" />
-									<Label htmlFor="bool-true" className="cursor-pointer font-normal">
+									<Label
+										htmlFor="bool-true"
+										className="cursor-pointer font-normal"
+									>
 										True
 									</Label>
 								</div>
 								<div className="flex items-center space-x-2">
 									<RadioGroupItem value="false" id="bool-false" />
-									<Label htmlFor="bool-false" className="cursor-pointer font-normal">
+									<Label
+										htmlFor="bool-false"
+										className="cursor-pointer font-normal"
+									>
 										False
 									</Label>
 								</div>
 							</RadioGroup>
+						) : variableType === VariableValueType.TIME ? (
+							<DateTimePicker24h
+								value={variableValue ? new Date(variableValue) : undefined}
+								onChange={(date) => {
+									const formattedDate = formatDate(date);
+									handleValueChange(formattedDate);
+								}}
+								showSeconds={true}
+								useDialogPopover
+							/>
+						) : variableType === VariableValueType.ENUM ? (
+							<MultipleSelector
+								value={(() => {
+									try {
+										const parsedValue = JSON.parse(variableValue || "[]");
+										return Array.isArray(parsedValue)
+											? parsedValue.map((v: string) => ({ value: v, label: v }))
+											: [];
+									} catch {
+										return [];
+									}
+								})()}
+								onChange={(options: Option[]) => {
+									const values = options.map((opt) => opt.value);
+									handleValueChange(JSON.stringify(values));
+								}}
+								placeholder="输入选项后按回车添加"
+								creatable={true}
+								emptyIndicator={
+									<p className="text-center text-sm text-muted-foreground">
+										暂无选项，输入后按回车添加
+									</p>
+								}
+							/>
+						) : variableType === VariableValueType.PERCENTAGE ? (
+							<PercentInput
+								id="variable-value"
+								value={variableValue}
+								onChange={handleValueChange}
+								placeholder="如: 5"
+							/>
 						) : (
 							<Input
 								id="variable-value"
@@ -221,7 +282,6 @@ const VariableDialog = ({
 								type={
 									variableType === VariableValueType.NUMBER ? "number" : "text"
 								}
-								className="col-span-3"
 							/>
 						)}
 					</div>

@@ -1,9 +1,6 @@
 import { z } from "zod";
 import { SeriesType } from "@/types/chart";
-import {
-	IndicatorCategory,
-	IndicatorType,
-} from "@/types/indicator";
+import { IndicatorCategory, IndicatorType } from "@/types/indicator";
 import {
 	createParseIndicatorConfigFromKeyStr,
 	getIndicatorValues,
@@ -15,7 +12,9 @@ const CDLRICKSHAWMANConfigSchema = z.object({
 	// CDLRICKSHAWMAN 没有参数
 });
 
-export type CDLRICKSHAWMANConfigType = z.infer<typeof CDLRICKSHAWMANConfigSchema>;
+export type CDLRICKSHAWMANConfigType = z.infer<
+	typeof CDLRICKSHAWMANConfigSchema
+>;
 
 function buildCDLRICKSHAWMANConfig(_params: Map<string, string>): unknown {
 	return {
@@ -33,7 +32,11 @@ export const CDLRICKSHAWMANConfig: IndicatorConfig<CDLRICKSHAWMANConfigType> = {
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },
-		rickshaw_man: { label: "rickshaw_man", value: 0, legendShowName: "rickshawman" },
+		rickshaw_man: {
+			label: "rickshaw_man",
+			value: 0,
+			legendShowName: "rickshawman",
+		},
 	},
 	chartConfig: {
 		isInMainChart: false,
@@ -50,9 +53,7 @@ export const CDLRICKSHAWMANConfig: IndicatorConfig<CDLRICKSHAWMANConfigType> = {
 
 	getDefaultConfig(): CDLRICKSHAWMANConfigType {
 		const config = Object.fromEntries(
-			Object.entries(this.params).map(([_key, _param]) => [
-				{},
-			]),
+			Object.entries(this.params).map(([_key, _param]) => [{}]),
 		);
 
 		const validatedConfig = CDLRICKSHAWMANConfigSchema.parse(config);

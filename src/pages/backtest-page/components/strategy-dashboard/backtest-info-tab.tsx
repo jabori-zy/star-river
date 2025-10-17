@@ -6,19 +6,21 @@ import {
 	Package,
 	TrendingUp,
 } from "lucide-react";
-import { forwardRef, useImperativeHandle, useRef, useCallback } from "react";
+import { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
+import { cleanupBacktestStatsChartStore } from "@/components/chart/backtest-stats-chart/backtest-stats-chart-store";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { LayoutMode } from "@/types/chart";
 import type { BacktestStrategyChartConfig } from "@/types/chart/backtest-chart";
-import { cleanupBacktestStatsChartStore } from "@/components/chart/backtest-stats-chart/backtest-stats-chart-store";
 import ChartManageButton from "./chart-manage-button";
 import OrderRecord, { type OrderRecordRef } from "./order-record";
 import PositionRecord, { type PositionRecordRef } from "./position-record";
 import RunningLog, { type RunningLogRef } from "./running-log";
-import TransactionRecord, { type TransactionRecordRef } from "./transaction-record";
 import StrategyControl from "./strategy-control";
 import StrategyStats from "./strategy-stats";
+import TransactionRecord, {
+	type TransactionRecordRef,
+} from "./transaction-record";
 
 interface BacktestInfoTabsProps {
 	strategyId: number;
@@ -41,7 +43,6 @@ export interface BacktestInfoTabsRef {
 	clearRunningLogs: () => void;
 }
 
-
 const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 	(
 		{
@@ -63,7 +64,7 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 		const positionRecordRef = useRef<PositionRecordRef>(null);
 		const runningLogRef = useRef<RunningLogRef>(null);
 		const transactionRecordRef = useRef<TransactionRecordRef>(null);
-		
+
 		// 暴露清空订单记录和持仓记录的方法
 		useImperativeHandle(
 			ref,
@@ -85,14 +86,17 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 		);
 
 		// 处理tab切换，当从统计图表tab切换到其他tab时清空store数据
-		const handleTabChange = useCallback((value: string) => {
-			// 如果当前是profit tab且要切换到其他tab，清空统计图表store
-			if (activeTab === "profit" && value !== "profit") {
-				cleanupBacktestStatsChartStore(strategyId);
-			}
-			
-			onTabChange?.(value);
-		}, [activeTab, strategyId, onTabChange]);
+		const handleTabChange = useCallback(
+			(value: string) => {
+				// 如果当前是profit tab且要切换到其他tab，清空统计图表store
+				if (activeTab === "profit" && value !== "profit") {
+					cleanupBacktestStatsChartStore(strategyId);
+				}
+
+				onTabChange?.(value);
+			},
+			[activeTab, strategyId, onTabChange],
+		);
 
 		// 处理收起dashboard
 		const handleCollapse = () => {
@@ -175,9 +179,7 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 
 					{/* 中央：播放控制组件 - 真正居中 */}
 					<div className="flex justify-center">
-						<StrategyControl
-							onStop={onStop}
-						/>
+						<StrategyControl onStop={onStop} />
 					</div>
 
 					{/* 右侧：图表管理组件 */}
@@ -216,13 +218,22 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 
 						<TabsContent value="trades" className="w-full overflow-hidden">
 							<div className="flex flex-col h-full pl-2">
-								<TransactionRecord ref={transactionRecordRef} strategyId={strategyId} />
+								<TransactionRecord
+									ref={transactionRecordRef}
+									strategyId={strategyId}
+								/>
 							</div>
 						</TabsContent>
 
-						<TabsContent value="positions" className="w-full overflow-hidden mt-2">
+						<TabsContent
+							value="positions"
+							className="w-full overflow-hidden mt-2"
+						>
 							<div className="flex flex-col h-full pl-2">
-								<PositionRecord ref={positionRecordRef} strategyId={strategyId} />
+								<PositionRecord
+									ref={positionRecordRef}
+									strategyId={strategyId}
+								/>
 							</div>
 						</TabsContent>
 					</div>

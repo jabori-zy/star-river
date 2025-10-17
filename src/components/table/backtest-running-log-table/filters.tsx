@@ -1,3 +1,4 @@
+import type { Table } from "@tanstack/react-table";
 import { X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,9 +10,8 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { LogLevel } from "@/types/strategy-event";
-import { StrategyRunningLogSource } from "@/types/strategy-event/strategy-running-log-event";
-import type { Table } from "@tanstack/react-table";
 import type { StrategyRunningLogEvent } from "@/types/strategy-event/strategy-running-log-event";
+import { StrategyRunningLogSource } from "@/types/strategy-event/strategy-running-log-event";
 
 interface LogTableFiltersProps {
 	table: Table<StrategyRunningLogEvent>;
@@ -24,14 +24,18 @@ export function LogTableFilters({ table }: LogTableFiltersProps) {
 			table
 				.getCoreRowModel()
 				.rows.map((row) => row.getValue("nodeName") as string)
-				.filter(Boolean)
-		)
+				.filter(Boolean),
+		),
 	).sort();
 
 	// 获取当前的筛选值
-	const logLevelFilter = table.getColumn("logLevel")?.getFilterValue() as string;
+	const logLevelFilter = table
+		.getColumn("logLevel")
+		?.getFilterValue() as string;
 	const sourceFilter = table.getColumn("source")?.getFilterValue() as string;
-	const nodeNameFilter = table.getColumn("nodeName")?.getFilterValue() as string;
+	const nodeNameFilter = table
+		.getColumn("nodeName")
+		?.getFilterValue() as string;
 
 	// 清空所有筛选
 	const clearAllFilters = () => {
@@ -183,7 +187,8 @@ export function LogTableFilters({ table }: LogTableFiltersProps) {
 
 			{/* 筛选结果统计 */}
 			<div className="ml-auto text-sm text-muted-foreground">
-				显示 {table.getFilteredRowModel().rows.length} / {table.getCoreRowModel().rows.length} 条记录
+				显示 {table.getFilteredRowModel().rows.length} /{" "}
+				{table.getCoreRowModel().rows.length} 条记录
 			</div>
 		</div>
 	);

@@ -1,6 +1,3 @@
-
-
-
 export enum IndicatorCategory {
 	OVERLAP = "overlap",
 	MOMENTUM = "momentum",
@@ -11,9 +8,6 @@ export enum IndicatorCategory {
 	PATTERN_RECOGNITION = "pattern_recognition",
 	CUSTOM = "custom",
 }
-
-
-
 
 export enum MAType {
 	SMA = "SMA",
@@ -34,7 +28,7 @@ export enum IndicatorType {
 	HT_PHASOR = "ht_phasor",
 	HT_SINE = "ht_sine",
 	HT_TRENDMODE = "ht_trendmode",
-	
+
 	// overlap
 	MA = "ma",
 	SMA = "sma",
@@ -52,7 +46,7 @@ export enum IndicatorType {
 	TEMA = "tema", //Triple Exponential Moving Average #三重指数移动平均线
 	TRIMA = "trima", //Triangular Moving Average #三角形移动平均线
 	WMA = "wma", //Weighted Moving Average #加权移动平均线
-	
+
 	// momentum
 	MACD = "macd",
 	RSI = "rsi",
@@ -88,7 +82,7 @@ export enum IndicatorType {
 	TRIX = "trix", //1-day Rate-Of-Change (ROC) of a Triple Smooth EMA
 	ULTOSC = "ultosc", //Ultimate Oscillator #终极振荡器
 	WILLR = "willr", //Williams' %R #威廉指标
-	
+
 	// pattern recognition - candlestick patterns
 	CDL2CROWS = "cdl2crows", //Two Crows #两只乌鸦
 	CDL3BLACKCROWS = "cdl3blackcrows", //Three Black Crows #三只乌鸦

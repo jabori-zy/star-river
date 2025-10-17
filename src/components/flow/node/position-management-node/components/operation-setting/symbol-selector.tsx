@@ -17,7 +17,6 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 	allowEmpty = false,
 	symbolList,
 }) => {
-
 	// 构建选项列表，包含"不限制交易对"选项和从API获取的交易对
 	const options = [
 		...(allowEmpty ? [{ value: "__EMPTY__", label: "不限制交易对" }] : []),

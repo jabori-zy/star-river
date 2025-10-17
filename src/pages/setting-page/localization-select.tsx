@@ -8,11 +8,6 @@ import {
 } from "@/components/ui/select";
 import { SupportLanguage, type SystemConfig } from "@/types/system";
 
-
-
-
-
-
 // 语言选择下拉框
 export function LocalizationSelect({
 	localSystemConfig,

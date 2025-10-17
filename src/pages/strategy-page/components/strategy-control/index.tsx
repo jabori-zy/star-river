@@ -1,11 +1,5 @@
 import { useReactFlow } from "@xyflow/react";
-import {
-	Calendar,
-	CreditCard,
-	DollarSign,
-	Loader2,
-	Save,
-} from "lucide-react";
+import { Calendar, CreditCard, DollarSign, Loader2, Save } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,8 +13,8 @@ import {
 import { updateStrategy } from "@/service/strategy";
 import useTradingModeStore from "@/store/useTradingModeStore";
 import { type Strategy, TradeMode } from "@/types/strategy";
-import LiveStrategyControl from "./live-strategy-control";
 import BacktestStrategyControl from "./backtest-strategy-control";
+import LiveStrategyControl from "./live-strategy-control";
 
 // 声明 window.require 类型
 declare global {
@@ -219,7 +213,6 @@ function SaveStrategyButton({ strategy }: { strategy: Strategy }) {
 	);
 }
 
-
 interface StrategyControlProps {
 	strategy: Strategy;
 	setStrategy: (strategy: Strategy) => void;
@@ -230,30 +223,30 @@ export function StrategyControl({
 	setStrategy,
 }: StrategyControlProps) {
 	const tradeMode = strategy?.tradeMode;
-	
+
 	// 根据交易模式渲染不同的策略控制组件
 	const renderStrategyButton = () => {
 		switch (tradeMode) {
 			case TradeMode.BACKTEST:
 				return (
-					<BacktestStrategyControl 
-						strategyId={strategy?.id} 
-						tradeMode={tradeMode} 
+					<BacktestStrategyControl
+						strategyId={strategy?.id}
+						tradeMode={tradeMode}
 					/>
 				);
 			case TradeMode.LIVE:
 			case TradeMode.SIMULATE:
 				return (
-					<LiveStrategyControl 
-						strategyId={strategy?.id} 
-						tradeMode={tradeMode} 
+					<LiveStrategyControl
+						strategyId={strategy?.id}
+						tradeMode={tradeMode}
 					/>
 				);
 			default:
 				return (
-					<LiveStrategyControl 
-						strategyId={strategy?.id} 
-						tradeMode={tradeMode} 
+					<LiveStrategyControl
+						strategyId={strategy?.id}
+						tradeMode={tradeMode}
 					/>
 				);
 		}

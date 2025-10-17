@@ -1,19 +1,19 @@
+import { useNodeConnections, useReactFlow } from "@xyflow/react";
 import { PlusIcon } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { NodeOpConfirmDialog } from "@/components/flow/node-op-confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import useStrategyWorkflow, {
+	type VariableItem,
+} from "@/hooks/flow/use-strategy-workflow";
+import { getSymbolList } from "@/service/market";
+import { useStartNodeDataStore } from "@/store/node/use-start-node-data-store";
+import type { MarketSymbol } from "@/types/market";
 import type { VariableConfig } from "@/types/node/variable-node";
+import { TradeMode } from "@/types/strategy";
 import VariableConfigDialog from "./variable-config-dialog";
 import VariableConfigItem from "./variable-config-item";
-import { useReactFlow } from "@xyflow/react";
-import { NodeOpConfirmDialog } from "@/components/flow/node-op-confirm-dialog";
-import { TradeMode } from "@/types/strategy";
-import useStrategyWorkflow, { type VariableItem } from "@/hooks/flow/use-strategy-workflow";
-import { useNodeConnections } from "@xyflow/react";
-import React from "react";
-import { useStartNodeDataStore } from "@/store/node/use-start-node-data-store";
-import { getSymbolList } from "@/service/market";
-import type { MarketSymbol } from "@/types/market";
 
 interface VariableSettingProps {
 	id: string;
@@ -38,35 +38,49 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 	const [isEditing, setIsEditing] = useState(false);
 	const [editingIndex, setEditingIndex] = useState<number | null>(null);
 	const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
-	const [pendingDeleteVariable, setPendingDeleteVariable] = useState<VariableConfig | null>(null);
+	const [pendingDeleteVariable, setPendingDeleteVariable] =
+		useState<VariableConfig | null>(null);
 	const [pendingVariableData, setPendingVariableData] = useState<{
 		targetNodeCount: number;
 		targetNodeNames: string[];
 	} | null>(null);
 
-	const { getTargetNodeIdsBySourceHandleId, getConnectedNodeVariables } = useStrategyWorkflow();
+	const {
+		getTargetNodeIdsBySourceHandleId,
+		getConnectedNodeVariables,
+		getIfElseNodeCases,
+	} = useStrategyWorkflow();
 	const { getNode, getEdges, setEdges } = useReactFlow();
 
 	const connections = useNodeConnections({ id, handleType: "target" });
 
 	// 存储上游节点的变量列表
-	const [variableItemList, setVariableItemList] = React.useState<VariableItem[]>([]);
+	const [variableItemList, setVariableItemList] = React.useState<
+		VariableItem[]
+	>([]);
+	// 存储上游节点的case列表
+	const [caseItemList, setCaseItemList] = React.useState<any[]>([]);
 
 	useEffect(() => {
 		// 获取连接节点的变量并更新状态
-		const variables = getConnectedNodeVariables(
-			connections,
-			tradeMode,
-		);
-		console.log("收集到的所有变量列表", variables);
+		const variables = getConnectedNodeVariables(connections, tradeMode);
+		const cases = getIfElseNodeCases(connections, tradeMode);
+		console.log("收集到的所有cases列表", cases);
 		setVariableItemList(variables);
-	}, [connections, getConnectedNodeVariables, id, tradeMode]);
+		setCaseItemList(cases);
+	}, [
+		connections,
+		getConnectedNodeVariables,
+		getIfElseNodeCases,
+		id,
+		tradeMode,
+	]);
 
 	const selectedAccountId = useMemo(() => {
 		if (tradeMode === TradeMode.BACKTEST) {
 			return (
-				startNodeBacktestConfig?.exchangeModeConfig?.selectedAccounts?.[0]?.id ??
-				undefined
+				startNodeBacktestConfig?.exchangeModeConfig?.selectedAccounts?.[0]
+					?.id ?? undefined
 			);
 		}
 
@@ -133,7 +147,7 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 		if (isSymbolLoading) {
 			return "加载中...";
 		}
-		return "选择交易对 (可选)";
+		return "选择交易对";
 	}, [selectedAccountId, isSymbolLoading]);
 
 	const symbolEmptyMessage = useMemo(
@@ -155,16 +169,24 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 
 	const handleDeleteVariable = (index: number) => {
 		const variableToDelete = variableConfigs[index];
-		const targetNodeIds = getTargetNodeIdsBySourceHandleId(variableToDelete.outputHandleId);
+		const targetNodeIds = getTargetNodeIdsBySourceHandleId(
+			variableToDelete.outputHandleId,
+		);
 
-		const targetNodeNames = [...new Set(targetNodeIds.map((nodeId) => getNode(nodeId)?.data.nodeName as string).filter(Boolean))];
+		const targetNodeNames = [
+			...new Set(
+				targetNodeIds
+					.map((nodeId) => getNode(nodeId)?.data.nodeName as string)
+					.filter(Boolean),
+			),
+		];
 
 		// 如果有连接的目标节点，显示确认对话框
 		if (targetNodeIds.length > 0) {
 			setPendingDeleteVariable(variableToDelete);
 			setPendingVariableData({
 				targetNodeCount: targetNodeIds.length,
-				targetNodeNames: targetNodeNames
+				targetNodeNames: targetNodeNames,
 			});
 			setIsConfirmDialogOpen(true);
 			return;
@@ -176,10 +198,14 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 
 	// 执行删除
 	const performDelete = (index?: number) => {
-		const targetIndex = index !== undefined ? index : variableConfigs.findIndex(
-			variable => pendingDeleteVariable &&
-			variable.configId === pendingDeleteVariable.configId
-		);
+		const targetIndex =
+			index !== undefined
+				? index
+				: variableConfigs.findIndex(
+						(variable) =>
+							pendingDeleteVariable &&
+							variable.configId === pendingDeleteVariable.configId,
+					);
 
 		if (targetIndex === -1) return;
 
@@ -189,10 +215,13 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 		const sourceHandleId = variableToDelete.outputHandleId;
 		const targetHandleId = variableToDelete.inputHandleId;
 		const edges = getEdges();
-		const remainingEdges = edges.filter(edge => edge.sourceHandle !== sourceHandleId && edge.targetHandle !== targetHandleId);
+		const remainingEdges = edges.filter(
+			(edge) =>
+				edge.sourceHandle !== sourceHandleId &&
+				edge.targetHandle !== targetHandleId,
+		);
 		console.log("remainingEdges", remainingEdges);
 		setEdges(remainingEdges);
-		
 
 		const updatedVariables = variableConfigs
 			.filter((_, i) => i !== targetIndex)
@@ -310,6 +339,7 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 				existingConfigs={variableConfigs}
 				editingIndex={editingIndex}
 				variableItemList={variableItemList}
+				caseItemList={caseItemList}
 				symbolOptions={symbolOptions}
 				symbolPlaceholder={symbolPlaceholder}
 				symbolEmptyMessage={symbolEmptyMessage}

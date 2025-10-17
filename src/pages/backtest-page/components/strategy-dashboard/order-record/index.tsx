@@ -1,94 +1,111 @@
-import { useCallback, useEffect, useRef, useState, useImperativeHandle, forwardRef } from "react";
+import {
+	forwardRef,
+	useCallback,
+	useEffect,
+	useImperativeHandle,
+	useRef,
+	useState,
+} from "react";
 import type { Subscription } from "rxjs";
-import { createOrderStream } from "@/hooks/obs/backtest-strategy-event-obs";
-import type { VirtualOrder } from "@/types/order/virtual-order";
 import BacktestOrderRecordTable from "@/components/table/backtest-order-record-table";
-import { getVirtualOrder } from "@/service/backtest-strategy"
-import { OrderType, OrderStatus } from "@/types/order";
-
+import { createOrderStream } from "@/hooks/obs/backtest-strategy-event-obs";
+import { getVirtualOrder } from "@/service/backtest-strategy";
+import { OrderStatus, OrderType } from "@/types/order";
+import type { VirtualOrder } from "@/types/order/virtual-order";
 
 interface OrderRecordProps {
-    strategyId: number;
+	strategyId: number;
 }
 
 export interface OrderRecordRef {
-    clearOrders: () => void;
+	clearOrders: () => void;
 }
 
-const OrderRecord = forwardRef<OrderRecordRef, OrderRecordProps>(({ strategyId }, ref) => {
-    
-	const [orderData, setOrderData] = useState<VirtualOrder[]>([]);
-	const orderStreamSubscription = useRef<Subscription | null>(null);
+const OrderRecord = forwardRef<OrderRecordRef, OrderRecordProps>(
+	({ strategyId }, ref) => {
+		const [orderData, setOrderData] = useState<VirtualOrder[]>([]);
+		const orderStreamSubscription = useRef<Subscription | null>(null);
 
-    // 暴露清空订单的方法
-    useImperativeHandle(ref, () => ({
-        clearOrders: () => {
-            setOrderData([]);
-        }
-    }), []);
+		// 暴露清空订单的方法
+		useImperativeHandle(
+			ref,
+			() => ({
+				clearOrders: () => {
+					setOrderData([]);
+				},
+			}),
+			[],
+		);
 
-    const getVirtualOrderData = useCallback(async () => {
-        const virtualOrderData = await getVirtualOrder(strategyId) as VirtualOrder[];
-        const filteredVirtualOrderData = virtualOrderData.filter((o) => o.orderStatus === OrderStatus.FILLED && (o.orderType === OrderType.LIMIT || o.orderType === OrderType.MARKET || o.orderType === OrderType.TAKE_PROFIT_MARKET || o.orderType === OrderType.STOP_MARKET));
-        // 倒序排列
-        setOrderData(filteredVirtualOrderData.reverse());
-    }, [strategyId]);
+		const getVirtualOrderData = useCallback(async () => {
+			const virtualOrderData = (await getVirtualOrder(
+				strategyId,
+			)) as VirtualOrder[];
+			const filteredVirtualOrderData = virtualOrderData.filter(
+				(o) =>
+					o.orderStatus === OrderStatus.FILLED &&
+					(o.orderType === OrderType.LIMIT ||
+						o.orderType === OrderType.MARKET ||
+						o.orderType === OrderType.TAKE_PROFIT_MARKET ||
+						o.orderType === OrderType.STOP_MARKET),
+			);
+			// 倒序排列
+			setOrderData(filteredVirtualOrderData.reverse());
+		}, [strategyId]);
 
-    
+		// 初始化订单数据
+		useEffect(() => {
+			getVirtualOrderData();
+		}, [getVirtualOrderData]);
 
+		useEffect(() => {
+			if (!orderStreamSubscription.current) {
+				const orderStream = createOrderStream();
+				const subscription = orderStream.subscribe((orderEvent) => {
+					if (
+						orderEvent.event === "futures-order-created" ||
+						orderEvent.event === "futures-order-filled" ||
+						orderEvent.event === "take-profit-order-filled"
+					) {
+						const order = orderEvent.futuresOrder;
 
-    // 初始化订单数据
-    useEffect(() => {
-        getVirtualOrderData();
-    }, [getVirtualOrderData]);
+						// 使用函数式更新来避免闭包问题
+						setOrderData((prev) => {
+							const existingOrder = prev.find(
+								(o) => o.orderId === order.orderId,
+							);
+							if (existingOrder) {
+								// 如果订单已经存在，则整个替换
+								return prev.map((o) =>
+									o.orderId === order.orderId ? order : o,
+								);
+							} else {
+								// 倒序插入，时间越晚的越靠前
+								return [order, ...prev];
+							}
+						});
+					}
+				});
+				orderStreamSubscription.current = subscription;
+			}
 
-	useEffect(() => {
-		if (!orderStreamSubscription.current) {
-			const orderStream = createOrderStream();
-			const subscription = orderStream.subscribe((orderEvent) => {
-                if (orderEvent.event === "futures-order-created" || orderEvent.event === "futures-order-filled" || orderEvent.event === "take-profit-order-filled") {
-                    const order = orderEvent.futuresOrder;
-                   
-                    // 使用函数式更新来避免闭包问题
-                    setOrderData((prev) => {
-                        const existingOrder = prev.find((o) => o.orderId === order.orderId);
-                        if (existingOrder) {
-                            // 如果订单已经存在，则整个替换
-                            return prev.map((o) => o.orderId === order.orderId ? order : o);
-                        } else {
-                            // 倒序插入，时间越晚的越靠前
-                            return [order, ...prev];
-                        }
-                    });
-                        
-                    
+			return () => {
+				orderStreamSubscription.current?.unsubscribe();
+			};
+		}, []);
 
-                }
-				
-                
-			});
-			orderStreamSubscription.current = subscription;
-		}
+		return (
+			<div>
+				<BacktestOrderRecordTable
+					title="订单记录"
+					showTitle={false}
+					data={orderData}
+				/>
+			</div>
+		);
+	},
+);
 
-		return () => {
-			orderStreamSubscription.current?.unsubscribe();
-		};
-	}, []);
-    
-
-    
-
-	return (
-        <div>
-            <BacktestOrderRecordTable 
-                title="订单记录" 
-                showTitle={false} 
-                data={orderData}
-            />
-        </div>
-    );
-});
-
-OrderRecord.displayName = 'OrderRecord';
+OrderRecord.displayName = "OrderRecord";
 
 export default OrderRecord;

@@ -1,18 +1,28 @@
 import type React from "react";
 import { useEffect, useState } from "react";
-import { createBacktestStrategyStateLogStream, getStateLogConnectionState } from "@/hooks/obs/backtest-strategy-state-log-obs";
-import { SSEConnectionState } from "@/hooks/obs/backtest-strategy-event-obs";
-import type { StrategyStateLogEvent, NodeStateLogEvent } from "@/types/strategy-event/strategy-state-log-event";
-import { LogLevel } from "@/types/strategy-event";
 import StrategyLoadingDialog from "@/components/strategy-loading-dialog";
+import { SSEConnectionState } from "@/hooks/obs/backtest-strategy-event-obs";
+import {
+	createBacktestStrategyStateLogStream,
+	getStateLogConnectionState,
+} from "@/hooks/obs/backtest-strategy-state-log-obs";
+import { LogLevel } from "@/types/strategy-event";
+import type {
+	NodeStateLogEvent,
+	StrategyStateLogEvent,
+} from "@/types/strategy-event/strategy-state-log-event";
 
 const TestPage: React.FC = () => {
-	const [logs, setLogs] = useState<(StrategyStateLogEvent | NodeStateLogEvent)[]>([]);
-	const [connectionState, setConnectionState] = useState<SSEConnectionState>(SSEConnectionState.DISCONNECTED);
+	const [logs, setLogs] = useState<
+		(StrategyStateLogEvent | NodeStateLogEvent)[]
+	>([]);
+	const [connectionState, setConnectionState] = useState<SSEConnectionState>(
+		SSEConnectionState.DISCONNECTED,
+	);
 	const [isEnabled, setIsEnabled] = useState(true);
-	const [viewMode, setViewMode] = useState<'table' | 'terminal'>('terminal');
-	const [terminalTheme, setTerminalTheme] = useState<'dark' | 'light'>('light');
-	
+	const [viewMode, setViewMode] = useState<"table" | "terminal">("terminal");
+	const [terminalTheme, setTerminalTheme] = useState<"dark" | "light">("light");
+
 	// 策略加载对话框状态
 	const [showLoadingDialog, setShowLoadingDialog] = useState(false);
 
@@ -20,7 +30,7 @@ const TestPage: React.FC = () => {
 		if (!isEnabled) return;
 
 		// 订阅连接状态
-		const connectionSub = getStateLogConnectionState().subscribe(state => {
+		const connectionSub = getStateLogConnectionState().subscribe((state) => {
 			setConnectionState(state);
 		});
 
@@ -28,11 +38,11 @@ const TestPage: React.FC = () => {
 		const logSub = createBacktestStrategyStateLogStream(true).subscribe({
 			next: (logEvent) => {
 				console.log("收到策略日志:", logEvent);
-				setLogs(prev => [logEvent, ...prev].slice(0, 100));
+				setLogs((prev) => [logEvent, ...prev].slice(0, 100));
 			},
 			error: (error) => {
 				console.error("策略日志流错误:", error);
-			}
+			},
 		});
 
 		return () => {
@@ -73,7 +83,7 @@ const TestPage: React.FC = () => {
 
 	const getLevelColor = (level: string | undefined) => {
 		if (!level) return "text-gray-600 bg-gray-50";
-		
+
 		switch (level.toLowerCase()) {
 			case "error":
 				return "text-red-600 bg-red-50";
@@ -93,13 +103,15 @@ const TestPage: React.FC = () => {
 	return (
 		<div className="p-6 max-w-6xl mx-auto">
 			<h1 className="text-2xl font-bold mb-6">策略状态日志 SSE 测试页面</h1>
-			
+
 			{/* 连接控制 */}
 			<div className="bg-white rounded-lg border p-4 mb-6">
 				<div className="flex items-center justify-between">
 					<div className="flex items-center space-x-4">
 						<span className="text-sm font-medium">连接状态:</span>
-						<span className={`text-sm font-medium ${getConnectionStateColor(connectionState)}`}>
+						<span
+							className={`text-sm font-medium ${getConnectionStateColor(connectionState)}`}
+						>
 							{getConnectionStateText(connectionState)}
 						</span>
 					</div>
@@ -124,9 +136,9 @@ const TestPage: React.FC = () => {
 									errorCode: null,
 									errorCodeChain: null,
 									message: "策略已准备就绪",
-									timestamp: Date.now()
+									timestamp: Date.now(),
 								};
-								setLogs(prev => [readyLog, ...prev]);
+								setLogs((prev) => [readyLog, ...prev]);
 								setShowLoadingDialog(true); // 自动打开对话框
 							}}
 							className="px-4 py-2 rounded text-sm font-medium bg-green-500 hover:bg-green-600 text-white transition-colors"
@@ -152,16 +164,17 @@ const TestPage: React.FC = () => {
 									testLogs.push({
 										strategyId: 1,
 										strategyName: "测试策略",
-										strategyState: i === 9 ? StrategyState.Ready : StrategyState.Checking,
+										strategyState:
+											i === 9 ? StrategyState.Ready : StrategyState.Checking,
 										strategyStateAction: "LogStrategyState",
 										logLevel: LogLevel.INFO,
 										errorCode: null,
 										errorCodeChain: null,
 										message: `测试日志消息 ${i + 1}`,
-										timestamp: Date.now() + i * 100
+										timestamp: Date.now() + i * 100,
 									});
 								}
-								setLogs(prev => [...testLogs, ...prev]);
+								setLogs((prev) => [...testLogs, ...prev]);
 								setShowLoadingDialog(true); // 自动打开对话框
 							}}
 							className="px-4 py-2 rounded text-sm font-medium bg-purple-500 hover:bg-purple-600 text-white transition-colors"
@@ -183,9 +196,9 @@ const TestPage: React.FC = () => {
 									errorCode: null,
 									errorCodeChain: null,
 									message: "节点初始化完成",
-									timestamp: Date.now()
+									timestamp: Date.now(),
 								};
-								setLogs(prev => [nodeLog, ...prev]);
+								setLogs((prev) => [nodeLog, ...prev]);
 								setShowLoadingDialog(true); // 自动打开对话框
 							}}
 							className="px-4 py-2 rounded text-sm font-medium bg-indigo-500 hover:bg-indigo-600 text-white transition-colors"
@@ -207,9 +220,9 @@ const TestPage: React.FC = () => {
 											errorCode: null,
 											errorCodeChain: null,
 											message: `快速测试日志 ${i + 1}`,
-											timestamp: Date.now()
+											timestamp: Date.now(),
 										};
-										setLogs(prev => [log, ...prev]);
+										setLogs((prev) => [log, ...prev]);
 									}, i * 500); // 每500ms添加一条
 								}
 								setShowLoadingDialog(true); // 自动打开对话框
@@ -233,9 +246,9 @@ const TestPage: React.FC = () => {
 											errorCode: null,
 											errorCodeChain: null,
 											message: `快速连续日志 ${i + 1} - 测试优化后的滚动响应速度`,
-											timestamp: Date.now()
+											timestamp: Date.now(),
 										};
-										setLogs(prev => [log, ...prev]);
+										setLogs((prev) => [log, ...prev]);
 									}, i * 100); // 每100ms添加一条，更快速
 								}
 								setShowLoadingDialog(true); // 自动打开对话框
@@ -259,9 +272,9 @@ const TestPage: React.FC = () => {
 									errorCode: "STRATEGY_CHECK_FAILED",
 									errorCodeChain: ["VALIDATION_ERROR", "STRATEGY_CHECK_FAILED"],
 									message: "策略检查失败：配置参数无效",
-									timestamp: Date.now()
+									timestamp: Date.now(),
 								};
-								setLogs(prev => [failedLog, ...prev]);
+								setLogs((prev) => [failedLog, ...prev]);
 								setShowLoadingDialog(true); // 自动打开对话框
 							}}
 							className="px-4 py-2 rounded text-sm font-medium bg-red-600 hover:bg-red-700 text-white transition-colors"
@@ -283,9 +296,9 @@ const TestPage: React.FC = () => {
 									errorCode: "NODE_INIT_FAILED",
 									errorCodeChain: ["CONNECTION_ERROR", "NODE_INIT_FAILED"],
 									message: "节点初始化失败：无法连接到数据源",
-									timestamp: Date.now()
+									timestamp: Date.now(),
 								};
-								setLogs(prev => [failedNodeLog, ...prev]);
+								setLogs((prev) => [failedNodeLog, ...prev]);
 								setShowLoadingDialog(true); // 自动打开对话框
 							}}
 							className="px-4 py-2 rounded text-sm font-medium bg-red-700 hover:bg-red-800 text-white transition-colors"
@@ -307,9 +320,9 @@ const TestPage: React.FC = () => {
 									errorCode: null,
 									errorCodeChain: null,
 									message: "回测完成",
-									timestamp: Date.now()
+									timestamp: Date.now(),
 								};
-								setLogs(prev => [completeNodeLog, ...prev]);
+								setLogs((prev) => [completeNodeLog, ...prev]);
 								setShowLoadingDialog(true); // 自动打开对话框
 							}}
 							className="px-4 py-2 rounded text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white transition-colors"
@@ -335,55 +348,56 @@ const TestPage: React.FC = () => {
 			<div className="bg-white rounded-lg border p-4 mb-6">
 				<div className="flex items-center justify-between">
 					<div className="text-sm text-gray-600">
-						已接收日志条数: <span className="font-medium text-gray-900">{logs.length}</span>
+						已接收日志条数:{" "}
+						<span className="font-medium text-gray-900">{logs.length}</span>
 					</div>
 					<div className="flex items-center space-x-4">
 						<div className="flex items-center space-x-2">
 							<span className="text-sm text-gray-600">视图模式:</span>
 							<button
 								type="button"
-								onClick={() => setViewMode('terminal')}
+								onClick={() => setViewMode("terminal")}
 								className={`px-3 py-1 rounded text-sm transition-colors ${
-									viewMode === 'terminal'
-										? 'bg-blue-500 text-white'
-										: 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+									viewMode === "terminal"
+										? "bg-blue-500 text-white"
+										: "bg-gray-200 text-gray-700 hover:bg-gray-300"
 								}`}
 							>
 								终端
 							</button>
 							<button
 								type="button"
-								onClick={() => setViewMode('table')}
+								onClick={() => setViewMode("table")}
 								className={`px-3 py-1 rounded text-sm transition-colors ${
-									viewMode === 'table'
-										? 'bg-blue-500 text-white'
-										: 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+									viewMode === "table"
+										? "bg-blue-500 text-white"
+										: "bg-gray-200 text-gray-700 hover:bg-gray-300"
 								}`}
 							>
 								表格
 							</button>
 						</div>
-						{viewMode === 'terminal' && (
+						{viewMode === "terminal" && (
 							<div className="flex items-center space-x-2">
 								<span className="text-sm text-gray-600">终端主题:</span>
 								<button
 									type="button"
-									onClick={() => setTerminalTheme('dark')}
+									onClick={() => setTerminalTheme("dark")}
 									className={`px-3 py-1 rounded text-sm transition-colors ${
-										terminalTheme === 'dark'
-											? 'bg-gray-800 text-white'
-											: 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+										terminalTheme === "dark"
+											? "bg-gray-800 text-white"
+											: "bg-gray-200 text-gray-700 hover:bg-gray-300"
 									}`}
 								>
 									暗色
 								</button>
 								<button
 									type="button"
-									onClick={() => setTerminalTheme('light')}
+									onClick={() => setTerminalTheme("light")}
 									className={`px-3 py-1 rounded text-sm transition-colors ${
-										terminalTheme === 'light'
-											? 'bg-gray-100 text-gray-800 border border-gray-300'
-											: 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+										terminalTheme === "light"
+											? "bg-gray-100 text-gray-800 border border-gray-300"
+											: "bg-gray-200 text-gray-700 hover:bg-gray-300"
 									}`}
 								>
 									亮色
@@ -395,12 +409,14 @@ const TestPage: React.FC = () => {
 			</div>
 
 			{/* 日志显示区域 */}
-			{viewMode === 'terminal' ? (
-				<div className={`mb-6 rounded-lg shadow-lg outline outline-1 overflow-hidden ${
-					terminalTheme === 'dark' 
-						? 'bg-gray-900 outline-gray-700 shadow-gray-900/50' 
-						: 'bg-white outline-gray-300 shadow-gray-400/20'
-				}`}>
+			{viewMode === "terminal" ? (
+				<div
+					className={`mb-6 rounded-lg shadow-lg outline outline-1 overflow-hidden ${
+						terminalTheme === "dark"
+							? "bg-gray-900 outline-gray-700 shadow-gray-900/50"
+							: "bg-white outline-gray-300 shadow-gray-400/20"
+					}`}
+				>
 					{/* <XtermLogViewer logs={logs} theme={terminalTheme} /> */}
 				</div>
 			) : (
@@ -420,27 +436,38 @@ const TestPage: React.FC = () => {
 					<div className="max-h-96 overflow-y-auto">
 						{logs.length === 0 ? (
 							<div className="p-8 text-center text-gray-500">
-								{isEnabled ? "等待接收日志数据..." : "点击\"开始连接\"按钮开始测试"}
+								{isEnabled
+									? "等待接收日志数据..."
+									: '点击"开始连接"按钮开始测试'}
 							</div>
 						) : (
 							<div className="divide-y">
 								{logs.map((log, index) => (
-									<div key={`${log.timestamp}-${index}`} className="p-4 hover:bg-gray-50">
+									<div
+										key={`${log.timestamp}-${index}`}
+										className="p-4 hover:bg-gray-50"
+									>
 										<div className="flex items-start justify-between">
 											<div className="flex-1">
 												<div className="flex items-center space-x-2 mb-1">
-													<span className={`px-2 py-1 rounded text-xs font-medium ${getLevelColor(log.logLevel)}`}>
-														{(log.logLevel || 'UNKNOWN').toUpperCase()}
+													<span
+														className={`px-2 py-1 rounded text-xs font-medium ${getLevelColor(log.logLevel)}`}
+													>
+														{(log.logLevel || "UNKNOWN").toUpperCase()}
 													</span>
 													<span className="text-sm text-gray-500">
-														策略ID: {log.strategyId || 'N/A'}
+														策略ID: {log.strategyId || "N/A"}
 													</span>
 													<span className="text-sm text-gray-500">
-														节点: {'nodeName' in log ? log.nodeName || 'Unknown' : 'N/A'} ({'nodeId' in log ? log.nodeId || 'N/A' : 'N/A'})
+														节点:{" "}
+														{"nodeName" in log
+															? log.nodeName || "Unknown"
+															: "N/A"}{" "}
+														({"nodeId" in log ? log.nodeId || "N/A" : "N/A"})
 													</span>
 												</div>
 												<div className="text-sm text-gray-900 mt-1">
-													{log.message || 'No message'}
+													{log.message || "No message"}
 												</div>
 											</div>
 											<div className="text-xs text-gray-400 ml-4 flex-shrink-0">
@@ -454,7 +481,7 @@ const TestPage: React.FC = () => {
 					</div>
 				</div>
 			)}
-			
+
 			{/* 策略加载对话框 */}
 			<StrategyLoadingDialog
 				open={showLoadingDialog}

@@ -1,9 +1,6 @@
 import { z } from "zod";
 import { SeriesType } from "@/types/chart";
-import {
-	IndicatorCategory,
-	IndicatorType,
-} from "@/types/indicator";
+import { IndicatorCategory, IndicatorType } from "@/types/indicator";
 import {
 	createParseIndicatorConfigFromKeyStr,
 	getIndicatorValues,
@@ -15,7 +12,9 @@ const CDLCONCEALBABYSWALLConfigSchema = z.object({
 	// CDLCONCEALBABYSWALL 没有参数
 });
 
-export type CDLCONCEALBABYSWALLConfigType = z.infer<typeof CDLCONCEALBABYSWALLConfigSchema>;
+export type CDLCONCEALBABYSWALLConfigType = z.infer<
+	typeof CDLCONCEALBABYSWALLConfigSchema
+>;
 
 function buildCDLCONCEALBABYSWALLConfig(_params: Map<string, string>): unknown {
 	return {
@@ -23,58 +22,62 @@ function buildCDLCONCEALBABYSWALLConfig(_params: Map<string, string>): unknown {
 	};
 }
 
-export const CDLCONCEALBABYSWALLConfig: IndicatorConfig<CDLCONCEALBABYSWALLConfigType> = {
-	category: IndicatorCategory.PATTERN_RECOGNITION,
-	type: IndicatorType.CDLCONCEALBABYSWALL,
-	displayName: "CDLCONCEALBABYSWALL",
-	description: "Concealing Baby Swallow",
-	params: {
-		// CDLCONCEALBABYSWALL 没有参数
-	},
-	indicatorValueConfig: {
-		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },
-		conceal_baby_swallow: { label: "conceal_baby_swallow", value: 0, legendShowName: "concealbaby" },
-	},
-	chartConfig: {
-		isInMainChart: false,
-		seriesConfigs: [
-			{
-				name: "conceal_baby_swallow",
-				type: SeriesType.COLUMN,
-				color: "#8E8E93",
-				lineWidth: 1,
-				indicatorValueKey: "conceal_baby_swallow" as keyof IndicatorValueConfig,
+export const CDLCONCEALBABYSWALLConfig: IndicatorConfig<CDLCONCEALBABYSWALLConfigType> =
+	{
+		category: IndicatorCategory.PATTERN_RECOGNITION,
+		type: IndicatorType.CDLCONCEALBABYSWALL,
+		displayName: "CDLCONCEALBABYSWALL",
+		description: "Concealing Baby Swallow",
+		params: {
+			// CDLCONCEALBABYSWALL 没有参数
+		},
+		indicatorValueConfig: {
+			timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },
+			conceal_baby_swallow: {
+				label: "conceal_baby_swallow",
+				value: 0,
+				legendShowName: "concealbaby",
 			},
-		],
-	},
+		},
+		chartConfig: {
+			isInMainChart: false,
+			seriesConfigs: [
+				{
+					name: "conceal_baby_swallow",
+					type: SeriesType.COLUMN,
+					color: "#8E8E93",
+					lineWidth: 1,
+					indicatorValueKey:
+						"conceal_baby_swallow" as keyof IndicatorValueConfig,
+				},
+			],
+		},
 
-	getDefaultConfig(): CDLCONCEALBABYSWALLConfigType {
-		const config = Object.fromEntries(
-			Object.entries(this.params).map(([_key, _param]) => [
-				{},
-			]),
-		);
+		getDefaultConfig(): CDLCONCEALBABYSWALLConfigType {
+			const config = Object.fromEntries(
+				Object.entries(this.params).map(([_key, _param]) => [{}]),
+			);
 
-		const validatedConfig = CDLCONCEALBABYSWALLConfigSchema.parse(config);
-		return validatedConfig;
-	},
+			const validatedConfig = CDLCONCEALBABYSWALLConfigSchema.parse(config);
+			return validatedConfig;
+		},
 
-	getValue() {
-		return getIndicatorValues(this.indicatorValueConfig);
-	},
+		getValue() {
+			return getIndicatorValues(this.indicatorValueConfig);
+		},
 
-	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
-		IndicatorType.CDLCONCEALBABYSWALL,
-		CDLCONCEALBABYSWALLConfigSchema,
-		buildCDLCONCEALBABYSWALLConfig,
-	),
+		parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
+			IndicatorType.CDLCONCEALBABYSWALL,
+			CDLCONCEALBABYSWALLConfigSchema,
+			buildCDLCONCEALBABYSWALLConfig,
+		),
 
-	validateConfig(config: unknown): config is CDLCONCEALBABYSWALLConfigType {
-		try {
-			CDLCONCEALBABYSWALLConfigSchema.parse(config);
-			return true;
-		} catch {
-			return false;
-		}
-	},
-};
+		validateConfig(config: unknown): config is CDLCONCEALBABYSWALLConfigType {
+			try {
+				CDLCONCEALBABYSWALLConfigSchema.parse(config);
+				return true;
+			} catch {
+				return false;
+			}
+		},
+	};

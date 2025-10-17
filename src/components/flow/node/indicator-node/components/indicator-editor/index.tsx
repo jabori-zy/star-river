@@ -1,15 +1,15 @@
+import { useReactFlow } from "@xyflow/react";
 import { PlusIcon, Settings, X } from "lucide-react";
 import { useState } from "react";
+import { NodeOpConfirmDialog } from "@/components/flow/node-op-confirm-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import useWorkflowUtils from "@/hooks/flow/use-workflow-utils";
 import type { IndicatorType } from "@/types/indicator";
 import { getIndicatorConfig } from "@/types/indicator/indicator-config";
 import type { SelectedIndicator } from "@/types/node/indicator-node";
 import EditDialog from "./edit-dialog";
 import IndicatorViewerDialog from "./indicator-viewer-dialog";
-import useWorkflowUtils from "@/hooks/flow/use-workflow-utils";
-import { useReactFlow } from "@xyflow/react";
-import { NodeOpConfirmDialog } from "@/components/flow/node-op-confirm-dialog";
 
 interface IndicatorEditorProps {
 	id: string; // 节点ID，用于生成handleId
@@ -27,17 +27,21 @@ const IndicatorEditor: React.FC<IndicatorEditorProps> = ({
 	const [isEditing, setIsEditing] = useState(false);
 	const [editingIndex, setEditingIndex] = useState<number | null>(null);
 	const [showIndicatorViewer, setShowIndicatorViewer] = useState(false);
-	const [selectedIndicatorType, setSelectedIndicatorType] = useState<IndicatorType | undefined>(undefined);
+	const [selectedIndicatorType, setSelectedIndicatorType] = useState<
+		IndicatorType | undefined
+	>(undefined);
 	const [fromIndicatorViewer, setFromIndicatorViewer] = useState(false); // 标记是否从指标浏览窗口打开的
 	const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
-	const [pendingDeleteIndicator, setPendingDeleteIndicator] = useState<SelectedIndicator | null>(null);
+	const [pendingDeleteIndicator, setPendingDeleteIndicator] =
+		useState<SelectedIndicator | null>(null);
 	const [pendingIndicatorData, setPendingIndicatorData] = useState<{
 		indicatorType: IndicatorType;
 		targetNodeCount: number;
 		targetNodeNames: string[];
 	} | null>(null);
 
-	const { deleteEdgeBySourceHandleId, getTargetNodeIdsBySourceHandleId } = useWorkflowUtils();
+	const { deleteEdgeBySourceHandleId, getTargetNodeIdsBySourceHandleId } =
+		useWorkflowUtils();
 	const { getNode } = useReactFlow();
 
 	const handleAddIndicator = () => {
@@ -78,9 +82,17 @@ const IndicatorEditor: React.FC<IndicatorEditorProps> = ({
 
 	const handleDeleteIndicator = (index: number) => {
 		const indicatorToDelete = selectedIndicators[index];
-		const targetNodeIds = getTargetNodeIdsBySourceHandleId(indicatorToDelete.outputHandleId);
+		const targetNodeIds = getTargetNodeIdsBySourceHandleId(
+			indicatorToDelete.outputHandleId,
+		);
 
-		const targetNodeNames = [...new Set(targetNodeIds.map((nodeId) => getNode(nodeId)?.data.nodeName as string).filter(Boolean))];
+		const targetNodeNames = [
+			...new Set(
+				targetNodeIds
+					.map((nodeId) => getNode(nodeId)?.data.nodeName as string)
+					.filter(Boolean),
+			),
+		];
 
 		// 如果有连接的目标节点，显示确认对话框
 		if (targetNodeIds.length > 0) {
@@ -88,7 +100,7 @@ const IndicatorEditor: React.FC<IndicatorEditorProps> = ({
 			setPendingIndicatorData({
 				indicatorType: indicatorToDelete.indicatorType,
 				targetNodeCount: targetNodeIds.length,
-				targetNodeNames: targetNodeNames
+				targetNodeNames: targetNodeNames,
 			});
 			setIsConfirmDialogOpen(true);
 			return;
@@ -100,11 +112,16 @@ const IndicatorEditor: React.FC<IndicatorEditorProps> = ({
 
 	// 执行删除
 	const performDelete = (index?: number) => {
-		const targetIndex = index !== undefined ? index : selectedIndicators.findIndex(
-			indicator => pendingDeleteIndicator &&
-			indicator.indicatorType === pendingDeleteIndicator.indicatorType &&
-			indicator.configId === pendingDeleteIndicator.configId
-		);
+		const targetIndex =
+			index !== undefined
+				? index
+				: selectedIndicators.findIndex(
+						(indicator) =>
+							pendingDeleteIndicator &&
+							indicator.indicatorType ===
+								pendingDeleteIndicator.indicatorType &&
+							indicator.configId === pendingDeleteIndicator.configId,
+					);
 
 		if (targetIndex === -1) return;
 
@@ -116,7 +133,9 @@ const IndicatorEditor: React.FC<IndicatorEditorProps> = ({
 			deleteEdgeBySourceHandleId(sourceHandleId);
 		}
 
-		const updatedIndicators = selectedIndicators.filter((_, i) => i !== targetIndex);
+		const updatedIndicators = selectedIndicators.filter(
+			(_, i) => i !== targetIndex,
+		);
 		onSelectedIndicatorsChange(updatedIndicators);
 
 		// 清理删除相关状态

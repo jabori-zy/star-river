@@ -1,12 +1,6 @@
 // volume indicators
 
 import { IndicatorType } from "./";
-// volatility indicators
-import {
-	ATRConfig,
-	NATRConfig,
-	TRANGEConfig,
-} from "./config/volatility";
 // cycle indicators
 import {
 	HtDcperiodConfig,
@@ -15,7 +9,6 @@ import {
 	HtSineConfig,
 	HtTrendmodeConfig,
 } from "./config/cycle";
-
 // momentum indicators
 import {
 	ADXConfig,
@@ -139,6 +132,8 @@ import {
 	TYPPRICEConfig,
 	WCLPRICEConfig,
 } from "./config/price_transform";
+// volatility indicators
+import { ATRConfig, NATRConfig, TRANGEConfig } from "./config/volatility";
 import { ADConfig, ADOSCConfig, OBVConfig } from "./config/volume";
 import type { IndicatorConfig } from "./indicator-config";
 

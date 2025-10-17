@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import type { KlineLegendData } from "@/hooks/chart/backtest-chart/use-kline-legend";
 import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
 
-
 interface KlineLegendProps {
 	klineSeriesData: KlineLegendData | null;
 	chartId: number; // 图表ID，用于获取对应的store
@@ -18,7 +17,8 @@ const KlineLegend: React.FC<KlineLegendProps> = ({
 	className = "",
 }) => {
 	// 使用当前图表的可见性状态管理
-	const { getKlineVisibility, toggleKlineVisibility } = useBacktestChartConfigStore();
+	const { getKlineVisibility, toggleKlineVisibility } =
+		useBacktestChartConfigStore();
 
 	// if (klineSeriesData === null) {
 	// 	return null;
@@ -81,7 +81,7 @@ const KlineLegend: React.FC<KlineLegendProps> = ({
 						className="font-mono text-center inline-block"
 						style={{
 							color: klineSeriesData?.color,
-							width: getMaxWidth('open'),
+							width: getMaxWidth("open"),
 						}}
 					>
 						{klineSeriesData?.open || "----"}
@@ -94,7 +94,7 @@ const KlineLegend: React.FC<KlineLegendProps> = ({
 						className="font-mono text-center inline-block"
 						style={{
 							color: klineSeriesData?.color,
-							width: getMaxWidth('high'),
+							width: getMaxWidth("high"),
 						}}
 					>
 						{klineSeriesData?.high || "----"}
@@ -107,7 +107,7 @@ const KlineLegend: React.FC<KlineLegendProps> = ({
 						className="font-mono text-center inline-block"
 						style={{
 							color: klineSeriesData?.color,
-							width: getMaxWidth('low'),
+							width: getMaxWidth("low"),
 						}}
 					>
 						{klineSeriesData?.low || "----"}
@@ -120,7 +120,7 @@ const KlineLegend: React.FC<KlineLegendProps> = ({
 						className="font-mono text-center inline-block"
 						style={{
 							color: klineSeriesData?.color,
-							width: getMaxWidth('close'),
+							width: getMaxWidth("close"),
 						}}
 					>
 						{klineSeriesData?.close || "----"}
@@ -134,7 +134,7 @@ const KlineLegend: React.FC<KlineLegendProps> = ({
 							color: klineSeriesData?.change?.startsWith("+")
 								? "#22c55e"
 								: "#ef4444",
-							width: getMaxWidth('change'),
+							width: getMaxWidth("change"),
 						}}
 					>
 						{klineSeriesData?.change || "----"}

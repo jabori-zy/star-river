@@ -1,9 +1,6 @@
 import { z } from "zod";
 import { SeriesType } from "@/types/chart";
-import {
-	IndicatorCategory,
-	IndicatorType,
-} from "@/types/indicator";
+import { IndicatorCategory, IndicatorType } from "@/types/indicator";
 import {
 	createParseIndicatorConfigFromKeyStr,
 	getIndicatorValues,
@@ -15,7 +12,9 @@ const CDLGRAVESTONEDOJIConfigSchema = z.object({
 	// CDLGRAVESTONEDOJI 没有参数
 });
 
-export type CDLGRAVESTONEDOJIConfigType = z.infer<typeof CDLGRAVESTONEDOJIConfigSchema>;
+export type CDLGRAVESTONEDOJIConfigType = z.infer<
+	typeof CDLGRAVESTONEDOJIConfigSchema
+>;
 
 function buildCDLGRAVESTONEDOJIConfig(_params: Map<string, string>): unknown {
 	return {
@@ -23,58 +22,61 @@ function buildCDLGRAVESTONEDOJIConfig(_params: Map<string, string>): unknown {
 	};
 }
 
-export const CDLGRAVESTONEDOJIConfig: IndicatorConfig<CDLGRAVESTONEDOJIConfigType> = {
-	category: IndicatorCategory.PATTERN_RECOGNITION,
-	type: IndicatorType.CDLGRAVESTONEDOJI,
-	displayName: "CDLGRAVESTONEDOJI",
-	description: "Gravestone Doji",
-	params: {
-		// CDLGRAVESTONEDOJI 没有参数
-	},
-	indicatorValueConfig: {
-		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },
-		gravestone_doji: { label: "gravestone_doji", value: 0, legendShowName: "gravestonedoji" },
-	},
-	chartConfig: {
-		isInMainChart: false,
-		seriesConfigs: [
-			{
-				name: "gravestone_doji",
-				type: SeriesType.COLUMN,
-				color: "#636366",
-				lineWidth: 1,
-				indicatorValueKey: "gravestone_doji" as keyof IndicatorValueConfig,
+export const CDLGRAVESTONEDOJIConfig: IndicatorConfig<CDLGRAVESTONEDOJIConfigType> =
+	{
+		category: IndicatorCategory.PATTERN_RECOGNITION,
+		type: IndicatorType.CDLGRAVESTONEDOJI,
+		displayName: "CDLGRAVESTONEDOJI",
+		description: "Gravestone Doji",
+		params: {
+			// CDLGRAVESTONEDOJI 没有参数
+		},
+		indicatorValueConfig: {
+			timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },
+			gravestone_doji: {
+				label: "gravestone_doji",
+				value: 0,
+				legendShowName: "gravestonedoji",
 			},
-		],
-	},
+		},
+		chartConfig: {
+			isInMainChart: false,
+			seriesConfigs: [
+				{
+					name: "gravestone_doji",
+					type: SeriesType.COLUMN,
+					color: "#636366",
+					lineWidth: 1,
+					indicatorValueKey: "gravestone_doji" as keyof IndicatorValueConfig,
+				},
+			],
+		},
 
-	getDefaultConfig(): CDLGRAVESTONEDOJIConfigType {
-		const config = Object.fromEntries(
-			Object.entries(this.params).map(([_key, _param]) => [
-				{},
-			]),
-		);
+		getDefaultConfig(): CDLGRAVESTONEDOJIConfigType {
+			const config = Object.fromEntries(
+				Object.entries(this.params).map(([_key, _param]) => [{}]),
+			);
 
-		const validatedConfig = CDLGRAVESTONEDOJIConfigSchema.parse(config);
-		return validatedConfig;
-	},
+			const validatedConfig = CDLGRAVESTONEDOJIConfigSchema.parse(config);
+			return validatedConfig;
+		},
 
-	getValue() {
-		return getIndicatorValues(this.indicatorValueConfig);
-	},
+		getValue() {
+			return getIndicatorValues(this.indicatorValueConfig);
+		},
 
-	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
-		IndicatorType.CDLGRAVESTONEDOJI,
-		CDLGRAVESTONEDOJIConfigSchema,
-		buildCDLGRAVESTONEDOJIConfig,
-	),
+		parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
+			IndicatorType.CDLGRAVESTONEDOJI,
+			CDLGRAVESTONEDOJIConfigSchema,
+			buildCDLGRAVESTONEDOJIConfig,
+		),
 
-	validateConfig(config: unknown): config is CDLGRAVESTONEDOJIConfigType {
-		try {
-			CDLGRAVESTONEDOJIConfigSchema.parse(config);
-			return true;
-		} catch {
-			return false;
-		}
-	},
-};
+		validateConfig(config: unknown): config is CDLGRAVESTONEDOJIConfigType {
+			try {
+				CDLGRAVESTONEDOJIConfigSchema.parse(config);
+				return true;
+			} catch {
+				return false;
+			}
+		},
+	};

@@ -1,9 +1,6 @@
 import { z } from "zod";
 import { SeriesType } from "@/types/chart";
-import {
-	IndicatorCategory,
-	IndicatorType,
-} from "@/types/indicator";
+import { IndicatorCategory, IndicatorType } from "@/types/indicator";
 import {
 	createParseIndicatorConfigFromKeyStr,
 	getIndicatorValues,
@@ -33,7 +30,11 @@ export const CDLHANGINGMANConfig: IndicatorConfig<CDLHANGINGMANConfigType> = {
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },
-		hanging_man: { label: "hanging_man", value: 0, legendShowName: "hangingman" },
+		hanging_man: {
+			label: "hanging_man",
+			value: 0,
+			legendShowName: "hangingman",
+		},
 	},
 	chartConfig: {
 		isInMainChart: false,
@@ -50,9 +51,7 @@ export const CDLHANGINGMANConfig: IndicatorConfig<CDLHANGINGMANConfigType> = {
 
 	getDefaultConfig(): CDLHANGINGMANConfigType {
 		const config = Object.fromEntries(
-			Object.entries(this.params).map(([_key, _param]) => [
-				{},
-			]),
+			Object.entries(this.params).map(([_key, _param]) => [{}]),
 		);
 
 		const validatedConfig = CDLHANGINGMANConfigSchema.parse(config);

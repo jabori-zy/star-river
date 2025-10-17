@@ -20,9 +20,7 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-	type StrategyBacktestConfig,
-} from "@/types/strategy";
+import type { StrategyBacktestConfig } from "@/types/strategy";
 import {
 	type CustomVariable,
 	getVariableTypeIcon,
@@ -42,6 +40,32 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 
 	return (
 		<div className="space-y-2">
+			{/* 数据源展示 */}
+			{backtestConfig.exchangeModeConfig?.selectedAccounts &&
+				backtestConfig.exchangeModeConfig.selectedAccounts.length > 0 && (
+					<div className="space-y-2">
+						<div>
+							<Label className="text-xm font-bold text-muted-foreground">
+								数据源
+							</Label>
+							<div className="flex flex-col gap-2 mt-2">
+								{backtestConfig.exchangeModeConfig.selectedAccounts.map(
+									(account, index) => (
+										<div
+											key={index}
+											className="flex items-center gap-2 bg-gray-100 p-2 rounded-md"
+										>
+											<span className="text-sm">
+												{account.accountName} ({account.exchange})
+											</span>
+										</div>
+									),
+								)}
+							</div>
+						</div>
+					</div>
+				)}
+
 			{/* 回测设置展示 */}
 			<div className="space-y-2">
 				<Collapsible open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
@@ -102,9 +126,42 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 				</Collapsible>
 			</div>
 
+			{/* 回测时间范围展示 */}
+			{backtestConfig.exchangeModeConfig?.timeRange && (
+				<div className="space-y-2">
+					<Collapsible defaultOpen={true}>
+						<CollapsibleTrigger className="flex items-center gap-2 w-full">
+							<ChevronDown className="w-4 h-4" />
+							<Label className="text-xm font-bold text-muted-foreground">
+								回测时间范围
+							</Label>
+						</CollapsibleTrigger>
+						<CollapsibleContent className="mt-2">
+							<div className="flex flex-col gap-2 bg-gray-100 rounded-md p-2">
+								<div className="flex flex-col gap-1 text-sm">
+									<div className="flex items-center gap-2">
+										<span className="text-gray-600">开始时间:</span>
+										<span className="font-medium">
+											{backtestConfig.exchangeModeConfig.timeRange.startDate}
+										</span>
+									</div>
+									<div className="flex items-center gap-2">
+										<span className="text-gray-600">结束时间:</span>
+										<span className="font-medium">
+											{backtestConfig.exchangeModeConfig.timeRange.endDate}
+										</span>
+									</div>
+								</div>
+							</div>
+						</CollapsibleContent>
+					</Collapsible>
+				</div>
+			)}
+
 			{/* 变量展示 */}
 			<div className="space-y-2">
-				{!backtestConfig.customVariables || backtestConfig.customVariables.length === 0 ? (
+				{!backtestConfig.customVariables ||
+				backtestConfig.customVariables.length === 0 ? (
 					<div className="flex items-center justify-between gap-2 rounded-md">
 						<Label className="text-xm font-bold text-muted-foreground">
 							变量
@@ -131,7 +188,9 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 								{backtestConfig.customVariables.map(
 									(variable: CustomVariable, index: number) => {
 										const Icon = getVariableTypeIcon(variable.varValueType);
-										const iconColor = getVariableTypeIconColor(variable.varValueType);
+										const iconColor = getVariableTypeIconColor(
+											variable.varValueType,
+										);
 										const formattedInitialValue = formatVariableValue(
 											variable.initialValue,
 											variable.varValueType,
@@ -146,7 +205,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 												key={index}
 												className="flex flex-col bg-gray-100 p-2 rounded-md gap-1"
 											>
-												<TooltipProvider>
+												<TooltipProvider delayDuration={300}>
 													<Tooltip>
 														<TooltipTrigger asChild>
 															<div className="flex items-center gap-2 cursor-pointer">
@@ -156,21 +215,25 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 																</span>
 															</div>
 														</TooltipTrigger>
-														<TooltipContent>
+														<TooltipContent side="top" align="start">
 															<p className="text-xs">{variable.varName}</p>
 														</TooltipContent>
 													</Tooltip>
 												</TooltipProvider>
-												<div className="flex items-center gap-2 text-xs text-gray-600">
-													<div className="w-4" />
-													<div className="flex items-center gap-4">
-														<div className="flex items-center gap-1">
-															<span>初始值:</span>
-															<span className="font-medium">{formattedInitialValue}</span>
+												<div className="flex items-start gap-2 text-xs text-gray-600">
+													<div className="w-4 shrink-0" />
+													<div className="flex flex-wrap items-start gap-x-4 gap-y-1 min-w-0 flex-1">
+														<div className="flex items-start gap-1">
+															<span className="shrink-0">初始值:</span>
+															<span className="font-medium break-all">
+																{formattedInitialValue}
+															</span>
 														</div>
-														<div className="flex items-center gap-1">
-															<span>当前值:</span>
-															<span className="font-medium">{formattedCurrentValue}</span>
+														<div className="flex items-start gap-1">
+															<span className="shrink-0">当前值:</span>
+															<span className="font-medium break-all">
+																{formattedCurrentValue}
+															</span>
 														</div>
 													</div>
 												</div>

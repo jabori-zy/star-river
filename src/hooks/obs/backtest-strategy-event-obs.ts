@@ -1,14 +1,14 @@
 import { BehaviorSubject, Observable, Subject } from "rxjs";
 import { filter, map, share, takeUntil } from "rxjs/operators";
 import type { Kline } from "@/types/kline";
-import type { VirtualOrderEvent } from "@/types/strategy-event/backtest-strategy-event";
 import type {
-	VirtualPositionEvent,
+	BacktestStrategyStatsUpdateEvent,
 	IndicatorUpdateEvent,
 	KlineUpdateEvent,
-	BacktestStrategyStatsUpdateEvent,
-	VirtualTransactionEvent,
 	PlayFinishedEvent,
+	VirtualOrderEvent,
+	VirtualPositionEvent,
+	VirtualTransactionEvent,
 } from "@/types/strategy-event/backtest-strategy-event";
 import type { KeyStr } from "@/types/symbol-key";
 import { BACKTESET_STRATEGY_EVENT_SSE_URL } from ".";
@@ -21,18 +21,17 @@ export enum SSEConnectionState {
 	ERROR = "error",
 }
 
-
 const orderEvent = [
-	"futures-order-filled-event",  // 订单成交
-	"futures-order-created-event",  // 订单创建
-	"futures-order-canceled-event",  // 订单取消
-	"take-profit-order-created-event",  // 止盈单创建
-	"stop-loss-order-created-event",  // 止损单创建
-	"take-profit-order-filled-event",  // 止盈单成交
-	"stop-loss-order-filled-event",  // 止损单成交
-	"take-profit-order-canceled-event",  // 止盈单取消
-	"stop-loss-order-canceled-event",  // 止损单取消
-]
+	"futures-order-filled-event", // 订单成交
+	"futures-order-created-event", // 订单创建
+	"futures-order-canceled-event", // 订单取消
+	"take-profit-order-created-event", // 止盈单创建
+	"stop-loss-order-created-event", // 止损单创建
+	"take-profit-order-filled-event", // 止盈单成交
+	"stop-loss-order-filled-event", // 止损单成交
+	"take-profit-order-canceled-event", // 止盈单取消
+	"stop-loss-order-canceled-event", // 止损单取消
+];
 
 /**
  * 回测策略数据Observable服务
@@ -110,7 +109,9 @@ class BacktestStrategyDataObservableService {
 	 * @param enabled 是否启用连接
 	 * @returns 指标数据更新的Observable流
 	 */
-	createIndicatorStream(enabled: boolean = true): Observable<IndicatorUpdateEvent> {
+	createIndicatorStream(
+		enabled: boolean = true,
+	): Observable<IndicatorUpdateEvent> {
 		if (!enabled) {
 			this.disconnect();
 			return new Observable((subscriber) => {
@@ -133,7 +134,6 @@ class BacktestStrategyDataObservableService {
 			.asObservable()
 			.pipe(takeUntil(this.destroy$), share());
 	}
-
 
 	/**
 	 * 为特定缓存键创建过滤后的指标数据流
@@ -194,14 +194,19 @@ class BacktestStrategyDataObservableService {
 		enabled: boolean = true,
 	): Observable<VirtualOrderEvent> {
 		return this.createOrderStream(enabled).pipe(
-			filter((event) => event.futuresOrder.exchange === exchange && event.futuresOrder.symbol === symbol),
+			filter(
+				(event) =>
+					event.futuresOrder.exchange === exchange &&
+					event.futuresOrder.symbol === symbol,
+			),
 			// map((event) => event),
 			share(),
 		);
 	}
 
-
-	createTransactionStream(enabled: boolean = true): Observable<VirtualTransactionEvent> {
+	createTransactionStream(
+		enabled: boolean = true,
+	): Observable<VirtualTransactionEvent> {
 		if (!enabled) {
 			this.disconnect();
 			return new Observable((subscriber) => {
@@ -221,7 +226,9 @@ class BacktestStrategyDataObservableService {
 			.pipe(takeUntil(this.destroy$), share());
 	}
 
-	createPositionStream(enabled: boolean = true): Observable<VirtualPositionEvent> {
+	createPositionStream(
+		enabled: boolean = true,
+	): Observable<VirtualPositionEvent> {
 		if (!enabled) {
 			this.disconnect();
 			return new Observable((subscriber) => {
@@ -242,19 +249,24 @@ class BacktestStrategyDataObservableService {
 			.pipe(takeUntil(this.destroy$), share());
 	}
 
-
 	createPositionStreamForSymbol(
 		exchange: string,
 		symbol: string,
 		enabled: boolean = true,
 	): Observable<VirtualPositionEvent> {
 		return this.createPositionStream(enabled).pipe(
-			filter((event) => event.virtualPosition.exchange === exchange && event.virtualPosition.symbol === symbol),
+			filter(
+				(event) =>
+					event.virtualPosition.exchange === exchange &&
+					event.virtualPosition.symbol === symbol,
+			),
 			share(),
 		);
 	}
 
-	createStatsStream(enabled: boolean = true): Observable<BacktestStrategyStatsUpdateEvent> {
+	createStatsStream(
+		enabled: boolean = true,
+	): Observable<BacktestStrategyStatsUpdateEvent> {
 		if (!enabled) {
 			this.disconnect();
 			return new Observable((subscriber) => {
@@ -273,10 +285,11 @@ class BacktestStrategyDataObservableService {
 		return this.statsDataSubject
 			.asObservable()
 			.pipe(takeUntil(this.destroy$), share());
-
 	}
 
-	createPlayFinishedStream(enabled: boolean = true): Observable<PlayFinishedEvent> {
+	createPlayFinishedStream(
+		enabled: boolean = true,
+	): Observable<PlayFinishedEvent> {
 		if (!enabled) {
 			this.disconnect();
 			return new Observable((subscriber) => {
@@ -296,7 +309,6 @@ class BacktestStrategyDataObservableService {
 			.asObservable()
 			.pipe(takeUntil(this.destroy$), share());
 	}
-	
 
 	/**
 	 * 建立SSE连接
@@ -344,7 +356,7 @@ class BacktestStrategyDataObservableService {
 			// 处理K线更新事件
 			if (strategyEvent.event === "kline-update-event") {
 				// 类型安全的事件构建
-					
+
 				const klineEvent: KlineUpdateEvent = {
 					channel: strategyEvent.channel,
 					eventType: strategyEvent.eventType,
@@ -363,7 +375,7 @@ class BacktestStrategyDataObservableService {
 			// 处理指标更新事件
 			if (strategyEvent.event === "indicator-update-event") {
 				const indicatorEvent = strategyEvent as IndicatorUpdateEvent;
-				
+
 				// 直接使用原始指标事件，datetime保持为string类型
 				// console.log("发送指标数据到Observable流:", indicatorEvent);
 				this.indicatorDataSubject.next(indicatorEvent);
@@ -373,32 +385,29 @@ class BacktestStrategyDataObservableService {
 			if (orderEvent.includes(strategyEvent.event)) {
 				const orderEvent = strategyEvent as VirtualOrderEvent;
 
-				
-
 				if (
-					strategyEvent.event === "futures-order-filled-event" || 
-					strategyEvent.event === "futures-order-created-event" || 
+					strategyEvent.event === "futures-order-filled-event" ||
+					strategyEvent.event === "futures-order-created-event" ||
 					strategyEvent.event === "futures-order-canceled-event"
 				) {
 					// console.log("orderEvent", orderEvent);
 					// 转换futuresOrder中的createTime和updateTime字符串为Date对象
-					const orderUpdateEvent : VirtualOrderEvent = {
+					const orderUpdateEvent: VirtualOrderEvent = {
 						...orderEvent,
-						futuresOrder: orderEvent.futuresOrder
-	
-					}
-					
+						futuresOrder: orderEvent.futuresOrder,
+					};
+
 					this.orderDataSubject.next(orderUpdateEvent);
 				}
 				if (
-					strategyEvent.event === "take-profit-order-created-event" || 
-					strategyEvent.event === "take-profit-order-filled-event" || 
+					strategyEvent.event === "take-profit-order-created-event" ||
+					strategyEvent.event === "take-profit-order-filled-event" ||
 					strategyEvent.event === "take-profit-order-canceled-event"
 				) {
 					// 转换futuresOrder中的createTime和updateTime字符串为Date对象
-					const orderUpdateEvent : VirtualOrderEvent = {
+					const orderUpdateEvent: VirtualOrderEvent = {
 						...orderEvent,
-						futuresOrder: strategyEvent.takeProfitOrder
+						futuresOrder: strategyEvent.takeProfitOrder,
 					};
 					this.orderDataSubject.next(orderUpdateEvent);
 				}
@@ -408,26 +417,27 @@ class BacktestStrategyDataObservableService {
 					strategyEvent.event === "stop-loss-order-canceled-event"
 				) {
 					// 转换futuresOrder中的createTime和updateTime字符串为Date对象
-					const orderUpdateEvent : VirtualOrderEvent = {
+					const orderUpdateEvent: VirtualOrderEvent = {
 						...orderEvent,
-						futuresOrder: strategyEvent.stopLossOrder
+						futuresOrder: strategyEvent.stopLossOrder,
 					};
-					
+
 					this.orderDataSubject.next(orderUpdateEvent);
 				}
 			}
-			if (strategyEvent.event === "position-created-event" || 
-				strategyEvent.event === "position-updated-event" || 
+			if (
+				strategyEvent.event === "position-created-event" ||
+				strategyEvent.event === "position-updated-event" ||
 				strategyEvent.event === "position-closed-event"
 			) {
 				const positionEvent = strategyEvent as VirtualPositionEvent;
-				
+
 				// 转换virtualPosition中的createTime和updateTime字符串为Date对象
-				const positionUpdateEvent : VirtualPositionEvent = {
+				const positionUpdateEvent: VirtualPositionEvent = {
 					...positionEvent,
-					virtualPosition: positionEvent.virtualPosition
+					virtualPosition: positionEvent.virtualPosition,
 				};
-				
+
 				this.positionDataSubject.next(positionUpdateEvent);
 			}
 			if (strategyEvent.event === "strategy-stats-updated-event") {

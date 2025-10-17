@@ -1,6 +1,9 @@
 const { app, BrowserWindow, globalShortcut } = require("electron");
 const { createWindow } = require("./window-manager.cjs");
-const { createRustBackend, killBackendProcess } = require("./backend-manager.cjs");
+const {
+	createRustBackend,
+	killBackendProcess,
+} = require("./backend-manager.cjs");
 const { setupIpcHandlers } = require("./ipc-handlers.cjs");
 
 app.whenReady().then(() => {

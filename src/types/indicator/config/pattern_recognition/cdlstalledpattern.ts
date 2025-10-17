@@ -1,9 +1,6 @@
 import { z } from "zod";
 import { SeriesType } from "@/types/chart";
-import {
-	IndicatorCategory,
-	IndicatorType,
-} from "@/types/indicator";
+import { IndicatorCategory, IndicatorType } from "@/types/indicator";
 import {
 	createParseIndicatorConfigFromKeyStr,
 	getIndicatorValues,
@@ -15,7 +12,9 @@ const CDLSTALLEDPATTERNConfigSchema = z.object({
 	// CDLSTALLEDPATTERN 没有参数
 });
 
-export type CDLSTALLEDPATTERNConfigType = z.infer<typeof CDLSTALLEDPATTERNConfigSchema>;
+export type CDLSTALLEDPATTERNConfigType = z.infer<
+	typeof CDLSTALLEDPATTERNConfigSchema
+>;
 
 function buildCDLSTALLEDPATTERNConfig(_params: Map<string, string>): unknown {
 	return {
@@ -23,58 +22,61 @@ function buildCDLSTALLEDPATTERNConfig(_params: Map<string, string>): unknown {
 	};
 }
 
-export const CDLSTALLEDPATTERNConfig: IndicatorConfig<CDLSTALLEDPATTERNConfigType> = {
-	category: IndicatorCategory.PATTERN_RECOGNITION,
-	type: IndicatorType.CDLSTALLEDPATTERN,
-	displayName: "CDLSTALLEDPATTERN",
-	description: "Stalled Pattern",
-	params: {
-		// CDLSTALLEDPATTERN 没有参数
-	},
-	indicatorValueConfig: {
-		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },
-		stalled_pattern: { label: "stalled_pattern", value: 0, legendShowName: "stalledpattern" },
-	},
-	chartConfig: {
-		isInMainChart: false,
-		seriesConfigs: [
-			{
-				name: "stalled_pattern",
-				type: SeriesType.COLUMN,
-				color: "#6200EA",
-				lineWidth: 1,
-				indicatorValueKey: "stalled_pattern" as keyof IndicatorValueConfig,
+export const CDLSTALLEDPATTERNConfig: IndicatorConfig<CDLSTALLEDPATTERNConfigType> =
+	{
+		category: IndicatorCategory.PATTERN_RECOGNITION,
+		type: IndicatorType.CDLSTALLEDPATTERN,
+		displayName: "CDLSTALLEDPATTERN",
+		description: "Stalled Pattern",
+		params: {
+			// CDLSTALLEDPATTERN 没有参数
+		},
+		indicatorValueConfig: {
+			timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },
+			stalled_pattern: {
+				label: "stalled_pattern",
+				value: 0,
+				legendShowName: "stalledpattern",
 			},
-		],
-	},
+		},
+		chartConfig: {
+			isInMainChart: false,
+			seriesConfigs: [
+				{
+					name: "stalled_pattern",
+					type: SeriesType.COLUMN,
+					color: "#6200EA",
+					lineWidth: 1,
+					indicatorValueKey: "stalled_pattern" as keyof IndicatorValueConfig,
+				},
+			],
+		},
 
-	getDefaultConfig(): CDLSTALLEDPATTERNConfigType {
-		const config = Object.fromEntries(
-			Object.entries(this.params).map(([_key, _param]) => [
-				{},
-			]),
-		);
+		getDefaultConfig(): CDLSTALLEDPATTERNConfigType {
+			const config = Object.fromEntries(
+				Object.entries(this.params).map(([_key, _param]) => [{}]),
+			);
 
-		const validatedConfig = CDLSTALLEDPATTERNConfigSchema.parse(config);
-		return validatedConfig;
-	},
+			const validatedConfig = CDLSTALLEDPATTERNConfigSchema.parse(config);
+			return validatedConfig;
+		},
 
-	getValue() {
-		return getIndicatorValues(this.indicatorValueConfig);
-	},
+		getValue() {
+			return getIndicatorValues(this.indicatorValueConfig);
+		},
 
-	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
-		IndicatorType.CDLSTALLEDPATTERN,
-		CDLSTALLEDPATTERNConfigSchema,
-		buildCDLSTALLEDPATTERNConfig,
-	),
+		parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
+			IndicatorType.CDLSTALLEDPATTERN,
+			CDLSTALLEDPATTERNConfigSchema,
+			buildCDLSTALLEDPATTERNConfig,
+		),
 
-	validateConfig(config: unknown): config is CDLSTALLEDPATTERNConfigType {
-		try {
-			CDLSTALLEDPATTERNConfigSchema.parse(config);
-			return true;
-		} catch {
-			return false;
-		}
-	},
-};
+		validateConfig(config: unknown): config is CDLSTALLEDPATTERNConfigType {
+			try {
+				CDLSTALLEDPATTERNConfigSchema.parse(config);
+				return true;
+			} catch {
+				return false;
+			}
+		},
+	};

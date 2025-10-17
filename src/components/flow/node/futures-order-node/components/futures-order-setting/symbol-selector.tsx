@@ -1,7 +1,7 @@
 import type React from "react";
 import { useEffect, useState } from "react";
-import { Label } from "@/components/ui/label";
 import { SelectWithSearch } from "@/components/select-components/select-with-search";
+import { Label } from "@/components/ui/label";
 import { getSymbolList } from "@/service/market";
 import type { MarketSymbol } from "@/types/market";
 
@@ -50,9 +50,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 					disabled={disabled}
 					error={!!error}
 				/>
-				{error && (
-					<p className="text-xs text-red-500">{error}</p>
-				)}
+				{error && <p className="text-xs text-red-500">{error}</p>}
 			</div>
 		</div>
 	);

@@ -1,6 +1,6 @@
 import { createBrowserRouter } from "react-router";
-import AccountPage from "../pages/account-page";
 import StrategyListPage from "../components/StrategyListPage";
+import AccountPage from "../pages/account-page";
 import BacktestPage from "../pages/backtest-page";
 import Dashboard from "../pages/Dashboard";
 import Login from "../pages/login";

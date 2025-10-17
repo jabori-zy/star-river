@@ -29,7 +29,6 @@ export async function updateSystemConfig(
 	}
 }
 
-
 export async function getTimezones(): Promise<string[]> {
 	try {
 		const response = await axios.get(`${API_URL}/timezones`);

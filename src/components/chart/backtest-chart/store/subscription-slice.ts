@@ -1,5 +1,5 @@
+import type { SingleValueData, UTCTimestamp } from "lightweight-charts";
 import type { Subscription } from "rxjs";
-import type { UTCTimestamp, SingleValueData } from "lightweight-charts";
 import {
 	createIndicatorStreamFromKey,
 	createKlineStreamFromKey,
@@ -8,14 +8,20 @@ import {
 } from "@/hooks/obs/backtest-strategy-event-obs";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import type { Kline } from "@/types/kline";
+import { OrderType } from "@/types/order";
+import type {
+	VirtualOrderEvent,
+	VirtualPositionEvent,
+} from "@/types/strategy-event/backtest-strategy-event";
 import type { KeyStr } from "@/types/symbol-key";
 import { parseKey } from "@/utils/parse-key";
-import type { VirtualOrderEvent, VirtualPositionEvent } from "@/types/strategy-event/backtest-strategy-event";
-import { OrderType } from "@/types/order";
 import { getChartAlignedUtcTimestamp } from "../utls";
 import type { SliceCreator, SubscriptionSlice } from "./types";
 
-export const createSubscriptionSlice: SliceCreator<SubscriptionSlice> = (set, get) => ({
+export const createSubscriptionSlice: SliceCreator<SubscriptionSlice> = (
+	set,
+	get,
+) => ({
 	subscriptions: {},
 
 	initObserverSubscriptions: () => {
@@ -42,45 +48,59 @@ export const createSubscriptionSlice: SliceCreator<SubscriptionSlice> = (set, ge
 					state._addObserverSubscription(keyStr, klineSubscription);
 
 					// 订阅与该k线相关的订单数据流
-					const orderStream = createOrderStreamForSymbol(key.exchange, key.symbol);
-					const orderSubscription = orderStream.subscribe((virtualOrderEvent: VirtualOrderEvent) => {
-						// console.log("virtualOrderEvent", virtualOrderEvent);
-						// 统一处理订单成交事件
-						if (
-							virtualOrderEvent.event === "futures-order-filled-event" ||
-							virtualOrderEvent.event === "take-profit-order-filled-event" ||
-							virtualOrderEvent.event === "stop-loss-order-filled-event"
-						) {
-							if (virtualOrderEvent.event === "futures-order-filled-event" && virtualOrderEvent.futuresOrder.orderType === OrderType.LIMIT) {
-								state.onLimitOrderFilled(virtualOrderEvent.futuresOrder);
-							} else {
+					const orderStream = createOrderStreamForSymbol(
+						key.exchange,
+						key.symbol,
+					);
+					const orderSubscription = orderStream.subscribe(
+						(virtualOrderEvent: VirtualOrderEvent) => {
+							// console.log("virtualOrderEvent", virtualOrderEvent);
+							// 统一处理订单成交事件
+							if (
+								virtualOrderEvent.event === "futures-order-filled-event" ||
+								virtualOrderEvent.event === "take-profit-order-filled-event" ||
+								virtualOrderEvent.event === "stop-loss-order-filled-event"
+							) {
+								if (
+									virtualOrderEvent.event === "futures-order-filled-event" &&
+									virtualOrderEvent.futuresOrder.orderType === OrderType.LIMIT
+								) {
+									state.onLimitOrderFilled(virtualOrderEvent.futuresOrder);
+								} else {
+									state.onNewOrder(virtualOrderEvent.futuresOrder);
+								}
+							} else if (
+								virtualOrderEvent.event === "futures-order-created-event" &&
+								virtualOrderEvent.futuresOrder.orderType === OrderType.LIMIT
+							) {
 								state.onNewOrder(virtualOrderEvent.futuresOrder);
 							}
-						}
-						else if (virtualOrderEvent.event === "futures-order-created-event" && virtualOrderEvent.futuresOrder.orderType === OrderType.LIMIT) {
-							state.onNewOrder(virtualOrderEvent.futuresOrder);
-						}
-
-					});
+						},
+					);
 					state._addObserverSubscription(keyStr, orderSubscription);
 					// 订阅与仓位相关的数据流
-					const positionStream = createPositionStreamForSymbol(key.exchange, key.symbol);
-					const positionSubscription = positionStream.subscribe((positionEvent: VirtualPositionEvent) => {
-
-						if (positionEvent.event === "position-created-event") {
-							state.onNewPosition(positionEvent.virtualPosition);
-						}
-						else if (positionEvent.event === "position-closed-event") {
-							state.onPositionClosed(positionEvent.virtualPosition);
-						}
-
-					});
+					const positionStream = createPositionStreamForSymbol(
+						key.exchange,
+						key.symbol,
+					);
+					const positionSubscription = positionStream.subscribe(
+						(positionEvent: VirtualPositionEvent) => {
+							if (positionEvent.event === "position-created-event") {
+								state.onNewPosition(positionEvent.virtualPosition);
+							} else if (positionEvent.event === "position-closed-event") {
+								state.onPositionClosed(positionEvent.virtualPosition);
+							}
+						},
+					);
 					state._addObserverSubscription(keyStr, positionSubscription);
 				} else if (key.type === "indicator") {
 					const indicatorStream = createIndicatorStreamFromKey(keyStr, true);
 					const indicatorSubscription = indicatorStream.subscribe({
 						next: (
-							indicatorData: Record<keyof IndicatorValueConfig, number | string>,
+							indicatorData: Record<
+								keyof IndicatorValueConfig,
+								number | string
+							>,
 						) => {
 							// 转换指标数据格式为 Record<keyof IndicatorValueConfig, SingleValueData[]>
 							const indicator: Record<
@@ -88,21 +108,24 @@ export const createSubscriptionSlice: SliceCreator<SubscriptionSlice> = (set, ge
 								SingleValueData[]
 							> = {};
 
-							Object.entries(indicatorData).forEach(([indicatorValueKey, value]) => {
+							Object.entries(indicatorData).forEach(
+								([indicatorValueKey, value]) => {
 									// 跳过datetime字段，只处理指标值
-									if (indicatorValueKey === 'datetime') return;
+									if (indicatorValueKey === "datetime") return;
 
-									indicator[indicatorValueKey as keyof IndicatorValueConfig] =
-										[
-											...(indicator[
-												indicatorValueKey as keyof IndicatorValueConfig
-											] || []),
-											{
-												time: getChartAlignedUtcTimestamp(indicatorData.datetime as unknown as string) as UTCTimestamp,
-												value: value as number,
+									indicator[indicatorValueKey as keyof IndicatorValueConfig] = [
+										...(indicator[
+											indicatorValueKey as keyof IndicatorValueConfig
+										] || []),
+										{
+											time: getChartAlignedUtcTimestamp(
+												indicatorData.datetime as unknown as string,
+											) as UTCTimestamp,
+											value: value as number,
 										} as SingleValueData,
 									];
-							});
+								},
+							);
 							// 更新indicator
 							state.onNewIndicator(keyStr, indicator);
 						},
@@ -147,57 +170,75 @@ export const createSubscriptionSlice: SliceCreator<SubscriptionSlice> = (set, ge
 			state._addObserverSubscription(keyStr, klineSubscription);
 
 			const orderStream = createOrderStreamForSymbol(key.exchange, key.symbol);
-			const orderSubscription = orderStream.subscribe((virtualOrderEvent: VirtualOrderEvent) => {
-				if (
-					virtualOrderEvent.event === "futures-order-filled-event" ||
-					virtualOrderEvent.event === "take-profit-order-filled-event" ||
-					virtualOrderEvent.event === "stop-loss-order-filled-event"
-				) {
-					if (virtualOrderEvent.event === "futures-order-filled-event" && virtualOrderEvent.futuresOrder.orderType === OrderType.LIMIT) {
-						state.onLimitOrderFilled(virtualOrderEvent.futuresOrder);
-					} else {
+			const orderSubscription = orderStream.subscribe(
+				(virtualOrderEvent: VirtualOrderEvent) => {
+					if (
+						virtualOrderEvent.event === "futures-order-filled-event" ||
+						virtualOrderEvent.event === "take-profit-order-filled-event" ||
+						virtualOrderEvent.event === "stop-loss-order-filled-event"
+					) {
+						if (
+							virtualOrderEvent.event === "futures-order-filled-event" &&
+							virtualOrderEvent.futuresOrder.orderType === OrderType.LIMIT
+						) {
+							state.onLimitOrderFilled(virtualOrderEvent.futuresOrder);
+						} else {
+							state.onNewOrder(virtualOrderEvent.futuresOrder);
+						}
+					} else if (
+						virtualOrderEvent.event === "futures-order-created-event" &&
+						virtualOrderEvent.futuresOrder.orderType === OrderType.LIMIT
+					) {
 						state.onNewOrder(virtualOrderEvent.futuresOrder);
 					}
-				} else if (virtualOrderEvent.event === "futures-order-created-event" && virtualOrderEvent.futuresOrder.orderType === OrderType.LIMIT) {
-					state.onNewOrder(virtualOrderEvent.futuresOrder);
-				}
-			});
+				},
+			);
 			state._addObserverSubscription(keyStr, orderSubscription);
 
-			const positionStream = createPositionStreamForSymbol(key.exchange, key.symbol);
-			const positionSubscription = positionStream.subscribe((positionEvent: VirtualPositionEvent) => {
-				if (positionEvent.event === "position-created-event") {
-					state.onNewPosition(positionEvent.virtualPosition);
-				} else if (positionEvent.event === "position-closed-event") {
-					state.onPositionClosed(positionEvent.virtualPosition);
-				}
-			});
+			const positionStream = createPositionStreamForSymbol(
+				key.exchange,
+				key.symbol,
+			);
+			const positionSubscription = positionStream.subscribe(
+				(positionEvent: VirtualPositionEvent) => {
+					if (positionEvent.event === "position-created-event") {
+						state.onNewPosition(positionEvent.virtualPosition);
+					} else if (positionEvent.event === "position-closed-event") {
+						state.onPositionClosed(positionEvent.virtualPosition);
+					}
+				},
+			);
 			state._addObserverSubscription(keyStr, positionSubscription);
-		}
-		else if (key.type === "indicator") {
+		} else if (key.type === "indicator") {
 			const indicatorStream = createIndicatorStreamFromKey(keyStr, true);
 			const indicatorSubscription = indicatorStream.subscribe({
 				next: (
 					indicatorData: Record<keyof IndicatorValueConfig, number | string>,
 				) => {
 					// 转换指标数据格式为 Record<keyof IndicatorValueConfig, SingleValueData[]>
-					const indicator: Record<keyof IndicatorValueConfig, SingleValueData[]> = {};
+					const indicator: Record<
+						keyof IndicatorValueConfig,
+						SingleValueData[]
+					> = {};
 
-					Object.entries(indicatorData).forEach(([indicatorValueKey, value]) => {
+					Object.entries(indicatorData).forEach(
+						([indicatorValueKey, value]) => {
 							// 跳过datetime字段，只处理指标值
-							if (indicatorValueKey === 'datetime') return;
+							if (indicatorValueKey === "datetime") return;
 
-							indicator[indicatorValueKey as keyof IndicatorValueConfig] =
-								[
-									...(indicator[
-										indicatorValueKey as keyof IndicatorValueConfig
-									] || []),
-									{
-										time: getChartAlignedUtcTimestamp(indicatorData.datetime as unknown as string) as UTCTimestamp,
-										value: value as number,
+							indicator[indicatorValueKey as keyof IndicatorValueConfig] = [
+								...(indicator[
+									indicatorValueKey as keyof IndicatorValueConfig
+								] || []),
+								{
+									time: getChartAlignedUtcTimestamp(
+										indicatorData.datetime as unknown as string,
+									) as UTCTimestamp,
+									value: value as number,
 								} as SingleValueData,
 							];
-					});
+						},
+					);
 					// 更新indicator
 					state.onNewIndicator(keyStr, indicator);
 				},

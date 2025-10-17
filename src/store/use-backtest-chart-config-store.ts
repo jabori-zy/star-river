@@ -75,8 +75,15 @@ interface BacktestChartConfigState {
 	// 辅助方法
 	getKeys: () => Promise<Record<string, KlineKey | IndicatorKey>>;
 	getChartById: (chartId: number) => BacktestChartConfig | undefined;
-	_updateChart: (chartId: number, chartUpdater: (chart: BacktestChartConfig) => BacktestChartConfig) => void;
-	_validateAndFixChartConfig: (chartConfig: BacktestStrategyChartConfig, klineKeys: string[], indicatorKeys: string[]) => BacktestStrategyChartConfig;
+	_updateChart: (
+		chartId: number,
+		chartUpdater: (chart: BacktestChartConfig) => BacktestChartConfig,
+	) => void;
+	_validateAndFixChartConfig: (
+		chartConfig: BacktestStrategyChartConfig,
+		klineKeys: string[],
+		indicatorKeys: string[],
+	) => BacktestStrategyChartConfig;
 	reset: () => void;
 }
 
@@ -139,7 +146,7 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 					// 过滤出kline key
 					const klineKeys = Object.keys(cacheKeys).filter((key) => {
 						const parsedKey = cacheKeys[key];
-						return (parsedKey.type === "kline");
+						return parsedKey.type === "kline";
 					});
 
 					if (klineKeys.length > 0) {
@@ -217,23 +224,28 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 					if (chartConfig) {
 						// 检查后端返回的配置是否有效
 						// 是否有charts字段，并且charts字段是否为数组，并且charts字段的长度是否大于0
-						const hasValidConfig = chartConfig.charts && Array.isArray(chartConfig.charts) && chartConfig.charts.length > 0;
+						const hasValidConfig =
+							chartConfig.charts &&
+							Array.isArray(chartConfig.charts) &&
+							chartConfig.charts.length > 0;
 						// console.log("后端返回的图表配置是否有效:", hasValidConfig);
 
 						if (hasValidConfig) {
 							// 使用后端配置，验证并修复配置
 							const { _validateAndFixChartConfig } = get();
-							const validatedConfig = _validateAndFixChartConfig(chartConfig, klineKeys, indicatorKeys);
+							const validatedConfig = _validateAndFixChartConfig(
+								chartConfig,
+								klineKeys,
+								indicatorKeys,
+							);
 							// console.log("验证并修复后的图表配置: ", validatedConfig);
 							set({ chartConfig: validatedConfig });
 						}
-
 					} else {
 						// 后端配置无效（null、空数组或不存在），创建默认图表
 						const { createDefaultChart } = get();
 						await createDefaultChart();
 					}
-					
 				} else {
 					// 后端配置无效（null、空数组或不存在），创建默认图表
 					const { createDefaultChart } = get();
@@ -371,7 +383,10 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 		},
 
 		// 通用的图表更新函数
-		_updateChart: (chartId: number, chartUpdater: (chart: BacktestChartConfig) => BacktestChartConfig) => {
+		_updateChart: (
+			chartId: number,
+			chartUpdater: (chart: BacktestChartConfig) => BacktestChartConfig,
+		) => {
 			const { chartConfig } = get();
 			set({
 				chartConfig: {
@@ -466,14 +481,24 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 			// 将所有的指标删除
 			chartConfig.charts.forEach((chart) => {
 				if (chart.id === chartId) {
-					chart.indicatorChartConfigs = chart.indicatorChartConfigs.map((config) => ({ ...config, isDelete: true }));
+					chart.indicatorChartConfigs = chart.indicatorChartConfigs.map(
+						(config) => ({ ...config, isDelete: true }),
+					);
 				}
 			});
 			const klineKey = parseKey(klineKeyStr) as KlineKey;
 			set({
 				chartConfig: {
 					...chartConfig,
-					charts: chartConfig.charts.map((chart) => chart.id === chartId ? { ...chart, klineChartConfig: { ...chart.klineChartConfig, klineKeyStr }, chartName: `${klineKey.symbol} ${klineKey.interval}` } : chart),
+					charts: chartConfig.charts.map((chart) =>
+						chart.id === chartId
+							? {
+									...chart,
+									klineChartConfig: { ...chart.klineChartConfig, klineKeyStr },
+									chartName: `${klineKey.symbol} ${klineKey.interval}`,
+								}
+							: chart,
+					),
 				},
 			});
 			console.log("当前的图表配置: ", get().chartConfig);
@@ -495,29 +520,31 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 
 				// 判断klineChartKey是否在klineKeys中
 				// 如果不在，则将该图表的key替换为klineKeys中的第一个
-                                if (!klineKeys.includes(klineChartKey)) {
-                                        if (klineKeys.length === 0) {
-                                                console.warn("klineKeys 为空，无法修复缺失的 klineKey");
-                                        } else {
-                                                const klineKey = parseKey(klineKeys[0]) as KlineKey;
-                                                updatedChart.chartName = `${klineKey.symbol} ${klineKey.interval}`;
-                                                updatedChart.klineChartConfig = {
-                                                        ...chart.klineChartConfig,
-                                                        klineKeyStr: klineKeys[0]
-                                                };
-                                        }
-                                }
+				if (!klineKeys.includes(klineChartKey)) {
+					if (klineKeys.length === 0) {
+						console.warn("klineKeys 为空，无法修复缺失的 klineKey");
+					} else {
+						const klineKey = parseKey(klineKeys[0]) as KlineKey;
+						updatedChart.chartName = `${klineKey.symbol} ${klineKey.interval}`;
+						updatedChart.klineChartConfig = {
+							...chart.klineChartConfig,
+							klineKeyStr: klineKeys[0],
+						};
+					}
+				}
 
 				// 处理指标配置
-				updatedChart.indicatorChartConfigs = chart.indicatorChartConfigs.map((indicator_chart) => {
-					const indicatorChartKey = indicator_chart.indicatorKeyStr;
-					// 判断indicatorChartKey是否在indicatorKeys中
-					if (!indicatorKeys.includes(indicatorChartKey)) {
-						// 如果不在，则将该指标删除
-						return { ...indicator_chart, isDelete: true };
-					}
-					return indicator_chart;
-				});
+				updatedChart.indicatorChartConfigs = chart.indicatorChartConfigs.map(
+					(indicator_chart) => {
+						const indicatorChartKey = indicator_chart.indicatorKeyStr;
+						// 判断indicatorChartKey是否在indicatorKeys中
+						if (!indicatorKeys.includes(indicatorChartKey)) {
+							// 如果不在，则将该指标删除
+							return { ...indicator_chart, isDelete: true };
+						}
+						return indicator_chart;
+					},
+				);
 
 				return updatedChart;
 			});

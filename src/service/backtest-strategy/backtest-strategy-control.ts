@@ -72,5 +72,3 @@ export async function get_play_index(strategyId: number) {
 		throw error;
 	}
 }
-
-

@@ -1,3 +1,4 @@
+import { FunnelPlus } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -6,15 +7,16 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
-import { FunnelPlus } from "lucide-react";
-
 
 interface PositionFilterProps {
 	isShowHistoryPositions: boolean;
 	onShowHistoryPositions: (show: boolean) => void;
 }
 
-const PositionFilter: React.FC<PositionFilterProps> = ({ isShowHistoryPositions, onShowHistoryPositions }) => {
+const PositionFilter: React.FC<PositionFilterProps> = ({
+	isShowHistoryPositions,
+	onShowHistoryPositions,
+}) => {
 	const [open, setOpen] = useState(false);
 
 	const handleHistoryPositionsToggle = () => {

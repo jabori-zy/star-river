@@ -3,9 +3,9 @@ import { useCallback, useEffect } from "react";
 import { useStartNodeDataStore } from "@/store/node/use-start-node-data-store";
 import {
 	BacktestDataSource,
+	type CustomVariable,
 	type SelectedAccount,
 	type StrategyBacktestConfig,
-	type CustomVariable,
 	type TimeRange,
 } from "@/types/strategy";
 

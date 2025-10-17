@@ -18,7 +18,7 @@ interface NodeOpConfirmDialogProps {
 	onCancel: () => void;
 	title?: string;
 	description?: string;
-	operationType?: 'add' | 'edit' | 'delete';
+	operationType?: "add" | "edit" | "delete";
 }
 
 export const NodeOpConfirmDialog: React.FC<NodeOpConfirmDialogProps> = ({
@@ -30,18 +30,18 @@ export const NodeOpConfirmDialog: React.FC<NodeOpConfirmDialogProps> = ({
 	onCancel,
 	title,
 	description,
-	operationType = 'edit',
+	operationType = "edit",
 }) => {
 	// 根据操作类型生成默认标题
 	const getDefaultTitle = () => {
 		switch (operationType) {
-			case 'add':
-				return '确认新增';
-			case 'delete':
-				return '确认删除';
-			case 'edit':
+			case "add":
+				return "确认新增";
+			case "delete":
+				return "确认删除";
+			case "edit":
 			default:
-				return '确认修改';
+				return "确认修改";
 		}
 	};
 
@@ -49,26 +49,27 @@ export const NodeOpConfirmDialog: React.FC<NodeOpConfirmDialogProps> = ({
 	// 根据操作类型生成动作描述
 	const getActionText = () => {
 		switch (operationType) {
-			case 'add':
-				return '新增';
-			case 'delete':
-				return '删除';
-			case 'edit':
+			case "add":
+				return "新增";
+			case "delete":
+				return "删除";
+			case "edit":
 			default:
-				return '修改';
+				return "修改";
 		}
 	};
 
 	// 生成智能的描述文案
 	const generateDescriptionElement = () => {
-		const filteredNames = affectedNodeNames.filter(name => name?.trim());
+		const filteredNames = affectedNodeNames.filter((name) => name?.trim());
 		const count = affectedNodeCount;
 		const actionText = getActionText();
 
 		if (filteredNames.length === 0) {
 			return (
 				<span>
-					当前{actionText}将影响 <strong>{count}</strong> 个连接的节点，是否继续{actionText}？
+					当前{actionText}将影响 <strong>{count}</strong> 个连接的节点，是否继续
+					{actionText}？
 				</span>
 			);
 		}
@@ -86,12 +87,14 @@ export const NodeOpConfirmDialog: React.FC<NodeOpConfirmDialogProps> = ({
 			const nodeNames = filteredNames.slice(0, count);
 			return (
 				<span>
-					当前{actionText}将影响 {nodeNames.map((name, index) => (
+					当前{actionText}将影响{" "}
+					{nodeNames.map((name, index) => (
 						<span key={name}>
 							<strong>{name}</strong>
 							{index < nodeNames.length - 1 && ", "}
 						</span>
-					))} 等 <strong>{count}</strong> 个节点，是否继续{actionText}？
+					))}{" "}
+					等 <strong>{count}</strong> 个节点，是否继续{actionText}？
 				</span>
 			);
 		} else {
@@ -99,12 +102,14 @@ export const NodeOpConfirmDialog: React.FC<NodeOpConfirmDialogProps> = ({
 			const nodeNames = filteredNames.slice(0, 3);
 			return (
 				<span>
-					当前{actionText}将影响 {nodeNames.map((name, index) => (
+					当前{actionText}将影响{" "}
+					{nodeNames.map((name, index) => (
 						<span key={name}>
 							<strong>{name}</strong>
 							{index < nodeNames.length - 1 && ", "}
 						</span>
-					))} 等 <strong>{count}</strong> 个节点，是否继续{actionText}？
+					))}{" "}
+					等 <strong>{count}</strong> 个节点，是否继续{actionText}？
 				</span>
 			);
 		}
@@ -120,12 +125,8 @@ export const NodeOpConfirmDialog: React.FC<NodeOpConfirmDialogProps> = ({
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>
-					<AlertDialogCancel onClick={onCancel}>
-						取消
-					</AlertDialogCancel>
-					<AlertDialogAction onClick={onConfirm}>
-						确认
-					</AlertDialogAction>
+					<AlertDialogCancel onClick={onCancel}>取消</AlertDialogCancel>
+					<AlertDialogAction onClick={onConfirm}>确认</AlertDialogAction>
 				</AlertDialogFooter>
 			</AlertDialogContent>
 		</AlertDialog>

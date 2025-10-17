@@ -7,7 +7,7 @@ import type {
 } from "lightweight-charts";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import type { IndicatorKeyStr } from "@/types/symbol-key";
-import type { SliceCreator, RefsSlice } from "./types";
+import type { RefsSlice, SliceCreator } from "./types";
 
 export const createRefsSlice: SliceCreator<RefsSlice> = (set, get) => ({
 	chartRef: null,
@@ -35,11 +35,9 @@ export const createRefsSlice: SliceCreator<RefsSlice> = (set, get) => ({
 	setKlineSeriesRef: (ref: ISeriesApi<"Candlestick">) =>
 		set({ klineSeriesRef: ref }),
 
-	getKlineSeriesRef: () =>
-		get().klineSeriesRef || null,
+	getKlineSeriesRef: () => get().klineSeriesRef || null,
 
-	deleteKlineSeriesRef: () =>
-		set({ klineSeriesRef: null }),
+	deleteKlineSeriesRef: () => set({ klineSeriesRef: null }),
 
 	setIndicatorSeriesRef: (
 		indicatorKeyStr: IndicatorKeyStr,
@@ -61,7 +59,8 @@ export const createRefsSlice: SliceCreator<RefsSlice> = (set, get) => ({
 		indicatorValueKey: keyof IndicatorValueConfig,
 	) => get().indicatorSeriesRef[indicatorKeyStr]?.[indicatorValueKey] || null,
 
-	getIndicatorAllSeriesRef: (indicatorKeyStr: IndicatorKeyStr) => get().indicatorSeriesRef[indicatorKeyStr] || {},
+	getIndicatorAllSeriesRef: (indicatorKeyStr: IndicatorKeyStr) =>
+		get().indicatorSeriesRef[indicatorKeyStr] || {},
 
 	deleteIndicatorSeriesRef: (indicatorKeyStr: IndicatorKeyStr) =>
 		set({
@@ -74,16 +73,11 @@ export const createRefsSlice: SliceCreator<RefsSlice> = (set, get) => ({
 	setOrderMarkerSeriesRef: (ref: ISeriesMarkersPluginApi<Time>) =>
 		set({ orderMarkerSeriesRef: ref }),
 
-	getOrderMarkerSeriesRef: () =>
-		get().orderMarkerSeriesRef || null,
+	getOrderMarkerSeriesRef: () => get().orderMarkerSeriesRef || null,
 
-	deleteOrderMarkerSeriesRef: () =>
-		set({ orderMarkerSeriesRef: null }),
+	deleteOrderMarkerSeriesRef: () => set({ orderMarkerSeriesRef: null }),
 
-	setSubChartPaneRef: (
-		indicatorKeyStr: IndicatorKeyStr,
-		ref: IPaneApi<Time>,
-	) =>
+	setSubChartPaneRef: (indicatorKeyStr: IndicatorKeyStr, ref: IPaneApi<Time>) =>
 		set({
 			subChartPaneRef: { ...get().subChartPaneRef, [indicatorKeyStr]: ref },
 		}),
@@ -96,12 +90,15 @@ export const createRefsSlice: SliceCreator<RefsSlice> = (set, get) => ({
 			subChartPaneRef: { ...get().subChartPaneRef, [indicatorKeyStr]: null },
 		}),
 
-	addSubChartPaneHtmlElementRef: (indicatorKeyStr: IndicatorKeyStr, htmlElement: HTMLElement) =>
+	addSubChartPaneHtmlElementRef: (
+		indicatorKeyStr: IndicatorKeyStr,
+		htmlElement: HTMLElement,
+	) =>
 		set({
 			subChartPaneHtmlElementRef: {
 				...get().subChartPaneHtmlElementRef,
-				[indicatorKeyStr]: htmlElement
-			}
+				[indicatorKeyStr]: htmlElement,
+			},
 		}),
 
 	getSubChartPaneHtmlElementRef: (indicatorKeyStr: IndicatorKeyStr) =>

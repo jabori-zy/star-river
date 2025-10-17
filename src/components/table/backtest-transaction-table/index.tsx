@@ -50,7 +50,9 @@ export function BacktestTransactionTable({
 	title = "交易明细",
 	showTitle = true,
 }: BacktestTransactionTableProps) {
-	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+		[],
+	);
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [rowSelection, setRowSelection] = React.useState({});
 	const [pagination, setPagination] = React.useState({
@@ -78,7 +80,7 @@ export function BacktestTransactionTable({
 		getSortedRowModel: getSortedRowModel(),
 		getFacetedRowModel: getFacetedRowModel(),
 		getFacetedUniqueValues: getFacetedUniqueValues(),
-		columnResizeMode: 'onChange',
+		columnResizeMode: "onChange",
 	});
 
 	// 计算总页数
@@ -91,9 +93,9 @@ export function BacktestTransactionTable({
 				<div className="flex items-center justify-between px-4">
 					<div className="flex items-center gap-2">
 						<h1 className="text-xl font-semibold">{title}</h1>
-					<div className="text-sm text-muted-foreground">
-						({data?.length || 0} 条记录)
-					</div>
+						<div className="text-sm text-muted-foreground">
+							({data?.length || 0} 条记录)
+						</div>
 					</div>
 				</div>
 			)}
@@ -107,13 +109,13 @@ export function BacktestTransactionTable({
 								{table.getHeaderGroups().map((headerGroup) => (
 									<TableRow key={headerGroup.id}>
 										{headerGroup.headers.map((header) => (
-											<TableHead 
-												key={header.id} 
+											<TableHead
+												key={header.id}
 												colSpan={header.colSpan}
-												style={{ 
+												style={{
 													width: header.getSize(),
 													minWidth: header.column.columnDef.minSize || 60,
-													maxWidth: header.column.columnDef.maxSize || 300
+													maxWidth: header.column.columnDef.maxSize || 300,
 												}}
 												className="px-3"
 											>
@@ -121,14 +123,16 @@ export function BacktestTransactionTable({
 													<div
 														{...(header.column.getCanSort()
 															? {
-																	className: "cursor-pointer select-none hover:bg-accent/50 rounded px-1 py-1 text-xs",
-																	onClick: header.column.getToggleSortingHandler(),
+																	className:
+																		"cursor-pointer select-none hover:bg-accent/50 rounded px-1 py-1 text-xs",
+																	onClick:
+																		header.column.getToggleSortingHandler(),
 																}
 															: { className: "text-xs px-1" })}
 													>
 														{flexRender(
 															header.column.columnDef.header,
-															header.getContext()
+															header.getContext(),
 														)}
 														{{
 															asc: " ▲",
@@ -150,18 +154,18 @@ export function BacktestTransactionTable({
 											className="border-b transition-colors hover:bg-muted/50"
 										>
 											{row.getVisibleCells().map((cell) => (
-												<TableCell 
+												<TableCell
 													key={cell.id}
-													style={{ 
+													style={{
 														width: cell.column.getSize(),
 														minWidth: cell.column.columnDef.minSize || 60,
-														maxWidth: cell.column.columnDef.maxSize || 300
+														maxWidth: cell.column.columnDef.maxSize || 300,
 													}}
 													className="px-3 py-2"
 												>
 													{flexRender(
 														cell.column.columnDef.cell,
-														cell.getContext()
+														cell.getContext(),
 													)}
 												</TableCell>
 											))}
@@ -213,7 +217,8 @@ export function BacktestTransactionTable({
 
 					<div className="flex items-center gap-6 lg:gap-8">
 						<div className="flex items-center justify-center text-sm font-medium">
-							第 {table.getState().pagination.pageIndex + 1} 页 共 {pageCount} 页
+							第 {table.getState().pagination.pageIndex + 1} 页 共 {pageCount}{" "}
+							页
 						</div>
 						<div className="flex items-center gap-2">
 							<Button

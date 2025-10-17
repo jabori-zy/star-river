@@ -1,8 +1,8 @@
 import { Outlet } from "react-router";
 import { AppHeader } from "@/app/header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { AppSidebar } from "../../components/app-sidebar";
 import { usePlatform } from "@/store/use-platform";
+import { AppSidebar } from "../../components/app-sidebar";
 
 export default function Dashboard() {
 	const { isWindows } = usePlatform();

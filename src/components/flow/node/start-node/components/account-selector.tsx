@@ -1,10 +1,18 @@
-import { AlertCircle, DollarSign, Lock, LockOpen, Plus, X, Link, Unlink } from "lucide-react";
-import { useEffect, useState, useCallback, useRef } from "react";
+import {
+	AlertCircle,
+	DollarSign,
+	Link,
+	Lock,
+	LockOpen,
+	Plus,
+	Unlink,
+	X,
+} from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import ConfirmBox from "@/components/confirm-box";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {Spinner} from "@/components/ui/spinner";
 import {
 	Select,
 	SelectContent,
@@ -12,6 +20,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { Spinner } from "@/components/ui/spinner";
 import {
 	Tooltip,
 	TooltipContent,
@@ -19,7 +28,7 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { getAccountConfigs } from "@/service/account";
-import { getExchangeStatus, connectExchange } from "@/service/exchange";
+import { connectExchange, getExchangeStatus } from "@/service/exchange";
 import type { Account } from "@/types/account";
 import type { Exchange } from "@/types/market";
 import { ExchangeStatus } from "@/types/market";
@@ -48,9 +57,13 @@ const AccountSelector = ({
 	// 本地维护的账户列表 - 仅在内部使用
 	const [localAccounts, setLocalAccounts] = useState<SelectedAccount[]>([]);
 	// 账户连接状态 - key为accountId
-	const [accountStatuses, setAccountStatuses] = useState<Record<number, ExchangeStatus>>({});
+	const [accountStatuses, setAccountStatuses] = useState<
+		Record<number, ExchangeStatus>
+	>({});
 	// 正在连接的账户ID
-	const [connectingAccounts, setConnectingAccounts] = useState<Set<number>>(new Set());
+	const [connectingAccounts, setConnectingAccounts] = useState<Set<number>>(
+		new Set(),
+	);
 	// 轮询定时器引用
 	const pollingTimers = useRef<Map<number, NodeJS.Timeout>>(new Map());
 
@@ -59,7 +72,7 @@ const AccountSelector = ({
 		setIsLoadingAccounts(true);
 		setErrorMessage("");
 		try {
-			const accounts = await getAccountConfigs(null) as Account[];
+			const accounts = (await getAccountConfigs(null)) as Account[];
 			setAvailableAccounts(accounts);
 			console.log("获取到的账户配置:", accounts);
 		} catch (error) {
@@ -71,13 +84,12 @@ const AccountSelector = ({
 		}
 	};
 
-
 	// 获取交易所状态
 	const fetchExchangeStatus = useCallback(async (accountId: number) => {
 		try {
 			const status = await getExchangeStatus(accountId);
 			console.log("获取到的交易所状态:", status);
-			setAccountStatuses(prev => ({ ...prev, [accountId]: status }));
+			setAccountStatuses((prev) => ({ ...prev, [accountId]: status }));
 			return status;
 		} catch (error) {
 			console.error("获取交易所状态失败:", error);
@@ -95,43 +107,49 @@ const AccountSelector = ({
 	}, []);
 
 	// 开始轮询账户状态
-	const startPolling = useCallback(async (accountId: number) => {
-		// 清除已存在的定时器
-		clearPollingTimer(accountId);
+	const startPolling = useCallback(
+		async (accountId: number) => {
+			// 清除已存在的定时器
+			clearPollingTimer(accountId);
 
-		// 每500ms轮询一次
-		const timer = setInterval(async () => {
-			const status = await fetchExchangeStatus(accountId);
-			if (status === ExchangeStatus.Connected) {
-				// 连接成功，停止轮询
-				clearPollingTimer(accountId);
-				setConnectingAccounts(prev => {
+			// 每500ms轮询一次
+			const timer = setInterval(async () => {
+				const status = await fetchExchangeStatus(accountId);
+				if (status === ExchangeStatus.Connected) {
+					// 连接成功，停止轮询
+					clearPollingTimer(accountId);
+					setConnectingAccounts((prev) => {
+						const next = new Set(prev);
+						next.delete(accountId);
+						return next;
+					});
+				}
+			}, 500);
+
+			pollingTimers.current.set(accountId, timer);
+		},
+		[fetchExchangeStatus, clearPollingTimer],
+	);
+
+	// 连接交易所
+	const handleConnectExchange = useCallback(
+		async (accountId: number) => {
+			try {
+				setConnectingAccounts((prev) => new Set(prev).add(accountId));
+				await connectExchange(accountId);
+				// 开始轮询状态
+				await startPolling(accountId);
+			} catch (error) {
+				console.error("连接交易所失败:", error);
+				setConnectingAccounts((prev) => {
 					const next = new Set(prev);
 					next.delete(accountId);
 					return next;
 				});
 			}
-		}, 500);
-
-		pollingTimers.current.set(accountId, timer);
-	}, [fetchExchangeStatus, clearPollingTimer]);
-
-	// 连接交易所
-	const handleConnectExchange = useCallback(async (accountId: number) => {
-		try {
-			setConnectingAccounts(prev => new Set(prev).add(accountId));
-			await connectExchange(accountId);
-			// 开始轮询状态
-			await startPolling(accountId);
-		} catch (error) {
-			console.error("连接交易所失败:", error);
-			setConnectingAccounts(prev => {
-				const next = new Set(prev);
-				next.delete(accountId);
-				return next;
-			});
-		}
-	}, [startPolling]);
+		},
+		[startPolling],
+	);
 
 	// 组件卸载时清除所有定时器
 	useEffect(() => {
@@ -376,14 +394,16 @@ const AccountSelector = ({
 											<TooltipTrigger asChild>
 												<div
 													className={`flex items-center justify-center h-8 w-8 rounded-md transition-colors ${
-														accountStatuses[account.id] === ExchangeStatus.Connected ||
+														accountStatuses[account.id] ===
+															ExchangeStatus.Connected ||
 														connectingAccounts.has(account.id)
 															? "cursor-default"
 															: "cursor-pointer hover:bg-gray-100"
 													}`}
 													onClick={() => {
 														if (
-															accountStatuses[account.id] !== ExchangeStatus.Connected &&
+															accountStatuses[account.id] !==
+																ExchangeStatus.Connected &&
 															!connectingAccounts.has(account.id)
 														) {
 															handleConnectExchange(account.id);
@@ -392,7 +412,8 @@ const AccountSelector = ({
 												>
 													{connectingAccounts.has(account.id) ? (
 														<Spinner className="h-4 w-4" />
-													) : accountStatuses[account.id] === ExchangeStatus.Connected ? (
+													) : accountStatuses[account.id] ===
+														ExchangeStatus.Connected ? (
 														<Link className="h-4 w-4 text-green-600" />
 													) : (
 														<Unlink className="h-4 w-4 text-gray-500" />
@@ -401,11 +422,12 @@ const AccountSelector = ({
 											</TooltipTrigger>
 											<TooltipContent>
 												<p>
-													{accountStatuses[account.id] === ExchangeStatus.Connected
+													{accountStatuses[account.id] ===
+													ExchangeStatus.Connected
 														? "已连接"
 														: connectingAccounts.has(account.id)
-														? "连接中..."
-														: "click to connect"}
+															? "连接中..."
+															: "click to connect"}
 												</p>
 											</TooltipContent>
 										</Tooltip>
@@ -436,11 +458,7 @@ const AccountSelector = ({
 												cancelText="取消"
 												onConfirm={() => handleRemoveAccount(index)}
 											>
-												<Button
-													variant="ghost"
-													size="icon"
-													className="h-8 w-8"
-												>
+												<Button variant="ghost" size="icon" className="h-8 w-8">
 													<X className="h-4 w-4" />
 												</Button>
 											</ConfirmBox>

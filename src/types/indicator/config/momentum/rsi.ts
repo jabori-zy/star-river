@@ -1,4 +1,3 @@
-
 import { z } from "zod";
 import { SeriesType } from "@/types/chart";
 import {

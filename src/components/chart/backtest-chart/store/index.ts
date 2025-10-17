@@ -1,14 +1,14 @@
 import { create } from "zustand";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
-import type { BacktestChartStore, StoreContext } from "./types";
-import { createDataSlice } from "./data-slice";
-import { createRefsSlice } from "./refs-slice";
-import { createVisibilitySlice } from "./visibility-slice";
-import { createTradingSlice } from "./trading-slice";
-import { createSubscriptionSlice } from "./subscription-slice";
-import { createEventHandlerSlice } from "./event-handler-slice";
 import { createDataInitializationSlice } from "./data-initialization-slice";
+import { createDataSlice } from "./data-slice";
+import { createEventHandlerSlice } from "./event-handler-slice";
+import { createRefsSlice } from "./refs-slice";
+import { createSubscriptionSlice } from "./subscription-slice";
+import { createTradingSlice } from "./trading-slice";
+import type { BacktestChartStore, StoreContext } from "./types";
 import { createUtilitySlice } from "./utility-slice";
+import { createVisibilitySlice } from "./visibility-slice";
 
 // 创建单个图表store的工厂函数
 const createBacktestChartStore = (
@@ -42,7 +42,10 @@ const storeInstances = new Map<
 >();
 
 // 获取或创建指定chartId的store实例
-export const getBacktestChartStore = (chartId: number, chartConfig?: BacktestChartConfig) => {
+export const getBacktestChartStore = (
+	chartId: number,
+	chartConfig?: BacktestChartConfig,
+) => {
 	if (!storeInstances.has(chartId)) {
 		if (!chartConfig) {
 			throw new Error(`Chart config not found for chartId: ${chartId}`);
@@ -69,7 +72,10 @@ export const cleanupBacktestChartStore = (chartId: number) => {
 };
 
 // Hook：根据chartId获取对应的store
-export const useBacktestChartStore = (chartId: number, chartConfig?: BacktestChartConfig) => {
+export const useBacktestChartStore = (
+	chartId: number,
+	chartConfig?: BacktestChartConfig,
+) => {
 	const store = getBacktestChartStore(chartId, chartConfig);
 	return store();
 };

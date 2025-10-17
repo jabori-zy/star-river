@@ -50,7 +50,6 @@ export const getOrderSideStyle = (side: string) => {
 // 订单方向文本
 export const getOrderSideText = (side: string) => {
 	switch (side) {
-
 		case "BUY":
 			return "买入";
 		case "SELL":

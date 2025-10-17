@@ -1,17 +1,12 @@
+import moment from "moment-timezone";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useState, useEffect, useMemo } from "react";
 import { SelectWithSearch } from "@/components/select-components/select-with-search";
 import type { SystemConfig } from "@/types/system";
-import moment from "moment-timezone";
-
-
 
 function getAllTimezones(): string[] {
 	return moment.tz.names();
 }
-
-
-
 
 // 时区选择下拉框
 export function TimezoneSelect({

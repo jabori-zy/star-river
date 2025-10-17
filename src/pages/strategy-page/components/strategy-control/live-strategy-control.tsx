@@ -1,9 +1,9 @@
-import { useState } from "react";
 import { Play, Square } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { initStrategy } from "@/service/strategy";
 import { TradeMode } from "@/types/strategy";
-import { toast } from "sonner";
 
 // 运行策略
 function requestRunStrategy(strategyId: number | undefined) {
@@ -81,13 +81,13 @@ const LiveStrategyControl: React.FC<LiveStrategyControlProps> = ({
 			return {
 				variant: "destructive" as const,
 				text: tradeMode === TradeMode.LIVE ? "停止策略" : "停止",
-				icon: <Square className="h-4 w-4" />
+				icon: <Square className="h-4 w-4" />,
 			};
 		} else {
 			return {
 				variant: "default" as const,
 				text: tradeMode === TradeMode.LIVE ? "开始策略" : "运行",
-				icon: <Play className="h-4 w-4" />
+				icon: <Play className="h-4 w-4" />,
 			};
 		}
 	};

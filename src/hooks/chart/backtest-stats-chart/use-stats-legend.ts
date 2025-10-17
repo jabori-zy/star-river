@@ -10,7 +10,6 @@ import type { StrategyStatsChartConfig } from "@/types/chart/backtest-strategy-s
 import { getStatsChartConfig } from "@/types/chart/backtest-strategy-stats-chart";
 import type { StrategyStatsName } from "@/types/statistics";
 
-
 export type StatsLegendData = {
 	statsName: string;
 	displayName: string;
@@ -118,11 +117,7 @@ export const useStatsLegend = ({
 
 	const [legendData, setLegendData] = useState<StatsLegendData | null>(() => {
 		// 初始化时使用最新数据
-		return mapStatsDataToLegendData(
-			statsChartConfig,
-			statsData,
-			null,
-		);
+		return mapStatsDataToLegendData(statsChartConfig, statsData, null);
 	});
 
 	// 监听数据变化和配置变化，自动更新图例数据

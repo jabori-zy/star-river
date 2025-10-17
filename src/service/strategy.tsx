@@ -321,7 +321,7 @@ export async function getBacktestStrategyChartConfig(
 	}
 }
 
-export async function initStrategy(strategyId: number) : Promise<void> {
+export async function initStrategy(strategyId: number): Promise<void> {
 	try {
 		const response = await axios.post(`${API_URL}/${strategyId}/init`);
 		if (response.status !== 200) {

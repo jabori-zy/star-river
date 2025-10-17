@@ -4,8 +4,8 @@ import { PlusIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Account } from "@/types/account";
 import { AddAccountPanel } from "./add-account-panel";
-import { mt5FormConfig } from "./add-account-panel/mt5-form-config";
 import { binanceFormConfig } from "./add-account-panel/binance-form-config";
+import { mt5FormConfig } from "./add-account-panel/mt5-form-config";
 
 interface AccountsHeaderProps {
 	activeTab: string;

@@ -1,14 +1,13 @@
 import type {
-	Time,
-	SeriesMarkerBarPosition,
-	SeriesMarkerShape,
 	LineStyle,
 	LineWidth,
+	SeriesMarkerBarPosition,
+	SeriesMarkerShape,
+	Time,
 } from "lightweight-charts";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import type { IndicatorKeyStr, KeyStr } from "@/types/symbol-key";
 import type { StrategyStatsName } from "../statistics";
-
 
 export type LayoutMode = "vertical" | "horizontal" | "grid" | "grid-alt";
 
@@ -22,19 +21,17 @@ export enum SeriesType {
 	DASH = "dash",
 }
 
-
 export type SeriesBaseConfig = {
 	name: string; // 数据系列名称
 	type: SeriesType; // 数据系列类型
 	color?: string; // 数据系列颜色
 	lineWidth?: number; // 数据系列线宽
-}
+};
 
 // 指标图表数据系列配置
 export type SeriesConfig = {
 	indicatorValueKey: keyof IndicatorValueConfig; // 指标值的键名
 } & SeriesBaseConfig;
-
 
 // 统计图表数据系列配置
 export type StatsSeriesConfig = {
@@ -59,8 +56,6 @@ export type KlineChartConfig = {
 	downColor?: string; // 下跌颜色
 };
 
-
-
 export type OrderMarker = {
 	time: Time;
 	price?: number;
@@ -79,11 +74,10 @@ export type TakeProfitPriceLine = {
 	price: number;
 	color: string;
 	lineWidth: LineWidth;
-	lineStyle: LineStyle,
-	axisLabelVisible: boolean,
+	lineStyle: LineStyle;
+	axisLabelVisible: boolean;
 	title: string;
 };
-
 
 /**
  * 止损价格线
@@ -93,11 +87,10 @@ export type StopLossPriceLine = {
 	price: number;
 	color: string;
 	lineWidth: LineWidth;
-	lineStyle: LineStyle,
-	axisLabelVisible: boolean,
+	lineStyle: LineStyle;
+	axisLabelVisible: boolean;
 	title: string;
 };
-
 
 /**
  * 开仓价格线
@@ -107,13 +100,15 @@ export type OpenPositionPriceLine = {
 	price: number;
 	color: string;
 	lineWidth: LineWidth;
-	lineStyle: LineStyle,
-	axisLabelVisible: boolean,
+	lineStyle: LineStyle;
+	axisLabelVisible: boolean;
 	title: string;
 };
 
-export type PositionPriceLine = TakeProfitPriceLine | StopLossPriceLine | OpenPositionPriceLine;
-
+export type PositionPriceLine =
+	| TakeProfitPriceLine
+	| StopLossPriceLine
+	| OpenPositionPriceLine;
 
 /**
  * 限价单价格线
@@ -123,15 +118,10 @@ export type LimitOrderPriceLine = {
 	price: number;
 	color: string;
 	lineWidth: LineWidth;
-	lineStyle: LineStyle,
-	axisLabelVisible: boolean,
+	lineStyle: LineStyle;
+	axisLabelVisible: boolean;
 	title: string;
 };
-
-
-
-
-
 
 // // 子图配置
 // export type SubChartConfig = {

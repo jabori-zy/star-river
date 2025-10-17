@@ -1,5 +1,10 @@
 import axios from "axios";
-import { Account, type MT5Account, type BinanceAccount, type OKXAccount } from "../types/account";
+import type {
+	Account,
+	BinanceAccount,
+	MT5Account,
+	OKXAccount,
+} from "../types/account";
 
 const API_BASE_URL = "http://localhost:3100";
 const ROUTER = "account";
@@ -107,15 +112,17 @@ export async function getAccountConfigs(
 
 		// 根据不同的交易所类型进行转换
 		switch (exchange) {
-			case "metatrader5":
+			case "metatrader5": {
 				const mt5Accounts = accountConfigs.map(transformMT5Account);
 				console.log("获取到的MT5账户配置:", mt5Accounts);
 				return mt5Accounts;
+			}
 
-			case "binance":
+			case "binance": {
 				const binanceAccounts = accountConfigs.map(transformBinanceAccount);
 				console.log("获取到的Binance账户配置:", binanceAccounts);
 				return binanceAccounts;
+			}
 
 			// case "okx":
 			// 	const okxAccounts = accountConfigs.map(transformOKXAccount);
@@ -127,7 +134,7 @@ export async function getAccountConfigs(
 				return [];
 		}
 	} catch (error) {
-		console.error(`获取${exchange || '所有'}账户数据失败:`, error);
+		console.error(`获取${exchange || "所有"}账户数据失败:`, error);
 		return [];
 	}
 }

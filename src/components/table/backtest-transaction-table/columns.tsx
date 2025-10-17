@@ -1,8 +1,8 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { Badge } from "@/components/ui/badge";
-import type { VirtualTransaction } from "@/types/transaction/virtual-transaction";
-import { TransactionSide, TransactionType } from "@/types/transaction";
 import { DateTime } from "luxon";
+import { Badge } from "@/components/ui/badge";
+import { TransactionSide, TransactionType } from "@/types/transaction";
+import type { VirtualTransaction } from "@/types/transaction/virtual-transaction";
 
 // 获取交易类型样式
 const getTransactionTypeStyle = (type: TransactionType): string => {
@@ -70,7 +70,10 @@ export const virtualTransactionColumns: ColumnDef<VirtualTransaction>[] = [
 		maxSize: 60,
 		enableResizing: false,
 		cell: ({ row }) => (
-			<div className="text-left truncate font-mono text-xs pl-2" title={String(row.getValue("transactionId"))}>
+			<div
+				className="text-left truncate font-mono text-xs pl-2"
+				title={String(row.getValue("transactionId"))}
+			>
 				{row.getValue("transactionId")}
 			</div>
 		),
@@ -83,7 +86,10 @@ export const virtualTransactionColumns: ColumnDef<VirtualTransaction>[] = [
 		maxSize: 60,
 		enableResizing: false,
 		cell: ({ row }) => (
-			<div className="text-left truncate font-mono text-xs" title={row.getValue("orderId")}>
+			<div
+				className="text-left truncate font-mono text-xs"
+				title={row.getValue("orderId")}
+			>
 				{row.getValue("orderId")}
 			</div>
 		),
@@ -96,7 +102,10 @@ export const virtualTransactionColumns: ColumnDef<VirtualTransaction>[] = [
 		maxSize: 60,
 		enableResizing: false,
 		cell: ({ row }) => (
-			<div className="text-left truncate font-mono text-xs" title={row.getValue("positionId")}>
+			<div
+				className="text-left truncate font-mono text-xs"
+				title={row.getValue("positionId")}
+			>
 				{row.getValue("positionId")}
 			</div>
 		),
@@ -106,7 +115,10 @@ export const virtualTransactionColumns: ColumnDef<VirtualTransaction>[] = [
 		header: "节点ID",
 		size: 140,
 		cell: ({ row }) => (
-			<div className="text-left truncate font-mono text-xs" title={row.getValue("nodeId")}>
+			<div
+				className="text-left truncate font-mono text-xs"
+				title={row.getValue("nodeId")}
+			>
 				{row.getValue("nodeId")}
 			</div>
 		),
@@ -118,7 +130,11 @@ export const virtualTransactionColumns: ColumnDef<VirtualTransaction>[] = [
 		cell: ({ row }) => {
 			const exchange = row.getValue("exchange") as string;
 			return (
-				<Badge variant="outline" className="text-xs justify-start font-mono overflow-hidden text-ellipsis whitespace-nowrap max-w-full" title={exchange}>
+				<Badge
+					variant="outline"
+					className="text-xs justify-start font-mono overflow-hidden text-ellipsis whitespace-nowrap max-w-full"
+					title={exchange}
+				>
 					{exchange}
 				</Badge>
 			);
@@ -129,7 +145,10 @@ export const virtualTransactionColumns: ColumnDef<VirtualTransaction>[] = [
 		header: "交易对",
 		size: 100,
 		cell: ({ row }) => (
-			<div className="text-left truncate font-mono text-xs" title={row.getValue("symbol")}>
+			<div
+				className="text-left truncate font-mono text-xs"
+				title={row.getValue("symbol")}
+			>
 				{row.getValue("symbol")}
 			</div>
 		),
@@ -142,7 +161,10 @@ export const virtualTransactionColumns: ColumnDef<VirtualTransaction>[] = [
 			const type = row.getValue("transactionType") as TransactionType;
 			return (
 				<div className="flex justify-start">
-					<Badge className={`${getTransactionTypeStyle(type)} font-mono text-xs overflow-hidden text-ellipsis whitespace-nowrap max-w-full`} title={getTransactionTypeText(type)}>
+					<Badge
+						className={`${getTransactionTypeStyle(type)} font-mono text-xs overflow-hidden text-ellipsis whitespace-nowrap max-w-full`}
+						title={getTransactionTypeText(type)}
+					>
 						{getTransactionTypeText(type)}
 					</Badge>
 				</div>
@@ -157,7 +179,10 @@ export const virtualTransactionColumns: ColumnDef<VirtualTransaction>[] = [
 			const side = row.getValue("transactionSide") as TransactionSide;
 			return (
 				<div className="flex justify-start">
-					<Badge className={`${getTransactionSideStyle(side)} font-mono text-xs overflow-hidden text-ellipsis whitespace-nowrap max-w-full`} title={getTransactionSideText(side)}>
+					<Badge
+						className={`${getTransactionSideStyle(side)} font-mono text-xs overflow-hidden text-ellipsis whitespace-nowrap max-w-full`}
+						title={getTransactionSideText(side)}
+					>
 						{getTransactionSideText(side)}
 					</Badge>
 				</div>
@@ -201,7 +226,11 @@ export const virtualTransactionColumns: ColumnDef<VirtualTransaction>[] = [
 		cell: ({ row }) => {
 			const profit = row.getValue("profit") as number | null;
 			if (profit === null || profit === undefined) {
-				return <div className="pl-2 text-left font-mono text-sm text-gray-400">-</div>;
+				return (
+					<div className="pl-2 text-left font-mono text-sm text-gray-400">
+						-
+					</div>
+				);
 			}
 			const formatted = new Intl.NumberFormat("zh-CN", {
 				minimumFractionDigits: 2,
@@ -210,16 +239,16 @@ export const virtualTransactionColumns: ColumnDef<VirtualTransaction>[] = [
 			}).format(profit);
 			const isPositive = profit > 0;
 			const isNegative = profit < 0;
-			
+
 			return (
-				<div 
+				<div
 					className={`text-left font-mono text-sm truncate ${
-						isPositive 
-							? "text-green-600 dark:text-green-400" 
-							: isNegative 
-								? "text-red-600 dark:text-red-400" 
+						isPositive
+							? "text-green-600 dark:text-green-400"
+							: isNegative
+								? "text-red-600 dark:text-red-400"
 								: "text-gray-600 dark:text-gray-400"
-					}`} 
+					}`}
 					title={formatted}
 				>
 					{formatted}
@@ -233,8 +262,10 @@ export const virtualTransactionColumns: ColumnDef<VirtualTransaction>[] = [
 		size: 140,
 		cell: ({ row }) => {
 			const datetime = row.getValue("createTime") as string;
-			const timeStr = DateTime.fromISO(datetime).toFormat("yyyy-MM-dd HH:mm:ss");
-			
+			const timeStr = DateTime.fromISO(datetime).toFormat(
+				"yyyy-MM-dd HH:mm:ss",
+			);
+
 			return (
 				<div className="text-sm font-mono truncate" title={timeStr}>
 					{timeStr}

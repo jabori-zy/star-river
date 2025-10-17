@@ -102,7 +102,6 @@ const PositionRecord = forwardRef<PositionRecordRef, PositionRecordProps>(
 				} else if (positionEvent.event === "position-closed-event") {
 					// 如果显示历史持仓，则不删除已平仓的持仓
 					if (!isShowHistoryPosition) {
-						
 						// 删除已平仓的持仓
 						setPositionData((prev) =>
 							prev.filter(

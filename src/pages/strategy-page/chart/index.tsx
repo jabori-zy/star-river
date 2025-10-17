@@ -1,5 +1,8 @@
 import { PlusCircle } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import MultipleSelector, {
+	type Option,
+} from "@/components/select-components/multi-select";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -19,7 +22,6 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import MultipleSelector, { type Option } from "@/components/ui/multi-select";
 import {
 	Select,
 	SelectContent,

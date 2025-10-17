@@ -1,43 +1,34 @@
 import type { LogLevel } from "./index";
 
-
-
 export enum StrategyRunningLogSource {
-    VirtualTradingSystem = "VirtualTradingSystem",
-    Node = "Node",
+	VirtualTradingSystem = "VirtualTradingSystem",
+	Node = "Node",
 }
-
-
 
 export enum StrategyRunningLogType {
-    ConditionMatch = "ConditionMatch",
+	ConditionMatch = "ConditionMatch",
 }
-
-
-
-
-
 
 export type StrategyRunningLogEvent = {
-    strategyId: number,
+	strategyId: number;
 
-    nodeId: string,
+	nodeId: string;
 
-    nodeName: string,
+	nodeName: string;
 
-    source: StrategyRunningLogSource,
+	source: StrategyRunningLogSource;
 
-    logLevel: LogLevel,
+	logLevel: LogLevel;
 
-    logType: StrategyRunningLogType,
+	logType: StrategyRunningLogType;
 
-    message: string,
+	message: string;
 
-    detail: object,
+	detail: object;
 
-    errorCode: string | null,
+	errorCode: string | null;
 
-    errorCodeChain: string[] | null,
+	errorCodeChain: string[] | null;
 
-    datetime: string,
-}
+	datetime: string;
+};

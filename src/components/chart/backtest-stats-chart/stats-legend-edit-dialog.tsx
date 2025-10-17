@@ -38,7 +38,8 @@ export function StatsLegendEditDialog({
 	onOpenChange,
 	statsName,
 }: StatsLegendEditDialogProps) {
-	const { getStatsChartConfig, updateStatsColor } = useBacktestStatsChartConfigStore();
+	const { getStatsChartConfig, updateStatsColor } =
+		useBacktestStatsChartConfigStore();
 	const [tempColor, setTempColor] = useState<string>("#000000");
 	const [originalColor, setOriginalColor] = useState<string>("#000000");
 
@@ -88,9 +89,7 @@ export function StatsLegendEditDialog({
 							<ColorPicker
 								value={tempColor}
 								onChange={(color) => setTempColor(color)}
-								onChangeComplete={(colorValue) =>
-									setTempColor(colorValue.hex)
-								}
+								onChangeComplete={(colorValue) => setTempColor(colorValue.hex)}
 								showAlpha={true}
 								showPresets={true}
 								presetColors={STATS_PRESET_COLORS}

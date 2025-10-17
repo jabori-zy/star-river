@@ -1,9 +1,6 @@
 import { z } from "zod";
 import { SeriesType } from "@/types/chart";
-import {
-	IndicatorCategory,
-	IndicatorType,
-} from "@/types/indicator";
+import { IndicatorCategory, IndicatorType } from "@/types/indicator";
 import {
 	createParseIndicatorConfigFromKeyStr,
 	getIndicatorValues,
@@ -27,13 +24,27 @@ export type SAREXTConfigType = z.infer<typeof SAREXTConfigSchema>;
 function buildSAREXTConfig(params: Map<string, string>): unknown {
 	return {
 		startValue: Number.parseFloat(params.get("start_value") || "0.0"),
-		offsetOnReverse: Number.parseFloat(params.get("offset_on_reverse") || "0.0"),
-		accelerationInitLong: Number.parseFloat(params.get("acceleration_init_long") || "0.02"),
-		accelerationLong: Number.parseFloat(params.get("acceleration_long") || "0.02"),
-		accelerationMaxLong: Number.parseFloat(params.get("acceleration_max_long") || "0.2"),
-		accelerationInitShort: Number.parseFloat(params.get("acceleration_init_short") || "0.02"),
-		accelerationShort: Number.parseFloat(params.get("acceleration_short") || "0.02"),
-		accelerationMaxShort: Number.parseFloat(params.get("acceleration_max_short") || "0.2"),
+		offsetOnReverse: Number.parseFloat(
+			params.get("offset_on_reverse") || "0.0",
+		),
+		accelerationInitLong: Number.parseFloat(
+			params.get("acceleration_init_long") || "0.02",
+		),
+		accelerationLong: Number.parseFloat(
+			params.get("acceleration_long") || "0.02",
+		),
+		accelerationMaxLong: Number.parseFloat(
+			params.get("acceleration_max_long") || "0.2",
+		),
+		accelerationInitShort: Number.parseFloat(
+			params.get("acceleration_init_short") || "0.02",
+		),
+		accelerationShort: Number.parseFloat(
+			params.get("acceleration_short") || "0.02",
+		),
+		accelerationMaxShort: Number.parseFloat(
+			params.get("acceleration_max_short") || "0.2",
+		),
 	};
 }
 

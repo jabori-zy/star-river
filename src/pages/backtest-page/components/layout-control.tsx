@@ -57,7 +57,9 @@ export default function LayoutControl({
 							{currentOption && (
 								<>
 									<currentOption.icon className="h-4 w-4 flex-shrink-0" />
-									<span className="hidden xl:inline whitespace-nowrap">{currentOption.label}</span>
+									<span className="hidden xl:inline whitespace-nowrap">
+										{currentOption.label}
+									</span>
 								</>
 							)}
 						</div>

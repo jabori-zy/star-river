@@ -1,9 +1,6 @@
 import { z } from "zod";
 import { SeriesType } from "@/types/chart";
-import {
-	IndicatorCategory,
-	IndicatorType,
-} from "@/types/indicator";
+import { IndicatorCategory, IndicatorType } from "@/types/indicator";
 import {
 	createParseIndicatorConfigFromKeyStr,
 	getIndicatorValues,
@@ -15,7 +12,9 @@ const CDLINVERTEDHAMMERConfigSchema = z.object({
 	// CDLINVERTEDHAMMER 没有参数
 });
 
-export type CDLINVERTEDHAMMERConfigType = z.infer<typeof CDLINVERTEDHAMMERConfigSchema>;
+export type CDLINVERTEDHAMMERConfigType = z.infer<
+	typeof CDLINVERTEDHAMMERConfigSchema
+>;
 
 function buildCDLINVERTEDHAMMERConfig(_params: Map<string, string>): unknown {
 	return {
@@ -23,58 +22,61 @@ function buildCDLINVERTEDHAMMERConfig(_params: Map<string, string>): unknown {
 	};
 }
 
-export const CDLINVERTEDHAMMERConfig: IndicatorConfig<CDLINVERTEDHAMMERConfigType> = {
-	category: IndicatorCategory.PATTERN_RECOGNITION,
-	type: IndicatorType.CDLINVERTEDHAMMER,
-	displayName: "CDLINVERTEDHAMMER",
-	description: "Inverted Hammer",
-	params: {
-		// CDLINVERTEDHAMMER 没有参数
-	},
-	indicatorValueConfig: {
-		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },
-		inverted_hammer: { label: "inverted_hammer", value: 0, legendShowName: "invertedhammer" },
-	},
-	chartConfig: {
-		isInMainChart: false,
-		seriesConfigs: [
-			{
-				name: "inverted_hammer",
-				type: SeriesType.COLUMN,
-				color: "#D4A574",
-				lineWidth: 1,
-				indicatorValueKey: "inverted_hammer" as keyof IndicatorValueConfig,
+export const CDLINVERTEDHAMMERConfig: IndicatorConfig<CDLINVERTEDHAMMERConfigType> =
+	{
+		category: IndicatorCategory.PATTERN_RECOGNITION,
+		type: IndicatorType.CDLINVERTEDHAMMER,
+		displayName: "CDLINVERTEDHAMMER",
+		description: "Inverted Hammer",
+		params: {
+			// CDLINVERTEDHAMMER 没有参数
+		},
+		indicatorValueConfig: {
+			timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },
+			inverted_hammer: {
+				label: "inverted_hammer",
+				value: 0,
+				legendShowName: "invertedhammer",
 			},
-		],
-	},
+		},
+		chartConfig: {
+			isInMainChart: false,
+			seriesConfigs: [
+				{
+					name: "inverted_hammer",
+					type: SeriesType.COLUMN,
+					color: "#D4A574",
+					lineWidth: 1,
+					indicatorValueKey: "inverted_hammer" as keyof IndicatorValueConfig,
+				},
+			],
+		},
 
-	getDefaultConfig(): CDLINVERTEDHAMMERConfigType {
-		const config = Object.fromEntries(
-			Object.entries(this.params).map(([_key, _param]) => [
-				{},
-			]),
-		);
+		getDefaultConfig(): CDLINVERTEDHAMMERConfigType {
+			const config = Object.fromEntries(
+				Object.entries(this.params).map(([_key, _param]) => [{}]),
+			);
 
-		const validatedConfig = CDLINVERTEDHAMMERConfigSchema.parse(config);
-		return validatedConfig;
-	},
+			const validatedConfig = CDLINVERTEDHAMMERConfigSchema.parse(config);
+			return validatedConfig;
+		},
 
-	getValue() {
-		return getIndicatorValues(this.indicatorValueConfig);
-	},
+		getValue() {
+			return getIndicatorValues(this.indicatorValueConfig);
+		},
 
-	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
-		IndicatorType.CDLINVERTEDHAMMER,
-		CDLINVERTEDHAMMERConfigSchema,
-		buildCDLINVERTEDHAMMERConfig,
-	),
+		parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
+			IndicatorType.CDLINVERTEDHAMMER,
+			CDLINVERTEDHAMMERConfigSchema,
+			buildCDLINVERTEDHAMMERConfig,
+		),
 
-	validateConfig(config: unknown): config is CDLINVERTEDHAMMERConfigType {
-		try {
-			CDLINVERTEDHAMMERConfigSchema.parse(config);
-			return true;
-		} catch {
-			return false;
-		}
-	},
-};
+		validateConfig(config: unknown): config is CDLINVERTEDHAMMERConfigType {
+			try {
+				CDLINVERTEDHAMMERConfigSchema.parse(config);
+				return true;
+			} catch {
+				return false;
+			}
+		},
+	};

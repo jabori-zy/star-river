@@ -1,5 +1,5 @@
 import type React from "react";
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,17 +10,20 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
+import { connectExchange, getExchangeStatus } from "@/service/exchange";
 import { useStartNodeDataStore } from "@/store/node/use-start-node-data-store";
-import { type SelectedAccount, TradeMode } from "@/types/strategy";
 import type { ExchangeStatus } from "@/types/market";
-import { getExchangeStatus, connectExchange } from "@/service/exchange";
+import { type SelectedAccount, TradeMode } from "@/types/strategy";
 
 interface AccountSelectorProps {
 	label: string;
 	tradeMode: TradeMode;
 	selectedAccount: SelectedAccount | null; // 当前选中的账户
 	onAccountChange: (account: SelectedAccount) => void; // 账户变更回调
-	onConnectionStatusChange?: (status: ExchangeStatus, accountId: number) => void; // 连接状态变化回调
+	onConnectionStatusChange?: (
+		status: ExchangeStatus,
+		accountId: number,
+	) => void; // 连接状态变化回调
 }
 
 // 已选择的账户列表
@@ -51,7 +54,9 @@ const AccountSelector: React.FC<AccountSelectorProps> = ({
 	const [hasAccounts, setHasAccounts] = useState<boolean>(
 		accountList.length > 0,
 	);
-	const [exchangeStatus, setExchangeStatus] = useState<ExchangeStatus | null>(null);
+	const [exchangeStatus, setExchangeStatus] = useState<ExchangeStatus | null>(
+		null,
+	);
 	const [isConnecting, setIsConnecting] = useState(false);
 	const pollingTimer = useRef<NodeJS.Timeout | null>(null);
 
@@ -165,26 +170,28 @@ const AccountSelector: React.FC<AccountSelectorProps> = ({
 			<div className="text-sm font-bold">{label}</div>
 
 			{/* 交易所未连接提示 */}
-			{localSelectedAccount && exchangeStatus && exchangeStatus !== "Connected" && (
-				<p className="text-sm text-gray-700">
-					{localSelectedAccount.accountName} 未连接.{" "}
-					<Button
-						variant="link"
-						className="h-auto p-0 text-sm text-yellow-600 hover:underline"
-						onClick={handleConnect}
-						disabled={isConnecting}
-					>
-						{isConnecting ? (
-							<span className="flex items-center gap-1">
-								<Spinner className="h-3 w-3" />
-								连接中...
-							</span>
-						) : (
-							"点击连接"
-						)}
-					</Button>
-				</p>
-			)}
+			{localSelectedAccount &&
+				exchangeStatus &&
+				exchangeStatus !== "Connected" && (
+					<p className="text-sm text-gray-700">
+						{localSelectedAccount.accountName} 未连接.{" "}
+						<Button
+							variant="link"
+							className="h-auto p-0 text-sm text-yellow-600 hover:underline"
+							onClick={handleConnect}
+							disabled={isConnecting}
+						>
+							{isConnecting ? (
+								<span className="flex items-center gap-1">
+									<Spinner className="h-3 w-3" />
+									连接中...
+								</span>
+							) : (
+								"点击连接"
+							)}
+						</Button>
+					</p>
+				)}
 
 			<Select
 				disabled={!hasAccounts}

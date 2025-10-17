@@ -1,17 +1,12 @@
 import { z } from "zod";
 import { SeriesType } from "@/types/chart";
-import {
-	IndicatorCategory,
-	IndicatorType,
-} from "@/types/indicator";
+import { IndicatorCategory, IndicatorType } from "@/types/indicator";
 import {
 	createParseIndicatorConfigFromKeyStr,
 	getIndicatorValues,
 	type IndicatorConfig,
 } from "@/types/indicator/indicator-config";
-import type {
-	IndicatorValueConfig,
-} from "@/types/indicator/schemas";
+import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const MinusDmConfigSchema = z.object({
 	timePeriod: z.number().int().positive(),

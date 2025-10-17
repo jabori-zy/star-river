@@ -43,7 +43,11 @@ export const HtTrendlineConfig: IndicatorConfig<HtTrendlineConfigType> = {
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },
-		ht_trendline: { label: "ht_trendline", value: 0, legendShowName: "ht_trendline" },
+		ht_trendline: {
+			label: "ht_trendline",
+			value: 0,
+			legendShowName: "ht_trendline",
+		},
 	},
 	chartConfig: {
 		isInMainChart: true,

@@ -1,7 +1,14 @@
 import type { IndicatorKeyStr, KlineKeyStr } from "@/types/symbol-key";
-import type { SliceCreator, VisibilitySlice, BacktestChartStore } from "./types";
+import type {
+	BacktestChartStore,
+	SliceCreator,
+	VisibilitySlice,
+} from "./types";
 
-export const createVisibilitySlice: SliceCreator<VisibilitySlice> = (set, get) => ({
+export const createVisibilitySlice: SliceCreator<VisibilitySlice> = (
+	set,
+	get,
+) => ({
 	// 初始状态：所有指标和K线默认可见
 	indicatorVisibilityMap: {},
 	klineVisibilityMap: {},

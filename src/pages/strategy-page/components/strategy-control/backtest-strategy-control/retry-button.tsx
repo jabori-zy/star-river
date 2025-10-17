@@ -1,7 +1,7 @@
 import { RefreshCw } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { initStrategy } from "@/service/strategy";
-import { toast } from "sonner";
 import useStrategyLoadingStore from "@/store/useStrategyLoadingStore";
 
 // 运行策略
@@ -20,7 +20,8 @@ interface RetryButtonProps {
 }
 
 const RetryButton: React.FC<RetryButtonProps> = ({ strategyId }) => {
-	const { startLoading, setInitializing, setFailed } = useStrategyLoadingStore();
+	const { startLoading, setInitializing, setFailed } =
+		useStrategyLoadingStore();
 
 	const handleRetry = async () => {
 		if (!strategyId) return;
@@ -31,19 +32,19 @@ const RetryButton: React.FC<RetryButtonProps> = ({ strategyId }) => {
 		try {
 			// 设置初始化状态
 			setInitializing(true);
-			
+
 			// 先初始化策略
 			await initStrategy(strategyId);
-			
+
 			// 策略初始化成功，启动全局加载状态
 			startLoading(strategyId);
-			
+
 			// 运行策略
 			requestRunStrategy(strategyId);
 		} catch (error: unknown) {
 			// 初始化失败，重置状态
 			setInitializing(false);
-			
+
 			// 处理409错误（策略正在运行）
 			const axiosError = error as { response?: { status?: number } };
 			if (axiosError?.response?.status === 409) {

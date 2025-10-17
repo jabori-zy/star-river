@@ -9,11 +9,9 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 // TRANGE 指标配置的 Zod schema
-const TRANGEConfigSchema = z.object(
-	{
-		timePeriod: z.number().int().positive(),
-	},
-);
+const TRANGEConfigSchema = z.object({
+	timePeriod: z.number().int().positive(),
+});
 
 export type TRANGEConfigType = z.infer<typeof TRANGEConfigSchema>;
 

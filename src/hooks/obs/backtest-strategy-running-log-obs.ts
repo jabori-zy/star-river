@@ -1,8 +1,8 @@
 import { BehaviorSubject, Observable, Subject } from "rxjs";
 import { share, takeUntil } from "rxjs/operators";
 import type { StrategyRunningLogEvent } from "@/types/strategy-event/strategy-running-log-event";
-import { SSEConnectionState } from "./backtest-strategy-event-obs";
 import { BACKTEST_STRATEGY_RUNNING_LOG_URL } from ".";
+import { SSEConnectionState } from "./backtest-strategy-event-obs";
 
 /**
  * 回测策略运行日志Observable服务
@@ -28,7 +28,9 @@ class BacktestStrategyRunningLogObservableService {
 	 * @param enabled 是否启用连接
 	 * @returns 策略运行日志数据更新的Observable流
 	 */
-	createBacktestStrategyRunningLogStream(enabled: boolean = true): Observable<StrategyRunningLogEvent> {
+	createBacktestStrategyRunningLogStream(
+		enabled: boolean = true,
+	): Observable<StrategyRunningLogEvent> {
 		if (!enabled) {
 			this.disconnect();
 			return new Observable((subscriber) => {
@@ -91,7 +93,6 @@ class BacktestStrategyRunningLogObservableService {
 	 * 处理SSE消息
 	 */
 	private handleMessage(event: MessageEvent): void {
-
 		try {
 			const logEvent = JSON.parse(event.data) as StrategyRunningLogEvent;
 			this.logDataSubject.next(logEvent);
@@ -144,8 +145,12 @@ const backtestStrategyRunningLogObservableService =
 export default backtestStrategyRunningLogObservableService;
 
 // 导出便捷函数
-export const createBacktestStrategyRunningLogStream = (enabled: boolean = true) =>
-	backtestStrategyRunningLogObservableService.createBacktestStrategyRunningLogStream(enabled);
+export const createBacktestStrategyRunningLogStream = (
+	enabled: boolean = true,
+) =>
+	backtestStrategyRunningLogObservableService.createBacktestStrategyRunningLogStream(
+		enabled,
+	);
 
 // 连接管理
 export const getRunningLogConnectionState = () =>

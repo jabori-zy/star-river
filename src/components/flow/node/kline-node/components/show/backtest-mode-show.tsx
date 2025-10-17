@@ -2,7 +2,7 @@ import type React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import type { KlineNodeBacktestConfig } from "@/types/node/kline-node";
-import { SymbolItem } from "../index";
+import { SymbolItem } from "./kline-config-show-item";
 
 interface BacktestModeShowProps {
 	backtestConfig: KlineNodeBacktestConfig;
@@ -71,7 +71,8 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 					</div>
 				)}
 			</div>
-			<div className="flex flex-col gap-2">
+			{/* 回测时间范围展示 */}
+			<div className="space-y-2">
 				{!localTimeRange?.startDate || !localTimeRange?.endDate ? (
 					<div className="flex items-center justify-between gap-2 rounded-md">
 						<Label className="text-xm font-bold text-muted-foreground">
@@ -84,10 +85,15 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 						<Label className="text-xm font-bold text-muted-foreground">
 							回测时间范围
 						</Label>
-						<div className="flex items-center gap-2 bg-gray-100 p-2 rounded-md mt-1">
-							<span className="text-xs">
-								{localTimeRange.startDate} ~ {localTimeRange.endDate}
-							</span>
+						<div className="flex flex-col gap-1 text-sm bg-gray-100 p-2 rounded-md mt-2">
+							<div className="flex items-center gap-2">
+								<span className="text-gray-600">开始时间:</span>
+								<span className="font-medium">{localTimeRange.startDate}</span>
+							</div>
+							<div className="flex items-center gap-2">
+								<span className="text-gray-600">结束时间:</span>
+								<span className="font-medium">{localTimeRange.endDate}</span>
+							</div>
 						</div>
 					</div>
 				)}
