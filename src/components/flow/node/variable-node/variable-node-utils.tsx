@@ -180,8 +180,7 @@ const generateBooleanHint = (params: HintGeneratorParams): React.ReactNode => {
 		return (
 			<>
 				{triggerPrefix}
-				{generateVariableHighlight(variableDisplayName)} 将在 True/False
-				之间切换
+				{generateVariableHighlight(variableDisplayName)} 将在 True/False 之间切换
 			</>
 		);
 	}
