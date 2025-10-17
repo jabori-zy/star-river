@@ -2,7 +2,8 @@ import { DateTimePicker24h } from "@/components/datetime-picker";
 import { formatDate } from "@/components/flow/node/node-utils";
 import { SelectInDialog } from "@/components/select-components/select-in-dialog";
 import type {
-	TriggerCase,
+	TimerTrigger,
+	ConditionTrigger,
 	UpdateOperationType,
 } from "@/types/node/variable-node";
 import {
@@ -17,7 +18,8 @@ interface TimeTypeOpEditorProps {
 	onUpdateOperationTypeChange: (operation: UpdateOperationType) => void;
 	onUpdateValueChange: (value: string) => void;
 	variableDisplayName?: string;
-	triggerCase?: TriggerCase | null;
+	triggerCase?: ConditionTrigger | null;
+	timerConfig?: TimerTrigger;
 }
 
 const TimeTypeOpEditor: React.FC<TimeTypeOpEditorProps> = ({
@@ -28,6 +30,7 @@ const TimeTypeOpEditor: React.FC<TimeTypeOpEditorProps> = ({
 	onUpdateValueChange,
 	variableDisplayName,
 	triggerCase,
+	timerConfig,
 }) => {
 	// 获取触发信息
 	const triggerNodeName = triggerCase?.fromNodeName;
@@ -80,6 +83,7 @@ const TimeTypeOpEditor: React.FC<TimeTypeOpEditorProps> = ({
 						value: updateValue,
 						triggerNodeName: triggerNodeName,
 						triggerCaseLabel: triggerCaseLabel || undefined,
+					timerConfig: timerConfig,
 					})}
 				</p>
 			)}

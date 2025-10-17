@@ -1,8 +1,7 @@
-import { Clock, Filter, Workflow } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-
-type TriggerType = "condition" | "timer" | "dataflow";
+import { getTriggerTypeInfo } from "@/components/flow/node/variable-node/variable-node-utils";
+import type { TriggerType } from "@/types/node/variable-node";
 
 interface TriggerTypeConfigProps {
 	triggerType: TriggerType;
@@ -11,26 +10,7 @@ interface TriggerTypeConfigProps {
 	idPrefix?: string;
 }
 
-const TRIGGER_OPTIONS = [
-	{
-		type: "condition" as const,
-		icon: Filter,
-		label: "条件触发",
-		color: "text-orange-500",
-	},
-	{
-		type: "timer" as const,
-		icon: Clock,
-		label: "定时触发",
-		color: "text-blue-500",
-	},
-	{
-		type: "dataflow" as const,
-		icon: Workflow,
-		label: "数据流触发",
-		color: "text-blue-500",
-	},
-];
+const TRIGGER_TYPES: TriggerType[] = ["condition", "timer", "dataflow"];
 
 const TriggerTypeConfig: React.FC<TriggerTypeConfigProps> = ({
 	triggerType,
@@ -39,28 +19,25 @@ const TriggerTypeConfig: React.FC<TriggerTypeConfigProps> = ({
 	idPrefix = "trigger",
 }) => {
 	// 如果指定了 availableTriggers，则只显示指定的触发类型；否则显示全部
-	const displayOptions = availableTriggers
-		? TRIGGER_OPTIONS.filter((option) =>
-				availableTriggers.includes(option.type),
-			)
-		: TRIGGER_OPTIONS;
+	const displayTypes = availableTriggers || TRIGGER_TYPES;
 
 	return (
 		<div className="space-y-1">
 			<Label className="text-sm font-medium">触发方式</Label>
 			<div className="flex items-center space-x-6 pt-1">
-				{displayOptions.map((option) => {
-					const IconComponent = option.icon;
-					const triggerId = `${idPrefix}-${option.type}-trigger`;
+				{displayTypes.map((type) => {
+					const typeInfo = getTriggerTypeInfo(type);
+					const IconComponent = typeInfo.icon;
+					const triggerId = `${idPrefix}-${type}-trigger`;
 
 					return (
-						<div key={option.type} className="flex items-center space-x-2">
+						<div key={type} className="flex items-center space-x-2">
 							<Checkbox
 								id={triggerId}
-								checked={triggerType === option.type}
+								checked={triggerType === type}
 								onCheckedChange={(checked) => {
 									if (checked) {
-										onTriggerTypeChange(option.type);
+										onTriggerTypeChange(type);
 									}
 								}}
 							/>
@@ -68,8 +45,8 @@ const TriggerTypeConfig: React.FC<TriggerTypeConfigProps> = ({
 								htmlFor={triggerId}
 								className="text-sm cursor-pointer flex items-center"
 							>
-								<IconComponent className={`h-3.5 w-3.5 mr-1 ${option.color}`} />
-								{option.label}
+								<IconComponent className={`h-3.5 w-3.5 mr-1 ${typeInfo.color}`} />
+								{typeInfo.label}
 							</Label>
 						</div>
 					);

@@ -3,6 +3,10 @@ import { Clock, Filter } from "lucide-react";
 import BaseHandle from "@/components/flow/base/BaseHandle";
 import type { VariableConfig } from "@/types/node/variable-node";
 import {
+	getEffectiveTriggerType,
+	getTimerTriggerConfig,
+} from "@/types/node/variable-node";
+import {
 	formatSymbolDisplay,
 	getTimerConfigDisplay,
 	getVariableLabel,
@@ -17,6 +21,14 @@ export function VariableHandleItem({
 	id,
 	variableConfig,
 }: VariableHandleItemProps) {
+	const effectiveTriggerType =
+		getEffectiveTriggerType(variableConfig);
+	const timerConfigForDisplay = getTimerTriggerConfig(variableConfig);
+	const triggerTypeForIcon =
+		effectiveTriggerType === "timer" || effectiveTriggerType === "condition"
+			? effectiveTriggerType
+			: null;
+
 	return (
 		<div className="relative">
 			{/* 标题 */}
@@ -40,24 +52,24 @@ export function VariableHandleItem({
 							<span className="text-sm font-medium truncate">
 								{variableConfig.varDisplayName}
 							</span>
-							{variableConfig.varTriggerType === "timer" && (
+							{triggerTypeForIcon === "timer" && (
 								<Clock className="h-3 w-3 text-blue-500" />
 							)}
-							{variableConfig.varTriggerType === "condition" && (
+							{triggerTypeForIcon === "condition" && (
 								<Filter className="h-3 w-3 text-orange-500" />
 							)}
 						</div>
 
 						<div className="flex items-center gap-2 text-xs text-muted-foreground">
-							<span>{formatSymbolDisplay(variableConfig.symbol || null)}</span>
+							<span>{formatSymbolDisplay(("symbol" in variableConfig ? variableConfig.symbol : null) || null)}</span>
 							<span>•</span>
 							<span>{getVariableLabel(variableConfig.varName)}</span>
-							{variableConfig.varTriggerType === "timer" &&
-								variableConfig.timerConfig && (
+							{triggerTypeForIcon === "timer" &&
+								timerConfigForDisplay && (
 									<>
 										<span>•</span>
 										<span>
-											{getTimerConfigDisplay(variableConfig.timerConfig)}
+											{getTimerConfigDisplay(timerConfigForDisplay)}
 										</span>
 									</>
 								)}

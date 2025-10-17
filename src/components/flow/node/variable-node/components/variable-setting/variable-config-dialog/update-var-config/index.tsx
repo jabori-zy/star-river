@@ -3,8 +3,8 @@ import { Label } from "@/components/ui/label";
 import type { VariableItem } from "@/hooks/flow/use-strategy-workflow";
 import type { NodeType } from "@/types/node/index";
 import type {
-	TimerConfig,
-	TriggerCase,
+	TimerTrigger,
+	ConditionTrigger,
 	UpdateOperationType,
 } from "@/types/node/variable-node";
 import { type CustomVariable, VariableValueType } from "@/types/variable";
@@ -24,12 +24,12 @@ interface UpdateVarConfigProps {
 	updateOperationType: UpdateOperationType;
 	updateValue: string;
 	updateTriggerType: "condition" | "timer" | "dataflow";
-	timerConfig: TimerConfig;
+	timerConfig: TimerTrigger;
 	customVariables: CustomVariable[];
 	customVariableOptions: Array<{ value: string; label: React.ReactNode }>;
 	variableItemList: VariableItem[];
 	caseItemList: CaseItemInfo[];
-	selectedTriggerCase: TriggerCase | null;
+	selectedTriggerCase: ConditionTrigger | null;
 	dataflowNodeId: string | null;
 	dataflowHandleId: string | null;
 	dataflowVariable: string | null;
@@ -40,8 +40,8 @@ interface UpdateVarConfigProps {
 	onUpdateTriggerTypeChange: (
 		value: "condition" | "timer" | "dataflow",
 	) => void;
-	onTimerConfigChange: (value: TimerConfig) => void;
-	onTriggerCaseChange: (value: TriggerCase | null) => void;
+	onTimerConfigChange: (value: TimerTrigger) => void;
+	onTriggerCaseChange: (value: ConditionTrigger | null) => void;
 	onDataflowNodeChange: (
 		nodeId: string,
 		nodeType: NodeType | null,
@@ -78,7 +78,8 @@ const renderOperationEditor = (
 	getUpdateOperationLabel: (type: UpdateOperationType) => string,
 	onUpdateOperationTypeChange: (value: UpdateOperationType) => void,
 	onUpdateValueChange: (value: string) => void,
-	triggerCase: TriggerCase | null,
+	triggerCase: ConditionTrigger | null,
+	timerConfig?: TimerTrigger,
 ): React.ReactNode => {
 	const selectedVar = customVariables.find(
 		(v: CustomVariable) => v.varName === variable,
@@ -113,6 +114,9 @@ const renderOperationEditor = (
 				triggerCase={
 					updateTriggerType === "condition" ? (triggerCase ?? null) : null
 				}
+				timerConfig={
+					updateTriggerType === "timer" ? timerConfig : undefined
+				}
 			/>
 		);
 	}
@@ -130,6 +134,9 @@ const renderOperationEditor = (
 				idPrefix="update-enum"
 				triggerCase={
 					updateTriggerType === "condition" ? (triggerCase ?? null) : null
+				}
+				timerConfig={
+					updateTriggerType === "timer" ? timerConfig : undefined
 				}
 			/>
 		);
@@ -149,6 +156,9 @@ const renderOperationEditor = (
 				triggerCase={
 					updateTriggerType === "condition" ? (triggerCase ?? null) : null
 				}
+				timerConfig={
+					updateTriggerType === "timer" ? timerConfig : undefined
+				}
 			/>
 		);
 	}
@@ -165,6 +175,9 @@ const renderOperationEditor = (
 				variableDisplayName={selectedVar?.varDisplayName}
 				triggerCase={
 					updateTriggerType === "condition" ? (triggerCase ?? null) : null
+				}
+				timerConfig={
+					updateTriggerType === "timer" ? timerConfig : undefined
 				}
 			/>
 		);
@@ -183,6 +196,9 @@ const renderOperationEditor = (
 			getPlaceholder={getUpdateOperationPlaceholder}
 			triggerCase={
 				updateTriggerType === "condition" ? (triggerCase ?? null) : null
+			}
+			timerConfig={
+				updateTriggerType === "timer" ? timerConfig : undefined
 			}
 		/>
 	);
@@ -335,6 +351,7 @@ const UpdateVarConfig: React.FC<UpdateVarConfigProps> = ({
 							onUpdateOperationTypeChange,
 							onUpdateValueChange,
 							selectedTriggerCase,
+							timerConfig,
 						)}
 					</div>
 				)}

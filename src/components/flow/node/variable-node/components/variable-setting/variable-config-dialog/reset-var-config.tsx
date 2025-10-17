@@ -1,9 +1,9 @@
-import { formatVariableValue } from "@/components/flow/node/start-node/components/utils";
 import { SelectInDialog } from "@/components/select-components/select-in-dialog";
 import { Label } from "@/components/ui/label";
-import type { TimerConfig, TriggerCase } from "@/types/node/variable-node";
+import type { TimerTrigger, ConditionTrigger } from "@/types/node/variable-node";
 import type { CustomVariable } from "@/types/variable";
-import { getTriggerCaseLabel } from "../../../variable-node-utils";
+import { formatVariableValue } from "@/components/flow/node/start-node/components/utils";
+import { generateResetHint, getTriggerCaseLabel } from "../../../variable-node-utils";
 import CaseSelector, { type CaseItemInfo } from "./components/case-selector";
 import TimerConfigComponent from "./components/timer";
 import TriggerTypeConfig from "./components/trigger-type-config";
@@ -11,16 +11,16 @@ import TriggerTypeConfig from "./components/trigger-type-config";
 interface ResetVarConfigProps {
 	variable: string;
 	triggerType: "condition" | "timer" | "dataflow";
-	timerConfig: TimerConfig;
+	timerConfig: TimerTrigger;
 	customVariables: CustomVariable[];
 	customVariableOptions: Array<{ value: string; label: React.ReactNode }>;
 	caseItemList: CaseItemInfo[];
-	selectedTriggerCase: TriggerCase | null;
+	selectedTriggerCase: ConditionTrigger | null;
 	varInitialValue: string | number | boolean | string[];
 	onVariableChange: (value: string) => void;
 	onTriggerTypeChange: (value: "condition" | "timer" | "dataflow") => void;
-	onTimerConfigChange: (value: TimerConfig) => void;
-	onTriggerCaseChange: (value: TriggerCase | null) => void;
+	onTimerConfigChange: (value: TimerTrigger) => void;
+	onTriggerCaseChange: (value: ConditionTrigger | null) => void;
 }
 
 const ResetVarConfig: React.FC<ResetVarConfigProps> = ({
@@ -58,39 +58,6 @@ const ResetVarConfig: React.FC<ResetVarConfigProps> = ({
 					disabled={customVariables.length === 0}
 					emptyMessage="未配置自定义变量，请在策略起点配置"
 				/>
-				{variable &&
-					(() => {
-						const selectedVar = customVariables.find(
-							(v: CustomVariable) => v.varName === variable,
-						);
-						const formattedValue = selectedVar
-							? formatVariableValue(varInitialValue, selectedVar.varValueType)
-							: String(varInitialValue);
-
-						// 获取触发信息
-						const triggerNodeName = selectedTriggerCase?.fromNodeName;
-						const triggerCaseLabel = getTriggerCaseLabel(selectedTriggerCase);
-
-						return (
-							<p className="text-xs text-muted-foreground">
-								{triggerType === "condition" &&
-									triggerNodeName &&
-									triggerCaseLabel && (
-										<>
-											当{" "}
-											<span className="text-blue-600 font-medium">
-												{triggerNodeName}/{triggerCaseLabel}
-											</span>{" "}
-											分支满足时，
-										</>
-									)}
-								变量值将被重置为:{" "}
-								<span className="font-semibold text-blue-600 px-1.5 py-0.5 rounded bg-blue-50">
-									{formattedValue}
-								</span>
-							</p>
-						);
-					})()}
 			</div>
 
 			{/* 触发方式 */}
@@ -112,17 +79,74 @@ const ResetVarConfig: React.FC<ResetVarConfigProps> = ({
 						selectedTriggerCase={selectedTriggerCase}
 						onTriggerCaseChange={onTriggerCaseChange}
 					/>
+					{variable &&
+						(() => {
+							const selectedVar = customVariables.find(
+								(v: CustomVariable) => v.varName === variable,
+							);
+							const variableDisplayName =
+								selectedVar?.varDisplayName || variable;
+							const formattedValue = selectedVar
+								? formatVariableValue(varInitialValue, selectedVar.varValueType)
+								: String(varInitialValue);
+
+							// 获取触发信息
+							const triggerNodeName = selectedTriggerCase?.fromNodeName;
+							const triggerCaseLabel =
+								getTriggerCaseLabel(selectedTriggerCase);
+
+						const hint = generateResetHint(variableDisplayName, {
+							varValueType: selectedVar?.varValueType,
+							value: formattedValue,
+							selectedValues: Array.isArray(varInitialValue)
+								? varInitialValue
+								: undefined,
+							triggerNodeName,
+							triggerCaseLabel: triggerCaseLabel || undefined,
+							timerConfig: undefined, // 条件触发模式下不需要 timerConfig
+						});
+
+							return hint ? (
+								<p className="text-xs text-muted-foreground">{hint}</p>
+							) : null;
+						})()}
 				</div>
 			)}
 
 			{/* 定时配置 */}
 			{triggerType === "timer" && (
-				<div className="rounded-md border border-gray-200 p-3">
-					<TimerConfigComponent
-						timerConfig={timerConfig}
-						onTimerConfigChange={onTimerConfigChange}
-					/>
-				</div>
+				<>
+					<div className="rounded-md border border-gray-200 p-3">
+						<TimerConfigComponent
+							timerConfig={timerConfig}
+							onTimerConfigChange={onTimerConfigChange}
+						/>
+					</div>
+					{variable &&
+						(() => {
+							const selectedVar = customVariables.find(
+								(v: CustomVariable) => v.varName === variable,
+							);
+							const variableDisplayName =
+								selectedVar?.varDisplayName || variable;
+							const formattedValue = selectedVar
+								? formatVariableValue(varInitialValue, selectedVar.varValueType)
+								: String(varInitialValue);
+
+							const hint = generateResetHint(variableDisplayName, {
+								varValueType: selectedVar?.varValueType,
+								value: formattedValue,
+								selectedValues: Array.isArray(varInitialValue)
+									? varInitialValue
+									: undefined,
+								timerConfig: timerConfig,
+							});
+
+							return hint ? (
+								<p className="text-xs text-muted-foreground mt-1">{hint}</p>
+							) : null;
+						})()}
+				</>
 			)}
 		</>
 	);

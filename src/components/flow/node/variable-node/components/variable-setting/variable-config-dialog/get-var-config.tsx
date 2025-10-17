@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { SelectWithSearch } from "@/components/select-components/select-with-search";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { TimerConfig, TriggerCase } from "@/types/node/variable-node";
+import type { TimerTrigger, ConditionTrigger } from "@/types/node/variable-node";
 import {
 	type CustomVariable,
 	getVariableTypeIcon,
@@ -11,6 +11,7 @@ import {
 	SYSTEM_VARIABLE_METADATA,
 	SystemVariable,
 } from "@/types/variable";
+import { generateGetHint, getTriggerCaseLabel } from "../../../variable-node-utils";
 import CaseSelector, { type CaseItemInfo } from "./components/case-selector";
 import type { SymbolSelectorOption } from "./components/symbol-selector";
 import SymbolSelector from "./components/symbol-selector";
@@ -22,20 +23,20 @@ interface GetVarConfigProps {
 	variableName: string;
 	variable: string;
 	triggerType: "condition" | "timer" | "dataflow";
-	timerConfig: TimerConfig;
+	timerConfig: TimerTrigger;
 	symbolOptions: SymbolSelectorOption[];
 	symbolPlaceholder: string;
 	symbolEmptyMessage: string;
 	isSymbolSelectorDisabled: boolean;
 	customVariables: CustomVariable[];
 	caseItemList: CaseItemInfo[];
-	selectedTriggerCase: TriggerCase | null;
+	selectedTriggerCase: ConditionTrigger | null;
 	onSymbolChange: (value: string) => void;
 	onVariableNameChange: (value: string) => void;
 	onVariableChange: (value: string) => void;
 	onTriggerTypeChange: (value: "condition" | "timer" | "dataflow") => void;
-	onTimerConfigChange: (value: TimerConfig) => void;
-	onTriggerCaseChange: (value: TriggerCase | null) => void;
+	onTimerConfigChange: (value: TimerTrigger) => void;
+	onTriggerCaseChange: (value: ConditionTrigger | null) => void;
 	onValidationChange?: (isValid: boolean) => void;
 }
 
@@ -109,21 +110,52 @@ const GetVarConfig: React.FC<GetVarConfigProps> = ({
 		}),
 	];
 
+	const selectedCustomVariable = variable
+		? customVariables.find((customVar) => customVar.varName === variable)
+		: undefined;
+
+	const selectedSystemMetadata =
+		variable && Object.values(SystemVariable).includes(variable as SystemVariable)
+			? SYSTEM_VARIABLE_METADATA[variable as SystemVariable]
+			: undefined;
+
+	const selectedVariableInfo = selectedCustomVariable
+		? {
+				displayName: selectedCustomVariable.varDisplayName,
+				varValueType: selectedCustomVariable.varValueType,
+			}
+		: selectedSystemMetadata
+			? {
+					displayName: selectedSystemMetadata.varDisplayName,
+					varValueType: selectedSystemMetadata.varValueType,
+				}
+			: variable
+				? {
+						displayName: variable,
+						varValueType: undefined,
+					}
+				: null;
+
+	const variableDisplayName = variableName || selectedVariableInfo?.displayName;
+	const variableValueType = selectedVariableInfo?.varValueType;
+
 	// 判断当前选中的变量是否需要选择交易对
-	const shouldShowSymbolSelector = () => {
-		if (!variable) return false;
+	const shouldShowSymbolSelector =
+		!!variable && (selectedSystemMetadata?.shouldSelectSymbol ?? false);
 
-		// 检查是否是系统变量
-		const isSystemVar = Object.values(SystemVariable).includes(
-			variable as SystemVariable,
+	// 当变量改变时，如果切换到自定义变量（不需要 symbol），则清空 symbol 字段
+	const handleVariableChange = (value: string) => {
+		onVariableChange(value);
+
+		// 检查新选择的变量是否是自定义变量
+		const isCustomVariable = customVariables.some(
+			(customVar) => customVar.varName === value
 		);
-		if (isSystemVar) {
-			const metadata = SYSTEM_VARIABLE_METADATA[variable as SystemVariable];
-			return metadata.shouldSelectSymbol;
-		}
 
-		// 自定义变量不需要选择交易对
-		return false;
+		// 如果是自定义变量，清空 symbol
+		if (isCustomVariable && symbol) {
+			onSymbolChange("");
+		}
 	};
 
 	// 验证配置是否完整
@@ -131,11 +163,34 @@ const GetVarConfig: React.FC<GetVarConfigProps> = ({
 		if (!onValidationChange) return;
 
 		// 如果需要选择交易对但未选择，则验证失败
-		const needsSymbol = shouldShowSymbolSelector();
-		const isValid = !needsSymbol || (needsSymbol && !!symbol);
+		const isValid =
+			!shouldShowSymbolSelector ||
+			(shouldShowSymbolSelector && !!symbol);
 
 		onValidationChange(isValid);
-	}, [variable, symbol, onValidationChange]);
+	}, [variable, symbol, shouldShowSymbolSelector, onValidationChange]);
+
+	const triggerNodeName = selectedTriggerCase?.fromNodeName;
+	const triggerCaseLabel = getTriggerCaseLabel(selectedTriggerCase);
+
+	const conditionHint =
+		triggerType === "condition" && variableDisplayName
+			? generateGetHint(variableDisplayName, {
+					varValueType: variableValueType,
+					triggerNodeName,
+					triggerCaseLabel: triggerCaseLabel || undefined,
+					symbol: symbol || undefined,
+				})
+			: null;
+
+	const timerHint =
+		triggerType === "timer" && variableDisplayName
+			? generateGetHint(variableDisplayName, {
+					varValueType: variableValueType,
+					timerConfig,
+					symbol: symbol || undefined,
+				})
+			: null;
 
 	return (
 		<>
@@ -149,7 +204,7 @@ const GetVarConfig: React.FC<GetVarConfigProps> = ({
 				<SelectWithSearch
 					id="variable"
 					value={variable}
-					onValueChange={onVariableChange}
+					onValueChange={handleVariableChange}
 					placeholder="选择变量"
 					searchPlaceholder="搜索变量..."
 					emptyMessage="未找到变量"
@@ -157,7 +212,7 @@ const GetVarConfig: React.FC<GetVarConfigProps> = ({
 				/>
 			</div>
 
-			{shouldShowSymbolSelector() && (
+			{shouldShowSymbolSelector && (
 				<div className="flex flex-col gap-2">
 					<Label
 						htmlFor="symbol"
@@ -212,15 +267,23 @@ const GetVarConfig: React.FC<GetVarConfigProps> = ({
 						selectedTriggerCase={selectedTriggerCase}
 						onTriggerCaseChange={onTriggerCaseChange}
 					/>
+					{conditionHint && (
+						<p className="text-xs text-muted-foreground">{conditionHint}</p>
+					)}
 				</div>
 			)}
 
 			{triggerType === "timer" && (
-				<div className="rounded-md border border-gray-200 p-3">
-					<TimerConfigComponent
-						timerConfig={timerConfig}
-						onTimerConfigChange={onTimerConfigChange}
-					/>
+				<div className="flex flex-col gap-2">
+					<div className="rounded-md border border-gray-200 p-3">
+						<TimerConfigComponent
+							timerConfig={timerConfig}
+							onTimerConfigChange={onTimerConfigChange}
+						/>
+					</div>
+					{timerHint && (
+						<p className="text-xs text-muted-foreground">{timerHint}</p>
+					)}
 				</div>
 			)}
 		</>

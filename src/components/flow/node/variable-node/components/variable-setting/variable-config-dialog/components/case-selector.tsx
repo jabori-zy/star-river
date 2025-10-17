@@ -3,7 +3,7 @@ import { SelectInDialog } from "@/components/select-components/select-in-dialog"
 import { ButtonGroup } from "@/components/ui/button-group";
 import type { CaseItem } from "@/types/node/if-else-node";
 import { NodeType } from "@/types/node/index";
-import type { TriggerCase } from "@/types/node/variable-node";
+import type { ConditionTrigger } from "@/types/node/variable-node";
 
 // Case 数据结构，与 getIfElseNodeCases 返回值匹配
 export interface CaseItemInfo {
@@ -15,8 +15,8 @@ export interface CaseItemInfo {
 
 interface CaseSelectorProps {
 	caseList: CaseItemInfo[];
-	selectedTriggerCase: TriggerCase | null;
-	onTriggerCaseChange: (triggerCase: TriggerCase | null) => void;
+	selectedTriggerCase: ConditionTrigger | null;
+	onTriggerCaseChange: (triggerCase: ConditionTrigger | null) => void;
 }
 
 const CaseSelector: React.FC<CaseSelectorProps> = ({
@@ -77,8 +77,6 @@ const CaseSelector: React.FC<CaseSelectorProps> = ({
 
 	// 处理节点选择
 	const handleNodeChange = (nodeId: string) => {
-		const nodeName =
-			caseList.find((item) => item.nodeId === nodeId)?.nodeName || "";
 		setLocalNodeId(nodeId);
 		setCaseString(""); // 清空 case 选择
 
@@ -99,7 +97,7 @@ const CaseSelector: React.FC<CaseSelectorProps> = ({
 
 		if (triggerType === "case") {
 			const caseId = Number.parseInt(caseIdStr, 10);
-			const triggerCase: TriggerCase = {
+			const triggerCase: ConditionTrigger = {
 				triggerType: "case",
 				fromNodeType: NodeType.IfElseNode,
 				fromNodeId: localNodeId,
@@ -110,7 +108,7 @@ const CaseSelector: React.FC<CaseSelectorProps> = ({
 			onTriggerCaseChange(triggerCase);
 		} else {
 			// else 分支
-			const triggerCase: TriggerCase = {
+			const triggerCase: ConditionTrigger = {
 				triggerType: "else",
 				fromNodeType: NodeType.IfElseNode,
 				fromNodeId: localNodeId,

@@ -1,17 +1,18 @@
 import React from "react";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import type {
-	IntervalTimerConfig,
-	ScheduledTimerConfig,
-	TimerConfig,
+import {
+	createDefaultScheduledConfig,
+	type IntervalTimerConfig,
+	type ScheduledTimerConfig,
+	type TimerTrigger,
 } from "@/types/node/variable-node";
 import IntervalConfiger from "./interval-configer";
 import ScheduleConfiger from "./schedule-configer";
 
 interface TimerConfigComponentProps {
-	timerConfig: TimerConfig;
-	onTimerConfigChange: (config: TimerConfig) => void;
+	timerConfig: TimerTrigger;
+	onTimerConfigChange: (config: TimerTrigger) => void;
 }
 
 const TimerConfigComponent: React.FC<TimerConfigComponentProps> = ({
@@ -43,7 +44,7 @@ const TimerConfigComponent: React.FC<TimerConfigComponentProps> = ({
 		}
 	}, [timerConfig]);
 
-	const emitTimerConfigChange = (config: TimerConfig) => {
+	const emitTimerConfigChange = (config: TimerTrigger) => {
 		pendingInternalUpdates.current += 1;
 		onTimerConfigChange(config);
 	};
@@ -72,13 +73,7 @@ const TimerConfigComponent: React.FC<TimerConfigComponentProps> = ({
 			);
 		} else {
 			emitTimerConfigChange(
-				scheduledConfigCache.current || {
-					mode: "scheduled",
-					time: "09:30",
-					repeatMode: "daily",
-					customWeekdays: [1, 2, 3, 4, 5, 6, 7], // 默认每天都选中
-					dayOfMonth: 1, // 默认第1天
-				},
+				scheduledConfigCache.current || createDefaultScheduledConfig("daily"),
 			);
 		}
 	};

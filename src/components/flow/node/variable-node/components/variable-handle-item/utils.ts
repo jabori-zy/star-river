@@ -1,7 +1,11 @@
 import type {
-	TimerConfig,
+	TimerTrigger,
 	UpdateOperationType,
 	VariableConfig,
+} from "@/types/node/variable-node";
+import {
+	getEffectiveTriggerType,
+	getTimerTriggerConfig,
 } from "@/types/node/variable-node";
 import { SystemVariable } from "@/types/variable";
 
@@ -30,7 +34,7 @@ export const formatSymbolDisplay = (symbol: string | null): string => {
 };
 
 // 格式化定时配置显示
-export const getTimerConfigDisplay = (timerConfig: TimerConfig): string => {
+export const getTimerConfigDisplay = (timerConfig: TimerTrigger): string => {
 	if (timerConfig.mode === "interval") {
 		const unitMap = {
 			second: "秒",
@@ -41,25 +45,63 @@ export const getTimerConfigDisplay = (timerConfig: TimerConfig): string => {
 		return `${timerConfig.interval}${unitMap[timerConfig.unit]}`;
 	} else {
 		// scheduled 模式
+		const { repeatMode } = timerConfig;
 		let description = "";
 
 		// 每小时模式：显示间隔
-		if (timerConfig.repeatMode === "hourly") {
-			const interval = timerConfig.hourlyInterval || 1;
-			description = interval === 1 ? "每小时" : `每${interval}小时`;
-		} else {
-			const repeatMap = {
-				daily: "每天",
-				weekly: "每周",
-				monthly: "每月",
-			};
+		if (repeatMode === "hourly") {
+			const { hourlyInterval, minuteOfHour } = timerConfig;
 			description =
-				repeatMap[timerConfig.repeatMode as "daily" | "weekly" | "monthly"];
+				hourlyInterval === 1
+					? `每小时 第${minuteOfHour}分钟`
+					: `每${hourlyInterval}小时 第${minuteOfHour}分钟`;
+			return description;
+		}
+
+		// 其他模式
+		const repeatMap = {
+			daily: "每天",
+			weekly: "每周",
+			monthly: "每月",
+		};
+		description = repeatMap[repeatMode as "daily" | "weekly" | "monthly"];
+
+		// 每周模式：添加星期信息
+		if (repeatMode === "weekly") {
+			const { dayOfWeek } = timerConfig;
+			const weekdayMap: Record<number, string> = {
+				1: "周一",
+				2: "周二",
+				3: "周三",
+				4: "周四",
+				5: "周五",
+				6: "周六",
+				7: "周日",
+			};
+			description += ` ${weekdayMap[dayOfWeek] || ""}`;
+		}
+
+		// 每天模式：添加星期信息（如果有选择）
+		if (repeatMode === "daily") {
+			const { daysOfWeek } = timerConfig;
+			if (daysOfWeek && daysOfWeek.length > 0 && daysOfWeek.length < 7) {
+				const weekdayMap: Record<number, string> = {
+					1: "一",
+					2: "二",
+					3: "三",
+					4: "四",
+					5: "五",
+					6: "六",
+					7: "日",
+				};
+				const weekdayNames = daysOfWeek.map((d) => weekdayMap[d]).join(",");
+				description += ` (周${weekdayNames})`;
+			}
 		}
 
 		// 每月模式：添加日期信息
-		if (timerConfig.repeatMode === "monthly" && timerConfig.dayOfMonth) {
-			const dayOfMonth = timerConfig.dayOfMonth;
+		if (repeatMode === "monthly") {
+			const { dayOfMonth } = timerConfig;
 			if (typeof dayOfMonth === "number") {
 				description += ` 第${dayOfMonth}天`;
 			} else {
@@ -99,15 +141,20 @@ export const getVariableConfigDescription = (
 	config: VariableConfig,
 ): string => {
 	const variableText = getVariableLabel(config.varName);
+	const effectiveTriggerType = getEffectiveTriggerType(config);
+	const timerConfig = getTimerTriggerConfig(config);
 
 	if (config.varOperation === "get") {
-		const symbolText = formatSymbolDisplay(config.symbol || null);
-		const typeText = getVariableTypeLabel(config.varTriggerType);
+		const symbolText = formatSymbolDisplay(("symbol" in config ? config.symbol : null) || null);
+		const typeText = getVariableTypeLabel(
+			effectiveTriggerType === "timer" || effectiveTriggerType === "condition"
+				? effectiveTriggerType
+				: "condition",
+		);
 
 		let description = `${symbolText} - ${variableText} (${typeText})`;
-
-		if (config.varTriggerType === "timer" && config.timerConfig) {
-			description += ` - ${getTimerConfigDisplay(config.timerConfig)}`;
+		if (effectiveTriggerType === "timer" && timerConfig) {
+			description += ` - ${getTimerConfigDisplay(timerConfig)}`;
 		}
 
 		return description;
@@ -120,11 +167,15 @@ export const getVariableConfigDescription = (
 		return `更新变量 - ${variableText} ${opLabel}`;
 	} else {
 		// reset 模式
-		const typeText = getVariableTypeLabel(config.varTriggerType);
+		const typeText = getVariableTypeLabel(
+			effectiveTriggerType === "timer" || effectiveTriggerType === "condition"
+				? effectiveTriggerType
+				: "condition",
+		);
 		let description = `重置变量 - ${variableText} (${typeText})`;
 
-		if (config.varTriggerType === "timer" && config.timerConfig) {
-			description += ` - ${getTimerConfigDisplay(config.timerConfig)}`;
+		if (effectiveTriggerType === "timer" && timerConfig) {
+			description += ` - ${getTimerConfigDisplay(timerConfig)}`;
 		}
 
 		return description;
@@ -139,11 +190,17 @@ export const getVariableConfigStatusLabel = (
 		return "未选择变量类型";
 	}
 
+	const effectiveTriggerType = getEffectiveTriggerType(config);
+	const timerConfig = getTimerTriggerConfig(config);
+
 	if (config.varOperation === "get") {
 		if (!config.varDisplayName?.trim()) {
 			return "未设置名称";
 		}
-		if (config.varTriggerType === "timer" && !config.timerConfig) {
+		if (
+			effectiveTriggerType === "timer" &&
+			!timerConfig
+		) {
 			return "未配置定时器";
 		}
 	} else if (config.varOperation === "update") {
@@ -157,7 +214,10 @@ export const getVariableConfigStatusLabel = (
 		}
 	} else {
 		// reset 模式
-		if (config.varTriggerType === "timer" && !config.timerConfig) {
+		if (
+			effectiveTriggerType === "timer" &&
+			!timerConfig
+		) {
 			return "未配置定时器";
 		}
 	}
@@ -171,11 +231,14 @@ export const isVariableConfigComplete = (config: VariableConfig): boolean => {
 		return false;
 	}
 
+	const effectiveTriggerType = getEffectiveTriggerType(config);
+	const hasTimerConfig = !!getTimerTriggerConfig(config);
+
 	if (config.varOperation === "get") {
 		if (!config.varDisplayName?.trim()) {
 			return false;
 		}
-		if (config.varTriggerType === "timer" && !config.timerConfig) {
+		if (effectiveTriggerType === "timer" && !hasTimerConfig) {
 			return false;
 		}
 	} else if (config.varOperation === "update") {
@@ -184,7 +247,7 @@ export const isVariableConfigComplete = (config: VariableConfig): boolean => {
 		// 这里不检查具体的值，因为 update 模式的值验证由组件内部处理
 	} else {
 		// reset 模式
-		if (config.varTriggerType === "timer" && !config.timerConfig) {
+		if (effectiveTriggerType === "timer" && !hasTimerConfig) {
 			return false;
 		}
 	}

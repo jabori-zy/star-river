@@ -2,7 +2,8 @@ import { SelectInDialog } from "@/components/select-components/select-in-dialog"
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Input } from "@/components/ui/input";
 import type {
-	TriggerCase,
+	TimerTrigger,
+	ConditionTrigger,
 	UpdateOperationType,
 } from "@/types/node/variable-node";
 import { VariableValueType } from "@/types/variable";
@@ -20,7 +21,8 @@ interface InputTypeOpEditorProps {
 	onUpdateValueChange: (value: string) => void;
 	variableDisplayName?: string;
 	getPlaceholder: (operationType: UpdateOperationType) => string;
-	triggerCase?: TriggerCase | null;
+	triggerCase?: ConditionTrigger | null;
+	timerConfig?: TimerTrigger;
 }
 
 const InputTypeOpEditor: React.FC<InputTypeOpEditorProps> = ({
@@ -33,6 +35,7 @@ const InputTypeOpEditor: React.FC<InputTypeOpEditorProps> = ({
 	variableDisplayName,
 	getPlaceholder,
 	triggerCase,
+	timerConfig,
 }) => {
 	// 获取触发信息
 	const triggerNodeName = triggerCase?.fromNodeName;
@@ -68,6 +71,7 @@ const InputTypeOpEditor: React.FC<InputTypeOpEditorProps> = ({
 						value: updateValue,
 						triggerNodeName: triggerNodeName,
 						triggerCaseLabel: triggerCaseLabel || undefined,
+					timerConfig: timerConfig,
 					})}
 				</p>
 			)}

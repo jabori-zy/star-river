@@ -1,68 +1,72 @@
-import { Clock, Filter } from "lucide-react";
+import { TbRefresh } from "react-icons/tb";
 import type React from "react";
+import {
+	generateResetHint,
+	getTriggerCaseLabel,
+	getTriggerTypeInfo,
+} from "@/components/flow/node/variable-node/variable-node-utils";
+import { formatVariableValue } from "@/components/flow/node/start-node/components/utils";
 import { Badge } from "@/components/ui/badge";
 import type { ResetVariableConfig } from "@/types/node/variable-node";
+import {
+	getConditionTriggerConfig,
+	getEffectiveTriggerType,
+	getTimerTriggerConfig,
+} from "@/types/node/variable-node";
 
 interface ResetVarConfigItemProps {
 	config: ResetVariableConfig;
-	showOnlyTrigger?: boolean;
-	showOnlyDetails?: boolean;
 }
 
-const ResetVarConfigItem: React.FC<ResetVarConfigItemProps> = ({
-	config,
-	showOnlyTrigger = false,
-	showOnlyDetails = false,
-}) => {
-	const getTriggerTypeBadge = () => {
-		if (config.varTriggerType === "timer") {
-			// reset 操作没有 timerConfig，所以这里只显示文本
-			return (
-				<Badge className="h-5 text-[10px] bg-blue-100 text-blue-800">
-					<Clock className="h-3 w-3 mr-1" />
-					定时触发
-				</Badge>
-			);
-		} else if (config.varTriggerType === "condition") {
-			return (
-				<Badge className="h-5 text-[10px] bg-orange-100 text-orange-800">
-					<Filter className="h-3 w-3 mr-1" />
-					条件触发
-				</Badge>
-			);
-		} else {
-			// dataflow 模式
-			return (
-				<Badge className="h-5 text-[10px] bg-emerald-100 text-emerald-800">
-					<Clock className="h-3 w-3 mr-1" />
-					数据流
-				</Badge>
-			);
-		}
-	};
+const ResetVarConfigItem: React.FC<ResetVarConfigItemProps> = ({ config }) => {
+	const effectiveTriggerType =
+		getEffectiveTriggerType(config) ?? "condition";
 
-	// 只显示触发方式
-	if (showOnlyTrigger) {
-		return <>{getTriggerTypeBadge()}</>;
-	}
+	const triggerCase = getConditionTriggerConfig(config) ?? null;
+	const triggerNodeName = triggerCase?.fromNodeName;
+	const triggerCaseLabel = getTriggerCaseLabel(triggerCase);
 
-	// 只显示详细信息
-	if (showOnlyDetails) {
-		return (
-			<div className="text-xs text-muted-foreground">
-				{config.varName} → {String(config.varInitialValue)}
-			</div>
-		);
-	}
+	const typeInfo = getTriggerTypeInfo(effectiveTriggerType);
+	const TriggerIcon = typeInfo.icon;
 
-	// 默认显示所有内容
+	const formattedValue = formatVariableValue(
+		config.varInitialValue,
+		config.varValueType,
+	);
+
+	const hint = generateResetHint(config.varDisplayName, {
+		varValueType: config.varValueType,
+		value: formattedValue,
+		selectedValues: Array.isArray(config.varInitialValue)
+			? config.varInitialValue
+			: undefined,
+	triggerNodeName,
+	triggerCaseLabel: triggerCaseLabel || undefined,
+	timerConfig:
+		effectiveTriggerType === "timer"
+			? getTimerTriggerConfig(config)
+			: undefined,
+	});
+
 	return (
-		<>
-			{getTriggerTypeBadge()}
-			<div className="text-xs text-muted-foreground">
-				{config.varName} → {String(config.varInitialValue)}
+		<div className="flex-1 space-y-1">
+			{/* 第一行：图标 + 操作标题 + 触发方式 */}
+			<div className="flex items-center gap-2">
+				<TbRefresh className="h-4 w-4 text-orange-600 flex-shrink-0" />
+				<span className="text-sm font-medium">重置变量</span>
+				<Badge className={`h-5 text-[10px] ${typeInfo.badgeColor}`}>
+					<TriggerIcon className="h-3 w-3 mr-1" />
+					{typeInfo.label}
+				</Badge>
 			</div>
-		</>
+
+			{/* 第二行：详细信息 */}
+			<div className="flex items-center gap-2 flex-wrap">
+				<div className="text-xs text-muted-foreground">
+					{hint || `${config.varDisplayName} → ${formattedValue}`}
+				</div>
+			</div>
+		</div>
 	);
 };
 

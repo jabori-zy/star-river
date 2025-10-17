@@ -1,5 +1,4 @@
 import type { UpdateOperationType } from "@/types/node/variable-node";
-import { VariableValueType } from "@/types/variable";
 
 // 获取更新操作类型的标签
 export const getUpdateOperationLabel = (type: UpdateOperationType): string => {

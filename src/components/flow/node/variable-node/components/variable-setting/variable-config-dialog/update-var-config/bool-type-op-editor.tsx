@@ -1,7 +1,8 @@
 import { SelectInDialog } from "@/components/select-components/select-in-dialog";
 import { ButtonGroup } from "@/components/ui/button-group";
 import type {
-	TriggerCase,
+	TimerTrigger,
+	ConditionTrigger,
 	UpdateOperationType,
 } from "@/types/node/variable-node";
 import { VariableValueType } from "@/types/variable";
@@ -18,7 +19,8 @@ interface BoolTypeOpEditorProps {
 	onUpdateValueChange: (value: string) => void;
 	variableDisplayName?: string;
 	idPrefix?: string;
-	triggerCase?: TriggerCase | null;
+	triggerCase?: ConditionTrigger | null;
+	timerConfig?: TimerTrigger;
 }
 
 const BOOLEAN_OPTIONS = [
@@ -34,6 +36,7 @@ const BoolTypeOpEditor: React.FC<BoolTypeOpEditorProps> = ({
 	onUpdateValueChange,
 	variableDisplayName,
 	triggerCase,
+	timerConfig,
 }) => {
 	// 获取触发信息
 	const triggerNodeName = triggerCase?.fromNodeName;
@@ -59,6 +62,7 @@ const BoolTypeOpEditor: React.FC<BoolTypeOpEditorProps> = ({
 						varValueType: VariableValueType.BOOLEAN,
 						triggerNodeName: triggerNodeName,
 						triggerCaseLabel: triggerCaseLabel || undefined,
+						timerConfig: timerConfig,
 					})}
 				</p>
 			</div>
@@ -94,6 +98,7 @@ const BoolTypeOpEditor: React.FC<BoolTypeOpEditorProps> = ({
 					value: updateValue,
 					triggerNodeName: triggerNodeName,
 					triggerCaseLabel: triggerCaseLabel || undefined,
+					timerConfig: timerConfig,
 				})}
 			</p>
 		</div>

@@ -4,10 +4,11 @@ import { SelectInDialog } from "@/components/select-components/select-in-dialog"
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import type {
-	DayOfMonth,
-	MonthlyFallbackStrategy,
-	ScheduledTimerConfig,
+import {
+	createDefaultScheduledConfig,
+	type DayOfMonth,
+	type MonthlyFallbackStrategy,
+	type ScheduledTimerConfig,
 } from "@/types/node/variable-node";
 import { calculateNextExecutionTime, generateCronExpression } from "./utils";
 
@@ -36,57 +37,9 @@ const ScheduleConfiger: React.FC<ScheduleConfigerProps> = ({
 					value={config.repeatMode}
 					onValueChange={(value) => {
 						const newMode = value as "hourly" | "daily" | "weekly" | "monthly";
-						let newWeekdays: number[] | undefined;
-						let newTime = config.time;
-						let newDayOfMonth: DayOfMonth | undefined;
-
-						if (newMode === "hourly") {
-							// 每小时：只保留分钟部分
-							newWeekdays = undefined;
-							newDayOfMonth = undefined;
-							const minute = config.time.split(":")[1] || "00";
-							newTime = `00:${minute}`;
-							// 确保有默认的小时间隔
-							if (!config.hourlyInterval) {
-								handleConfigChange({
-									...config,
-									repeatMode: newMode,
-									customWeekdays: newWeekdays,
-									dayOfMonth: newDayOfMonth,
-									time: newTime,
-									hourlyInterval: 1,
-								});
-								return;
-							}
-						} else if (newMode === "monthly") {
-							// 每月不需要星期设置，但需要日期设置
-							newWeekdays = undefined;
-							newDayOfMonth = config.dayOfMonth || 1;
-						} else if (newMode === "daily") {
-							// 每天模式：默认全选
-							newWeekdays = [1, 2, 3, 4, 5, 6, 7];
-							newDayOfMonth = undefined;
-							// 确保有完整的时间格式
-							if (config.time.split(":")[0] === "00") {
-								newTime = "09:30";
-							}
-						} else if (newMode === "weekly") {
-							// 每周模式：默认选周一（单选）
-							newWeekdays = [1];
-							newDayOfMonth = undefined;
-							// 确保有完整的时间格式
-							if (config.time.split(":")[0] === "00") {
-								newTime = "09:30";
-							}
-						}
-
-						handleConfigChange({
-							...config,
-							repeatMode: newMode,
-							customWeekdays: newWeekdays,
-							dayOfMonth: newDayOfMonth,
-							time: newTime,
-						});
+						// 使用工厂函数创建默认配置
+						const newConfig = createDefaultScheduledConfig(newMode);
+						handleConfigChange(newConfig);
 					}}
 					placeholder="重复规则"
 					options={[
@@ -103,14 +56,14 @@ const ScheduleConfiger: React.FC<ScheduleConfigerProps> = ({
 					{config.repeatMode === "hourly" ? (
 						<>
 							<span className="text-sm text-muted-foreground whitespace-nowrap">
-								每隔
+								每
 							</span>
 							<SelectInDialog
-								value={String(config.hourlyInterval || 1)}
+								value={String(config.hourlyInterval)}
 								onValueChange={(interval) => {
 									handleConfigChange({
 										...config,
-										hourlyInterval: parseInt(interval),
+										hourlyInterval: Number.parseInt(interval),
 									});
 								}}
 								placeholder="间隔"
@@ -124,11 +77,11 @@ const ScheduleConfiger: React.FC<ScheduleConfigerProps> = ({
 								小时的第
 							</span>
 							<SelectInDialog
-								value={config.time.split(":")[1]}
+								value={String(config.minuteOfHour).padStart(2, "0")}
 								onValueChange={(minute) => {
 									handleConfigChange({
 										...config,
-										time: `00:${minute}`,
+										minuteOfHour: Number.parseInt(minute),
 									});
 								}}
 								placeholder="分"
@@ -198,7 +151,15 @@ const ScheduleConfiger: React.FC<ScheduleConfigerProps> = ({
 						let dayValue: DayOfMonth;
 						let fallbackStrategy: MonthlyFallbackStrategy | undefined;
 
-						if (value === "custom") {
+						if (value === "first") {
+							// "第一天" 使用字符串 "first"
+							dayValue = "first";
+							fallbackStrategy = undefined;
+						} else if (value === "last") {
+							// "最后一天" 使用特殊字符串 "last"
+							dayValue = "last";
+							fallbackStrategy = undefined;
+						} else if (value === "custom") {
 							// 保持当前数字值或默认为1
 							dayValue =
 								typeof config.dayOfMonth === "number" ? config.dayOfMonth : 1;
@@ -207,7 +168,7 @@ const ScheduleConfiger: React.FC<ScheduleConfigerProps> = ({
 								fallbackStrategy = config.monthlyFallback || "last-day";
 							}
 						} else {
-							// 选择特殊日期时，清除回退策略
+							// 兜底逻辑
 							dayValue = value as DayOfMonth;
 							fallbackStrategy = undefined;
 						}
@@ -333,7 +294,7 @@ const ScheduleConfiger: React.FC<ScheduleConfigerProps> = ({
 			)}
 
 			{/* 星期选择 - 常驻显示 */}
-			{(config.repeatMode === "daily" || config.repeatMode === "weekly") && (
+			{config.repeatMode === "weekly" && (
 				<div className="flex items-center gap-2 flex-wrap">
 					{[
 						{ value: 1, label: "一" },
@@ -344,8 +305,7 @@ const ScheduleConfiger: React.FC<ScheduleConfigerProps> = ({
 						{ value: 6, label: "六" },
 						{ value: 7, label: "日" },
 					].map((day) => {
-						const isSelected = config.customWeekdays?.includes(day.value);
-						const isWeeklyMode = config.repeatMode === "weekly";
+						const isSelected = config.dayOfWeek === day.value;
 
 						return (
 							<Badge
@@ -357,30 +317,65 @@ const ScheduleConfiger: React.FC<ScheduleConfigerProps> = ({
 										: "hover:bg-muted"
 								}`}
 								onClick={() => {
-									const currentWeekdays = config.customWeekdays || [];
-									let newWeekdays: number[];
-
-									if (isWeeklyMode) {
-										// 每周模式：单选
-										newWeekdays = [day.value];
-									} else {
-										// 每天模式：多选
-										if (isSelected) {
-											newWeekdays = currentWeekdays.filter(
-												(d) => d !== day.value,
-											);
-										} else {
-											newWeekdays = [...currentWeekdays, day.value].sort(
-												(a, b) => a - b,
-											);
-										}
-									}
-
+									// 每周模式：单选
 									handleConfigChange({
 										...config,
-										customWeekdays:
-											newWeekdays.length > 0 ? newWeekdays : undefined,
+										dayOfWeek: day.value,
 									});
+								}}
+							>
+								{isSelected ? "☑" : "☐"} 周{day.label}
+							</Badge>
+						);
+					})}
+				</div>
+			)}
+
+			{/* 每天模式的星期选择 - 多选 */}
+			{config.repeatMode === "daily" && (
+				<div className="flex items-center gap-2 flex-wrap">
+					{[
+						{ value: 1, label: "一" },
+						{ value: 2, label: "二" },
+						{ value: 3, label: "三" },
+						{ value: 4, label: "四" },
+						{ value: 5, label: "五" },
+						{ value: 6, label: "六" },
+						{ value: 7, label: "日" },
+					].map((day) => {
+						const isSelected = config.daysOfWeek?.includes(day.value);
+
+						return (
+							<Badge
+								key={day.value}
+								variant={isSelected ? "default" : "outline"}
+								className={`cursor-pointer select-none ${
+									isSelected
+										? "bg-primary text-primary-foreground"
+										: "hover:bg-muted"
+								}`}
+								onClick={() => {
+									// 每天模式：多选
+									const currentWeekdays = config.daysOfWeek || [];
+									let newWeekdays: number[];
+
+									if (isSelected) {
+										newWeekdays = currentWeekdays.filter(
+											(d) => d !== day.value,
+										);
+									} else {
+										newWeekdays = [...currentWeekdays, day.value].sort(
+											(a, b) => a - b,
+										);
+									}
+
+									// 确保至少有一个选中
+									if (newWeekdays.length > 0) {
+										handleConfigChange({
+											...config,
+											daysOfWeek: newWeekdays,
+										});
+									}
 								}}
 							>
 								{isSelected ? "☑" : "☐"} 周{day.label}

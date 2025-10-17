@@ -7,9 +7,11 @@ import {
 	InputGroupText,
 } from "@/components/ui/input-group";
 import type {
-	TriggerCase,
+	TimerTrigger,
+	ConditionTrigger,
 	UpdateOperationType,
 } from "@/types/node/variable-node";
+import { VariableValueType } from "@/types/variable";
 import {
 	generateUpdateHint,
 	getTriggerCaseLabel,
@@ -23,7 +25,8 @@ interface PercentTypeOpEditorProps {
 	onUpdateValueChange: (value: string) => void;
 	variableDisplayName?: string;
 	getPlaceholder: (operationType: UpdateOperationType) => string;
-	triggerCase?: TriggerCase | null;
+	triggerCase?: ConditionTrigger | null;
+	timerConfig?: TimerTrigger;
 }
 
 const PercentTypeOpEditor: React.FC<PercentTypeOpEditorProps> = ({
@@ -35,6 +38,7 @@ const PercentTypeOpEditor: React.FC<PercentTypeOpEditorProps> = ({
 	variableDisplayName,
 	getPlaceholder,
 	triggerCase,
+	timerConfig,
 }) => {
 	// 获取触发信息
 	const triggerNodeName = triggerCase?.fromNodeName;
@@ -71,9 +75,11 @@ const PercentTypeOpEditor: React.FC<PercentTypeOpEditorProps> = ({
 			{updateValue && (
 				<p className="text-xs text-muted-foreground">
 					{generateUpdateHint(variableDisplayName, updateOperationType, {
-						value: `${updateValue}%`,
+						varValueType: VariableValueType.PERCENTAGE,
+						value: updateValue,
 						triggerNodeName: triggerNodeName,
 						triggerCaseLabel: triggerCaseLabel || undefined,
+						timerConfig: timerConfig,
 					})}
 				</p>
 			)}

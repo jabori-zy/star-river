@@ -4,6 +4,7 @@ import {
 	renderNodeOptions,
 	renderVariableOptions,
 } from "@/components/flow/node/node-utils";
+import { generateDataflowHint } from "@/components/flow/node/variable-node/variable-node-utils";
 import { SelectInDialog } from "@/components/select-components/select-in-dialog";
 import { ButtonGroup } from "@/components/ui/button-group";
 import type { VariableItem } from "@/hooks/flow/use-strategy-workflow";
@@ -82,20 +83,6 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 	const [localNodeId, setLocalNodeId] = useState<string>(selectedNodeId || "");
 	const [variableString, setVariableString] = useState<string>("");
 	const { t } = useTranslation();
-
-	// 获取节点类型的中文名称
-	const getNodeTypeLabel = (nodeType: NodeType | null): string => {
-		const labels: Record<string, string> = {
-			indicatorNode: "指标",
-			klineNode: "K线",
-			variableNode: "变量",
-			ifElseNode: "条件",
-			startNode: "起点",
-			futuresOrderNode: "合约订单",
-			positionManagementNode: "持仓管理",
-		};
-		return nodeType ? labels[nodeType] || "节点" : "节点";
-	};
 
 	// 获取操作类型的标签
 	const getUpdateOperationLabel = (type: UpdateOperationType): string => {
@@ -276,22 +263,13 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 		);
 		const fromVarConfigId = selectedVar?.configId || 0;
 
-		const nodeTypeLabel = getNodeTypeLabel(fromNodeType);
-
-		return (
-			<>
-				{targetVariableDisplayName && (
-					<span className="text-orange-600 font-medium">
-						{targetVariableDisplayName}
-					</span>
-				)}{" "}
-				将被设置为{" "}
-				<span className="text-blue-600 font-medium">
-					{fromNodeName}/{nodeTypeLabel}
-					{fromVarConfigId}/{fromVarDisplayName}
-				</span>
-			</>
-		);
+		// 使用统一的工具方法生成提示文本
+		return generateDataflowHint(targetVariableDisplayName || "", {
+			fromNodeName,
+			fromNodeType,
+			fromVarConfigId,
+			fromVarDisplayName,
+		});
 	};
 
 	return (

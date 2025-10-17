@@ -347,7 +347,7 @@ export const renderVariableOptions = ({
 					<div className="flex items-center w-full gap-1">
 						<div className="flex items-center gap-0.5 flex-shrink-0">
 							<TypeIconComponent className={`h-4 w-4 ${typeIconColor}`} />
-							{variable.symbol && (
+							{"symbol" in variable && variable.symbol && (
 								<Badge
 									variant="outline"
 									className="flex items-center justify-center text-[10px] leading-none py-1 border-gray-400 rounded-sm"

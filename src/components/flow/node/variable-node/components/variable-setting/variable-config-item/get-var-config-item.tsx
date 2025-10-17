@@ -1,94 +1,62 @@
-import { Clock, Filter } from "lucide-react";
+import { TbFileImport } from "react-icons/tb";
 import type React from "react";
+import {
+	generateGetHint,
+	getTriggerCaseLabel,
+	getTriggerTypeInfo,
+} from "@/components/flow/node/variable-node/variable-node-utils";
 import { Badge } from "@/components/ui/badge";
-import type { GetVariableConfig } from "@/types/node/variable-node";
+import {
+	type GetVariableConfig,
+	getConditionTriggerConfig,
+	getEffectiveTriggerType,
+	getTimerTriggerConfig,
+} from "@/types/node/variable-node";
 
 interface GetVarConfigItemProps {
 	config: GetVariableConfig;
-	showOnlyTrigger?: boolean;
-	showOnlyDetails?: boolean;
 }
 
-const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
-	config,
-	showOnlyTrigger = false,
-	showOnlyDetails = false,
-}) => {
-	const getTriggerTypeBadge = () => {
-		if (config.varTriggerType === "timer") {
-			const timerConfig = config.timerConfig;
+const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({ config }) => {
+	const effectiveTriggerType =
+		getEffectiveTriggerType(config) ?? "condition";
 
-			// 判断是否为固定间隔模式
-			const isIntervalMode = timerConfig?.mode === "interval";
+	const triggerCase = getConditionTriggerConfig(config) ?? null;
+	const triggerNodeName = triggerCase?.fromNodeName;
+	const triggerCaseLabel = getTriggerCaseLabel(triggerCase);
 
-			return (
-				<Badge className="h-5 text-[10px] bg-blue-100 text-blue-800">
-					<Clock className="h-3 w-3 mr-1" />
-					{timerConfig && isIntervalMode
-						? `${timerConfig.interval}${
-								timerConfig.unit === "second"
-									? "s"
-									: timerConfig.unit === "minute"
-										? "m"
-										: timerConfig.unit === "hour"
-											? "h"
-											: "d"
-							}`
-						: "定时触发"}
-				</Badge>
-			);
-		} else {
-			return (
-				<Badge className="h-5 text-[10px] bg-orange-100 text-orange-800">
-					<Filter className="h-3 w-3 mr-1" />
-					条件触发
-				</Badge>
-			);
-		}
-	};
+	const typeInfo = getTriggerTypeInfo(effectiveTriggerType);
+	const TriggerIcon = typeInfo.icon;
 
-	// 只显示触发方式
-	if (showOnlyTrigger) {
-		return <>{getTriggerTypeBadge()}</>;
-	}
+	const timerConfig = getTimerTriggerConfig(config);
 
-	// 只显示详细信息
-	if (showOnlyDetails) {
-		return (
-			<>
-				{config.symbol ? (
-					<Badge variant="outline" className="h-5 px-1">
-						{config.symbol}
-					</Badge>
-				) : (
-					<Badge variant="outline" className="h-5 px-1">
-						不限制交易对
-					</Badge>
-				)}
-				<div className="text-xs text-muted-foreground">
-					{config.varDisplayName}
-				</div>
-			</>
-		);
-	}
+	const hint = generateGetHint(config.varDisplayName, {
+		varValueType: config.varValueType,
+		triggerNodeName,
+		triggerCaseLabel: triggerCaseLabel || undefined,
+		timerConfig: effectiveTriggerType === "timer" ? timerConfig : undefined,
+		symbol: ("symbol" in config ? config.symbol : null) || undefined,
+	});
 
-	// 默认显示所有内容
 	return (
-		<>
-			{config.symbol ? (
-				<Badge variant="outline" className="h-5 px-1">
-					{config.symbol}
+		<div className="flex-1 space-y-1">
+			{/* 第一行：图标 + 操作标题 + 触发方式 */}
+			<div className="flex items-center gap-2">
+				<TbFileImport className="h-4 w-4 text-blue-600 flex-shrink-0" />
+				<span className="text-sm font-medium">获取变量</span>
+				<Badge className={`h-5 text-[10px] ${typeInfo.badgeColor}`}>
+					<TriggerIcon className="h-3 w-3 mr-1" />
+					{typeInfo.label}
 				</Badge>
-			) : (
-				<Badge variant="outline" className="h-5 px-1">
-					不限制交易对
-				</Badge>
-			)}
-			{getTriggerTypeBadge()}
-			<div className="text-xs text-muted-foreground">
-				{config.varDisplayName}
 			</div>
-		</>
+
+			{/* 第二行：详细信息 */}
+			<div className="flex items-center gap-2 flex-wrap">
+				<div className="text-xs text-muted-foreground">
+					{hint || config.varDisplayName}
+				</div>
+			</div>
+		</div>
 	);
 };
 

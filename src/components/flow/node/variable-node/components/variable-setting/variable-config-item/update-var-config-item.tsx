@@ -1,130 +1,94 @@
-import { Filter, Workflow } from "lucide-react";
+import { TbEdit } from "react-icons/tb";
 import type React from "react";
 import {
+	generateDataflowHint,
 	generateUpdateHint,
 	getTriggerCaseLabel,
+	getTriggerTypeInfo,
 } from "@/components/flow/node/variable-node/variable-node-utils";
 import { Badge } from "@/components/ui/badge";
 import type {
-	TriggerDataFlow,
-	UpdateOperationType,
+	DataFlowTrigger,
 	UpdateVariableConfig,
+} from "@/types/node/variable-node";
+import {
+	getConditionTriggerConfig,
+	getDataFlowTriggerConfig,
+	getEffectiveTriggerType,
+	getTimerTriggerConfig,
 } from "@/types/node/variable-node";
 
 interface UpdateVarConfigItemProps {
 	config: UpdateVariableConfig;
-	showOnlyTrigger?: boolean;
-	showOnlyDetails?: boolean;
 }
 
-const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
-	config,
-	showOnlyTrigger = false,
-	showOnlyDetails = false,
-}) => {
-	// 获取更新操作类型的显示文本
-	const getUpdateOperationText = (type: UpdateOperationType): string => {
-		const labels: Record<UpdateOperationType, string> = {
-			set: "=",
-			add: "+=",
-			subtract: "-=",
-			multiply: "*=",
-			divide: "/=",
-			max: "max",
-			min: "min",
-			toggle: "toggle",
-			append: "append",
-			remove: "remove",
-			clear: "clear",
-		};
-		return labels[type];
-	};
+const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({ config }) => {
+	const effectiveTriggerType =
+		getEffectiveTriggerType(config) ?? "condition";
 
-	const getTriggerTypeBadge = () => {
-		if (config.varTriggerType === "condition") {
-			return (
-				<Badge className="h-5 text-[10px] bg-orange-100 text-orange-800">
-					<Filter className="h-3 w-3 mr-1" />
-					条件触发
-				</Badge>
-			);
-		} else {
-			return (
-				<Badge className="h-5 text-[10px] bg-emerald-100 text-emerald-800">
-					<Workflow className="h-3 w-3 mr-1" />
-					数据流触发
-				</Badge>
-			);
-		}
-	};
+const triggerCase = getConditionTriggerConfig(config) ?? null;
+	const triggerNodeName = triggerCase?.fromNodeName;
+	const triggerCaseLabel = getTriggerCaseLabel(triggerCase);
 
-	// 只显示触发方式
-	if (showOnlyTrigger) {
-		return <>{getTriggerTypeBadge()}</>;
-	}
+	const typeInfo = getTriggerTypeInfo(effectiveTriggerType);
+	const TriggerIcon = typeInfo.icon;
 
-	// 只显示详细信息
-	if (showOnlyDetails) {
-		// 数据流模式显示上游节点信息
-		if (config.varTriggerType === "dataflow") {
-			const dataflowValue = config.updateOperationValue as TriggerDataFlow;
-			return (
-				<div className="text-xs text-muted-foreground">
-					{config.varDisplayName} ={" "}
-					{dataflowValue.fromVarDisplayName || dataflowValue.fromVar}
-				</div>
-			);
+	// 生成详细提示信息
+	const generateHintContent = () => {
+		if (effectiveTriggerType === "dataflow") {
+			// 数据流模式：显示上游节点变量信息
+			const dataflowValue =
+				getDataFlowTriggerConfig(config) as DataFlowTrigger | undefined;
+			if (!dataflowValue) return null;
+			return generateDataflowHint(config.varDisplayName, {
+				fromNodeName: dataflowValue.fromNodeName,
+				fromNodeType: dataflowValue.fromNodeType,
+				fromVarConfigId: dataflowValue.fromVarConfigId,
+				fromVarDisplayName:
+					dataflowValue.fromVarDisplayName || dataflowValue.fromVar,
+			});
 		}
 
-		// 条件触发模式显示提示信息
-		// 获取触发信息
-		const triggerCase = config.triggerCase;
-		const triggerNodeName = triggerCase?.fromNodeName;
-		const triggerCaseLabel = getTriggerCaseLabel(triggerCase);
-
-		const hint = generateUpdateHint(
-			config.varDisplayName,
-			config.updateOperationType,
-			{
-				varValueType: config.varValueType,
-				value:
-					typeof config.updateOperationValue === "string" ||
-					typeof config.updateOperationValue === "number" ||
-					typeof config.updateOperationValue === "boolean"
-						? String(config.updateOperationValue)
-						: undefined,
-				selectedValues: Array.isArray(config.updateOperationValue)
-					? config.updateOperationValue
+		// 条件触发或定时触发模式
+		return generateUpdateHint(config.varDisplayName, config.updateOperationType, {
+			varValueType: config.varValueType,
+			value:
+				typeof config.updateOperationValue === "string" ||
+				typeof config.updateOperationValue === "number" ||
+				typeof config.updateOperationValue === "boolean"
+					? String(config.updateOperationValue)
 					: undefined,
-				triggerNodeName: triggerNodeName,
-				triggerCaseLabel: triggerCaseLabel || undefined,
-			},
-		);
+			selectedValues: Array.isArray(config.updateOperationValue)
+				? config.updateOperationValue
+				: undefined,
+			triggerNodeName: triggerNodeName,
+			triggerCaseLabel: triggerCaseLabel || undefined,
+			timerConfig:
+				effectiveTriggerType === "timer"
+					? getTimerTriggerConfig(config)
+					: undefined,
+		});
+	};
 
-		return <div className="text-xs text-muted-foreground">{hint}</div>;
-	}
-
-	// 默认显示所有内容
 	return (
-		<>
-			{getTriggerTypeBadge()}
-			<Badge variant="outline" className="h-5 px-1 bg-green-100 text-green-800">
-				{getUpdateOperationText(config.updateOperationType)}
-			</Badge>
-			<div className="text-xs text-muted-foreground">
-				{config.varTriggerType === "dataflow"
-					? // 数据流模式：显示上游节点变量信息
-						(() => {
-							const dataflowValue =
-								config.updateOperationValue as TriggerDataFlow;
-							return `${config.varDisplayName} = ${dataflowValue.fromVarDisplayName || dataflowValue.fromVar}`;
-						})()
-					: // 条件触发模式：显示普通值或切换
-						config.updateOperationType === "toggle"
-						? `${config.varDisplayName} (切换)`
-						: `${config.varDisplayName} = ${String(config.updateOperationValue)}`}
+		<div className="flex-1 space-y-1">
+			{/* 第一行：图标 + 操作标题 + 触发方式 + 操作类型 */}
+			<div className="flex items-center gap-2">
+				<TbEdit className="h-4 w-4 text-green-600 flex-shrink-0" />
+				<span className="text-sm font-medium">更新变量</span>
+				<Badge className={`h-5 text-[10px] ${typeInfo.badgeColor}`}>
+					<TriggerIcon className="h-3 w-3 mr-1" />
+					{typeInfo.label}
+				</Badge>
 			</div>
-		</>
+
+			{/* 第二行：详细信息 */}
+			<div className="flex items-center gap-2 flex-wrap">
+				<div className="text-xs text-muted-foreground">
+					{generateHintContent()}
+				</div>
+			</div>
+		</div>
 	);
 };
 
