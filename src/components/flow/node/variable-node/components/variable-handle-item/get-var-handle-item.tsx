@@ -64,7 +64,7 @@ export const GetVarHandleItem: React.FC<GetVarHandleItemProps> = ({
 					</div>
 				)}
 			</div>
-			<div className="text-xs text-muted-foreground font-bold ">
+			<div className="text-xs text-muted-foreground font-bold pl-2">
 				<Badge variant="outline" className="border-gray-400">
 					变量 {variableConfig.configId}
 				</Badge>

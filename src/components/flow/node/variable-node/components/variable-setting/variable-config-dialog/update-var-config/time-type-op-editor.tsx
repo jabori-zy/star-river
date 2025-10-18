@@ -40,6 +40,16 @@ const TimeTypeOpEditor: React.FC<TimeTypeOpEditorProps> = ({
 	const conditionTrigger = getConditionTriggerConfig({ triggerConfig });
 	const timerTrigger = getTimerTriggerConfig({ triggerConfig });
 
+	// 判断是否应该显示提示文案
+	const shouldShowHint = () => {
+		// 条件触发模式：必须选择了触发条件
+		if (effectiveTriggerType === "condition" && !conditionTrigger) {
+			return false;
+		}
+		// 必须有值
+		return !!updateValue;
+	};
+
 	// 安全地解析日期值
 	const getDateValue = (): Date | undefined => {
 		if (!updateValue || updateValue.trim() === "") {
@@ -81,19 +91,19 @@ const TimeTypeOpEditor: React.FC<TimeTypeOpEditorProps> = ({
 					/>
 				</div>
 			</div>
-			{updateValue && (
-				<p className="text-xs text-muted-foreground">
-					{generateUpdateHint(variableDisplayName, updateOperationType, {
-						value: updateValue,
-						triggerConfig: {
-							triggerType: effectiveTriggerType,
-							conditionTrigger,
-							timerTrigger,
-						},
-					})}
-				</p>
-			)}
-		</div>
+		{shouldShowHint() && (
+			<p className="text-xs text-muted-foreground">
+				{generateUpdateHint(variableDisplayName, updateOperationType, {
+					value: updateValue,
+					triggerConfig: {
+						triggerType: effectiveTriggerType,
+						conditionTrigger,
+						timerTrigger,
+					},
+				})}
+			</p>
+		)}
+	</div>
 	);
 };
 

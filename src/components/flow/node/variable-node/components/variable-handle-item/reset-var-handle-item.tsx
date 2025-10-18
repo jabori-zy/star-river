@@ -74,7 +74,7 @@ export const ResetVarHandleItem: React.FC<ResetVarHandleItemProps> = ({
 					<span>重置为: {formattedValue}</span>
 				</div>
 			</div>
-			<div className="text-xs text-muted-foreground font-bold">
+			<div className="text-xs text-muted-foreground font-bold pl-2">
 				<Badge variant="outline" className="border-gray-400">
 					变量 {variableConfig.configId}
 				</Badge>

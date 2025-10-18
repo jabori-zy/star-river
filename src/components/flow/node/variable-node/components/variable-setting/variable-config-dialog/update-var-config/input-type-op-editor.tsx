@@ -45,6 +45,16 @@ const InputTypeOpEditor: React.FC<InputTypeOpEditorProps> = ({
 	const conditionTrigger = getConditionTriggerConfig({ triggerConfig });
 	const timerTrigger = getTimerTriggerConfig({ triggerConfig });
 
+	// 判断是否应该显示提示文案
+	const shouldShowHint = () => {
+		// 条件触发模式：必须选择了触发条件
+		if (effectiveTriggerType === "condition" && !conditionTrigger) {
+			return false;
+		}
+		// 必须有值
+		return !!updateValue;
+	};
+
 	return (
 		<div className="flex flex-col gap-2">
 			<ButtonGroup className="w-full">
@@ -68,20 +78,20 @@ const InputTypeOpEditor: React.FC<InputTypeOpEditorProps> = ({
 					placeholder={getPlaceholder(updateOperationType)}
 					className="flex-1"
 				/>
-			</ButtonGroup>
-			{updateValue && (
-		<p className="text-xs text-muted-foreground">
-			{generateUpdateHint(variableDisplayName, updateOperationType, {
-				value: updateValue,
-				triggerConfig: {
-					triggerType: effectiveTriggerType,
-					conditionTrigger,
-					timerTrigger,
-				},
-			})}
-		</p>
-	)}
-		</div>
+		</ButtonGroup>
+		{shouldShowHint() && (
+			<p className="text-xs text-muted-foreground">
+				{generateUpdateHint(variableDisplayName, updateOperationType, {
+					value: updateValue,
+					triggerConfig: {
+						triggerType: effectiveTriggerType,
+						conditionTrigger,
+						timerTrigger,
+					},
+				})}
+			</p>
+		)}
+	</div>
 	);
 };
 

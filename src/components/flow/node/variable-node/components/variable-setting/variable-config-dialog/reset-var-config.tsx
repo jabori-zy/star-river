@@ -23,6 +23,7 @@ interface ResetVarConfigProps {
 	varInitialValue: string | number | boolean | string[];
 	onVariableChange: (value: string) => void;
 	onTriggerConfigChange: (value: TriggerConfig) => void;
+	onValidationChange?: (isValid: boolean) => void;
 }
 
 const ResetVarConfig: React.FC<ResetVarConfigProps> = ({
@@ -34,6 +35,7 @@ const ResetVarConfig: React.FC<ResetVarConfigProps> = ({
 	varInitialValue,
 	onVariableChange,
 	onTriggerConfigChange,
+	onValidationChange,
 }) => {
 	// 从 triggerConfig 中提取各种触发配置
 	const effectiveTriggerType = getEffectiveTriggerType({ triggerConfig }) ?? "condition";
@@ -56,6 +58,48 @@ const ResetVarConfig: React.FC<ResetVarConfigProps> = ({
 			cachedConditionConfig.current = conditionTrigger;
 		}
 	}, [conditionTrigger]);
+
+	// 验证表单有效性并通知父组件
+	useEffect(() => {
+		if (!onValidationChange) return;
+
+		let isValid = true;
+
+		// 1. 必须有自定义变量
+		if (customVariables.length === 0) {
+			isValid = false;
+		}
+		// 2. 必须选择变量
+		else if (!variable) {
+			isValid = false;
+		}
+		// 3. 条件触发模式：必须选择触发条件
+		else if (effectiveTriggerType === "condition" && !conditionTrigger) {
+			isValid = false;
+		}
+
+		onValidationChange(isValid);
+	}, [
+		effectiveTriggerType,
+		conditionTrigger,
+		customVariables.length,
+		variable,
+		onValidationChange,
+	]);
+
+	// 判断是否应该显示提示文案
+	const shouldShowHint = () => {
+		// 必须选择了变量
+		if (!variable) {
+			return false;
+		}
+		// 条件触发模式：必须选择了触发条件
+		if (effectiveTriggerType === "condition" && !conditionTrigger) {
+			return false;
+		}
+		return true;
+	};
+
 	return (
 		<>
 			{/* RESET 模式的 UI */}
@@ -118,36 +162,36 @@ const ResetVarConfig: React.FC<ResetVarConfigProps> = ({
 							// 通知父组件
 							onTriggerConfigChange(newCase ? { type: "condition", config: newCase } : null);
 						}}
-					/>
-					{variable &&
-						(() => {
-							const selectedVar = customVariables.find(
-								(v: CustomVariable) => v.varName === variable,
-							);
-							const variableDisplayName =
-								selectedVar?.varDisplayName || variable;
-							const formattedValue = selectedVar
-								? formatVariableValue(varInitialValue, selectedVar.varValueType)
-								: String(varInitialValue);
+				/>
+				{shouldShowHint() &&
+					(() => {
+						const selectedVar = customVariables.find(
+							(v: CustomVariable) => v.varName === variable,
+						);
+						const variableDisplayName =
+							selectedVar?.varDisplayName || variable;
+						const formattedValue = selectedVar
+							? formatVariableValue(varInitialValue, selectedVar.varValueType)
+							: String(varInitialValue);
 
-						const hint = generateResetHint(variableDisplayName, {
-							varValueType: selectedVar?.varValueType,
-							value: formattedValue,
-							selectedValues: Array.isArray(varInitialValue)
-								? varInitialValue
-								: undefined,
-							triggerConfig: {
-								triggerType: "condition",
-								conditionTrigger: conditionTrigger,
-								timerTrigger: undefined,
-							},
-						});
+					const hint = generateResetHint(variableDisplayName, {
+						varValueType: selectedVar?.varValueType,
+						value: formattedValue,
+						selectedValues: Array.isArray(varInitialValue)
+							? varInitialValue
+							: undefined,
+						triggerConfig: {
+							triggerType: "condition",
+							conditionTrigger: conditionTrigger,
+							timerTrigger: undefined,
+						},
+					});
 
-							return hint ? (
-								<p className="text-xs text-muted-foreground">{hint}</p>
-							) : null;
-						})()}
-				</div>
+						return hint ? (
+							<p className="text-xs text-muted-foreground">{hint}</p>
+						) : null;
+					})()}
+			</div>
 			)}
 
 			{/* 定时配置 */}
@@ -163,39 +207,39 @@ const ResetVarConfig: React.FC<ResetVarConfigProps> = ({
 								onTriggerConfigChange({ type: "timer", config: newTimer });
 							}}
 						/>
-					</div>
-					{variable &&
-						(() => {
-							const selectedVar = customVariables.find(
-								(v: CustomVariable) => v.varName === variable,
-							);
-							const variableDisplayName =
-								selectedVar?.varDisplayName || variable;
-							const formattedValue = selectedVar
-								? formatVariableValue(varInitialValue, selectedVar.varValueType)
-								: String(varInitialValue);
+				</div>
+				{shouldShowHint() &&
+					(() => {
+						const selectedVar = customVariables.find(
+							(v: CustomVariable) => v.varName === variable,
+						);
+						const variableDisplayName =
+							selectedVar?.varDisplayName || variable;
+						const formattedValue = selectedVar
+							? formatVariableValue(varInitialValue, selectedVar.varValueType)
+							: String(varInitialValue);
 
-							const hint = generateResetHint(variableDisplayName, {
-								varValueType: selectedVar?.varValueType,
-								value: formattedValue,
-								selectedValues: Array.isArray(varInitialValue)
-									? varInitialValue
-									: undefined,
-								triggerConfig: {
-									triggerType: "timer",
-									conditionTrigger: undefined,
-									timerTrigger: timerTrigger,
-								},
-							});
+						const hint = generateResetHint(variableDisplayName, {
+							varValueType: selectedVar?.varValueType,
+							value: formattedValue,
+							selectedValues: Array.isArray(varInitialValue)
+								? varInitialValue
+								: undefined,
+							triggerConfig: {
+								triggerType: "timer",
+								conditionTrigger: undefined,
+								timerTrigger: timerTrigger,
+							},
+						});
 
-							return hint ? (
-								<p className="text-xs text-muted-foreground mt-1">{hint}</p>
-							) : null;
-						})()}
-				</>
-			)}
-		</>
-	);
+						return hint ? (
+							<p className="text-xs text-muted-foreground mt-1">{hint}</p>
+						) : null;
+					})()}
+			</>
+		)}
+	</>
+);
 };
 
 export default ResetVarConfig;

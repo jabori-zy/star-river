@@ -180,17 +180,44 @@ const GetVarConfig: React.FC<GetVarConfigProps> = ({
 	useEffect(() => {
 		if (!onValidationChange) return;
 
-		// 如果需要选择交易对但未选择，则验证失败
-		const isValid =
-			!shouldShowSymbolSelector ||
-			(shouldShowSymbolSelector && !!symbol);
+		let isValid = true;
+
+		// 1. 如果需要选择交易对但未选择，则验证失败
+		if (shouldShowSymbolSelector && !symbol) {
+			isValid = false;
+		}
+		// 2. 条件触发模式：必须选择触发条件
+		else if (effectiveTriggerType === "condition" && !conditionTrigger) {
+			isValid = false;
+		}
 
 		onValidationChange(isValid);
-	}, [variable, symbol, shouldShowSymbolSelector, onValidationChange]);
+	}, [variable, symbol, shouldShowSymbolSelector, effectiveTriggerType, conditionTrigger, onValidationChange]);
 
+
+	// 判断是否应该显示提示文案
+	const shouldShowConditionHint = () => {
+		// 必须选择了触发条件
+		if (!conditionTrigger) {
+			return false;
+		}
+		// 如果需要交易对，必须选择了交易对
+		if (shouldShowSymbolSelector && !symbol) {
+			return false;
+		}
+		return true;
+	};
+
+	const shouldShowTimerHint = () => {
+		// 如果需要交易对，必须选择了交易对
+		if (shouldShowSymbolSelector && !symbol) {
+			return false;
+		}
+		return true;
+	};
 
 	const conditionHint =
-		effectiveTriggerType === "condition" && variableDisplayName
+		effectiveTriggerType === "condition" && variableDisplayName && shouldShowConditionHint()
 			? generateGetHint(variableDisplayName, {
 					varValueType: variableValueType,
 					triggerConfig: {
@@ -203,7 +230,7 @@ const GetVarConfig: React.FC<GetVarConfigProps> = ({
 			: null;
 
 	const timerHint =
-		effectiveTriggerType === "timer" && variableDisplayName
+		effectiveTriggerType === "timer" && variableDisplayName && shouldShowTimerHint()
 			? generateGetHint(variableDisplayName, {
 					varValueType: variableValueType,
 					triggerConfig: {

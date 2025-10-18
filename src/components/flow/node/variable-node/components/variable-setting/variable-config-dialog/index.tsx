@@ -215,6 +215,12 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 	// get模式的验证状态
 	const [isGetConfigValid, setIsGetConfigValid] = React.useState<boolean>(true);
 
+	// update模式的验证状态
+	const [isUpdateConfigValid, setIsUpdateConfigValid] = React.useState<boolean>(true);
+
+	// reset模式的验证状态
+	const [isResetConfigValid, setIsResetConfigValid] = React.useState<boolean>(true);
+
 	// get模式的条件触发配置 - 用于选择触发的 case
 	const [triggerCase, setTriggerCase] = React.useState<ConditionTrigger | null>(
 		null,
@@ -304,6 +310,8 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 		setVarInitialValue("");
 		// 重置验证状态
 		setIsGetConfigValid(true);
+		setIsUpdateConfigValid(true);
+		setIsResetConfigValid(true);
 		// 重置条件触发配置
 		setTriggerCase(null);
 		// 重置变量类型追踪
@@ -857,33 +865,35 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 											setDataflowVariableValueType(newDataflowConfig.fromVarValueType);
 										}
 									}}
-									onDataflowNodeChange={handleDataflowNodeChange}
-									onDataflowVariableChange={handleDataflowVariableChange}
-									getAvailableOperations={getAvailableOperations}
-									getUpdateOperationLabel={getUpdateOperationLabel}
-								/>
+								onDataflowNodeChange={handleDataflowNodeChange}
+								onDataflowVariableChange={handleDataflowVariableChange}
+								getAvailableOperations={getAvailableOperations}
+								getUpdateOperationLabel={getUpdateOperationLabel}
+								onValidationChange={setIsUpdateConfigValid}
+							/>
 							) : (
-								<ResetVarConfig
-									variable={variable}
-									triggerConfig={buildTriggerConfigFromState(triggerType, {
-										timerConfig: triggerType === "timer" ? timerConfig : undefined,
-										conditionConfig: triggerType === "condition" ? triggerCase : null,
-									})}
-									customVariables={customVariables}
-									customVariableOptions={customVariableOptions}
-									caseItemList={caseItemList}
-									varInitialValue={varInitialValue}
-									onVariableChange={setVariable}
-									onTriggerConfigChange={(newConfig) => {
-										const newTriggerType = getEffectiveTriggerType({ triggerConfig: newConfig }) ?? "condition";
-										const newTimerConfig = getTimerTriggerConfig({ triggerConfig: newConfig });
-										const newConditionConfig = getConditionTriggerConfig({ triggerConfig: newConfig });
+							<ResetVarConfig
+								variable={variable}
+								triggerConfig={buildTriggerConfigFromState(triggerType, {
+									timerConfig: triggerType === "timer" ? timerConfig : undefined,
+									conditionConfig: triggerType === "condition" ? triggerCase : null,
+								})}
+								customVariables={customVariables}
+								customVariableOptions={customVariableOptions}
+								caseItemList={caseItemList}
+								varInitialValue={varInitialValue}
+								onVariableChange={setVariable}
+								onTriggerConfigChange={(newConfig) => {
+									const newTriggerType = getEffectiveTriggerType({ triggerConfig: newConfig }) ?? "condition";
+									const newTimerConfig = getTimerTriggerConfig({ triggerConfig: newConfig });
+									const newConditionConfig = getConditionTriggerConfig({ triggerConfig: newConfig });
 
-										setTriggerType(newTriggerType);
-										if (newTimerConfig) setTimerConfig(newTimerConfig);
-										setTriggerCase(newConditionConfig ?? null);
-									}}
-								/>
+									setTriggerType(newTriggerType);
+									if (newTimerConfig) setTimerConfig(newTimerConfig);
+									setTriggerCase(newConditionConfig ?? null);
+								}}
+								onValidationChange={setIsResetConfigValid}
+							/>
 							)}
 						</>
 					)}
@@ -902,22 +912,14 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 								上一步
 							</Button>
 							<Button
-								onClick={handleSave}
-								disabled={
-									varOperation === "get"
-										? !variableName.trim() || isDuplicate() || !isGetConfigValid
-										: varOperation === "update"
-											? customVariables.length === 0 ||
-												!variable ||
-												(updateTriggerType === "condition" &&
-													updateOperationType !== "toggle" &&
-													!updateValue.trim()) ||
-												(updateTriggerType === "dataflow" &&
-													(!dataflowNodeId ||
-														!dataflowHandleId ||
-														!dataflowVariable))
-											: customVariables.length === 0 || !variable // reset 模式
-								}
+							onClick={handleSave}
+							disabled={
+								varOperation === "get"
+									? !variableName.trim() || isDuplicate() || !isGetConfigValid
+									: varOperation === "update"
+										? !isUpdateConfigValid
+										: !isResetConfigValid // reset 模式
+							}
 							>
 								保存
 							</Button>

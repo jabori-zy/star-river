@@ -62,6 +62,7 @@ interface UpdateVarConfigProps {
 		isDataflowMode?: boolean,
 	) => UpdateOperationType[];
 	getUpdateOperationLabel: (type: UpdateOperationType) => string;
+	onValidationChange?: (isValid: boolean) => void;
 }
 
 /**
@@ -229,6 +230,7 @@ const UpdateVarConfig: React.FC<UpdateVarConfigProps> = ({
 	onDataflowVariableChange,
 	getAvailableOperations,
 	getUpdateOperationLabel,
+	onValidationChange,
 }) => {
 	// 从 triggerConfig 中提取各种触发配置
 	const effectiveTriggerType = getEffectiveTriggerType({ triggerConfig }) ?? "condition";
@@ -252,6 +254,57 @@ const UpdateVarConfig: React.FC<UpdateVarConfigProps> = ({
 			cachedConditionConfig.current = conditionTrigger;
 		}
 	}, [conditionTrigger]);
+
+	// 验证表单有效性并通知父组件
+	useEffect(() => {
+		if (!onValidationChange) return;
+
+		let isValid = true;
+
+		// 1. 必须有自定义变量
+		if (customVariables.length === 0) {
+			isValid = false;
+		}
+		// 2. 必须选择变量
+		else if (!variable) {
+			isValid = false;
+		}
+		// 3. 条件触发模式：必须选择触发条件
+		else if (effectiveTriggerType === "condition") {
+			if (!conditionTrigger) {
+				isValid = false;
+			}
+			// 条件触发模式下，如果操作不是 toggle，需要输入更新值
+			else if (updateOperationType !== "toggle" && !updateValue.trim()) {
+				isValid = false;
+			}
+		}
+		// 4. 数据流模式：必须选择上游节点和变量
+		else if (effectiveTriggerType === "dataflow") {
+			if (!dataflowNodeId || !dataflowHandleId || !dataflowVariable) {
+				isValid = false;
+			}
+		}
+		// 5. 定时触发模式：如果操作不是 toggle，需要输入更新值
+		else if (effectiveTriggerType === "timer") {
+			if (updateOperationType !== "toggle" && !updateValue.trim()) {
+				isValid = false;
+			}
+		}
+
+		onValidationChange(isValid);
+	}, [
+		effectiveTriggerType,
+		conditionTrigger,
+		customVariables.length,
+		variable,
+		updateOperationType,
+		updateValue,
+		dataflowNodeId,
+		dataflowHandleId,
+		dataflowVariable,
+		onValidationChange,
+	]);
 
 	const createEmptyDataflowTrigger = (): DataFlowTrigger => ({
 		fromNodeId: "",

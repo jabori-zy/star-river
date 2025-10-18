@@ -44,6 +44,20 @@ const EnumTypeOpEditor: React.FC<EnumTypeOpEditorProps> = ({
 	const conditionTrigger = getConditionTriggerConfig({ triggerConfig });
 	const timerTrigger = getTimerTriggerConfig({ triggerConfig });
 
+	// 判断是否应该显示提示文案
+	const shouldShowHint = (hasValues: boolean) => {
+		// 条件触发模式：必须选择了触发条件
+		if (effectiveTriggerType === "condition" && !conditionTrigger) {
+			return false;
+		}
+		// clear 操作不需要输入值，可以直接显示
+		if (updateOperationType === "clear") {
+			return true;
+		}
+		// 其他操作需要有值
+		return hasValues;
+	};
+
 	// 将 JSON 字符串解析为 Option[]
 	const parseValue = (): Option[] => {
 		try {
@@ -85,16 +99,18 @@ const EnumTypeOpEditor: React.FC<EnumTypeOpEditorProps> = ({
 					placeholder="选择更新操作"
 					options={availableOperationOptions}
 				/>
-				<p className="text-xs text-muted-foreground">
-					{generateUpdateHint(variableDisplayName, updateOperationType, {
-						varValueType: VariableValueType.ENUM,
-						triggerConfig: {
-							triggerType: effectiveTriggerType,
-							conditionTrigger,
-							timerTrigger,
-						},
-					})}
-				</p>
+				{shouldShowHint(true) && (
+					<p className="text-xs text-muted-foreground">
+						{generateUpdateHint(variableDisplayName, updateOperationType, {
+							varValueType: VariableValueType.ENUM,
+							triggerConfig: {
+								triggerType: effectiveTriggerType,
+								conditionTrigger,
+								timerTrigger,
+							},
+						})}
+					</p>
+				)}
 			</div>
 		);
 	}
@@ -143,19 +159,19 @@ const EnumTypeOpEditor: React.FC<EnumTypeOpEditorProps> = ({
 					/>
 				</div>
 			</div>
-			{hasValues && (
-				<p className="text-xs text-muted-foreground">
-					{generateUpdateHint(variableDisplayName, updateOperationType, {
-						varValueType: VariableValueType.ENUM,
-						selectedValues,
-						triggerConfig: {
-							triggerType: effectiveTriggerType,
-							conditionTrigger,
-							timerTrigger,
-						},
-					})}
-				</p>
-			)}
+		{shouldShowHint(hasValues) && (
+			<p className="text-xs text-muted-foreground">
+				{generateUpdateHint(variableDisplayName, updateOperationType, {
+					varValueType: VariableValueType.ENUM,
+					selectedValues,
+					triggerConfig: {
+						triggerType: effectiveTriggerType,
+						conditionTrigger,
+						timerTrigger,
+					},
+				})}
+			</p>
+		)}
 		</div>
 	);
 };
