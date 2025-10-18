@@ -38,6 +38,39 @@ const IfElseNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	// 收集到的所有变量列表
 	const [variableItemList, setVariableItemList] = useState<VariableItem[]>([]);
 
+	// 当节点的回测配置发生变化时，同步到本地状态，确保重新打开面板时能看到已保存的数据
+	useEffect(() => {
+		const cases = ifElseNodeData?.backtestConfig?.cases;
+
+		if (!cases || cases.length === 0) {
+			setLocalBacktestCases([]);
+			return;
+		}
+
+		setLocalBacktestCases((prevCases) => {
+			const hasReferenceDiff =
+				prevCases.length !== cases.length ||
+				prevCases.some((prevCase, index) => prevCase !== cases[index]);
+
+			if (!hasReferenceDiff) {
+				return prevCases;
+			}
+
+			return cases.map((caseItem) => ({
+				...caseItem,
+				conditions: (caseItem.conditions ?? []).map((condition) => ({
+					...condition,
+					leftVariable: condition.leftVariable
+						? { ...condition.leftVariable }
+						: null,
+					rightVariable: condition.rightVariable
+						? { ...condition.rightVariable }
+						: null,
+				})),
+			}));
+		});
+	}, [ifElseNodeData?.backtestConfig?.cases]);
+
 	useEffect(() => {
 		// 获取连接节点的变量并更新状态
 		// console.log("connections", connections);

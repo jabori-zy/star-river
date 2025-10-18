@@ -54,6 +54,7 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 	blacklistValueType,
 	excludeVariable,
 }) => {
+
 	const [selectedNodeId, setSelectedNodeId] = useState<string>(
 		variable?.nodeId || "",
 	);

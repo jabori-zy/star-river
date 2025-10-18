@@ -126,31 +126,36 @@ const updateIfElseNode = (
 	if (needsUpdate) {
 		const updatedCases = cases.map((caseItem) => ({
 			...caseItem,
-			conditions: caseItem.conditions.map((condition) => ({
-				...condition,
-				leftVariable: shouldClearVariable(
-					condition.leftVariable,
-					varNodeId,
-					varNodeVariableConfigsIds,
-				)
-					? null
-					: updateVariable(
-							condition.leftVariable,
-							varNodeId,
-							varNodeVariableConfigs,
-						),
-				rightVariable: shouldClearVariable(
-					condition.rightVariable,
-					varNodeId,
-					varNodeVariableConfigsIds,
-				)
-					? createEmptyRightVariable(condition.rightVariable?.varType || null)
-					: updateVariable(
-							condition.rightVariable,
-							varNodeId,
-							varNodeVariableConfigs,
-						),
-			})),
+			conditions: caseItem.conditions.map((condition) => {
+				const shouldClearLeft =
+					condition.leftVariable?.nodeId === varNodeId &&
+					!varNodeVariableConfigsIds.includes(
+						condition.leftVariable?.varConfigId || 0,
+					);
+				const shouldClearRight =
+					condition.rightVariable?.nodeId === varNodeId &&
+					!varNodeVariableConfigsIds.includes(
+						condition.rightVariable?.varConfigId || 0,
+					);
+
+				return {
+					...condition,
+					leftVariable: shouldClearLeft
+						? null
+						: updateVariable(
+								condition.leftVariable,
+								varNodeId,
+								varNodeVariableConfigs,
+							),
+					rightVariable: shouldClearRight
+						? createEmptyRightVariable(condition.rightVariable?.varType || null)
+						: updateVariable(
+								condition.rightVariable,
+								varNodeId,
+								varNodeVariableConfigs,
+							),
+				};
+			}),
 		}));
 		return {
 			...node,
@@ -231,5 +236,7 @@ const updateVariable = (
 	return {
 		...variable,
 		varName: matchingConfig.varName,
+		varDisplayName: matchingConfig.varDisplayName,
+		varValueType: matchingConfig.varValueType,
 	};
 };

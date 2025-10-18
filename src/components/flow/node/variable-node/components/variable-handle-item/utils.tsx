@@ -131,7 +131,7 @@ export const getUpdateOperationLabel = (type: UpdateOperationType): string => {
 		divide: "/=",
 		max: "max",
 		min: "min",
-		toggle: "toggle",
+		toggle: "Toggle",
 		append: "追加",
 		remove: "移除",
 		clear: "清空",

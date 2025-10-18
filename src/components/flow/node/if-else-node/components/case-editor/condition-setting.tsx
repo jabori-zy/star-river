@@ -1,5 +1,5 @@
 import { Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { formatDate } from "@/components/flow/node/node-utils";
 import { PercentInput } from "@/components/percent-input";
@@ -24,7 +24,7 @@ import {
 	type Variable,
 	VarType,
 } from "@/types/node/if-else-node";
-import type { NodeType } from "@/types/node/index";
+import { NodeType } from "@/types/node/index";
 import { VariableValueType } from "@/types/variable";
 import ComparisonSymbolSelector from "./comparison-symbol-selector";
 import ConstantInput from "./constant-input";
@@ -55,12 +55,92 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 		setLocalCondition(condition);
 	}, [condition]);
 
+	const areVariablesEqual = (
+		a: Variable | null | undefined,
+		b: Variable | null | undefined,
+	) => {
+		if (a === b) {
+			return true;
+		}
+		if (!a || !b) {
+			return false;
+		}
+
+		return (
+			a.varType === b.varType &&
+			a.nodeId === b.nodeId &&
+			a.nodeType === b.nodeType &&
+			a.nodeName === b.nodeName &&
+			a.outputHandleId === b.outputHandleId &&
+			a.varConfigId === b.varConfigId &&
+			a.varName === b.varName &&
+			a.varDisplayName === b.varDisplayName &&
+			a.varValueType === b.varValueType
+		);
+	};
+
+	const areConditionsEqual = (a: Condition, b: Condition) => {
+		return (
+			a.conditionId === b.conditionId &&
+			a.comparisonSymbol === b.comparisonSymbol &&
+			areVariablesEqual(a.leftVariable, b.leftVariable) &&
+			areVariablesEqual(a.rightVariable, b.rightVariable)
+		);
+	};
+
+	const createEmptyRightVariable = (
+		varValueType: VariableValueType | null,
+	): Variable => {
+		return {
+			varType: VarType.variable,
+			nodeId: null,
+			nodeType: null,
+			outputHandleId: null,
+			varConfigId: null,
+			varDisplayName: null,
+			varName: null,
+			nodeName: null,
+			varValueType: varValueType ?? VariableValueType.NUMBER,
+		};
+	};
+
 	// 更新左节点
 	const handleUpdateLeftNode = (
 		nodeId: string,
 		nodeType: NodeType | null,
 		nodeName: string,
 	) => {
+		const currentLeftVariable = localCondition.leftVariable;
+		if (!nodeId) {
+			if (!currentLeftVariable) {
+				return;
+			}
+			const clearedCondition: Condition = {
+				...localCondition,
+				leftVariable: null,
+				rightVariable: null,
+				comparisonSymbol: null,
+			};
+			setLocalCondition(clearedCondition);
+			onConditionChange(clearedCondition);
+			return;
+		}
+
+		if (
+			currentLeftVariable?.varType === VarType.variable &&
+			currentLeftVariable.nodeId === nodeId &&
+			currentLeftVariable.nodeType === nodeType &&
+			currentLeftVariable.nodeName === nodeName
+		) {
+			return;
+		}
+
+		const previousVarValueType = currentLeftVariable?.varValueType ?? null;
+		const resolvedVarValueType =
+			nodeType === NodeType.IndicatorNode || nodeType === NodeType.KlineNode
+				? VariableValueType.NUMBER
+				: previousVarValueType ?? VariableValueType.NUMBER;
+
 		const newLeftVariable: Variable = {
 			varType: VarType.variable,
 			nodeId: nodeId,
@@ -69,9 +149,32 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 			varConfigId: null,
 			varName: null,
 			nodeName: nodeName,
-			varValueType: VariableValueType.NUMBER, // 默认类型
+			varValueType: resolvedVarValueType,
 		};
-		const newCondition = { ...localCondition, leftVariable: newLeftVariable };
+
+		const hasTypeChanged = previousVarValueType !== resolvedVarValueType;
+		const availableSymbols = hasTypeChanged
+			? getAvailableComparisonSymbols(resolvedVarValueType)
+			: null;
+		const nextComparisonSymbol =
+			hasTypeChanged && availableSymbols
+				? availableSymbols.length === 0
+					? null
+					: localCondition.comparisonSymbol &&
+						availableSymbols.includes(localCondition.comparisonSymbol)
+						? localCondition.comparisonSymbol
+						: availableSymbols[0]
+				: localCondition.comparisonSymbol;
+
+		const newCondition: Condition = {
+			...localCondition,
+			leftVariable: newLeftVariable,
+			rightVariable: createEmptyRightVariable(resolvedVarValueType),
+			comparisonSymbol: nextComparisonSymbol,
+		};
+		if (areConditionsEqual(localCondition, newCondition)) {
+			return;
+		}
 		setLocalCondition(newCondition);
 		// 执行回调，更新条件
 		onConditionChange(newCondition);
@@ -84,9 +187,22 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 		variableName: string,
 		varValueType: VariableValueType,
 	) => {
+		const currentLeftVariable = localCondition.leftVariable;
+		if (
+			currentLeftVariable?.varType === VarType.variable &&
+			currentLeftVariable.varConfigId === variableId &&
+			currentLeftVariable.outputHandleId === handleId &&
+			currentLeftVariable.varName === variable &&
+			currentLeftVariable.varDisplayName === variableName &&
+			currentLeftVariable.varValueType === varValueType
+		) {
+			return;
+		}
+
 		// 检查左变量类型是否发生变化
 		const hasTypeChanged =
 			localCondition.leftVariable?.varValueType !== varValueType;
+		
 
 		const newLeftVariable: Variable = {
 			varType: VarType.variable,
@@ -101,62 +217,36 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 		};
 
 		// 如果类型发生变化，清空右变量并使用新类型的默认值
-		let newRightVariable = localCondition.rightVariable;
+		let newRightVariable: Variable | null = localCondition.rightVariable;
 		let newComparisonSymbol = localCondition.comparisonSymbol;
 
 		if (hasTypeChanged) {
-			// 根据新的变量类型设置默认值
-			let defaultValue: string | number | null = null;
-			if (localCondition.rightVariable?.varType === VarType.constant) {
-				// 如果右边是常量，设置新类型的默认值
-				switch (varValueType) {
-					case VariableValueType.STRING:
-						defaultValue = "";
-						break;
-					case VariableValueType.BOOLEAN:
-						defaultValue = "true";
-						break;
-					case VariableValueType.TIME:
-						defaultValue = formatDate(new Date());
-						break;
-					case VariableValueType.ENUM:
-						defaultValue = JSON.stringify([]);
-						break;
-					case VariableValueType.NUMBER:
-					default:
-						defaultValue = 0;
-						break;
-				}
-			}
-
-			newRightVariable = {
-				varType: localCondition.rightVariable?.varType || VarType.variable,
-				nodeId: null,
-				nodeType: null,
-				outputHandleId: null,
-				varConfigId: null,
-				varName: defaultValue,
-				nodeName: null,
-				varValueType: varValueType, // 使用新的类型
-			};
+			newRightVariable = createEmptyRightVariable(varValueType);
 
 			// 检查当前的比较符号是否适用于新的变量类型
 			const availableSymbols = getAvailableComparisonSymbols(varValueType);
-			if (
-				localCondition.comparisonSymbol &&
+			if (availableSymbols.length === 0) {
+				newComparisonSymbol = null;
+			} else if (
+				!localCondition.comparisonSymbol ||
 				!availableSymbols.includes(localCondition.comparisonSymbol)
 			) {
-				// 如果当前符号不适用，使用第一个可用符号
+				// 如果当前符号缺失或不适用，使用第一个可用符号
 				newComparisonSymbol = availableSymbols[0];
 			}
 		}
 
-		const newCondition = {
+		const newCondition: Condition = {
 			...localCondition,
 			leftVariable: newLeftVariable,
 			rightVariable: newRightVariable,
 			comparisonSymbol: newComparisonSymbol,
 		};
+
+		if (areConditionsEqual(localCondition, newCondition)) {
+			return;
+		}
+
 		setLocalCondition(newCondition);
 		// 执行回调，更新条件
 		onConditionChange(newCondition);
@@ -168,6 +258,27 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 		nodeType: NodeType | null,
 		nodeName: string,
 	) => {
+		const currentRightVariable = localCondition.rightVariable;
+
+		if (!nodeId) {
+			if (currentRightVariable === null) {
+				return;
+			}
+			const clearedCondition = { ...localCondition, rightVariable: null };
+			setLocalCondition(clearedCondition);
+			onConditionChange(clearedCondition);
+			return;
+		}
+
+		if (
+			currentRightVariable?.varType === VarType.variable &&
+			currentRightVariable.nodeId === nodeId &&
+			currentRightVariable.nodeType === nodeType &&
+			currentRightVariable.nodeName === nodeName
+		) {
+			return;
+		}
+
 		const newRightVariable: Variable = {
 			varType: VarType.variable,
 			nodeId: nodeId,
@@ -179,6 +290,9 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 			varValueType: VariableValueType.NUMBER, // 默认类型
 		};
 		const newCondition = { ...localCondition, rightVariable: newRightVariable };
+		if (areConditionsEqual(localCondition, newCondition)) {
+			return;
+		}
 		setLocalCondition(newCondition);
 		// 执行回调，更新条件
 		onConditionChange(newCondition);
@@ -191,6 +305,18 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 		variableName: string,
 		varValueType: VariableValueType,
 	) => {
+		const currentRightVariable = localCondition.rightVariable;
+		if (
+			currentRightVariable?.varType === VarType.variable &&
+			currentRightVariable.outputHandleId === handleId &&
+			currentRightVariable.varConfigId === variableId &&
+			currentRightVariable.varName === variable &&
+			currentRightVariable.varDisplayName === variableName &&
+			currentRightVariable.varValueType === varValueType
+		) {
+			return;
+		}
+
 		const newRightVariable: Variable = {
 			varType: VarType.variable,
 			nodeId: localCondition.rightVariable?.nodeId || null,
@@ -203,6 +329,9 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 			varValueType: varValueType,
 		};
 		const newCondition = { ...localCondition, rightVariable: newRightVariable };
+		if (areConditionsEqual(localCondition, newCondition)) {
+			return;
+		}
 		setLocalCondition(newCondition);
 		// 执行回调，更新条件
 		onConditionChange(newCondition);
@@ -210,10 +339,17 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 
 	// 更新比较符号
 	const handleUpdateComparisonSymbol = (comparisonSymbol: ComparisonSymbol) => {
+		if (localCondition.comparisonSymbol === comparisonSymbol) {
+			return;
+		}
+
 		const newCondition = {
 			...localCondition,
 			comparisonSymbol: comparisonSymbol,
 		};
+		if (areConditionsEqual(localCondition, newCondition)) {
+			return;
+		}
 		setLocalCondition(newCondition);
 		// 执行回调，更新条件
 		onConditionChange(newCondition);
@@ -223,6 +359,15 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 	const handleUpdateRightVarType = (varType: VarType) => {
 		const leftVarType =
 			localCondition.leftVariable?.varValueType || VariableValueType.NUMBER;
+
+		const currentRightVariable = localCondition.rightVariable;
+		if (
+			currentRightVariable?.varType === varType &&
+			(varType !== VarType.constant ||
+				currentRightVariable.varValueType === leftVarType)
+		) {
+			return;
+		}
 
 		// 根据变量类型和左变量类型设置默认值
 		let defaultValue: string | number | null = null;
@@ -256,11 +401,15 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 			nodeType: null,
 			outputHandleId: null,
 			varConfigId: null,
+			varDisplayName: null,
 			varName: defaultValue,
 			nodeName: null,
 			varValueType: leftVarType, // 使用左变量的类型
 		};
 		const newCondition = { ...localCondition, rightVariable: newRightVariable };
+		if (areConditionsEqual(localCondition, newCondition)) {
+			return;
+		}
 		setLocalCondition(newCondition);
 		// 执行回调，更新条件
 		onConditionChange(newCondition);
@@ -271,22 +420,36 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 		const leftVarType =
 			localCondition.leftVariable?.varValueType || VariableValueType.NUMBER;
 
+		const nextVarName =
+			typeof value === "boolean"
+				? value
+					? "true"
+					: "false"
+				: value.toString();
+
+		const currentRightVariable = localCondition.rightVariable;
+		if (
+			currentRightVariable?.varType === VarType.constant &&
+			currentRightVariable.varName === nextVarName &&
+			currentRightVariable.varValueType === leftVarType
+		) {
+			return;
+		}
+
 		const newRightVariable: Variable = {
 			varType: VarType.constant,
 			nodeId: null,
 			nodeType: null,
 			outputHandleId: null,
 			varConfigId: null,
-			varName:
-				typeof value === "boolean"
-					? value
-						? "true"
-						: "false"
-					: value.toString(),
+			varName: nextVarName,
 			nodeName: null,
 			varValueType: leftVarType, // 使用左变量的类型
 		};
 		const newCondition = { ...localCondition, rightVariable: newRightVariable };
+		if (areConditionsEqual(localCondition, newCondition)) {
+			return;
+		}
 		setLocalCondition(newCondition);
 		// 执行回调，更新条件
 		onConditionChange(newCondition);
@@ -296,6 +459,42 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 	const needsRightVariable =
 		localCondition.comparisonSymbol !== ComparisonSymbol.isEmpty &&
 		localCondition.comparisonSymbol !== ComparisonSymbol.isNotEmpty;
+
+	const leftVarValueType =
+		localCondition.leftVariable?.varValueType || null;
+	const rightVarType = localCondition.rightVariable?.varType || null;
+	const rightConstantString =
+		localCondition.rightVariable?.varName !== undefined &&
+		localCondition.rightVariable?.varName !== null
+			? localCondition.rightVariable?.varName.toString()
+			: "";
+	const enumConstantValues = useMemo(() => {
+		if (
+			rightVarType !== VarType.constant ||
+			leftVarValueType !== VariableValueType.ENUM
+		) {
+			return [] as string[];
+		}
+
+		if (!rightConstantString) {
+			return [];
+		}
+
+		try {
+			const parsed = JSON.parse(rightConstantString);
+			return Array.isArray(parsed)
+				? parsed.map((item) => item?.toString?.() ?? "")
+				: [];
+		} catch {
+			return [];
+		}
+	}, [rightVarType, leftVarValueType, rightConstantString]);
+	const enumConstantOptions = useMemo<Option[]>(() => {
+		return enumConstantValues.map((val) => ({
+			value: val,
+			label: val,
+		}));
+	}, [enumConstantValues]);
 
 	// 获取右变量的白名单类型（只保留该类型）
 	const getRightVariableWhitelist = (): VariableValueType | null => {
@@ -368,15 +567,11 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 								localCondition.comparisonSymbol || ComparisonSymbol.equal
 							}
 							onComparisonSymbolChange={handleUpdateComparisonSymbol}
-							leftVarValueType={
-								localCondition.leftVariable?.varValueType || null
-							}
+							leftVarValueType={leftVarValueType}
 						/>
 						<VarTypeSelector
 							className="w-24"
-							varType={
-								localCondition.rightVariable?.varType || VarType.variable
-							}
+							varType={rightVarType || VarType.variable}
 							onVarTypeChange={handleUpdateRightVarType}
 							disabled={!needsRightVariable}
 						/>
@@ -387,7 +582,7 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 						<div className="text-sm font-bold text-muted-foreground text-left">
 							{t("IfElseNode.rightVariable")}
 						</div>
-						{localCondition.rightVariable?.varType === VarType.variable ? (
+						{rightVarType !== VarType.constant ? (
 							<VariableSelector
 								variableItemList={variableItemList}
 								variable={localCondition.rightVariable || null}
@@ -395,27 +590,14 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 								onVariableChange={handleUpdateRightVariable}
 								whitelistValueType={getRightVariableWhitelist()}
 								blacklistValueType={getRightVariableBlacklist()}
-								excludeVariable={
-									localCondition.leftVariable?.nodeId &&
-									localCondition.leftVariable?.outputHandleId &&
-									localCondition.leftVariable?.varName
-										? {
-												nodeId: localCondition.leftVariable.nodeId,
-												outputHandleId:
-													localCondition.leftVariable.outputHandleId,
-												varName: localCondition.leftVariable.varName,
-											}
-										: null
-								}
 							/>
 						) : (
 							/* 根据左变量类型显示不同的常量输入 */
 							(() => {
 								const leftVarType =
-									localCondition.leftVariable?.varValueType ||
-									VariableValueType.NUMBER;
+									leftVarValueType || VariableValueType.NUMBER;
 								const constantValue =
-									localCondition.rightVariable?.varName || "";
+									localCondition.rightVariable?.varName ?? "";
 
 								switch (leftVarType) {
 									case VariableValueType.STRING:
@@ -470,23 +652,9 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 										);
 
 									case VariableValueType.ENUM: {
-										// 枚举类型使用 MultipleSelector
-										const enumValue: string[] = (() => {
-											try {
-												return JSON.parse(constantValue.toString());
-											} catch {
-												return [];
-											}
-										})();
-
-										const enumOptions: Option[] = enumValue.map((val) => ({
-											value: val,
-											label: val,
-										}));
-
 										return (
 											<MultipleSelector
-												value={enumOptions}
+												value={enumConstantOptions}
 												onChange={(options) => {
 													const values = options.map((opt) => opt.value);
 													handleUpdateRightConstantValue(

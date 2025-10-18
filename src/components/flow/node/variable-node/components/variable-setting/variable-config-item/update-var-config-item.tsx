@@ -79,7 +79,7 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({ config }) => 
 				<TbEdit className="h-4 w-4 text-green-600 flex-shrink-0" />
 				<span className="text-sm font-medium">更新变量</span>
 				<Badge className={`h-5 text-[10px] ${typeInfo.badgeColor}`}>
-					<TriggerIcon className="h-3 w-3 mr-1" />
+					<TriggerIcon className="h-3 w-3" />
 					{typeInfo.label}
 				</Badge>
 			</div>

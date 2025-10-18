@@ -21,6 +21,7 @@ interface ResetVarConfigProps {
 	customVariableOptions: Array<{ value: string; label: React.ReactNode }>;
 	caseItemList: CaseItemInfo[];
 	varInitialValue: string | number | boolean | string[];
+	isEditing?: boolean;
 	onVariableChange: (value: string) => void;
 	onTriggerConfigChange: (value: TriggerConfig) => void;
 	onValidationChange?: (isValid: boolean) => void;
@@ -33,6 +34,7 @@ const ResetVarConfig: React.FC<ResetVarConfigProps> = ({
 	customVariableOptions,
 	caseItemList,
 	varInitialValue,
+	isEditing = false,
 	onVariableChange,
 	onTriggerConfigChange,
 	onValidationChange,
@@ -108,7 +110,7 @@ const ResetVarConfig: React.FC<ResetVarConfigProps> = ({
 					htmlFor="resetVariable"
 					className="text-sm font-medium pointer-events-none"
 				>
-					选择变量
+					变量
 				</Label>
 				<SelectInDialog
 					id="resetVariable"
@@ -118,7 +120,7 @@ const ResetVarConfig: React.FC<ResetVarConfigProps> = ({
 						customVariables.length === 0 ? "无自定义变量" : "选择要重置的变量"
 					}
 					options={customVariableOptions}
-					disabled={customVariables.length === 0}
+					disabled={isEditing}
 					emptyMessage="未配置自定义变量，请在策略起点配置"
 				/>
 			</div>

@@ -41,6 +41,7 @@ interface UpdateVarConfigProps {
 	dataflowHandleId: string | null;
 	dataflowVariable: string | null;
 	dataflowVariableName: string | null;
+	isEditing?: boolean;
 	onVariableChange: (value: string) => void;
 	onUpdateOperationTypeChange: (value: UpdateOperationType) => void;
 	onUpdateValueChange: (value: string) => void;
@@ -222,6 +223,7 @@ const UpdateVarConfig: React.FC<UpdateVarConfigProps> = ({
 	dataflowHandleId,
 	dataflowVariable,
 	dataflowVariableName,
+	isEditing = false,
 	onVariableChange,
 	onUpdateOperationTypeChange,
 	onUpdateValueChange,
@@ -324,7 +326,7 @@ const UpdateVarConfig: React.FC<UpdateVarConfigProps> = ({
 					htmlFor="updateVariable"
 					className="text-sm font-medium pointer-events-none"
 				>
-					选择变量
+					变量
 				</Label>
 				<SelectInDialog
 					id="updateVariable"
@@ -334,7 +336,7 @@ const UpdateVarConfig: React.FC<UpdateVarConfigProps> = ({
 						customVariables.length === 0 ? "无自定义变量" : "选择要更新的变量"
 					}
 					options={customVariableOptions}
-					disabled={customVariables.length === 0}
+					disabled={isEditing}
 					emptyMessage="未配置自定义变量，请在策略起点配置"
 				/>
 			</div>

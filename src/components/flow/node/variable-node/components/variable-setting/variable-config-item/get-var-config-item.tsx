@@ -2,7 +2,6 @@ import { TbFileImport } from "react-icons/tb";
 import type React from "react";
 import {
 	generateGetHint,
-	getTriggerCaseLabel,
 	getTriggerTypeInfo,
 } from "@/components/flow/node/variable-node/variable-node-utils";
 import { Badge } from "@/components/ui/badge";
@@ -48,7 +47,7 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({ config }) => {
 				<TbFileImport className="h-4 w-4 text-blue-600 flex-shrink-0" />
 				<span className="text-sm font-medium">获取变量</span>
 				<Badge className={`h-5 text-[10px] ${typeInfo.badgeColor}`}>
-					<TriggerIcon className="h-3 w-3 mr-1" />
+					<TriggerIcon className="h-3 w-3" />
 					{typeInfo.label}
 				</Badge>
 			</div>

@@ -59,7 +59,7 @@ export const ResetVarHandleItem: React.FC<ResetVarHandleItemProps> = ({
 					{variableConfig.varDisplayName}
 				</span>
 				<Badge className={`h-5 text-[10px] ${typeInfo.badgeColor} flex-shrink-0`}>
-					<TriggerIcon className="h-3 w-3 mr-1" />
+					<TriggerIcon className="h-3 w-3" />
 					{typeInfo.label}
 				</Badge>
 			</div>

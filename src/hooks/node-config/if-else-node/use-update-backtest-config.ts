@@ -22,6 +22,11 @@ export const useUpdateBacktestConfig = ({
 		initialConfig,
 	);
 
+	// 同步外部传入的初始配置，确保在重新打开面板时能恢复已有数据
+	useEffect(() => {
+		setConfig(initialConfig);
+	}, [initialConfig]);
+
 	// 监听 config 变化，同步到 ReactFlow
 	useEffect(() => {
 		if (config) {

@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect } from "react";
+import { useReactFlow } from "@xyflow/react";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -8,7 +9,9 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
+import { NodeOpConfirmDialog } from "@/components/flow/node-op-confirm-dialog";
 import type { VariableItem } from "@/hooks/flow/use-strategy-workflow";
+import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 import { useStartNodeDataStore } from "@/store/node/use-start-node-data-store";
 import useTradingModeStore from "@/store/useTradingModeStore";
 import type { NodeType } from "@/types/node/index";
@@ -119,6 +122,18 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 		// simulateConfig: startNodeSimulateConfig,
 	} = useStartNodeDataStore();
 	const { tradingMode } = useTradingModeStore();
+
+	// 获取工作流工具函数
+	const { getTargetNodeIds } = useStrategyWorkflow();
+	const { getNode } = useReactFlow();
+
+	// 二次确认对话框状态
+	const [isConfirmDialogOpen, setIsConfirmDialogOpen] = React.useState(false);
+	const [pendingVariableConfig, setPendingVariableConfig] = React.useState<{
+		varOperation: "get" | "update" | "reset";
+		targetNodeCount: number;
+		targetNodeNames: string[];
+	} | null>(null);
 
 	// 获取自定义变量列表
 	const customVariables = React.useMemo(() => {
@@ -316,6 +331,9 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 		setTriggerCase(null);
 		// 重置变量类型追踪
 		prevVarValueTypeRef.current = null;
+		// 重置二次确认状态
+		setIsConfirmDialogOpen(false);
+		setPendingVariableConfig(null);
 	}, []);
 
 	// 当切换操作类型时，自动选择合适的默认变量
@@ -615,6 +633,46 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 			}
 		}
 
+		// 如果是编辑操作，检查是否有连接的目标节点
+		if (isEditing && editingConfig) {
+			const targetNodeIds = getTargetNodeIds(
+				id
+			);
+			console.log("targetNodeIds", targetNodeIds);
+			const targetNodeNames = [
+				...new Set(
+					targetNodeIds
+						.map((nodeId) => getNode(nodeId)?.data.nodeName as string)
+						.filter(Boolean),
+				),
+			];
+
+			// 如果有连接的目标节点，显示确认对话框
+			if (targetNodeIds.length > 0) {
+				// 先关闭配置对话框
+				onOpenChange(false);
+
+				// 保存待处理的配置数据
+				setPendingVariableConfig({
+					varOperation,
+					targetNodeCount: targetNodeIds.length,
+					targetNodeNames: targetNodeNames,
+				});
+
+				// 短暂延迟后显示确认对话框，确保配置对话框完全关闭
+				setTimeout(() => {
+					setIsConfirmDialogOpen(true);
+				}, 50);
+				return;
+			}
+		}
+
+		// 没有连接节点或是新增操作，直接保存
+		performSave();
+	};
+
+	// 执行保存
+	const performSave = () => {
 		const timerConfigData: TimerTrigger | undefined =
 			triggerType === "timer" ? timerConfig : undefined;
 
@@ -748,6 +806,27 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 
 		onSave(id, variableConfig);
 		onOpenChange(false);
+
+		// 清理确认对话框状态
+		setIsConfirmDialogOpen(false);
+		setPendingVariableConfig(null);
+	};
+
+	// 确认保存（从确认对话框）
+	const handleConfirmSave = () => {
+		performSave();
+	};
+
+	// 取消保存（从确认对话框）
+	const handleCancelSave = () => {
+		// 关闭确认对话框
+		setIsConfirmDialogOpen(false);
+		setPendingVariableConfig(null);
+
+		// 短暂延迟后重新打开配置对话框
+		setTimeout(() => {
+			onOpenChange(true);
+		}, 100);
 	};
 
 	const handleNextStep = () => {
@@ -799,6 +878,7 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 									isSymbolSelectorDisabled={isSymbolSelectorDisabled}
 									customVariables={customVariables}
 									caseItemList={caseItemList}
+									isEditing={isEditing}
 									onSymbolChange={setSymbol}
 									onVariableNameChange={handleVariableNameChange}
 									onVariableChange={handleVariableTypeChange}
@@ -840,6 +920,7 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 									dataflowHandleId={dataflowHandleId}
 									dataflowVariable={dataflowVariable}
 									dataflowVariableName={dataflowVariableName}
+									isEditing={isEditing}
 									onVariableChange={setVariable}
 									onUpdateOperationTypeChange={setUpdateOperationType}
 									onUpdateValueChange={setUpdateValue}
@@ -882,6 +963,7 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 								customVariableOptions={customVariableOptions}
 								caseItemList={caseItemList}
 								varInitialValue={varInitialValue}
+								isEditing={isEditing}
 								onVariableChange={setVariable}
 								onTriggerConfigChange={(newConfig) => {
 									const newTriggerType = getEffectiveTriggerType({ triggerConfig: newConfig }) ?? "condition";
@@ -927,6 +1009,17 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 					)}
 				</DialogFooter>
 			</DialogContent>
+
+			{/* 确认修改对话框 */}
+			<NodeOpConfirmDialog
+				isOpen={isConfirmDialogOpen}
+				onOpenChange={setIsConfirmDialogOpen}
+				affectedNodeCount={pendingVariableConfig?.targetNodeCount || 0}
+				affectedNodeNames={pendingVariableConfig?.targetNodeNames || []}
+				onConfirm={handleConfirmSave}
+				onCancel={handleCancelSave}
+				operationType="edit"
+			/>
 		</Dialog>
 	);
 };

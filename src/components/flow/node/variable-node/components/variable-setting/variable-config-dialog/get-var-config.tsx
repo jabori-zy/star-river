@@ -34,6 +34,7 @@ interface GetVarConfigProps {
 	isSymbolSelectorDisabled: boolean;
 	customVariables: CustomVariable[];
 	caseItemList: CaseItemInfo[];
+	isEditing?: boolean;
 	onSymbolChange: (value: string) => void;
 	onVariableNameChange: (value: string) => void;
 	onVariableChange: (value: string) => void;
@@ -52,6 +53,7 @@ const GetVarConfig: React.FC<GetVarConfigProps> = ({
 	isSymbolSelectorDisabled,
 	customVariables,
 	caseItemList,
+	isEditing = false,
 	onSymbolChange,
 	onVariableNameChange,
 	onVariableChange,
@@ -259,6 +261,7 @@ const GetVarConfig: React.FC<GetVarConfigProps> = ({
 					searchPlaceholder="搜索变量..."
 					emptyMessage="未找到变量"
 					options={mixedVariableOptions}
+					disabled={isEditing}
 				/>
 			</div>
 
@@ -288,7 +291,7 @@ const GetVarConfig: React.FC<GetVarConfigProps> = ({
 					htmlFor="variableName"
 					className="text-sm font-medium pointer-events-none"
 				>
-					变量名称
+					自定义变量名称
 				</Label>
 				<Input
 					id="variableName"
