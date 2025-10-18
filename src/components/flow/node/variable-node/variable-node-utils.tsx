@@ -4,6 +4,7 @@ import type {
 	TimerTrigger,
 	TimerUnit,
 	ConditionTrigger,
+	DataFlowTrigger,
 	TriggerType,
 	UpdateOperationType,
 	VariableConfig,
@@ -205,26 +206,33 @@ export const getTriggerTypeInfo = (triggerType: TriggerType): TriggerTypeInfo =>
  * 生成触发条件前缀
  * 支持条件触发和定时触发两种模式（interval 和 scheduled）
  */
-const generateTriggerPrefix = (
-	triggerNodeName?: string,
-	triggerCaseLabel?: string,
-	timerConfig?: TimerTrigger,
-): React.ReactNode | null => {
+const generateTriggerPrefix = ({
+	conditionTrigger,
+	timerTrigger,
+}: {
+	conditionTrigger?: ConditionTrigger | null;
+	timerTrigger?: TimerTrigger;
+}): React.ReactNode | null => {
 	// 定时触发模式：优先检查 scheduled 模式
-	if (timerConfig?.mode === "scheduled") {
-		const schedulePrefix = generateSchedulePrefix(timerConfig);
+	if (timerTrigger?.mode === "scheduled") {
+		const schedulePrefix = generateSchedulePrefix(timerTrigger);
 		if (schedulePrefix) {
 			return schedulePrefix;
 		}
 	}
 
 	// 定时触发模式：检查 interval 模式
-	const timerPrefix = generateTimerIntervalPrefix(timerConfig);
+	const timerPrefix = generateTimerIntervalPrefix(timerTrigger);
 	if (timerPrefix) {
 		return timerPrefix;
 	}
 
 	// 条件触发模式：生成条件分支前缀
+	if (!conditionTrigger) return null;
+
+	const triggerNodeName = conditionTrigger.fromNodeName;
+	const triggerCaseLabel = getTriggerCaseLabel(conditionTrigger);
+
 	if (!triggerNodeName || !triggerCaseLabel) return null;
 
 	return (
@@ -285,9 +293,9 @@ interface HintGeneratorParams {
 	operationType?: UpdateOperationType;
 	value?: string;
 	selectedValues?: string[];
-	triggerNodeName?: string;
-	triggerCaseLabel?: string;
-	timerConfig?: TimerTrigger; // 定时配置，用于生成时间间隔前缀
+	conditionTrigger?: ConditionTrigger | null;
+	timerTrigger?: TimerTrigger;
+	dataflowTrigger?: DataFlowTrigger | null;
 	symbol?: string;
 }
 
@@ -457,16 +465,15 @@ const generateBooleanHint = (params: HintGeneratorParams): React.ReactNode => {
 		varOperation,
 		operationType,
 		value,
-		triggerNodeName,
-		triggerCaseLabel,
-		timerConfig,
+		conditionTrigger,
+		timerTrigger,
+		dataflowTrigger,
 		symbol,
 	} = params;
-	const triggerPrefix = generateTriggerPrefix(
-		triggerNodeName,
-		triggerCaseLabel,
-		timerConfig,
-	);
+	const triggerPrefix = generateTriggerPrefix({
+		conditionTrigger,
+		timerTrigger,
+	});
 
 	const valueLabel = value === "false" ? "False" : "True";
 
@@ -540,16 +547,14 @@ const generateEnumHint = (params: HintGeneratorParams): React.ReactNode => {
 		operationType,
 		selectedValues,
 		value,
-		triggerNodeName,
-		triggerCaseLabel,
-		timerConfig,
+		conditionTrigger,
+		timerTrigger,
 		symbol,
 	} = params;
-	const triggerPrefix = generateTriggerPrefix(
-		triggerNodeName,
-		triggerCaseLabel,
-		timerConfig,
-	);
+	const triggerPrefix = generateTriggerPrefix({
+		conditionTrigger,
+		timerTrigger,
+	});
 
 	const hasValues = selectedValues && selectedValues.length > 0;
 	const valueList = hasValues ? selectedValues.join("、") : "";
@@ -635,17 +640,16 @@ const generateNumericHint = (params: HintGeneratorParams): React.ReactNode => {
 		varOperation,
 		operationType,
 		value,
-		triggerNodeName,
-		triggerCaseLabel,
-		timerConfig,
+		conditionTrigger,
+		timerTrigger,
+		dataflowTrigger,
 		symbol,
 	} = params;
 
-	const triggerPrefix = generateTriggerPrefix(
-		triggerNodeName,
-		triggerCaseLabel,
-		timerConfig,
-	);
+	const triggerPrefix = generateTriggerPrefix({
+		conditionTrigger,
+		timerTrigger,
+	});
 
 	if (varOperation === "update") {
 		if (!value || !operationType) return null;
@@ -771,9 +775,12 @@ type VariableHintBaseOptions = {
 	varValueType?: VariableValueType;
 	value?: string;
 	selectedValues?: string[];
-	triggerNodeName?: string;
-	triggerCaseLabel?: string;
-	timerConfig?: TimerTrigger;
+	triggerConfig?: {
+		triggerType: TriggerType;
+		conditionTrigger?: ConditionTrigger | null;
+		timerTrigger?: TimerTrigger;
+		dataflowTrigger?: DataFlowTrigger | null;
+	};
 	symbol?: string;
 };
 
@@ -784,7 +791,15 @@ const generateVariableHintByOperation = (
 		operationType?: UpdateOperationType;
 	} & VariableHintBaseOptions,
 ): React.ReactNode => {
-	const { varOperation, operationType, varValueType, value, selectedValues, triggerNodeName, triggerCaseLabel, timerConfig, symbol } =
+	const {
+		varOperation,
+		operationType,
+		varValueType,
+		value,
+		selectedValues,
+		triggerConfig,
+		symbol,
+	} =
 		params;
 
 	const generatorParams: HintGeneratorParams = {
@@ -793,9 +808,9 @@ const generateVariableHintByOperation = (
 		operationType,
 		value,
 		selectedValues,
-		triggerNodeName,
-		triggerCaseLabel,
-		timerConfig,
+		conditionTrigger: triggerConfig?.conditionTrigger,
+		timerTrigger: triggerConfig?.timerTrigger,
+		dataflowTrigger: triggerConfig?.dataflowTrigger,
 		symbol,
 	};
 

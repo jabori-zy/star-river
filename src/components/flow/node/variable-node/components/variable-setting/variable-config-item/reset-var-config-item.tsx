@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import type { ResetVariableConfig } from "@/types/node/variable-node";
 import {
 	getConditionTriggerConfig,
+	getDataFlowTriggerConfig,
 	getEffectiveTriggerType,
 	getTimerTriggerConfig,
 } from "@/types/node/variable-node";
@@ -40,18 +41,18 @@ const ResetVarConfigItem: React.FC<ResetVarConfigItemProps> = ({ config }) => {
 		selectedValues: Array.isArray(config.varInitialValue)
 			? config.varInitialValue
 			: undefined,
-	triggerNodeName,
-	triggerCaseLabel: triggerCaseLabel || undefined,
-	timerConfig:
-		effectiveTriggerType === "timer"
-			? getTimerTriggerConfig(config)
-			: undefined,
+		triggerConfig: {
+			triggerType: effectiveTriggerType,
+			conditionTrigger: triggerCase,
+			timerTrigger: getTimerTriggerConfig(config),
+			dataflowTrigger: getDataFlowTriggerConfig(config),
+		},
 	});
 
 	return (
 		<div className="flex-1 space-y-1">
 			{/* 第一行：图标 + 操作标题 + 触发方式 */}
-			<div className="flex items-center gap-2">
+			<div className="flex items-center gap-2 pb-2">
 				<TbRefresh className="h-4 w-4 text-orange-600 flex-shrink-0" />
 				<span className="text-sm font-medium">重置变量</span>
 				<Badge className={`h-5 text-[10px] ${typeInfo.badgeColor}`}>

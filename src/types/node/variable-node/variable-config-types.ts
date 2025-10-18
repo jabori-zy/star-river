@@ -1,7 +1,9 @@
 import type { Node } from "@xyflow/react";
 import type { BacktestDataSource, SelectedAccount } from "@/types/strategy";
 import type { VariableValueType } from "@/types/variable";
-import type { TriggerConfig } from "./trigger-types";
+import type {
+	TriggerConfig,
+} from "./trigger-types";
 import type { UpdateOperationType } from "./variable-operation-types";
 
 type BaseVariableConfig = {
@@ -12,20 +14,19 @@ type BaseVariableConfig = {
 	varName: string;
 	varDisplayName: string;
 	varValueType: VariableValueType;
+	triggerConfig: TriggerConfig;
 };
 
 export type GetSystemVariableConfig = BaseVariableConfig & {
 	varOperation: "get";
 	varType: "system";
 	symbol?: string | null;
-	triggerConfig: TriggerConfig;
 	varValue: string | number | boolean | string[];
 };
 
 export type GetCustomVariableConfig = BaseVariableConfig & {
 	varOperation: "get";
 	varType: "custom";
-	triggerConfig: TriggerConfig;
 	varValue: string | number | boolean | string[];
 };
 
@@ -46,13 +47,11 @@ export function isGetCustomVariableConfig(
 export type UpdateVariableConfig = BaseVariableConfig & {
 	varOperation: "update";
 	updateOperationType: UpdateOperationType;
-	triggerConfig: TriggerConfig;
 	updateOperationValue: string | number | boolean | string[] | null;
 };
 
 export type ResetVariableConfig = BaseVariableConfig & {
 	varOperation: "reset";
-	triggerConfig: TriggerConfig;
 	varInitialValue: string | number | boolean | string[];
 };
 
@@ -90,23 +89,3 @@ export type VariableNodeData = {
 };
 
 export type VariableNode = Node<VariableNodeData, "variableNode">;
-
-export const ensureTriggerConfigForVariableConfig = (
-	config: VariableConfig,
-): VariableConfig => {
-	if (config.triggerConfig !== undefined) {
-		return config;
-	}
-
-	return {
-		...config,
-		triggerConfig: null,
-	};
-};
-
-export const ensureTriggerConfigForVariableConfigs = (
-	configs: VariableConfig[] | undefined,
-): VariableConfig[] => {
-	if (!configs) return [];
-	return configs.map((item) => ensureTriggerConfigForVariableConfig(item));
-};

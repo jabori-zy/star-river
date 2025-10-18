@@ -2,14 +2,17 @@ import { SelectInDialog } from "@/components/select-components/select-in-dialog"
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Input } from "@/components/ui/input";
 import type {
-	TimerTrigger,
-	ConditionTrigger,
+	TriggerConfig,
 	UpdateOperationType,
+} from "@/types/node/variable-node";
+import {
+	getConditionTriggerConfig,
+	getEffectiveTriggerType,
+	getTimerTriggerConfig,
 } from "@/types/node/variable-node";
 import { VariableValueType } from "@/types/variable";
 import {
 	generateUpdateHint,
-	getTriggerCaseLabel,
 } from "../../../../variable-node-utils";
 
 interface InputTypeOpEditorProps {
@@ -21,8 +24,8 @@ interface InputTypeOpEditorProps {
 	onUpdateValueChange: (value: string) => void;
 	variableDisplayName?: string;
 	getPlaceholder: (operationType: UpdateOperationType) => string;
-	triggerCase?: ConditionTrigger | null;
-	timerConfig?: TimerTrigger;
+	triggerType: "condition" | "timer" | "dataflow";
+	triggerConfig: TriggerConfig;
 }
 
 const InputTypeOpEditor: React.FC<InputTypeOpEditorProps> = ({
@@ -34,12 +37,13 @@ const InputTypeOpEditor: React.FC<InputTypeOpEditorProps> = ({
 	onUpdateValueChange,
 	variableDisplayName,
 	getPlaceholder,
-	triggerCase,
-	timerConfig,
+	triggerType,
+	triggerConfig,
 }) => {
-	// 获取触发信息
-	const triggerNodeName = triggerCase?.fromNodeName;
-	const triggerCaseLabel = getTriggerCaseLabel(triggerCase);
+	const effectiveTriggerType =
+		triggerType ?? getEffectiveTriggerType({ triggerConfig }) ?? "condition";
+	const conditionTrigger = getConditionTriggerConfig({ triggerConfig });
+	const timerTrigger = getTimerTriggerConfig({ triggerConfig });
 
 	return (
 		<div className="flex flex-col gap-2">
@@ -66,15 +70,17 @@ const InputTypeOpEditor: React.FC<InputTypeOpEditorProps> = ({
 				/>
 			</ButtonGroup>
 			{updateValue && (
-				<p className="text-xs text-muted-foreground">
-					{generateUpdateHint(variableDisplayName, updateOperationType, {
-						value: updateValue,
-						triggerNodeName: triggerNodeName,
-						triggerCaseLabel: triggerCaseLabel || undefined,
-					timerConfig: timerConfig,
-					})}
-				</p>
-			)}
+		<p className="text-xs text-muted-foreground">
+			{generateUpdateHint(variableDisplayName, updateOperationType, {
+				value: updateValue,
+				triggerConfig: {
+					triggerType: effectiveTriggerType,
+					conditionTrigger,
+					timerTrigger,
+				},
+			})}
+		</p>
+	)}
 		</div>
 	);
 };

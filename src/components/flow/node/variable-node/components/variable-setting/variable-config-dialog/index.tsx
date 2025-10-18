@@ -781,21 +781,28 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 									symbol={symbol}
 									variableName={variableName}
 									variable={variable}
-									triggerType={triggerType}
-									timerConfig={timerConfig}
+									triggerConfig={buildTriggerConfigFromState(triggerType, {
+										timerConfig: triggerType === "timer" ? timerConfig : undefined,
+										conditionConfig: triggerType === "condition" ? triggerCase : null,
+									})}
 									symbolOptions={symbolOptions}
 									symbolPlaceholder={symbolPlaceholder}
 									symbolEmptyMessage={symbolEmptyMessage}
 									isSymbolSelectorDisabled={isSymbolSelectorDisabled}
 									customVariables={customVariables}
 									caseItemList={caseItemList}
-									selectedTriggerCase={triggerCase}
 									onSymbolChange={setSymbol}
 									onVariableNameChange={handleVariableNameChange}
 									onVariableChange={handleVariableTypeChange}
-									onTriggerTypeChange={setTriggerType}
-									onTimerConfigChange={setTimerConfig}
-									onTriggerCaseChange={setTriggerCase}
+									onTriggerConfigChange={(newConfig) => {
+										const newTriggerType = getEffectiveTriggerType({ triggerConfig: newConfig }) ?? "condition";
+										const newTimerConfig = getTimerTriggerConfig({ triggerConfig: newConfig });
+										const newConditionConfig = getConditionTriggerConfig({ triggerConfig: newConfig });
+
+										setTriggerType(newTriggerType);
+										if (newTimerConfig) setTimerConfig(newTimerConfig);
+										setTriggerCase(newConditionConfig ?? null);
+									}}
 									onValidationChange={setIsGetConfigValid}
 								/>
 							) : varOperation === "update" ? (
@@ -803,13 +810,24 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 									variable={variable}
 									updateOperationType={updateOperationType}
 									updateValue={updateValue}
-									updateTriggerType={updateTriggerType}
-									timerConfig={timerConfig}
+									triggerConfig={buildTriggerConfigFromState(updateTriggerType, {
+										timerConfig: updateTriggerType === "timer" ? timerConfig : undefined,
+										conditionConfig: updateTriggerType === "condition" ? triggerCase : null,
+										dataflowConfig: updateTriggerType === "dataflow" ? {
+											fromNodeId: dataflowNodeId || "",
+											fromNodeName: dataflowNodeName || "",
+											fromHandleId: dataflowHandleId || "",
+											fromVar: dataflowVariable || "",
+											fromVarDisplayName: dataflowVariableName || "",
+											fromVarConfigId: dataflowVariableId || 0,
+											fromNodeType: dataflowNodeType || null,
+											fromVarValueType: dataflowVariableValueType || null,
+										} : null,
+									})}
 									customVariables={customVariables}
 									customVariableOptions={customVariableOptions}
 									variableItemList={variableItemList}
 									caseItemList={caseItemList}
-									selectedTriggerCase={triggerCase}
 									dataflowNodeId={dataflowNodeId}
 									dataflowHandleId={dataflowHandleId}
 									dataflowVariable={dataflowVariable}
@@ -817,9 +835,28 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 									onVariableChange={setVariable}
 									onUpdateOperationTypeChange={setUpdateOperationType}
 									onUpdateValueChange={setUpdateValue}
-									onUpdateTriggerTypeChange={setUpdateTriggerType}
-									onTimerConfigChange={setTimerConfig}
-									onTriggerCaseChange={setTriggerCase}
+									onTriggerConfigChange={(newConfig) => {
+										const newTriggerType = getEffectiveTriggerType({ triggerConfig: newConfig }) ?? "condition";
+										const newTimerConfig = getTimerTriggerConfig({ triggerConfig: newConfig });
+										const newConditionConfig = getConditionTriggerConfig({ triggerConfig: newConfig });
+										const newDataflowConfig = getDataFlowTriggerConfig({ triggerConfig: newConfig });
+
+										setUpdateTriggerType(newTriggerType);
+										if (newTimerConfig) setTimerConfig(newTimerConfig);
+										setTriggerCase(newConditionConfig ?? null);
+
+										// 更新 dataflow 相关状态
+										if (newDataflowConfig) {
+											setDataflowNodeId(newDataflowConfig.fromNodeId);
+											setDataflowNodeName(newDataflowConfig.fromNodeName);
+											setDataflowHandleId(newDataflowConfig.fromHandleId);
+											setDataflowVariable(newDataflowConfig.fromVar);
+											setDataflowVariableName(newDataflowConfig.fromVarDisplayName);
+											setDataflowVariableId(newDataflowConfig.fromVarConfigId);
+											setDataflowNodeType(newDataflowConfig.fromNodeType);
+											setDataflowVariableValueType(newDataflowConfig.fromVarValueType);
+										}
+									}}
 									onDataflowNodeChange={handleDataflowNodeChange}
 									onDataflowVariableChange={handleDataflowVariableChange}
 									getAvailableOperations={getAvailableOperations}
@@ -828,17 +865,24 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 							) : (
 								<ResetVarConfig
 									variable={variable}
-									triggerType={triggerType}
-									timerConfig={timerConfig}
+									triggerConfig={buildTriggerConfigFromState(triggerType, {
+										timerConfig: triggerType === "timer" ? timerConfig : undefined,
+										conditionConfig: triggerType === "condition" ? triggerCase : null,
+									})}
 									customVariables={customVariables}
 									customVariableOptions={customVariableOptions}
 									caseItemList={caseItemList}
-									selectedTriggerCase={triggerCase}
 									varInitialValue={varInitialValue}
 									onVariableChange={setVariable}
-									onTriggerTypeChange={setTriggerType}
-									onTimerConfigChange={setTimerConfig}
-									onTriggerCaseChange={setTriggerCase}
+									onTriggerConfigChange={(newConfig) => {
+										const newTriggerType = getEffectiveTriggerType({ triggerConfig: newConfig }) ?? "condition";
+										const newTimerConfig = getTimerTriggerConfig({ triggerConfig: newConfig });
+										const newConditionConfig = getConditionTriggerConfig({ triggerConfig: newConfig });
+
+										setTriggerType(newTriggerType);
+										if (newTimerConfig) setTimerConfig(newTimerConfig);
+										setTriggerCase(newConditionConfig ?? null);
+									}}
 								/>
 							)}
 						</>

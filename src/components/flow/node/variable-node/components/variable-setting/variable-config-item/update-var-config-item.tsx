@@ -61,19 +61,19 @@ const triggerCase = getConditionTriggerConfig(config) ?? null;
 			selectedValues: Array.isArray(config.updateOperationValue)
 				? config.updateOperationValue
 				: undefined,
-			triggerNodeName: triggerNodeName,
-			triggerCaseLabel: triggerCaseLabel || undefined,
-			timerConfig:
-				effectiveTriggerType === "timer"
-					? getTimerTriggerConfig(config)
-					: undefined,
+			triggerConfig: {
+				triggerType: effectiveTriggerType,
+				conditionTrigger: triggerCase,
+				timerTrigger: getTimerTriggerConfig(config),
+				dataflowTrigger: getDataFlowTriggerConfig(config),
+			},
 		});
 	};
 
 	return (
 		<div className="flex-1 space-y-1">
 			{/* 第一行：图标 + 操作标题 + 触发方式 + 操作类型 */}
-			<div className="flex items-center gap-2">
+			<div className="flex items-center gap-2 pb-2">
 				<TbEdit className="h-4 w-4 text-green-600 flex-shrink-0" />
 				<span className="text-sm font-medium">更新变量</span>
 				<Badge className={`h-5 text-[10px] ${typeInfo.badgeColor}`}>

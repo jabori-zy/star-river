@@ -2,13 +2,16 @@ import { DateTimePicker24h } from "@/components/datetime-picker";
 import { formatDate } from "@/components/flow/node/node-utils";
 import { SelectInDialog } from "@/components/select-components/select-in-dialog";
 import type {
-	TimerTrigger,
-	ConditionTrigger,
+	TriggerConfig,
 	UpdateOperationType,
 } from "@/types/node/variable-node";
 import {
+	getConditionTriggerConfig,
+	getEffectiveTriggerType,
+	getTimerTriggerConfig,
+} from "@/types/node/variable-node";
+import {
 	generateUpdateHint,
-	getTriggerCaseLabel,
 } from "../../../../variable-node-utils";
 
 interface TimeTypeOpEditorProps {
@@ -18,8 +21,8 @@ interface TimeTypeOpEditorProps {
 	onUpdateOperationTypeChange: (operation: UpdateOperationType) => void;
 	onUpdateValueChange: (value: string) => void;
 	variableDisplayName?: string;
-	triggerCase?: ConditionTrigger | null;
-	timerConfig?: TimerTrigger;
+	triggerType: "condition" | "timer" | "dataflow";
+	triggerConfig: TriggerConfig;
 }
 
 const TimeTypeOpEditor: React.FC<TimeTypeOpEditorProps> = ({
@@ -29,12 +32,13 @@ const TimeTypeOpEditor: React.FC<TimeTypeOpEditorProps> = ({
 	onUpdateOperationTypeChange,
 	onUpdateValueChange,
 	variableDisplayName,
-	triggerCase,
-	timerConfig,
+	triggerType,
+	triggerConfig,
 }) => {
-	// 获取触发信息
-	const triggerNodeName = triggerCase?.fromNodeName;
-	const triggerCaseLabel = getTriggerCaseLabel(triggerCase);
+	const effectiveTriggerType =
+		triggerType ?? getEffectiveTriggerType({ triggerConfig }) ?? "condition";
+	const conditionTrigger = getConditionTriggerConfig({ triggerConfig });
+	const timerTrigger = getTimerTriggerConfig({ triggerConfig });
 
 	// 安全地解析日期值
 	const getDateValue = (): Date | undefined => {
@@ -81,9 +85,11 @@ const TimeTypeOpEditor: React.FC<TimeTypeOpEditorProps> = ({
 				<p className="text-xs text-muted-foreground">
 					{generateUpdateHint(variableDisplayName, updateOperationType, {
 						value: updateValue,
-						triggerNodeName: triggerNodeName,
-						triggerCaseLabel: triggerCaseLabel || undefined,
-					timerConfig: timerConfig,
+						triggerConfig: {
+							triggerType: effectiveTriggerType,
+							conditionTrigger,
+							timerTrigger,
+						},
 					})}
 				</p>
 			)}

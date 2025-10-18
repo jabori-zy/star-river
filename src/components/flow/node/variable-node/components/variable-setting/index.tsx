@@ -11,11 +11,7 @@ import { getSymbolList } from "@/service/market";
 import { useStartNodeDataStore } from "@/store/node/use-start-node-data-store";
 import type { MarketSymbol } from "@/types/market";
 import type { VariableConfig } from "@/types/node/variable-node";
-import {
-	getEffectiveTriggerType,
-	ensureTriggerConfigForVariableConfig,
-	ensureTriggerConfigForVariableConfigs,
-} from "@/types/node/variable-node";
+import { getEffectiveTriggerType } from "@/types/node/variable-node";
 import type { CaseItemInfo } from "./variable-config-dialog/components/case-selector";
 import { TradeMode } from "@/types/strategy";
 import VariableConfigDialog from "./variable-config-dialog";
@@ -66,11 +62,6 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 	>([]);
 	// 存储上游节点的case列表
 	const [caseItemList, setCaseItemList] = React.useState<CaseItemInfo[]>([]);
-
-	const normalizedVariableConfigs = useMemo(
-		() => ensureTriggerConfigForVariableConfigs(variableConfigs),
-		[variableConfigs],
-	);
 
 	useEffect(() => {
 		// 获取连接节点的变量并更新状态
@@ -179,7 +170,7 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 	};
 
 	const handleDeleteVariable = (index: number) => {
-		const variableToDelete = normalizedVariableConfigs[index];
+		const variableToDelete = variableConfigs[index];
 		const targetNodeIds = getTargetNodeIdsBySourceHandleId(
 			variableToDelete.outputHandleId,
 		);
@@ -212,7 +203,7 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 		const targetIndex =
 			index !== undefined
 				? index
-				: normalizedVariableConfigs.findIndex(
+				: variableConfigs.findIndex(
 						(variable) =>
 							pendingDeleteVariable &&
 							variable.configId === pendingDeleteVariable.configId,
@@ -220,7 +211,7 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 
 		if (targetIndex === -1) return;
 
-		const variableToDelete = normalizedVariableConfigs[targetIndex];
+		const variableToDelete = variableConfigs[targetIndex];
 
 		// 删除边
 		const sourceHandleId = variableToDelete.outputHandleId;
@@ -234,17 +225,15 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 		console.log("remainingEdges", remainingEdges);
 		setEdges(remainingEdges);
 
-	const updatedVariables = normalizedVariableConfigs
-		.filter((_, i) => i !== targetIndex)
-		.map((variable, newIndex) => ({
-			...variable,
-			configId: newIndex + 1, // 重新分配id，保持连续性
-			inputHandleId: `${id}_input_${newIndex + 1}`,
-			outputHandleId: `${id}_output_${newIndex + 1}`,
-		}));
-	onVariableConfigsChange(
-		updatedVariables.map(ensureTriggerConfigForVariableConfig),
-	);
+		const updatedVariables = variableConfigs
+			.filter((_, i) => i !== targetIndex)
+			.map((variable, newIndex) => ({
+				...variable,
+				configId: newIndex + 1,
+				inputHandleId: `${id}_input_${newIndex + 1}`,
+				outputHandleId: `${id}_output_${newIndex + 1}`,
+			}));
+		onVariableConfigsChange(updatedVariables);
 
 		// 清理删除相关状态
 		setPendingDeleteVariable(null);
@@ -270,14 +259,15 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 		triggerType: "condition" | "timer",
 		excludeIndex?: number,
 	) => {
-		return !normalizedVariableConfigs.some((config, index) => {
+		return !variableConfigs.some((config, index) => {
 			if (index === excludeIndex) return false;
 			if (config.varOperation !== "get") return false;
 			const configSymbol = ("symbol" in config ? config.symbol : null) || "";
 			if (configSymbol !== (symbol || "")) return false;
 			if (config.varName !== variable) return false;
 
-			const effectiveTriggerType = getEffectiveTriggerType(config);
+			const effectiveTriggerType =
+				getEffectiveTriggerType(config) ?? "condition";
 
 			return effectiveTriggerType === triggerType;
 		});
@@ -288,13 +278,17 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 	if (variableConfig.varOperation === "get") {
 		const effectiveTriggerType =
 			getEffectiveTriggerType(variableConfig) ?? "condition";
+		const normalizedTriggerType: "condition" | "timer" =
+			effectiveTriggerType === "timer" ? "timer" : "condition";
+		const excludeIndex =
+			isEditing && editingIndex !== null ? editingIndex : undefined;
 
 		if (
 			!checkUniqueness(
 				("symbol" in variableConfig ? variableConfig.symbol : null) || null,
 				variableConfig.varName,
-				effectiveTriggerType,
-				isEditing ? editingIndex || undefined : undefined,
+				normalizedTriggerType,
+				excludeIndex,
 			)
 		) {
 			// 如果不唯一，可以在这里显示错误信息
@@ -304,22 +298,18 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 	}
 
 		if (isEditing && editingIndex !== null) {
-			const updatedVariables = [...normalizedVariableConfigs];
+			const updatedVariables = [...variableConfigs];
 			updatedVariables[editingIndex] = variableConfig;
-			onVariableConfigsChange(updatedVariables.map(ensureTriggerConfigForVariableConfig));
+			onVariableConfigsChange(updatedVariables);
 		} else {
 			// 新增变量时，设置id为当前列表长度+1
 			const newVariableConfig = {
 				...variableConfig,
-				configId: normalizedVariableConfigs.length + 1,
-				inputHandleId: `${id}_input_${normalizedVariableConfigs.length + 1}`,
-				outputHandleId: `${id}_output_${normalizedVariableConfigs.length + 1}`,
+				configId: variableConfigs.length + 1,
+				inputHandleId: `${id}_input_${variableConfigs.length + 1}`,
+				outputHandleId: `${id}_output_${variableConfigs.length + 1}`,
 			};
-			onVariableConfigsChange(
-				[...normalizedVariableConfigs, newVariableConfig].map(
-					ensureTriggerConfigForVariableConfig,
-				),
-			);
+			onVariableConfigsChange([...variableConfigs, newVariableConfig]);
 		}
 	};
 
@@ -332,13 +322,13 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 				</Button>
 			</div>
 
-			<div className="space-y-2">
-			{normalizedVariableConfigs.length === 0 ? (
+		<div className="space-y-2">
+			{variableConfigs.length === 0 ? (
 				<div className="flex items-center justify-center p-4 border border-dashed rounded-md text-muted-foreground text-sm">
 					点击+号添加变量配置
 				</div>
 			) : (
-				normalizedVariableConfigs.map((config, index) => (
+				variableConfigs.map((config, index) => (
 					<VariableConfigItem
 						key={config.configId}
 						config={config}
@@ -355,32 +345,30 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 			isOpen={isDialogOpen}
 			isEditing={isEditing}
 			editingConfig={
-				editingIndex !== null
-					? normalizedVariableConfigs[editingIndex]
-					: undefined
+				editingIndex !== null ? variableConfigs[editingIndex] : undefined
 			}
 			onOpenChange={setIsDialogOpen}
 			onSave={handleSave}
-			existingConfigs={normalizedVariableConfigs}
+			existingConfigs={variableConfigs}
 			editingIndex={editingIndex}
 			variableItemList={variableItemList}
 			caseItemList={caseItemList}
 			symbolOptions={symbolOptions}
-				symbolPlaceholder={symbolPlaceholder}
-				symbolEmptyMessage={symbolEmptyMessage}
-				isSymbolSelectorDisabled={!selectedAccountId}
-			/>
+			symbolPlaceholder={symbolPlaceholder}
+			symbolEmptyMessage={symbolEmptyMessage}
+			isSymbolSelectorDisabled={!selectedAccountId}
+		/>
 
-			{/* 确认删除对话框 */}
-			<NodeOpConfirmDialog
-				isOpen={isConfirmDialogOpen}
-				onOpenChange={setIsConfirmDialogOpen}
-				affectedNodeCount={pendingVariableData?.targetNodeCount || 0}
-				affectedNodeNames={pendingVariableData?.targetNodeNames || []}
-				onConfirm={handleConfirmDelete}
-				onCancel={handleCancelDelete}
-				operationType="delete"
-			/>
+		{/* 确认删除对话框 */}
+		<NodeOpConfirmDialog
+			isOpen={isConfirmDialogOpen}
+			onOpenChange={setIsConfirmDialogOpen}
+			affectedNodeCount={pendingVariableData?.targetNodeCount || 0}
+			affectedNodeNames={pendingVariableData?.targetNodeNames || []}
+			onConfirm={handleConfirmDelete}
+			onCancel={handleCancelDelete}
+			operationType="delete"
+		/>
 		</div>
 	);
 };

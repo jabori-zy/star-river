@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import {
 	type GetVariableConfig,
 	getConditionTriggerConfig,
+	getDataFlowTriggerConfig,
 	getEffectiveTriggerType,
 	getTimerTriggerConfig,
 } from "@/types/node/variable-node";
@@ -22,26 +23,28 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({ config }) => {
 		getEffectiveTriggerType(config) ?? "condition";
 
 	const triggerCase = getConditionTriggerConfig(config) ?? null;
-	const triggerNodeName = triggerCase?.fromNodeName;
-	const triggerCaseLabel = getTriggerCaseLabel(triggerCase);
 
 	const typeInfo = getTriggerTypeInfo(effectiveTriggerType);
 	const TriggerIcon = typeInfo.icon;
 
 	const timerConfig = getTimerTriggerConfig(config);
+	const dataflowConfig = getDataFlowTriggerConfig(config);
 
 	const hint = generateGetHint(config.varDisplayName, {
 		varValueType: config.varValueType,
-		triggerNodeName,
-		triggerCaseLabel: triggerCaseLabel || undefined,
-		timerConfig: effectiveTriggerType === "timer" ? timerConfig : undefined,
+		triggerConfig: {
+			triggerType: effectiveTriggerType,
+			conditionTrigger: triggerCase,
+			timerTrigger: timerConfig,
+			dataflowTrigger: dataflowConfig,
+		},
 		symbol: ("symbol" in config ? config.symbol : null) || undefined,
 	});
 
 	return (
 		<div className="flex-1 space-y-1">
 			{/* 第一行：图标 + 操作标题 + 触发方式 */}
-			<div className="flex items-center gap-2">
+			<div className="flex items-center gap-2 pb-2">
 				<TbFileImport className="h-4 w-4 text-blue-600 flex-shrink-0" />
 				<span className="text-sm font-medium">获取变量</span>
 				<Badge className={`h-5 text-[10px] ${typeInfo.badgeColor}`}>

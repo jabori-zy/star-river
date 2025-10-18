@@ -5,10 +5,6 @@ import type {
 	VariableNodeBacktestConfig,
 	VariableNodeBacktestExchangeModeConfig,
 } from "@/types/node/variable-node";
-import {
-	ensureTriggerConfigForVariableConfig,
-	ensureTriggerConfigForVariableConfigs,
-} from "@/types/node/variable-node";
 import { BacktestDataSource, type SelectedAccount } from "@/types/strategy";
 
 interface UseUpdateBacktestConfigProps {
@@ -24,14 +20,7 @@ export const useUpdateBacktestConfig = ({
 
 	// 统一的状态管理
 	const [config, setConfig] = useState<VariableNodeBacktestConfig | undefined>(
-		initialConfig
-			? {
-					...initialConfig,
-					variableConfigs: ensureTriggerConfigForVariableConfigs(
-						initialConfig.variableConfigs,
-					),
-				}
-			: initialConfig,
+		initialConfig,
 	);
 
 	// 监听 config 变化，同步到 ReactFlow
@@ -60,9 +49,7 @@ export const useUpdateBacktestConfig = ({
 		(prev?: VariableNodeBacktestConfig): VariableNodeBacktestConfig => ({
 			dataSource: prev?.dataSource || BacktestDataSource.EXCHANGE,
 			exchangeModeConfig: prev?.exchangeModeConfig || undefined,
-			variableConfigs: ensureTriggerConfigForVariableConfigs(
-				prev?.variableConfigs,
-			),
+			variableConfigs: prev?.variableConfigs || [],
 			...prev,
 		}),
 		[],
@@ -74,21 +61,12 @@ export const useUpdateBacktestConfig = ({
 			field: K,
 			value: VariableNodeBacktestConfig[K],
 		) => {
-			const normalizedValue =
-				field === "variableConfigs"
-					? (ensureTriggerConfigForVariableConfigs(
-							value as VariableConfig[],
-					  ) as VariableNodeBacktestConfig[K])
-					: value;
-
 			updateConfig((prev) => ({
 				...prev,
 				dataSource: prev?.dataSource || BacktestDataSource.EXCHANGE,
 				exchangeModeConfig: prev?.exchangeModeConfig || undefined,
-				variableConfigs: ensureTriggerConfigForVariableConfigs(
-					prev?.variableConfigs,
-				),
-				[field]: normalizedValue,
+				variableConfigs: prev?.variableConfigs || [],
+				[field]: value,
 			}));
 		},
 		[updateConfig],
@@ -135,10 +113,7 @@ export const useUpdateBacktestConfig = ({
 	// 更新变量配置列表
 	const updateVariableConfigs = useCallback(
 		(variableConfigs: VariableConfig[]) => {
-			updateField(
-				"variableConfigs",
-				ensureTriggerConfigForVariableConfigs(variableConfigs),
-			);
+			updateField("variableConfigs", variableConfigs);
 		},
 		[updateField],
 	);
@@ -150,10 +125,7 @@ export const useUpdateBacktestConfig = ({
 				const currentConfigs = prev?.variableConfigs || [];
 				const newId =
 					Math.max(0, ...currentConfigs.map((config) => config.configId)) + 1;
-				const newConfig = ensureTriggerConfigForVariableConfig({
-					...variableConfig,
-					configId: newId,
-				} as VariableConfig);
+				const newConfig = { ...variableConfig, configId: newId } as VariableConfig;
 
 				return {
 					...prev,
@@ -172,8 +144,7 @@ export const useUpdateBacktestConfig = ({
 			updateConfig((prev) => {
 				const currentConfigs = prev?.variableConfigs || [];
 				const updatedConfigs = [...currentConfigs];
-				updatedConfigs[index] =
-					ensureTriggerConfigForVariableConfig(variableConfig);
+				updatedConfigs[index] = variableConfig;
 
 				return {
 					...prev,

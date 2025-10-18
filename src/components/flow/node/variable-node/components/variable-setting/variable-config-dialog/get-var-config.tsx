@@ -1,9 +1,14 @@
 import { Settings, User } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { SelectWithSearch } from "@/components/select-components/select-with-search";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { TimerTrigger, ConditionTrigger } from "@/types/node/variable-node";
+import type { TriggerConfig, TimerTrigger, ConditionTrigger } from "@/types/node/variable-node";
+import {
+	getEffectiveTriggerType,
+	getConditionTriggerConfig,
+	getTimerTriggerConfig,
+} from "@/types/node/variable-node";
 import {
 	type CustomVariable,
 	getVariableTypeIcon,
@@ -11,7 +16,7 @@ import {
 	SYSTEM_VARIABLE_METADATA,
 	SystemVariable,
 } from "@/types/variable";
-import { generateGetHint, getTriggerCaseLabel } from "../../../variable-node-utils";
+import { generateGetHint } from "../../../variable-node-utils";
 import CaseSelector, { type CaseItemInfo } from "./components/case-selector";
 import type { SymbolSelectorOption } from "./components/symbol-selector";
 import SymbolSelector from "./components/symbol-selector";
@@ -22,21 +27,17 @@ interface GetVarConfigProps {
 	symbol: string;
 	variableName: string;
 	variable: string;
-	triggerType: "condition" | "timer" | "dataflow";
-	timerConfig: TimerTrigger;
+	triggerConfig: TriggerConfig;
 	symbolOptions: SymbolSelectorOption[];
 	symbolPlaceholder: string;
 	symbolEmptyMessage: string;
 	isSymbolSelectorDisabled: boolean;
 	customVariables: CustomVariable[];
 	caseItemList: CaseItemInfo[];
-	selectedTriggerCase: ConditionTrigger | null;
 	onSymbolChange: (value: string) => void;
 	onVariableNameChange: (value: string) => void;
 	onVariableChange: (value: string) => void;
-	onTriggerTypeChange: (value: "condition" | "timer" | "dataflow") => void;
-	onTimerConfigChange: (value: TimerTrigger) => void;
-	onTriggerCaseChange: (value: ConditionTrigger | null) => void;
+	onTriggerConfigChange: (value: TriggerConfig) => void;
 	onValidationChange?: (isValid: boolean) => void;
 }
 
@@ -44,23 +45,40 @@ const GetVarConfig: React.FC<GetVarConfigProps> = ({
 	symbol,
 	variableName,
 	variable,
-	triggerType,
-	timerConfig,
+	triggerConfig,
 	symbolOptions,
 	symbolPlaceholder,
 	symbolEmptyMessage,
 	isSymbolSelectorDisabled,
 	customVariables,
 	caseItemList,
-	selectedTriggerCase,
 	onSymbolChange,
 	onVariableNameChange,
 	onVariableChange,
-	onTriggerTypeChange,
-	onTimerConfigChange,
-	onTriggerCaseChange,
+	onTriggerConfigChange,
 	onValidationChange,
 }) => {
+	// 从 triggerConfig 中提取各种触发配置
+	const effectiveTriggerType = getEffectiveTriggerType({ triggerConfig }) ?? "condition";
+	const conditionTrigger = getConditionTriggerConfig({ triggerConfig });
+	const timerTrigger = getTimerTriggerConfig({ triggerConfig });
+
+	// 使用 ref 缓存 timer 和 condition 配置，防止切换触发类型时丢失
+	const cachedTimerConfig = useRef<TimerTrigger>({ mode: "interval", interval: 1, unit: "hour" });
+	const cachedConditionConfig = useRef<ConditionTrigger | null>(null);
+
+	// 当从 props 接收到新的配置时，更新缓存
+	useEffect(() => {
+		if (timerTrigger) {
+			cachedTimerConfig.current = timerTrigger;
+		}
+	}, [timerTrigger]);
+
+	useEffect(() => {
+		if (conditionTrigger) {
+			cachedConditionConfig.current = conditionTrigger;
+		}
+	}, [conditionTrigger]);
 	// 生成混合变量选项：自定义变量在前，系统变量在后
 	const mixedVariableOptions = [
 		// 自定义变量选项
@@ -170,24 +188,29 @@ const GetVarConfig: React.FC<GetVarConfigProps> = ({
 		onValidationChange(isValid);
 	}, [variable, symbol, shouldShowSymbolSelector, onValidationChange]);
 
-	const triggerNodeName = selectedTriggerCase?.fromNodeName;
-	const triggerCaseLabel = getTriggerCaseLabel(selectedTriggerCase);
 
 	const conditionHint =
-		triggerType === "condition" && variableDisplayName
+		effectiveTriggerType === "condition" && variableDisplayName
 			? generateGetHint(variableDisplayName, {
 					varValueType: variableValueType,
-					triggerNodeName,
-					triggerCaseLabel: triggerCaseLabel || undefined,
+					triggerConfig: {
+						triggerType: "condition",
+						conditionTrigger: conditionTrigger,
+						timerTrigger: undefined,
+					},
 					symbol: symbol || undefined,
 				})
 			: null;
 
 	const timerHint =
-		triggerType === "timer" && variableDisplayName
+		effectiveTriggerType === "timer" && variableDisplayName
 			? generateGetHint(variableDisplayName, {
 					varValueType: variableValueType,
-					timerConfig,
+					triggerConfig: {
+						triggerType: "timer",
+						conditionTrigger: undefined,
+						timerTrigger: timerTrigger,
+					},
 					symbol: symbol || undefined,
 				})
 			: null;
@@ -251,21 +274,42 @@ const GetVarConfig: React.FC<GetVarConfigProps> = ({
 			</div>
 
 			<TriggerTypeConfig
-				triggerType={triggerType}
-				onTriggerTypeChange={onTriggerTypeChange}
+				triggerType={effectiveTriggerType}
+				onTriggerTypeChange={(newType) => {
+					// 根据新的触发类型构建 triggerConfig，使用缓存的配置
+					if (newType === "condition") {
+						// 切换到 condition 时，使用缓存的 conditionTrigger
+						onTriggerConfigChange(
+							cachedConditionConfig.current
+								? { type: "condition", config: cachedConditionConfig.current }
+								: null
+						);
+					} else if (newType === "timer") {
+						// 切换到 timer 时，使用缓存的 timerTrigger（保留用户之前的配置）
+						onTriggerConfigChange({
+							type: "timer",
+							config: cachedTimerConfig.current
+						});
+					}
+				}}
 				availableTriggers={["condition", "timer"]}
 				idPrefix="get"
 			/>
 
-			{triggerType === "condition" && (
+			{effectiveTriggerType === "condition" && (
 				<div className="flex flex-col gap-2">
 					<Label className="text-sm font-medium pointer-events-none">
 						触发条件
 					</Label>
 					<CaseSelector
 						caseList={caseItemList}
-						selectedTriggerCase={selectedTriggerCase}
-						onTriggerCaseChange={onTriggerCaseChange}
+						selectedTriggerCase={conditionTrigger ?? null}
+						onTriggerCaseChange={(newCase) => {
+							// 更新缓存
+							cachedConditionConfig.current = newCase;
+							// 通知父组件
+							onTriggerConfigChange(newCase ? { type: "condition", config: newCase } : null);
+						}}
 					/>
 					{conditionHint && (
 						<p className="text-xs text-muted-foreground">{conditionHint}</p>
@@ -273,12 +317,17 @@ const GetVarConfig: React.FC<GetVarConfigProps> = ({
 				</div>
 			)}
 
-			{triggerType === "timer" && (
+			{effectiveTriggerType === "timer" && (
 				<div className="flex flex-col gap-2">
 					<div className="rounded-md border border-gray-200 p-3">
 						<TimerConfigComponent
-							timerConfig={timerConfig}
-							onTimerConfigChange={onTimerConfigChange}
+							timerConfig={timerTrigger || { mode: "interval", interval: 1, unit: "hour" }}
+							onTimerConfigChange={(newTimer) => {
+								// 更新缓存
+								cachedTimerConfig.current = newTimer;
+								// 通知父组件
+								onTriggerConfigChange({ type: "timer", config: newTimer });
+							}}
 						/>
 					</div>
 					{timerHint && (

@@ -7,14 +7,17 @@ import {
 	InputGroupText,
 } from "@/components/ui/input-group";
 import type {
-	TimerTrigger,
-	ConditionTrigger,
+	TriggerConfig,
 	UpdateOperationType,
+} from "@/types/node/variable-node";
+import {
+	getConditionTriggerConfig,
+	getEffectiveTriggerType,
+	getTimerTriggerConfig,
 } from "@/types/node/variable-node";
 import { VariableValueType } from "@/types/variable";
 import {
 	generateUpdateHint,
-	getTriggerCaseLabel,
 } from "../../../../variable-node-utils";
 
 interface PercentTypeOpEditorProps {
@@ -25,8 +28,8 @@ interface PercentTypeOpEditorProps {
 	onUpdateValueChange: (value: string) => void;
 	variableDisplayName?: string;
 	getPlaceholder: (operationType: UpdateOperationType) => string;
-	triggerCase?: ConditionTrigger | null;
-	timerConfig?: TimerTrigger;
+	triggerType: "condition" | "timer" | "dataflow";
+	triggerConfig: TriggerConfig;
 }
 
 const PercentTypeOpEditor: React.FC<PercentTypeOpEditorProps> = ({
@@ -37,12 +40,13 @@ const PercentTypeOpEditor: React.FC<PercentTypeOpEditorProps> = ({
 	onUpdateValueChange,
 	variableDisplayName,
 	getPlaceholder,
-	triggerCase,
-	timerConfig,
+	triggerType,
+	triggerConfig,
 }) => {
-	// 获取触发信息
-	const triggerNodeName = triggerCase?.fromNodeName;
-	const triggerCaseLabel = getTriggerCaseLabel(triggerCase);
+	const effectiveTriggerType =
+		triggerType ?? getEffectiveTriggerType({ triggerConfig }) ?? "condition";
+	const conditionTrigger = getConditionTriggerConfig({ triggerConfig });
+	const timerTrigger = getTimerTriggerConfig({ triggerConfig });
 
 	return (
 		<div className="flex flex-col gap-2">
@@ -72,17 +76,19 @@ const PercentTypeOpEditor: React.FC<PercentTypeOpEditorProps> = ({
 					</InputGroupAddon>
 				</InputGroup>
 			</ButtonGroup>
-			{updateValue && (
-				<p className="text-xs text-muted-foreground">
-					{generateUpdateHint(variableDisplayName, updateOperationType, {
-						varValueType: VariableValueType.PERCENTAGE,
-						value: updateValue,
-						triggerNodeName: triggerNodeName,
-						triggerCaseLabel: triggerCaseLabel || undefined,
-						timerConfig: timerConfig,
-					})}
-				</p>
-			)}
+	{updateValue && (
+		<p className="text-xs text-muted-foreground">
+			{generateUpdateHint(variableDisplayName, updateOperationType, {
+				varValueType: VariableValueType.PERCENTAGE,
+				value: updateValue,
+				triggerConfig: {
+					triggerType: effectiveTriggerType,
+					conditionTrigger,
+					timerTrigger,
+				},
+			})}
+		</p>
+	)}
 		</div>
 	);
 };

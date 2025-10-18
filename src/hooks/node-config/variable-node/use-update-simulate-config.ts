@@ -4,10 +4,6 @@ import type {
 	VariableConfig,
 	VariableNodeSimulateConfig,
 } from "@/types/node/variable-node";
-import {
-	ensureTriggerConfigForVariableConfig,
-	ensureTriggerConfigForVariableConfigs,
-} from "@/types/node/variable-node";
 import type { SelectedAccount } from "@/types/strategy";
 
 interface UseUpdateSimulateConfigProps {
@@ -23,14 +19,7 @@ export const useUpdateSimulateConfig = ({
 
 	// 统一的状态管理
 	const [config, setConfig] = useState<VariableNodeSimulateConfig | undefined>(
-		initialConfig
-			? {
-					...initialConfig,
-					variableConfigs: ensureTriggerConfigForVariableConfigs(
-						initialConfig.variableConfigs,
-					),
-				}
-			: initialConfig,
+		initialConfig,
 	);
 
 	// 监听 config 变化，同步到 ReactFlow
@@ -58,9 +47,7 @@ export const useUpdateSimulateConfig = ({
 	const getDefaultConfig = useCallback(
 		(prev?: VariableNodeSimulateConfig): VariableNodeSimulateConfig => ({
 			selectedAccount: prev?.selectedAccount || null,
-			variableConfigs: ensureTriggerConfigForVariableConfigs(
-				prev?.variableConfigs,
-			),
+			variableConfigs: prev?.variableConfigs || [],
 			...prev,
 		}),
 		[],
@@ -72,20 +59,11 @@ export const useUpdateSimulateConfig = ({
 			field: K,
 			value: VariableNodeSimulateConfig[K],
 		) => {
-			const normalizedValue =
-				field === "variableConfigs"
-					? (ensureTriggerConfigForVariableConfigs(
-							value as VariableConfig[],
-					  ) as VariableNodeSimulateConfig[K])
-					: value;
-
 			updateConfig((prev) => ({
 				...prev,
 				selectedAccount: prev?.selectedAccount || null,
-				variableConfigs: ensureTriggerConfigForVariableConfigs(
-					prev?.variableConfigs,
-				),
-				[field]: normalizedValue,
+				variableConfigs: prev?.variableConfigs || [],
+				[field]: value,
 			}));
 		},
 		[updateConfig],
@@ -107,10 +85,7 @@ export const useUpdateSimulateConfig = ({
 	// 更新变量配置列表
 	const updateVariableConfigs = useCallback(
 		(variableConfigs: VariableConfig[]) => {
-			updateField(
-				"variableConfigs",
-				ensureTriggerConfigForVariableConfigs(variableConfigs),
-			);
+			updateField("variableConfigs", variableConfigs);
 		},
 		[updateField],
 	);
@@ -122,10 +97,7 @@ export const useUpdateSimulateConfig = ({
 				const currentConfigs = prev?.variableConfigs || [];
 				const newId =
 					Math.max(0, ...currentConfigs.map((config) => config.configId)) + 1;
-				const newConfig = ensureTriggerConfigForVariableConfig({
-					...variableConfig,
-					configId: newId,
-				} as VariableConfig);
+				const newConfig = { ...variableConfig, configId: newId } as VariableConfig;
 
 				return {
 					...prev,
@@ -143,8 +115,7 @@ export const useUpdateSimulateConfig = ({
 			updateConfig((prev) => {
 				const currentConfigs = prev?.variableConfigs || [];
 				const updatedConfigs = [...currentConfigs];
-				updatedConfigs[index] =
-					ensureTriggerConfigForVariableConfig(variableConfig);
+				updatedConfigs[index] = variableConfig;
 
 				return {
 					...prev,

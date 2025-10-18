@@ -3,14 +3,17 @@ import MultipleSelector, {
 } from "@/components/select-components/multi-select";
 import { SelectInDialog } from "@/components/select-components/select-in-dialog";
 import type {
-	TimerTrigger,
-	ConditionTrigger,
+	TriggerConfig,
 	UpdateOperationType,
+} from "@/types/node/variable-node";
+import {
+	getConditionTriggerConfig,
+	getEffectiveTriggerType,
+	getTimerTriggerConfig,
 } from "@/types/node/variable-node";
 import { VariableValueType } from "@/types/variable";
 import {
 	generateUpdateHint,
-	getTriggerCaseLabel,
 } from "../../../../variable-node-utils";
 
 interface EnumTypeOpEditorProps {
@@ -21,8 +24,8 @@ interface EnumTypeOpEditorProps {
 	onUpdateValueChange: (value: string) => void;
 	variableDisplayName?: string;
 	idPrefix?: string;
-	triggerCase?: ConditionTrigger | null;
-	timerConfig?: TimerTrigger;
+	triggerType: "condition" | "timer" | "dataflow";
+	triggerConfig: TriggerConfig;
 }
 
 const EnumTypeOpEditor: React.FC<EnumTypeOpEditorProps> = ({
@@ -33,12 +36,13 @@ const EnumTypeOpEditor: React.FC<EnumTypeOpEditorProps> = ({
 	onUpdateValueChange,
 	variableDisplayName,
 	idPrefix = "enum",
-	triggerCase,
-	timerConfig,
+	triggerType,
+	triggerConfig,
 }) => {
-	// 获取触发信息
-	const triggerNodeName = triggerCase?.fromNodeName;
-	const triggerCaseLabel = getTriggerCaseLabel(triggerCase);
+	const effectiveTriggerType =
+		triggerType ?? getEffectiveTriggerType({ triggerConfig }) ?? "condition";
+	const conditionTrigger = getConditionTriggerConfig({ triggerConfig });
+	const timerTrigger = getTimerTriggerConfig({ triggerConfig });
 
 	// 将 JSON 字符串解析为 Option[]
 	const parseValue = (): Option[] => {
@@ -84,9 +88,11 @@ const EnumTypeOpEditor: React.FC<EnumTypeOpEditorProps> = ({
 				<p className="text-xs text-muted-foreground">
 					{generateUpdateHint(variableDisplayName, updateOperationType, {
 						varValueType: VariableValueType.ENUM,
-						triggerNodeName: triggerNodeName,
-						triggerCaseLabel: triggerCaseLabel || undefined,
-					timerConfig: timerConfig,
+						triggerConfig: {
+							triggerType: effectiveTriggerType,
+							conditionTrigger,
+							timerTrigger,
+						},
 					})}
 				</p>
 			</div>
@@ -142,9 +148,11 @@ const EnumTypeOpEditor: React.FC<EnumTypeOpEditorProps> = ({
 					{generateUpdateHint(variableDisplayName, updateOperationType, {
 						varValueType: VariableValueType.ENUM,
 						selectedValues,
-						triggerNodeName: triggerNodeName,
-						triggerCaseLabel: triggerCaseLabel || undefined,
-					timerConfig: timerConfig,
+						triggerConfig: {
+							triggerType: effectiveTriggerType,
+							conditionTrigger,
+							timerTrigger,
+						},
 					})}
 				</p>
 			)}
