@@ -4,12 +4,11 @@ import type React from "react";
 import BaseHandle from "@/components/flow/base/BaseHandle";
 import { 
 	getTriggerTypeInfo,
-	generateUpdateOperationText,
 } from "@/components/flow/node/variable-node/variable-node-utils";
 import { Badge } from "@/components/ui/badge";
 import type { UpdateVariableConfig } from "@/types/node/variable-node/variable-config-types";
 import { getEffectiveTriggerType, getDataFlowTriggerConfig } from "@/types/node/variable-node";
-import { generateTriggerConditionText } from "./utils";
+import { generateTriggerConditionText, generateUpdateOperationNodeText } from "./utils";
 
 interface UpdateVarHandleItemProps {
 	id: string;
@@ -32,7 +31,7 @@ export const UpdateVarHandleItem: React.FC<UpdateVarHandleItemProps> = ({
 	const dataflowTrigger = getDataFlowTriggerConfig(variableConfig);
 
 	// 生成操作文本
-	const operationText = generateUpdateOperationText(
+	const operationText = generateUpdateOperationNodeText(
 		variableConfig.varDisplayName,
 		variableConfig.updateOperationType,
 		variableConfig.updateOperationValue,
