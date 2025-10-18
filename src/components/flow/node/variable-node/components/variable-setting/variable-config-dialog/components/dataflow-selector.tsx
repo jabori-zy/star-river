@@ -263,13 +263,17 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 		);
 		const fromVarConfigId = selectedVar?.configId || 0;
 
-		// 使用统一的工具方法生成提示文本
-		return generateDataflowHint(targetVariableDisplayName || "", {
-			fromNodeName,
-			fromNodeType,
-			fromVarConfigId,
-			fromVarDisplayName,
-		});
+		// 使用统一的工具方法生成提示文本，传递操作类型以支持 max/min 的特殊显示
+		return generateDataflowHint(
+			targetVariableDisplayName || "", 
+			{
+				fromNodeName,
+				fromNodeType,
+				fromVarConfigId,
+				fromVarDisplayName,
+			},
+			updateOperationType, // 传递操作类型
+		);
 	};
 
 	return (

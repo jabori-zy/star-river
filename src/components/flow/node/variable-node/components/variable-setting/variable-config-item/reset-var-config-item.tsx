@@ -2,7 +2,6 @@ import { TbRefresh } from "react-icons/tb";
 import type React from "react";
 import {
 	generateResetHint,
-	getTriggerCaseLabel,
 	getTriggerTypeInfo,
 } from "@/components/flow/node/variable-node/variable-node-utils";
 import { formatVariableValue } from "@/components/flow/node/start-node/components/utils";
@@ -24,8 +23,6 @@ const ResetVarConfigItem: React.FC<ResetVarConfigItemProps> = ({ config }) => {
 		getEffectiveTriggerType(config) ?? "condition";
 
 	const triggerCase = getConditionTriggerConfig(config) ?? null;
-	const triggerNodeName = triggerCase?.fromNodeName;
-	const triggerCaseLabel = getTriggerCaseLabel(triggerCase);
 
 	const typeInfo = getTriggerTypeInfo(effectiveTriggerType);
 	const TriggerIcon = typeInfo.icon;

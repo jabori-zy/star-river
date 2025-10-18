@@ -26,9 +26,7 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({ config }) => 
 	const effectiveTriggerType =
 		getEffectiveTriggerType(config) ?? "condition";
 
-const triggerCase = getConditionTriggerConfig(config) ?? null;
-	const triggerNodeName = triggerCase?.fromNodeName;
-	const triggerCaseLabel = getTriggerCaseLabel(triggerCase);
+	const triggerCase = getConditionTriggerConfig(config) ?? null;
 
 	const typeInfo = getTriggerTypeInfo(effectiveTriggerType);
 	const TriggerIcon = typeInfo.icon;
@@ -40,13 +38,17 @@ const triggerCase = getConditionTriggerConfig(config) ?? null;
 			const dataflowValue =
 				getDataFlowTriggerConfig(config) as DataFlowTrigger | undefined;
 			if (!dataflowValue) return null;
-			return generateDataflowHint(config.varDisplayName, {
-				fromNodeName: dataflowValue.fromNodeName,
-				fromNodeType: dataflowValue.fromNodeType,
-				fromVarConfigId: dataflowValue.fromVarConfigId,
-				fromVarDisplayName:
-					dataflowValue.fromVarDisplayName || dataflowValue.fromVar,
-			});
+			return generateDataflowHint(
+				config.varDisplayName, 
+				{
+					fromNodeName: dataflowValue.fromNodeName,
+					fromNodeType: dataflowValue.fromNodeType,
+					fromVarConfigId: dataflowValue.fromVarConfigId,
+					fromVarDisplayName:
+						dataflowValue.fromVarDisplayName || dataflowValue.fromVar,
+				},
+				config.updateOperationType, // 传递操作类型以支持 max/min 的特殊显示
+			);
 		}
 
 		// 条件触发或定时触发模式

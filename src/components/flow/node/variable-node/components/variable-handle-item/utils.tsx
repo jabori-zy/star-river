@@ -182,75 +182,131 @@ export const getVariableConfigDescription = (
 	}
 };
 
-// 获取变量配置的状态标签
-export const getVariableConfigStatusLabel = (
+// 生成触发条件文本（用于节点面板显示）
+export const generateTriggerConditionText = (
 	config: VariableConfig,
-): string => {
-	if (!config.varName) {
-		return "未选择变量类型";
-	}
-
+): string | null => {
 	const effectiveTriggerType = getEffectiveTriggerType(config);
-	const timerConfig = getTimerTriggerConfig(config);
 
-	if (config.varOperation === "get") {
-		if (!config.varDisplayName?.trim()) {
-			return "未设置名称";
+	if (effectiveTriggerType === "condition") {
+		// 条件触发模式
+		const conditionTrigger = config.triggerConfig?.type === "condition"
+			? config.triggerConfig.config
+			: null;
+
+		if (!conditionTrigger) return null;
+
+		const nodeName = conditionTrigger.fromNodeName;
+		const caseLabel = conditionTrigger.triggerType === "case"
+			? `Case ${conditionTrigger.caseId}`
+			: "Else";
+
+		if (!nodeName) return null;
+
+		return `触发条件: ${nodeName}/${caseLabel}`;
+	}
+
+	if (effectiveTriggerType === "timer") {
+		// 定时触发模式
+		const timerConfig = getTimerTriggerConfig(config);
+		if (!timerConfig) return null;
+
+		if (timerConfig.mode === "interval") {
+			// 固定间隔模式
+			const unitMap = {
+				second: "秒",
+				minute: "分钟",
+				hour: "小时",
+				day: "天",
+			};
+			return `固定间隔: 每${timerConfig.interval}${unitMap[timerConfig.unit]}`;
 		}
-		if (
-			effectiveTriggerType === "timer" &&
-			!timerConfig
-		) {
-			return "未配置定时器";
-		}
-	} else if (config.varOperation === "update") {
-		// update 模式
-		// toggle 和 clear 不需要更新值，其他操作需要
-		if (
-			config.updateOperationType !== "toggle" &&
-			config.updateOperationType !== "clear"
-		) {
-			// 这里不检查 varValue，因为 update 模式没有 varValue 字段
-		}
-	} else {
-		// reset 模式
-		if (
-			effectiveTriggerType === "timer" &&
-			!timerConfig
-		) {
-			return "未配置定时器";
+
+		if (timerConfig.mode === "scheduled") {
+			// 定时执行模式
+			const { repeatMode } = timerConfig;
+
+			if (repeatMode === "hourly") {
+				const { hourlyInterval, minuteOfHour } = timerConfig;
+				if (hourlyInterval === 1) {
+					return `定时执行: 每小时第${minuteOfHour}分钟`;
+				}
+				return `定时执行: 每${hourlyInterval}小时第${minuteOfHour}分钟`;
+			}
+
+			if (repeatMode === "daily") {
+				const { time, daysOfWeek } = timerConfig;
+				let text = `定时执行: 每天 ${time}`;
+
+				if (daysOfWeek && daysOfWeek.length > 0 && daysOfWeek.length < 7) {
+					const weekdayMap: Record<number, string> = {
+						1: "周一", 2: "周二", 3: "周三", 4: "周四",
+						5: "周五", 6: "周六", 7: "周日",
+					};
+					const weekdayNames = daysOfWeek.map((d) => weekdayMap[d]).join("、");
+					text += ` (${weekdayNames})`;
+				}
+
+				return text;
+			}
+
+			if (repeatMode === "weekly") {
+				const { time, dayOfWeek } = timerConfig;
+				const weekdayMap: Record<number, string> = {
+					1: "周一", 2: "周二", 3: "周三", 4: "周四",
+					5: "周五", 6: "周六", 7: "周日",
+				};
+				return `定时执行: 每周${weekdayMap[dayOfWeek]} ${time}`;
+			}
+
+			if (repeatMode === "monthly") {
+				const { time, dayOfMonth } = timerConfig;
+
+				if (typeof dayOfMonth === "number") {
+					return `定时执行: 每月第${dayOfMonth}天 ${time}`;
+				}
+
+				if (dayOfMonth === "first") {
+					return `定时执行: 每月第一天 ${time}`;
+				}
+
+				if (dayOfMonth === "last") {
+					return `定时执行: 每月最后一天 ${time}`;
+				}
+			}
 		}
 	}
 
-	return "配置完成";
-};
+	if (effectiveTriggerType === "dataflow") {
+		// 数据流触发模式
+		const dataflowConfig = config.triggerConfig?.type === "dataflow"
+			? config.triggerConfig.config
+			: null;
 
-// 检查变量配置是否完整
-export const isVariableConfigComplete = (config: VariableConfig): boolean => {
-	if (!config.varName) {
-		return false;
+		if (!dataflowConfig) return null;
+
+		const fromNodeName = dataflowConfig.fromNodeName;
+		const fromNodeType = dataflowConfig.fromNodeType;
+		const fromVarConfigId = dataflowConfig.fromVarConfigId;
+		const fromVarDisplayName = dataflowConfig.fromVarDisplayName || dataflowConfig.fromVar;
+
+		if (!fromNodeName || !fromVarDisplayName) return null;
+
+		// 获取节点类型标签
+		const nodeTypeLabels: Record<string, string> = {
+			indicatorNode: "指标",
+			klineNode: "K线",
+			variableNode: "变量",
+			ifElseNode: "条件",
+			startNode: "起点",
+			futuresOrderNode: "合约订单",
+			positionManagementNode: "持仓管理",
+		};
+		const nodeTypeLabel = fromNodeType ? nodeTypeLabels[fromNodeType] || "节点" : "节点";
+
+		// 构建完整路径：节点名称/节点类型配置ID/变量显示名称
+		return `数据流: ${fromNodeName}/${nodeTypeLabel}${fromVarConfigId}/${fromVarDisplayName}`;
 	}
 
-	const effectiveTriggerType = getEffectiveTriggerType(config);
-	const hasTimerConfig = !!getTimerTriggerConfig(config);
-
-	if (config.varOperation === "get") {
-		if (!config.varDisplayName?.trim()) {
-			return false;
-		}
-		if (effectiveTriggerType === "timer" && !hasTimerConfig) {
-			return false;
-		}
-	} else if (config.varOperation === "update") {
-		// update 模式
-		// toggle 和 clear 不需要更新值，其他操作需要
-		// 这里不检查具体的值，因为 update 模式的值验证由组件内部处理
-	} else {
-		// reset 模式
-		if (effectiveTriggerType === "timer" && !hasTimerConfig) {
-			return false;
-		}
-	}
-
-	return true;
+	return null;
 };

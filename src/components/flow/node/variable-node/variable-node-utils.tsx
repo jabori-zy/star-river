@@ -417,6 +417,7 @@ export const generateSchedulePrefix = (
  * 生成数据流触发的提示文本（统一样式）
  * @param variableDisplayName 变量显示名称
  * @param dataflowInfo 数据流信息对象，包含来源节点和变量信息
+ * @param operationType 可选的更新操作类型，用于 max/min 的特殊显示
  * @returns React.ReactNode 提示文本的 JSX
  */
 export const generateDataflowHint = (
@@ -427,6 +428,7 @@ export const generateDataflowHint = (
 		fromVarConfigId: number;
 		fromVarDisplayName: string;
 	},
+	operationType?: UpdateOperationType,
 ): React.ReactNode => {
 	const { fromNodeName, fromNodeType, fromVarConfigId, fromVarDisplayName } =
 		dataflowInfo;
@@ -446,6 +448,56 @@ export const generateDataflowHint = (
 	// 构建完整路径：节点名称/节点类型配置ID/变量显示名称
 	const fullPath = `${fromNodeName}/${nodeTypeLabel}${fromVarConfigId}/${fromVarDisplayName}`;
 
+	// 对于 max/min 操作，显示特殊文案
+	if (operationType === "max" || operationType === "min") {
+		const operationLabel = operationType === "max" ? "最大值" : "最小值";
+		return (
+			<>
+				取{" "}
+				{generateVariableHighlight(variableDisplayName)} 与{" "}
+				{generateValueHighlight(fullPath)} 中的{operationLabel}
+			</>
+		);
+	}
+
+	// 对于加减乘除操作，显示运算符格式
+	if (operationType === "add") {
+		return (
+			<>
+				{generateVariableHighlight(variableDisplayName)} +{" "}
+				{generateValueHighlight(fullPath)}
+			</>
+		);
+	}
+
+	if (operationType === "subtract") {
+		return (
+			<>
+				{generateVariableHighlight(variableDisplayName)} -{" "}
+				{generateValueHighlight(fullPath)}
+			</>
+		);
+	}
+
+	if (operationType === "multiply") {
+		return (
+			<>
+				{generateVariableHighlight(variableDisplayName)} ×{" "}
+				{generateValueHighlight(fullPath)}
+			</>
+		);
+	}
+
+	if (operationType === "divide") {
+		return (
+			<>
+				{generateVariableHighlight(variableDisplayName)} ÷{" "}
+				{generateValueHighlight(fullPath)}
+			</>
+		);
+	}
+
+	// 其他操作（set等），使用默认的"将被设置为"
 	return (
 		<>
 			{generateVariableHighlight(variableDisplayName)} 将被设置为{" "}
@@ -487,14 +539,27 @@ const generateBooleanHint = (params: HintGeneratorParams): React.ReactNode => {
 			);
 		}
 
-		if (operationType === "set" && value) {
-			return (
-				<>
-					{triggerPrefix}
-					{generateVariableHighlight(variableDisplayName)} 将被设置为{" "}
-					{generateValueHighlight(valueLabel)}
-				</>
-			);
+		if (operationType === "set") {
+			// 数据流模式下，显示来源变量
+			if (dataflowTrigger && dataflowTrigger.fromVarDisplayName) {
+				return (
+					<>
+						{generateVariableHighlight(variableDisplayName)} 将被设置为{" "}
+						{generateValueHighlight(dataflowTrigger.fromVarDisplayName)}
+					</>
+				);
+			}
+
+			// 其他模式下，显示具体值
+			if (value) {
+				return (
+					<>
+						{triggerPrefix}
+						{generateVariableHighlight(variableDisplayName)} 将被设置为{" "}
+						{generateValueHighlight(valueLabel)}
+					</>
+				);
+			}
 		}
 
 		return null;
@@ -549,6 +614,7 @@ const generateEnumHint = (params: HintGeneratorParams): React.ReactNode => {
 		value,
 		conditionTrigger,
 		timerTrigger,
+		dataflowTrigger,
 		symbol,
 	} = params;
 	const triggerPrefix = generateTriggerPrefix({
@@ -577,6 +643,16 @@ const generateEnumHint = (params: HintGeneratorParams): React.ReactNode => {
 					{triggerPrefix}
 					{generateVariableHighlight(variableDisplayName)}{" "}
 					将被清空，所有元素将被移除
+				</>
+			);
+		}
+
+		// 数据流模式下的 set 操作，显示来源变量
+		if (operationType === "set" && dataflowTrigger && dataflowTrigger.fromVarDisplayName) {
+			return (
+				<>
+					{generateVariableHighlight(variableDisplayName)} 将被设置为{" "}
+					{generateValueHighlight(dataflowTrigger.fromVarDisplayName)}
 				</>
 			);
 		}
@@ -652,7 +728,72 @@ const generateNumericHint = (params: HintGeneratorParams): React.ReactNode => {
 	});
 
 	if (varOperation === "update") {
-		if (!value || !operationType) return null;
+		if (!operationType) return null;
+
+		// 数据流模式下的特殊处理
+		if (dataflowTrigger && dataflowTrigger.fromVarDisplayName) {
+			// max/min 操作
+			if (operationType === "max" || operationType === "min") {
+				const operationTypeLabel = operationType === "max" ? "最大值" : "最小值";
+				return (
+					<>
+						{generateVariableHighlight(variableDisplayName)} 取{" "}
+						{generateVariableHighlight(variableDisplayName)} 与{" "}
+						{generateValueHighlight(dataflowTrigger.fromVarDisplayName)} 中的{operationTypeLabel}
+					</>
+				);
+			}
+
+			// 加减乘除操作，显示运算符格式
+			if (operationType === "add") {
+				return (
+					<>
+						{generateVariableHighlight(variableDisplayName)} +{" "}
+						{generateValueHighlight(dataflowTrigger.fromVarDisplayName)}
+					</>
+				);
+			}
+
+			if (operationType === "subtract") {
+				return (
+					<>
+						{generateVariableHighlight(variableDisplayName)} -{" "}
+						{generateValueHighlight(dataflowTrigger.fromVarDisplayName)}
+					</>
+				);
+			}
+
+			if (operationType === "multiply") {
+				return (
+					<>
+						{generateVariableHighlight(variableDisplayName)} ×{" "}
+						{generateValueHighlight(dataflowTrigger.fromVarDisplayName)}
+					</>
+				);
+			}
+
+			if (operationType === "divide") {
+				return (
+					<>
+						{generateVariableHighlight(variableDisplayName)} ÷{" "}
+						{generateValueHighlight(dataflowTrigger.fromVarDisplayName)}
+					</>
+				);
+			}
+
+			// set 操作，显示"将被设置为"
+			if (operationType === "set") {
+				return (
+					<>
+						{generateVariableHighlight(variableDisplayName)} 将被设置为{" "}
+						{generateValueHighlight(dataflowTrigger.fromVarDisplayName)}
+					</>
+				);
+			}
+		}
+
+		// 其他情况需要有值
+		if (!value) return null;
 
 		const operationTextMap: Record<UpdateOperationType, string> = {
 			set: "将被设置为",
@@ -868,4 +1009,174 @@ export const generateGetHint = (
 		varOperation: "get",
 		...(options || {}),
 	});
+};
+
+// ==================== 更新操作文本生成器（用于节点显示）====================
+
+/**
+ * 获取更新操作类型的显示文本
+ * 对于某些操作（如增加、减少等），不需要显示文本，因为会在值中体现
+ */
+export const getUpdateOperationLabel = (operationType: UpdateOperationType): string => {
+	const operationLabels: Record<UpdateOperationType, string> = {
+		set: "设置为",
+		add: "",  // 通过 +5 的格式体现
+		subtract: "",  // 通过 -5 的格式体现
+		multiply: "",  // 通过 ×5 的格式体现
+		divide: "",  // 通过 ÷5 的格式体现
+		max: "取最大值",
+		min: "取最小值",
+		toggle: "切换",
+		append: "添加",
+		remove: "删除",
+		clear: "清空",
+	};
+	return operationLabels[operationType] || operationType;
+};
+
+/**
+ * 格式化更新操作的值显示
+ */
+export const formatUpdateOperationValue = (
+	value: string | number | boolean | string[] | null,
+	operationType: UpdateOperationType,
+): string => {
+	if (value === null || value === undefined) {
+		return "";
+	}
+
+	// 如果是清空或切换操作，不需要显示值
+	if (operationType === "clear" || operationType === "toggle") {
+		return "";
+	}
+
+	// 如果是数组（枚举类型）
+	if (Array.isArray(value)) {
+		return value.length > 0 ? `[${value.join("、")}]` : "[]";
+	}
+
+	// 如果是布尔值
+	if (typeof value === "boolean") {
+		return value ? "True" : "False";
+	}
+
+	const stringValue = String(value);
+
+	// 对于增加操作，添加 + 前缀
+	if (operationType === "add") {
+		return `+${stringValue}`;
+	}
+
+	// 对于减少操作，添加 - 前缀
+	if (operationType === "subtract") {
+		return `-${stringValue}`;
+	}
+
+	// 对于乘法操作，添加 × 符号
+	if (operationType === "multiply") {
+		return `×${stringValue}`;
+	}
+
+	// 对于除法操作，添加 ÷ 符号
+	if (operationType === "divide") {
+		return `÷${stringValue}`;
+	}
+
+	return stringValue;
+};
+
+/**
+ * 生成更新操作的文本（用于节点卡片显示）
+ * 支持数据流模式下的特殊显示
+ * 返回 React.ReactNode 以支持样式化的变量名
+ */
+export const generateUpdateOperationText = (
+	varDisplayName: string,
+	operationType: UpdateOperationType,
+	operationValue: string | number | boolean | string[] | null,
+	triggerType: TriggerType,
+	dataflowTrigger?: DataFlowTrigger | null,
+): React.ReactNode => {
+	// 数据流模式下的特殊处理
+	if (triggerType === "dataflow" && dataflowTrigger) {
+		// max/min 操作
+		if (operationType === "max" || operationType === "min") {
+			const operationTypeLabel = operationType === "max" ? "最大值" : "最小值";
+			return (
+				<>
+					取 {generateVariableHighlight(varDisplayName)} 与{" "}
+					{generateValueHighlight(dataflowTrigger.fromVarDisplayName)} 中的{operationTypeLabel}
+				</>
+			);
+		}
+
+		// 加减乘除操作，显示运算符格式
+		if (operationType === "add") {
+			return (
+				<>
+					{generateVariableHighlight(varDisplayName)} +{" "}
+					{generateValueHighlight(dataflowTrigger.fromVarDisplayName)}
+				</>
+			);
+		}
+
+		if (operationType === "subtract") {
+			return (
+				<>
+					{generateVariableHighlight(varDisplayName)} -{" "}
+					{generateValueHighlight(dataflowTrigger.fromVarDisplayName)}
+				</>
+			);
+		}
+
+		if (operationType === "multiply") {
+			return (
+				<>
+					{generateVariableHighlight(varDisplayName)} ×{" "}
+					{generateValueHighlight(dataflowTrigger.fromVarDisplayName)}
+				</>
+			);
+		}
+
+		if (operationType === "divide") {
+			return (
+				<>
+					{generateVariableHighlight(varDisplayName)} ÷{" "}
+					{generateValueHighlight(dataflowTrigger.fromVarDisplayName)}
+				</>
+			);
+		}
+
+		// set 操作
+		if (operationType === "set") {
+			return (
+				<>
+					设置为 {generateValueHighlight(dataflowTrigger.fromVarDisplayName)}
+				</>
+			);
+		}
+	}
+
+	// 其他情况，使用标准格式
+	const operationLabel = getUpdateOperationLabel(operationType);
+	const formattedValue = formatUpdateOperationValue(operationValue, operationType);
+
+	// 组合操作标签和值，对值添加样式
+	if (operationLabel && formattedValue) {
+		return (
+			<>
+				{operationLabel} {generateValueHighlight(formattedValue)}
+			</>
+		);
+	}
+
+	if (operationLabel) {
+		return operationLabel;
+	}
+
+	if (formattedValue) {
+		return generateValueHighlight(formattedValue);
+	}
+
+	return null;
 };
