@@ -4,10 +4,19 @@ import type React from "react";
 import BaseHandle from "@/components/flow/base/BaseHandle";
 import { getTriggerTypeInfo } from "@/components/flow/node/variable-node/variable-node-utils";
 import { Badge } from "@/components/ui/badge";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 import type { GetVariableConfig } from "@/types/node/variable-node/variable-config-types";
 import {
 	getEffectiveTriggerType,
 } from "@/types/node/variable-node";
+import {
+	getVariableTypeIcon,
+	getVariableTypeIconColor,
+} from "@/types/variable";
 import {
 	generateTriggerConditionText,
 } from "./utils";
@@ -28,6 +37,9 @@ export const GetVarHandleItem: React.FC<GetVarHandleItemProps> = ({
 
 	const triggerConditionText = generateTriggerConditionText(variableConfig);
 
+	const VarTypeIcon = getVariableTypeIcon(variableConfig.varValueType);
+	const varTypeIconColor = getVariableTypeIconColor(variableConfig.varValueType);
+
 	return (
 		<div className="relative">
 			<div className="flex items-center justify-between gap-2 pr-2 pl-1 mb-1 relative ">
@@ -46,30 +58,40 @@ export const GetVarHandleItem: React.FC<GetVarHandleItemProps> = ({
 				/>
 			</div>
 
-		<div className="flex items-center justify-between px-2 py-2 bg-gray-100 rounded-md relative">
-			<div className="flex flex-col gap-1 flex-1">
-			<div className="flex items-start gap-2 pb-1">
-				<span className="text-sm font-medium break-words">
-					{variableConfig.varDisplayName}
-				</span>
-				<Badge className={`h-5 text-[10px] ${typeInfo.badgeColor} flex-shrink-0`}>
-					<TriggerIcon className="h-3 w-3" />
-					{typeInfo.label}
-				</Badge>
-			</div>
-
-				{triggerConditionText && (
-					<div className="text-xs text-muted-foreground">
-						{triggerConditionText}
+	<div className="flex items-center justify-between px-2 py-2 bg-gray-100 rounded-md relative">
+		<Tooltip>
+			<TooltipTrigger asChild>
+				<div className="flex flex-col gap-1 flex-1">
+					<div className="flex items-start gap-2 pb-1">
+						<span className="text-sm font-medium break-words">
+							{variableConfig.varDisplayName}
+						</span>
+						<Badge className={`h-5 text-[10px] ${typeInfo.badgeColor} flex-shrink-0`}>
+							<TriggerIcon className="h-3 w-3" />
+							{typeInfo.label}
+						</Badge>
 					</div>
-				)}
+
+					{triggerConditionText && (
+						<div className="text-xs text-muted-foreground">
+							{triggerConditionText}
+						</div>
+					)}
+				</div>
+		</TooltipTrigger>
+		<TooltipContent side="top">
+			<div className="flex items-center gap-1">
+				<VarTypeIcon className={`text-sm ${varTypeIconColor}`} />
+				<p>{variableConfig.varName}</p>
 			</div>
-			<div className="text-xs text-muted-foreground font-bold pl-2">
-				<Badge variant="outline" className="border-gray-400">
-					变量 {variableConfig.configId}
-				</Badge>
-			</div>
+		</TooltipContent>
+	</Tooltip>
+		<div className="text-xs text-muted-foreground font-bold pl-2">
+			<Badge variant="outline" className="border-gray-400">
+				变量 {variableConfig.configId}
+			</Badge>
 		</div>
+	</div>
 			<BaseHandle
 				id={`${id}_output_${variableConfig.configId}`}
 				type="source"

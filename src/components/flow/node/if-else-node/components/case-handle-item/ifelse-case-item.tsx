@@ -12,13 +12,16 @@ import type {
 	Condition,
 	LogicalSymbol,
 } from "@/types/node/if-else-node";
-import { VarType } from "@/types/node/if-else-node";
+import {
+	getVariableTypeIcon,
+	getVariableTypeIconColor,
+} from "@/types/variable";
 import {
 	getCaseTypeLabel,
 	getComparisonLabel,
 	getLogicalLabel,
-	getNodeTypeIcon,
 	getVariableLabel,
+	getVariableTooltipLabel,
 } from "./utils";
 
 interface IfElseCaseItemProps {
@@ -41,66 +44,71 @@ const ConditionItem = ({
 
 	return (
 		<div className="flex items-center gap-1 flex-nowrap whitespace-nowrap">
-			{/* 左变量 */}
-			<Tooltip>
-				<TooltipTrigger asChild>
-					<div className="flex items-center gap-1 px-1 py-1 bg-gray-50 rounded-md border hover:bg-gray-200 transition-colors cursor-default min-w-0">
-						<span className="text-sm shrink-0">
-							{getNodeTypeIcon(condition.leftVariable?.nodeType || undefined)}
-						</span>
-						<span className="text-xs font-medium text-gray-900 truncate">
-							{getVariableLabel(condition.leftVariable, nodes, t)}
-						</span>
-					</div>
-				</TooltipTrigger>
-				<TooltipContent>
-					<p>
-						{condition.leftVariable?.nodeName &&
-						condition.leftVariable?.varConfigId
-							? `${condition.leftVariable.nodeName}-${t("IfElseNode.config")}${condition.leftVariable.varConfigId}`
-							: t("IfElseNode.notSet")}
-					</p>
-				</TooltipContent>
-			</Tooltip>
-
-			{/* 比较符号 */}
-			{condition.comparisonSymbol && (
-				<div className="flex items-center justify-center w-5 h-5 bg-orange-100 rounded-full shrink-0">
-					<span className="text-orange-600 font-bold text-xs">
-						{getComparisonLabel(condition.comparisonSymbol)}
+		{/* 左变量 */}
+		<Tooltip>
+			<TooltipTrigger asChild>
+				<div className="flex items-center gap-1 px-1 py-1 bg-gray-50 rounded-md border hover:bg-gray-200 transition-colors cursor-default min-w-0">
+					{condition.leftVariable?.varValueType && (() => {
+						const IconComponent = getVariableTypeIcon(
+							condition.leftVariable.varValueType,
+						);
+						const iconColorClass = getVariableTypeIconColor(
+							condition.leftVariable.varValueType,
+						);
+						return (
+							<IconComponent className={`text-sm shrink-0 ${iconColorClass}`} />
+						);
+					})()}
+					<span className="text-xs font-medium text-gray-900 truncate">
+						{getVariableLabel(condition.leftVariable, nodes, t)}
 					</span>
 				</div>
-			)}
+		</TooltipTrigger>
+		<TooltipContent>
+			<p>{getVariableTooltipLabel(condition.leftVariable, t)}</p>
+		</TooltipContent>
+	</Tooltip>
 
-			{/* 右变量 */}
+		{/* 比较符号 */}
+		{condition.comparisonSymbol && (
 			<Tooltip>
 				<TooltipTrigger asChild>
-					<div className="flex items-center gap-1 px-1 py-1 bg-gray-50 rounded-md border hover:bg-gray-200 transition-colors cursor-default min-w-0">
-						<span className="text-sm shrink-0">
-							{condition.rightVariable?.varType === VarType.constant
-								? "🔢"
-								: getNodeTypeIcon(
-										condition.rightVariable?.nodeType || undefined,
-									)}
-						</span>
-						<span className="text-xs font-medium text-gray-900 truncate">
-							{getVariableLabel(condition.rightVariable, nodes, t)}
+					<div className="flex items-center justify-center min-w-[20px] min-h-[20px] max-w-[60px] px-1.5 py-1 bg-orange-100 rounded-full shrink overflow-hidden">
+						<span className="text-orange-600 font-bold text-xs truncate">
+							{getComparisonLabel(condition.comparisonSymbol)}
 						</span>
 					</div>
 				</TooltipTrigger>
 				<TooltipContent>
-					<p>
-						{condition.rightVariable?.varType === VarType.constant
-							? condition.rightVariable.varName
-								? condition.rightVariable.varName
-								: "0"
-							: condition.rightVariable?.nodeName &&
-									condition.rightVariable?.varConfigId
-								? `${condition.rightVariable.nodeName}-${t("IfElseNode.config")}${condition.rightVariable.varConfigId}`
-								: t("IfElseNode.notSet")}
-					</p>
+					<p>{getComparisonLabel(condition.comparisonSymbol)}</p>
 				</TooltipContent>
 			</Tooltip>
+		)}
+
+		{/* 右变量 */}
+		<Tooltip>
+			<TooltipTrigger asChild>
+				<div className="flex items-center gap-1 px-1 py-1 bg-gray-50 rounded-md border hover:bg-gray-200 transition-colors cursor-default min-w-0">
+					{condition.rightVariable?.varValueType && (() => {
+						const IconComponent = getVariableTypeIcon(
+							condition.rightVariable.varValueType,
+						);
+						const iconColorClass = getVariableTypeIconColor(
+							condition.rightVariable.varValueType,
+						);
+						return (
+							<IconComponent className={`text-sm shrink-0 ${iconColorClass}`} />
+						);
+					})()}
+					<span className="text-xs font-medium text-gray-900 truncate">
+						{getVariableLabel(condition.rightVariable, nodes, t)}
+					</span>
+				</div>
+		</TooltipTrigger>
+		<TooltipContent>
+			<p>{getVariableTooltipLabel(condition.rightVariable, t)}</p>
+		</TooltipContent>
+	</Tooltip>
 
 			{/* 逻辑符号 (不是最后一个条件时显示) */}
 			{!isLast && logicalSymbol && (

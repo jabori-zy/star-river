@@ -88,22 +88,6 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 		);
 	};
 
-	const createEmptyRightVariable = (
-		varValueType: VariableValueType | null,
-	): Variable => {
-		return {
-			varType: VarType.variable,
-			nodeId: null,
-			nodeType: null,
-			outputHandleId: null,
-			varConfigId: null,
-			varDisplayName: null,
-			varName: null,
-			nodeName: null,
-			varValueType: varValueType ?? VariableValueType.NUMBER,
-		};
-	};
-
 	// 更新左节点
 	const handleUpdateLeftNode = (
 		nodeId: string,
@@ -169,7 +153,7 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 		const newCondition: Condition = {
 			...localCondition,
 			leftVariable: newLeftVariable,
-			rightVariable: createEmptyRightVariable(resolvedVarValueType),
+			rightVariable: null,
 			comparisonSymbol: nextComparisonSymbol,
 		};
 		if (areConditionsEqual(localCondition, newCondition)) {
@@ -221,7 +205,7 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 		let newComparisonSymbol = localCondition.comparisonSymbol;
 
 		if (hasTypeChanged) {
-			newRightVariable = createEmptyRightVariable(varValueType);
+			newRightVariable = null;
 
 			// 检查当前的比较符号是否适用于新的变量类型
 			const availableSymbols = getAvailableComparisonSymbols(varValueType);
@@ -468,6 +452,30 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 		localCondition.rightVariable?.varName !== null
 			? localCondition.rightVariable?.varName.toString()
 			: "";
+	const excludeVariable = useMemo(() => {
+		const leftVariable = localCondition.leftVariable;
+
+		if (
+			leftVariable?.varType === VarType.variable &&
+			leftVariable.nodeId &&
+			leftVariable.outputHandleId &&
+			leftVariable.varName !== null &&
+			leftVariable.varName !== undefined
+		) {
+			return {
+				nodeId: leftVariable.nodeId,
+				outputHandleId: leftVariable.outputHandleId,
+				varName: leftVariable.varName,
+			};
+		}
+
+		return null;
+	}, [
+		localCondition.leftVariable?.varType,
+		localCondition.leftVariable?.nodeId,
+		localCondition.leftVariable?.outputHandleId,
+		localCondition.leftVariable?.varName,
+	]);
 	const enumConstantValues = useMemo(() => {
 		if (
 			rightVarType !== VarType.constant ||
@@ -590,6 +598,7 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 								onVariableChange={handleUpdateRightVariable}
 								whitelistValueType={getRightVariableWhitelist()}
 								blacklistValueType={getRightVariableBlacklist()}
+								excludeVariable={excludeVariable}
 							/>
 						) : (
 							/* 根据左变量类型显示不同的常量输入 */

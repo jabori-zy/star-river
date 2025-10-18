@@ -990,9 +990,11 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 						</>
 					) : (
 						<>
+							{!isEditing && (
 							<Button variant="outline" onClick={handleBackStep}>
 								上一步
 							</Button>
+							)}
 							<Button
 							onClick={handleSave}
 							disabled={

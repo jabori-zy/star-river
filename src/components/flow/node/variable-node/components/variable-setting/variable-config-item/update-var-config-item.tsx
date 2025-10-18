@@ -3,10 +3,14 @@ import type React from "react";
 import {
 	generateDataflowHint,
 	generateUpdateHint,
-	getTriggerCaseLabel,
 	getTriggerTypeInfo,
 } from "@/components/flow/node/variable-node/variable-node-utils";
 import { Badge } from "@/components/ui/badge";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 import type {
 	DataFlowTrigger,
 	UpdateVariableConfig,
@@ -17,6 +21,10 @@ import {
 	getEffectiveTriggerType,
 	getTimerTriggerConfig,
 } from "@/types/node/variable-node";
+import {
+	getVariableTypeIcon,
+	getVariableTypeIconColor,
+} from "@/types/variable";
 
 interface UpdateVarConfigItemProps {
 	config: UpdateVariableConfig;
@@ -72,17 +80,30 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({ config }) => 
 		});
 	};
 
+	const VarTypeIcon = getVariableTypeIcon(config.varValueType);
+	const varTypeIconColor = getVariableTypeIconColor(config.varValueType);
+
 	return (
 		<div className="flex-1 space-y-1">
-			{/* 第一行：图标 + 操作标题 + 触发方式 + 操作类型 */}
-			<div className="flex items-center gap-2 pb-2">
-				<TbEdit className="h-4 w-4 text-green-600 flex-shrink-0" />
-				<span className="text-sm font-medium">更新变量</span>
-				<Badge className={`h-5 text-[10px] ${typeInfo.badgeColor}`}>
-					<TriggerIcon className="h-3 w-3" />
-					{typeInfo.label}
-				</Badge>
-			</div>
+			<Tooltip>
+				<TooltipTrigger asChild>
+					{/* 第一行：图标 + 操作标题 + 触发方式 + 操作类型 */}
+					<div className="flex items-center gap-2 pb-2">
+						<TbEdit className="h-4 w-4 text-green-600 flex-shrink-0" />
+						<span className="text-sm font-medium">更新变量</span>
+						<Badge className={`h-5 text-[10px] ${typeInfo.badgeColor}`}>
+							<TriggerIcon className="h-3 w-3" />
+							{typeInfo.label}
+						</Badge>
+					</div>
+			</TooltipTrigger>
+			<TooltipContent side="top">
+				<div className="flex items-center gap-1">
+					<VarTypeIcon className={`text-sm ${varTypeIconColor}`} />
+					<p>{config.varName}</p>
+				</div>
+			</TooltipContent>
+		</Tooltip>
 
 			{/* 第二行：详细信息 */}
 			<div className="flex items-center gap-2 flex-wrap">
