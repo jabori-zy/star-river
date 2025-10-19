@@ -8,7 +8,7 @@ import {
 	getVariableOperationIconColor,
 	type VariableOperation,
 } from "@/types/node/variable-node";
-
+import { useTranslation } from "react-i18next";
 interface VarOperateGuideProps {
 	value: VariableOperation;
 	onValueChange: (value: VariableOperation) => void;
@@ -20,6 +20,7 @@ const VarOperateGuide: React.FC<VarOperateGuideProps> = ({
 	onValueChange,
 	onConfirm,
 }) => {
+	const { t } = useTranslation();
 	const handleDoubleClick = (optionValue: VariableOperation) => {
 		onValueChange(optionValue);
 		onConfirm?.();
@@ -28,14 +29,14 @@ const VarOperateGuide: React.FC<VarOperateGuideProps> = ({
 	const operations: VariableOperation[] = ["get", "update", "reset"];
 	return (
 		<div className="space-y-3">
-			<Label className="text-sm font-medium">操作类型</Label>
+			<Label className="text-sm font-medium">{t("variableNode.opType")}</Label>
 			<RadioGroup value={value} onValueChange={onValueChange}>
 				<div className="space-y-3">
 					{operations.map((operation) => {
 						const Icon = getVariableOperationIcon(operation);
 						const iconColor = getVariableOperationIconColor(operation);
-						const displayName = getVariableOperationDisplayName(operation);
-						const description = getVariableOperationDescription(operation);
+						const displayName = getVariableOperationDisplayName(operation, t);
+						const description = getVariableOperationDescription(operation, t);
 
 						return (
 							<Label

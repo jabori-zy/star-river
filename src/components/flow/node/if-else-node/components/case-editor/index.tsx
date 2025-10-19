@@ -128,7 +128,7 @@ const CaseEditor: React.FC<CaseEditorProps> = ({
 					>
 						<Trash2 className="w-2 h-2 shrink-0" />
 						<span className="text-xs whitespace-nowrap">
-							{t("IfElseNode.deleteBranch")}
+							{t("ifElseNode.deleteBranch")}
 						</span>
 					</Button>
 				</div>
@@ -155,7 +155,7 @@ const CaseEditor: React.FC<CaseEditorProps> = ({
 					className="h-7 text-xs px-3"
 					onClick={handleAddCondition}
 				>
-					{t("IfElseNode.addCondition")}
+					{t("ifElseNode.addCondition")}
 				</Button>
 			</div>
 			{/* 用div模拟分割线 */}

@@ -14,12 +14,15 @@ import {
 	getEffectiveTriggerType,
 } from "@/types/node/variable-node";
 import {
-	getVariableTypeIcon,
-	getVariableTypeIconColor,
+	getVariableValueTypeIcon,
+	getVariableValueTypeIconColor,
 } from "@/types/variable";
 import {
 	generateTriggerConditionText,
 } from "./utils";
+import { getNodeTypeLabel } from "@/components/flow/node/node-utils";
+import { NodeType } from "@/types/node/index";
+import { useTranslation } from "react-i18next";
 
 interface GetVarHandleItemProps {
 	id: string;
@@ -30,15 +33,16 @@ export const GetVarHandleItem: React.FC<GetVarHandleItemProps> = ({
 	id,
 	variableConfig,
 }) => {
+	const { t } = useTranslation();
 	const effectiveTriggerType = getEffectiveTriggerType(variableConfig) ?? "condition";
 
-	const typeInfo = getTriggerTypeInfo(effectiveTriggerType);
+	const typeInfo = getTriggerTypeInfo(effectiveTriggerType, t);
 	const TriggerIcon = typeInfo.icon;
 
-	const triggerConditionText = generateTriggerConditionText(variableConfig);
+	const triggerConditionText = generateTriggerConditionText(variableConfig, t);
 
-	const VarTypeIcon = getVariableTypeIcon(variableConfig.varValueType);
-	const varTypeIconColor = getVariableTypeIconColor(variableConfig.varValueType);
+	const VarTypeIcon = getVariableValueTypeIcon(variableConfig.varValueType);
+	const varTypeIconColor = getVariableValueTypeIconColor(variableConfig.varValueType);
 
 	return (
 		<div className="relative">
@@ -46,7 +50,7 @@ export const GetVarHandleItem: React.FC<GetVarHandleItemProps> = ({
 				<div className="flex items-center gap-1">
 					<TbFileImport className="h-3 w-3 text-blue-600 flex-shrink-0" />
 					<span className="text-xs font-bold text-muted-foreground">
-						获取变量
+						{t("variableNode.get")}
 					</span>
 				</div>
 				<BaseHandle
@@ -88,7 +92,7 @@ export const GetVarHandleItem: React.FC<GetVarHandleItemProps> = ({
 	</Tooltip>
 		<div className="text-xs text-muted-foreground font-bold pl-2">
 			<Badge variant="outline" className="border-gray-400">
-				变量 {variableConfig.configId}
+				{getNodeTypeLabel(NodeType.VariableNode, t)} {variableConfig.configId}
 			</Badge>
 		</div>
 	</div>

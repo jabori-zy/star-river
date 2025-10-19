@@ -48,30 +48,32 @@ export const getVariableOperationIconColor = (
 
 export const getVariableOperationDisplayName = (
 	operation: VariableOperation,
+	t:(key: string) => string,
 ): string => {
 	switch (operation) {
 		case "get":
-			return "获取变量";
+			return t("variableNode.getVariable");
 		case "update":
-			return "更新变量";
+			return t("variableNode.updateVariable");
 		case "reset":
-			return "重置变量";
+			return t("variableNode.resetVariable");
 		default:
-			return "获取变量";
+			return t("variableNode.getVariable");
 	}
 };
 
 export const getVariableOperationDescription = (
 	operation: VariableOperation,
+	t:(key: string) => string,
 ): string => {
 	switch (operation) {
 		case "get":
-			return "从系统或自定义变量中获取值";
+			return t("variableNode.getVariableDescription");
 		case "update":
-			return "修改自定义变量的值(赋值、运算等)";
+			return t("variableNode.updateVariableDescription");
 		case "reset":
-			return "将自定义变量重置为初始值";
+			return t("variableNode.resetVariableDescription");
 		default:
-			return "从系统或自定义变量中获取值";
+			return t("variableNode.getVariableDescription");
 	}
 };

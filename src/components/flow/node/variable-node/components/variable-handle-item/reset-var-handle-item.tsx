@@ -15,12 +15,13 @@ import {
 	getEffectiveTriggerType,
 } from "@/types/node/variable-node";
 import {
-	getVariableTypeIcon,
-	getVariableTypeIconColor,
+	getVariableValueTypeIcon,
+	getVariableValueTypeIconColor,
 } from "@/types/variable";
 import {
 	generateTriggerConditionText,
 } from "./utils";
+import { useTranslation } from "react-i18next";
 
 interface ResetVarHandleItemProps {
 	id: string;
@@ -31,9 +32,10 @@ export const ResetVarHandleItem: React.FC<ResetVarHandleItemProps> = ({
 	id,
 	variableConfig,
 }) => {
+	const { t } = useTranslation();
 	const effectiveTriggerType = getEffectiveTriggerType(variableConfig) ?? "condition";
 
-	const typeInfo = getTriggerTypeInfo(effectiveTriggerType);
+	const typeInfo = getTriggerTypeInfo(effectiveTriggerType, t);
 	const TriggerIcon = typeInfo.icon;
 
 	const formattedValue = formatVariableValue(
@@ -41,10 +43,10 @@ export const ResetVarHandleItem: React.FC<ResetVarHandleItemProps> = ({
 		variableConfig.varValueType,
 	);
 
-	const triggerConditionText = generateTriggerConditionText(variableConfig);
+	const triggerConditionText = generateTriggerConditionText(variableConfig, t);
 
-	const VarTypeIcon = getVariableTypeIcon(variableConfig.varValueType);
-	const varTypeIconColor = getVariableTypeIconColor(variableConfig.varValueType);
+	const VarTypeIcon = getVariableValueTypeIcon(variableConfig.varValueType);
+	const varTypeIconColor = getVariableValueTypeIconColor(variableConfig.varValueType);
 
 	return (
 		<div className="relative">
@@ -52,7 +54,7 @@ export const ResetVarHandleItem: React.FC<ResetVarHandleItemProps> = ({
 				<div className="flex items-center gap-1">
 					<TbRefresh className="h-3 w-3 text-orange-600 flex-shrink-0" />
 					<span className="text-xs font-bold text-muted-foreground">
-						重置变量
+						{t("variableNode.reset")}
 					</span>
 				</div>
 				<BaseHandle
@@ -85,7 +87,7 @@ export const ResetVarHandleItem: React.FC<ResetVarHandleItemProps> = ({
 					)}
 
 					<div className="flex items-center gap-2 text-xs text-muted-foreground">
-						<span>重置为: {formattedValue}</span>
+						<span>{t("variableNode.hint.reset")}: {formattedValue}</span>
 					</div>
 				</div>
 		</TooltipTrigger>
@@ -98,7 +100,7 @@ export const ResetVarHandleItem: React.FC<ResetVarHandleItemProps> = ({
 	</Tooltip>
 		<div className="text-xs text-muted-foreground font-bold pl-2">
 			<Badge variant="outline" className="border-gray-400">
-				变量 {variableConfig.configId}
+				{t("variableNode.var")} {variableConfig.configId}
 			</Badge>
 		</div>
 	</div>

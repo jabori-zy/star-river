@@ -9,7 +9,7 @@ import {
 } from "@/types/node/variable-node";
 import IntervalConfiger from "./interval-configer";
 import ScheduleConfiger from "./schedule-configer";
-
+import { useTranslation } from "react-i18next";
 interface TimerConfigComponentProps {
 	timerConfig: TimerTrigger;
 	onTimerConfigChange: (config: TimerTrigger) => void;
@@ -19,6 +19,7 @@ const TimerConfigComponent: React.FC<TimerConfigComponentProps> = ({
 	timerConfig,
 	onTimerConfigChange,
 }) => {
+	const { t } = useTranslation();
 	// 使用 ref 缓存两种模式的配置，避免切换时丢失数据
 	const intervalConfigCache = React.useRef<IntervalTimerConfig | null>(null);
 	const scheduledConfigCache = React.useRef<ScheduledTimerConfig | null>(null);
@@ -94,7 +95,7 @@ const TimerConfigComponent: React.FC<TimerConfigComponentProps> = ({
 						htmlFor="mode-interval"
 						className="cursor-pointer font-normal text-sm"
 					>
-						固定间隔
+						{t("variableNode.interval")}
 					</Label>
 				</div>
 				<div className="flex items-center space-x-2">
@@ -103,7 +104,7 @@ const TimerConfigComponent: React.FC<TimerConfigComponentProps> = ({
 						htmlFor="mode-scheduled"
 						className="cursor-pointer font-normal text-sm"
 					>
-						定时执行
+						{t("variableNode.schedule")}
 					</Label>
 				</div>
 			</RadioGroup>

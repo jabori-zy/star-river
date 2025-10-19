@@ -545,7 +545,7 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 				<div className="flex flex-col gap-1 p-2 min-h-16">
 					<div className="flex flex-row justify-between">
 						<span className="text-sm font-bold text-muted-foreground text-left">
-							{t("IfElseNode.leftVariable")}
+							{t("ifElseNode.leftVariable")}
 						</span>
 						<Button
 							variant="ghost"
@@ -566,7 +566,7 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 				</div>
 				<div className="flex flex-col gap-1 px-2 min-h-16">
 					<div className="text-sm font-bold text-muted-foreground text-left">
-						{t("IfElseNode.operator")}
+						{t("ifElseNode.operator")}
 					</div>
 					<ButtonGroup>
 						<ComparisonSymbolSelector
@@ -588,7 +588,7 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 				{needsRightVariable && (
 					<div className="flex flex-col gap-1 px-2 min-h-16">
 						<div className="text-sm font-bold text-muted-foreground text-left">
-							{t("IfElseNode.rightVariable")}
+							{t("ifElseNode.rightVariable")}
 						</div>
 						{rightVarType !== VarType.constant ? (
 							<VariableSelector

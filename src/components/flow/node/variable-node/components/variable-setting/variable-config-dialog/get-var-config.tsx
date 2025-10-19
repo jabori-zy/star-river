@@ -11,17 +11,26 @@ import {
 } from "@/types/node/variable-node";
 import {
 	type CustomVariable,
-	getVariableTypeIcon,
-	getVariableTypeIconColor,
+	getVariableValueTypeIcon,
+	getVariableValueTypeIconColor,
 	SYSTEM_VARIABLE_METADATA,
 	SystemVariable,
 } from "@/types/variable";
-import { generateGetHint } from "../../../variable-node-utils";
+import {
+	generateBooleanHint,
+	generateEnumHint,
+	generateNumberHint,
+	generateStringHint,
+	generateTimeHint,
+	generatePercentageHint,
+} from "../../../hint-generators";
+import { VariableValueType } from "@/types/variable";
 import CaseSelector, { type CaseItemInfo } from "./components/case-selector";
 import type { SymbolSelectorOption } from "./components/symbol-selector";
 import SymbolSelector from "./components/symbol-selector";
 import TimerConfigComponent from "./components/timer";
 import TriggerTypeConfig from "./components/trigger-type-config";
+import { useTranslation } from "react-i18next";
 
 interface GetVarConfigProps {
 	symbol: string;
@@ -60,6 +69,7 @@ const GetVarConfig: React.FC<GetVarConfigProps> = ({
 	onTriggerConfigChange,
 	onValidationChange,
 }) => {
+	const { t } = useTranslation();
 	// 从 triggerConfig 中提取各种触发配置
 	const effectiveTriggerType = getEffectiveTriggerType({ triggerConfig }) ?? "condition";
 	const conditionTrigger = getConditionTriggerConfig({ triggerConfig });
@@ -85,8 +95,8 @@ const GetVarConfig: React.FC<GetVarConfigProps> = ({
 	const mixedVariableOptions = [
 		// 自定义变量选项
 		...customVariables.map((customVar) => {
-			const TypeIconComponent = getVariableTypeIcon(customVar.varValueType);
-			const typeIconColor = getVariableTypeIconColor(customVar.varValueType);
+			const TypeIconComponent = getVariableValueTypeIcon(customVar.varValueType);
+			const typeIconColor = getVariableValueTypeIconColor(customVar.varValueType);
 
 			return {
 				value: customVar.varName,
@@ -108,8 +118,8 @@ const GetVarConfig: React.FC<GetVarConfigProps> = ({
 		// 系统变量选项
 		...Object.values(SystemVariable).map((sysVar) => {
 			const metadata = SYSTEM_VARIABLE_METADATA[sysVar];
-			const TypeIconComponent = getVariableTypeIcon(metadata.varValueType);
-			const typeIconColor = getVariableTypeIconColor(metadata.varValueType);
+			const TypeIconComponent = getVariableValueTypeIcon(metadata.varValueType);
+			const typeIconColor = getVariableValueTypeIconColor(metadata.varValueType);
 
 			return {
 				value: sysVar,
@@ -218,28 +228,44 @@ const GetVarConfig: React.FC<GetVarConfigProps> = ({
 		return true;
 	};
 
+	// 根据变量类型选择对应的生成器
+	const getHintGenerator = (varValueType?: VariableValueType) => {
+		if (!varValueType) return generateNumberHint; // 默认使用 NUMBER 生成器
+
+		const generatorMap = {
+			[VariableValueType.BOOLEAN]: generateBooleanHint,
+			[VariableValueType.ENUM]: generateEnumHint,
+			[VariableValueType.NUMBER]: generateNumberHint,
+			[VariableValueType.STRING]: generateStringHint,
+			[VariableValueType.TIME]: generateTimeHint,
+			[VariableValueType.PERCENTAGE]: generatePercentageHint,
+		};
+
+		return generatorMap[varValueType] || generateNumberHint;
+	};
+
 	const conditionHint =
 		effectiveTriggerType === "condition" && variableDisplayName && shouldShowConditionHint()
-			? generateGetHint(variableDisplayName, {
-					varValueType: variableValueType,
-					triggerConfig: {
-						triggerType: "condition",
-						conditionTrigger: conditionTrigger,
-						timerTrigger: undefined,
-					},
+			? getHintGenerator(variableValueType)({
+					t,
+					varOperation: "get",
+					variableDisplayName,
+					conditionTrigger: conditionTrigger,
+					timerTrigger: undefined,
+					dataflowTrigger: undefined,
 					symbol: symbol || undefined,
 				})
 			: null;
 
 	const timerHint =
 		effectiveTriggerType === "timer" && variableDisplayName && shouldShowTimerHint()
-			? generateGetHint(variableDisplayName, {
-					varValueType: variableValueType,
-					triggerConfig: {
-						triggerType: "timer",
-						conditionTrigger: undefined,
-						timerTrigger: timerTrigger,
-					},
+			? getHintGenerator(variableValueType)({
+					t,
+					varOperation: "get",
+					variableDisplayName,
+					conditionTrigger: undefined,
+					timerTrigger: timerTrigger,
+					dataflowTrigger: undefined,
 					symbol: symbol || undefined,
 				})
 			: null;
@@ -251,7 +277,7 @@ const GetVarConfig: React.FC<GetVarConfigProps> = ({
 					htmlFor="variable"
 					className="text-sm font-medium pointer-events-none"
 				>
-					变量
+					{t("variableNode.var")}
 				</Label>
 				<SelectWithSearch
 					id="variable"
@@ -291,7 +317,7 @@ const GetVarConfig: React.FC<GetVarConfigProps> = ({
 					htmlFor="variableName"
 					className="text-sm font-medium pointer-events-none"
 				>
-					自定义变量名称
+					{t("variableNode.customVariableName")}
 				</Label>
 				<Input
 					id="variableName"
@@ -329,7 +355,7 @@ const GetVarConfig: React.FC<GetVarConfigProps> = ({
 			{effectiveTriggerType === "condition" && (
 				<div className="flex flex-col gap-2">
 					<Label className="text-sm font-medium pointer-events-none">
-						触发条件
+						{t("variableNode.triggerCase")}
 					</Label>
 					<CaseSelector
 						caseList={caseItemList}

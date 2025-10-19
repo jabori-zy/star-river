@@ -60,12 +60,15 @@ const VariableNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 				selectedAccount={selectedAccount}
 				onAccountChange={handleAccountChange}
 			/>
-			<VariableSetting
-				id={id}
-				tradeMode={TradeMode.BACKTEST}
-				variableConfigs={config?.variableConfigs || []}
-				onVariableConfigsChange={handleVariableConfigsChange}
-			/>
+			<div className="m-2">
+				<VariableSetting
+					id={id}
+					tradeMode={TradeMode.BACKTEST}
+					variableConfigs={config?.variableConfigs || []}
+					onVariableConfigsChange={handleVariableConfigsChange}
+				/>
+			</div>
+			
 		</div>
 	);
 };

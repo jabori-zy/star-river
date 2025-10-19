@@ -12,10 +12,13 @@ import {
 } from "@/types/node/variable-node";
 import { VariableValueType } from "@/types/variable";
 import {
-	generateUpdateHint,
-} from "../../../../variable-node-utils";
+	generateNumberHint,
+	generateStringHint,
+	generateTimeHint,
+} from "../../../../hint-generators";
+import { useTranslation } from "react-i18next";
 
-interface InputTypeOpEditorProps {
+interface InputTypeOpEditorProps{
 	updateOperationType: UpdateOperationType;
 	updateValue: string;
 	availableOperationOptions: Array<{ value: string; label: string }>;
@@ -40,10 +43,25 @@ const InputTypeOpEditor: React.FC<InputTypeOpEditorProps> = ({
 	triggerType,
 	triggerConfig,
 }) => {
+	const { t } = useTranslation();
 	const effectiveTriggerType =
 		triggerType ?? getEffectiveTriggerType({ triggerConfig }) ?? "condition";
 	const conditionTrigger = getConditionTriggerConfig({ triggerConfig });
 	const timerTrigger = getTimerTriggerConfig({ triggerConfig });
+
+	// 根据变量类型选择对应的生成器
+	const getHintGenerator = () => {
+		switch (varValueType) {
+			case VariableValueType.NUMBER:
+				return generateNumberHint;
+			case VariableValueType.STRING:
+				return generateStringHint;
+			case VariableValueType.TIME:
+				return generateTimeHint;
+			default:
+				return generateNumberHint;
+		}
+	};
 
 	// 判断是否应该显示提示文案
 	const shouldShowHint = () => {
@@ -81,13 +99,14 @@ const InputTypeOpEditor: React.FC<InputTypeOpEditorProps> = ({
 		</ButtonGroup>
 		{shouldShowHint() && (
 			<p className="text-xs text-muted-foreground">
-				{generateUpdateHint(variableDisplayName, updateOperationType, {
+				{getHintGenerator()({
+					t,
+					varOperation: "update",
+					operationType: updateOperationType,
+					variableDisplayName,
 					value: updateValue,
-					triggerConfig: {
-						triggerType: effectiveTriggerType,
-						conditionTrigger,
-						timerTrigger,
-					},
+					conditionTrigger,
+					timerTrigger,
 				})}
 			</p>
 		)}

@@ -122,7 +122,7 @@ export const getTimerConfigDisplay = (timerConfig: TimerTrigger): string => {
 };
 
 // 获取更新操作类型的显示文本
-export const getUpdateOperationLabel = (type: UpdateOperationType): string => {
+export const getUpdateOperationLabel = (type: UpdateOperationType, t: (key: string) => string): string => {
 	const labels: Record<UpdateOperationType, string> = {
 		set: "=",
 		add: "+=",
@@ -142,6 +142,7 @@ export const getUpdateOperationLabel = (type: UpdateOperationType): string => {
 // 获取变量配置的简要描述
 export const getVariableConfigDescription = (
 	config: VariableConfig,
+	t: (key: string) => string,
 ): string => {
 	const variableText = getVariableLabel(config.varName);
 	const effectiveTriggerType = getEffectiveTriggerType(config);
@@ -163,7 +164,7 @@ export const getVariableConfigDescription = (
 		return description;
 	} else if (config.varOperation === "update") {
 		// update 模式
-		const opLabel = getUpdateOperationLabel(config.updateOperationType);
+		const opLabel = getUpdateOperationLabel(config.updateOperationType, t);
 		if (config.updateOperationType === "toggle") {
 			return `更新变量 - ${variableText} (${opLabel})`;
 		}
@@ -188,6 +189,7 @@ export const getVariableConfigDescription = (
 // 生成触发条件文本（用于节点面板显示）
 export const generateTriggerConditionText = (
 	config: VariableConfig,
+	t: (key: string) => string,
 ): string | null => {
 	const effectiveTriggerType = getEffectiveTriggerType(config);
 
@@ -206,7 +208,7 @@ export const generateTriggerConditionText = (
 
 		if (!nodeName) return null;
 
-		return `触发条件: ${nodeName}/${caseLabel}`;
+		return `${t("variableNode.triggerCase")}: ${nodeName}/${caseLabel}`;
 	}
 
 	if (effectiveTriggerType === "timer") {
@@ -326,6 +328,7 @@ export const generateUpdateOperationNodeText = (
 	operationType: UpdateOperationType,
 	operationValue: string | number | boolean | string[] | null,
 	triggerType: TriggerType,
+	t: (key: string) => string,
 	dataflowTrigger?: DataFlowTrigger | null,
 ): React.ReactNode => {
 	// 数据流模式下的特殊处理
@@ -389,7 +392,7 @@ export const generateUpdateOperationNodeText = (
 	}
 
 	// 其他情况，使用标准格式
-	const operationLabel = getUpdateOperationLabel(operationType);
+	const operationLabel = getUpdateOperationLabel(operationType, t);
 	const formattedValue = formatUpdateOperationValue(operationValue, operationType);
 
 	// 组合操作标签和值，对值添加样式

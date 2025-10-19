@@ -15,10 +15,11 @@ import type {
 	VariableConfig,
 } from "@/types/node/variable-node";
 import {
-	getVariableTypeIcon,
-	getVariableTypeIconColor,
+	getVariableValueTypeIcon,
+	getVariableValueTypeIconColor,
 	VariableValueType,
 } from "@/types/variable";
+import { NodeType } from "@/types/node/index";
 
 // 类型守卫
 export const isSelectedIndicator = (
@@ -152,8 +153,8 @@ export const renderVariableOptions = ({
 	// 渲染指标选项
 	if (indicators.length > 0) {
 		// 指标变量都是NUMBER类型
-		const TypeIconComponent = getVariableTypeIcon(VariableValueType.NUMBER);
-		const typeIconColor = getVariableTypeIconColor(VariableValueType.NUMBER);
+		const TypeIconComponent = getVariableValueTypeIcon(VariableValueType.NUMBER);
+		const typeIconColor = getVariableValueTypeIconColor(VariableValueType.NUMBER);
 
 		const groupedByIndicatorId = indicators.reduce(
 			(groups, variable) => {
@@ -239,8 +240,8 @@ export const renderVariableOptions = ({
 	// 渲染K线选项
 	if (klineNodes.length > 0) {
 		// K线变量都是NUMBER类型
-		const TypeIconComponent = getVariableTypeIcon(VariableValueType.NUMBER);
-		const typeIconColor = getVariableTypeIconColor(VariableValueType.NUMBER);
+		const TypeIconComponent = getVariableValueTypeIcon(VariableValueType.NUMBER);
+		const typeIconColor = getVariableValueTypeIconColor(VariableValueType.NUMBER);
 
 		const groupedByConfigId = klineNodes.reduce(
 			(groups, variable) => {
@@ -330,8 +331,8 @@ export const renderVariableOptions = ({
 
 		variableConfigs.forEach((variable) => {
 			// 获取变量类型图标和颜色
-			const TypeIconComponent = getVariableTypeIcon(variable.varValueType);
-			const typeIconColor = getVariableTypeIconColor(variable.varValueType);
+			const TypeIconComponent = getVariableValueTypeIcon(variable.varValueType);
+			const typeIconColor = getVariableValueTypeIconColor(variable.varValueType);
 
 			variableItems.push(
 				<SelectItem
@@ -390,4 +391,23 @@ export const renderNodeOptions = (variableItemList: VariableItem[]) => {
 export const formatDate = (date: Date | undefined): string => {
 	if (!date) return "";
 	return DateTime.fromJSDate(date).toFormat("yyyy-MM-dd HH:mm:ss ZZ") || "";
+};
+
+
+
+
+
+export const getNodeTypeLabel = (nodeType: NodeType | null, t: (key: string) => string) => {
+	switch (nodeType) {
+		case NodeType.KlineNode:
+			return t("common.kline");
+		case NodeType.IndicatorNode:
+			return t("common.indicator");
+		case NodeType.VariableNode:
+			return t("common.variable");
+		case NodeType.FuturesOrderNode:
+			return t("common.order");
+		default:
+			return t("common.config");
+	}
 };

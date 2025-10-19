@@ -2,6 +2,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { getTriggerTypeInfo } from "@/components/flow/node/variable-node/variable-node-utils";
 import type { TriggerType } from "@/types/node/variable-node";
+import { useTranslation } from "react-i18next";
 
 interface TriggerTypeConfigProps {
 	triggerType: TriggerType;
@@ -20,13 +21,14 @@ const TriggerTypeConfig: React.FC<TriggerTypeConfigProps> = ({
 }) => {
 	// 如果指定了 availableTriggers，则只显示指定的触发类型；否则显示全部
 	const displayTypes = availableTriggers || TRIGGER_TYPES;
+	const { t } = useTranslation();
 
 	return (
 		<div className="space-y-1">
-			<Label className="text-sm font-medium">触发方式</Label>
+			<Label className="text-sm font-medium">{t("variableNode.triggerType")}</Label>
 			<div className="flex items-center space-x-6 pt-1">
 				{displayTypes.map((type) => {
-					const typeInfo = getTriggerTypeInfo(type);
+					const typeInfo = getTriggerTypeInfo(type, t);
 					const IconComponent = typeInfo.icon;
 					const triggerId = `${idPrefix}-${type}-trigger`;
 

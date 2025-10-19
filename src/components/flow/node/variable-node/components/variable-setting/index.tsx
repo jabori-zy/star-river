@@ -16,6 +16,7 @@ import type { CaseItemInfo } from "./variable-config-dialog/components/case-sele
 import { TradeMode } from "@/types/strategy";
 import VariableConfigDialog from "./variable-config-dialog";
 import VariableConfigItem from "./variable-config-item";
+import { useTranslation } from "react-i18next";
 
 interface VariableSettingProps {
 	id: string;
@@ -30,6 +31,7 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 	variableConfigs,
 	onVariableConfigsChange,
 }) => {
+	const { t } = useTranslation();
 	const {
 		backtestConfig: startNodeBacktestConfig,
 		liveConfig: startNodeLiveConfig,
@@ -314,9 +316,9 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 	};
 
 	return (
-		<div className="flex flex-col gap-2">
+		<div className="flex flex-col gap-1">
 			<div className="flex items-center justify-between">
-				<Label className="text-sm font-bold text-gray-700">变量配置</Label>
+				<Label className="text-sm font-bold">{t("VariableNode.variableConfig")}</Label>
 				<Button variant="ghost" size="icon" onClick={handleAddVariable}>
 					<PlusIcon className="w-4 h-4" />
 				</Button>
@@ -325,7 +327,7 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 		<div className="space-y-2">
 			{variableConfigs.length === 0 ? (
 				<div className="flex items-center justify-center p-4 border border-dashed rounded-md text-muted-foreground text-sm">
-					点击+号添加变量配置
+					{t("VariableNode.clickAddVariable")}
 				</div>
 			) : (
 				variableConfigs.map((config, index) => (

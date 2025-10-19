@@ -1,6 +1,6 @@
 import {
-	getVariableTypeIcon,
-	getVariableTypeIconColor,
+	getVariableValueTypeIcon,
+	getVariableValueTypeIconColor,
 	VariableValueType,
 } from "@/types/variable";
 
@@ -17,8 +17,8 @@ const VARIABLE_TYPE_LABELS: Record<VariableValueType, string> = {
 // 变量类型选项配置
 export const VARIABLE_TYPE_OPTIONS = Object.values(VariableValueType).map(
 	(type) => {
-		const IconComponent = getVariableTypeIcon(type);
-		const colorClass = getVariableTypeIconColor(type);
+		const IconComponent = getVariableValueTypeIcon(type);
+		const colorClass = getVariableValueTypeIconColor(type);
 
 		return {
 			value: type,

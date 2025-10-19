@@ -15,10 +15,8 @@ import {
 	getEffectiveTriggerType,
 	getTimerTriggerConfig,
 } from "@/types/node/variable-node";
-import { VariableValueType } from "@/types/variable";
-import {
-	generateUpdateHint,
-} from "../../../../variable-node-utils";
+import { generatePercentageHint } from "../../../../hint-generators";
+import { useTranslation } from "react-i18next";
 
 interface PercentTypeOpEditorProps {
 	updateOperationType: UpdateOperationType;
@@ -43,6 +41,7 @@ const PercentTypeOpEditor: React.FC<PercentTypeOpEditorProps> = ({
 	triggerType,
 	triggerConfig,
 }) => {
+	const { t } = useTranslation();
 	const effectiveTriggerType =
 		triggerType ?? getEffectiveTriggerType({ triggerConfig }) ?? "condition";
 	const conditionTrigger = getConditionTriggerConfig({ triggerConfig });
@@ -88,14 +87,14 @@ const PercentTypeOpEditor: React.FC<PercentTypeOpEditorProps> = ({
 		</ButtonGroup>
 		{shouldShowHint() && (
 			<p className="text-xs text-muted-foreground">
-				{generateUpdateHint(variableDisplayName, updateOperationType, {
-					varValueType: VariableValueType.PERCENTAGE,
+				{generatePercentageHint({
+					t,
+					varOperation: "update",
+					operationType: updateOperationType,
+					variableDisplayName,
 					value: updateValue,
-					triggerConfig: {
-						triggerType: effectiveTriggerType,
-						conditionTrigger,
-						timerTrigger,
-					},
+					conditionTrigger,
+					timerTrigger,
 				})}
 			</p>
 		)}

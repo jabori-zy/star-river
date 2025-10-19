@@ -9,10 +9,8 @@ import {
 	getEffectiveTriggerType,
 	getTimerTriggerConfig,
 } from "@/types/node/variable-node";
-import { VariableValueType } from "@/types/variable";
-import {
-	generateUpdateHint,
-} from "../../../../variable-node-utils";
+import { generateBooleanHint } from "../../../../hint-generators";
+import { useTranslation } from "react-i18next";
 
 interface BoolTypeOpEditorProps {
 	updateOperationType: UpdateOperationType;
@@ -41,9 +39,10 @@ const BoolTypeOpEditor: React.FC<BoolTypeOpEditorProps> = ({
 	triggerType,
 	triggerConfig,
 }) => {
+	const { t } = useTranslation();
 	const effectiveTriggerType =
 		triggerType ?? getEffectiveTriggerType({ triggerConfig }) ?? "condition";
-	const conditionTrigger = getConditionTriggerConfig({ triggerConfig });
+	const conditionTrigger = getConditionTriggerConfig({ triggerConfig});
 	const timerTrigger = getTimerTriggerConfig({ triggerConfig });
 
 	// 判断是否应该显示提示文案
@@ -78,13 +77,13 @@ const BoolTypeOpEditor: React.FC<BoolTypeOpEditorProps> = ({
 				/>
 				{shouldShowHint() && (
 					<p className="text-xs text-muted-foreground">
-						{generateUpdateHint(variableDisplayName, updateOperationType, {
-							varValueType: VariableValueType.BOOLEAN,
-							triggerConfig: {
-								triggerType: effectiveTriggerType,
-								conditionTrigger,
-								timerTrigger,
-							},
+						{generateBooleanHint({
+							t,
+							varOperation: "update",
+							operationType: updateOperationType,
+							variableDisplayName,
+							conditionTrigger,
+							timerTrigger,
 						})}
 					</p>
 				)}
@@ -117,14 +116,14 @@ const BoolTypeOpEditor: React.FC<BoolTypeOpEditorProps> = ({
 			</ButtonGroup>
 			{shouldShowHint() && (
 				<p className="text-xs text-muted-foreground">
-					{generateUpdateHint(variableDisplayName, updateOperationType, {
-						varValueType: VariableValueType.BOOLEAN,
+					{generateBooleanHint({
+						t,
+						varOperation: "update",
+						operationType: updateOperationType,
+						variableDisplayName,
 						value: updateValue,
-						triggerConfig: {
-							triggerType: effectiveTriggerType,
-							conditionTrigger,
-							timerTrigger,
-						},
+						conditionTrigger,
+						timerTrigger,
 					})}
 				</p>
 			)}

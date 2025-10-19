@@ -11,6 +11,18 @@ import {
 	type ScheduledTimerConfig,
 } from "@/types/node/variable-node";
 import { calculateNextExecutionTime, generateCronExpression } from "./utils";
+import { useTranslation } from "react-i18next";
+
+// 星期选项定义（翻译键）
+const WEEKDAY_I18N_KEYS = [
+	{ value: 1, key: "weekdayAbbr.monday" },
+	{ value: 2, key: "weekdayAbbr.tuesday" },
+	{ value: 3, key: "weekdayAbbr.wednesday" },
+	{ value: 4, key: "weekdayAbbr.thursday" },
+	{ value: 5, key: "weekdayAbbr.friday" },
+	{ value: 6, key: "weekdayAbbr.saturday" },
+	{ value: 7, key: "weekdayAbbr.sunday" },
+] as const;
 
 interface ScheduleConfigerProps {
 	config: ScheduledTimerConfig;
@@ -21,6 +33,7 @@ const ScheduleConfiger: React.FC<ScheduleConfigerProps> = ({
 	config,
 	onChange,
 }) => {
+	const { t } = useTranslation();
 	// 包装 onChange，自动生成 cron 表达式
 	const handleConfigChange = (newConfig: ScheduledTimerConfig) => {
 		const configWithCron = {
@@ -32,31 +45,31 @@ const ScheduleConfiger: React.FC<ScheduleConfigerProps> = ({
 
 	return (
 		<>
-			<div className="flex items-center gap-2">
-				<SelectInDialog
-					value={config.repeatMode}
-					onValueChange={(value) => {
-						const newMode = value as "hourly" | "daily" | "weekly" | "monthly";
-						// 使用工厂函数创建默认配置
-						const newConfig = createDefaultScheduledConfig(newMode);
-						handleConfigChange(newConfig);
-					}}
-					placeholder="重复规则"
-					options={[
-						{ value: "hourly", label: "小时" },
-						{ value: "daily", label: "每天" },
-						{ value: "weekly", label: "每周" },
-						{ value: "monthly", label: "每月" },
-					]}
-					className="h-8 w-20"
-				/>
+			<div className="flex flex-col gap-2">
+				<div className="flex items-center gap-2 flex-wrap">
+					<SelectInDialog
+						value={config.repeatMode}
+						onValueChange={(value) => {
+							const newMode = value as "hourly" | "daily" | "weekly" | "monthly";
+							// 使用工厂函数创建默认配置
+							const newConfig = createDefaultScheduledConfig(newMode);
+							handleConfigChange(newConfig);
+						}}
+						placeholder="重复规则"
+						options={[
+							{ value: "hourly", label: t("variableNode.timerConfig.hourly") },
+							{ value: "daily", label: t("variableNode.timerConfig.daily") },
+							{ value: "weekly", label: t("variableNode.timerConfig.weekly") },
+							{ value: "monthly", label: t("variableNode.timerConfig.monthly") },
+						]}
+						className="h-8 w-auto min-w-20"
+					/>
 
-				<div className="flex items-center gap-2">
 					{/* 每小时模式显示间隔和分钟 */}
 					{config.repeatMode === "hourly" ? (
 						<>
 							<span className="text-sm text-muted-foreground whitespace-nowrap">
-								每
+								{t("variableNode.timerConfig.every")}
 							</span>
 							<SelectInDialog
 								value={String(config.hourlyInterval)}
@@ -74,7 +87,7 @@ const ScheduleConfiger: React.FC<ScheduleConfigerProps> = ({
 								className="h-8 w-16"
 							/>
 							<span className="text-sm text-muted-foreground whitespace-nowrap">
-								小时的第
+								{t("variableNode.timerConfig.hoursAt")}
 							</span>
 							<SelectInDialog
 								value={String(config.minuteOfHour).padStart(2, "0")}
@@ -92,7 +105,7 @@ const ScheduleConfiger: React.FC<ScheduleConfigerProps> = ({
 								className="h-8 w-16"
 							/>
 							<span className="text-sm text-muted-foreground whitespace-nowrap">
-								分钟
+								{t("variableNode.timerConfig.minutes")}
 							</span>
 						</>
 					) : (
@@ -132,11 +145,11 @@ const ScheduleConfiger: React.FC<ScheduleConfigerProps> = ({
 							/>
 						</>
 					)}
-				</div>
 
-				<span className="text-sm text-muted-foreground whitespace-nowrap">
-					执行
-				</span>
+					<span className="text-sm text-muted-foreground whitespace-nowrap">
+						{t("variableNode.timerConfig.execute")}
+					</span>
+				</div>
 			</div>
 
 			{/* 月份日期选择 - 使用 RadioGroup */}
@@ -189,7 +202,7 @@ const ScheduleConfiger: React.FC<ScheduleConfigerProps> = ({
 								htmlFor="day-custom"
 								className="cursor-pointer font-normal flex items-center gap-2"
 							>
-								第
+								{t("variableNode.timerConfig.at")}
 								<SelectInDialog
 									value={
 										typeof config.dayOfMonth === "number"
@@ -214,7 +227,7 @@ const ScheduleConfiger: React.FC<ScheduleConfigerProps> = ({
 									}))}
 									className="h-8 w-16"
 								/>
-								天
+								{t("variableNode.timerConfig.day")}
 							</Label>
 						</div>
 
@@ -281,13 +294,13 @@ const ScheduleConfiger: React.FC<ScheduleConfigerProps> = ({
 					<div className="flex items-center space-x-2">
 						<RadioGroupItem value="first" id="day-first" />
 						<Label htmlFor="day-first" className="cursor-pointer font-normal">
-							第一天
+							{t("variableNode.timerConfig.firstDay")}
 						</Label>
 					</div>
 					<div className="flex items-center space-x-2">
 						<RadioGroupItem value="last" id="day-last" />
 						<Label htmlFor="day-last" className="cursor-pointer font-normal">
-							最后一天
+							{t("variableNode.timerConfig.lastDay")}
 						</Label>
 					</div>
 				</RadioGroup>
@@ -296,16 +309,9 @@ const ScheduleConfiger: React.FC<ScheduleConfigerProps> = ({
 			{/* 星期选择 - 常驻显示 */}
 			{config.repeatMode === "weekly" && (
 				<div className="flex items-center gap-2 flex-wrap">
-					{[
-						{ value: 1, label: "一" },
-						{ value: 2, label: "二" },
-						{ value: 3, label: "三" },
-						{ value: 4, label: "四" },
-						{ value: 5, label: "五" },
-						{ value: 6, label: "六" },
-						{ value: 7, label: "日" },
-					].map((day) => {
+					{WEEKDAY_I18N_KEYS.map((day) => {
 						const isSelected = config.dayOfWeek === day.value;
+						const label = t(day.key);
 
 						return (
 							<Badge
@@ -324,7 +330,7 @@ const ScheduleConfiger: React.FC<ScheduleConfigerProps> = ({
 									});
 								}}
 							>
-								{isSelected ? "☑" : "☐"} 周{day.label}
+								{isSelected ? "☑" : "☐"} {label}
 							</Badge>
 						);
 					})}
@@ -334,16 +340,9 @@ const ScheduleConfiger: React.FC<ScheduleConfigerProps> = ({
 			{/* 每天模式的星期选择 - 多选 */}
 			{config.repeatMode === "daily" && (
 				<div className="flex items-center gap-2 flex-wrap">
-					{[
-						{ value: 1, label: "一" },
-						{ value: 2, label: "二" },
-						{ value: 3, label: "三" },
-						{ value: 4, label: "四" },
-						{ value: 5, label: "五" },
-						{ value: 6, label: "六" },
-						{ value: 7, label: "日" },
-					].map((day) => {
+					{WEEKDAY_I18N_KEYS.map((day) => {
 						const isSelected = config.daysOfWeek?.includes(day.value);
+						const label = t(day.key);
 
 						return (
 							<Badge
@@ -378,7 +377,7 @@ const ScheduleConfiger: React.FC<ScheduleConfigerProps> = ({
 									}
 								}}
 							>
-								{isSelected ? "☑" : "☐"} 周{day.label}
+								{isSelected ? "☑" : "☐"} {label}
 							</Badge>
 						);
 					})}
@@ -387,7 +386,7 @@ const ScheduleConfiger: React.FC<ScheduleConfigerProps> = ({
 
 			{/* 下次执行时间预览 */}
 			<div className="text-xs text-muted-foreground">
-				下次执行时间: {formatDate(calculateNextExecutionTime(config))}
+				{t("variableNode.timerConfig.nextExecutionTime")}: {formatDate(calculateNextExecutionTime(config))}
 			</div>
 		</>
 	);

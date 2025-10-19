@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { SelectInDialog } from "@/components/select-components/select-in-dialog";
 import { Label } from "@/components/ui/label";
 import type { VariableItem } from "@/hooks/flow/use-strategy-workflow";
@@ -62,7 +63,7 @@ interface UpdateVarConfigProps {
 		varValueType: VariableValueType,
 		isDataflowMode?: boolean,
 	) => UpdateOperationType[];
-	getUpdateOperationLabel: (type: UpdateOperationType) => string;
+	getUpdateOperationLabel: (type: UpdateOperationType, t:(key: string) => string) => string;
 	onValidationChange?: (isValid: boolean) => void;
 }
 
@@ -98,11 +99,12 @@ const renderOperationEditor = (
 		varValueType: VariableValueType,
 		isDataflowMode?: boolean,
 	) => UpdateOperationType[],
-	getUpdateOperationLabel: (type: UpdateOperationType) => string,
+	getUpdateOperationLabel: (type: UpdateOperationType, t: (key: string) => string) => string,
 	onUpdateOperationTypeChange: (value: UpdateOperationType) => void,
 	onUpdateValueChange: (value: string) => void,
 	triggerCase: ConditionTrigger | null,
-	timerConfig?: TimerTrigger,
+	timerConfig: TimerTrigger | undefined,
+	t: (key: string) => string,
 ): React.ReactNode => {
 	const selectedVar = customVariables.find(
 		(v: CustomVariable) => v.varName === variable,
@@ -115,7 +117,7 @@ const renderOperationEditor = (
 	);
 	const availableOperationOptions = availableOps.map((op) => ({
 		value: op,
-		label: getUpdateOperationLabel(op),
+		label: getUpdateOperationLabel(op, t),
 	}));
 	const isBooleanType = selectedVar?.varValueType === VariableValueType.BOOLEAN;
 	const isEnumType = selectedVar?.varValueType === VariableValueType.ENUM;
@@ -234,6 +236,8 @@ const UpdateVarConfig: React.FC<UpdateVarConfigProps> = ({
 	getUpdateOperationLabel,
 	onValidationChange,
 }) => {
+	const { t } = useTranslation();
+
 	// 从 triggerConfig 中提取各种触发配置
 	const effectiveTriggerType = getEffectiveTriggerType({ triggerConfig }) ?? "condition";
 	const conditionTrigger = getConditionTriggerConfig({ triggerConfig });
@@ -326,7 +330,7 @@ const UpdateVarConfig: React.FC<UpdateVarConfigProps> = ({
 					htmlFor="updateVariable"
 					className="text-sm font-medium pointer-events-none"
 				>
-					变量
+					{t("variableNode.var")}
 				</Label>
 				<SelectInDialog
 					id="updateVariable"
@@ -338,6 +342,7 @@ const UpdateVarConfig: React.FC<UpdateVarConfigProps> = ({
 					options={customVariableOptions}
 					disabled={isEditing}
 					emptyMessage="未配置自定义变量，请在策略起点配置"
+					className="w-full"
 				/>
 			</div>
 
@@ -374,7 +379,7 @@ const UpdateVarConfig: React.FC<UpdateVarConfigProps> = ({
 			{effectiveTriggerType === "condition" && (
 				<div className="flex flex-col gap-2">
 					<Label className="text-sm font-medium pointer-events-none">
-						触发条件
+						{t("variableNode.triggerCase")}
 					</Label>
 					<CaseSelector
 						caseList={caseItemList}
@@ -396,7 +401,7 @@ const UpdateVarConfig: React.FC<UpdateVarConfigProps> = ({
 						htmlFor="dataflowOperation"
 						className="text-sm font-medium pointer-events-none"
 					>
-						更新操作
+						{t("variableNode.updateOp")}
 					</Label>
 					{(() => {
 						const selectedVar = customVariables.find(
@@ -458,7 +463,7 @@ const UpdateVarConfig: React.FC<UpdateVarConfigProps> = ({
 							htmlFor="updateOperation"
 							className="text-sm font-medium pointer-events-none"
 						>
-							更新操作
+							{t("variableNode.updateOp")}
 						</Label>
 						{renderOperationEditor(
 							variable,
@@ -472,6 +477,7 @@ const UpdateVarConfig: React.FC<UpdateVarConfigProps> = ({
 							onUpdateValueChange,
 							conditionTrigger ?? null,
 							timerTrigger,
+							t,
 						)}
 					</div>
 				)}

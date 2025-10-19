@@ -8,8 +8,8 @@ import {
 } from "@/components/ui/tooltip";
 import {
 	type CustomVariable,
-	getVariableTypeIcon,
-	getVariableTypeIconColor,
+	getVariableValueTypeIcon,
+	getVariableValueTypeIconColor,
 } from "@/types/variable";
 import { formatVariableValue } from "../utils";
 
@@ -24,8 +24,8 @@ export const VariableItem = ({
 	onEdit,
 	onDelete,
 }: VariableItemProps) => {
-	const IconComponent = getVariableTypeIcon(variable.varValueType);
-	const colorClass = getVariableTypeIconColor(variable.varValueType);
+	const IconComponent = getVariableValueTypeIcon(variable.varValueType);
+	const colorClass = getVariableValueTypeIconColor(variable.varValueType);
 	const formattedInitialValue = formatVariableValue(
 		variable.initialValue,
 		variable.varValueType,

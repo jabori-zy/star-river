@@ -11,10 +11,8 @@ import {
 	getEffectiveTriggerType,
 	getTimerTriggerConfig,
 } from "@/types/node/variable-node";
-import { VariableValueType } from "@/types/variable";
-import {
-	generateUpdateHint,
-} from "../../../../variable-node-utils";
+import { generateEnumHint } from "../../../../hint-generators";
+import { useTranslation } from "react-i18next";
 
 interface EnumTypeOpEditorProps {
 	updateOperationType: UpdateOperationType;
@@ -39,6 +37,7 @@ const EnumTypeOpEditor: React.FC<EnumTypeOpEditorProps> = ({
 	triggerType,
 	triggerConfig,
 }) => {
+	const { t } = useTranslation();
 	const effectiveTriggerType =
 		triggerType ?? getEffectiveTriggerType({ triggerConfig }) ?? "condition";
 	const conditionTrigger = getConditionTriggerConfig({ triggerConfig });
@@ -101,13 +100,13 @@ const EnumTypeOpEditor: React.FC<EnumTypeOpEditorProps> = ({
 				/>
 				{shouldShowHint(true) && (
 					<p className="text-xs text-muted-foreground">
-						{generateUpdateHint(variableDisplayName, updateOperationType, {
-							varValueType: VariableValueType.ENUM,
-							triggerConfig: {
-								triggerType: effectiveTriggerType,
-								conditionTrigger,
-								timerTrigger,
-							},
+						{generateEnumHint({
+							t,
+							varOperation: "update",
+							operationType: updateOperationType,
+							variableDisplayName,
+							conditionTrigger,
+							timerTrigger,
 						})}
 					</p>
 				)}
@@ -122,17 +121,16 @@ const EnumTypeOpEditor: React.FC<EnumTypeOpEditorProps> = ({
 	return (
 		<div className="flex flex-col gap-2">
 			<div className="flex gap-2">
-				<div className="w-20">
-					<SelectInDialog
-						id={`${idPrefix}-operation`}
-						value={updateOperationType}
-						onValueChange={(value) =>
-							onUpdateOperationTypeChange(value as UpdateOperationType)
-						}
-						placeholder="选择更新操作"
-						options={availableOperationOptions}
-					/>
-				</div>
+				<SelectInDialog
+					id={`${idPrefix}-operation`}
+					value={updateOperationType}
+					onValueChange={(value) =>
+						onUpdateOperationTypeChange(value as UpdateOperationType)
+					}
+					placeholder="选择更新操作"
+					options={availableOperationOptions}
+					className="w-auto"
+				/>
 				<div className="flex-1">
 					<MultipleSelector
 						value={parseValue()}
@@ -161,14 +159,14 @@ const EnumTypeOpEditor: React.FC<EnumTypeOpEditorProps> = ({
 			</div>
 		{shouldShowHint(hasValues) && (
 			<p className="text-xs text-muted-foreground">
-				{generateUpdateHint(variableDisplayName, updateOperationType, {
-					varValueType: VariableValueType.ENUM,
+				{generateEnumHint({
+					t,
+					varOperation: "update",
+					operationType: updateOperationType,
+					variableDisplayName,
 					selectedValues,
-					triggerConfig: {
-						triggerType: effectiveTriggerType,
-						conditionTrigger,
-						timerTrigger,
-					},
+					conditionTrigger,
+					timerTrigger,
 				})}
 			</p>
 		)}

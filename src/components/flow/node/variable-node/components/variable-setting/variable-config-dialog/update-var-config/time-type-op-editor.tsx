@@ -10,9 +10,8 @@ import {
 	getEffectiveTriggerType,
 	getTimerTriggerConfig,
 } from "@/types/node/variable-node";
-import {
-	generateUpdateHint,
-} from "../../../../variable-node-utils";
+import { generateTimeHint } from "../../../../hint-generators";
+import { useTranslation } from "react-i18next";
 
 interface TimeTypeOpEditorProps {
 	updateOperationType: UpdateOperationType;
@@ -35,6 +34,7 @@ const TimeTypeOpEditor: React.FC<TimeTypeOpEditorProps> = ({
 	triggerType,
 	triggerConfig,
 }) => {
+	const { t } = useTranslation();
 	const effectiveTriggerType =
 		triggerType ?? getEffectiveTriggerType({ triggerConfig }) ?? "condition";
 	const conditionTrigger = getConditionTriggerConfig({ triggerConfig });
@@ -93,13 +93,14 @@ const TimeTypeOpEditor: React.FC<TimeTypeOpEditorProps> = ({
 			</div>
 		{shouldShowHint() && (
 			<p className="text-xs text-muted-foreground">
-				{generateUpdateHint(variableDisplayName, updateOperationType, {
+				{generateTimeHint({
+					t,
+					varOperation: "update",
+					operationType: updateOperationType,
+					variableDisplayName,
 					value: updateValue,
-					triggerConfig: {
-						triggerType: effectiveTriggerType,
-						conditionTrigger,
-						timerTrigger,
-					},
+					conditionTrigger,
+					timerTrigger,
 				})}
 			</p>
 		)}

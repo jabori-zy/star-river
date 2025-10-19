@@ -23,8 +23,8 @@ import {
 import type { StrategyBacktestConfig } from "@/types/strategy";
 import {
 	type CustomVariable,
-	getVariableTypeIcon,
-	getVariableTypeIconColor,
+	getVariableValueTypeIcon,
+	getVariableValueTypeIconColor,
 } from "@/types/variable";
 import { formatVariableValue } from "../utils";
 
@@ -187,8 +187,8 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 							<div className="space-y-2">
 								{backtestConfig.customVariables.map(
 									(variable: CustomVariable, index: number) => {
-										const Icon = getVariableTypeIcon(variable.varValueType);
-										const iconColor = getVariableTypeIconColor(
+										const Icon = getVariableValueTypeIcon(variable.varValueType);
+										const iconColor = getVariableValueTypeIconColor(
 											variable.varValueType,
 										);
 										const formattedInitialValue = formatVariableValue(

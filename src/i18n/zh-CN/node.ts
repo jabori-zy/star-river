@@ -1,4 +1,10 @@
 const translation = {
+	common: {
+		kline: "K线",
+		indicator: "指标",
+		variable: "变量",
+		order: "订单",
+	},
 	IfElseNode: {
 		if: "IF",
 		elif: "ELIF",
@@ -17,6 +23,20 @@ const translation = {
 		elseDescription: "当所有条件都不满足时，则会执行ELSE分支",
 		noConditions: "未配置条件",
 		allSymbols: "所有交易对",
+	},
+	VariableNode: {
+		get: "获取",
+		update: "更新",
+		reset: "重置",
+		getVariable: "获取变量",
+		updateVariable: "更新变量",
+		resetVariable: "重置变量",
+		condition: "条件触发",
+		interval: "定时触发",
+		schedule: "定时执行",
+		dataflow: "数据流触发",
+		variableConfig: "变量配置",
+		clickAddVariable: "点击 + 添加变量配置",
 	},
 };
 

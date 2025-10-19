@@ -16,7 +16,8 @@ import {
 	SystemVariable,
 	VariableValueType,
 } from "@/types/variable";
-
+import { getNodeTypeLabel } from "../node-utils";
+import { NodeType } from "@/types/node";
 /**
  * 获取变量类型的中文名称（仅用于系统变量）
  * 对于自定义变量，应该直接返回变量名
@@ -167,10 +168,19 @@ export const getTriggerTypeIcon = (triggerType: TriggerType): LucideIcon => {
 /**
  * 获取触发类型的标签文本
  * @param triggerType 触发类型
+ * @param t i18n 翻译函数
  * @returns 标签文本
  */
-export const getTriggerTypeLabel = (triggerType: TriggerType): string => {
-	return TRIGGER_TYPE_METADATA[triggerType].label;
+export const getTriggerTypeLabel = (
+	triggerType: TriggerType,
+	t: (key: string) => string,
+): string => {
+	const labelKeyMap: Record<TriggerType, string> = {
+		condition: "variableNode.condition",
+		timer: "variableNode.timer",
+		dataflow: "variableNode.dataflow",
+	};
+	return t(labelKeyMap[triggerType]);
 };
 
 /**
@@ -194,57 +204,21 @@ export const getTriggerTypeBadgeColor = (triggerType: TriggerType): string => {
 /**
  * 获取触发类型的完整信息
  * @param triggerType 触发类型
+ * @param t i18n 翻译函数
  * @returns 触发类型信息对象
  */
-export const getTriggerTypeInfo = (triggerType: TriggerType): TriggerTypeInfo => {
-	return TRIGGER_TYPE_METADATA[triggerType];
+export const getTriggerTypeInfo = (
+	triggerType: TriggerType,
+	t: (key: string) => string,
+): TriggerTypeInfo => {
+	const baseInfo = TRIGGER_TYPE_METADATA[triggerType];
+	return {
+		...baseInfo,
+		label: getTriggerTypeLabel(triggerType, t),
+	};
 };
 
 // ==================== 公共辅助组件和函数 ====================
-
-/**
- * 生成触发条件前缀
- * 支持条件触发和定时触发两种模式（interval 和 scheduled）
- */
-const generateTriggerPrefix = ({
-	conditionTrigger,
-	timerTrigger,
-}: {
-	conditionTrigger?: ConditionTrigger | null;
-	timerTrigger?: TimerTrigger;
-}): React.ReactNode | null => {
-	// 定时触发模式：优先检查 scheduled 模式
-	if (timerTrigger?.mode === "scheduled") {
-		const schedulePrefix = generateSchedulePrefix(timerTrigger);
-		if (schedulePrefix) {
-			return schedulePrefix;
-		}
-	}
-
-	// 定时触发模式：检查 interval 模式
-	const timerPrefix = generateTimerIntervalPrefix(timerTrigger);
-	if (timerPrefix) {
-		return timerPrefix;
-	}
-
-	// 条件触发模式：生成条件分支前缀
-	if (!conditionTrigger) return null;
-
-	const triggerNodeName = conditionTrigger.fromNodeName;
-	const triggerCaseLabel = getTriggerCaseLabel(conditionTrigger);
-
-	if (!triggerNodeName || !triggerCaseLabel) return null;
-
-	return (
-		<>
-			当{" "}
-			<span className="text-blue-600 font-medium">
-				{triggerNodeName}/{triggerCaseLabel}
-			</span>{" "}
-			分支满足时，
-		</>
-	);
-};
 
 /**
  * 生成变量名高亮元素
@@ -270,64 +244,30 @@ export const generateSymbolHighlight = (symbol?: string): React.ReactNode => {
 	);
 };
 
-const generateGetSymbolHint = (
-	triggerPrefix: React.ReactNode,
-	symbol: string,
-	variableDisplayName?: string,
-): React.ReactNode => {
-	return (
-		<>
-			{triggerPrefix}
-			将会获取 {generateSymbolHighlight(symbol)} {" "}
-			{generateVariableHighlight(variableDisplayName)} 的值
-		</>
-	);
-};
-
-/**
- * 提示生成器参数类型
- */
-interface HintGeneratorParams {
-	varOperation: VariableOperation;
-	variableDisplayName?: string;
-	operationType?: UpdateOperationType;
-	value?: string;
-	selectedValues?: string[];
-	conditionTrigger?: ConditionTrigger | null;
-	timerTrigger?: TimerTrigger;
-	dataflowTrigger?: DataFlowTrigger | null;
-	symbol?: string;
-}
-
-/**
- * 获取时间单位的中文显示
- */
-const getTimerUnitLabel = (unit: TimerUnit): string => {
-	const labels: Record<TimerUnit, string> = {
-		second: "秒",
-		minute: "分钟",
-		hour: "小时",
-		day: "天",
-	};
-	return labels[unit];
-};
-
 /**
  * 生成定时触发的时间间隔前缀文案
  * @param timerConfig 定时配置
  * @returns 时间间隔文案，如 "每5分钟，" 或 null
  */
 export const generateTimerIntervalPrefix = (
+	t: (key: string, options?: { [key: string]: string }) => string,
 	timerConfig?: TimerTrigger,
 ): string | null => {
-	if (!timerConfig || timerConfig.mode !== "interval") {
+	if (!timerConfig || timerConfig?.mode !== "interval") {
 		return null;
 	}
 
 	const { interval, unit } = timerConfig;
-	const unitLabel = getTimerUnitLabel(unit);
-
-	return `每${interval}${unitLabel}，`;
+	switch (unit) {
+		case "second":
+			return t("variableNode.hint.intervalSecond", { interval: interval.toString() });
+		case "minute":
+			return t("variableNode.hint.intervalMinute", { interval: interval.toString() });
+		case "hour":
+			return t("variableNode.hint.intervalHour", { interval: interval.toString() });
+		case "day":
+			return t("variableNode.hint.intervalDay", { interval: interval.toString() });
+	}
 };
 
 /**
@@ -336,7 +276,8 @@ export const generateTimerIntervalPrefix = (
  * @returns 定时执行文案，如 "每小时的第30分钟，" 或 null
  */
 export const generateSchedulePrefix = (
-	timerConfig?: TimerTrigger,
+	timerConfig: TimerTrigger,
+	t: (key: string, options?: { [key: string]: string }) => string,
 ): string | null => {
 	if (!timerConfig || timerConfig.mode !== "scheduled") {
 		return null;
@@ -348,25 +289,25 @@ export const generateSchedulePrefix = (
 		// 每小时: 每{}小时的第{}分钟，
 		const { hourlyInterval, minuteOfHour } = timerConfig;
 		if (hourlyInterval === 1) {
-			return `每小时的第${minuteOfHour}分钟，`;
+			return t("variableNode.hint.scheduleHourlyOne", { minute: minuteOfHour.toString() });
 		}
-		return `每${hourlyInterval}小时的第${minuteOfHour}分钟，`;
+		return t("variableNode.hint.scheduleHourly", { hourlyInterval: hourlyInterval.toString(), minute: minuteOfHour.toString() });
 	}
 
 	if (repeatMode === "daily") {
 		// 每天: 每天 {}:{} (周一，周二...)
 		const { time, daysOfWeek } = timerConfig;
 		const weekdayMap: Record<number, string> = {
-			1: "周一",
-			2: "周二",
-			3: "周三",
-			4: "周四",
-			5: "周五",
-			6: "周六",
-			7: "周日",
+			1: t("weekdayAbbr.monday"),
+			2: t("weekdayAbbr.tuesday"),
+			3: t("weekdayAbbr.wednesday"),
+			4: t("weekdayAbbr.thursday"),
+			5: t("weekdayAbbr.friday"),
+			6: t("weekdayAbbr.saturday"),
+			7: t("weekdayAbbr.sunday"),
 		};
 
-		let prefix = `每天 ${time}`;
+		let prefix = t("variableNode.hint.scheduleDaily", { time: time });
 
 		// 如果选择了特定的星期，添加星期信息
 		if (daysOfWeek && daysOfWeek.length > 0 && daysOfWeek.length < 7) {
@@ -381,16 +322,16 @@ export const generateSchedulePrefix = (
 		// 每周: 每周{三} {}:{}
 		const { time, dayOfWeek } = timerConfig;
 		const weekdayMap: Record<number, string> = {
-			1: "一",
-			2: "二",
-			3: "三",
-			4: "四",
-			5: "五",
-			6: "六",
-			7: "日",
+			1: t("weekday.monday"),
+			2: t("weekday.tuesday"),
+			3: t("weekday.wednesday"),
+			4: t("weekday.thursday"),
+			5: t("weekday.friday"),
+			6: t("weekday.saturday"),
+			7: t("weekday.sunday"),
 		};
 		const weekdayName = weekdayMap[dayOfWeek] || "";
-		return `每周${weekdayName}的 ${time}，`;
+		return t("variableNode.hint.scheduleWeekly", { weekday: weekdayName, time: time });
 	}
 
 	if (repeatMode === "monthly") {
@@ -398,617 +339,19 @@ export const generateSchedulePrefix = (
 		const { time, dayOfMonth } = timerConfig;
 
 		if (typeof dayOfMonth === "number") {
-			return `每月第${dayOfMonth}天的 ${time}，`;
+			return t("variableNode.hint.scheduleMonthly", { dayOfMonth: dayOfMonth.toString(), time: time });
 		}
 
 		if (dayOfMonth === "first") {
-			return `每月第一天的 ${time}，`;
+			return t("variableNode.hint.scheduleMonthlyFirst", { time: time });
 		}
 
 		if (dayOfMonth === "last") {
-			return `每月最后一天的 ${time}，`;
+			return t("variableNode.hint.scheduleMonthlyLast", { time: time });
 		}
 	}
 
 	return null;
-};
-
-/**
- * 生成数据流触发的提示文本（统一样式）
- * @param variableDisplayName 变量显示名称
- * @param dataflowInfo 数据流信息对象，包含来源节点和变量信息
- * @param operationType 可选的更新操作类型，用于 max/min 的特殊显示
- * @returns React.ReactNode 提示文本的 JSX
- */
-export const generateDataflowHint = (
-	variableDisplayName: string,
-	dataflowInfo: {
-		fromNodeName: string;
-		fromNodeType: string | null;
-		fromVarConfigId: number;
-		fromVarDisplayName: string;
-	},
-	operationType?: UpdateOperationType,
-): React.ReactNode => {
-	const { fromNodeName, fromNodeType, fromVarConfigId, fromVarDisplayName } =
-		dataflowInfo;
-
-	// 获取节点类型标签
-	const nodeTypeLabels: Record<string, string> = {
-		indicatorNode: "指标",
-		klineNode: "K线",
-		variableNode: "变量",
-		ifElseNode: "条件",
-		startNode: "起点",
-		futuresOrderNode: "合约订单",
-		positionManagementNode: "持仓管理",
-	};
-	const nodeTypeLabel = fromNodeType ? nodeTypeLabels[fromNodeType] || "节点" : "节点";
-
-	// 构建完整路径：节点名称/节点类型配置ID/变量显示名称
-	const fullPath = `${fromNodeName}/${nodeTypeLabel}${fromVarConfigId}/${fromVarDisplayName}`;
-
-	// 对于 max/min 操作，显示特殊文案
-	if (operationType === "max" || operationType === "min") {
-		const operationLabel = operationType === "max" ? "最大值" : "最小值";
-		return (
-			<>
-				取{" "}
-				{generateVariableHighlight(variableDisplayName)} 与{" "}
-				{generateValueHighlight(fullPath)} 中的{operationLabel}
-			</>
-		);
-	}
-
-	// 对于加减乘除操作，显示运算符格式
-	if (operationType === "add") {
-		return (
-			<>
-				{generateVariableHighlight(variableDisplayName)} +{" "}
-				{generateValueHighlight(fullPath)}
-			</>
-		);
-	}
-
-	if (operationType === "subtract") {
-		return (
-			<>
-				{generateVariableHighlight(variableDisplayName)} -{" "}
-				{generateValueHighlight(fullPath)}
-			</>
-		);
-	}
-
-	if (operationType === "multiply") {
-		return (
-			<>
-				{generateVariableHighlight(variableDisplayName)} ×{" "}
-				{generateValueHighlight(fullPath)}
-			</>
-		);
-	}
-
-	if (operationType === "divide") {
-		return (
-			<>
-				{generateVariableHighlight(variableDisplayName)} ÷{" "}
-				{generateValueHighlight(fullPath)}
-			</>
-		);
-	}
-
-	// 其他操作（set等），使用默认的"将被设置为"
-	return (
-		<>
-			{generateVariableHighlight(variableDisplayName)} 将被设置为{" "}
-			{generateValueHighlight(fullPath)}
-		</>
-	);
-};
-
-// ==================== 按变量类型拆分的处理器 ====================
-
-/**
- * BOOLEAN 类型提示生成器
- */
-const generateBooleanHint = (params: HintGeneratorParams): React.ReactNode => {
-	const {
-		variableDisplayName,
-		varOperation,
-		operationType,
-		value,
-		conditionTrigger,
-		timerTrigger,
-		dataflowTrigger,
-		symbol,
-	} = params;
-	const triggerPrefix = generateTriggerPrefix({
-		conditionTrigger,
-		timerTrigger,
-	});
-
-	const valueLabel = value === "false" ? "False" : "True";
-
-	if (varOperation === "update") {
-		if (operationType === "toggle") {
-			return (
-				<>
-					{triggerPrefix}
-					{generateVariableHighlight(variableDisplayName)} 将在 True/False 之间切换
-				</>
-			);
-		}
-
-		if (operationType === "set") {
-			// 数据流模式下，显示来源变量
-			if (dataflowTrigger && dataflowTrigger.fromVarDisplayName) {
-				return (
-					<>
-						{generateVariableHighlight(variableDisplayName)} 将被设置为{" "}
-						{generateValueHighlight(dataflowTrigger.fromVarDisplayName)}
-					</>
-				);
-			}
-
-			// 其他模式下，显示具体值
-			if (value) {
-				return (
-					<>
-						{triggerPrefix}
-						{generateVariableHighlight(variableDisplayName)} 将被设置为{" "}
-						{generateValueHighlight(valueLabel)}
-					</>
-				);
-			}
-		}
-
-		return null;
-	}
-
-	if (varOperation === "reset") {
-		if (!value) return null;
-
-		return (
-			<>
-				{triggerPrefix}
-				{generateVariableHighlight(variableDisplayName)} 将被重置为{" "}
-				{generateValueHighlight(valueLabel)}
-			</>
-		);
-	}
-
-	if (varOperation === "get") {
-		if (symbol) {
-			return generateGetSymbolHint(triggerPrefix, symbol, variableDisplayName);
-		}
-		if (value) {
-			return (
-				<>
-					{triggerPrefix}
-					{generateVariableHighlight(variableDisplayName)} 当前值为{" "}
-					{generateValueHighlight(valueLabel)}
-				</>
-			);
-		}
-
-		return (
-			<>
-				{triggerPrefix}
-				将会获取 {generateVariableHighlight(variableDisplayName)} 的值
-			</>
-		);
-	}
-
-	return null;
-};
-
-/**
- * ENUM 类型提示生成器
- */
-const generateEnumHint = (params: HintGeneratorParams): React.ReactNode => {
-	const {
-		variableDisplayName,
-		varOperation,
-		operationType,
-		selectedValues,
-		value,
-		conditionTrigger,
-		timerTrigger,
-		dataflowTrigger,
-		symbol,
-	} = params;
-	const triggerPrefix = generateTriggerPrefix({
-		conditionTrigger,
-		timerTrigger,
-	});
-
-	const hasValues = selectedValues && selectedValues.length > 0;
-	const valueList = hasValues ? selectedValues.join("、") : "";
-	const displayValue = hasValues
-		? `[${valueList}]`
-		: value !== undefined && value !== null && value !== ""
-			? value
-			: "[]";
-
-	const operationTextMap: Record<string, string> = {
-		set: "将被设置为",
-		append: "将会添加",
-		remove: "将会删除",
-	};
-
-	if (varOperation === "update") {
-		if (operationType === "clear") {
-			return (
-				<>
-					{triggerPrefix}
-					{generateVariableHighlight(variableDisplayName)}{" "}
-					将被清空，所有元素将被移除
-				</>
-			);
-		}
-
-		// 数据流模式下的 set 操作，显示来源变量
-		if (operationType === "set" && dataflowTrigger && dataflowTrigger.fromVarDisplayName) {
-			return (
-				<>
-					{generateVariableHighlight(variableDisplayName)} 将被设置为{" "}
-					{generateValueHighlight(dataflowTrigger.fromVarDisplayName)}
-				</>
-			);
-		}
-
-		const operationText = operationTextMap[operationType || ""];
-		if (operationText) {
-			return (
-				<>
-					{triggerPrefix}
-					{generateVariableHighlight(variableDisplayName)} {operationText}{" "}
-					{generateValueHighlight(displayValue)}
-				</>
-			);
-		}
-
-		return null;
-	}
-
-	if (varOperation === "reset") {
-		return (
-			<>
-				{triggerPrefix}
-				{generateVariableHighlight(variableDisplayName)} 将被重置为{" "}
-				{generateValueHighlight(displayValue)}
-			</>
-		);
-	}
-
-	if (varOperation === "get") {
-		if (symbol) {
-			return generateGetSymbolHint(triggerPrefix, symbol, variableDisplayName);
-		}
-
-		if (displayValue !== "[]") {
-			return (
-				<>
-					{triggerPrefix}
-					{generateVariableHighlight(variableDisplayName)} 当前值为{" "}
-					{generateValueHighlight(displayValue)}
-				</>
-			);
-		}
-
-		return (
-			<>
-				{triggerPrefix}
-				将会获取 {generateVariableHighlight(variableDisplayName)} 的值
-			</>
-		);
-	}
-
-	return null;
-};
-
-/**
- * 数值类型提示生成器（NUMBER, STRING, TIME, PERCENTAGE 共用）
- */
-const generateNumericHint = (params: HintGeneratorParams): React.ReactNode => {
-	const {
-		variableDisplayName,
-		varOperation,
-		operationType,
-		value,
-		conditionTrigger,
-		timerTrigger,
-		dataflowTrigger,
-		symbol,
-	} = params;
-
-	const triggerPrefix = generateTriggerPrefix({
-		conditionTrigger,
-		timerTrigger,
-	});
-
-	if (varOperation === "update") {
-		if (!operationType) return null;
-
-		// 数据流模式下的特殊处理
-		if (dataflowTrigger && dataflowTrigger.fromVarDisplayName) {
-			// max/min 操作
-			if (operationType === "max" || operationType === "min") {
-				const operationTypeLabel = operationType === "max" ? "最大值" : "最小值";
-				return (
-					<>
-						{generateVariableHighlight(variableDisplayName)} 取{" "}
-						{generateVariableHighlight(variableDisplayName)} 与{" "}
-						{generateValueHighlight(dataflowTrigger.fromVarDisplayName)} 中的{operationTypeLabel}
-					</>
-				);
-			}
-
-			// 加减乘除操作，显示运算符格式
-			if (operationType === "add") {
-				return (
-					<>
-						{generateVariableHighlight(variableDisplayName)} +{" "}
-						{generateValueHighlight(dataflowTrigger.fromVarDisplayName)}
-					</>
-				);
-			}
-
-			if (operationType === "subtract") {
-				return (
-					<>
-						{generateVariableHighlight(variableDisplayName)} -{" "}
-						{generateValueHighlight(dataflowTrigger.fromVarDisplayName)}
-					</>
-				);
-			}
-
-			if (operationType === "multiply") {
-				return (
-					<>
-						{generateVariableHighlight(variableDisplayName)} ×{" "}
-						{generateValueHighlight(dataflowTrigger.fromVarDisplayName)}
-					</>
-				);
-			}
-
-			if (operationType === "divide") {
-				return (
-					<>
-						{generateVariableHighlight(variableDisplayName)} ÷{" "}
-						{generateValueHighlight(dataflowTrigger.fromVarDisplayName)}
-					</>
-				);
-			}
-
-			// set 操作，显示"将被设置为"
-			if (operationType === "set") {
-				return (
-					<>
-						{generateVariableHighlight(variableDisplayName)} 将被设置为{" "}
-						{generateValueHighlight(dataflowTrigger.fromVarDisplayName)}
-					</>
-				);
-			}
-		}
-
-		// 其他情况需要有值
-		if (!value) return null;
-
-		const operationTextMap: Record<UpdateOperationType, string> = {
-			set: "将被设置为",
-			add: "将增加",
-			subtract: "将减少",
-			multiply: "将乘以",
-			divide: "将除以",
-			max: "将取最大值",
-			min: "将取最小值",
-			toggle: "",
-			append: "",
-			remove: "",
-			clear: "",
-		};
-
-		const operationText = operationTextMap[operationType];
-
-		if (!operationText) return null;
-
-		return (
-			<>
-				{triggerPrefix}
-				{generateVariableHighlight(variableDisplayName)} {operationText}{" "}
-				{generateValueHighlight(value)}
-			</>
-		);
-	}
-
-	if (varOperation === "reset") {
-		if (!value) return null;
-
-		return (
-			<>
-				{triggerPrefix}
-				{generateVariableHighlight(variableDisplayName)} 将被重置为{" "}
-				{generateValueHighlight(value)}
-			</>
-		);
-	}
-
-	if (varOperation === "get") {
-		if (symbol) {
-			return generateGetSymbolHint(triggerPrefix, symbol, variableDisplayName);
-		}
-
-		if (value) {
-			return (
-				<>
-					{triggerPrefix}
-					{generateVariableHighlight(variableDisplayName)} 当前值为{" "}
-					{generateValueHighlight(value)}
-				</>
-			);
-		}
-
-		return (
-			<>
-				{triggerPrefix}
-				将会获取 {generateVariableHighlight(variableDisplayName)} 的值
-			</>
-		);
-	}
-
-	return null;
-};
-
-/**
- * STRING 类型提示生成器（复用 generateNumericHint）
- */
-const generateStringHint = (params: HintGeneratorParams): React.ReactNode => {
-	return generateNumericHint(params);
-};
-
-/**
- * TIME 类型提示生成器（复用 generateNumericHint）
- */
-const generateTimeHint = (params: HintGeneratorParams): React.ReactNode => {
-	return generateNumericHint(params);
-};
-
-/**
- * PERCENTAGE 类型提示生成器（复用 generateNumericHint）
- */
-const generatePercentageHint = (
-	params: HintGeneratorParams,
-): React.ReactNode => {
-	const trimmedValue = params.value?.trim();
-	if (!trimmedValue) {
-		return null;
-	}
-
-	const formattedValue = trimmedValue.endsWith("%")
-		? trimmedValue
-		: `${trimmedValue}%`;
-
-	return generateNumericHint({
-		...params,
-		value: formattedValue,
-	});
-};
-
-// ==================== 类型处理器映射表 ====================
-
-/**
- * 变量类型到提示生成器的映射
- */
-const hintGenerators: Record<
-	VariableValueType,
-	(params: HintGeneratorParams) => React.ReactNode
-> = {
-	[VariableValueType.BOOLEAN]: generateBooleanHint,
-	[VariableValueType.ENUM]: generateEnumHint,
-	[VariableValueType.NUMBER]: generateNumericHint,
-	[VariableValueType.STRING]: generateStringHint,
-	[VariableValueType.TIME]: generateTimeHint,
-	[VariableValueType.PERCENTAGE]: generatePercentageHint,
-};
-
-type VariableHintBaseOptions = {
-	varValueType?: VariableValueType;
-	value?: string;
-	selectedValues?: string[];
-	triggerConfig?: {
-		triggerType: TriggerType;
-		conditionTrigger?: ConditionTrigger | null;
-		timerTrigger?: TimerTrigger;
-		dataflowTrigger?: DataFlowTrigger | null;
-	};
-	symbol?: string;
-};
-
-const generateVariableHintByOperation = (
-	variableDisplayName: string | undefined,
-	params: {
-		varOperation: VariableOperation;
-		operationType?: UpdateOperationType;
-	} & VariableHintBaseOptions,
-): React.ReactNode => {
-	const {
-		varOperation,
-		operationType,
-		varValueType,
-		value,
-		selectedValues,
-		triggerConfig,
-		symbol,
-	} =
-		params;
-
-	const generatorParams: HintGeneratorParams = {
-		varOperation,
-		variableDisplayName,
-		operationType,
-		value,
-		selectedValues,
-		conditionTrigger: triggerConfig?.conditionTrigger,
-		timerTrigger: triggerConfig?.timerTrigger,
-		dataflowTrigger: triggerConfig?.dataflowTrigger,
-		symbol,
-	};
-
-	if (!varValueType) {
-		return generateNumericHint(generatorParams);
-	}
-
-	const generator = hintGenerators[varValueType];
-	if (!generator) {
-		console.warn(`Unknown variable value type: ${varValueType}`);
-		return null;
-	}
-
-	return generator(generatorParams);
-};
-
-// ==================== 主方法（重构后）====================
-
-/**
- * 生成更新变量的提示文本 - 按变量类型拆分的版本
- */
-export const generateUpdateHint = (
-	variableDisplayName: string | undefined,
-	operationType: UpdateOperationType,
-	options?: VariableHintBaseOptions,
-): React.ReactNode => {
-	return generateVariableHintByOperation(variableDisplayName, {
-		varOperation: "update",
-		operationType,
-		...(options || {}),
-	});
-};
-
-/**
- * 生成重置变量的提示文本
- */
-export const generateResetHint = (
-	variableDisplayName: string | undefined,
-	options?: VariableHintBaseOptions,
-): React.ReactNode => {
-	return generateVariableHintByOperation(variableDisplayName, {
-		varOperation: "reset",
-		...(options || {}),
-	});
-};
-
-/**
- * 生成获取变量的提示文本
- */
-export const generateGetHint = (
-	variableDisplayName: string | undefined,
-	options?: VariableHintBaseOptions,
-): React.ReactNode => {
-	return generateVariableHintByOperation(variableDisplayName, {
-		varOperation: "get",
-		...(options || {}),
-	});
 };
 
 // ==================== 更新操作文本生成器（用于节点显示）====================

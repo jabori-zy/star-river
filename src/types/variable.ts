@@ -17,7 +17,7 @@ export enum VariableValueType {
 }
 
 // 获取变量类型对应的图标组件
-export const getVariableTypeIcon = (type: VariableValueType) => {
+export const getVariableValueTypeIcon = (type: VariableValueType) => {
 	switch (type) {
 		case VariableValueType.NUMBER:
 			return TbNumber;
@@ -37,7 +37,7 @@ export const getVariableTypeIcon = (type: VariableValueType) => {
 };
 
 // 获取变量类型对应的图标颜色类名
-export const getVariableTypeIconColor = (type: VariableValueType): string => {
+export const getVariableValueTypeIconColor = (type: VariableValueType): string => {
 	switch (type) {
 		case VariableValueType.NUMBER:
 			return "text-blue-500";

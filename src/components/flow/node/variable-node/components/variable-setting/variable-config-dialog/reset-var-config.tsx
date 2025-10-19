@@ -8,11 +8,20 @@ import {
 	getTimerTriggerConfig,
 } from "@/types/node/variable-node";
 import type { CustomVariable } from "@/types/variable";
+import { VariableValueType } from "@/types/variable";
 import { formatVariableValue } from "@/components/flow/node/start-node/components/utils";
-import { generateResetHint } from "../../../variable-node-utils";
+import {
+	generateBooleanHint,
+	generateEnumHint,
+	generateNumberHint,
+	generateStringHint,
+	generateTimeHint,
+	generatePercentageHint,
+} from "../../../hint-generators";
 import CaseSelector, { type CaseItemInfo } from "./components/case-selector";
 import TimerConfigComponent from "./components/timer";
 import TriggerTypeConfig from "./components/trigger-type-config";
+import { useTranslation } from "react-i18next";
 
 interface ResetVarConfigProps {
 	variable: string;
@@ -39,6 +48,7 @@ const ResetVarConfig: React.FC<ResetVarConfigProps> = ({
 	onTriggerConfigChange,
 	onValidationChange,
 }) => {
+	const { t } = useTranslation();
 	// 从 triggerConfig 中提取各种触发配置
 	const effectiveTriggerType = getEffectiveTriggerType({ triggerConfig }) ?? "condition";
 	const conditionTrigger = getConditionTriggerConfig({ triggerConfig });
@@ -89,6 +99,22 @@ const ResetVarConfig: React.FC<ResetVarConfigProps> = ({
 		onValidationChange,
 	]);
 
+	// 根据变量类型选择对应的生成器
+	const getHintGenerator = (varValueType?: VariableValueType) => {
+		if (!varValueType) return generateNumberHint; // 默认使用 NUMBER 生成器
+
+		const generatorMap = {
+			[VariableValueType.BOOLEAN]: generateBooleanHint,
+			[VariableValueType.ENUM]: generateEnumHint,
+			[VariableValueType.NUMBER]: generateNumberHint,
+			[VariableValueType.STRING]: generateStringHint,
+			[VariableValueType.TIME]: generateTimeHint,
+			[VariableValueType.PERCENTAGE]: generatePercentageHint,
+		};
+
+		return generatorMap[varValueType] || generateNumberHint;
+	};
+
 	// 判断是否应该显示提示文案
 	const shouldShowHint = () => {
 		// 必须选择了变量
@@ -110,7 +136,7 @@ const ResetVarConfig: React.FC<ResetVarConfigProps> = ({
 					htmlFor="resetVariable"
 					className="text-sm font-medium pointer-events-none"
 				>
-					变量
+					{t("variableNode.var")}
 				</Label>
 				<SelectInDialog
 					id="resetVariable"
@@ -153,7 +179,7 @@ const ResetVarConfig: React.FC<ResetVarConfigProps> = ({
 			{effectiveTriggerType === "condition" && (
 				<div className="flex flex-col gap-2">
 					<Label className="text-sm font-medium pointer-events-none">
-						触发条件
+						{t("variableNode.triggerCase")}
 					</Label>
 					<CaseSelector
 						caseList={caseItemList}
@@ -176,18 +202,17 @@ const ResetVarConfig: React.FC<ResetVarConfigProps> = ({
 							? formatVariableValue(varInitialValue, selectedVar.varValueType)
 							: String(varInitialValue);
 
-					const hint = generateResetHint(variableDisplayName, {
-						varValueType: selectedVar?.varValueType,
-						value: formattedValue,
-						selectedValues: Array.isArray(varInitialValue)
-							? varInitialValue
-							: undefined,
-						triggerConfig: {
-							triggerType: "condition",
+						const hint = getHintGenerator(selectedVar?.varValueType)({
+							t,
+							varOperation: "reset",
+							variableDisplayName,
+							value: formattedValue,
+							selectedValues: Array.isArray(varInitialValue)
+								? varInitialValue
+								: undefined,
 							conditionTrigger: conditionTrigger,
 							timerTrigger: undefined,
-						},
-					});
+						});
 
 						return hint ? (
 							<p className="text-xs text-muted-foreground">{hint}</p>
@@ -221,17 +246,16 @@ const ResetVarConfig: React.FC<ResetVarConfigProps> = ({
 							? formatVariableValue(varInitialValue, selectedVar.varValueType)
 							: String(varInitialValue);
 
-						const hint = generateResetHint(variableDisplayName, {
-							varValueType: selectedVar?.varValueType,
+						const hint = getHintGenerator(selectedVar?.varValueType)({
+							t,
+							varOperation: "reset",
+							variableDisplayName,
 							value: formattedValue,
 							selectedValues: Array.isArray(varInitialValue)
 								? varInitialValue
 								: undefined,
-							triggerConfig: {
-								triggerType: "timer",
-								conditionTrigger: undefined,
-								timerTrigger: timerTrigger,
-							},
+							conditionTrigger: undefined,
+							timerTrigger: timerTrigger,
 						});
 
 						return hint ? (

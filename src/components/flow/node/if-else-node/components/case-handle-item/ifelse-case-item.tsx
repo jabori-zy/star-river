@@ -13,8 +13,8 @@ import type {
 	LogicalSymbol,
 } from "@/types/node/if-else-node";
 import {
-	getVariableTypeIcon,
-	getVariableTypeIconColor,
+	getVariableValueTypeIcon,
+	getVariableValueTypeIconColor,
 } from "@/types/variable";
 import {
 	getCaseTypeLabel,
@@ -49,10 +49,10 @@ const ConditionItem = ({
 			<TooltipTrigger asChild>
 				<div className="flex items-center gap-1 px-1 py-1 bg-gray-50 rounded-md border hover:bg-gray-200 transition-colors cursor-default min-w-0">
 					{condition.leftVariable?.varValueType && (() => {
-						const IconComponent = getVariableTypeIcon(
+						const IconComponent = getVariableValueTypeIcon(
 							condition.leftVariable.varValueType,
 						);
-						const iconColorClass = getVariableTypeIconColor(
+						const iconColorClass = getVariableValueTypeIconColor(
 							condition.leftVariable.varValueType,
 						);
 						return (
@@ -90,10 +90,10 @@ const ConditionItem = ({
 			<TooltipTrigger asChild>
 				<div className="flex items-center gap-1 px-1 py-1 bg-gray-50 rounded-md border hover:bg-gray-200 transition-colors cursor-default min-w-0">
 					{condition.rightVariable?.varValueType && (() => {
-						const IconComponent = getVariableTypeIcon(
+						const IconComponent = getVariableValueTypeIcon(
 							condition.rightVariable.varValueType,
 						);
-						const iconColorClass = getVariableTypeIconColor(
+						const iconColorClass = getVariableValueTypeIconColor(
 							condition.rightVariable.varValueType,
 						);
 						return (
@@ -153,7 +153,7 @@ export function IfElseCaseItem({ caseItem, handleId }: IfElseCaseItemProps) {
 						<div className="text-xs text-muted-foreground space-y-1">
 							{caseItem.conditions.length === 0 ? (
 								<div className="text-xs text-muted-foreground">
-									{t("IfElseNode.noConditions")}
+									{t("ifElseNode.noConditions")}
 								</div>
 							) : (
 								caseItem.conditions.map((condition, index) => (

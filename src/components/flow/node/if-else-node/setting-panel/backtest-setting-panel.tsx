@@ -226,7 +226,7 @@ const IfElseNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 			<div className="flex flex-col gap-2 p-2">
 				<h3 className="text-sm font-bold">ELSE</h3>
 				<div className="text-xs text-muted-foreground">
-					{t("IfElseNode.elseDescription")}
+					{t("ifElseNode.elseDescription")}
 				</div>
 			</div>
 		</div>

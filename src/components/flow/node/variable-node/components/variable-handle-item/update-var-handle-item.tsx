@@ -14,10 +14,11 @@ import {
 import type { UpdateVariableConfig } from "@/types/node/variable-node/variable-config-types";
 import { getEffectiveTriggerType, getDataFlowTriggerConfig } from "@/types/node/variable-node";
 import {
-	getVariableTypeIcon,
-	getVariableTypeIconColor,
+	getVariableValueTypeIcon,
+	getVariableValueTypeIconColor,
 } from "@/types/variable";
 import { generateTriggerConditionText, generateUpdateOperationNodeText } from "./utils";
+import { useTranslation } from "react-i18next";
 
 interface UpdateVarHandleItemProps {
 	id: string;
@@ -28,13 +29,14 @@ export const UpdateVarHandleItem: React.FC<UpdateVarHandleItemProps> = ({
 	id,
 	variableConfig,
 }) => {
+	const { t } = useTranslation();
 	const effectiveTriggerType =
 		getEffectiveTriggerType(variableConfig) ?? "condition";
 
-	const typeInfo = getTriggerTypeInfo(effectiveTriggerType);
+	const typeInfo = getTriggerTypeInfo(effectiveTriggerType, t);
 	const TriggerIcon = typeInfo.icon;
 
-	const triggerConditionText = generateTriggerConditionText(variableConfig);
+	const triggerConditionText = generateTriggerConditionText(variableConfig, t);
 
 	// 获取数据流触发配置（用于 max/min 操作的特殊显示）
 	const dataflowTrigger = getDataFlowTriggerConfig(variableConfig);
@@ -45,11 +47,13 @@ export const UpdateVarHandleItem: React.FC<UpdateVarHandleItemProps> = ({
 		variableConfig.updateOperationType,
 		variableConfig.updateOperationValue,
 		effectiveTriggerType,
+		t,
 		dataflowTrigger,
+		
 	);
 
-	const VarTypeIcon = getVariableTypeIcon(variableConfig.varValueType);
-	const varTypeIconColor = getVariableTypeIconColor(variableConfig.varValueType);
+	const VarTypeIcon = getVariableValueTypeIcon(variableConfig.varValueType);
+	const varTypeIconColor = getVariableValueTypeIconColor(variableConfig.varValueType);
 
 	return (
 		<div className="relative">
@@ -57,7 +61,7 @@ export const UpdateVarHandleItem: React.FC<UpdateVarHandleItemProps> = ({
 				<div className="flex items-center gap-1">
 					<TbEdit className="h-3 w-3 text-green-600 flex-shrink-0" />
 					<span className="text-xs font-bold text-muted-foreground">
-						更新变量
+						{t("variableNode.update")}
 					</span>
 				</div>
 				<BaseHandle
@@ -91,7 +95,7 @@ export const UpdateVarHandleItem: React.FC<UpdateVarHandleItemProps> = ({
 
 					{operationText && (
 						<div className="text-xs text-muted-foreground">
-							操作: {operationText}
+							{t("variableNode.op")}: {operationText}
 						</div>
 					)}
 
@@ -106,7 +110,7 @@ export const UpdateVarHandleItem: React.FC<UpdateVarHandleItemProps> = ({
 	</Tooltip>
 		<div className="text-xs text-muted-foreground font-bold pl-2">
 			<Badge variant="outline" className="border-gray-400">
-				变量 {variableConfig.configId}
+				{t("variableNode.var")} {variableConfig.configId}
 			</Badge>
 		</div>
 	</div>

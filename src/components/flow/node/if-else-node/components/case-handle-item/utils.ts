@@ -8,6 +8,7 @@ import {
 import { NodeType } from "@/types/node/index";
 import type { IndicatorNodeData } from "@/types/node/indicator-node";
 import type { KlineNodeData } from "@/types/node/kline-node";
+import { getNodeTypeLabel } from "@/components/flow/node/node-utils";
 
 // 获取条件类型的中文标签
 export const getCaseTypeLabel = (caseId: number) => {
@@ -36,7 +37,7 @@ export const getVariableLabel = (
 	nodes: Node[],
 	t: (key: string) => string,
 ) => {
-	if (!variable) return t("IfElseNode.notSet");
+	if (!variable) return t("ifElseNode.notSet");
 	if (variable.varType === VarType.constant) {
 		if (!variable.varName) {
 			return "0";
@@ -44,7 +45,7 @@ export const getVariableLabel = (
 		return `${variable.varName}`;
 	} else if (variable.varType === VarType.variable) {
 		if (!variable.nodeName || !variable.varName || !variable.varConfigId) {
-			return t("IfElseNode.notSet");
+			return t("ifElseNode.notSet");
 		}
 
 		if (variable.nodeType === NodeType.KlineNode) {
@@ -56,7 +57,7 @@ export const getVariableLabel = (
 		}
 	}
 
-	return t("IfElseNode.notSet");
+	return t("ifElseNode.notSet");
 };
 
 export const getKlineNodeVariableLabel = (
@@ -74,7 +75,7 @@ export const getKlineNodeVariableLabel = (
 	if (selectedSymbol) {
 		return `${selectedSymbol.symbol}/${selectedSymbol.interval}/${variable.varDisplayName}`;
 	}
-	return t("IfElseNode.notSet");
+	return t("ifElseNode.notSet");
 };
 
 export const getIndicatorNodeVariableLabel = (
@@ -92,7 +93,7 @@ export const getIndicatorNodeVariableLabel = (
 	if (selectedIndicator) {
 		return `${selectedIndicator.indicatorType}-${variable.varDisplayName}`;
 	}
-	return t("IfElseNode.notSet");
+	return t("ifElseNode.notSet");
 };
 
 export const getVariableNodeVariableLable = (
@@ -102,53 +103,22 @@ export const getVariableNodeVariableLable = (
 	return `${variable.varDisplayName}`;
 };
 
-// 获取节点类型图标
-export const getNodeTypeIcon = (nodeType?: NodeType) => {
-	switch (nodeType) {
-		case NodeType.KlineNode:
-			return "📊";
-		case NodeType.IndicatorNode:
-			return "📈";
-		case NodeType.VariableNode:
-			return "🔢";
-		case NodeType.FuturesOrderNode:
-			return "💰";
-		default:
-			return "❓";
-	}
-};
-
-// 获取节点类型的中文标签
-export const getNodeTypeLabel = (nodeType?: NodeType | null) => {
-	switch (nodeType) {
-		case NodeType.KlineNode:
-			return "k线";
-		case NodeType.IndicatorNode:
-			return "指标";
-		case NodeType.VariableNode:
-			return "变量";
-		case NodeType.FuturesOrderNode:
-			return "订单";
-		default:
-			return "配置";
-	}
-};
 
 // 获取变量的 Tooltip 文本
 export const getVariableTooltipLabel = (
 	variable: Variable | null,
 	t: (key: string) => string,
 ) => {
-	if (!variable) return t("IfElseNode.notSet");
+	if (!variable) return t("ifElseNode.notSet");
 	
 	if (variable.varType === VarType.constant) {
 		return variable.varName ? String(variable.varName) : "0";
 	}
 	
 	if (variable.nodeName && variable.varConfigId) {
-		const typeLabel = getNodeTypeLabel(variable.nodeType);
+		const typeLabel = getNodeTypeLabel(variable.nodeType, t);
 		return `${variable.nodeName}-${typeLabel}${variable.varConfigId}`;
 	}
 	
-	return t("IfElseNode.notSet");
+	return t("ifElseNode.notSet");
 };

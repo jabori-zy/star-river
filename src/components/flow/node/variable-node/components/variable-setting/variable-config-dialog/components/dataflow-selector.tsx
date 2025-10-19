@@ -4,7 +4,6 @@ import {
 	renderNodeOptions,
 	renderVariableOptions,
 } from "@/components/flow/node/node-utils";
-import { generateDataflowHint } from "@/components/flow/node/variable-node/variable-node-utils";
 import { SelectInDialog } from "@/components/select-components/select-in-dialog";
 import { ButtonGroup } from "@/components/ui/button-group";
 import type { VariableItem } from "@/hooks/flow/use-strategy-workflow";
@@ -17,6 +16,15 @@ import type {
 	VariableConfig,
 } from "@/types/node/variable-node";
 import { VariableValueType } from "@/types/variable";
+import {
+	generateBooleanHint,
+	generateEnumHint,
+	generateNumberHint,
+	generateStringHint,
+	generateTimeHint,
+	generatePercentageHint,
+} from "../../../../hint-generators";
+import { getUpdateOperationLabel } from "../variable-setting-dialog-utils";
 
 interface DataFlowSelectorProps {
 	variableItemList: VariableItem[];
@@ -82,25 +90,8 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 }) => {
 	const [localNodeId, setLocalNodeId] = useState<string>(selectedNodeId || "");
 	const [variableString, setVariableString] = useState<string>("");
-	const { t } = useTranslation();
-
-	// 获取操作类型的标签
-	const getUpdateOperationLabel = (type: UpdateOperationType): string => {
-		const labels: Record<UpdateOperationType, string> = {
-			set: "=",
-			add: "+",
-			subtract: "-",
-			multiply: "×",
-			divide: "÷",
-			max: "max",
-			min: "min",
-			toggle: "toggle",
-			append: "append",
-			remove: "remove",
-			clear: "clear",
-		};
-		return labels[type];
-	};
+	const { t, i18n } = useTranslation();
+	const language = i18n.language;
 
 	// 生成选项value，格式：nodeId|handleId|variable|variableName
 	const generateOptionValue = useCallback(
@@ -240,9 +231,25 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 	// 如果当前选中的节点不在过滤后的列表中，使用空字符串作为value
 	const nodeSelectValue = isSelectedNodeInFilteredList ? localNodeId : "";
 
+	// 根据变量类型选择对应的生成器
+	const getHintGenerator = (varValueType?: VariableValueType) => {
+		if (!varValueType) return generateNumberHint;
+
+		const generatorMap = {
+			[VariableValueType.BOOLEAN]: generateBooleanHint,
+			[VariableValueType.ENUM]: generateEnumHint,
+			[VariableValueType.NUMBER]: generateNumberHint,
+			[VariableValueType.STRING]: generateStringHint,
+			[VariableValueType.TIME]: generateTimeHint,
+			[VariableValueType.PERCENTAGE]: generatePercentageHint,
+		};
+
+		return generatorMap[varValueType] || generateNumberHint;
+	};
+
 	// 生成提示文案
 	const generateHintText = (): React.ReactNode => {
-		if (!selectedNodeId || !selectedVariable || !selectedVariableName) {
+		if (!selectedNodeId || !selectedHandleId || !selectedVariable || !selectedVariableName) {
 			return null;
 		}
 
@@ -257,23 +264,40 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 		const fromNodeType = selectedNode.nodeType;
 		const fromVarDisplayName = selectedVariableName;
 
-		// 获取变量配置ID
+		// 获取变量配置ID和变量类型
 		const selectedVar = selectedNode.variables.find(
 			(v) => v.outputHandleId === selectedHandleId,
 		);
 		const fromVarConfigId = selectedVar?.configId || 0;
 
-		// 使用统一的工具方法生成提示文本，传递操作类型以支持 max/min 的特殊显示
-		return generateDataflowHint(
-			targetVariableDisplayName || "", 
-			{
-				fromNodeName,
+		// 获取变量值类型
+		let fromVarValueType: VariableValueType | null = null;
+		if (selectedVar) {
+			if (isGetVariableConfig(selectedVar)) {
+				fromVarValueType = selectedVar.varValueType;
+			} else if (isSelectedIndicator(selectedVar) || isSelectedSymbol(selectedVar)) {
+				fromVarValueType = VariableValueType.NUMBER;
+			}
+		}
+
+		// 使用新的 hint 生成器
+		return getHintGenerator(targetVariableType)({
+			t,
+			language,
+			varOperation: "update",
+			operationType: updateOperationType,
+			variableDisplayName: targetVariableDisplayName,
+			dataflowTrigger: {
 				fromNodeType,
-				fromVarConfigId,
+				fromNodeId: selectedNodeId,
+				fromNodeName,
+				fromHandleId: selectedHandleId,
+				fromVar: selectedVariable,
 				fromVarDisplayName,
+				fromVarValueType,
+				fromVarConfigId,
 			},
-			updateOperationType, // 传递操作类型
-		);
+		});
 	};
 
 	return (
@@ -287,7 +311,7 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 					}}
 					options={availableOperations.map((op) => ({
 						value: op,
-						label: getUpdateOperationLabel(op),
+						label: getUpdateOperationLabel(op, t),
 					}))}
 					className="w-[70px] h-8"
 				/>
@@ -296,7 +320,7 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 				<SelectInDialog
 					value={nodeSelectValue}
 					onValueChange={handleNodeChange}
-					placeholder={hasNoNodes ? "无可用节点" : "选择节点"}
+					placeholder={hasNoNodes ? t("variableNode.dataflowSelector.noNodes") : t("variableNode.dataflowSelector.chooseNode")}
 					options={renderNodeOptions(filteredNodeList)}
 					disabled={hasNoNodes}
 					className="h-8 text-xs font-normal min-w-20 flex-1"
@@ -306,7 +330,7 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 				<SelectInDialog
 					value={variableString}
 					onValueChange={handleVariableChange}
-					placeholder={hasNoNodes ? "无可用变量" : "选择变量"}
+					placeholder={hasNoNodes ? t("variableNode.dataflowSelector.noVariables") : t("variableNode.dataflowSelector.chooseVariable")}
 					disabled={!localNodeId || hasNoNodes}
 					className="h-8 text-xs font-normal min-w-20 flex-1"
 				>

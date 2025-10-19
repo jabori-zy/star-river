@@ -257,10 +257,10 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 	// 获取变量选择器的 placeholder
 	const getVariablePlaceholder = () => {
 		if (!selectedNodeId) {
-			return t("IfElseNode.selectVariable");
+			return t("ifElseNode.selectVariable");
 		}
 		return hasAvailableVariables()
-			? t("IfElseNode.selectVariable")
+			? t("ifElseNode.selectVariable")
 			: "无可用变量";
 	};
 
@@ -274,7 +274,7 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 					)}
 				>
 					<SelectValue
-						placeholder={t("IfElseNode.selectNode")}
+						placeholder={t("ifElseNode.selectNode")}
 						className="truncate"
 					/>
 				</SelectTrigger>

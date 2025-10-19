@@ -12,7 +12,8 @@ import zhCNNode from "./zh-CN/node";
 // 导入所有语言模块
 import zhCNSetting from "./zh-CN/setting";
 import zhCNStrategy from "./zh-CN/strategy";
-
+import enUSCommon from "./en-US/common";
+import zhCNCommon from "./zh-CN/common";
 // 语言模块映射
 const languageModules = {
 	[SupportLanguage.ZH_CN]: {
@@ -21,6 +22,7 @@ const languageModules = {
 		indicator: zhCNIndicator,
 		market: zhCNMarket,
 		node: zhCNNode,
+		common: zhCNCommon,
 	},
 	[SupportLanguage.EN_US]: {
 		setting: enUSSetting,
@@ -28,6 +30,7 @@ const languageModules = {
 		indicator: enUSIndicator,
 		market: enUSMarket,
 		node: enUSNode,
+		common: enUSCommon,
 	},
 };
 

@@ -35,8 +35,8 @@ import {
 import { TradeMode } from "@/types/strategy";
 import {
 	type CustomVariable,
-	getVariableTypeIcon,
-	getVariableTypeIconColor,
+	getVariableValueTypeIcon,
+	getVariableValueTypeIconColor,
 	SYSTEM_VARIABLE_METADATA,
 	SystemVariable,
 	VariableValueType,
@@ -52,6 +52,7 @@ import ResetVarConfig from "./reset-var-config";
 import UpdateVarConfig from "./update-var-config";
 import VarOperateGuide from "./var-operate-guide";
 import { getUpdateOperationLabel } from "./variable-setting-dialog-utils";
+import { useTranslation } from "react-i18next";
 
 const buildTriggerConfigFromState = (
 	triggerType: "condition" | "timer" | "dataflow",
@@ -115,6 +116,7 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 	symbolEmptyMessage,
 	isSymbolSelectorDisabled,
 }) => {
+	const { t } = useTranslation();
 	// 获取开始节点的配置
 	const {
 		backtestConfig: startNodeBacktestConfig,
@@ -149,8 +151,8 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 	const customVariableOptions = React.useMemo(
 		() =>
 			customVariables.map((customVar: CustomVariable) => {
-				const IconComponent = getVariableTypeIcon(customVar.varValueType);
-				const iconColor = getVariableTypeIconColor(customVar.varValueType);
+				const IconComponent = getVariableValueTypeIcon(customVar.varValueType);
+				const iconColor = getVariableValueTypeIconColor(customVar.varValueType);
 
 				return {
 					value: customVar.varName,
@@ -270,31 +272,49 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 
 	// 生成 Dialog 标题
 	const getDialogTitle = (): React.ReactNode => {
-		const prefix = isEditing ? "编辑" : "添加";
+		const prefix = isEditing ? t("variableNode.edit") : t("variableNode.add");
+		console.log("prefix", prefix);
 
 		// Step 1: 返回基础标题
 		if (currentStep === 1) {
-			return `${prefix}变量配置`;
+			return `${prefix} ${t("variableNode.variableConfig")}`;
 		}
 
 		// Step 2: 根据操作类型返回带高亮的标题
 		const operationLabels = {
-			get: "获取",
-			update: "更新",
-			reset: "重置",
+			get: t("variableNode.get").toUpperCase(),
+			update: t("variableNode.update").toUpperCase(),
+			reset: t("variableNode.reset").toUpperCase(),
 		};
 
 		const operationLabel = operationLabels[varOperation];
 
 		return (
 			<>
-				{prefix}
+				{prefix} {" "}
 				<span className="font-semibold text-blue-600 px-1 py-0.5 rounded bg-blue-50">
 					{operationLabel}
 				</span>
-				变量配置
+				{" "}{t("variableNode.variableConfig")}
 			</>
 		);
+	};
+
+	// 生成 Dialog 描述
+	const getDialogDescription = (): string => {
+		// Step 1: 返回基础描述
+		if (currentStep === 1) {
+			return t("variableNode.addVariableDescription");
+		}
+
+		// Step 2: 根据操作类型返回对应描述
+		const descriptionMap = {
+			get: t("variableNode.getVarConfigDescription"),
+			update: t("variableNode.updateVarConfigDescription"),
+			reset: t("variableNode.resetVarConfigDescription"),
+		};
+
+		return descriptionMap[varOperation] || "";
 	};
 
 	const resetForm = useCallback(() => {
@@ -843,13 +863,7 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 				<DialogHeader>
 					<DialogTitle>{getDialogTitle()}</DialogTitle>
 					<DialogDescription>
-						{currentStep === 1
-							? "请选择要执行的操作类型"
-							: varOperation === "get"
-								? "从系统或自定义变量中获取值，支持条件触发、定时触发和数据流触发。"
-								: varOperation === "update"
-									? "修改自定义变量的值，支持赋值、运算、切换等操作。"
-									: "将自定义变量重置为初始值，可通过条件或定时触发。"}
+						{getDialogDescription()}
 					</DialogDescription>
 				</DialogHeader>
 				<div className="flex flex-col gap-4 py-4">
@@ -984,15 +998,15 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 					{currentStep === 1 ? (
 						<>
 							<Button variant="outline" onClick={() => onOpenChange(false)}>
-								取消
+								{t("cancel")}
 							</Button>
-							<Button onClick={handleNextStep}>下一步</Button>
+							<Button onClick={handleNextStep}>{t("next")}</Button>
 						</>
 					) : (
 						<>
 							{!isEditing && (
 							<Button variant="outline" onClick={handleBackStep}>
-								上一步
+								{t("previous")}
 							</Button>
 							)}
 							<Button
@@ -1005,7 +1019,7 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 										: !isResetConfigValid // reset 模式
 							}
 							>
-								保存
+								{t("save")}
 							</Button>
 						</>
 					)}

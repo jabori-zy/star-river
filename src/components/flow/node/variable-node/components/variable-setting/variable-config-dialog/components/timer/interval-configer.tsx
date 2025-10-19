@@ -6,7 +6,7 @@ import type {
 	IntervalTimerConfig,
 	TimerUnit,
 } from "@/types/node/variable-node";
-
+import { useTranslation } from "react-i18next";
 interface IntervalConfigerProps {
 	config: IntervalTimerConfig;
 	onChange: (config: IntervalTimerConfig) => void;
@@ -16,6 +16,7 @@ const IntervalConfiger: React.FC<IntervalConfigerProps> = ({
 	config,
 	onChange,
 }) => {
+	const { t } = useTranslation();
 	const handleIntervalChange = (interval: number) => {
 		onChange({
 			...config,
@@ -46,10 +47,10 @@ const IntervalConfiger: React.FC<IntervalConfigerProps> = ({
 					onValueChange={(value) => handleUnitChange(value as TimerUnit)}
 					placeholder="选择时间单位"
 					options={[
-						{ value: "second", label: "秒" },
-						{ value: "minute", label: "分钟" },
-						{ value: "hour", label: "小时" },
-						{ value: "day", label: "天" },
+						{ value: "second", label: t("timeUnit.second") },
+						{ value: "minute", label: t("timeUnit.minute") },
+						{ value: "hour", label: t("timeUnit.hour") },
+						{ value: "day", label: t("timeUnit.day") },
 					]}
 					className="h-8 flex-1"
 				/>
