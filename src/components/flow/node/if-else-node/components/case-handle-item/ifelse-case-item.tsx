@@ -48,24 +48,24 @@ const ConditionItem = ({
 		<Tooltip>
 			<TooltipTrigger asChild>
 				<div className="flex items-center gap-1 px-1 py-1 bg-gray-50 rounded-md border hover:bg-gray-200 transition-colors cursor-default min-w-0">
-					{condition.leftVariable?.varValueType && (() => {
+					{condition.left?.varValueType && (() => {
 						const IconComponent = getVariableValueTypeIcon(
-							condition.leftVariable.varValueType,
+							condition.left.varValueType,
 						);
 						const iconColorClass = getVariableValueTypeIconColor(
-							condition.leftVariable.varValueType,
+							condition.left.varValueType,
 						);
 						return (
 							<IconComponent className={`text-sm shrink-0 ${iconColorClass}`} />
 						);
 					})()}
 					<span className="text-xs font-medium text-gray-900 truncate">
-						{getVariableLabel(condition.leftVariable, nodes, t)}
+						{getVariableLabel(condition.left, nodes, t)}
 					</span>
 				</div>
 		</TooltipTrigger>
 		<TooltipContent>
-			<p>{getVariableTooltipLabel(condition.leftVariable, t)}</p>
+			<p>{getVariableTooltipLabel(condition.left, t)}</p>
 		</TooltipContent>
 	</Tooltip>
 
@@ -89,24 +89,24 @@ const ConditionItem = ({
 		<Tooltip>
 			<TooltipTrigger asChild>
 				<div className="flex items-center gap-1 px-1 py-1 bg-gray-50 rounded-md border hover:bg-gray-200 transition-colors cursor-default min-w-0">
-					{condition.rightVariable?.varValueType && (() => {
+					{condition.right?.varValueType && (() => {
 						const IconComponent = getVariableValueTypeIcon(
-							condition.rightVariable.varValueType,
+							condition.right.varValueType,
 						);
 						const iconColorClass = getVariableValueTypeIconColor(
-							condition.rightVariable.varValueType,
+							condition.right.varValueType,
 						);
 						return (
 							<IconComponent className={`text-sm shrink-0 ${iconColorClass}`} />
 						);
 					})()}
 					<span className="text-xs font-medium text-gray-900 truncate">
-						{getVariableLabel(condition.rightVariable, nodes, t)}
+						{getVariableLabel(condition.right, nodes, t)}
 					</span>
 				</div>
 		</TooltipTrigger>
 		<TooltipContent>
-			<p>{getVariableTooltipLabel(condition.rightVariable, t)}</p>
+			<p>{getVariableTooltipLabel(condition.right, t)}</p>
 		</TooltipContent>
 	</Tooltip>
 

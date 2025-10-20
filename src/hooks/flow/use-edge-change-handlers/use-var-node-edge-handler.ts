@@ -32,25 +32,25 @@ export const useVarNodeEdgeHandler = () => {
 						...caseItem,
 						conditions: caseItem.conditions.map((condition) => ({
 							...condition,
-							leftVariable:
-								condition.leftVariable?.nodeId === varNodeId &&
+							left:
+								condition.left?.nodeId === varNodeId &&
 								(varConfigId === undefined ||
-									condition.leftVariable?.varConfigId === varConfigId)
+									condition.left?.varConfigId === varConfigId)
 									? null
-									: condition.leftVariable,
-							rightVariable:
-								condition.rightVariable?.nodeId === varNodeId &&
+									: condition.left,
+							right:
+								condition.right?.nodeId === varNodeId &&
 								(varConfigId === undefined ||
-									condition.rightVariable?.varConfigId === varConfigId)
+									condition.right?.varConfigId === varConfigId)
 									? {
-											varType: condition.rightVariable.varType,
+											varType: condition.right.varType,
 											nodeId: null,
 											outputHandleId: null,
 											varConfigId: null,
 											varName: null,
 											nodeName: null,
 										}
-									: condition.rightVariable,
+									: condition.right,
 						})),
 					}));
 					return nodes.map((node) => {

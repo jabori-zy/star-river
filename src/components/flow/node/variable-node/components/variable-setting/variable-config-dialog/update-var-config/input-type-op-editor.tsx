@@ -3,7 +3,7 @@ import { ButtonGroup } from "@/components/ui/button-group";
 import { Input } from "@/components/ui/input";
 import type {
 	TriggerConfig,
-	UpdateOperationType,
+	UpdateVarValueOperation,
 } from "@/types/node/variable-node";
 import {
 	getConditionTriggerConfig,
@@ -19,14 +19,14 @@ import {
 import { useTranslation } from "react-i18next";
 
 interface InputTypeOpEditorProps{
-	updateOperationType: UpdateOperationType;
+	updateOperationType: UpdateVarValueOperation;
 	updateValue: string;
 	availableOperationOptions: Array<{ value: string; label: string }>;
 	varValueType: VariableValueType;
-	onUpdateOperationTypeChange: (operation: UpdateOperationType) => void;
+	onUpdateOperationTypeChange: (operation: UpdateVarValueOperation) => void;
 	onUpdateValueChange: (value: string) => void;
 	variableDisplayName?: string;
-	getPlaceholder: (operationType: UpdateOperationType) => string;
+	getPlaceholder: (operationType: UpdateVarValueOperation) => string;
 	triggerType: "condition" | "timer" | "dataflow";
 	triggerConfig: TriggerConfig;
 }
@@ -79,7 +79,7 @@ const InputTypeOpEditor: React.FC<InputTypeOpEditorProps> = ({
 				<SelectInDialog
 					value={updateOperationType}
 					onValueChange={(value) => {
-						const operation = value as UpdateOperationType;
+						const operation = value as UpdateVarValueOperation;
 						onUpdateOperationTypeChange(operation);
 						if (operation === "toggle") {
 							onUpdateValueChange("");

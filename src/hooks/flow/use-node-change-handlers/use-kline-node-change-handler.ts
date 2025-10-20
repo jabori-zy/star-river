@@ -179,8 +179,8 @@ const updateIfElseNode = (
 	// 检查是否有需要清空的变量
 	for (const caseItem of cases) {
 		for (const condition of caseItem.conditions) {
-			const leftVariable = condition.leftVariable;
-			const rightVariable = condition.rightVariable;
+			const leftVariable = condition.left;
+			const rightVariable = condition.right;
 
 			if (leftVariable) {
 				// 如果左变量与k线节点id相同
@@ -214,20 +214,20 @@ const updateIfElseNode = (
 			...caseItem,
 			conditions: caseItem.conditions.map((condition) => ({
 				...condition,
-				leftVariable: shouldClearVariable(
-					condition.leftVariable,
+				left: shouldClearVariable(
+					condition.left,
 					klineNodeId,
 					klineNodeSymbolIds,
 				)
 					? null
-					: condition.leftVariable,
-				rightVariable: shouldClearVariable(
-					condition.rightVariable,
+					: condition.left,
+				right: shouldClearVariable(
+					condition.right,
 					klineNodeId,
 					klineNodeSymbolIds,
 				)
-					? createEmptyRightVariable(condition.rightVariable!.varType)
-					: condition.rightVariable,
+					? createEmptyRightVariable(condition.right!.varType)
+					: condition.right,
 			})),
 		}));
 

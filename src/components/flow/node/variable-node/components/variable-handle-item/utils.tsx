@@ -1,6 +1,6 @@
 import type {
 	TimerTrigger,
-	UpdateOperationType,
+	UpdateVarValueOperation,
 	VariableConfig,
 } from "@/types/node/variable-node";
 import {
@@ -122,8 +122,8 @@ export const getTimerConfigDisplay = (timerConfig: TimerTrigger): string => {
 };
 
 // 获取更新操作类型的显示文本
-export const getUpdateOperationLabel = (type: UpdateOperationType, t: (key: string) => string): string => {
-	const labels: Record<UpdateOperationType, string> = {
+export const getUpdateOperationLabel = (type: UpdateVarValueOperation, t: (key: string) => string): string => {
+	const labels: Record<UpdateVarValueOperation, string> = {
 		set: "=",
 		add: "+=",
 		subtract: "-=",
@@ -164,8 +164,8 @@ export const getVariableConfigDescription = (
 		return description;
 	} else if (config.varOperation === "update") {
 		// update 模式
-		const opLabel = getUpdateOperationLabel(config.updateOperationType, t);
-		if (config.updateOperationType === "toggle") {
+		const opLabel = getUpdateOperationLabel(config.updateVarValueOperation, t);
+		if (config.updateVarValueOperation === "toggle") {
 			return `更新变量 - ${variableText} (${opLabel})`;
 		}
 		return `更新变量 - ${variableText} ${opLabel}`;
@@ -325,7 +325,7 @@ export const generateTriggerConditionText = (
  */
 export const generateUpdateOperationNodeText = (
 	varDisplayName: string,
-	operationType: UpdateOperationType,
+	operationType: UpdateVarValueOperation,
 	operationValue: string | number | boolean | string[] | null,
 	triggerType: TriggerType,
 	t: (key: string) => string,

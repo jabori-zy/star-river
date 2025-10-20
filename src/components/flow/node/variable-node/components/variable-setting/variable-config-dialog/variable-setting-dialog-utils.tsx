@@ -1,8 +1,8 @@
-import type { UpdateOperationType } from "@/types/node/variable-node";
+import type { UpdateVarValueOperation } from "@/types/node/variable-node";
 
 // 获取更新操作类型的标签
-export const getUpdateOperationLabel = (type: UpdateOperationType, t:(key: string) => string): string => {
-	const labels: Record<UpdateOperationType, string> = {
+export const getUpdateOperationLabel = (type: UpdateVarValueOperation, t:(key: string) => string): string => {
+	const labels: Record<UpdateVarValueOperation, string> = {
 		set: "=",
 		add: "+",
 		subtract: "-",

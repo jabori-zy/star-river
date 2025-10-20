@@ -87,8 +87,8 @@ const updateIfElseNode = (
 
 	for (const caseItem of cases) {
 		for (const condition of caseItem.conditions) {
-			const leftVariable = condition.leftVariable;
-			const rightVariable = condition.rightVariable;
+			const leftVariable = condition.left;
+			const rightVariable = condition.right;
 
 			// 如果左边量的variableConfigId不在indicatorNodeSelectedIndicatorsIds中, 则需要清空
 			if (
@@ -121,20 +121,20 @@ const updateIfElseNode = (
 				...caseItem,
 				conditions: caseItem.conditions.map((condition) => ({
 					...condition,
-					leftVariable: shouldClearVariable(
-						condition.leftVariable,
+					left: shouldClearVariable(
+						condition.left,
 						indicatorNodeId,
 						indicatorNodeSelectedIndicatorsIds,
 					)
 						? null
-						: condition.leftVariable,
-					rightVariable: shouldClearVariable(
-						condition.rightVariable,
+						: condition.left,
+					right: shouldClearVariable(
+						condition.right,
 						indicatorNodeId,
 						indicatorNodeSelectedIndicatorsIds,
 					)
-						? createEmptyRightVariable(condition.rightVariable?.varType || null)
-						: condition.rightVariable,
+						? createEmptyRightVariable(condition.right?.varType || null)
+						: condition.right,
 				})),
 			}));
 			return {

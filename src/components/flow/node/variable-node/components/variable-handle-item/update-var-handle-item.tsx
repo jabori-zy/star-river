@@ -44,7 +44,7 @@ export const UpdateVarHandleItem: React.FC<UpdateVarHandleItemProps> = ({
 	// 生成操作文本
 	const operationText = generateUpdateOperationNodeText(
 		variableConfig.varDisplayName,
-		variableConfig.updateOperationType,
+		variableConfig.updateVarValueOperation,
 		variableConfig.updateOperationValue,
 		effectiveTriggerType,
 		t,

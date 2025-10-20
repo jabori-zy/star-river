@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/input-group";
 import type {
 	TriggerConfig,
-	UpdateOperationType,
+	UpdateVarValueOperation,
 } from "@/types/node/variable-node";
 import {
 	getConditionTriggerConfig,
@@ -19,13 +19,13 @@ import { generatePercentageHint } from "../../../../hint-generators";
 import { useTranslation } from "react-i18next";
 
 interface PercentTypeOpEditorProps {
-	updateOperationType: UpdateOperationType;
+	updateOperationType: UpdateVarValueOperation;
 	updateValue: string;
 	availableOperationOptions: Array<{ value: string; label: string }>;
-	onUpdateOperationTypeChange: (operation: UpdateOperationType) => void;
+	onUpdateOperationTypeChange: (operation: UpdateVarValueOperation) => void;
 	onUpdateValueChange: (value: string) => void;
 	variableDisplayName?: string;
-	getPlaceholder: (operationType: UpdateOperationType) => string;
+	getPlaceholder: (operationType: UpdateVarValueOperation) => string;
 	triggerType: "condition" | "timer" | "dataflow";
 	triggerConfig: TriggerConfig;
 }
@@ -63,7 +63,7 @@ const PercentTypeOpEditor: React.FC<PercentTypeOpEditorProps> = ({
 				<SelectInDialog
 					value={updateOperationType}
 					onValueChange={(value) => {
-						const operation = value as UpdateOperationType;
+						const operation = value as UpdateVarValueOperation;
 						onUpdateOperationTypeChange(operation);
 						if (operation === "toggle") {
 							onUpdateValueChange("");

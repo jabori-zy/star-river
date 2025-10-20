@@ -8,7 +8,7 @@ import type {
 	TimerTrigger,
 	ConditionTrigger,
 	TriggerConfig,
-	UpdateOperationType,
+	UpdateVarValueOperation,
 	DataFlowTrigger,
 } from "@/types/node/variable-node";
 import {
@@ -31,7 +31,7 @@ import TimeTypeOpEditor from "./time-type-op-editor";
 
 interface UpdateVarConfigProps {
 	variable: string;
-	updateOperationType: UpdateOperationType;
+	updateOperationType: UpdateVarValueOperation;
 	updateValue: string;
 	triggerConfig: TriggerConfig;
 	customVariables: CustomVariable[];
@@ -44,7 +44,7 @@ interface UpdateVarConfigProps {
 	dataflowVariableName: string | null;
 	isEditing?: boolean;
 	onVariableChange: (value: string) => void;
-	onUpdateOperationTypeChange: (value: UpdateOperationType) => void;
+	onUpdateOperationTypeChange: (value: UpdateVarValueOperation) => void;
 	onUpdateValueChange: (value: string) => void;
 	onTriggerConfigChange: (value: TriggerConfig) => void;
 	onDataflowNodeChange: (
@@ -62,8 +62,8 @@ interface UpdateVarConfigProps {
 	getAvailableOperations: (
 		varValueType: VariableValueType,
 		isDataflowMode?: boolean,
-	) => UpdateOperationType[];
-	getUpdateOperationLabel: (type: UpdateOperationType, t:(key: string) => string) => string;
+	) => UpdateVarValueOperation[];
+	getUpdateOperationLabel: (type: UpdateVarValueOperation, t:(key: string) => string) => string;
 	onValidationChange?: (isValid: boolean) => void;
 }
 
@@ -91,16 +91,16 @@ const buildTriggerConfig = (
  */
 const renderOperationEditor = (
 	variable: string,
-	updateOperationType: UpdateOperationType,
+	updateOperationType: UpdateVarValueOperation,
 	updateValue: string,
 	updateTriggerType: "condition" | "timer" | "dataflow",
 	customVariables: CustomVariable[],
 	getAvailableOperations: (
 		varValueType: VariableValueType,
 		isDataflowMode?: boolean,
-	) => UpdateOperationType[],
-	getUpdateOperationLabel: (type: UpdateOperationType, t: (key: string) => string) => string,
-	onUpdateOperationTypeChange: (value: UpdateOperationType) => void,
+	) => UpdateVarValueOperation[],
+	getUpdateOperationLabel: (type: UpdateVarValueOperation, t: (key: string) => string) => string,
+	onUpdateOperationTypeChange: (value: UpdateVarValueOperation) => void,
 	onUpdateValueChange: (value: string) => void,
 	triggerCase: ConditionTrigger | null,
 	timerConfig: TimerTrigger | undefined,

@@ -4,7 +4,7 @@ import MultipleSelector, {
 import { SelectInDialog } from "@/components/select-components/select-in-dialog";
 import type {
 	TriggerConfig,
-	UpdateOperationType,
+	UpdateVarValueOperation,
 } from "@/types/node/variable-node";
 import {
 	getConditionTriggerConfig,
@@ -15,10 +15,10 @@ import { generateEnumHint } from "../../../../hint-generators";
 import { useTranslation } from "react-i18next";
 
 interface EnumTypeOpEditorProps {
-	updateOperationType: UpdateOperationType;
+	updateOperationType: UpdateVarValueOperation;
 	updateValue: string; // JSON string of string[]
 	availableOperationOptions: Array<{ value: string; label: string }>;
-	onUpdateOperationTypeChange: (value: UpdateOperationType) => void;
+	onUpdateOperationTypeChange: (value: UpdateVarValueOperation) => void;
 	onUpdateValueChange: (value: string) => void;
 	variableDisplayName?: string;
 	idPrefix?: string;
@@ -93,7 +93,7 @@ const EnumTypeOpEditor: React.FC<EnumTypeOpEditorProps> = ({
 					id={`${idPrefix}-operation`}
 					value={updateOperationType}
 					onValueChange={(value) =>
-						onUpdateOperationTypeChange(value as UpdateOperationType)
+						onUpdateOperationTypeChange(value as UpdateVarValueOperation)
 					}
 					placeholder="选择更新操作"
 					options={availableOperationOptions}
@@ -125,7 +125,7 @@ const EnumTypeOpEditor: React.FC<EnumTypeOpEditorProps> = ({
 					id={`${idPrefix}-operation`}
 					value={updateOperationType}
 					onValueChange={(value) =>
-						onUpdateOperationTypeChange(value as UpdateOperationType)
+						onUpdateOperationTypeChange(value as UpdateVarValueOperation)
 					}
 					placeholder="选择更新操作"
 					options={availableOperationOptions}

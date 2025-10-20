@@ -47,21 +47,21 @@ export const useKlineNodeEdgeHandler = () => {
 							...caseItem,
 							conditions: caseItem.conditions.map((condition) => ({
 								...condition,
-								leftVariable:
-									condition.leftVariable?.nodeId === klineNodeId
+								left:
+									condition.left?.nodeId === klineNodeId
 										? null
-										: condition.leftVariable,
-								rightVariable:
-									condition.rightVariable?.nodeId === klineNodeId
+										: condition.left,
+								right:
+									condition.right?.nodeId === klineNodeId
 										? {
-												varType: condition.rightVariable.varType,
+												varType: condition.right.varType,
 												nodeId: null,
 												outputHandleId: null,
 												varConfigId: null,
 												varName: null,
 												nodeName: null,
 											}
-										: condition.rightVariable,
+										: condition.right,
 							})),
 						}));
 

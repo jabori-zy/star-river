@@ -12,7 +12,7 @@ import type { SelectedIndicator } from "@/types/node/indicator-node";
 import type { SelectedSymbol } from "@/types/node/kline-node";
 import type {
 	GetVariableConfig,
-	UpdateOperationType,
+	UpdateVarValueOperation,
 	VariableConfig,
 } from "@/types/node/variable-node";
 import { VariableValueType } from "@/types/variable";
@@ -32,8 +32,8 @@ interface DataFlowSelectorProps {
 	selectedHandleId: string | null;
 	selectedVariable: string | null;
 	selectedVariableName: string | null;
-	updateOperationType: UpdateOperationType;
-	availableOperations: UpdateOperationType[];
+	updateOperationType: UpdateVarValueOperation;
+	availableOperations: UpdateVarValueOperation[];
 	targetVariableType?: VariableValueType; // 目标变量的类型，用于过滤数据流变量
 	targetVariableDisplayName?: string; // 目标变量的显示名称，用于提示文案
 	onNodeChange: (
@@ -48,7 +48,7 @@ interface DataFlowSelectorProps {
 		variableName: string,
 		variableValueType: VariableValueType,
 	) => void;
-	onOperationTypeChange: (operationType: UpdateOperationType) => void;
+	onOperationTypeChange: (operationType: UpdateVarValueOperation) => void;
 }
 
 // 类型守卫 - 用于判断变量类型
@@ -307,7 +307,7 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 				<SelectInDialog
 					value={updateOperationType}
 					onValueChange={(value: string) => {
-						onOperationTypeChange(value as UpdateOperationType);
+						onOperationTypeChange(value as UpdateVarValueOperation);
 					}}
 					options={availableOperations.map((op) => ({
 						value: op,

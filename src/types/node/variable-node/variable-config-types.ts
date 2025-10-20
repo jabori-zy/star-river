@@ -4,7 +4,7 @@ import type { VariableValueType } from "@/types/variable";
 import type {
 	TriggerConfig,
 } from "./trigger-types";
-import type { UpdateOperationType } from "./variable-operation-types";
+import type { UpdateVarValueOperation } from "./variable-operation-types";
 
 type BaseVariableConfig = {
 	configId: number;
@@ -46,7 +46,7 @@ export function isGetCustomVariableConfig(
 
 export type UpdateVariableConfig = BaseVariableConfig & {
 	varOperation: "update";
-	updateOperationType: UpdateOperationType;
+	updateVarValueOperation: UpdateVarValueOperation;
 	updateOperationValue: string | number | boolean | string[] | null;
 };
 

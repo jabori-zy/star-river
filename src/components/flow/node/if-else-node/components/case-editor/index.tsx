@@ -41,16 +41,17 @@ const CaseEditor: React.FC<CaseEditorProps> = ({
 	const handleAddCondition = () => {
 		const newCondition: Condition = {
 			conditionId: localCaseItem.conditions.length + 1, // 列表长度+1
-			leftVariable: null,
+			left: null,
 			comparisonSymbol: ComparisonSymbol.equal,
-			rightVariable: {
+			right: {
 				varType: VarType.variable,
 				nodeId: null,
+				nodeType: null,
+				nodeName: null,
 				outputHandleId: null,
 				varConfigId: null,
 				varName: null,
-				nodeType: null,
-				nodeName: null,
+				varDisplayName: null,
 				varValueType: VariableValueType.NUMBER,
 			},
 		};

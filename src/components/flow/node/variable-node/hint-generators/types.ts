@@ -3,7 +3,7 @@ import type {
 	TimerTrigger,
 	DataFlowTrigger,
 	VariableOperation,
-	UpdateOperationType,
+	UpdateVarValueOperation,
 } from "@/types/node/variable-node";
 
 /**
@@ -19,7 +19,7 @@ export interface HintGeneratorParams {
 
 	// 操作类型
 	varOperation: VariableOperation;
-	operationType?: UpdateOperationType;
+	operationType?: UpdateVarValueOperation;
 
 	// 值信息
 	value?: string;

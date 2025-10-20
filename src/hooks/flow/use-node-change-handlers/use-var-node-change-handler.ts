@@ -90,8 +90,8 @@ const updateIfElseNode = (
 	let needsUpdate = false;
 	for (const caseItem of cases) {
 		for (const condition of caseItem.conditions) {
-			const leftVariable = condition.leftVariable;
-			const rightVariable = condition.rightVariable;
+			const leftVariable = condition.left;
+			const rightVariable = condition.right;
 			// 左变量是否需要清空或更新
 			if (
 				shouldClearVariable(
@@ -128,29 +128,29 @@ const updateIfElseNode = (
 			...caseItem,
 			conditions: caseItem.conditions.map((condition) => {
 				const shouldClearLeft =
-					condition.leftVariable?.nodeId === varNodeId &&
+					condition.left?.nodeId === varNodeId &&
 					!varNodeVariableConfigsIds.includes(
-						condition.leftVariable?.varConfigId || 0,
+						condition.left?.varConfigId || 0,
 					);
 				const shouldClearRight =
-					condition.rightVariable?.nodeId === varNodeId &&
+					condition.right?.nodeId === varNodeId &&
 					!varNodeVariableConfigsIds.includes(
-						condition.rightVariable?.varConfigId || 0,
+						condition.right?.varConfigId || 0,
 					);
 
 				return {
 					...condition,
-					leftVariable: shouldClearLeft
+					left: shouldClearLeft
 						? null
 						: updateVariable(
-								condition.leftVariable,
+								condition.left,
 								varNodeId,
 								varNodeVariableConfigs,
 							),
-					rightVariable: shouldClearRight
-						? createEmptyRightVariable(condition.rightVariable?.varType || null)
+					right: shouldClearRight
+						? createEmptyRightVariable(condition.right?.varType || null)
 						: updateVariable(
-								condition.rightVariable,
+								condition.right,
 								varNodeId,
 								varNodeVariableConfigs,
 							),

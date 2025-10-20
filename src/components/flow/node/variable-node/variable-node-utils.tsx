@@ -6,7 +6,7 @@ import type {
 	ConditionTrigger,
 	DataFlowTrigger,
 	TriggerType,
-	UpdateOperationType,
+	UpdateVarValueOperation,
 	VariableConfig,
 	VariableOperation,
 } from "@/types/node/variable-node";
@@ -87,9 +87,9 @@ export const isDuplicateConfig = (
  * 获取更新操作的输入框占位符文本
  */
 export const getUpdateOperationPlaceholder = (
-	operationType: UpdateOperationType,
+	operationType: UpdateVarValueOperation,
 ): string => {
-	const placeholderMap: Record<UpdateOperationType, string> = {
+	const placeholderMap: Record<UpdateVarValueOperation, string> = {
 		set: "输入新值",
 		add: "输入增加值",
 		subtract: "输入减少值",
@@ -360,8 +360,8 @@ export const generateSchedulePrefix = (
  * 获取更新操作类型的显示文本
  * 对于某些操作（如增加、减少等），不需要显示文本，因为会在值中体现
  */
-export const getUpdateOperationLabel = (operationType: UpdateOperationType): string => {
-	const operationLabels: Record<UpdateOperationType, string> = {
+export const getUpdateOperationLabel = (operationType: UpdateVarValueOperation): string => {
+	const operationLabels: Record<UpdateVarValueOperation, string> = {
 		set: "设置为",
 		add: "",  // 通过 +5 的格式体现
 		subtract: "",  // 通过 -5 的格式体现
@@ -382,7 +382,7 @@ export const getUpdateOperationLabel = (operationType: UpdateOperationType): str
  */
 export const formatUpdateOperationValue = (
 	value: string | number | boolean | string[] | null,
-	operationType: UpdateOperationType,
+	operationType: UpdateVarValueOperation,
 ): string => {
 	if (value === null || value === undefined) {
 		return "";

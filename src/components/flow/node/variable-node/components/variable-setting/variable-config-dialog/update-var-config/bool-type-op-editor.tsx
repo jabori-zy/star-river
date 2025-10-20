@@ -2,7 +2,7 @@ import { SelectInDialog } from "@/components/select-components/select-in-dialog"
 import { ButtonGroup } from "@/components/ui/button-group";
 import type {
 	TriggerConfig,
-	UpdateOperationType,
+	UpdateVarValueOperation,
 } from "@/types/node/variable-node";
 import {
 	getConditionTriggerConfig,
@@ -13,10 +13,10 @@ import { generateBooleanHint } from "../../../../hint-generators";
 import { useTranslation } from "react-i18next";
 
 interface BoolTypeOpEditorProps {
-	updateOperationType: UpdateOperationType;
+	updateOperationType: UpdateVarValueOperation;
 	updateValue: string;
 	availableOperationOptions: Array<{ value: string; label: string }>;
-	onUpdateOperationTypeChange: (operation: UpdateOperationType) => void;
+	onUpdateOperationTypeChange: (operation: UpdateVarValueOperation) => void;
 	onUpdateValueChange: (value: string) => void;
 	variableDisplayName?: string;
 	idPrefix?: string;
@@ -66,7 +66,7 @@ const BoolTypeOpEditor: React.FC<BoolTypeOpEditorProps> = ({
 				<SelectInDialog
 					value={updateOperationType}
 					onValueChange={(value) => {
-						const operation = value as UpdateOperationType;
+						const operation = value as UpdateVarValueOperation;
 						onUpdateOperationTypeChange(operation);
 						if (operation === "toggle") {
 							onUpdateValueChange("");
@@ -98,7 +98,7 @@ const BoolTypeOpEditor: React.FC<BoolTypeOpEditorProps> = ({
 				<SelectInDialog
 					value={updateOperationType}
 					onValueChange={(value) => {
-						const operation = value as UpdateOperationType;
+						const operation = value as UpdateVarValueOperation;
 						onUpdateOperationTypeChange(operation);
 						if (operation === "toggle") {
 							onUpdateValueChange("");

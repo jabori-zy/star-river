@@ -33,7 +33,7 @@ const generateMockLogData = (): StrategyRunningLogEvent[] => {
 					conditionId: 1,
 					conditionResult: true,
 					leftValue: 113765.41714285711,
-					leftVariable: {
+					left: {
 						nodeId: "indicator_node_3",
 						nodeName: "指标节点3",
 						outputHandleId: "indicator_node_3_output_1",
@@ -42,7 +42,7 @@ const generateMockLogData = (): StrategyRunningLogEvent[] => {
 						variableConfigId: 1,
 					},
 					rightValue: 100000.0,
-					rightVariable: {
+					right: {
 						nodeId: null,
 						nodeName: null,
 						outputHandleId: null,

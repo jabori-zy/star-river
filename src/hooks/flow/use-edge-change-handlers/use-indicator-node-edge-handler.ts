@@ -33,25 +33,25 @@ export const useIndicatorNodeEdgeHandler = () => {
 						...caseItem,
 						conditions: caseItem.conditions.map((condition) => ({
 							...condition,
-							leftVariable:
-								condition.leftVariable?.nodeId === indicatorNodeId &&
+							left:
+								condition.left?.nodeId === indicatorNodeId &&
 								(indicatorConfigId === undefined ||
-									condition.leftVariable?.varConfigId === indicatorConfigId)
+									condition.left?.varConfigId === indicatorConfigId)
 									? null
-									: condition.leftVariable,
-							rightVariable:
-								condition.rightVariable?.nodeId === indicatorNodeId &&
+									: condition.left,
+							right:
+								condition.right?.nodeId === indicatorNodeId &&
 								(indicatorConfigId === undefined ||
-									condition.rightVariable?.varConfigId === indicatorConfigId)
+									condition.right?.varConfigId === indicatorConfigId)
 									? {
-											varType: condition.rightVariable.varType,
+											varType: condition.right.varType,
 											nodeId: null,
 											outputHandleId: null,
 											varConfigId: null,
 											varName: null,
 											nodeName: null,
 										}
-									: condition.rightVariable,
+									: condition.right,
 						})),
 					}));
 					return nodes.map((node) => {

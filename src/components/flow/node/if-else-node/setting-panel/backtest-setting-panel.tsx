@@ -60,11 +60,11 @@ const IfElseNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 				...caseItem,
 				conditions: (caseItem.conditions ?? []).map((condition) => ({
 					...condition,
-					leftVariable: condition.leftVariable
-						? { ...condition.leftVariable }
+					left: condition.left
+						? { ...condition.left }
 						: null,
-					rightVariable: condition.rightVariable
-						? { ...condition.rightVariable }
+					right: condition.right
+						? { ...condition.right }
 						: null,
 				})),
 			}));
@@ -78,7 +78,6 @@ const IfElseNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 			connections,
 			TradeMode.BACKTEST,
 		);
-		console.log("收集到的所有变量列表", variables);
 		setVariableItemList(variables);
 	}, [connections, getConnectedNodeVariables]);
 

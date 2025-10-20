@@ -1,7 +1,7 @@
 import type { IconType } from "react-icons";
 import { TbEdit, TbFileImport, TbRefresh } from "react-icons/tb";
 
-export type UpdateOperationType =
+export type UpdateVarValueOperation =
 	| "set"
 	| "add"
 	| "subtract"

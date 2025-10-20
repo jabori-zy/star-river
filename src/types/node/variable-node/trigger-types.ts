@@ -15,7 +15,7 @@ export type IntervalTimerConfig = {
 
 export type DayOfMonth = number | "first" | "last";
 
-export type MonthlyFallbackStrategy = "last-day" | "skip";
+export type MonthlyFallbackStrategy = "last_day" | "skip";
 
 type BaseScheduledConfig = {
 	mode: "scheduled";

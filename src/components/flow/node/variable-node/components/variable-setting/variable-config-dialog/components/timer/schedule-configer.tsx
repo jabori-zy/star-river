@@ -178,7 +178,7 @@ const ScheduleConfiger: React.FC<ScheduleConfigerProps> = ({
 								typeof config.dayOfMonth === "number" ? config.dayOfMonth : 1;
 							// 如果是29/30/31，保留或设置回退策略
 							if (typeof dayValue === "number" && dayValue >= 29) {
-								fallbackStrategy = config.monthlyFallback || "last-day";
+								fallbackStrategy = config.monthlyFallback || "last_day";
 							}
 						} else {
 							// 兜底逻辑
@@ -217,7 +217,7 @@ const ScheduleConfiger: React.FC<ScheduleConfigerProps> = ({
 											// 当选择29/30/31时，如果没有设置回退策略，默认为 last-day
 											monthlyFallback:
 												dayValue >= 29
-													? config.monthlyFallback || "last-day"
+													? config.monthlyFallback || "last_day"
 													: undefined,
 										});
 									}}
@@ -247,13 +247,13 @@ const ScheduleConfiger: React.FC<ScheduleConfigerProps> = ({
 												type="radio"
 												id="fallback-last-day-inline"
 												checked={
-													config.monthlyFallback === "last-day" ||
+													config.monthlyFallback === "last_day" ||
 													!config.monthlyFallback
 												}
 												onChange={() => {
 													handleConfigChange({
 														...config,
-														monthlyFallback: "last-day",
+														monthlyFallback: "last_day",
 													});
 												}}
 												className="h-3.5 w-3.5 cursor-pointer"

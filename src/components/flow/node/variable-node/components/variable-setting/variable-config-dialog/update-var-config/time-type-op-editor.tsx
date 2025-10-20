@@ -3,7 +3,7 @@ import { formatDate } from "@/components/flow/node/node-utils";
 import { SelectInDialog } from "@/components/select-components/select-in-dialog";
 import type {
 	TriggerConfig,
-	UpdateOperationType,
+	UpdateVarValueOperation,
 } from "@/types/node/variable-node";
 import {
 	getConditionTriggerConfig,
@@ -14,10 +14,10 @@ import { generateTimeHint } from "../../../../hint-generators";
 import { useTranslation } from "react-i18next";
 
 interface TimeTypeOpEditorProps {
-	updateOperationType: UpdateOperationType;
+	updateOperationType: UpdateVarValueOperation;
 	updateValue: string;
 	availableOperationOptions: Array<{ value: string; label: string }>;
-	onUpdateOperationTypeChange: (operation: UpdateOperationType) => void;
+	onUpdateOperationTypeChange: (operation: UpdateVarValueOperation) => void;
 	onUpdateValueChange: (value: string) => void;
 	variableDisplayName?: string;
 	triggerType: "condition" | "timer" | "dataflow";
@@ -73,7 +73,7 @@ const TimeTypeOpEditor: React.FC<TimeTypeOpEditorProps> = ({
 				<SelectInDialog
 					value={updateOperationType}
 					onValueChange={(value) => {
-						const operation = value as UpdateOperationType;
+						const operation = value as UpdateVarValueOperation;
 						onUpdateOperationTypeChange(operation);
 					}}
 					options={availableOperationOptions}

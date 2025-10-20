@@ -68,7 +68,7 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({ config }) => 
 			t,
 			language,
 			varOperation: "update",
-			operationType: config.updateOperationType,
+			operationType: config.updateVarValueOperation,
 			variableDisplayName: config.varDisplayName,
 			value:
 				typeof config.updateOperationValue === "string" ||
