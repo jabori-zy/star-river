@@ -3,6 +3,7 @@ import {
 	type ComparisonSymbol,
 	LogicalSymbol,
 	type Variable,
+	type Constant,
 	VarType,
 } from "@/types/node/if-else-node";
 import { NodeType } from "@/types/node/index";
@@ -32,17 +33,25 @@ export const getLogicalLabel = (symbol: LogicalSymbol | null) => {
 };
 
 // 获取变量显示文本
+const formatConstantValue = (constant: Constant): string => {
+	const { varValue } = constant;
+
+	if (Array.isArray(varValue)) {
+		return varValue.length > 0 ? varValue.join(", ") : "[]";
+	}
+
+	return String(varValue);
+};
+
 export const getVariableLabel = (
-	variable: Variable | null,
+	variable: Variable | Constant | null,
 	nodes: Node[],
 	t: (key: string) => string,
 ) => {
 	if (!variable) return t("ifElseNode.notSet");
 	if (variable.varType === VarType.constant) {
-		if (!variable.varName) {
-			return "0";
-		}
-		return `${variable.varName}`;
+		const formattedValue = formatConstantValue(variable as Constant);
+		return formattedValue === "" ? t("ifElseNode.notSet") : formattedValue;
 	} else if (variable.varType === VarType.variable) {
 		if (!variable.nodeName || !variable.varName || !variable.varConfigId) {
 			return t("ifElseNode.notSet");
@@ -106,13 +115,14 @@ export const getVariableNodeVariableLable = (
 
 // 获取变量的 Tooltip 文本
 export const getVariableTooltipLabel = (
-	variable: Variable | null,
+	variable: Variable | Constant | null,
 	t: (key: string) => string,
 ) => {
 	if (!variable) return t("ifElseNode.notSet");
 	
 	if (variable.varType === VarType.constant) {
-		return variable.varName ? String(variable.varName) : "0";
+		const formattedValue = formatConstantValue(variable as Constant);
+		return formattedValue === "" ? t("ifElseNode.notSet") : formattedValue;
 	}
 	
 	if (variable.nodeName && variable.varConfigId) {

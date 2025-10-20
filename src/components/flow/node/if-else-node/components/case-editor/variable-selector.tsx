@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
-	isGetVariableConfig,
+	isVariableConfig,
 	isSelectedIndicator,
 	isSelectedSymbol,
 	renderVariableOptions as renderVariableOptionsUtil,
@@ -54,6 +54,7 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 	blacklistValueType,
 	excludeVariable,
 }) => {
+	
 
 	const [selectedNodeId, setSelectedNodeId] = useState<string>(
 		variable?.nodeId || "",
@@ -184,7 +185,7 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 			variableId = selectedVar.configId;
 
 			// 根据变量类型获取 varValueType
-			if (isGetVariableConfig(selectedVar)) {
+			if (isVariableConfig(selectedVar)) {
 				// 变量节点：从配置中获取
 				varValueType = selectedVar.varValueType;
 			} else if (
@@ -241,7 +242,6 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 			blacklistValueType,
 			excludeVariable,
 		});
-
 		// 如果没有可用变量，显示提示信息
 		if (!options || options.length === 0) {
 			return (

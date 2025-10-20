@@ -38,10 +38,10 @@ export const isSelectedSymbol = (
 	);
 };
 
-export const isGetVariableConfig = (
+export const isVariableConfig = (
 	variable: SelectedIndicator | SelectedSymbol | VariableConfig,
-): variable is GetVariableConfig => {
-	return "varOperation" in variable && variable.varOperation === "get";
+): variable is VariableConfig => {
+	return "varOperation" in variable && ["get", "update", "reset"].includes(variable.varOperation);
 };
 
 interface RenderVariableOptionsParams {
@@ -88,7 +88,7 @@ export const renderVariableOptions = ({
 				return whitelistValueType === VariableValueType.NUMBER;
 			}
 			// 变量节点根据其具体类型过滤
-			if (isGetVariableConfig(v)) {
+			if (isVariableConfig(v)) {
 				return v.varValueType === whitelistValueType;
 			}
 			return false;
@@ -103,7 +103,7 @@ export const renderVariableOptions = ({
 				return blacklistValueType !== VariableValueType.NUMBER;
 			}
 			// 变量节点根据其具体类型过滤
-			if (isGetVariableConfig(v)) {
+			if (isVariableConfig(v)) {
 				return v.varValueType !== blacklistValueType;
 			}
 			return true;
@@ -128,7 +128,7 @@ export const renderVariableOptions = ({
 						return klineFields.includes(excludeVarName);
 					}
 					// 对于变量节点，检查变量名
-					if (isGetVariableConfig(v)) {
+					if (isVariableConfig(v)) {
 						return String(v.varName) === excludeVarName;
 					}
 					return false;
@@ -138,6 +138,7 @@ export const renderVariableOptions = ({
 		});
 	}
 
+
 	const indicators = filteredVariables.filter((v) =>
 		isSelectedIndicator(v),
 	) as SelectedIndicator[];
@@ -145,7 +146,7 @@ export const renderVariableOptions = ({
 		isSelectedSymbol(v),
 	) as SelectedSymbol[];
 	const variableConfigs = filteredVariables.filter((v) =>
-		isGetVariableConfig(v),
+		isVariableConfig(v),
 	) as GetVariableConfig[];
 
 	const result: React.ReactNode[] = [];
