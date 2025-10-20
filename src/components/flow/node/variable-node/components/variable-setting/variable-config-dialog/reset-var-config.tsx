@@ -31,6 +31,7 @@ interface ResetVarConfigProps {
 	caseItemList: CaseItemInfo[];
 	varInitialValue: string | number | boolean | string[];
 	isEditing?: boolean;
+	duplicateOperation?: string | null;
 	onVariableChange: (value: string) => void;
 	onTriggerConfigChange: (value: TriggerConfig) => void;
 	onValidationChange?: (isValid: boolean) => void;
@@ -44,6 +45,7 @@ const ResetVarConfig: React.FC<ResetVarConfigProps> = ({
 	caseItemList,
 	varInitialValue,
 	isEditing = false,
+	duplicateOperation,
 	onVariableChange,
 	onTriggerConfigChange,
 	onValidationChange,
@@ -77,21 +79,26 @@ const ResetVarConfig: React.FC<ResetVarConfigProps> = ({
 
 		let isValid = true;
 
-		// 1. 必须有自定义变量
-		if (customVariables.length === 0) {
+		// 1. 如果存在重复的变量操作配置，则验证失败
+		if (duplicateOperation) {
 			isValid = false;
 		}
-		// 2. 必须选择变量
+		// 2. 必须有自定义变量
+		else if (customVariables.length === 0) {
+			isValid = false;
+		}
+		// 3. 必须选择变量
 		else if (!variable) {
 			isValid = false;
 		}
-		// 3. 条件触发模式：必须选择触发条件
+		// 4. 条件触发模式：必须选择触发条件
 		else if (effectiveTriggerType === "condition" && !conditionTrigger) {
 			isValid = false;
 		}
 
 		onValidationChange(isValid);
 	}, [
+		duplicateOperation,
 		effectiveTriggerType,
 		conditionTrigger,
 		customVariables.length,
@@ -149,6 +156,11 @@ const ResetVarConfig: React.FC<ResetVarConfigProps> = ({
 					disabled={isEditing}
 					emptyMessage="未配置自定义变量，请在策略起点配置"
 				/>
+				{duplicateOperation && (
+					<p className="text-xs text-red-600 mt-1">
+						{t("variableNode.duplicateOperationError", { operation: t(`variableNode.${duplicateOperation}`) })}
+					</p>
+				)}
 			</div>
 
 			{/* 触发方式 */}

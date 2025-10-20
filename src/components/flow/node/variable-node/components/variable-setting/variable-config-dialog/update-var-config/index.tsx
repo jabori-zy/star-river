@@ -43,6 +43,7 @@ interface UpdateVarConfigProps {
 	dataflowVariable: string | null;
 	dataflowVariableName: string | null;
 	isEditing?: boolean;
+	duplicateOperation?: string | null;
 	onVariableChange: (value: string) => void;
 	onUpdateOperationTypeChange: (value: UpdateVarValueOperation) => void;
 	onUpdateValueChange: (value: string) => void;
@@ -226,6 +227,7 @@ const UpdateVarConfig: React.FC<UpdateVarConfigProps> = ({
 	dataflowVariable,
 	dataflowVariableName,
 	isEditing = false,
+	duplicateOperation,
 	onVariableChange,
 	onUpdateOperationTypeChange,
 	onUpdateValueChange,
@@ -267,15 +269,19 @@ const UpdateVarConfig: React.FC<UpdateVarConfigProps> = ({
 
 		let isValid = true;
 
-		// 1. 必须有自定义变量
-		if (customVariables.length === 0) {
+		// 1. 如果存在重复的变量操作配置，则验证失败
+		if (duplicateOperation) {
 			isValid = false;
 		}
-		// 2. 必须选择变量
+		// 2. 必须有自定义变量
+		else if (customVariables.length === 0) {
+			isValid = false;
+		}
+		// 3. 必须选择变量
 		else if (!variable) {
 			isValid = false;
 		}
-		// 3. 条件触发模式：必须选择触发条件
+		// 4. 条件触发模式：必须选择触发条件
 		else if (effectiveTriggerType === "condition") {
 			if (!conditionTrigger) {
 				isValid = false;
@@ -285,13 +291,13 @@ const UpdateVarConfig: React.FC<UpdateVarConfigProps> = ({
 				isValid = false;
 			}
 		}
-		// 4. 数据流模式：必须选择上游节点和变量
+		// 5. 数据流模式：必须选择上游节点和变量
 		else if (effectiveTriggerType === "dataflow") {
 			if (!dataflowNodeId || !dataflowHandleId || !dataflowVariable) {
 				isValid = false;
 			}
 		}
-		// 5. 定时触发模式：如果操作不是 toggle，需要输入更新值
+		// 6. 定时触发模式：如果操作不是 toggle，需要输入更新值
 		else if (effectiveTriggerType === "timer") {
 			if (updateOperationType !== "toggle" && !updateValue.trim()) {
 				isValid = false;
@@ -300,6 +306,7 @@ const UpdateVarConfig: React.FC<UpdateVarConfigProps> = ({
 
 		onValidationChange(isValid);
 	}, [
+		duplicateOperation,
 		effectiveTriggerType,
 		conditionTrigger,
 		customVariables.length,
@@ -344,6 +351,11 @@ const UpdateVarConfig: React.FC<UpdateVarConfigProps> = ({
 					emptyMessage="未配置自定义变量，请在策略起点配置"
 					className="w-full"
 				/>
+				{duplicateOperation && (
+					<p className="text-xs text-red-600 mt-1">
+						{t("variableNode.duplicateOperationError", { operation: t(`variableNode.${duplicateOperation}`) })}
+					</p>
+				)}
 			</div>
 
 			{/* 触发方式 */}

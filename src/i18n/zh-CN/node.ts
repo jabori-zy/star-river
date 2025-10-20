@@ -24,7 +24,7 @@ const translation = {
 		noConditions: "未配置条件",
 		allSymbols: "所有交易对",
 	},
-	VariableNode: {
+	variableNode: {
 		get: "获取",
 		update: "更新",
 		reset: "重置",
@@ -37,6 +37,7 @@ const translation = {
 		dataflow: "数据流触发",
 		variableConfig: "变量配置",
 		clickAddVariable: "点击 + 添加变量配置",
+		duplicateOperationError: "该变量已配置{{operation}}操作,无法在同一个节点配置多个操作",
 	},
 };
 

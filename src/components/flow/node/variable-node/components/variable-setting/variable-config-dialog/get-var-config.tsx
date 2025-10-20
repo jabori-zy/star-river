@@ -44,6 +44,7 @@ interface GetVarConfigProps {
 	customVariables: CustomVariable[];
 	caseItemList: CaseItemInfo[];
 	isEditing?: boolean;
+	duplicateOperation?: string | null;
 	onSymbolChange: (value: string) => void;
 	onVariableNameChange: (value: string) => void;
 	onVariableChange: (value: string) => void;
@@ -63,6 +64,7 @@ const GetVarConfig: React.FC<GetVarConfigProps> = ({
 	customVariables,
 	caseItemList,
 	isEditing = false,
+	duplicateOperation,
 	onSymbolChange,
 	onVariableNameChange,
 	onVariableChange,
@@ -194,17 +196,21 @@ const GetVarConfig: React.FC<GetVarConfigProps> = ({
 
 		let isValid = true;
 
-		// 1. 如果需要选择交易对但未选择，则验证失败
-		if (shouldShowSymbolSelector && !symbol) {
+		// 1. 如果存在重复的变量操作配置，则验证失败
+		if (duplicateOperation) {
 			isValid = false;
 		}
-		// 2. 条件触发模式：必须选择触发条件
+		// 2. 如果需要选择交易对但未选择，则验证失败
+		else if (shouldShowSymbolSelector && !symbol) {
+			isValid = false;
+		}
+		// 3. 条件触发模式：必须选择触发条件
 		else if (effectiveTriggerType === "condition" && !conditionTrigger) {
 			isValid = false;
 		}
 
 		onValidationChange(isValid);
-	}, [variable, symbol, shouldShowSymbolSelector, effectiveTriggerType, conditionTrigger, onValidationChange]);
+	}, [variable, symbol, shouldShowSymbolSelector, effectiveTriggerType, conditionTrigger, duplicateOperation, onValidationChange]);
 
 
 	// 判断是否应该显示提示文案
@@ -289,6 +295,11 @@ const GetVarConfig: React.FC<GetVarConfigProps> = ({
 					options={mixedVariableOptions}
 					disabled={isEditing}
 				/>
+				{duplicateOperation && (
+					<p className="text-xs text-red-600 mt-1">
+						{t("variableNode.duplicateOperationError", { operation: t(`variableNode.${duplicateOperation}`) })}
+					</p>
+				)}
 			</div>
 
 			{shouldShowSymbolSelector && (

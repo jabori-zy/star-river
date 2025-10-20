@@ -119,6 +119,7 @@ const translation = {
 			noVariables: "No Variables",
 		},
 		op: "Operation",
+		duplicateOperationError: "This variable already has a {{operation}} operation configured. Cannot configure multiple operations for the same variable in one node.",
 	}
 };
 

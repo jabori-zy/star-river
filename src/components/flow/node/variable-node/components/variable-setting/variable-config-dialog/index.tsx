@@ -243,8 +243,40 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 		null,
 	);
 
+	// 重复变量操作检测状态 - 存储重复的操作类型
+	const [duplicateOperation, setDuplicateOperation] = React.useState<string | null>(null);
+
 	// 用于追踪上一个变量的类型，以便在变量类型改变时清空更新值
 	const prevVarValueTypeRef = React.useRef<VariableValueType | null>(null);
+
+	// 检测是否有重复的变量操作配置（仅针对自定义变量）
+	const checkDuplicateVariableOperation = React.useCallback((varName: string): string | null => {
+		// 检查是否是自定义变量
+		const isCustomVariable = customVariables.some(
+			(customVar: CustomVariable) => customVar.varName === varName,
+		);
+
+		// 只对自定义变量进行检测
+		if (!isCustomVariable) {
+			return null;
+		}
+
+		// 查找是否有相同变量的配置
+		for (let i = 0; i < existingConfigs.length; i++) {
+			// 如果是编辑模式,跳过当前正在编辑的配置
+			if (isEditing && i === editingIndex) {
+				continue;
+			}
+
+			const config = existingConfigs[i];
+			if (config.varName === varName) {
+				// 找到重复的配置,返回操作类型
+				return config.varOperation;
+			}
+		}
+
+		return null;
+	}, [customVariables, existingConfigs, isEditing, editingIndex]);
 
 	// 根据变量类型和触发方式获取可用的更新操作
 	const getAvailableOperations = (
@@ -354,6 +386,8 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 		// 重置二次确认状态
 		setIsConfirmDialogOpen(false);
 		setPendingVariableConfig(null);
+		// 重置重复检测状态
+		setDuplicateOperation(null);
 	}, []);
 
 	// 当切换操作类型时，自动选择合适的默认变量
@@ -445,6 +479,16 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 			}
 		}
 	}, [variable, varOperation, customVariables]);
+
+	// 当变量改变时，检测是否有重复的操作配置
+	React.useEffect(() => {
+		if (variable) {
+			const duplicate = checkDuplicateVariableOperation(variable);
+			setDuplicateOperation(duplicate);
+		} else {
+			setDuplicateOperation(null);
+		}
+	}, [variable, checkDuplicateVariableOperation]);
 
 	// 当对话框打开时重置或恢复状态
 	useEffect(() => {
@@ -893,6 +937,7 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 									customVariables={customVariables}
 									caseItemList={caseItemList}
 									isEditing={isEditing}
+									duplicateOperation={duplicateOperation}
 									onSymbolChange={setSymbol}
 									onVariableNameChange={handleVariableNameChange}
 									onVariableChange={handleVariableTypeChange}
@@ -935,6 +980,7 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 									dataflowVariable={dataflowVariable}
 									dataflowVariableName={dataflowVariableName}
 									isEditing={isEditing}
+									duplicateOperation={duplicateOperation}
 									onVariableChange={setVariable}
 									onUpdateOperationTypeChange={setUpdateOperationType}
 									onUpdateValueChange={setUpdateValue}
@@ -978,6 +1024,7 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 								caseItemList={caseItemList}
 								varInitialValue={varInitialValue}
 								isEditing={isEditing}
+								duplicateOperation={duplicateOperation}
 								onVariableChange={setVariable}
 								onTriggerConfigChange={(newConfig) => {
 									const newTriggerType = getEffectiveTriggerType({ triggerConfig: newConfig }) ?? "condition";
