@@ -126,6 +126,7 @@ const translation = {
 			zeroValue: "Zero Value",
 			strategySelection: "Strategy Selection",
 			skip: "Skip",
+			stillUpdate: "Still Update",
 			valueReplace: "Replace Value",
 			replaceWith: "Replace With",
 			usePreviousValue: "Use Previous Value",
@@ -138,6 +139,18 @@ const translation = {
 		},
 		op: "Operation",
 		duplicateOperationError: "This variable already has a {{operation}} operation configured. Cannot configure multiple operations for the same variable in one node.",
+		systemVariableName: {
+			currentTime: "Current Time",
+			isMarketOpen: "Is Market Open",
+			isMarketClosed: "Is Market Closed",
+			isTradable: "Is Tradable",
+			totalPositionNumber: "Total Position Number",
+			positionNumber: "Position Number",
+			totalFilledOrderNumber: "Total Filled Order Number",
+			filledOrderNumber: "Filled Order Number",
+			cumulativeYield: "Cumulative Yield",
+
+		}
 	}
 };
 

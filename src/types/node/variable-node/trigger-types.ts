@@ -131,6 +131,13 @@ export const VALUE_TYPE_SUPPORT_POLICY: Record<VariableValueType, DataflowErrorT
 }
 
 
+export const ERROR_TYPE_SUPPORT_POLICY: Record<DataflowErrorType, DataflowErrorPolicyStrategy[]> = {
+	"nullValue": ["skip", "valueReplace", "usePreviousValue"],
+	"expired": ["stillUpdate", "skip", "valueReplace", "usePreviousValue"],
+	"zeroValue": ["stillUpdate", "skip", "valueReplace", "usePreviousValue"],
+}
+
+
 export type ErrorLog = { notify: false } | { notify: true; level: "warn" | "error" };
 
 export type DataflowErrorType =
@@ -138,13 +145,25 @@ export type DataflowErrorType =
     | "expired" // 过期错误
 	| "zeroValue" // 零值错误
 
+
+export type DataflowErrorPolicyStrategy = "skip" | "valueReplace" | "usePreviousValue" | "stillUpdate";
+
+
 export type BaseDataflowErrorPolicy = {
-	strategy: "skip" | "valueReplace" | "usePreviousValue";
+	strategy: DataflowErrorPolicyStrategy;
 	errorLog: ErrorLog;
 }
 
 
-export type DataflowErrorPolicy = SkipPolicy | ValueReplacePolicy | UsePreviousValuePolicy;
+export type DataflowErrorPolicy = StillUpdatePolicy | SkipPolicy | ValueReplacePolicy | UsePreviousValuePolicy;
+
+/**
+ * 仍然更新策略
+ */
+export type StillUpdatePolicy = BaseDataflowErrorPolicy & {
+	strategy: "stillUpdate";
+}
+
 
 export type SkipPolicy = BaseDataflowErrorPolicy & {
 	strategy: "skip";

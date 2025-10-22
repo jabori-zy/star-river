@@ -7,18 +7,20 @@ import {
 	getEffectiveTriggerType,
 	getTimerTriggerConfig,
 } from "@/types/node/variable-node";
-import { SystemVariable } from "@/types/variable";
+import { SystemVariable, getSystemVariableMetadata } from "@/types/variable";
 import { generateVariableHighlight, generateValueHighlight, formatUpdateOperationValue } from "../../variable-node-utils";
 import type { TriggerType, DataFlowTrigger } from "@/types/node/variable-node";
 
 
 // 获取变量类型的中文标签
-export const getVariableLabel = (variable: string): string => {
-	const variableMap: Record<string, string> = {
-		[SystemVariable.POSITION_NUMBER]: "持仓数量",
-		[SystemVariable.FILLED_ORDER_NUMBER]: "已成交订单数量",
-	};
-	return variableMap[variable] || variable;
+export const getVariableLabel = (variable: string, t: (key: string) => string): string => {
+	// 检查是否是系统变量
+	if (Object.values(SystemVariable).includes(variable as SystemVariable)) {
+		const metadata = getSystemVariableMetadata(t)[variable as SystemVariable];
+		return metadata.varDisplayName;
+	}
+	// 自定义变量直接返回变量名
+	return variable;
 };
 
 // 获取变量触发类型的中文标签
@@ -144,7 +146,7 @@ export const getVariableConfigDescription = (
 	config: VariableConfig,
 	t: (key: string) => string,
 ): string => {
-	const variableText = getVariableLabel(config.varName);
+	const variableText = getVariableLabel(config.varName, t);
 	const effectiveTriggerType = getEffectiveTriggerType(config);
 	const timerConfig = getTimerTriggerConfig(config);
 

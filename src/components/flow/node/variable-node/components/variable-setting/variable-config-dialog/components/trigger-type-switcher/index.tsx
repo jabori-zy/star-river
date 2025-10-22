@@ -1,5 +1,11 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { getTriggerTypeInfo } from "@/components/flow/node/variable-node/variable-node-utils";
 import type { 
 	TriggerType, 
@@ -11,7 +17,9 @@ import type {
 	UpdateVarValueOperation,
 } from "@/types/node/variable-node";
 import { VariableValueType } from "@/types/variable";
+import { TradeMode } from "@/types/strategy";
 import { useTranslation } from "react-i18next";
+import useTradingModeStore from "@/store/use-trading-mode-store";
 import CaseSelector, { type CaseItemInfo } from "./case-selector";
 import TimerConfigComponent from "./timer-config";
 import DataflowConfig from "./dataflow-config";
@@ -61,6 +69,10 @@ const TriggerTypeSwitcher: React.FC<TriggerTypeSwitcherProps> = ({
 	// 如果指定了 availableTriggers，则只显示指定的触发类型；否则显示全部
 	const displayTypes = availableTriggers || TRIGGER_TYPES;
 	const { t } = useTranslation();
+	const { tradingMode } = useTradingModeStore();
+	
+	// 判断是否在 backtest 模式下
+	const isBacktestMode = tradingMode === TradeMode.BACKTEST;
 
 	return (
 		<div className="space-y-3">
@@ -68,32 +80,56 @@ const TriggerTypeSwitcher: React.FC<TriggerTypeSwitcherProps> = ({
 			<div className="space-y-1">
 				<Label className="text-sm font-medium">{t("variableNode.triggerType")}</Label>
 				<div className="flex items-center space-x-6 pt-1">
-					{displayTypes.map((type) => {
-						const typeInfo = getTriggerTypeInfo(type, t);
-						const IconComponent = typeInfo.icon;
-						const triggerId = `${idPrefix}-${type}-trigger`;
+					<TooltipProvider>
+						{displayTypes.map((type) => {
+							const typeInfo = getTriggerTypeInfo(type, t);
+							const IconComponent = typeInfo.icon;
+							const triggerId = `${idPrefix}-${type}-trigger`;
+							
+							// 判断 Timer 触发器是否应该被禁用
+							const isTimerDisabled = type === "timer" && isBacktestMode;
 
-						return (
-							<div key={type} className="flex items-center space-x-2">
-								<Checkbox
-									id={triggerId}
-									checked={triggerType === type}
-									onCheckedChange={(checked) => {
-										if (checked) {
-											onTriggerTypeChange(type);
-										}
-									}}
-								/>
-								<Label
-									htmlFor={triggerId}
-									className="text-sm cursor-pointer flex items-center"
-								>
-									<IconComponent className={`h-3.5 w-3.5 mr-1 ${typeInfo.color}`} />
-									{typeInfo.label}
-								</Label>
-							</div>
-						);
-					})}
+							const checkboxContent = (
+								<div className="flex items-center space-x-2">
+									<Checkbox
+										id={triggerId}
+										checked={triggerType === type}
+										disabled={isTimerDisabled}
+										onCheckedChange={(checked) => {
+											if (checked && !isTimerDisabled) {
+												onTriggerTypeChange(type);
+											}
+										}}
+									/>
+									<Label
+										htmlFor={triggerId}
+										className={`text-sm flex items-center ${
+											isTimerDisabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+										}`}
+									>
+										<IconComponent className={`h-3.5 w-3.5 mr-1 ${typeInfo.color}`} />
+										{typeInfo.label}
+									</Label>
+								</div>
+							);
+
+							// 如果是禁用的 Timer，添加 Tooltip
+							if (isTimerDisabled) {
+								return (
+									<Tooltip key={type}>
+										<TooltipTrigger asChild>
+											{checkboxContent}
+										</TooltipTrigger>
+										<TooltipContent>
+											<p>Timer is unavailable in Backtest Mode</p>
+										</TooltipContent>
+									</Tooltip>
+								);
+							}
+
+							return <div key={type}>{checkboxContent}</div>;
+						})}
+					</TooltipProvider>
 				</div>
 			</div>
 

@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import type { DataflowErrorPolicy } from "@/types/node/variable-node";
+import { ERROR_TYPE_SUPPORT_POLICY } from "@/types/node/variable-node";
 import type { VariableValue } from "@/types/node/variable-node/variable-config-types";
 import type { ErrorPolicyConfigProps } from "./types";
 import { ReplaceValueInput } from "./replace-value-input";
@@ -22,6 +23,17 @@ export const ErrorPolicyConfig: React.FC<ErrorPolicyConfigProps> = ({
 	const errorLog = policy?.errorLog || { notify: false };
 	const isLogEnabled = errorLog.notify;
 
+	// 获取当前错误类型支持的策略列表
+	const availableStrategies = ERROR_TYPE_SUPPORT_POLICY[errorType] || [];
+	
+	// 对于除法操作的 zeroValue，过滤掉 stillUpdate
+	const supportedStrategies = availableStrategies.filter(strategy => {
+		if (errorType === "zeroValue" && updateOperationType === "divide") {
+			return strategy !== "stillUpdate";
+		}
+		return true;
+	});
+
 	// 日志级别选项
 	const logLevelOptions = [
 		{ value: "warn", label: t("variableNode.dataflowConfig.warn") },
@@ -34,6 +46,11 @@ export const ErrorPolicyConfig: React.FC<ErrorPolicyConfigProps> = ({
 		if (newStrategy === "skip") {
 			updatedPolicy = {
 				strategy: "skip",
+				errorLog,
+			};
+		} else if (newStrategy === "stillUpdate") {
+			updatedPolicy = {
+				strategy: "stillUpdate",
 				errorLog,
 			};
 		} else if (newStrategy === "valueReplace") {
@@ -78,6 +95,11 @@ export const ErrorPolicyConfig: React.FC<ErrorPolicyConfigProps> = ({
 				strategy: "skip",
 				errorLog: updatedErrorLog,
 			});
+		} else if (strategy === "stillUpdate") {
+			onErrorPolicyChange(errorType, {
+				strategy: "stillUpdate",
+				errorLog: updatedErrorLog,
+			});
 		} else if (strategy === "valueReplace") {
 			onErrorPolicyChange(errorType, {
 				strategy: "valueReplace",
@@ -111,6 +133,11 @@ export const ErrorPolicyConfig: React.FC<ErrorPolicyConfigProps> = ({
 					strategy: "skip",
 					errorLog: updatedErrorLog,
 				});
+			} else if (strategy === "stillUpdate") {
+				onErrorPolicyChange(errorType, {
+					strategy: "stillUpdate",
+					errorLog: updatedErrorLog,
+				});
 			} else if (strategy === "valueReplace") {
 				onErrorPolicyChange(errorType, {
 					strategy: "valueReplace",
@@ -138,81 +165,98 @@ export const ErrorPolicyConfig: React.FC<ErrorPolicyConfigProps> = ({
 			{/* 策略选择 */}
 			<div className="space-y-2">
 				<RadioGroup value={strategy} onValueChange={handleStrategyChange}>
-					<div className="flex items-center space-x-2">
-						<RadioGroupItem value="skip" id={`${errorType}-skip`} />
-						<Label
-							htmlFor={`${errorType}-skip`}
-							className="font-normal cursor-pointer"
-						>
-							{t("variableNode.dataflowConfig.skip")}
-						</Label>
-					</div>
-					<div className="flex items-start space-x-2">
-						<RadioGroupItem
-							value="valueReplace"
-							id={`${errorType}-valueReplace`}
-						/>
-						<div className="flex-1">
+					{supportedStrategies.includes("skip") && (
+						<div className="flex items-center space-x-2">
+							<RadioGroupItem value="skip" id={`${errorType}-skip`} />
 							<Label
-								htmlFor={`${errorType}-valueReplace`}
+								htmlFor={`${errorType}-skip`}
 								className="font-normal cursor-pointer"
 							>
-								{t("variableNode.dataflowConfig.valueReplace")}
+								{t("variableNode.dataflowConfig.skip")}
 							</Label>
-							{strategy === "valueReplace" && (
-								<div className="mt-2 ml-1">
-									<Label className="text-xs text-muted-foreground">
-										{t("variableNode.dataflowConfig.replaceWith")}
-									</Label>
-									<ReplaceValueInput
-										errorType={errorType}
-										replaceValue={
-											policy?.strategy === "valueReplace"
-												? policy.replaceValue
-												: 0
-										}
-										errorLog={errorLog}
-										replaceValueType={replaceValueType}
-										updateOperationType={updateOperationType}
-										onErrorPolicyChange={onErrorPolicyChange}
-									/>
-								</div>
-							)}
 						</div>
-					</div>
-					<div className="flex items-start space-x-2">
-						<RadioGroupItem
-							value="usePreviousValue"
-							id={`${errorType}-usePreviousValue`}
-						/>
-						<div className="flex-1">
+					)}
+					{supportedStrategies.includes("stillUpdate") && (
+						<div className="flex items-center space-x-2">
+							<RadioGroupItem value="stillUpdate" id={`${errorType}-stillUpdate`} />
 							<Label
-								htmlFor={`${errorType}-usePreviousValue`}
+								htmlFor={`${errorType}-stillUpdate`}
 								className="font-normal cursor-pointer"
 							>
-								{t("variableNode.dataflowConfig.usePreviousValue")}
+								{t("variableNode.dataflowConfig.stillUpdate")}
 							</Label>
-							{strategy === "usePreviousValue" && (
-								<div className="mt-2 ml-1">
-									<Label className="text-xs text-muted-foreground">
-										{t("variableNode.dataflowConfig.maxUseTimes")}
-									</Label>
-									<Input
-										type="number"
-										value={
-											policy?.strategy === "usePreviousValue" &&
-											policy.maxUseTimes !== undefined
-												? String(policy.maxUseTimes)
-												: ""
-										}
-										onChange={(e) => handleMaxUseTimesChange(e.target.value)}
-										placeholder={t("variableNode.dataflowConfig.optional")}
-										className="mt-1 h-8"
-									/>
-								</div>
-							)}
 						</div>
-					</div>
+					)}
+					{supportedStrategies.includes("valueReplace") && (
+						<div className="flex items-start space-x-2">
+							<RadioGroupItem
+								value="valueReplace"
+								id={`${errorType}-valueReplace`}
+							/>
+							<div className="flex-1">
+								<Label
+									htmlFor={`${errorType}-valueReplace`}
+									className="font-normal cursor-pointer"
+								>
+									{t("variableNode.dataflowConfig.valueReplace")}
+								</Label>
+								{strategy === "valueReplace" && (
+									<div className="mt-2 ml-1">
+										<Label className="text-xs text-muted-foreground">
+											{t("variableNode.dataflowConfig.replaceWith")}
+										</Label>
+										<ReplaceValueInput
+											errorType={errorType}
+											replaceValue={
+												policy?.strategy === "valueReplace"
+													? policy.replaceValue
+													: 0
+											}
+											errorLog={errorLog}
+											replaceValueType={replaceValueType}
+											updateOperationType={updateOperationType}
+											onErrorPolicyChange={onErrorPolicyChange}
+										/>
+									</div>
+								)}
+							</div>
+						</div>
+					)}
+					{supportedStrategies.includes("usePreviousValue") && (
+						<div className="flex items-start space-x-2">
+							<RadioGroupItem
+								value="usePreviousValue"
+								id={`${errorType}-usePreviousValue`}
+							/>
+							<div className="flex-1">
+								<Label
+									htmlFor={`${errorType}-usePreviousValue`}
+									className="font-normal cursor-pointer"
+								>
+									{t("variableNode.dataflowConfig.usePreviousValue")}
+								</Label>
+								{strategy === "usePreviousValue" && (
+									<div className="mt-2 ml-1">
+										<Label className="text-xs text-muted-foreground">
+											{t("variableNode.dataflowConfig.maxUseTimes")}
+										</Label>
+										<Input
+											type="number"
+											value={
+												policy?.strategy === "usePreviousValue" &&
+												policy.maxUseTimes !== undefined
+													? String(policy.maxUseTimes)
+													: ""
+											}
+											onChange={(e) => handleMaxUseTimesChange(e.target.value)}
+											placeholder={t("variableNode.dataflowConfig.optional")}
+											className="mt-1 h-8"
+										/>
+									</div>
+								)}
+							</div>
+						</div>
+					)}
 				</RadioGroup>
 			</div>
 

@@ -15,7 +15,8 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import type { VariableItem } from "@/hooks/flow/use-strategy-workflow";
 import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 import { useStartNodeDataStore } from "@/store/node/use-start-node-data-store";
-import useTradingModeStore from "@/store/useTradingModeStore";
+import useTradingModeStore from "@/store/use-trading-mode-store";
+import { useCustomSysVariableName } from "@/store/use-custom-sys-variable-name";
 import { NodeType } from "@/types/node/index";
 import type {
 	ConditionTrigger,
@@ -42,7 +43,7 @@ import {
 	type CustomVariable,
 	getVariableValueTypeIcon,
 	getVariableValueTypeIconColor,
-	SYSTEM_VARIABLE_METADATA,
+	getSystemVariableMetadata,
 	SystemVariable,
 	VariableValueType,
 } from "@/types/variable";
@@ -135,6 +136,8 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 	isSymbolSelectorDisabled,
 }) => {
 	const { t } = useTranslation();
+	const { setCustomName, getCustomName } = useCustomSysVariableName();
+	
 	// 获取开始节点的配置
 	const {
 		backtestConfig: startNodeBacktestConfig,
@@ -535,7 +538,14 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 					setSymbol(
 						("symbol" in editingConfig ? editingConfig.symbol : null) || "",
 					);
-					setVariableName(editingConfig.varDisplayName);
+					
+					// 如果是系统变量，优先从 store 加载自定义名称
+					if (editingConfig.varType === "system") {
+						const customName = getCustomName(editingConfig.varName);
+						setVariableName(customName || editingConfig.varDisplayName);
+					} else {
+						setVariableName(editingConfig.varDisplayName);
+					}
 
 					const effectiveTriggerType =
 						getEffectiveTriggerType(editingConfig) ?? "condition";
@@ -643,6 +653,7 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 				const defaultName = generateVariableName(
 					SystemVariable.TOTAL_POSITION_NUMBER,
 					existingConfigs.length,
+					t,
 					customVariables,
 				);
 				setVariableName(defaultName);
@@ -679,6 +690,7 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 			const newName = generateVariableName(
 				newType,
 				existingConfigs.length,
+				t,
 				customVariables,
 			);
 			setVariableName(newName);
@@ -811,7 +823,7 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 
 			if (isSystemVariable) {
 				// 系统变量
-				const metadata = SYSTEM_VARIABLE_METADATA[variable as SystemVariable];
+				const metadata = getSystemVariableMetadata(t)[variable as SystemVariable];
 				varValueType = metadata.varValueType;
 				varDisplayName = variableName.trim() || metadata.varDisplayName;
 			} else if (selectedCustomVar) {
@@ -972,6 +984,14 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 		}
 
 		console.log("variableConfig", variableConfig);
+
+		// 如果是 GET 操作的系统变量，保存自定义名称到 store
+		if (
+			variableConfig.varOperation === "get" &&
+			variableConfig.varType === "system"
+		) {
+			setCustomName(variableConfig.varName, variableConfig.varDisplayName);
+		}
 
 		onSave(id, variableConfig);
 		onOpenChange(false);

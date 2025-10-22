@@ -2,7 +2,7 @@ import { type NodeProps, Position } from "@xyflow/react";
 import { Play } from "lucide-react";
 import type { BaseHandleProps } from "@/components/flow/base/BaseHandle";
 import BaseNode from "@/components/flow/base/BaseNode";
-import useTradingModeStore from "@/store/useTradingModeStore";
+import useTradingModeStore from "@/store/use-trading-mode-store";
 import {
 	getNodeDefaultInputHandleId,
 	getNodeDefaultOutputHandleId,

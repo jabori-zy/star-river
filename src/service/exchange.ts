@@ -12,7 +12,6 @@ export async function getExchangeStatus(
 ): Promise<ExchangeStatus> {
 	try {
 		const response = await axios.get(`${API_URL}/status/${accountId}`);
-		console.log("getExchangeStatus response:", response.data.data);
 		return response.data.data as ExchangeStatus;
 	} catch (error) {
 		console.error("getExchangeStatus error:", error);

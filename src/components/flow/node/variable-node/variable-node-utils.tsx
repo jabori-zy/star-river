@@ -2,30 +2,25 @@ import { Clock, Filter, Workflow } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type {
 	TimerTrigger,
-	TimerUnit,
 	ConditionTrigger,
-	DataFlowTrigger,
 	TriggerType,
 	UpdateVarValueOperation,
 	VariableConfig,
-	VariableOperation,
 } from "@/types/node/variable-node";
 import { getEffectiveTriggerType } from "@/types/node/variable-node";
 import {
-	SYSTEM_VARIABLE_METADATA,
+	getSystemVariableMetadata,
 	SystemVariable,
-	VariableValueType,
 } from "@/types/variable";
-import { getNodeTypeLabel } from "../node-utils";
-import { NodeType } from "@/types/node";
+import { TFunction } from "i18next";
 /**
  * 获取变量类型的中文名称（仅用于系统变量）
  * 对于自定义变量，应该直接返回变量名
  */
-export const getVariableLabel = (type: string): string => {
+export const getVariableLabel = (type: string, t: TFunction): string => {
 	// 检查是否是系统变量
 	if (Object.values(SystemVariable).includes(type as SystemVariable)) {
-		const metadata = SYSTEM_VARIABLE_METADATA[type as SystemVariable];
+		const metadata = getSystemVariableMetadata(t)[type as SystemVariable];
 		return metadata.varDisplayName;
 	}
 	// 自定义变量直接返回变量名（变量名通常就是 varName）
@@ -38,13 +33,14 @@ export const getVariableLabel = (type: string): string => {
 export const generateVariableName = (
 	variableType: string,
 	existingConfigsLength: number,
+	t: TFunction,
 	customVariables?: Array<{ varName: string; varDisplayName: string }>,
 ): string => {
 	let typeLabel: string;
 
 	// 检查是否是系统变量
 	if (Object.values(SystemVariable).includes(variableType as SystemVariable)) {
-		typeLabel = getVariableLabel(variableType);
+		typeLabel = getVariableLabel(variableType, t);
 	} else if (customVariables) {
 		// 自定义变量：从列表中查找 varDisplayName
 		const customVar = customVariables.find((v) => v.varName === variableType);
@@ -173,7 +169,7 @@ export const getTriggerTypeIcon = (triggerType: TriggerType): LucideIcon => {
  */
 export const getTriggerTypeLabel = (
 	triggerType: TriggerType,
-	t: (key: string) => string,
+	t: TFunction,
 ): string => {
 	const labelKeyMap: Record<TriggerType, string> = {
 		condition: "variableNode.condition",
@@ -209,7 +205,7 @@ export const getTriggerTypeBadgeColor = (triggerType: TriggerType): string => {
  */
 export const getTriggerTypeInfo = (
 	triggerType: TriggerType,
-	t: (key: string) => string,
+	t: TFunction,
 ): TriggerTypeInfo => {
 	const baseInfo = TRIGGER_TYPE_METADATA[triggerType];
 	return {
@@ -268,6 +264,7 @@ export const generateTimerIntervalPrefix = (
 		case "day":
 			return t("variableNode.hint.intervalDay", { interval: interval.toString() });
 	}
+	return null;
 };
 
 /**

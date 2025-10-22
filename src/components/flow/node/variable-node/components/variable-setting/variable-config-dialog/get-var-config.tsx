@@ -13,7 +13,7 @@ import {
 	type CustomVariable,
 	getVariableValueTypeIcon,
 	getVariableValueTypeIconColor,
-	SYSTEM_VARIABLE_METADATA,
+	getSystemVariableMetadata,
 	SystemVariable,
 } from "@/types/variable";
 import {
@@ -30,6 +30,7 @@ import type { SymbolSelectorOption } from "./components/symbol-selector";
 import SymbolSelector from "./components/symbol-selector";
 import TriggerTypeSwitcher from "./components/trigger-type-switcher";
 import { useTranslation } from "react-i18next";
+import { useCustomSysVariableName } from "@/store/use-custom-sys-variable-name";
 
 interface GetVarConfigProps {
 	symbol: string;
@@ -71,6 +72,8 @@ const GetVarConfig: React.FC<GetVarConfigProps> = ({
 	onValidationChange,
 }) => {
 	const { t } = useTranslation();
+	const { getCustomName, customNames } = useCustomSysVariableName();
+	
 	// 从 triggerConfig 中提取各种触发配置
 	const effectiveTriggerType = getEffectiveTriggerType({ triggerConfig }) ?? "condition";
 	const conditionTrigger = getConditionTriggerConfig({ triggerConfig });
@@ -118,7 +121,7 @@ const GetVarConfig: React.FC<GetVarConfigProps> = ({
 		}),
 		// 系统变量选项
 		...Object.values(SystemVariable).map((sysVar) => {
-			const metadata = SYSTEM_VARIABLE_METADATA[sysVar];
+			const metadata = getSystemVariableMetadata(t)[sysVar];
 			const TypeIconComponent = getVariableValueTypeIcon(metadata.varValueType);
 			const typeIconColor = getVariableValueTypeIconColor(metadata.varValueType);
 
@@ -147,7 +150,7 @@ const GetVarConfig: React.FC<GetVarConfigProps> = ({
 
 	const selectedSystemMetadata =
 		variable && Object.values(SystemVariable).includes(variable as SystemVariable)
-			? SYSTEM_VARIABLE_METADATA[variable as SystemVariable]
+			? getSystemVariableMetadata(t)[variable as SystemVariable]
 			: undefined;
 
 	const selectedVariableInfo = selectedCustomVariable
@@ -174,7 +177,30 @@ const GetVarConfig: React.FC<GetVarConfigProps> = ({
 	const shouldShowSymbolSelector =
 		!!variable && (selectedSystemMetadata?.shouldSelectSymbol ?? false);
 
+	// 判断当前选中的变量是否是自定义变量
+	const isCustomVariable = variable
+		? customVariables.some((customVar) => customVar.varName === variable)
+		: false;
+
+	// 判断当前选中的变量是否是系统变量
+	const isSystemVariable = variable
+		? Object.values(SystemVariable).includes(variable as SystemVariable)
+		: false;
+
+	// 监听 store 中系统变量自定义名称的变化，实时更新 variableName
+	// 注意：不监听 variableName，避免用户输入时被强制改回 store 中的值
+	useEffect(() => {
+		if (isSystemVariable && variable) {
+			const customName = getCustomName(variable);
+			if (customName) {
+				onVariableNameChange(customName);
+			}
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [customNames, variable, isSystemVariable]);
+
 	// 当变量改变时，如果切换到自定义变量（不需要 symbol），则清空 symbol 字段
+	// 如果是系统变量，从 store 加载自定义名称
 	const handleVariableChange = (value: string) => {
 		onVariableChange(value);
 
@@ -186,6 +212,17 @@ const GetVarConfig: React.FC<GetVarConfigProps> = ({
 		// 如果是自定义变量，清空 symbol
 		if (isCustomVariable && symbol) {
 			onSymbolChange("");
+		}
+
+		// 如果是系统变量，从 store 加载自定义名称
+		const isSystemVariable = Object.values(SystemVariable).includes(
+			value as SystemVariable
+		);
+		if (isSystemVariable) {
+			const customName = getCustomName(value);
+			if (customName) {
+				onVariableNameChange(customName);
+			}
 		}
 	};
 
@@ -322,22 +359,24 @@ const GetVarConfig: React.FC<GetVarConfigProps> = ({
 				</div>
 			)}
 
-			<div className="flex flex-col gap-2">
-				<Label
-					htmlFor="variableName"
-					className="text-sm font-medium pointer-events-none"
-				>
-					{t("variableNode.customVariableName")}
-				</Label>
-				<Input
-					id="variableName"
-					type="text"
-					value={variableName}
-					onChange={(e) => onVariableNameChange(e.target.value)}
-					placeholder="输入变量名称"
-					className="w-full"
-				/>
-			</div>
+			{!isCustomVariable && (
+				<div className="flex flex-col gap-2">
+					<Label
+						htmlFor="variableName"
+						className="text-sm font-medium pointer-events-none"
+					>
+						{t("variableNode.customVariableName")}
+					</Label>
+					<Input
+						id="variableName"
+						type="text"
+						value={variableName}
+						onChange={(e) => onVariableNameChange(e.target.value)}
+						placeholder="输入变量名称"
+						className="w-full"
+					/>
+				</div>
+			)}
 
 			<TriggerTypeSwitcher
 				triggerType={effectiveTriggerType}

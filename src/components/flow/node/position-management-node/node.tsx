@@ -1,7 +1,7 @@
 import type { NodeProps } from "@xyflow/react";
 import { Play } from "lucide-react";
 import BaseNode from "@/components/flow/base/BaseNode";
-import useTradingModeStore from "@/store/useTradingModeStore";
+import useTradingModeStore from "@/store/use-trading-mode-store";
 import type { PositionManagementNode as PositionManagementNodeType } from "@/types/node/position-management-node";
 import { TradeMode } from "@/types/strategy";
 import BacktestModeShow from "./components/show/backtest-mode-show";

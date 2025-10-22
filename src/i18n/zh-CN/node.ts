@@ -63,9 +63,12 @@ const translation = {
 			zeroValue: "零值异常",
 			strategySelection: "策略选择",
 			skip: "跳过",
+			stillUpdate: "仍然更新",
 			valueReplace: "值替换",
 			usePrevious: "使用上次值",
 			replaceValue: "替换值",
+			replaceWith: "替换为",
+			usePreviousValue: "使用上次值",
 			maxUseTimes: "最大使用次数",
 			optional: "可选",
 			errorLog: "错误日志",
@@ -79,6 +82,18 @@ const translation = {
 			warn: "警告",
 			error: "错误",
 		},
+		systemVariableName: {
+			currentTime: "当前时间",
+			isMarketOpen: "是否开盘",
+			isMarketClosed: "是否收盘",
+			isTradable: "是否可交易",
+			totalPositionNumber: "总持仓数量",
+			positionNumber: "持仓数量",
+			totalFilledOrderNumber: "总已成交订单数量",
+			filledOrderNumber: "已成交订单数量",
+			cumulativeYield: "累计收益率",
+
+		}
 	},
 };
 

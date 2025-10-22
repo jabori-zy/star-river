@@ -6,7 +6,7 @@ import { useUpdateBacktestConfig } from "@/hooks/node-config/futures-order-node/
 import { useUpdateLiveConfig } from "@/hooks/node-config/futures-order-node/use-update-live-config";
 import { useUpdateSimulateConfig } from "@/hooks/node-config/futures-order-node/use-update-simulate-config";
 import { useStartNodeDataStore } from "@/store/node/use-start-node-data-store";
-import useTradingModeStore from "@/store/useTradingModeStore";
+import useTradingModeStore from "@/store/use-trading-mode-store";
 import type { FuturesOrderNode as FuturesOrderNodeType } from "@/types/node/futures-order-node";
 import { type TimeRange, TradeMode } from "@/types/strategy";
 import BacktestModeShow from "./components/node-show/backtest-mode-show";

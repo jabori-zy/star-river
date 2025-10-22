@@ -6,7 +6,7 @@ import BaseNode from "@/components/flow/base/BaseNode";
 import { useBacktestConfig } from "@/hooks/node-config/start-node/use-update-backtest-config";
 import { useLiveConfig } from "@/hooks/node-config/start-node/use-update-live-config";
 import { useStartNodeDataStore } from "@/store/node/use-start-node-data-store";
-import useTradingModeStore from "@/store/useTradingModeStore";
+import useTradingModeStore from "@/store/use-trading-mode-store";
 import { getNodeDefaultOutputHandleId, NodeType } from "@/types/node/index";
 import type { StartNode as StartNodeType } from "@/types/node/start-node";
 import {

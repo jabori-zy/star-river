@@ -25,7 +25,6 @@ const useNodeChangeHandlers = () => {
 		): Node[] => {
 			// 需要更新的节点
 			let updatedNodes = newNodes;
-
 			// 检查是否有节点的数据发生变化
 			for (const change of changes) {
 				if (change.type === "replace") {

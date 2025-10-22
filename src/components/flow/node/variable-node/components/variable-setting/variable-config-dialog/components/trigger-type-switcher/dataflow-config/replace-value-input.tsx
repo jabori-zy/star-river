@@ -1,7 +1,10 @@
-import { SelectInDialog } from "@/components/dialog-components/select-in-dialog";
-import MultipleSelector, { type Option } from "@/components/select-components/multi-select";
+import { useEffect, useState } from "react";
 import { DateTimePicker24h } from "@/components/datetime-picker";
+import { SelectInDialog } from "@/components/dialog-components/select-in-dialog";
 import { formatDate } from "@/components/flow/node/node-utils";
+import MultipleSelector, {
+	type Option,
+} from "@/components/select-components/multi-select";
 import { Input } from "@/components/ui/input";
 import {
 	InputGroup,
@@ -22,6 +25,21 @@ export const ReplaceValueInput: React.FC<ReplaceValueInputProps> = ({
 	updateOperationType,
 	onErrorPolicyChange,
 }) => {
+	// 为数字和百分比类型使用本地状态，避免输入负数时被清空
+	const [localNumberValue, setLocalNumberValue] = useState<string>("");
+	const [isFocused, setIsFocused] = useState(false);
+
+	// 同步外部值到本地状态（仅在未聚焦时）
+	useEffect(() => {
+		if (
+			!isFocused &&
+			(replaceValueType === VariableValueType.NUMBER ||
+				replaceValueType === VariableValueType.PERCENTAGE)
+		) {
+			setLocalNumberValue(String(replaceValue ?? "0"));
+		}
+	}, [replaceValue, isFocused, replaceValueType]);
+
 	const coerceReplaceValue = (rawValue: string): VariableValue => {
 		if (!replaceValueType) {
 			return rawValue as VariableValue;
@@ -36,9 +54,9 @@ export const ReplaceValueInput: React.FC<ReplaceValueInputProps> = ({
 					return null;
 				}
 				const parsedNumber = Number(rawValue);
-				return (Number.isNaN(parsedNumber)
-					? null
-					: parsedNumber) as VariableValue;
+				return (
+					Number.isNaN(parsedNumber) ? null : parsedNumber
+				) as VariableValue;
 			}
 			case VariableValueType.ENUM:
 				// handled separately via handleEnumValueChange
@@ -63,6 +81,31 @@ export const ReplaceValueInput: React.FC<ReplaceValueInputProps> = ({
 			replaceValue: values as VariableValue,
 			errorLog,
 		});
+	};
+
+	// 数字输入处理（参考 number-type-op-editor.tsx）
+	const handleNumberInput = (inputValue: string) => {
+		setLocalNumberValue(inputValue);
+		// 如果输入不为空且是有效数字，立即通知父组件
+		if (inputValue !== "" && !Number.isNaN(Number(inputValue))) {
+			handleValueChange(inputValue);
+		}
+	};
+
+	const handleNumberBlur = () => {
+		setIsFocused(false);
+		// 失去焦点时处理输入值
+		if (localNumberValue === "") {
+			setLocalNumberValue("0");
+			handleValueChange("0");
+		} else if (Number.isNaN(Number(localNumberValue))) {
+			setLocalNumberValue(String(replaceValue ?? "0"));
+		} else {
+			const numValue = Number(localNumberValue);
+			if (numValue.toString() !== String(replaceValue)) {
+				handleValueChange(numValue.toString());
+			}
+		}
 	};
 
 	// 解析枚举值
@@ -166,8 +209,10 @@ export const ReplaceValueInput: React.FC<ReplaceValueInputProps> = ({
 					<InputGroup className="mt-1">
 						<InputGroupInput
 							type="number"
-							value={String(replaceValue || "0")}
-							onChange={(e) => handleValueChange(e.target.value)}
+							value={localNumberValue}
+							onChange={(e) => handleNumberInput(e.target.value)}
+							onBlur={handleNumberBlur}
+							onFocus={() => setIsFocused(true)}
 						/>
 						<InputGroupAddon align="inline-end">
 							<InputGroupText>%</InputGroupText>
@@ -180,7 +225,6 @@ export const ReplaceValueInput: React.FC<ReplaceValueInputProps> = ({
 			);
 		}
 
-		case VariableValueType.NUMBER:
 		default: {
 			const validationError = validateReplaceValue(
 				errorType,
@@ -191,8 +235,10 @@ export const ReplaceValueInput: React.FC<ReplaceValueInputProps> = ({
 				<div>
 					<Input
 						type="number"
-						value={String(replaceValue || "0")}
-						onChange={(e) => handleValueChange(e.target.value)}
+						value={localNumberValue}
+						onChange={(e) => handleNumberInput(e.target.value)}
+						onBlur={handleNumberBlur}
+						onFocus={() => setIsFocused(true)}
 						className="mt-1 h-8"
 					/>
 					{validationError && (
@@ -203,4 +249,3 @@ export const ReplaceValueInput: React.FC<ReplaceValueInputProps> = ({
 		}
 	}
 };
-

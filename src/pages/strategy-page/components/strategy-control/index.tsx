@@ -11,7 +11,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { updateStrategy } from "@/service/strategy";
-import useTradingModeStore from "@/store/useTradingModeStore";
+import useTradingModeStore from "@/store/use-trading-mode-store";
 import { type Strategy, TradeMode } from "@/types/strategy";
 import BacktestStrategyControl from "./backtest-strategy-control";
 import LiveStrategyControl from "./live-strategy-control";

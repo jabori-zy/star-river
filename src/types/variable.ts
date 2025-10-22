@@ -86,78 +86,71 @@ export interface SystemVariableMetadata {
 	description: string;
 }
 
-export const SYSTEM_VARIABLE_METADATA: Record<
-	SystemVariable,
-	SystemVariableMetadata
-> = {
+// 工具函数：获取系统变量元数据（支持多语言）
+export const getSystemVariableMetadata = (
+	t: (key: string) => string,
+): Record<SystemVariable, SystemVariableMetadata> => ({
 	[SystemVariable.CURRENT_TIME]: {
 		varName: "current_time",
-		varDisplayName: "当前时间",
+		varDisplayName: t("variableNode.systemVariableName.currentTime"),
 		varValueType: VariableValueType.TIME,
 		shouldSelectSymbol: false,
-		description: "当前时区的时间",
+		description: t("variableNode.systemVariableName.currentTime"),
 	},
 	[SystemVariable.IS_MARKET_OPEN]: {
 		varName: "is_market_open",
-		varDisplayName: "是否开盘",
+		varDisplayName: t("variableNode.systemVariableName.isMarketOpen"),
 		varValueType: VariableValueType.BOOLEAN,
 		shouldSelectSymbol: true,
-		description: "当前交易对是否开盘",
+		description: t("variableNode.systemVariableName.isMarketOpen"),
 	},
 	[SystemVariable.IS_MARKET_CLOSED]: {
 		varName: "is_market_closed",
-		varDisplayName: "是否收盘",
+		varDisplayName: t("variableNode.systemVariableName.isMarketClosed"),
 		varValueType: VariableValueType.BOOLEAN,
 		shouldSelectSymbol: true,
-		description: "当前交易对是否收盘",
+		description: t("variableNode.systemVariableName.isMarketClosed"),
 	},
 	[SystemVariable.IS_TRADABLE]: {
 		varName: "is_tradable",
-		varDisplayName: "是否可交易",
+		varDisplayName: t("variableNode.systemVariableName.isTradable"),
 		varValueType: VariableValueType.BOOLEAN,
 		shouldSelectSymbol: true,
-		description: "当前交易对是否可交易",
+		description: t("variableNode.systemVariableName.isTradable"),
 	},
 	[SystemVariable.TOTAL_POSITION_NUMBER]: {
 		varName: "total_position_number",
-		varDisplayName: "总持仓数量",
+		varDisplayName: t("variableNode.systemVariableName.totalPositionNumber"),
 		varValueType: VariableValueType.NUMBER,
 		shouldSelectSymbol: false,
-		description: "总持仓数量",
+		description: t("variableNode.systemVariableName.totalPositionNumber"),
 	},
 	[SystemVariable.TOTAL_FILLED_ORDER_NUMBER]: {
 		varName: "total_filled_order_number",
-		varDisplayName: "总已成交订单数量",
+		varDisplayName: t("variableNode.systemVariableName.totalFilledOrderNumber"),
 		varValueType: VariableValueType.NUMBER,
 		shouldSelectSymbol: false,
-		description: "总已成交订单数量",
+		description: t("variableNode.systemVariableName.totalFilledOrderNumber"),
 	},
 	[SystemVariable.POSITION_NUMBER]: {
 		varName: "position_number",
-		varDisplayName: "持仓数量",
+		varDisplayName: t("variableNode.systemVariableName.positionNumber"),
 		varValueType: VariableValueType.NUMBER,
 		shouldSelectSymbol: true,
-		description: "当前交易对的持仓数量",
+		description: t("variableNode.systemVariableName.positionNumber"),
 	},
 	[SystemVariable.FILLED_ORDER_NUMBER]: {
 		varName: "filled_order_number",
-		varDisplayName: "已完成订单数",
+		varDisplayName: t("variableNode.systemVariableName.filledOrderNumber"),
 		varValueType: VariableValueType.NUMBER,
 		shouldSelectSymbol: true,
-		description: "已完成的订单数量",
+		description: t("variableNode.systemVariableName.filledOrderNumber"),
 	},
 	[SystemVariable.CUMULATIVE_YIELD]: {
 		varName: "cumulative_yield",
-		varDisplayName: "累计收益率",
+		varDisplayName: t("variableNode.systemVariableName.cumulativeYield"),
 		varValueType: VariableValueType.PERCENTAGE,
 		shouldSelectSymbol: false,
-		description: "累计收益率",
+		description: t("variableNode.systemVariableName.cumulativeYield"),
 	},
-};
-
-// 工具函数
-export const getSystemVariableMetadata = (
-	variable: SystemVariable,
-): SystemVariableMetadata => {
-	return SYSTEM_VARIABLE_METADATA[variable];
-};
+});

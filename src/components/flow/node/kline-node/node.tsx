@@ -6,7 +6,7 @@ import BaseNode from "@/components/flow/base/BaseNode";
 import { useUpdateBacktestConfig } from "@/hooks/node-config/kline-node/use-update-backtest-config";
 import { useUpdateLiveConfig } from "@/hooks/node-config/kline-node/use-update-live-config";
 import { useStartNodeDataStore } from "@/store/node/use-start-node-data-store";
-import useTradingModeStore from "@/store/useTradingModeStore";
+import useTradingModeStore from "@/store/use-trading-mode-store";
 import {
 	getNodeDefaultInputHandleId,
 	getNodeDefaultOutputHandleId,
