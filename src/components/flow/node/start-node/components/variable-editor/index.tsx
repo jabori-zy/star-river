@@ -6,7 +6,7 @@ import { PercentInput } from "@/components/percent-input";
 import MultipleSelector, {
 	type Option,
 } from "@/components/select-components/multi-select";
-import { SelectInDialog } from "@/components/select-components/select-in-dialog";
+import { SelectInDialog } from "@/components/dialog-components/select-in-dialog";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,

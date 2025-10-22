@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { SelectInDialog } from "@/components/select-components/select-in-dialog";
+import { SelectInDialog } from "@/components/dialog-components/select-in-dialog";
 import { SelectWithSearch } from "@/components/select-components/select-with-search";
 import { Button } from "@/components/ui/button";
 import {

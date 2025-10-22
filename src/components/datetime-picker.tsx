@@ -7,7 +7,7 @@ import {
 	PopoverInDialog,
 	PopoverInDialogContent,
 	PopoverInDialogTrigger,
-} from "@/components/popover-in-dialog";
+} from "@/components/dialog-components/popover-in-dialog";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -25,6 +25,7 @@ interface DateTimePicker24hProps {
 	placeholder?: string;
 	showSeconds?: boolean; // 是否显示秒选择器，默认不显示
 	useDialogPopover?: boolean; // 是否在 Dialog 中使用非 Portal 版本
+	className?: string; // 自定义 Button 的样式
 }
 
 export function DateTimePicker24h({
@@ -33,6 +34,7 @@ export function DateTimePicker24h({
 	placeholder,
 	showSeconds = false,
 	useDialogPopover = false,
+	className,
 }: DateTimePicker24hProps = {}) {
 	const [date, setDate] = React.useState<Date | undefined>(value);
 	const [isOpen, setIsOpen] = React.useState(false);
@@ -90,6 +92,7 @@ export function DateTimePicker24h({
 					className={cn(
 						"w-full text-left font-normal",
 						!date && "text-muted-foreground",
+						className,
 					)}
 				>
 					<CalendarIcon className="h-4 w-4" />

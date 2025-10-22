@@ -17,17 +17,22 @@ type BaseVariableConfig = {
 	triggerConfig: TriggerConfig;
 };
 
+
+export type VariableValue = string | number | boolean | string[] | null;
+
+export type InitialVariableValue = string | number | boolean | string[]; // 初始值不能为空
+
 export type GetSystemVariableConfig = BaseVariableConfig & {
 	varOperation: "get";
 	varType: "system";
 	symbol?: string | null;
-	varValue: string | number | boolean | string[];
+	varValue: VariableValue;
 };
 
 export type GetCustomVariableConfig = BaseVariableConfig & {
 	varOperation: "get";
 	varType: "custom";
-	varValue: string | number | boolean | string[];
+	varValue: VariableValue;
 };
 
 export type GetVariableConfig = GetSystemVariableConfig | GetCustomVariableConfig;
@@ -47,12 +52,12 @@ export function isGetCustomVariableConfig(
 export type UpdateVariableConfig = BaseVariableConfig & {
 	varOperation: "update";
 	updateVarValueOperation: UpdateVarValueOperation;
-	updateOperationValue: string | number | boolean | string[] | null;
+	updateOperationValue: VariableValue;
 };
 
 export type ResetVariableConfig = BaseVariableConfig & {
 	varOperation: "reset";
-	varInitialValue: string | number | boolean | string[];
+	varInitialValue: InitialVariableValue;
 };
 
 export type VariableConfig =

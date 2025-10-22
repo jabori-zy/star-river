@@ -25,18 +25,17 @@ import {
 	generatePercentageHint,
 } from "../../../hint-generators";
 import { VariableValueType } from "@/types/variable";
-import CaseSelector, { type CaseItemInfo } from "./components/case-selector";
+import { type CaseItemInfo } from "./components/trigger-type-switcher/case-selector";
 import type { SymbolSelectorOption } from "./components/symbol-selector";
 import SymbolSelector from "./components/symbol-selector";
-import TimerConfigComponent from "./components/timer";
-import TriggerTypeConfig from "./components/trigger-type-config";
+import TriggerTypeSwitcher from "./components/trigger-type-switcher";
 import { useTranslation } from "react-i18next";
 
 interface GetVarConfigProps {
 	symbol: string;
 	variableName: string;
 	variable: string;
-	triggerConfig: TriggerConfig;
+	triggerConfig?: TriggerConfig;
 	symbolOptions: SymbolSelectorOption[];
 	symbolPlaceholder: string;
 	symbolEmptyMessage: string;
@@ -48,7 +47,7 @@ interface GetVarConfigProps {
 	onSymbolChange: (value: string) => void;
 	onVariableNameChange: (value: string) => void;
 	onVariableChange: (value: string) => void;
-	onTriggerConfigChange: (value: TriggerConfig) => void;
+	onTriggerConfigChange: (value: TriggerConfig | undefined) => void;
 	onValidationChange?: (isValid: boolean) => void;
 }
 
@@ -340,16 +339,16 @@ const GetVarConfig: React.FC<GetVarConfigProps> = ({
 				/>
 			</div>
 
-			<TriggerTypeConfig
+			<TriggerTypeSwitcher
 				triggerType={effectiveTriggerType}
 				onTriggerTypeChange={(newType) => {
 					// 根据新的触发类型构建 triggerConfig，使用缓存的配置
 					if (newType === "condition") {
 						// 切换到 condition 时，使用缓存的 conditionTrigger
 						onTriggerConfigChange(
-							cachedConditionConfig.current
-								? { type: "condition", config: cachedConditionConfig.current }
-								: null
+					cachedConditionConfig.current
+						? { type: "condition", config: cachedConditionConfig.current }
+						: undefined
 						);
 					} else if (newType === "timer") {
 						// 切换到 timer 时，使用缓存的 timerTrigger（保留用户之前的配置）
@@ -361,46 +360,29 @@ const GetVarConfig: React.FC<GetVarConfigProps> = ({
 				}}
 				availableTriggers={["condition", "timer"]}
 				idPrefix="get"
+				caseItemList={caseItemList}
+				selectedTriggerCase={conditionTrigger ?? null}
+				onTriggerCaseChange={(newCase) => {
+				// 更新缓存
+				cachedConditionConfig.current = newCase;
+				// 通知父组件
+				onTriggerConfigChange(newCase ? { type: "condition", config: newCase } : undefined);
+				}}
+				timerConfig={timerTrigger || cachedTimerConfig.current}
+				onTimerConfigChange={(newTimer) => {
+					// 更新缓存
+					cachedTimerConfig.current = newTimer;
+					// 通知父组件
+					onTriggerConfigChange({ type: "timer", config: newTimer });
+				}}
 			/>
 
-			{effectiveTriggerType === "condition" && (
-				<div className="flex flex-col gap-2">
-					<Label className="text-sm font-medium pointer-events-none">
-						{t("variableNode.triggerCase")}
-					</Label>
-					<CaseSelector
-						caseList={caseItemList}
-						selectedTriggerCase={conditionTrigger ?? null}
-						onTriggerCaseChange={(newCase) => {
-							// 更新缓存
-							cachedConditionConfig.current = newCase;
-							// 通知父组件
-							onTriggerConfigChange(newCase ? { type: "condition", config: newCase } : null);
-						}}
-					/>
-					{conditionHint && (
-						<p className="text-xs text-muted-foreground">{conditionHint}</p>
-					)}
-				</div>
+			{effectiveTriggerType === "condition" && conditionHint && (
+				<p className="text-xs text-muted-foreground">{conditionHint}</p>
 			)}
 
-			{effectiveTriggerType === "timer" && (
-				<div className="flex flex-col gap-2">
-					<div className="rounded-md border border-gray-200 p-3">
-						<TimerConfigComponent
-							timerConfig={timerTrigger || { mode: "interval", interval: 1, unit: "hour" }}
-							onTimerConfigChange={(newTimer) => {
-								// 更新缓存
-								cachedTimerConfig.current = newTimer;
-								// 通知父组件
-								onTriggerConfigChange({ type: "timer", config: newTimer });
-							}}
-						/>
-					</div>
-					{timerHint && (
-						<p className="text-xs text-muted-foreground">{timerHint}</p>
-					)}
-				</div>
+			{effectiveTriggerType === "timer" && timerHint && (
+				<p className="text-xs text-muted-foreground">{timerHint}</p>
 			)}
 		</>
 	);

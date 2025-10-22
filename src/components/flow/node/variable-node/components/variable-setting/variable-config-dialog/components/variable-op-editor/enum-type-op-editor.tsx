@@ -1,7 +1,7 @@
 import MultipleSelector, {
 	type Option,
 } from "@/components/select-components/multi-select";
-import { SelectInDialog } from "@/components/select-components/select-in-dialog";
+import { SelectInDialog } from "@/components/dialog-components/select-in-dialog";
 import type {
 	TriggerConfig,
 	UpdateVarValueOperation,
@@ -11,7 +11,7 @@ import {
 	getEffectiveTriggerType,
 	getTimerTriggerConfig,
 } from "@/types/node/variable-node";
-import { generateEnumHint } from "../../../../hint-generators";
+import { generateEnumHint } from "@/components/flow/node/variable-node/hint-generators";
 import { useTranslation } from "react-i18next";
 
 interface EnumTypeOpEditorProps {
@@ -23,7 +23,7 @@ interface EnumTypeOpEditorProps {
 	variableDisplayName?: string;
 	idPrefix?: string;
 	triggerType: "condition" | "timer" | "dataflow";
-	triggerConfig: TriggerConfig;
+	triggerConfig?: TriggerConfig;
 }
 
 const EnumTypeOpEditor: React.FC<EnumTypeOpEditorProps> = ({

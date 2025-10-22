@@ -4,14 +4,13 @@ import {
 	renderNodeOptions,
 	renderVariableOptions,
 } from "@/components/flow/node/node-utils";
-import { SelectInDialog } from "@/components/select-components/select-in-dialog";
+import { SelectInDialog } from "@/components/dialog-components/select-in-dialog";
 import { ButtonGroup } from "@/components/ui/button-group";
 import type { VariableItem } from "@/hooks/flow/use-strategy-workflow";
 import type { NodeType } from "@/types/node/index";
 import type { SelectedIndicator } from "@/types/node/indicator-node";
 import type { SelectedSymbol } from "@/types/node/kline-node";
 import type {
-	GetVariableConfig,
 	UpdateVarValueOperation,
 	VariableConfig,
 } from "@/types/node/variable-node";
@@ -52,10 +51,10 @@ interface DataFlowSelectorProps {
 }
 
 // 类型守卫 - 用于判断变量类型
-const isGetVariableConfig = (
+const isVariableConfig = (
 	variable: SelectedIndicator | SelectedSymbol | VariableConfig,
-): variable is GetVariableConfig => {
-	return "varOperation" in variable && variable.varOperation === "get";
+): variable is VariableConfig => {
+	return "varOperation" in variable;
 };
 
 const isSelectedIndicator = (
@@ -166,7 +165,7 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 			variableId = selectedVar.configId;
 
 			// 根据变量类型获取 varValueType
-			if (isGetVariableConfig(selectedVar)) {
+			if (isVariableConfig(selectedVar)) {
 				// 变量节点：从配置中获取
 				variableValueType = selectedVar.varValueType;
 			} else if (
@@ -198,11 +197,13 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 
 	// 过滤节点列表：只保留有有效变量的节点
 	const getFilteredNodeList = useCallback(() => {
+		// console.log("variableItemList", variableItemList);
 		if (!targetVariableType) {
 			return variableItemList;
 		}
 
 		return variableItemList.filter((item) => {
+			
 			// 检查该节点是否有任何变量匹配目标类型
 			const hasValidVariable = item.variables.some((v) => {
 				// 指标节点和K线节点都是 NUMBER 类型
@@ -210,7 +211,7 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 					return targetVariableType === VariableValueType.NUMBER;
 				}
 				// 变量节点根据其具体类型过滤
-				if (isGetVariableConfig(v)) {
+				if (isVariableConfig(v)) {
 					return v.varValueType === targetVariableType;
 				}
 				return false;
@@ -268,16 +269,22 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 		const selectedVar = selectedNode.variables.find(
 			(v) => v.outputHandleId === selectedHandleId,
 		);
-		const fromVarConfigId = selectedVar?.configId || 0;
+		if (!selectedVar) {
+			return null;
+		}
+		const fromVarConfigId = selectedVar.configId;
 
 		// 获取变量值类型
-		let fromVarValueType: VariableValueType | null = null;
-		if (selectedVar) {
-			if (isGetVariableConfig(selectedVar)) {
-				fromVarValueType = selectedVar.varValueType;
-			} else if (isSelectedIndicator(selectedVar) || isSelectedSymbol(selectedVar)) {
-				fromVarValueType = VariableValueType.NUMBER;
-			}
+		let fromVarValueType: VariableValueType;
+		if (isVariableConfig(selectedVar)) {
+			fromVarValueType = selectedVar.varValueType;
+		} else if (
+			isSelectedIndicator(selectedVar) ||
+			isSelectedSymbol(selectedVar)
+		) {
+			fromVarValueType = VariableValueType.NUMBER;
+		} else {
+			fromVarValueType = VariableValueType.NUMBER;
 		}
 
 		// 使用新的 hint 生成器
@@ -296,6 +303,8 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 				fromVarDisplayName,
 				fromVarValueType,
 				fromVarConfigId,
+				expireDuration: { unit: "hour", duration: 1 },
+				errorPolicy: {},
 			},
 		});
 	};

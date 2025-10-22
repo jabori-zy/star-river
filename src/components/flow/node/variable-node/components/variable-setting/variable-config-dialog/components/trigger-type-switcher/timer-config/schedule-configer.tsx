@@ -1,6 +1,6 @@
 import { AlertCircle } from "lucide-react";
 import { formatDate } from "@/components/flow/node/node-utils";
-import { SelectInDialog } from "@/components/select-components/select-in-dialog";
+import { SelectInDialog } from "@/components/dialog-components/select-in-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";

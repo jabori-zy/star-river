@@ -1,9 +1,9 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { SelectInDialog } from "@/components/select-components/select-in-dialog";
+import { SelectInDialog } from "@/components/dialog-components/select-in-dialog";
 import { Label } from "@/components/ui/label";
 import type { VariableItem } from "@/hooks/flow/use-strategy-workflow";
-import type { NodeType } from "@/types/node/index";
+import { NodeType } from "@/types/node/index";
 import type {
 	TimerTrigger,
 	ConditionTrigger,
@@ -18,22 +18,22 @@ import {
 	getDataFlowTriggerConfig,
 } from "@/types/node/variable-node";
 import { type CustomVariable, VariableValueType } from "@/types/variable";
-import { getUpdateOperationPlaceholder } from "../../../../variable-node-utils";
-import CaseSelector, { type CaseItemInfo } from "../components/case-selector";
-import DataFlowSelector from "../components/dataflow-selector";
-import TimerConfigComponent from "../components/timer";
-import TriggerTypeConfig from "../components/trigger-type-config";
-import BoolTypeOpEditor from "./bool-type-op-editor";
-import EnumTypeOpEditor from "./enum-type-op-editor";
-import InputTypeOpEditor from "./input-type-op-editor";
-import PercentTypeOpEditor from "./percent-type-op-editor";
-import TimeTypeOpEditor from "./time-type-op-editor";
+import { getUpdateOperationPlaceholder } from "../../../variable-node-utils";
+import { type CaseItemInfo } from "./components/trigger-type-switcher/case-selector";
+import DataFlowSelector from "./components/dataflow-selector";
+import TriggerTypeSwitcher from "./components/trigger-type-switcher";
+import BoolTypeOpEditor from "./components/variable-op-editor/bool-type-op-editor";
+import EnumTypeOpEditor from "./components/variable-op-editor/enum-type-op-editor";
+import NumberTypeOpEditor from "./components/variable-op-editor/number-type-op-editor";
+import StringTypeOpEditor from "./components/variable-op-editor/string-type-op-editor";
+import PercentTypeOpEditor from "./components/variable-op-editor/percent-type-op-editor";
+import TimeTypeOpEditor from "./components/variable-op-editor/time-type-op-editor";
 
 interface UpdateVarConfigProps {
 	variable: string;
 	updateOperationType: UpdateVarValueOperation;
 	updateValue: string;
-	triggerConfig: TriggerConfig;
+	triggerConfig?: TriggerConfig;
 	customVariables: CustomVariable[];
 	customVariableOptions: Array<{ value: string; label: React.ReactNode }>;
 	variableItemList: VariableItem[];
@@ -47,7 +47,7 @@ interface UpdateVarConfigProps {
 	onVariableChange: (value: string) => void;
 	onUpdateOperationTypeChange: (value: UpdateVarValueOperation) => void;
 	onUpdateValueChange: (value: string) => void;
-	onTriggerConfigChange: (value: TriggerConfig) => void;
+	onTriggerConfigChange: (value: TriggerConfig | undefined) => void;
 	onDataflowNodeChange: (
 		nodeId: string,
 		nodeType: NodeType | null,
@@ -75,15 +75,15 @@ const buildTriggerConfig = (
 	updateTriggerType: "condition" | "timer" | "dataflow",
 	triggerCase: ConditionTrigger | null,
 	timerConfig?: TimerTrigger,
-): TriggerConfig => {
+): TriggerConfig | undefined => {
 	if (updateTriggerType === "condition" && triggerCase) {
 		return { type: "condition", config: triggerCase };
 	}
 	if (updateTriggerType === "timer" && timerConfig) {
 		return { type: "timer", config: timerConfig };
 	}
-	// dataflow 模式暂时返回 null，因为需要从其他地方获取 DataFlowTrigger 数据
-	return null;
+	// dataflow 模式需要从其他地方获取 DataFlowTrigger 数据
+	return undefined;
 };
 
 /**
@@ -120,97 +120,103 @@ const renderOperationEditor = (
 		value: op,
 		label: getUpdateOperationLabel(op, t),
 	}));
-	const isBooleanType = selectedVar?.varValueType === VariableValueType.BOOLEAN;
-	const isEnumType = selectedVar?.varValueType === VariableValueType.ENUM;
-	const isPercentageType =
-		selectedVar?.varValueType === VariableValueType.PERCENTAGE;
-	const isTimeType = selectedVar?.varValueType === VariableValueType.TIME;
+	const varValueType = selectedVar?.varValueType || VariableValueType.NUMBER;
 
 	// 构建 triggerConfig
 	const triggerConfig = buildTriggerConfig(updateTriggerType, triggerCase, timerConfig);
 
-	if (isBooleanType) {
-		// BOOLEAN 类型使用 BoolTypeOpEditor (包含 set 和 toggle)
-	return (
-		<BoolTypeOpEditor
-			updateOperationType={updateOperationType}
-			updateValue={updateValue}
-			availableOperationOptions={availableOperationOptions}
-			onUpdateOperationTypeChange={onUpdateOperationTypeChange}
-			onUpdateValueChange={onUpdateValueChange}
-			variableDisplayName={selectedVar?.varDisplayName}
-			idPrefix="update-bool"
-			triggerType={updateTriggerType}
-			triggerConfig={triggerConfig}
-		/>
-	);
-}
+	// 根据变量类型返回对应的编辑器组件
+	switch (varValueType) {
+		case VariableValueType.BOOLEAN:
+			return (
+				<BoolTypeOpEditor
+					updateOperationType={updateOperationType}
+					updateValue={updateValue}
+					availableOperationOptions={availableOperationOptions}
+					onUpdateOperationTypeChange={onUpdateOperationTypeChange}
+					onUpdateValueChange={onUpdateValueChange}
+					variableDisplayName={selectedVar?.varDisplayName}
+					idPrefix="update-bool"
+					triggerType={updateTriggerType}
+					triggerConfig={triggerConfig}
+				/>
+			);
 
-	if (isEnumType) {
-		// ENUM 类型使用 EnumTypeOpEditor
-	return (
-		<EnumTypeOpEditor
-			updateOperationType={updateOperationType}
-			updateValue={updateValue}
-			availableOperationOptions={availableOperationOptions}
-			onUpdateOperationTypeChange={onUpdateOperationTypeChange}
-			onUpdateValueChange={onUpdateValueChange}
-			variableDisplayName={selectedVar?.varDisplayName}
-			idPrefix="update-enum"
-			triggerType={updateTriggerType}
-			triggerConfig={triggerConfig}
-		/>
-		);
+		case VariableValueType.ENUM:
+			return (
+				<EnumTypeOpEditor
+					updateOperationType={updateOperationType}
+					updateValue={updateValue}
+					availableOperationOptions={availableOperationOptions}
+					onUpdateOperationTypeChange={onUpdateOperationTypeChange}
+					onUpdateValueChange={onUpdateValueChange}
+					variableDisplayName={selectedVar?.varDisplayName}
+					idPrefix="update-enum"
+					triggerType={updateTriggerType}
+					triggerConfig={triggerConfig}
+				/>
+			);
+
+		case VariableValueType.PERCENTAGE:
+			return (
+				<PercentTypeOpEditor
+					updateOperationType={updateOperationType}
+					updateValue={updateValue}
+					availableOperationOptions={availableOperationOptions}
+					onUpdateOperationTypeChange={onUpdateOperationTypeChange}
+					onUpdateValueChange={onUpdateValueChange}
+					variableDisplayName={selectedVar?.varDisplayName}
+					getPlaceholder={getUpdateOperationPlaceholder}
+					triggerType={updateTriggerType}
+					triggerConfig={triggerConfig}
+				/>
+			);
+
+		case VariableValueType.TIME:
+			return (
+				<TimeTypeOpEditor
+					updateOperationType={updateOperationType}
+					updateValue={updateValue}
+					availableOperationOptions={availableOperationOptions}
+					onUpdateOperationTypeChange={onUpdateOperationTypeChange}
+					onUpdateValueChange={onUpdateValueChange}
+					variableDisplayName={selectedVar?.varDisplayName}
+					triggerType={updateTriggerType}
+					triggerConfig={triggerConfig}
+				/>
+			);
+
+		case VariableValueType.STRING:
+			return (
+				<StringTypeOpEditor
+					updateOperationType={updateOperationType}
+					updateValue={updateValue}
+					availableOperationOptions={availableOperationOptions}
+					onUpdateOperationTypeChange={onUpdateOperationTypeChange}
+					onUpdateValueChange={onUpdateValueChange}
+					variableDisplayName={selectedVar?.varDisplayName}
+					getPlaceholder={getUpdateOperationPlaceholder}
+					triggerType={updateTriggerType}
+					triggerConfig={triggerConfig}
+				/>
+			);
+
+		case VariableValueType.NUMBER:
+		default:
+			return (
+				<NumberTypeOpEditor
+					updateOperationType={updateOperationType}
+					updateValue={updateValue}
+					availableOperationOptions={availableOperationOptions}
+					onUpdateOperationTypeChange={onUpdateOperationTypeChange}
+					onUpdateValueChange={onUpdateValueChange}
+					variableDisplayName={selectedVar?.varDisplayName}
+					getPlaceholder={getUpdateOperationPlaceholder}
+					triggerType={updateTriggerType}
+					triggerConfig={triggerConfig}
+				/>
+			);
 	}
-
-	if (isPercentageType) {
-		// PERCENTAGE 类型使用 PercentTypeOpEditor
-		return (
-			<PercentTypeOpEditor
-				updateOperationType={updateOperationType}
-				updateValue={updateValue}
-				availableOperationOptions={availableOperationOptions}
-				onUpdateOperationTypeChange={onUpdateOperationTypeChange}
-				onUpdateValueChange={onUpdateValueChange}
-				variableDisplayName={selectedVar?.varDisplayName}
-				getPlaceholder={getUpdateOperationPlaceholder}
-				triggerType={updateTriggerType}
-				triggerConfig={triggerConfig}
-			/>
-		);
-	}
-
-	if (isTimeType) {
-		// TIME 类型使用 TimeTypeOpEditor
-		return (
-			<TimeTypeOpEditor
-				updateOperationType={updateOperationType}
-				updateValue={updateValue}
-				availableOperationOptions={availableOperationOptions}
-				onUpdateOperationTypeChange={onUpdateOperationTypeChange}
-				onUpdateValueChange={onUpdateValueChange}
-				variableDisplayName={selectedVar?.varDisplayName}
-				triggerType={updateTriggerType}
-				triggerConfig={triggerConfig}
-			/>
-		);
-	}
-
-	// 其他类型（NUMBER, STRING）使用 InputTypeOpEditor
-	return (
-		<InputTypeOpEditor
-			updateOperationType={updateOperationType}
-			updateValue={updateValue}
-			availableOperationOptions={availableOperationOptions}
-			varValueType={selectedVar?.varValueType || VariableValueType.NUMBER}
-			onUpdateOperationTypeChange={onUpdateOperationTypeChange}
-			onUpdateValueChange={onUpdateValueChange}
-			variableDisplayName={selectedVar?.varDisplayName}
-			getPlaceholder={getUpdateOperationPlaceholder}
-			triggerType={updateTriggerType}
-			triggerConfig={triggerConfig}
-		/>
-	);
 };
 
 const UpdateVarConfig: React.FC<UpdateVarConfigProps> = ({
@@ -249,6 +255,9 @@ const UpdateVarConfig: React.FC<UpdateVarConfigProps> = ({
 	// 使用 ref 缓存配置，防止切换触发类型时丢失
 	const cachedTimerConfig = useRef<TimerTrigger>({ mode: "interval", interval: 1, unit: "hour" });
 	const cachedConditionConfig = useRef<ConditionTrigger | null>(null);
+
+	// Dataflow 配置验证状态
+	const [isDataflowConfigValid, setIsDataflowConfigValid] = useState(true);
 
 	// 当从 props 接收到新的配置时，更新缓存
 	useEffect(() => {
@@ -291,9 +300,13 @@ const UpdateVarConfig: React.FC<UpdateVarConfigProps> = ({
 				isValid = false;
 			}
 		}
-		// 5. 数据流模式：必须选择上游节点和变量
+		// 5. 数据流模式：必须选择上游节点和变量，且 dataflow 配置必须有效
 		else if (effectiveTriggerType === "dataflow") {
 			if (!dataflowNodeId || !dataflowHandleId || !dataflowVariable) {
+				isValid = false;
+			}
+			// 检查 dataflow 配置是否有效（例如除法分母不能为0）
+			else if (!isDataflowConfigValid) {
 				isValid = false;
 			}
 		}
@@ -316,6 +329,7 @@ const UpdateVarConfig: React.FC<UpdateVarConfigProps> = ({
 		dataflowNodeId,
 		dataflowHandleId,
 		dataflowVariable,
+		isDataflowConfigValid,
 		onValidationChange,
 	]);
 
@@ -326,8 +340,17 @@ const UpdateVarConfig: React.FC<UpdateVarConfigProps> = ({
 		fromVar: "",
 		fromVarDisplayName: "",
 		fromVarConfigId: 0,
-		fromNodeType: null,
-		fromVarValueType: null,
+		fromNodeType: NodeType.VariableNode,
+		fromVarValueType: VariableValueType.NUMBER,
+		expireDuration: {
+			unit: "hour",
+			duration: 1,
+		},
+		errorPolicy: {
+			nullValue: { strategy: "skip", errorLog: { notify: false } },
+			expired: { strategy: "skip", errorLog: { notify: false } },
+			zeroValue: { strategy: "skip", errorLog: { notify: false } },
+		},
 	});
 	return (
 		<>
@@ -358,53 +381,97 @@ const UpdateVarConfig: React.FC<UpdateVarConfigProps> = ({
 				)}
 			</div>
 
-			{/* 触发方式 */}
-			<TriggerTypeConfig
-				triggerType={effectiveTriggerType}
-				onTriggerTypeChange={(newType) => {
-					// 根据新的触发类型构建 triggerConfig，使用缓存的配置
-					if (newType === "condition") {
-						// 切换到 condition 时，使用缓存的 conditionTrigger
-						onTriggerConfigChange(
-							cachedConditionConfig.current
-								? { type: "condition", config: cachedConditionConfig.current }
-								: null
-						);
-					} else if (newType === "timer") {
-						// 切换到 timer 时，使用缓存的 timerTrigger（保留用户之前的配置）
-						onTriggerConfigChange({
-							type: "timer",
-							config: cachedTimerConfig.current
-						});
-					} else if (newType === "dataflow") {
-						// 切换到 dataflow 时，保持已有的 dataflowTrigger，如果没有则创建空模板
-						onTriggerConfigChange({
-							type: "dataflow",
-							config: dataflowTrigger || createEmptyDataflowTrigger(),
-						});
-					}
-				}}
-				idPrefix="update"
-			/>
-
-			{/* 条件触发模式：Case 选择器 */}
-			{effectiveTriggerType === "condition" && (
-				<div className="flex flex-col gap-2">
-					<Label className="text-sm font-medium pointer-events-none">
-						{t("variableNode.triggerCase")}
-					</Label>
-					<CaseSelector
-						caseList={caseItemList}
-						selectedTriggerCase={conditionTrigger ?? null}
-						onTriggerCaseChange={(newCase) => {
-							// 更新缓存
-							cachedConditionConfig.current = newCase;
-							// 通知父组件
-							onTriggerConfigChange(newCase ? { type: "condition", config: newCase } : null);
-						}}
-					/>
-				</div>
-			)}
+		{/* 触发方式 */}
+		<TriggerTypeSwitcher
+			triggerType={effectiveTriggerType}
+			onTriggerTypeChange={(newType) => {
+				// 根据新的触发类型构建 triggerConfig，使用缓存的配置
+				if (newType === "condition") {
+					// 切换到 condition 时，使用缓存的 conditionTrigger
+					onTriggerConfigChange(
+				cachedConditionConfig.current
+					? { type: "condition", config: cachedConditionConfig.current }
+					: undefined
+					);
+				} else if (newType === "timer") {
+					// 切换到 timer 时，使用缓存的 timerTrigger（保留用户之前的配置）
+					onTriggerConfigChange({
+						type: "timer",
+						config: cachedTimerConfig.current
+					});
+				} else if (newType === "dataflow") {
+					// 切换到 dataflow 时，保持已有的 dataflowTrigger，如果没有则创建空模板
+					onTriggerConfigChange({
+						type: "dataflow",
+						config: dataflowTrigger || createEmptyDataflowTrigger(),
+					});
+				}
+			}}
+			idPrefix="update"
+			caseItemList={caseItemList}
+			selectedTriggerCase={conditionTrigger ?? null}
+			onTriggerCaseChange={(newCase) => {
+				// 更新缓存
+			cachedConditionConfig.current = newCase;
+			// 通知父组件
+			onTriggerConfigChange(newCase ? { type: "condition", config: newCase } : undefined);
+			}}
+			timerConfig={timerTrigger || cachedTimerConfig.current}
+			onTimerConfigChange={(newTimer) => {
+				// 更新缓存
+				cachedTimerConfig.current = newTimer;
+				// 通知父组件
+				onTriggerConfigChange({ type: "timer", config: newTimer });
+			}}
+			expireDuration={(() => {
+				const result = dataflowTrigger?.expireDuration || { unit: "hour" as const, duration: 1 };
+				// console.log("[UpdateVarConfig] expireDuration prop", { dataflowTrigger, result });
+				return result;
+			})()}
+			errorPolicy={(() => {
+				const result = dataflowTrigger?.errorPolicy || {
+					nullValue: { strategy: "skip" as const, errorLog: { notify: false as const } },
+					expired: { strategy: "skip" as const, errorLog: { notify: false as const } },
+					zeroValue: { strategy: "skip" as const, errorLog: { notify: false as const } },
+				};
+				// console.log("[UpdateVarConfig] errorPolicy prop", { dataflowTrigger, result });
+				return result;
+			})()}
+			replaceValueType={customVariables.find((v) => v.varName === variable)?.varValueType}
+			updateOperationType={updateOperationType}
+			onDataflowValidationChange={setIsDataflowConfigValid}
+			onExpireDurationChange={(config) => {
+				const currentTrigger = dataflowTrigger || createEmptyDataflowTrigger();
+				onTriggerConfigChange({
+					type: "dataflow",
+					config: {
+						...currentTrigger,
+						expireDuration: config,
+					},
+				});
+			}}
+			onErrorPolicyChange={(errorType, policy) => {
+				const currentTrigger = dataflowTrigger || createEmptyDataflowTrigger();
+				// console.log("[UpdateVarConfig] onErrorPolicyChange", {
+				// 	errorType,
+				// 	policy,
+				// 	dataflowTrigger,
+				// 	currentTrigger,
+				// });
+				const newConfig = {
+					type: "dataflow" as const,
+					config: {
+						...currentTrigger,
+						errorPolicy: {
+							...currentTrigger.errorPolicy,
+							[errorType]: policy,
+						},
+					},
+				};
+				// console.log("[UpdateVarConfig] calling onTriggerConfigChange with", newConfig);
+				onTriggerConfigChange(newConfig);
+			}}
+		/>
 
 			{/* 数据流模式：操作符 + 上游节点变量选择器 */}
 			{effectiveTriggerType === "dataflow" && variable && (
@@ -448,21 +515,6 @@ const UpdateVarConfig: React.FC<UpdateVarConfigProps> = ({
 							/>
 						);
 					})()}
-				</div>
-			)}
-
-			{/* 定时触发模式：定时配置 */}
-			{effectiveTriggerType === "timer" && (
-				<div className="rounded-md border border-gray-200 p-3">
-					<TimerConfigComponent
-						timerConfig={timerTrigger || { mode: "interval", interval: 1, unit: "hour" }}
-						onTimerConfigChange={(newTimer) => {
-							// 更新缓存
-							cachedTimerConfig.current = newTimer;
-							// 通知父组件
-							onTriggerConfigChange({ type: "timer", config: newTimer });
-						}}
-					/>
 				</div>
 			)}
 

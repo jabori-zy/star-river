@@ -307,7 +307,7 @@ export const generateTriggerConditionText = (
 			futuresOrderNode: "合约订单",
 			positionManagementNode: "持仓管理",
 		};
-		const nodeTypeLabel = fromNodeType ? nodeTypeLabels[fromNodeType] || "节点" : "节点";
+		const nodeTypeLabel = nodeTypeLabels[fromNodeType] || "节点";
 
 		// 构建完整路径：节点名称/节点类型配置ID/变量显示名称
 		return `数据流: ${fromNodeName}/${nodeTypeLabel}${fromVarConfigId}/${fromVarDisplayName}`;

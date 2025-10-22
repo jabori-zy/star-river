@@ -5,7 +5,7 @@ import {
 	SelectItem,
 	SelectLabel,
 	SelectSeparator,
-} from "@/components/select-components/select-in-dialog";
+} from "@/components/dialog-components/select-in-dialog";
 import { Badge } from "@/components/ui/badge";
 import type { VariableItem } from "@/hooks/flow/use-strategy-workflow";
 import type { SelectedIndicator } from "@/types/node/indicator-node";

@@ -1,5 +1,7 @@
-import React, { useCallback, useEffect } from "react";
 import { useReactFlow } from "@xyflow/react";
+import React, { useCallback, useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { NodeOpConfirmDialog } from "@/components/flow/node-op-confirm-dialog";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -9,22 +11,25 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import { NodeOpConfirmDialog } from "@/components/flow/node-op-confirm-dialog";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import type { VariableItem } from "@/hooks/flow/use-strategy-workflow";
 import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 import { useStartNodeDataStore } from "@/store/node/use-start-node-data-store";
 import useTradingModeStore from "@/store/useTradingModeStore";
-import type { NodeType } from "@/types/node/index";
+import { NodeType } from "@/types/node/index";
 import type {
+	ConditionTrigger,
+	DataFlowTrigger,
+	DataflowErrorPolicy,
+	DataflowErrorType,
 	GetVariableConfig,
 	ResetVariableConfig,
 	TimerTrigger,
-	ConditionTrigger,
-	DataFlowTrigger,
-	UpdateVarValueOperation,
-	UpdateVariableConfig,
-	VariableConfig,
+	TimerUnit,
 	TriggerConfig,
+	UpdateVariableConfig,
+	UpdateVarValueOperation,
+	VariableConfig,
 } from "@/types/node/variable-node";
 import {
 	getConditionTriggerConfig,
@@ -45,43 +50,56 @@ import {
 	generateVariableName,
 	isDuplicateConfig,
 } from "../../../variable-node-utils";
-import type { CaseItemInfo } from "./components/case-selector";
 import type { SymbolSelectorOption } from "./components/symbol-selector";
+import type { CaseItemInfo } from "./components/trigger-type-switcher/case-selector";
 import GetVarConfig from "./get-var-config";
 import ResetVarConfig from "./reset-var-config";
 import UpdateVarConfig from "./update-var-config";
 import VarOperateGuide from "./var-operate-guide";
 import { getUpdateOperationLabel } from "./variable-setting-dialog-utils";
-import { useTranslation } from "react-i18next";
 
 const buildTriggerConfigFromState = (
 	triggerType: "condition" | "timer" | "dataflow",
 	options: {
 		timerConfig?: TimerTrigger;
-		conditionConfig?: ConditionTrigger | null;
-		dataflowConfig?: DataFlowTrigger | null;
+		conditionConfig?: ConditionTrigger;
+		dataflowConfig?: DataFlowTrigger;
 	},
-): TriggerConfig => {
+): TriggerConfig | undefined => {
 	if (triggerType === "timer") {
 		return options.timerConfig
 			? { type: "timer", config: options.timerConfig }
-			: null;
+			: undefined;
 	}
 
 	if (triggerType === "condition") {
 		return options.conditionConfig
 			? { type: "condition", config: options.conditionConfig }
-			: null;
+			: undefined;
 	}
 
 	if (triggerType === "dataflow") {
 		return options.dataflowConfig
 			? { type: "dataflow", config: options.dataflowConfig }
-			: null;
+			: undefined;
 	}
 
-	return null;
+	return undefined;
 };
+
+const DEFAULT_DATAFLOW_EXPIRE_DURATION: { unit: TimerUnit; duration: number } =
+	{
+		unit: "hour",
+		duration: 1,
+	};
+
+const createDefaultDataflowErrorPolicy = (): Partial<
+	Record<DataflowErrorType, DataflowErrorPolicy>
+> => ({
+	nullValue: { strategy: "skip", errorLog: { notify: false } },
+	expired: { strategy: "skip", errorLog: { notify: false } },
+	zeroValue: { strategy: "skip", errorLog: { notify: false } },
+});
 
 interface VariableConfigDialogProps {
 	id: string; // 节点id
@@ -223,6 +241,13 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 	>(null);
 	const [dataflowVariableValueType, setDataflowVariableValueType] =
 		React.useState<VariableValueType | null>(null);
+	const [dataflowExpireDuration, setDataflowExpireDuration] = React.useState<{
+		unit: TimerUnit;
+		duration: number;
+	}>(() => ({ ...DEFAULT_DATAFLOW_EXPIRE_DURATION }));
+	const [dataflowErrorPolicy, setDataflowErrorPolicy] = React.useState<
+		Partial<Record<DataflowErrorType, DataflowErrorPolicy>>
+	>(() => createDefaultDataflowErrorPolicy());
 
 	// reset模式的状态 - 变量初始值
 	const [varInitialValue, setVarInitialValue] = React.useState<
@@ -233,10 +258,12 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 	const [isGetConfigValid, setIsGetConfigValid] = React.useState<boolean>(true);
 
 	// update模式的验证状态
-	const [isUpdateConfigValid, setIsUpdateConfigValid] = React.useState<boolean>(true);
+	const [isUpdateConfigValid, setIsUpdateConfigValid] =
+		React.useState<boolean>(true);
 
 	// reset模式的验证状态
-	const [isResetConfigValid, setIsResetConfigValid] = React.useState<boolean>(true);
+	const [isResetConfigValid, setIsResetConfigValid] =
+		React.useState<boolean>(true);
 
 	// get模式的条件触发配置 - 用于选择触发的 case
 	const [triggerCase, setTriggerCase] = React.useState<ConditionTrigger | null>(
@@ -244,39 +271,44 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 	);
 
 	// 重复变量操作检测状态 - 存储重复的操作类型
-	const [duplicateOperation, setDuplicateOperation] = React.useState<string | null>(null);
+	const [duplicateOperation, setDuplicateOperation] = React.useState<
+		string | null
+	>(null);
 
 	// 用于追踪上一个变量的类型，以便在变量类型改变时清空更新值
 	const prevVarValueTypeRef = React.useRef<VariableValueType | null>(null);
 
 	// 检测是否有重复的变量操作配置（仅针对自定义变量）
-	const checkDuplicateVariableOperation = React.useCallback((varName: string): string | null => {
-		// 检查是否是自定义变量
-		const isCustomVariable = customVariables.some(
-			(customVar: CustomVariable) => customVar.varName === varName,
-		);
+	const checkDuplicateVariableOperation = React.useCallback(
+		(varName: string): string | null => {
+			// 检查是否是自定义变量
+			const isCustomVariable = customVariables.some(
+				(customVar: CustomVariable) => customVar.varName === varName,
+			);
 
-		// 只对自定义变量进行检测
-		if (!isCustomVariable) {
+			// 只对自定义变量进行检测
+			if (!isCustomVariable) {
+				return null;
+			}
+
+			// 查找是否有相同变量的配置
+			for (let i = 0; i < existingConfigs.length; i++) {
+				// 如果是编辑模式,跳过当前正在编辑的配置
+				if (isEditing && i === editingIndex) {
+					continue;
+				}
+
+				const config = existingConfigs[i];
+				if (config.varName === varName) {
+					// 找到重复的配置,返回操作类型
+					return config.varOperation;
+				}
+			}
+
 			return null;
-		}
-
-		// 查找是否有相同变量的配置
-		for (let i = 0; i < existingConfigs.length; i++) {
-			// 如果是编辑模式,跳过当前正在编辑的配置
-			if (isEditing && i === editingIndex) {
-				continue;
-			}
-
-			const config = existingConfigs[i];
-			if (config.varName === varName) {
-				// 找到重复的配置,返回操作类型
-				return config.varOperation;
-			}
-		}
-
-		return null;
-	}, [customVariables, existingConfigs, isEditing, editingIndex]);
+		},
+		[customVariables, existingConfigs, isEditing, editingIndex],
+	);
 
 	// 根据变量类型和触发方式获取可用的更新操作
 	const getAvailableOperations = (
@@ -305,7 +337,6 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 	// 生成 Dialog 标题
 	const getDialogTitle = (): React.ReactNode => {
 		const prefix = isEditing ? t("variableNode.edit") : t("variableNode.add");
-		console.log("prefix", prefix);
 
 		// Step 1: 返回基础标题
 		if (currentStep === 1) {
@@ -323,11 +354,11 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 
 		return (
 			<>
-				{prefix} {" "}
+				{prefix}{" "}
 				<span className="font-semibold text-blue-600 px-1 py-0.5 rounded bg-blue-50">
 					{operationLabel}
-				</span>
-				{" "}{t("variableNode.variableConfig")}
+				</span>{" "}
+				{t("variableNode.variableConfig")}
 			</>
 		);
 	};
@@ -373,6 +404,8 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 		setDataflowVariable(null);
 		setDataflowVariableName(null);
 		setDataflowVariableId(null);
+		setDataflowExpireDuration({ ...DEFAULT_DATAFLOW_EXPIRE_DURATION });
+		setDataflowErrorPolicy(createDefaultDataflowErrorPolicy());
 		// 重置reset模式状态
 		setVarInitialValue("");
 		// 重置验证状态
@@ -541,30 +574,50 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 					} else if (effectiveUpdateTriggerType === "condition") {
 						setTriggerCase(existingCondition ?? null);
 						setUpdateValue(String(editingConfig.updateOperationValue || ""));
-				} else if (effectiveUpdateTriggerType === "dataflow") {
-					if (existingDataflow) {
-						setDataflowNodeId(existingDataflow.fromNodeId);
-						setDataflowHandleId(existingDataflow.fromHandleId);
-						setDataflowVariable(existingDataflow.fromVar);
-						setDataflowVariableName(
-							existingDataflow.fromVarDisplayName,
-						);
-						setDataflowVariableId(existingDataflow.fromVarConfigId);
-						setDataflowVariableValueType(
-							existingDataflow.fromVarValueType,
-						);
+					} else if (effectiveUpdateTriggerType === "dataflow") {
+						if (existingDataflow) {
+							setDataflowExpireDuration(
+								existingDataflow.expireDuration
+									? { ...existingDataflow.expireDuration }
+									: { ...DEFAULT_DATAFLOW_EXPIRE_DURATION },
+							);
+							setDataflowErrorPolicy(() => {
+								const defaults = createDefaultDataflowErrorPolicy();
+								return existingDataflow.errorPolicy
+									? { ...defaults, ...existingDataflow.errorPolicy }
+									: defaults;
+							});
+							setDataflowNodeId(existingDataflow.fromNodeId);
+							setDataflowHandleId(existingDataflow.fromHandleId);
+							setDataflowVariable(existingDataflow.fromVar);
+							setDataflowVariableName(existingDataflow.fromVarDisplayName);
+							setDataflowVariableId(existingDataflow.fromVarConfigId);
+							setDataflowVariableValueType(existingDataflow.fromVarValueType);
 
-						const selectedNode = variableItemList.find(
-							(item) => item.nodeId === existingDataflow.fromNodeId,
-						);
-						if (selectedNode) {
-							setDataflowNodeType(selectedNode.nodeType);
-							setDataflowNodeName(selectedNode.nodeName);
+							const selectedNode = variableItemList.find(
+								(item) => item.nodeId === existingDataflow.fromNodeId,
+							);
+							if (selectedNode) {
+								setDataflowNodeType(selectedNode.nodeType);
+								setDataflowNodeName(selectedNode.nodeName);
+							}
+						} else {
+							setDataflowExpireDuration({
+								...DEFAULT_DATAFLOW_EXPIRE_DURATION,
+							});
+							setDataflowErrorPolicy(createDefaultDataflowErrorPolicy());
+							setDataflowNodeId(null);
+							setDataflowHandleId(null);
+							setDataflowVariable(null);
+							setDataflowVariableName(null);
+							setDataflowVariableId(null);
+							setDataflowVariableValueType(null);
+							setDataflowNodeType(null);
+							setDataflowNodeName(null);
 						}
+						setTriggerCase(null);
+						setUpdateValue("");
 					}
-					setTriggerCase(null);
-					setUpdateValue("");
-				}
 				} else {
 					const effectiveTriggerType =
 						getEffectiveTriggerType(editingConfig) ?? "condition";
@@ -601,9 +654,9 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 		isEditing,
 		editingConfig,
 		existingConfigs.length,
-	resetForm,
-	variableItemList,
-	customVariables,
+		resetForm,
+		variableItemList,
+		customVariables,
 	]);
 
 	// 检查是否存在重复配置
@@ -699,9 +752,7 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 
 		// 如果是编辑操作，检查是否有连接的目标节点
 		if (isEditing && editingConfig) {
-			const targetNodeIds = getTargetNodeIds(
-				id
-			);
+			const targetNodeIds = getTargetNodeIds(id);
 			console.log("targetNodeIds", targetNodeIds);
 			const targetNodeNames = [
 				...new Set(
@@ -774,6 +825,15 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 				varDisplayName = variableName.trim();
 			}
 
+			const triggerConfig = buildTriggerConfigFromState(triggerType, {
+				timerConfig: timerConfigData,
+				conditionConfig:
+					triggerType === "condition" && triggerCase ? triggerCase : undefined,
+			});
+			if (!triggerConfig) {
+				return;
+			}
+
 			const getConfig: GetVariableConfig = {
 				configId: editingConfig?.configId || 0,
 				inputHandleId: editingConfig?.inputHandleId || "",
@@ -781,10 +841,7 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 				varOperation: "get",
 				varType: isSystemVariable ? "system" : "custom",
 				symbol: symbol || null,
-				triggerConfig: buildTriggerConfigFromState(triggerType, {
-					timerConfig: timerConfigData,
-					conditionConfig: triggerType === "condition" ? triggerCase : null,
-				}),
+				triggerConfig,
 				varDisplayName: varDisplayName,
 				varName: variable,
 				varValueType: varValueType,
@@ -802,6 +859,10 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 			let updateDataflowTrigger: DataFlowTrigger | null = null;
 			if (updateTriggerType === "dataflow") {
 				// 数据流模式：保存 DataFlow 对象
+				const resolvedNodeType =
+					dataflowNodeType ?? NodeType.VariableNode;
+				const resolvedVarValueType =
+					dataflowVariableValueType ?? VariableValueType.NUMBER;
 				updateDataflowTrigger = {
 					fromNodeId: dataflowNodeId || "",
 					fromNodeName: dataflowNodeName || "",
@@ -809,61 +870,105 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 					fromVar: dataflowVariable || "",
 					fromVarDisplayName: dataflowVariableName || "",
 					fromVarConfigId: dataflowVariableId || 0,
-					fromNodeType: dataflowNodeType || null,
-					fromVarValueType: dataflowVariableValueType || null,
+					fromNodeType: resolvedNodeType,
+					fromVarValueType: resolvedVarValueType,
+					expireDuration: { ...dataflowExpireDuration },
+					errorPolicy: { ...dataflowErrorPolicy },
 				};
 				updateOperationValue = null;
 			} else {
-				// 条件触发模式：保存输入值或布尔值
-				updateOperationValue =
-					updateOperationType === "toggle" ? true : updateValue;
+				// 条件触发/定时触发模式：根据变量类型转换值
+				if (updateOperationType === "toggle") {
+					updateOperationValue = true;
+				} else {
+					// 根据变量类型转换 updateValue
+					const varType =
+						selectedCustomVar?.varValueType || VariableValueType.NUMBER;
+					switch (varType) {
+						case VariableValueType.NUMBER:
+						case VariableValueType.PERCENTAGE:
+							// 数字类型：转换为 number
+							updateOperationValue = updateValue ? Number(updateValue) : 0;
+							break;
+						case VariableValueType.BOOLEAN:
+							// 布尔类型：转换为 boolean
+							updateOperationValue = updateValue === "true";
+							break;
+						case VariableValueType.ENUM:
+							// 枚举类型：解析 JSON 数组
+							try {
+								updateOperationValue = JSON.parse(updateValue);
+							} catch {
+								updateOperationValue = [];
+							}
+							break;
+						case VariableValueType.STRING:
+						case VariableValueType.TIME:
+						default:
+							// 字符串/时间类型：保持字符串
+							updateOperationValue = updateValue;
+							break;
+					}
+				}
 			}
 
-			const updateConfig: UpdateVariableConfig = {
-				configId: editingConfig?.configId || 0,
-				inputHandleId: editingConfig?.inputHandleId || "",
-				outputHandleId: editingConfig?.outputHandleId || "",
-				varOperation: "update",
-				updateVarValueOperation: updateOperationType,
-				triggerConfig: buildTriggerConfigFromState(updateTriggerType, {
-					timerConfig: updateTriggerType === "timer" ? timerConfig : undefined,
-					conditionConfig:
-						updateTriggerType === "condition" ? triggerCase : null,
-					dataflowConfig: updateTriggerType === "dataflow"
-						? updateDataflowTrigger
-						: null,
-				}),
-				varType: "custom", // update 模式下只能是自定义变量
-				varName: variable,
-				varDisplayName: selectedCustomVar?.varDisplayName || variable,
-				varValueType:
-					selectedCustomVar?.varValueType || VariableValueType.NUMBER,
-				updateOperationValue: updateOperationValue,
-			};
-			variableConfig = updateConfig;
+		const triggerConfig = buildTriggerConfigFromState(updateTriggerType, {
+			timerConfig: updateTriggerType === "timer" ? timerConfig : undefined,
+			conditionConfig:
+				updateTriggerType === "condition" && triggerCase ? triggerCase : undefined,
+			dataflowConfig:
+				updateTriggerType === "dataflow" && updateDataflowTrigger
+					? updateDataflowTrigger
+					: undefined,
+		});
+		if (!triggerConfig) {
+			return;
+		}
+
+		const updateConfig: UpdateVariableConfig = {
+			configId: editingConfig?.configId || 0,
+			inputHandleId: editingConfig?.inputHandleId || "",
+			outputHandleId: editingConfig?.outputHandleId || "",
+			varOperation: "update",
+			updateVarValueOperation: updateOperationType,
+			triggerConfig,
+			varType: "custom", // update 模式下只能是自定义变量
+			varName: variable,
+			varDisplayName: selectedCustomVar?.varDisplayName || variable,
+			varValueType:
+				selectedCustomVar?.varValueType || VariableValueType.NUMBER,
+			updateOperationValue: updateOperationValue,
+		};
+		variableConfig = updateConfig;
 		} else {
 			// reset 模式 - 查找选中的自定义变量信息
 			const selectedCustomVar = customVariables.find(
 				(v: CustomVariable) => v.varName === variable,
 			);
 
-			const resetConfig: ResetVariableConfig = {
-				configId: editingConfig?.configId || 0,
-				inputHandleId: editingConfig?.inputHandleId || "",
-				outputHandleId: editingConfig?.outputHandleId || "",
-				varOperation: "reset",
-				triggerConfig: buildTriggerConfigFromState(triggerType, {
-					timerConfig: timerConfigData,
-					conditionConfig: triggerType === "condition" ? triggerCase : null,
-				}),
-				varType: "custom", // reset 模式下只能是自定义变量
-				varName: variable,
-				varDisplayName: selectedCustomVar?.varDisplayName || variable,
-				varValueType:
-					selectedCustomVar?.varValueType || VariableValueType.NUMBER,
-				varInitialValue: varInitialValue, // 保存初始值
-			};
-			variableConfig = resetConfig;
+		const triggerConfig = buildTriggerConfigFromState(triggerType, {
+			timerConfig: timerConfigData,
+			conditionConfig:
+				triggerType === "condition" && triggerCase ? triggerCase : undefined,
+		});
+		if (!triggerConfig) {
+			return;
+		}
+
+		const resetConfig: ResetVariableConfig = {
+			configId: editingConfig?.configId || 0,
+			inputHandleId: editingConfig?.inputHandleId || "",
+			outputHandleId: editingConfig?.outputHandleId || "",
+			varOperation: "reset",
+			triggerConfig,
+			varType: "custom", // reset 模式下只能是自定义变量
+			varName: variable,
+			varDisplayName: selectedCustomVar?.varDisplayName || variable,
+			varValueType:
+				selectedCustomVar?.varValueType || VariableValueType.NUMBER,
+			varInitialValue: varInitialValue, // 保存初始值
+		};
+		variableConfig = resetConfig;
 		}
 
 		console.log("variableConfig", variableConfig);
@@ -903,144 +1008,203 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 
 	return (
 		<Dialog open={isOpen} onOpenChange={onOpenChange}>
-			<DialogContent className="sm:max-w-[500px]">
+			<DialogContent className="sm:max-w-[500px] max-h-[85vh] flex flex-col">
 				<DialogHeader>
 					<DialogTitle>{getDialogTitle()}</DialogTitle>
-					<DialogDescription>
-						{getDialogDescription()}
-					</DialogDescription>
+					<DialogDescription>{getDialogDescription()}</DialogDescription>
 				</DialogHeader>
-				<div className="flex flex-col gap-4 py-4">
-					{currentStep === 1 ? (
-						<VarOperateGuide
-							value={varOperation}
-							onValueChange={(value) =>
-								setVarOperation(value as "get" | "update" | "reset")
-							}
-							onConfirm={handleNextStep}
-						/>
-					) : (
-						<>
-							{varOperation === "get" ? (
-								<GetVarConfig
-									symbol={symbol}
-									variableName={variableName}
-									variable={variable}
-									triggerConfig={buildTriggerConfigFromState(triggerType, {
-										timerConfig: triggerType === "timer" ? timerConfig : undefined,
-										conditionConfig: triggerType === "condition" ? triggerCase : null,
-									})}
-									symbolOptions={symbolOptions}
-									symbolPlaceholder={symbolPlaceholder}
-									symbolEmptyMessage={symbolEmptyMessage}
-									isSymbolSelectorDisabled={isSymbolSelectorDisabled}
-									customVariables={customVariables}
-									caseItemList={caseItemList}
-									isEditing={isEditing}
-									duplicateOperation={duplicateOperation}
-									onSymbolChange={setSymbol}
-									onVariableNameChange={handleVariableNameChange}
-									onVariableChange={handleVariableTypeChange}
-									onTriggerConfigChange={(newConfig) => {
-										const newTriggerType = getEffectiveTriggerType({ triggerConfig: newConfig }) ?? "condition";
-										const newTimerConfig = getTimerTriggerConfig({ triggerConfig: newConfig });
-										const newConditionConfig = getConditionTriggerConfig({ triggerConfig: newConfig });
-
-										setTriggerType(newTriggerType);
-										if (newTimerConfig) setTimerConfig(newTimerConfig);
-										setTriggerCase(newConditionConfig ?? null);
-									}}
-									onValidationChange={setIsGetConfigValid}
-								/>
-							) : varOperation === "update" ? (
-								<UpdateVarConfig
-									variable={variable}
-									updateOperationType={updateOperationType}
-									updateValue={updateValue}
-									triggerConfig={buildTriggerConfigFromState(updateTriggerType, {
-										timerConfig: updateTriggerType === "timer" ? timerConfig : undefined,
-										conditionConfig: updateTriggerType === "condition" ? triggerCase : null,
-										dataflowConfig: updateTriggerType === "dataflow" ? {
-											fromNodeId: dataflowNodeId || "",
-											fromNodeName: dataflowNodeName || "",
-											fromHandleId: dataflowHandleId || "",
-											fromVar: dataflowVariable || "",
-											fromVarDisplayName: dataflowVariableName || "",
-											fromVarConfigId: dataflowVariableId || 0,
-											fromNodeType: dataflowNodeType || null,
-											fromVarValueType: dataflowVariableValueType || null,
-										} : null,
-									})}
-									customVariables={customVariables}
-									customVariableOptions={customVariableOptions}
-									variableItemList={variableItemList}
-									caseItemList={caseItemList}
-									dataflowNodeId={dataflowNodeId}
-									dataflowHandleId={dataflowHandleId}
-									dataflowVariable={dataflowVariable}
-									dataflowVariableName={dataflowVariableName}
-									isEditing={isEditing}
-									duplicateOperation={duplicateOperation}
-									onVariableChange={setVariable}
-									onUpdateOperationTypeChange={setUpdateOperationType}
-									onUpdateValueChange={setUpdateValue}
-									onTriggerConfigChange={(newConfig) => {
-										const newTriggerType = getEffectiveTriggerType({ triggerConfig: newConfig }) ?? "condition";
-										const newTimerConfig = getTimerTriggerConfig({ triggerConfig: newConfig });
-										const newConditionConfig = getConditionTriggerConfig({ triggerConfig: newConfig });
-										const newDataflowConfig = getDataFlowTriggerConfig({ triggerConfig: newConfig });
-
-										setUpdateTriggerType(newTriggerType);
-										if (newTimerConfig) setTimerConfig(newTimerConfig);
-										setTriggerCase(newConditionConfig ?? null);
-
-										// 更新 dataflow 相关状态
-										if (newDataflowConfig) {
-											setDataflowNodeId(newDataflowConfig.fromNodeId);
-											setDataflowNodeName(newDataflowConfig.fromNodeName);
-											setDataflowHandleId(newDataflowConfig.fromHandleId);
-											setDataflowVariable(newDataflowConfig.fromVar);
-											setDataflowVariableName(newDataflowConfig.fromVarDisplayName);
-											setDataflowVariableId(newDataflowConfig.fromVarConfigId);
-											setDataflowNodeType(newDataflowConfig.fromNodeType);
-											setDataflowVariableValueType(newDataflowConfig.fromVarValueType);
-										}
-									}}
-								onDataflowNodeChange={handleDataflowNodeChange}
-								onDataflowVariableChange={handleDataflowVariableChange}
-								getAvailableOperations={getAvailableOperations}
-								getUpdateOperationLabel={getUpdateOperationLabel}
-								onValidationChange={setIsUpdateConfigValid}
+				<ScrollArea className="flex-1 overflow-auto">
+					<div className="flex flex-col gap-4 py-2 pr-0">
+						{currentStep === 1 ? (
+							<VarOperateGuide
+								value={varOperation}
+								onValueChange={(value) =>
+									setVarOperation(value as "get" | "update" | "reset")
+								}
+								onConfirm={handleNextStep}
 							/>
-							) : (
-							<ResetVarConfig
-								variable={variable}
-								triggerConfig={buildTriggerConfigFromState(triggerType, {
-									timerConfig: triggerType === "timer" ? timerConfig : undefined,
-									conditionConfig: triggerType === "condition" ? triggerCase : null,
-								})}
-								customVariables={customVariables}
-								customVariableOptions={customVariableOptions}
-								caseItemList={caseItemList}
-								varInitialValue={varInitialValue}
-								isEditing={isEditing}
-								duplicateOperation={duplicateOperation}
-								onVariableChange={setVariable}
-								onTriggerConfigChange={(newConfig) => {
-									const newTriggerType = getEffectiveTriggerType({ triggerConfig: newConfig }) ?? "condition";
-									const newTimerConfig = getTimerTriggerConfig({ triggerConfig: newConfig });
-									const newConditionConfig = getConditionTriggerConfig({ triggerConfig: newConfig });
+						) : (
+							<>
+								{varOperation === "get" ? (
+									<GetVarConfig
+										symbol={symbol}
+										variableName={variableName}
+										variable={variable}
+				triggerConfig={buildTriggerConfigFromState(triggerType, {
+					timerConfig:
+						triggerType === "timer" ? timerConfig : undefined,
+					conditionConfig:
+						triggerType === "condition" && triggerCase ? triggerCase : undefined,
+				})}
+										symbolOptions={symbolOptions}
+										symbolPlaceholder={symbolPlaceholder}
+										symbolEmptyMessage={symbolEmptyMessage}
+										isSymbolSelectorDisabled={isSymbolSelectorDisabled}
+										customVariables={customVariables}
+										caseItemList={caseItemList}
+										isEditing={isEditing}
+										duplicateOperation={duplicateOperation}
+										onSymbolChange={setSymbol}
+										onVariableNameChange={handleVariableNameChange}
+										onVariableChange={handleVariableTypeChange}
+										onTriggerConfigChange={(newConfig) => {
+											const newTriggerType =
+												getEffectiveTriggerType({ triggerConfig: newConfig }) ??
+												"condition";
+											const newTimerConfig = getTimerTriggerConfig({
+												triggerConfig: newConfig,
+											});
+											const newConditionConfig = getConditionTriggerConfig({
+												triggerConfig: newConfig,
+											});
 
-									setTriggerType(newTriggerType);
-									if (newTimerConfig) setTimerConfig(newTimerConfig);
-									setTriggerCase(newConditionConfig ?? null);
-								}}
-								onValidationChange={setIsResetConfigValid}
-							/>
-							)}
-						</>
-					)}
-				</div>
+											setTriggerType(newTriggerType);
+											if (newTimerConfig) setTimerConfig(newTimerConfig);
+											setTriggerCase(newConditionConfig ?? null);
+										}}
+										onValidationChange={setIsGetConfigValid}
+									/>
+								) : varOperation === "update" ? (
+									<UpdateVarConfig
+										variable={variable}
+										updateOperationType={updateOperationType}
+										updateValue={updateValue}
+				triggerConfig={buildTriggerConfigFromState(
+					updateTriggerType,
+					{
+						timerConfig:
+							updateTriggerType === "timer"
+								? timerConfig
+								: undefined,
+						conditionConfig:
+							updateTriggerType === "condition" && triggerCase
+								? triggerCase
+								: undefined,
+						dataflowConfig:
+							updateTriggerType === "dataflow"
+								? {
+									fromNodeId: dataflowNodeId || "",
+									fromNodeName: dataflowNodeName || "",
+									fromHandleId: dataflowHandleId || "",
+									fromVar: dataflowVariable || "",
+									fromVarDisplayName: dataflowVariableName || "",
+																fromVarConfigId: dataflowVariableId || 0,
+																fromNodeType:
+																	dataflowNodeType ?? NodeType.VariableNode,
+																fromVarValueType:
+																	dataflowVariableValueType ??
+																	VariableValueType.NUMBER,
+																expireDuration: { ...dataflowExpireDuration },
+																errorPolicy: { ...dataflowErrorPolicy },
+								}
+								: undefined,
+					},
+				)}
+										customVariables={customVariables}
+										customVariableOptions={customVariableOptions}
+										variableItemList={variableItemList}
+										caseItemList={caseItemList}
+										dataflowNodeId={dataflowNodeId}
+										dataflowHandleId={dataflowHandleId}
+										dataflowVariable={dataflowVariable}
+										dataflowVariableName={dataflowVariableName}
+										isEditing={isEditing}
+										duplicateOperation={duplicateOperation}
+										onVariableChange={setVariable}
+										onUpdateOperationTypeChange={setUpdateOperationType}
+										onUpdateValueChange={setUpdateValue}
+										onTriggerConfigChange={(newConfig) => {
+											const newTriggerType =
+												getEffectiveTriggerType({ triggerConfig: newConfig }) ??
+												"condition";
+											const newTimerConfig = getTimerTriggerConfig({
+												triggerConfig: newConfig,
+											});
+											const newConditionConfig = getConditionTriggerConfig({
+												triggerConfig: newConfig,
+											});
+											const newDataflowConfig = getDataFlowTriggerConfig({
+												triggerConfig: newConfig,
+											});
+
+											setUpdateTriggerType(newTriggerType);
+											if (newTimerConfig) setTimerConfig(newTimerConfig);
+											setTriggerCase(newConditionConfig ?? null);
+
+											// 更新 dataflow 相关状态
+											if (newDataflowConfig) {
+												setDataflowExpireDuration(
+													newDataflowConfig.expireDuration
+														? { ...newDataflowConfig.expireDuration }
+														: { ...DEFAULT_DATAFLOW_EXPIRE_DURATION },
+												);
+												setDataflowErrorPolicy(() => {
+													const defaults = createDefaultDataflowErrorPolicy();
+													return newDataflowConfig.errorPolicy
+														? { ...defaults, ...newDataflowConfig.errorPolicy }
+														: defaults;
+												});
+												setDataflowNodeId(newDataflowConfig.fromNodeId);
+												setDataflowNodeName(newDataflowConfig.fromNodeName);
+												setDataflowHandleId(newDataflowConfig.fromHandleId);
+												setDataflowVariable(newDataflowConfig.fromVar);
+												setDataflowVariableName(
+													newDataflowConfig.fromVarDisplayName,
+												);
+												setDataflowVariableId(
+													newDataflowConfig.fromVarConfigId,
+												);
+												setDataflowNodeType(newDataflowConfig.fromNodeType);
+												setDataflowVariableValueType(
+													newDataflowConfig.fromVarValueType,
+												);
+											}
+										}}
+										onDataflowNodeChange={handleDataflowNodeChange}
+										onDataflowVariableChange={handleDataflowVariableChange}
+										getAvailableOperations={getAvailableOperations}
+										getUpdateOperationLabel={getUpdateOperationLabel}
+										onValidationChange={setIsUpdateConfigValid}
+									/>
+								) : (
+									<ResetVarConfig
+										variable={variable}
+			triggerConfig={buildTriggerConfigFromState(triggerType, {
+				timerConfig:
+					triggerType === "timer" ? timerConfig : undefined,
+				conditionConfig:
+					triggerType === "condition" && triggerCase ? triggerCase : undefined,
+			})}
+										customVariables={customVariables}
+										customVariableOptions={customVariableOptions}
+										caseItemList={caseItemList}
+										varInitialValue={varInitialValue}
+										isEditing={isEditing}
+										duplicateOperation={duplicateOperation}
+										onVariableChange={setVariable}
+										onTriggerConfigChange={(newConfig) => {
+											const newTriggerType =
+												getEffectiveTriggerType({ triggerConfig: newConfig }) ??
+												"condition";
+											const newTimerConfig = getTimerTriggerConfig({
+												triggerConfig: newConfig,
+											});
+											const newConditionConfig = getConditionTriggerConfig({
+												triggerConfig: newConfig,
+											});
+
+											setTriggerType(newTriggerType);
+											if (newTimerConfig) setTimerConfig(newTimerConfig);
+											setTriggerCase(newConditionConfig ?? null);
+										}}
+										onValidationChange={setIsResetConfigValid}
+									/>
+								)}
+							</>
+						)}
+					</div>
+					<ScrollBar orientation="vertical" />
+				</ScrollArea>
 				<DialogFooter>
 					{currentStep === 1 ? (
 						<>
@@ -1052,19 +1216,19 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 					) : (
 						<>
 							{!isEditing && (
-							<Button variant="outline" onClick={handleBackStep}>
-								{t("previous")}
-							</Button>
+								<Button variant="outline" onClick={handleBackStep}>
+									{t("previous")}
+								</Button>
 							)}
 							<Button
-							onClick={handleSave}
-							disabled={
-								varOperation === "get"
-									? !variableName.trim() || isDuplicate() || !isGetConfigValid
-									: varOperation === "update"
-										? !isUpdateConfigValid
-										: !isResetConfigValid // reset 模式
-							}
+								onClick={handleSave}
+								disabled={
+									varOperation === "get"
+										? !variableName.trim() || isDuplicate() || !isGetConfigValid
+										: varOperation === "update"
+											? !isUpdateConfigValid
+											: !isResetConfigValid // reset 模式
+								}
 							>
 								{t("save")}
 							</Button>

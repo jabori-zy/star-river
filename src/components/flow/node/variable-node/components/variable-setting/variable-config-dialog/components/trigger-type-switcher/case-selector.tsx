@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { SelectInDialog } from "@/components/select-components/select-in-dialog";
+import { SelectInDialog } from "@/components/dialog-components/select-in-dialog";
 import { ButtonGroup } from "@/components/ui/button-group";
 import type { CaseItem } from "@/types/node/if-else-node";
 import { NodeType } from "@/types/node/index";

@@ -12,7 +12,7 @@ import { useStartNodeDataStore } from "@/store/node/use-start-node-data-store";
 import type { MarketSymbol } from "@/types/market";
 import type { VariableConfig } from "@/types/node/variable-node";
 import { getEffectiveTriggerType } from "@/types/node/variable-node";
-import type { CaseItemInfo } from "./variable-config-dialog/components/case-selector";
+import type { CaseItemInfo } from "./variable-config-dialog/components/trigger-type-switcher/case-selector";
 import { TradeMode } from "@/types/strategy";
 import VariableConfigDialog from "./variable-config-dialog";
 import VariableConfigItem from "./variable-config-item";
@@ -50,7 +50,8 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 	} | null>(null);
 
 	const {
-		getTargetNodeIdsBySourceHandleId,
+		// getTargetNodeIdsBySourceHandleId,
+		getTargetNodeIds,
 		getConnectedNodeVariables,
 		getIfElseNodeCases,
 	} = useStrategyWorkflow();
@@ -69,7 +70,6 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 		// 获取连接节点的变量并更新状态
 		const variables = getConnectedNodeVariables(connections, tradeMode);
 		const cases = getIfElseNodeCases(connections, tradeMode);
-		console.log("收集到的所有cases列表", cases);
 		setVariableItemList(variables);
 		setCaseItemList(cases);
 	}, [
@@ -173,9 +173,10 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 
 	const handleDeleteVariable = (index: number) => {
 		const variableToDelete = variableConfigs[index];
-		const targetNodeIds = getTargetNodeIdsBySourceHandleId(
-			variableToDelete.outputHandleId,
-		);
+		// const targetNodeIds = getTargetNodeIdsBySourceHandleId(
+		// 	variableToDelete.outputHandleId,
+		// );
+		const targetNodeIds = getTargetNodeIds(id);
 
 		const targetNodeNames = [
 			...new Set(
@@ -318,7 +319,7 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 	return (
 		<div className="flex flex-col gap-1">
 			<div className="flex items-center justify-between">
-				<Label className="text-sm font-bold">{t("VariableNode.variableConfig")}</Label>
+				<Label className="text-sm font-bold">{t("variableNode.variableConfig")}</Label>
 				<Button variant="ghost" size="icon" onClick={handleAddVariable}>
 					<PlusIcon className="w-4 h-4" />
 				</Button>
@@ -327,7 +328,7 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 		<div className="space-y-2">
 			{variableConfigs.length === 0 ? (
 				<div className="flex items-center justify-center p-4 border border-dashed rounded-md text-muted-foreground text-sm">
-					{t("VariableNode.clickAddVariable")}
+					{t("variableNode.clickAddVariable")}
 				</div>
 			) : (
 				variableConfigs.map((config, index) => (

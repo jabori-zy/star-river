@@ -1,6 +1,6 @@
 import { DateTimePicker24h } from "@/components/datetime-picker";
 import { formatDate } from "@/components/flow/node/node-utils";
-import { SelectInDialog } from "@/components/select-components/select-in-dialog";
+import { SelectInDialog } from "@/components/dialog-components/select-in-dialog";
 import type {
 	TriggerConfig,
 	UpdateVarValueOperation,
@@ -10,7 +10,7 @@ import {
 	getEffectiveTriggerType,
 	getTimerTriggerConfig,
 } from "@/types/node/variable-node";
-import { generateTimeHint } from "../../../../hint-generators";
+import { generateTimeHint } from "@/components/flow/node/variable-node/hint-generators";
 import { useTranslation } from "react-i18next";
 
 interface TimeTypeOpEditorProps {
@@ -21,7 +21,7 @@ interface TimeTypeOpEditorProps {
 	onUpdateValueChange: (value: string) => void;
 	variableDisplayName?: string;
 	triggerType: "condition" | "timer" | "dataflow";
-	triggerConfig: TriggerConfig;
+	triggerConfig?: TriggerConfig;
 }
 
 const TimeTypeOpEditor: React.FC<TimeTypeOpEditorProps> = ({

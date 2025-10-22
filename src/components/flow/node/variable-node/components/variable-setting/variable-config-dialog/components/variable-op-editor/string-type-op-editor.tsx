@@ -1,11 +1,7 @@
-import { SelectInDialog } from "@/components/select-components/select-in-dialog";
+import { useTranslation } from "react-i18next";
+import { SelectInDialog } from "@/components/dialog-components/select-in-dialog";
 import { ButtonGroup } from "@/components/ui/button-group";
-import {
-	InputGroup,
-	InputGroupAddon,
-	InputGroupInput,
-	InputGroupText,
-} from "@/components/ui/input-group";
+import { Input } from "@/components/ui/input";
 import type {
 	TriggerConfig,
 	UpdateVarValueOperation,
@@ -15,10 +11,9 @@ import {
 	getEffectiveTriggerType,
 	getTimerTriggerConfig,
 } from "@/types/node/variable-node";
-import { generatePercentageHint } from "../../../../hint-generators";
-import { useTranslation } from "react-i18next";
+import { generateStringHint } from "@/components/flow/node/variable-node/hint-generators";
 
-interface PercentTypeOpEditorProps {
+interface StringTypeOpEditorProps {
 	updateOperationType: UpdateVarValueOperation;
 	updateValue: string;
 	availableOperationOptions: Array<{ value: string; label: string }>;
@@ -27,10 +22,10 @@ interface PercentTypeOpEditorProps {
 	variableDisplayName?: string;
 	getPlaceholder: (operationType: UpdateVarValueOperation) => string;
 	triggerType: "condition" | "timer" | "dataflow";
-	triggerConfig: TriggerConfig;
+	triggerConfig?: TriggerConfig;
 }
 
-const PercentTypeOpEditor: React.FC<PercentTypeOpEditorProps> = ({
+const StringTypeOpEditor: React.FC<StringTypeOpEditorProps> = ({
 	updateOperationType,
 	updateValue,
 	availableOperationOptions,
@@ -47,9 +42,22 @@ const PercentTypeOpEditor: React.FC<PercentTypeOpEditorProps> = ({
 	const conditionTrigger = getConditionTriggerConfig({ triggerConfig });
 	const timerTrigger = getTimerTriggerConfig({ triggerConfig });
 
+	// 字符串输入处理
+	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		onUpdateValueChange(e.target.value);
+	};
+
+	const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+		// 失去焦点时 trim 左右空格
+		const trimmedValue = e.target.value.trim();
+		if (trimmedValue !== e.target.value) {
+			onUpdateValueChange(trimmedValue);
+		}
+	};
+
 	// 判断是否应该显示提示文案
 	const shouldShowHint = () => {
-		// 条件触发模式：必须选择了触发条件
+		// 条件触发模式:必须选择了触发条件
 		if (effectiveTriggerType === "condition" && !conditionTrigger) {
 			return false;
 		}
@@ -72,34 +80,31 @@ const PercentTypeOpEditor: React.FC<PercentTypeOpEditorProps> = ({
 					options={availableOperationOptions}
 					className="w-[70px]"
 				/>
-				<InputGroup className="flex-1">
-					<InputGroupInput
-						id="updateValue"
-						type="number"
-						value={updateValue}
-						onChange={(e) => onUpdateValueChange(e.target.value)}
-						placeholder={getPlaceholder(updateOperationType)}
-					/>
-					<InputGroupAddon align="inline-end">
-						<InputGroupText>%</InputGroupText>
-					</InputGroupAddon>
-			</InputGroup>
-		</ButtonGroup>
-		{shouldShowHint() && (
-			<p className="text-xs text-muted-foreground">
-				{generatePercentageHint({
-					t,
-					varOperation: "update",
-					operationType: updateOperationType,
-					variableDisplayName,
-					value: updateValue,
-					conditionTrigger,
-					timerTrigger,
-				})}
-			</p>
-		)}
-	</div>
+				<Input
+					id="updateValue"
+					type="text"
+					value={updateValue}
+					onChange={handleInputChange}
+					onBlur={handleBlur}
+					placeholder={getPlaceholder(updateOperationType)}
+					className="flex-1"
+				/>
+			</ButtonGroup>
+			{shouldShowHint() && (
+				<p className="text-xs text-muted-foreground">
+					{generateStringHint({
+						t,
+						varOperation: "update",
+						operationType: updateOperationType,
+						variableDisplayName,
+						value: updateValue,
+						conditionTrigger,
+						timerTrigger,
+					})}
+				</p>
+			)}
+		</div>
 	);
 };
 
-export default PercentTypeOpEditor;
+export default StringTypeOpEditor;

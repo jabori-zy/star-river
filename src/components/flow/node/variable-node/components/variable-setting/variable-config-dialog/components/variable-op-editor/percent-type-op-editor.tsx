@@ -1,6 +1,11 @@
-import { SelectInDialog } from "@/components/select-components/select-in-dialog";
+import { SelectInDialog } from "@/components/dialog-components/select-in-dialog";
 import { ButtonGroup } from "@/components/ui/button-group";
-import { Input } from "@/components/ui/input";
+import {
+	InputGroup,
+	InputGroupAddon,
+	InputGroupInput,
+	InputGroupText,
+} from "@/components/ui/input-group";
 import type {
 	TriggerConfig,
 	UpdateVarValueOperation,
@@ -10,32 +15,25 @@ import {
 	getEffectiveTriggerType,
 	getTimerTriggerConfig,
 } from "@/types/node/variable-node";
-import { VariableValueType } from "@/types/variable";
-import {
-	generateNumberHint,
-	generateStringHint,
-	generateTimeHint,
-} from "../../../../hint-generators";
+import { generatePercentageHint } from "@/components/flow/node/variable-node/hint-generators";
 import { useTranslation } from "react-i18next";
 
-interface InputTypeOpEditorProps{
+interface PercentTypeOpEditorProps {
 	updateOperationType: UpdateVarValueOperation;
 	updateValue: string;
 	availableOperationOptions: Array<{ value: string; label: string }>;
-	varValueType: VariableValueType;
 	onUpdateOperationTypeChange: (operation: UpdateVarValueOperation) => void;
 	onUpdateValueChange: (value: string) => void;
 	variableDisplayName?: string;
 	getPlaceholder: (operationType: UpdateVarValueOperation) => string;
 	triggerType: "condition" | "timer" | "dataflow";
-	triggerConfig: TriggerConfig;
+	triggerConfig?: TriggerConfig;
 }
 
-const InputTypeOpEditor: React.FC<InputTypeOpEditorProps> = ({
+const PercentTypeOpEditor: React.FC<PercentTypeOpEditorProps> = ({
 	updateOperationType,
 	updateValue,
 	availableOperationOptions,
-	varValueType,
 	onUpdateOperationTypeChange,
 	onUpdateValueChange,
 	variableDisplayName,
@@ -48,20 +46,6 @@ const InputTypeOpEditor: React.FC<InputTypeOpEditorProps> = ({
 		triggerType ?? getEffectiveTriggerType({ triggerConfig }) ?? "condition";
 	const conditionTrigger = getConditionTriggerConfig({ triggerConfig });
 	const timerTrigger = getTimerTriggerConfig({ triggerConfig });
-
-	// 根据变量类型选择对应的生成器
-	const getHintGenerator = () => {
-		switch (varValueType) {
-			case VariableValueType.NUMBER:
-				return generateNumberHint;
-			case VariableValueType.STRING:
-				return generateStringHint;
-			case VariableValueType.TIME:
-				return generateTimeHint;
-			default:
-				return generateNumberHint;
-		}
-	};
 
 	// 判断是否应该显示提示文案
 	const shouldShowHint = () => {
@@ -88,18 +72,22 @@ const InputTypeOpEditor: React.FC<InputTypeOpEditorProps> = ({
 					options={availableOperationOptions}
 					className="w-[70px]"
 				/>
-				<Input
-					id="updateValue"
-					type={varValueType === VariableValueType.NUMBER ? "number" : "text"}
-					value={updateValue}
-					onChange={(e) => onUpdateValueChange(e.target.value)}
-					placeholder={getPlaceholder(updateOperationType)}
-					className="flex-1"
-				/>
+				<InputGroup className="flex-1">
+					<InputGroupInput
+						id="updateValue"
+						type="number"
+						value={updateValue}
+						onChange={(e) => onUpdateValueChange(e.target.value)}
+						placeholder={getPlaceholder(updateOperationType)}
+					/>
+					<InputGroupAddon align="inline-end">
+						<InputGroupText>%</InputGroupText>
+					</InputGroupAddon>
+			</InputGroup>
 		</ButtonGroup>
 		{shouldShowHint() && (
 			<p className="text-xs text-muted-foreground">
-				{getHintGenerator()({
+				{generatePercentageHint({
 					t,
 					varOperation: "update",
 					operationType: updateOperationType,
@@ -114,4 +102,4 @@ const InputTypeOpEditor: React.FC<InputTypeOpEditorProps> = ({
 	);
 };
 
-export default InputTypeOpEditor;
+export default PercentTypeOpEditor;

@@ -7,7 +7,7 @@ import { VariableValueType } from "@/types/variable";
  * @returns 格式化后的字符串
  */
 export const formatVariableValue = (
-	value: string | number | boolean | string[],
+	value: string | number | boolean | string[] | null,
 	type: VariableValueType,
 ): string => {
 	if (type === VariableValueType.BOOLEAN) {

@@ -234,7 +234,7 @@ export const generateTriggerPrefix = ({
  */
 export const generateDataflowPath = (
 	fromNodeName: string,
-	fromNodeType: NodeType | null,
+	fromNodeType: NodeType,
 	fromVarConfigId: number,
 	fromVarDisplayName: string,
 	t: (key: string, options?: { [key: string]: string }) => string,

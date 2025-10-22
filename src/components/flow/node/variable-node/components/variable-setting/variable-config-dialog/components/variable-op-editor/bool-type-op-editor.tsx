@@ -1,4 +1,4 @@
-import { SelectInDialog } from "@/components/select-components/select-in-dialog";
+import { SelectInDialog } from "@/components/dialog-components/select-in-dialog";
 import { ButtonGroup } from "@/components/ui/button-group";
 import type {
 	TriggerConfig,
@@ -9,7 +9,7 @@ import {
 	getEffectiveTriggerType,
 	getTimerTriggerConfig,
 } from "@/types/node/variable-node";
-import { generateBooleanHint } from "../../../../hint-generators";
+import { generateBooleanHint } from "@/components/flow/node/variable-node/hint-generators";
 import { useTranslation } from "react-i18next";
 
 interface BoolTypeOpEditorProps {
@@ -21,7 +21,7 @@ interface BoolTypeOpEditorProps {
 	variableDisplayName?: string;
 	idPrefix?: string;
 	triggerType: "condition" | "timer" | "dataflow";
-	triggerConfig: TriggerConfig;
+	triggerConfig?: TriggerConfig;
 }
 
 const BOOLEAN_OPTIONS = [

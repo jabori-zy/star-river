@@ -1,6 +1,6 @@
 import { ShoppingCart, TrendingUp } from "lucide-react";
 import React, { useCallback, useEffect } from "react";
-import { SelectInDialog } from "@/components/select-components/select-in-dialog";
+import { SelectInDialog } from "@/components/dialog-components/select-in-dialog";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,

@@ -1,33 +1,50 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { DateTimePicker24h } from "@/components/datetime-picker";
 import { formatDate } from "@/components/flow/node/node-utils";
+import { PercentInput } from "@/components/percent-input";
+import MultipleSelector, {
+	type Option,
+} from "@/components/select-components/multi-select";
 import { Input } from "@/components/ui/input";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import { VariableValueType } from "@/types/variable";
 
 interface ConstantInputProps {
 	className?: string;
-	value: number | string; // 支持数字和字符串
-	onValueChange: (value: number | string) => void; // 支持数字和字符串
-	inputType?: "number" | "time"; // 输入类型：数字或时间
+	value: number | string | boolean | string[]; // 支持多种类型
+	onValueChange: (value: number | string | boolean) => void; // 回调支持多种类型
+	valueType: VariableValueType; // 变量值类型
 }
 
 const ConstantInput: React.FC<ConstantInputProps> = ({
 	className,
 	value,
 	onValueChange,
-	inputType = "number", // 默认为数字类型
+	valueType,
 }) => {
-	// 使用字符串来保存本地输入状态，这样可以处理空值和避免格式问题
+	// 数字类型的本地状态管理
 	const [localValue, setLocalValue] = useState<string>(value.toString());
 	const [isFocused, setIsFocused] = useState(false);
 
 	useEffect(() => {
 		// 只有在组件不处于焦点状态时才更新本地值，避免用户输入时被覆盖
-		// 时间类型不需要更新 localValue，因为它使用独立的状态管理
-		if (!isFocused && inputType === "number") {
+		// 只对数字和百分比类型生效
+		if (
+			!isFocused &&
+			(valueType === VariableValueType.NUMBER ||
+				valueType === VariableValueType.PERCENTAGE)
+		) {
 			setLocalValue(value.toString());
 		}
-	}, [value, isFocused, inputType]);
+	}, [value, isFocused, valueType]);
 
+	// 数字输入处理
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const inputValue = e.target.value;
 		setLocalValue(inputValue);
@@ -76,7 +93,7 @@ const ConstantInput: React.FC<ConstantInputProps> = ({
 		}
 	};
 
-	// 将字符串转换为Date对象（参考 time-range-selector.tsx）
+	// 将字符串转换为Date对象
 	const parseDatetime = (datetimeString: string): Date | undefined => {
 		if (!datetimeString) return undefined;
 		try {
@@ -86,59 +103,136 @@ const ConstantInput: React.FC<ConstantInputProps> = ({
 		}
 	};
 
-	// 时间选择处理（使用 formatDate 格式化，参考 time-range-selector.tsx）
+	// 时间选择处理
 	const handleTimeChange = (date: Date | undefined) => {
-		// 将 Date 对象格式化为字符串保存
 		const formattedDate = formatDate(date);
 		onValueChange(formattedDate);
 	};
 
-	// 如果是时间类型，渲染时间选择器
-	if (inputType === "time") {
-		// 将字符串转换为 Date 对象
-		const dateValue =
-			typeof value === "string" ? parseDatetime(value) : undefined;
+	// 字符串输入处理
+	const handleStringChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		onValueChange(e.target.value);
+	};
 
-		return (
-			<div className={className}>
-				<style>{`
-					/* 覆盖时间选择器按钮样式 */
-					.time-picker-override button {
-						background-color: transparent !important;
-						border-color: rgb(209 213 219) !important;
-						height: 2rem !important;
-						font-size: 0.75rem !important;
-						line-height: 1rem !important;
+	const handleStringBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+		// 失去焦点时 trim 左右空格
+		const trimmedValue = e.target.value.trim();
+		if (trimmedValue !== e.target.value) {
+			onValueChange(trimmedValue);
+		}
+	};
+
+	// ENUM 选项处理
+	const enumOptions = useMemo<Option[]>(() => {
+		if (!Array.isArray(value)) return [];
+		return value.map((val) => ({
+			value: val?.toString?.() ?? "",
+			label: val?.toString?.() ?? "",
+		}));
+	}, [value]);
+
+	const handleEnumChange = (options: Option[]) => {
+		const values = options.map((opt) => opt.value);
+		onValueChange(JSON.stringify(values));
+	};
+
+	// 根据类型渲染不同的输入组件
+	switch (valueType) {
+		case VariableValueType.STRING:
+			return (
+				<Input
+					type="text"
+					className={`${className} h-8 text-xs font-normal hover:bg-gray-200`}
+					value={typeof value === "string" ? value : ""}
+					onChange={handleStringChange}
+					onBlur={handleStringBlur}
+					placeholder="输入字符串"
+				/>
+			);
+
+		case VariableValueType.BOOLEAN:
+			return (
+				<Select
+					value={
+						typeof value === "boolean" ? value.toString() : "true"
 					}
-					.time-picker-override button:hover {
-						background-color: rgb(229 231 235) !important;
-					}
-				`}</style>
-				<div className="time-picker-override">
-					<DateTimePicker24h
-						value={dateValue}
-						onChange={handleTimeChange}
-						showSeconds={true}
-					/>
+					onValueChange={(val) => onValueChange(val === "true")}
+				>
+					<SelectTrigger className={`${className} h-8 text-xs font-normal hover:bg-gray-200`}>
+						<SelectValue placeholder="选择布尔值" />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="true">true</SelectItem>
+						<SelectItem value="false">false</SelectItem>
+					</SelectContent>
+				</Select>
+			);
+
+		case VariableValueType.TIME:
+			const dateValue =
+				typeof value === "string" ? parseDatetime(value) : undefined;
+
+			return (
+				<div className={className}>
+					<style>{`
+						/* 覆盖时间选择器按钮样式 */
+						.time-picker-override button {
+							background-color: transparent !important;
+							border-color: rgb(209 213 219) !important;
+							height: 2rem !important;
+							font-size: 0.75rem !important;
+							line-height: 1rem !important;
+						}
+						.time-picker-override button:hover {
+							background-color: rgb(229 231 235) !important;
+						}
+					`}</style>
+					<div className="time-picker-override">
+						<DateTimePicker24h
+							value={dateValue}
+							onChange={handleTimeChange}
+							showSeconds={true}
+						/>
+					</div>
 				</div>
-			</div>
-		);
-	}
+			);
 
-	// 默认渲染数字输入
-	return (
-		<Input
-			type="text" // 改为text类型以获得更好的控制
-			inputMode="numeric" // 在移动设备上显示数字键盘
-			pattern="[0-9]*" // 提示输入数字
-			className={`${className} h-8 text-xs font-normal hover:bg-gray-200`}
-			value={localValue}
-			onChange={handleInputChange}
-			onBlur={handleBlur}
-			onFocus={handleFocus}
-			onKeyDown={handleKeyDown}
-		/>
-	);
+		case VariableValueType.ENUM:
+			return (
+				<MultipleSelector
+					value={enumOptions}
+					onChange={handleEnumChange}
+					placeholder="选择或输入枚举值"
+					creatable={true}
+					className={`${className} min-h-9 h-9`}
+					hidePlaceholderWhenSelected
+				/>
+			);
+
+		case VariableValueType.PERCENTAGE:
+			return (
+				<PercentInput
+					value={typeof value === "number" ? value.toString() : "0"}
+					onChange={(val) => onValueChange(val)}
+					placeholder="如: 5"
+					className={className}
+				/>
+			);
+
+		case VariableValueType.NUMBER:
+		default:
+			return (
+				<Input
+					type="number"
+					className={`${className} h-8 text-xs font-normal hover:bg-gray-200`}
+					value={localValue}
+					onChange={handleInputChange}
+					onBlur={handleBlur}
+					onFocus={handleFocus}
+					onKeyDown={handleKeyDown}
+				/>
+			);
+	}
 };
 
 export default ConstantInput;

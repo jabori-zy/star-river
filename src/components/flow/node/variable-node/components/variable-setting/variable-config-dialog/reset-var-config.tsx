@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { SelectInDialog } from "@/components/select-components/select-in-dialog";
+import { SelectInDialog } from "@/components/dialog-components/select-in-dialog";
 import { Label } from "@/components/ui/label";
 import type { TriggerConfig, TimerTrigger, ConditionTrigger } from "@/types/node/variable-node";
 import {
@@ -18,14 +18,13 @@ import {
 	generateTimeHint,
 	generatePercentageHint,
 } from "../../../hint-generators";
-import CaseSelector, { type CaseItemInfo } from "./components/case-selector";
-import TimerConfigComponent from "./components/timer";
-import TriggerTypeConfig from "./components/trigger-type-config";
+import { type CaseItemInfo } from "./components/trigger-type-switcher/case-selector";
+import TriggerTypeSwitcher from "./components/trigger-type-switcher";
 import { useTranslation } from "react-i18next";
 
 interface ResetVarConfigProps {
 	variable: string;
-	triggerConfig: TriggerConfig;
+	triggerConfig?: TriggerConfig;
 	customVariables: CustomVariable[];
 	customVariableOptions: Array<{ value: string; label: React.ReactNode }>;
 	caseItemList: CaseItemInfo[];
@@ -33,7 +32,7 @@ interface ResetVarConfigProps {
 	isEditing?: boolean;
 	duplicateOperation?: string | null;
 	onVariableChange: (value: string) => void;
-	onTriggerConfigChange: (value: TriggerConfig) => void;
+	onTriggerConfigChange: (value: TriggerConfig | undefined) => void;
 	onValidationChange?: (isValid: boolean) => void;
 }
 
@@ -164,17 +163,17 @@ const ResetVarConfig: React.FC<ResetVarConfigProps> = ({
 			</div>
 
 			{/* 触发方式 */}
-			<TriggerTypeConfig
+			<TriggerTypeSwitcher
 				triggerType={effectiveTriggerType}
 				onTriggerTypeChange={(newType) => {
 					// 根据新的触发类型构建 triggerConfig，使用缓存的配置
 					if (newType === "condition") {
-						// 切换到 condition 时，使用缓存的 conditionTrigger
-						onTriggerConfigChange(
-							cachedConditionConfig.current
-								? { type: "condition", config: cachedConditionConfig.current }
-								: null
-						);
+				// 切换到 condition 时，使用缓存的 conditionTrigger
+				onTriggerConfigChange(
+					cachedConditionConfig.current
+						? { type: "condition", config: cachedConditionConfig.current }
+						: undefined
+				);
 					} else if (newType === "timer") {
 						// 切换到 timer 时，使用缓存的 timerTrigger（保留用户之前的配置）
 						onTriggerConfigChange({
@@ -185,97 +184,80 @@ const ResetVarConfig: React.FC<ResetVarConfigProps> = ({
 				}}
 				availableTriggers={["condition", "timer"]}
 				idPrefix="reset"
+				caseItemList={caseItemList}
+				selectedTriggerCase={conditionTrigger ?? null}
+				onTriggerCaseChange={(newCase) => {
+				// 更新缓存
+				cachedConditionConfig.current = newCase;
+				// 通知父组件
+				onTriggerConfigChange(newCase ? { type: "condition", config: newCase } : undefined);
+				}}
+				timerConfig={timerTrigger || cachedTimerConfig.current}
+				onTimerConfigChange={(newTimer) => {
+					// 更新缓存
+					cachedTimerConfig.current = newTimer;
+					// 通知父组件
+					onTriggerConfigChange({ type: "timer", config: newTimer });
+				}}
 			/>
 
-			{/* 条件触发模式：Case 选择器 */}
-			{effectiveTriggerType === "condition" && (
-				<div className="flex flex-col gap-2">
-					<Label className="text-sm font-medium pointer-events-none">
-						{t("variableNode.triggerCase")}
-					</Label>
-					<CaseSelector
-						caseList={caseItemList}
-						selectedTriggerCase={conditionTrigger ?? null}
-						onTriggerCaseChange={(newCase) => {
-							// 更新缓存
-							cachedConditionConfig.current = newCase;
-							// 通知父组件
-							onTriggerConfigChange(newCase ? { type: "condition", config: newCase } : null);
-						}}
-				/>
-				{shouldShowHint() &&
-					(() => {
-						const selectedVar = customVariables.find(
-							(v: CustomVariable) => v.varName === variable,
-						);
-						const variableDisplayName =
-							selectedVar?.varDisplayName || variable;
-						const formattedValue = selectedVar
-							? formatVariableValue(varInitialValue, selectedVar.varValueType)
-							: String(varInitialValue);
+			{/* 条件触发模式：提示信息 */}
+			{effectiveTriggerType === "condition" && shouldShowHint() &&
+				(() => {
+					const selectedVar = customVariables.find(
+						(v: CustomVariable) => v.varName === variable,
+					);
+					const variableDisplayName =
+						selectedVar?.varDisplayName || variable;
+					const formattedValue = selectedVar
+						? formatVariableValue(varInitialValue, selectedVar.varValueType)
+						: String(varInitialValue);
 
-						const hint = getHintGenerator(selectedVar?.varValueType)({
-							t,
-							varOperation: "reset",
-							variableDisplayName,
-							value: formattedValue,
-							selectedValues: Array.isArray(varInitialValue)
-								? varInitialValue
-								: undefined,
-							conditionTrigger: conditionTrigger,
-							timerTrigger: undefined,
-						});
+					const hint = getHintGenerator(selectedVar?.varValueType)({
+						t,
+						varOperation: "reset",
+						variableDisplayName,
+						value: formattedValue,
+						selectedValues: Array.isArray(varInitialValue)
+							? varInitialValue
+							: undefined,
+						conditionTrigger: conditionTrigger,
+						timerTrigger: undefined,
+					});
 
-						return hint ? (
-							<p className="text-xs text-muted-foreground">{hint}</p>
-						) : null;
-					})()}
-			</div>
-			)}
+					return hint ? (
+						<p className="text-xs text-muted-foreground">{hint}</p>
+					) : null;
+				})()}
 
-			{/* 定时配置 */}
-			{effectiveTriggerType === "timer" && (
-				<>
-					<div className="rounded-md border border-gray-200 p-3">
-						<TimerConfigComponent
-							timerConfig={timerTrigger || { mode: "interval", interval: 1, unit: "hour" }}
-							onTimerConfigChange={(newTimer) => {
-								// 更新缓存
-								cachedTimerConfig.current = newTimer;
-								// 通知父组件
-								onTriggerConfigChange({ type: "timer", config: newTimer });
-							}}
-						/>
-				</div>
-				{shouldShowHint() &&
-					(() => {
-						const selectedVar = customVariables.find(
-							(v: CustomVariable) => v.varName === variable,
-						);
-						const variableDisplayName =
-							selectedVar?.varDisplayName || variable;
-						const formattedValue = selectedVar
-							? formatVariableValue(varInitialValue, selectedVar.varValueType)
-							: String(varInitialValue);
+			{/* 定时触发模式：提示信息 */}
+			{effectiveTriggerType === "timer" && shouldShowHint() &&
+				(() => {
+					const selectedVar = customVariables.find(
+						(v: CustomVariable) => v.varName === variable,
+					);
+					const variableDisplayName =
+						selectedVar?.varDisplayName || variable;
+					const formattedValue = selectedVar
+						? formatVariableValue(varInitialValue, selectedVar.varValueType)
+						: String(varInitialValue);
 
-						const hint = getHintGenerator(selectedVar?.varValueType)({
-							t,
-							varOperation: "reset",
-							variableDisplayName,
-							value: formattedValue,
-							selectedValues: Array.isArray(varInitialValue)
-								? varInitialValue
-								: undefined,
-							conditionTrigger: undefined,
-							timerTrigger: timerTrigger,
-						});
+					const hint = getHintGenerator(selectedVar?.varValueType)({
+						t,
+						varOperation: "reset",
+						variableDisplayName,
+						value: formattedValue,
+						selectedValues: Array.isArray(varInitialValue)
+							? varInitialValue
+							: undefined,
+						conditionTrigger: undefined,
+						timerTrigger: timerTrigger,
+					});
 
-						return hint ? (
-							<p className="text-xs text-muted-foreground mt-1">{hint}</p>
-						) : null;
-					})()}
-			</>
-		)}
+					return hint ? (
+						<p className="text-xs text-muted-foreground mt-1">{hint}</p>
+					) : null;
+				})()}
 	</>
 );
 };

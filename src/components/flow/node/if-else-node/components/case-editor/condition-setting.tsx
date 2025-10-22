@@ -1,21 +1,9 @@
 import { Trash2 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { formatDate } from "@/components/flow/node/node-utils";
-import { PercentInput } from "@/components/percent-input";
-import MultipleSelector, {
-	type Option,
-} from "@/components/select-components/multi-select";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
-import { Input } from "@/components/ui/input";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
 import type { VariableItem } from "@/hooks/flow/use-strategy-workflow";
 import {
 	ComparisonSymbol,
@@ -219,12 +207,41 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 			varValueType: varValueType,
 		};
 
-		// 如果类型发生变化，清空右变量并使用新类型的默认值
+		// 如果类型发生变化，重置右变量为对应类型的常量默认值
 		let newRightVariable: Variable | Constant | null = localCondition.right;
 		let newComparisonSymbol = localCondition.comparisonSymbol;
 
 		if (hasTypeChanged) {
-			newRightVariable = null;
+			// 根据新的左变量类型创建默认常量值
+			let defaultValue: string | number | boolean | string[];
+			switch (varValueType) {
+				case VariableValueType.STRING:
+					defaultValue = "";
+					break;
+				case VariableValueType.BOOLEAN:
+					defaultValue = true;
+					break;
+				case VariableValueType.TIME:
+					defaultValue = formatDate(new Date());
+					break;
+				case VariableValueType.ENUM:
+					defaultValue = [];
+					break;
+				case VariableValueType.PERCENTAGE:
+					defaultValue = 0;
+					break;
+				case VariableValueType.NUMBER:
+				default:
+					defaultValue = 0;
+					break;
+			}
+
+			// 创建常量类型的右变量
+			newRightVariable = {
+				varType: VarType.constant,
+				varValueType: varValueType,
+				varValue: defaultValue,
+			};
 
 			// 检查当前的比较符号是否适用于新的变量类型
 			const availableSymbols = getAvailableComparisonSymbols(varValueType);
@@ -526,32 +543,6 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 	// 	localCondition.left?.outputHandleId,
 	// 	localCondition.left?.varName,
 	// ]);
-	const enumConstantValues = useMemo(() => {
-		if (
-			rightVarType !== VarType.constant ||
-			leftVarValueType !== VariableValueType.ENUM
-		) {
-			return [] as string[];
-		}
-
-		const right = localCondition.right;
-		if (!right || right.varType !== VarType.constant) {
-			return [];
-		}
-
-		const value = (right as Constant).varValue;
-		if (Array.isArray(value)) {
-			return value.map((item) => item?.toString?.() ?? "");
-		}
-
-		return [];
-	}, [rightVarType, leftVarValueType, localCondition.right]);
-	const enumConstantOptions = useMemo<Option[]>(() => {
-		return enumConstantValues.map((val) => ({
-			value: val,
-			label: val,
-		}));
-	}, [enumConstantValues]);
 
 	// 获取右变量的白名单类型（只保留该类型）
 	const getRightVariableWhitelist = (): VariableValueType | null => {
@@ -654,105 +645,12 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 								// excludeVariable={excludeVariable}
 							/>
 						) : (
-							/* 根据左变量类型显示不同的常量输入 */
-							(() => {
-								const leftVarType =
-									leftVarValueType || VariableValueType.NUMBER;
-								const constantValue = getRightConstantValue();
-
-								switch (leftVarType) {
-									case VariableValueType.STRING:
-										return (
-											<Input
-												type="text"
-												className="w-full h-8 text-xs font-normal hover:bg-gray-200"
-												value={typeof constantValue === 'string' ? constantValue : ""}
-												onChange={(e) => {
-													// 输入时允许空格，不做处理
-													handleUpdateRightConstantValue(e.target.value);
-												}}
-												onBlur={(e) => {
-													// 失去焦点时 trim 左右空格
-													const trimmedValue = e.target.value.trim();
-													if (trimmedValue !== e.target.value) {
-														handleUpdateRightConstantValue(trimmedValue);
-													}
-												}}
-												placeholder="输入字符串"
-											/>
-										);
-
-									case VariableValueType.BOOLEAN:
-										return (
-											<Select
-												value={typeof constantValue === 'boolean' ? constantValue.toString() : "true"}
-												onValueChange={(value) =>
-													handleUpdateRightConstantValue(value === "true")
-												}
-											>
-												<SelectTrigger className="w-full h-8 text-xs font-normal hover:bg-gray-200">
-													<SelectValue placeholder="选择布尔值" />
-												</SelectTrigger>
-												<SelectContent>
-													<SelectItem value="true">true</SelectItem>
-													<SelectItem value="false">false</SelectItem>
-												</SelectContent>
-											</Select>
-										);
-
-									case VariableValueType.TIME:
-										return (
-											<ConstantInput
-												className="w-full"
-												value={
-													typeof constantValue === 'string' ? constantValue : formatDate(new Date())
-												}
-												onValueChange={handleUpdateRightConstantValue}
-												inputType="time"
-											/>
-										);
-
-									case VariableValueType.ENUM: {
-										return (
-											<MultipleSelector
-												value={enumConstantOptions}
-												onChange={(options) => {
-													const values = options.map((opt) => opt.value);
-													handleUpdateRightConstantValue(
-														JSON.stringify(values),
-													);
-												}}
-												placeholder="选择或输入枚举值"
-												creatable={true}
-												className="w-full min-h-9 h-9"
-												hidePlaceholderWhenSelected
-											/>
-										);
-									}
-
-									case VariableValueType.PERCENTAGE:
-										return (
-											<PercentInput
-												value={typeof constantValue === 'number' ? constantValue.toString() : "0"}
-												onChange={(value) =>
-													handleUpdateRightConstantValue(value)
-												}
-												placeholder="如: 5"
-												className="w-full"
-											/>
-										);
-
-									case VariableValueType.NUMBER:
-									default:
-										return (
-											<ConstantInput
-												className="w-full"
-												value={typeof constantValue === 'number' ? constantValue : 0}
-												onValueChange={handleUpdateRightConstantValue}
-											/>
-										);
-								}
-							})()
+							<ConstantInput
+								className="w-full"
+								value={getRightConstantValue()}
+								onValueChange={handleUpdateRightConstantValue}
+								valueType={leftVarValueType || VariableValueType.NUMBER}
+							/>
 						)}
 					</div>
 				)}

@@ -20,6 +20,7 @@ const translation = {
     },
 
     timeUnit: {
+        millisecond: "Millisecond",
         second: "Second",
         minute: "Minute",
         hour: "Hour",

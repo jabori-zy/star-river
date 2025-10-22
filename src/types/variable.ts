@@ -60,8 +60,8 @@ export interface CustomVariable {
 	varName: string; // 变量名（代码中使用的名称，符合变量命名规则）
 	varDisplayName: string; // 显示名称
 	varValueType: VariableValueType; // 变量类型
-	initialValue: string | number | boolean | string[]; // 初始值
-	varValue: string | number | boolean | string[]; // 当前变量值
+	initialValue: string | number | boolean | string[]; // 初始值(初始值不能为空)
+	varValue: string | number | boolean | string[] | null; // 当前变量值
 }
 
 // 策略系统变量
