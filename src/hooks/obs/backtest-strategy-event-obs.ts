@@ -3,9 +3,11 @@ import { filter, map, share, takeUntil } from "rxjs/operators";
 import type { Kline } from "@/types/kline";
 import type {
 	BacktestStrategyStatsUpdateEvent,
+	CustomVariableUpdateEvent,
 	IndicatorUpdateEvent,
 	KlineUpdateEvent,
 	PlayFinishedEvent,
+	SystemVariableUpdateEvent,
 	VirtualOrderEvent,
 	VirtualPositionEvent,
 	VirtualTransactionEvent,
@@ -50,7 +52,8 @@ class BacktestStrategyDataObservableService {
 	private statsDataSubject = new Subject<BacktestStrategyStatsUpdateEvent>();
 	private transactionDataSubject = new Subject<VirtualTransactionEvent>();
 	private playFinishedDataSubject = new Subject<PlayFinishedEvent>();
-
+	private customVariableDataSubject = new Subject<CustomVariableUpdateEvent>();
+	private systemVariableDataSubject = new Subject<SystemVariableUpdateEvent>();
 	/**
 	 * 获取连接状态Observable
 	 */
@@ -310,6 +313,52 @@ class BacktestStrategyDataObservableService {
 			.pipe(takeUntil(this.destroy$), share());
 	}
 
+
+	createCustomVariableStream(
+		enabled: boolean = true,
+	): Observable<CustomVariableUpdateEvent> {
+		if (!enabled) {
+			this.disconnect();
+			return new Observable((subscriber) => {
+				subscriber.complete();
+			});
+		}
+
+		if (this.eventSource && this.eventSource.readyState === EventSource.OPEN) {
+			return this.customVariableDataSubject
+				.asObservable()
+				.pipe(takeUntil(this.destroy$), share());
+		}
+
+		this.connect();
+
+		return this.customVariableDataSubject
+			.asObservable()
+			.pipe(takeUntil(this.destroy$), share());
+	}
+
+	createSystemVariableStream(
+		enabled: boolean = true,
+	): Observable<SystemVariableUpdateEvent> {
+		if (!enabled) {
+			this.disconnect();
+			return new Observable((subscriber) => {
+				subscriber.complete();
+			});
+		}
+
+		if (this.eventSource && this.eventSource.readyState === EventSource.OPEN) {
+			return this.systemVariableDataSubject
+				.asObservable()
+				.pipe(takeUntil(this.destroy$), share());
+		}
+
+		this.connect();
+
+		return this.systemVariableDataSubject
+			.asObservable()
+			.pipe(takeUntil(this.destroy$), share());
+	}
 	/**
 	 * 建立SSE连接
 	 */
@@ -361,7 +410,7 @@ class BacktestStrategyDataObservableService {
 					channel: strategyEvent.channel,
 					eventType: strategyEvent.eventType,
 					event: strategyEvent.event,
-					timestamp: strategyEvent.timestamp,
+					datetime: strategyEvent.timestamp,
 					fromNodeId: strategyEvent.fromNodeId,
 					fromNodeName: strategyEvent.fromNodeName,
 					fromNodeHandleId: strategyEvent.fromNodeHandleId,
@@ -451,6 +500,15 @@ class BacktestStrategyDataObservableService {
 			if (strategyEvent.event === "play-finished-event") {
 				const playFinishedEvent = strategyEvent as PlayFinishedEvent;
 				this.playFinishedDataSubject.next(playFinishedEvent);
+			}
+
+			if (strategyEvent.event === "custom-variable-update-event") {
+				const customVariableEvent = strategyEvent as CustomVariableUpdateEvent;
+				this.customVariableDataSubject.next(customVariableEvent);
+			}
+			if (strategyEvent.event === "sys-variable-update-event") {
+				const systemVariableEvent = strategyEvent as SystemVariableUpdateEvent;
+				this.systemVariableDataSubject.next(systemVariableEvent);
 			}
 		} catch (error) {
 			console.error("解析SSE消息失败:", error);
@@ -569,6 +627,12 @@ export const createStatsStream = (enabled: boolean = true) =>
 
 export const createPlayFinishedStream = (enabled: boolean = true) =>
 	backtestStrategyDataObservableService.createPlayFinishedStream(enabled);
+
+export const createCustomVariableStream = (enabled: boolean = true) =>
+	backtestStrategyDataObservableService.createCustomVariableStream(enabled);
+
+export const createSystemVariableStream = (enabled: boolean = true) =>
+	backtestStrategyDataObservableService.createSystemVariableStream(enabled);
 
 // 连接管理
 export const getConnectionState = () =>

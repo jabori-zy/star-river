@@ -14,7 +14,7 @@ import {
 	getVariableValueTypeIcon,
 	getVariableValueTypeIconColor,
 	getSystemVariableMetadata,
-	SystemVariable,
+	SystemVariableType,
 } from "@/types/variable";
 import {
 	generateBooleanHint,
@@ -120,7 +120,7 @@ const GetVarConfig: React.FC<GetVarConfigProps> = ({
 			};
 		}),
 		// 系统变量选项
-		...Object.values(SystemVariable).map((sysVar) => {
+		...Object.values(SystemVariableType).map((sysVar) => {
 			const metadata = getSystemVariableMetadata(t)[sysVar];
 			const TypeIconComponent = getVariableValueTypeIcon(metadata.varValueType);
 			const typeIconColor = getVariableValueTypeIconColor(metadata.varValueType);
@@ -149,8 +149,8 @@ const GetVarConfig: React.FC<GetVarConfigProps> = ({
 		: undefined;
 
 	const selectedSystemMetadata =
-		variable && Object.values(SystemVariable).includes(variable as SystemVariable)
-			? getSystemVariableMetadata(t)[variable as SystemVariable]
+		variable && Object.values(SystemVariableType).includes(variable as SystemVariableType)
+			? getSystemVariableMetadata(t)[variable as SystemVariableType]
 			: undefined;
 
 	const selectedVariableInfo = selectedCustomVariable
@@ -184,7 +184,7 @@ const GetVarConfig: React.FC<GetVarConfigProps> = ({
 
 	// 判断当前选中的变量是否是系统变量
 	const isSystemVariable = variable
-		? Object.values(SystemVariable).includes(variable as SystemVariable)
+		? Object.values(SystemVariableType).includes(variable as SystemVariableType)
 		: false;
 
 	// 监听 store 中系统变量自定义名称的变化，实时更新 variableName
@@ -215,8 +215,8 @@ const GetVarConfig: React.FC<GetVarConfigProps> = ({
 		}
 
 		// 如果是系统变量，从 store 加载自定义名称
-		const isSystemVariable = Object.values(SystemVariable).includes(
-			value as SystemVariable
+		const isSystemVariable = Object.values(SystemVariableType).includes(
+			value as SystemVariableType
 		);
 		if (isSystemVariable) {
 			const customName = getCustomName(value);

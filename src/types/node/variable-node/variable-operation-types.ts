@@ -1,3 +1,4 @@
+import { TFunction } from "i18next";
 import type { IconType } from "react-icons";
 import { TbEdit, TbFileImport, TbRefresh } from "react-icons/tb";
 
@@ -13,6 +14,25 @@ export type UpdateVarValueOperation =
 	| "append"
 	| "remove"
 	| "clear";
+
+	
+export const getUpdateOperationLabel = (type: UpdateVarValueOperation, t: TFunction): string => {
+	const labels: Record<UpdateVarValueOperation, string> = {
+		set: "=",
+		add: "+",
+		subtract: "-",
+		multiply: "×",
+		divide: "÷",
+		max: t("variableNode.max"),
+		min: t("variableNode.min"),
+		toggle: t("variableNode.toggle"),
+		append: t("variableNode.append"),
+		remove: t("variableNode.remove"),
+		clear: t("variableNode.clear"),
+	};
+	return labels[type];
+};
+
 
 export type VariableOperation = "get" | "update" | "reset";
 

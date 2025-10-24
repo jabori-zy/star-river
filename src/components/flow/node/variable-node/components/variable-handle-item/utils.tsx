@@ -7,7 +7,7 @@ import {
 	getEffectiveTriggerType,
 	getTimerTriggerConfig,
 } from "@/types/node/variable-node";
-import { SystemVariable, getSystemVariableMetadata } from "@/types/variable";
+import { SystemVariableType, getSystemVariableMetadata } from "@/types/variable";
 import { generateVariableHighlight, generateValueHighlight, formatUpdateOperationValue } from "../../variable-node-utils";
 import type { TriggerType, DataFlowTrigger } from "@/types/node/variable-node";
 
@@ -15,8 +15,8 @@ import type { TriggerType, DataFlowTrigger } from "@/types/node/variable-node";
 // 获取变量类型的中文标签
 export const getVariableLabel = (variable: string, t: (key: string) => string): string => {
 	// 检查是否是系统变量
-	if (Object.values(SystemVariable).includes(variable as SystemVariable)) {
-		const metadata = getSystemVariableMetadata(t)[variable as SystemVariable];
+	if (Object.values(SystemVariableType).includes(variable as SystemVariableType)) {
+		const metadata = getSystemVariableMetadata(t)[variable as SystemVariableType];
 		return metadata.varDisplayName;
 	}
 	// 自定义变量直接返回变量名

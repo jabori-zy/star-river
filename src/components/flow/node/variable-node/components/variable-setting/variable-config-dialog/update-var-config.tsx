@@ -28,6 +28,7 @@ import NumberTypeOpEditor from "./components/variable-op-editor/number-type-op-e
 import StringTypeOpEditor from "./components/variable-op-editor/string-type-op-editor";
 import PercentTypeOpEditor from "./components/variable-op-editor/percent-type-op-editor";
 import TimeTypeOpEditor from "./components/variable-op-editor/time-type-op-editor";
+import { TFunction } from "i18next";
 
 interface UpdateVarConfigProps {
 	variable: string;
@@ -64,7 +65,7 @@ interface UpdateVarConfigProps {
 		varValueType: VariableValueType,
 		isDataflowMode?: boolean,
 	) => UpdateVarValueOperation[];
-	getUpdateOperationLabel: (type: UpdateVarValueOperation, t:(key: string) => string) => string;
+	getUpdateOperationLabel: (type: UpdateVarValueOperation, t: TFunction) => string;
 	onValidationChange?: (isValid: boolean) => void;
 }
 
@@ -100,12 +101,12 @@ const renderOperationEditor = (
 		varValueType: VariableValueType,
 		isDataflowMode?: boolean,
 	) => UpdateVarValueOperation[],
-	getUpdateOperationLabel: (type: UpdateVarValueOperation, t: (key: string) => string) => string,
+	getUpdateOperationLabel: (type: UpdateVarValueOperation, t: TFunction) => string,
 	onUpdateOperationTypeChange: (value: UpdateVarValueOperation) => void,
 	onUpdateValueChange: (value: string) => void,
 	triggerCase: ConditionTrigger | null,
 	timerConfig: TimerTrigger | undefined,
-	t: (key: string) => string,
+	t: TFunction,
 ): React.ReactNode => {
 	const selectedVar = customVariables.find(
 		(v: CustomVariable) => v.varName === variable,

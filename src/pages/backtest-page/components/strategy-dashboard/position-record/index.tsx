@@ -51,7 +51,6 @@ const PositionRecord = forwardRef<PositionRecordRef, PositionRecordProps>(
 
 		const getVirtualPositionData = useCallback(async () => {
 			const virtualPositionData = await getVirtualPosition(strategyId);
-			console.log("virtualPositionData", virtualPositionData);
 			const historyPositionData = await getHisotryVirtualPosition(strategyId);
 			// 如果显示历史持仓，则将当前持仓和历史持仓合并
 			if (isShowHistoryPosition) {
@@ -82,7 +81,6 @@ const PositionRecord = forwardRef<PositionRecordRef, PositionRecordProps>(
 					positionEvent.event === "position-created-event" ||
 					positionEvent.event === "position-updated-event"
 				) {
-					console.log("positionEvent", positionEvent, isShowHistoryPosition);
 					const position = positionEvent.virtualPosition;
 					// 使用函数式更新来避免闭包问题
 					setPositionData((prev) => {

@@ -23,7 +23,7 @@ import {
 	generateTimeHint,
 	generatePercentageHint,
 } from "../../../../hint-generators";
-import { getUpdateOperationLabel } from "../variable-setting-dialog-utils";
+import { getUpdateOperationLabel } from "@/types/node/variable-node/variable-operation-types";
 
 interface DataFlowSelectorProps {
 	variableItemList: VariableItem[];

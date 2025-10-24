@@ -4,6 +4,8 @@ import type { KeyStr } from "@/types/symbol-key";
 import type { VirtualPosition } from "../position";
 import type { StrategyStats } from "../statistics";
 import type { VirtualTransaction } from "../transaction";
+import { CustomVariable, SystemVariable } from "../variable";
+import { UpdateVarValueOperation, VariableValue } from "../node/variable-node";
 
 export type LiveStrategyEvent = {
 	channel: string;
@@ -13,15 +15,6 @@ export type LiveStrategyEvent = {
 	timestamp: number;
 };
 
-// export type BacktestStrategyEvent = {
-//     channel: string;
-//     event_name: string;
-//     strategy_id: number;
-//     cache_key: CacheKeyStr;
-//     data: number[];
-//     timestamp: number;
-// }
-
 export type BacktestStrategyEvent =
 	| KlineUpdateEvent
 	| IndicatorUpdateEvent
@@ -29,13 +22,15 @@ export type BacktestStrategyEvent =
 	| VirtualPositionEvent
 	| VirtualTransactionEvent
 	| BacktestStrategyStatsUpdateEvent
-	| PlayFinishedEvent;
+	| PlayFinishedEvent
+	| CustomVariableUpdateEvent
+	| SystemVariableUpdateEvent;
 
 export type BaseEventProps = {
 	channel: string;
 	eventType: string;
 	event: string;
-	timestamp: number;
+	datetime: string;
 	fromNodeId: string;
 	fromNodeName: string;
 	fromNodeHandleId: string;
@@ -70,6 +65,27 @@ export type BacktestStrategyStatsUpdateEvent = Omit<
 export type VirtualTransactionEvent = BaseEventProps & {
 	transaction: VirtualTransaction;
 };
+
+
+export type CustomVariableUpdateEvent = BaseEventProps & {
+	varOperation: "get" | "update" | "reset";
+	updateOperation?: UpdateVarValueOperation,
+	updateOperationValue?: VariableValue,
+	customVariable: CustomVariable;
+};
+
+export type SystemVariableUpdateEvent = BaseEventProps & {
+	sysVariable: SystemVariable;
+};
+
+
+export function isCustomVariableUpdateEvent(event: BacktestStrategyEvent): event is CustomVariableUpdateEvent {
+	return event.eventType === "custom-variable-update-event" || event.event === "custom-variable-update-event";
+}
+
+export function isSystemVariableUpdateEvent(event: BacktestStrategyEvent): event is SystemVariableUpdateEvent {
+	return event.eventType === "system-variable-update-event" || event.event === "sys-variable-update-event";
+}
 
 export type PlayFinishedEvent = Omit<
 	BaseEventProps,

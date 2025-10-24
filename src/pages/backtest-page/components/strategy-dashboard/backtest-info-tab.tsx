@@ -1,10 +1,11 @@
 import {
-	CheckCircle,
-	ChevronDown,
-	FileCode,
-	FileText,
-	Package,
-	TrendingUp,
+    CheckCircle,
+    ChevronDown,
+    FileCode,
+    FileText,
+    Package,
+    TrendingUp,
+    Variable as VariableIcon,
 } from "lucide-react";
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
 import { cleanupBacktestStatsChartStore } from "@/components/chart/backtest-stats-chart/backtest-stats-chart-store";
@@ -21,6 +22,7 @@ import StrategyStats from "./strategy-stats";
 import TransactionRecord, {
 	type TransactionRecordRef,
 } from "./transaction-record";
+import StrategyVariable, { type StrategyVariableRef } from "./strategy-variable";
 
 interface BacktestInfoTabsProps {
 	strategyId: number;
@@ -41,6 +43,7 @@ export interface BacktestInfoTabsRef {
 	clearPositionRecords: () => void;
 	clearTransactionRecords: () => void;
 	clearRunningLogs: () => void;
+	clearVariableEvents: () => void;
 }
 
 const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
@@ -64,6 +67,7 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 		const positionRecordRef = useRef<PositionRecordRef>(null);
 		const runningLogRef = useRef<RunningLogRef>(null);
 		const transactionRecordRef = useRef<TransactionRecordRef>(null);
+		const variableRef = useRef<StrategyVariableRef>(null);
 
 		// 暴露清空订单记录和持仓记录的方法
 		useImperativeHandle(
@@ -80,6 +84,9 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 				},
 				clearRunningLogs: () => {
 					runningLogRef.current?.clearRunningLogs();
+				},
+				clearVariableEvents: () => {
+					variableRef.current?.clearVariableEvents();
 				},
 			}),
 			[],
@@ -116,7 +123,7 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 				>
 					{/* 左侧：Tab组件和收起按钮 */}
 					<div className="flex items-center gap-2 justify-self-start min-w-0">
-						<TabsList className="grid grid-cols-5 gap-1">
+                        <TabsList className="grid grid-cols-6 gap-1">
 							<TabsTrigger
 								value="profit"
 								className="flex items-center gap-1 px-1 xl:px-2 py-1 min-w-[32px]"
@@ -162,6 +169,15 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 									运行日志
 								</span>
 							</TabsTrigger>
+                            <TabsTrigger
+                                value="variables"
+                                className="flex items-center gap-1 px-1 xl:px-2 py-1 min-w-[32px]"
+                            >
+                                <VariableIcon className="h-4 w-4 flex-shrink-0" />
+                                <span className="hidden xl:inline text-xs whitespace-nowrap">
+                                    策略变量
+                                </span>
+                            </TabsTrigger>
 						</TabsList>
 
 						{/* 收起按钮 */}
@@ -236,6 +252,11 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 								/>
 							</div>
 						</TabsContent>
+                        <TabsContent value="variables" className="w-full overflow-hidden">
+                            <div className="flex flex-col h-full pl-2">
+                                <StrategyVariable ref={variableRef} strategyId={strategyId} />
+                            </div>
+                        </TabsContent>
 					</div>
 				)}
 			</Tabs>

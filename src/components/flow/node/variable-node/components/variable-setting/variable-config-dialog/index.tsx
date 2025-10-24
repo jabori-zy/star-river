@@ -44,7 +44,7 @@ import {
 	getVariableValueTypeIcon,
 	getVariableValueTypeIconColor,
 	getSystemVariableMetadata,
-	SystemVariable,
+	SystemVariableType,
 	VariableValueType,
 } from "@/types/variable";
 import {
@@ -57,7 +57,7 @@ import GetVarConfig from "./get-var-config";
 import ResetVarConfig from "./reset-var-config";
 import UpdateVarConfig from "./update-var-config";
 import VarOperateGuide from "./var-operate-guide";
-import { getUpdateOperationLabel } from "./variable-setting-dialog-utils";
+import { getUpdateOperationLabel } from "@/types/node/variable-node/variable-operation-types";
 
 const buildTriggerConfigFromState = (
 	triggerType: "condition" | "timer" | "dataflow",
@@ -201,7 +201,7 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 	const [symbol, setSymbol] = React.useState<string>("");
 	const [variableName, setVariableName] = React.useState<string>("");
 	const [variable, setVariable] = React.useState<string>(
-		SystemVariable.TOTAL_POSITION_NUMBER,
+		SystemVariableType.TOTAL_POSITION_NUMBER,
 	);
 	const [triggerType, setTriggerType] = React.useState<
 		"condition" | "timer" | "dataflow"
@@ -388,7 +388,7 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 		setVarOperation("get");
 		setSymbol("");
 		setVariableName("");
-		setVariable(SystemVariable.TOTAL_POSITION_NUMBER);
+		setVariable(SystemVariableType.TOTAL_POSITION_NUMBER);
 		setTriggerType("condition");
 		setTimerConfig({
 			mode: "interval",
@@ -438,7 +438,7 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 			}
 		} else if (varOperation === "get") {
 			// 切换到 get 模式时，恢复为默认的系统变量
-			setVariable(SystemVariable.TOTAL_POSITION_NUMBER);
+			setVariable(SystemVariableType.TOTAL_POSITION_NUMBER);
 			// 重置变量类型追踪
 			prevVarValueTypeRef.current = null;
 		}
@@ -651,7 +651,7 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 				resetForm();
 				// 新建时生成默认名称
 				const defaultName = generateVariableName(
-					SystemVariable.TOTAL_POSITION_NUMBER,
+					SystemVariableType.TOTAL_POSITION_NUMBER,
 					existingConfigs.length,
 					t,
 					customVariables,
@@ -810,8 +810,8 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 
 		if (varOperation === "get") {
 			// 判断是系统变量还是自定义变量
-			const isSystemVariable = Object.values(SystemVariable).includes(
-				variable as SystemVariable,
+			const isSystemVariable = Object.values(SystemVariableType).includes(
+				variable as SystemVariableType,
 			);
 			const selectedCustomVar = customVariables.find(
 				(v: CustomVariable) => v.varName === variable,
@@ -823,7 +823,7 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 
 			if (isSystemVariable) {
 				// 系统变量
-				const metadata = getSystemVariableMetadata(t)[variable as SystemVariable];
+				const metadata = getSystemVariableMetadata(t)[variable as SystemVariableType];
 				varValueType = metadata.varValueType;
 				varDisplayName = variableName.trim() || metadata.varDisplayName;
 			} else if (selectedCustomVar) {

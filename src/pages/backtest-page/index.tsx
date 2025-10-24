@@ -206,6 +206,7 @@ export default function BacktestPage() {
 		strategyDashboardRef.current?.clearPositionRecords();
 		strategyDashboardRef.current?.clearTransactionRecords();
 		strategyDashboardRef.current?.clearRunningLogs();
+		strategyDashboardRef.current?.clearVariableEvents();
 	};
 
 	// 处理面板展开

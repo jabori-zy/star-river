@@ -136,10 +136,12 @@ const VariableDialog = ({
 		}
 
 		onSave({
+			varType: "custom",
 			varName: variableName,
 			varDisplayName: variableDisplayName,
 			varValueType: variableType,
 			initialValue: finalValue,
+			previousValue: finalValue,
 			varValue: finalValue,
 		});
 	};

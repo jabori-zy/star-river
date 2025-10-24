@@ -42,7 +42,7 @@ const RunningLog = forwardRef<RunningLogRef, RunningLogProps>(
 			try {
 				// 尝试从API获取数据
 				const logData = await getStrategyRunningLog(strategyId);
-				console.log("获取策略运行日志数据:", logData);
+				
 				setLogData(
 					logData.sort(
 						(a, b) =>

@@ -10,7 +10,7 @@ import type {
 import { getEffectiveTriggerType } from "@/types/node/variable-node";
 import {
 	getSystemVariableMetadata,
-	SystemVariable,
+	SystemVariableType,
 } from "@/types/variable";
 import { TFunction } from "i18next";
 /**
@@ -19,8 +19,8 @@ import { TFunction } from "i18next";
  */
 export const getVariableLabel = (type: string, t: TFunction): string => {
 	// 检查是否是系统变量
-	if (Object.values(SystemVariable).includes(type as SystemVariable)) {
-		const metadata = getSystemVariableMetadata(t)[type as SystemVariable];
+	if (Object.values(SystemVariableType).includes(type as SystemVariableType)) {
+		const metadata = getSystemVariableMetadata(t)[type as SystemVariableType];
 		return metadata.varDisplayName;
 	}
 	// 自定义变量直接返回变量名（变量名通常就是 varName）
@@ -39,7 +39,7 @@ export const generateVariableName = (
 	let typeLabel: string;
 
 	// 检查是否是系统变量
-	if (Object.values(SystemVariable).includes(variableType as SystemVariable)) {
+	if (Object.values(SystemVariableType).includes(variableType as SystemVariableType)) {
 		typeLabel = getVariableLabel(variableType, t);
 	} else if (customVariables) {
 		// 自定义变量：从列表中查找 varDisplayName
