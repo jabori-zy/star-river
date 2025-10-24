@@ -96,11 +96,12 @@ export default function StrategyFlow({ strategy }: { strategy: Strategy }) {
 				y: event.clientY,
 			});
 
-			// 使用函数式状态更新，基于当前节点数量生成唯一ID和名称
-			setNodes((currentNodes) => {
-				// 生成基于时间戳和节点数量的唯一ID，避免重复
-				const nodeCount = currentNodes.length;
-				const uniqueId = `${dragNodeItem.nodeId}_${nodeCount + 1}`;
+		// 使用函数式状态更新，基于时间戳和随机数生成唯一ID
+		setNodes((currentNodes) => {
+			// 生成唯一ID：节点类型 + 时间戳 + 随机数
+			const timestamp = Date.now();
+			const random = Math.random().toString(36).substring(2, 9);
+			const uniqueId = `${dragNodeItem.nodeId}_${timestamp}_${random}`;
 
 				const newNode = {
 					id: uniqueId,
@@ -109,7 +110,7 @@ export default function StrategyFlow({ strategy }: { strategy: Strategy }) {
 					data: {
 						...dragNodeItem.nodeData,
 						strategyId: strategy.id,
-						nodeName: `${dragNodeItem.nodeName}${nodeCount + 1}`,
+						nodeName: `${dragNodeItem.nodeName}`,
 					},
 				};
 
