@@ -20,6 +20,7 @@ export interface StrategyDashboardRef {
 	clearTransactionRecords: () => void;
 	clearRunningLogs: () => void;
 	clearVariableEvents: () => void;
+	clearPerformanceData: () => void;
 }
 
 const StrategyDashboard = forwardRef<
@@ -57,6 +58,9 @@ const StrategyDashboard = forwardRef<
 				},
 				clearVariableEvents: () => {
 					backtestInfoTabsRef.current?.clearVariableEvents();
+				},
+				clearPerformanceData: () => {
+					backtestInfoTabsRef.current?.clearPerformanceData();
 				},
 			}),
 			[],

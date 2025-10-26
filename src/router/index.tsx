@@ -8,6 +8,7 @@ import SettingPage from "../pages/setting-page";
 import StrategyPage from "../pages/strategy-page";
 import TestPage from "../pages/TestPage/index";
 import TestRunningLogPage from "../pages/test-running-log-page";
+import TestStrategyPerformanceReportPage from "../pages/test-page/test-strategy-performance-report-page";
 
 const router = createBrowserRouter([
 	{
@@ -41,6 +42,10 @@ const router = createBrowserRouter([
 			{
 				path: "test-running-log",
 				element: <TestRunningLogPage />,
+			},
+			{
+				path: "test-strategy-performance-report",
+				element: <TestStrategyPerformanceReportPage />,
 			},
 		],
 	},
