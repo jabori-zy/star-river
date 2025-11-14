@@ -10,7 +10,7 @@ export interface CaseItemInfo {
 	nodeId: string;
 	nodeName: string;
 	nodeType: NodeType;
-	caseItem: CaseItem;
+	caseItem: CaseItem | string;
 }
 
 interface CaseSelectorProps {
@@ -120,7 +120,7 @@ const CaseSelector: React.FC<CaseSelectorProps> = ({
 		}
 	};
 
-	// 获取当前选中节点的所有 case 列表
+	// 获取当前选中节点的所有 case 列表（包含 case 和 else）
 	const getSelectedNodeCases = () => {
 		return caseList
 			.filter((item) => item.nodeId === localNodeId)
@@ -128,8 +128,11 @@ const CaseSelector: React.FC<CaseSelectorProps> = ({
 	};
 
 	// 生成 case 选项标签
-	const getCaseLabel = (caseItem: CaseItem) => {
-		return `Case ${caseItem.caseId}`;
+	const getCaseLabel = (caseItem: CaseItem | string) => {
+		if (typeof caseItem === "string" && caseItem === "else") {
+			return "Else";
+		}
+		return `Case ${(caseItem as CaseItem).caseId}`;
 	};
 
 	// 获取去重后的节点列表（用于节点选择器）
@@ -158,21 +161,25 @@ const CaseSelector: React.FC<CaseSelectorProps> = ({
 	}));
 
 	// 生成 case 选项（包含所有 case 和 else）
-	const caseOptions = getSelectedNodeCases().map((caseItem) => ({
-		value: generateCaseOptionValue(
-			"case",
-			caseItem.caseId,
-			caseItem.outputHandleId,
-		),
-		label: getCaseLabel(caseItem),
-	}));
-
-	// 添加 else 选项
-	// 根据 else 分支的 outputHandleId 命名规则（来自判断节点的设计）: `${nodeId}_output_else`
-	const elseOutputHandleId = localNodeId ? `${localNodeId}_output_else` : "";
-	caseOptions.push({
-		value: generateCaseOptionValue("else", undefined, elseOutputHandleId),
-		label: "Else",
+	const caseOptions = getSelectedNodeCases().map((caseItem) => {
+		// 处理 else 分支
+		if (typeof caseItem === "string" && caseItem === "else") {
+			const elseOutputHandleId = localNodeId ? `${localNodeId}_output_else` : "";
+			return {
+				value: generateCaseOptionValue("else", undefined, elseOutputHandleId),
+				label: getCaseLabel(caseItem),
+			};
+		}
+		// 处理 case 分支
+		const caseData = caseItem as CaseItem;
+		return {
+			value: generateCaseOptionValue(
+				"case",
+				caseData.caseId,
+				caseData.outputHandleId,
+			),
+			label: getCaseLabel(caseData),
+		};
 	});
 
 	return (

@@ -22,7 +22,7 @@ import {
 	generateStringHint,
 	generateTimeHint,
 	generatePercentageHint,
-} from "../../../../hint-generators";
+} from "../../../hint-generators";
 import { getUpdateOperationLabel } from "@/types/node/variable-node/variable-operation-types";
 
 interface DataFlowSelectorProps {

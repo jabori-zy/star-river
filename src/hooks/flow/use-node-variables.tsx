@@ -1,6 +1,5 @@
 import { type Connection, useReactFlow } from "@xyflow/react";
 import { useCallback } from "react";
-import type { CaseItem } from "@/types/node/if-else-node";
 import { isDefaultOutputHandleId, NodeType } from "@/types/node/index";
 import type {
 	IndicatorNodeData,
@@ -12,6 +11,7 @@ import type {
 	VariableNodeData,
 } from "@/types/node/variable-node";
 import { TradeMode } from "@/types/strategy";
+import type { IfElseNodeData, CaseItem } from "@/types/node/if-else-node";
 
 // 定义变量项类型，用于存储节点变量信息
 export interface VariableItem {
@@ -228,7 +228,7 @@ const useNodeVariables = () => {
 				nodeId: string;
 				nodeName: string;
 				nodeType: NodeType;
-				caseItem: CaseItem;
+				caseItem: CaseItem | string;
 			}> = [];
 
 			// 遍历所有连接，收集 if-else 节点的 case 信息
@@ -246,8 +246,22 @@ const useNodeVariables = () => {
 
 				// 只处理 if-else 节点
 				if (nodeType === NodeType.IfElseNode) {
+
 					// 动态导入类型以避免循环依赖
-					const ifElseNodeData = node.data as any; // 使用 any 避免直接导入 IfElseNodeData
+					const ifElseNodeData = node.data as IfElseNodeData; // 使用 any 避免直接导入 IfElseNodeData
+
+
+					// if_else_node_1762999781229_v36t5s0_else_output split by "_"
+					const sourceHandleIdParts = sourceHandleId.split("_");
+					if (sourceHandleIdParts[sourceHandleIdParts.length - 2] === "else") {
+						tempCaseList.push({
+							nodeId: node.id,
+							nodeName: ifElseNodeData.nodeName,
+							nodeType: NodeType.IfElseNode,
+							caseItem: "else",
+						});
+						continue;
+					}
 
 					// 根据交易模式获取对应的配置
 					const cases =
@@ -257,9 +271,8 @@ const useNodeVariables = () => {
 
 					// 查找匹配的 case（通过 outputHandleId）
 					const matchedCase = cases?.find(
-						(caseItem: any) => caseItem.outputHandleId === sourceHandleId,
+						(caseItem: CaseItem) => caseItem.outputHandleId === sourceHandleId,
 					);
-
 					if (matchedCase) {
 						tempCaseList.push({
 							nodeId: node.id,

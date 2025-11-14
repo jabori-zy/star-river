@@ -19,15 +19,15 @@ import {
 } from "@/types/node/variable-node";
 import { type CustomVariable, VariableValueType } from "@/types/variable";
 import { getUpdateOperationPlaceholder } from "../../../variable-node-utils";
-import { type CaseItemInfo } from "./components/trigger-type-switcher/case-selector";
-import DataFlowSelector from "./components/dataflow-selector";
-import TriggerTypeSwitcher from "./components/trigger-type-switcher";
-import BoolTypeOpEditor from "./components/variable-op-editor/bool-type-op-editor";
-import EnumTypeOpEditor from "./components/variable-op-editor/enum-type-op-editor";
-import NumberTypeOpEditor from "./components/variable-op-editor/number-type-op-editor";
-import StringTypeOpEditor from "./components/variable-op-editor/string-type-op-editor";
-import PercentTypeOpEditor from "./components/variable-op-editor/percent-type-op-editor";
-import TimeTypeOpEditor from "./components/variable-op-editor/time-type-op-editor";
+import { type CaseItemInfo } from "../components/trigger-type-switcher/case-selector";
+import DataFlowSelector from "../components/dataflow-selector";
+import TriggerTypeSwitcher from "../components/trigger-type-switcher";
+import BoolTypeOpEditor from "../components/variable-op-editor/bool-type-op-editor";
+import EnumTypeOpEditor from "../components/variable-op-editor/enum-type-op-editor";
+import NumberTypeOpEditor from "../components/variable-op-editor/number-type-op-editor";
+import StringTypeOpEditor from "../components/variable-op-editor/string-type-op-editor";
+import PercentTypeOpEditor from "../components/variable-op-editor/percent-type-op-editor";
+import TimeTypeOpEditor from "../components/variable-op-editor/time-type-op-editor";
 import { TFunction } from "i18next";
 
 interface UpdateVarConfigProps {

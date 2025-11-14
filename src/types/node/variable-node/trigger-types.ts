@@ -282,6 +282,9 @@ export const getTriggerDetails = (
 
 	return {};
 };
+
+
+
 export const getEffectiveTriggerType = (
 	config: { triggerConfig?: TriggerConfig },
 ): TriggerType | null => {

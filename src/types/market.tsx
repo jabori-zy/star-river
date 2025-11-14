@@ -13,9 +13,11 @@ export type MarketSymbol = {
 };
 
 export enum ExchangeStatus {
-	NotRegist = "NotRegist", // 未注册
-	Registing = "Registing", // 注册中
+	NotRegist = "NotRegistered", // 未注册
+	Created = "Created", // 已创建
+	Initializing = "Initializing", // 初始化中
 	Connected = "Connected", // 已连接
-	RegisterFailed = "RegisterFailed", // 注册失败
+	Stopping = "Stopping", // 停止中
+	Stopped = "Stopped", // 已停止
 	Error = "Error", // 错误
 }

@@ -79,7 +79,7 @@ const TriggerTypeSwitcher: React.FC<TriggerTypeSwitcherProps> = ({
 			{/* 触发类型选择器 */}
 			<div className="space-y-1">
 				<Label className="text-sm font-medium">{t("variableNode.triggerType")}</Label>
-				<div className="flex items-center space-x-6 pt-1">
+				<div className="flex items-center space-x-4 pt-1">
 					<TooltipProvider>
 						{displayTypes.map((type) => {
 							const typeInfo = getTriggerTypeInfo(type, t);
@@ -90,7 +90,7 @@ const TriggerTypeSwitcher: React.FC<TriggerTypeSwitcherProps> = ({
 							const isTimerDisabled = type === "timer" && isBacktestMode;
 
 							const checkboxContent = (
-								<div className="flex items-center space-x-2">
+								<div className="flex items-center space-x-1">
 									<Checkbox
 										id={triggerId}
 										checked={triggerType === type}
@@ -107,7 +107,7 @@ const TriggerTypeSwitcher: React.FC<TriggerTypeSwitcherProps> = ({
 											isTimerDisabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"
 										}`}
 									>
-										<IconComponent className={`h-3.5 w-3.5 mr-1 ${typeInfo.color}`} />
+										<IconComponent className={`h-3.5 w-3.5 ${typeInfo.color}`} />
 										{typeInfo.label}
 									</Label>
 								</div>
@@ -135,8 +135,8 @@ const TriggerTypeSwitcher: React.FC<TriggerTypeSwitcherProps> = ({
 
 			{/* Condition 触发配置 */}
 			{triggerType === "condition" && onTriggerCaseChange && (
-				<div className="rounded-md border border-gray-200 p-3 space-y-2">
-					<Label className="text-xs font-medium pointer-events-none">
+				<div className="space-y-2">
+					<Label className="text-sm font-medium pointer-events-none">
 						{t("variableNode.triggerCase")}
 					</Label>
 					<CaseSelector
@@ -160,7 +160,7 @@ const TriggerTypeSwitcher: React.FC<TriggerTypeSwitcherProps> = ({
 		{/* Dataflow 触发配置 */}
 		{triggerType === "dataflow" && expireDuration && errorPolicy && 
 			onExpireDurationChange && onErrorPolicyChange && (
-			<div className="rounded-md border border-gray-200 p-3">
+			<div className="">
 				<DataflowConfig
 					expireDuration={expireDuration}
 					errorPolicy={errorPolicy}

@@ -202,9 +202,9 @@ export const ErrorPolicyConfig: React.FC<ErrorPolicyConfigProps> = ({
 								</Label>
 								{strategy === "valueReplace" && (
 									<div className="mt-2 ml-1">
-										<Label className="text-xs text-muted-foreground">
+										{/* <Label className="text-xs text-muted-foreground">
 											{t("variableNode.dataflowConfig.replaceWith")}
-										</Label>
+										</Label> */}
 										<ReplaceValueInput
 											errorType={errorType}
 											replaceValue={

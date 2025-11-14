@@ -51,8 +51,8 @@ import {
 	generateVariableName,
 	isDuplicateConfig,
 } from "../../../variable-node-utils";
-import type { SymbolSelectorOption } from "./components/symbol-selector";
-import type { CaseItemInfo } from "./components/trigger-type-switcher/case-selector";
+import type { SymbolSelectorOption } from "../components/symbol-selector";
+import type { CaseItemInfo } from "../components/trigger-type-switcher/case-selector";
 import GetVarConfig from "./get-var-config";
 import ResetVarConfig from "./reset-var-config";
 import UpdateVarConfig from "./update-var-config";
@@ -1050,12 +1050,12 @@ const VariableConfigDialog: React.FC<VariableConfigDialogProps> = ({
 										symbol={symbol}
 										variableName={variableName}
 										variable={variable}
-				triggerConfig={buildTriggerConfigFromState(triggerType, {
-					timerConfig:
-						triggerType === "timer" ? timerConfig : undefined,
-					conditionConfig:
-						triggerType === "condition" && triggerCase ? triggerCase : undefined,
-				})}
+										triggerConfig={buildTriggerConfigFromState(triggerType, {
+											timerConfig:
+												triggerType === "timer" ? timerConfig : undefined,
+											conditionConfig:
+												triggerType === "condition" && triggerCase ? triggerCase : undefined,
+										})}
 										symbolOptions={symbolOptions}
 										symbolPlaceholder={symbolPlaceholder}
 										symbolEmptyMessage={symbolEmptyMessage}

@@ -18,8 +18,8 @@ import {
 	generateTimeHint,
 	generatePercentageHint,
 } from "../../../hint-generators";
-import { type CaseItemInfo } from "./components/trigger-type-switcher/case-selector";
-import TriggerTypeSwitcher from "./components/trigger-type-switcher";
+import { type CaseItemInfo } from "../components/trigger-type-switcher/case-selector";
+import TriggerTypeSwitcher from "../components/trigger-type-switcher";
 import { useTranslation } from "react-i18next";
 
 interface ResetVarConfigProps {

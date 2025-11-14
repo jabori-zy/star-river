@@ -25,10 +25,10 @@ import {
 	generatePercentageHint,
 } from "../../../hint-generators";
 import { VariableValueType } from "@/types/variable";
-import { type CaseItemInfo } from "./components/trigger-type-switcher/case-selector";
-import type { SymbolSelectorOption } from "./components/symbol-selector";
-import SymbolSelector from "./components/symbol-selector";
-import TriggerTypeSwitcher from "./components/trigger-type-switcher";
+import { type CaseItemInfo } from "../components/trigger-type-switcher/case-selector";
+import type { SymbolSelectorOption } from "../components/symbol-selector";
+import SymbolSelector from "../components/symbol-selector";
+import TriggerTypeSwitcher from "../components/trigger-type-switcher";
 import { useTranslation } from "react-i18next";
 import { useCustomSysVariableName } from "@/store/use-custom-sys-variable-name";
 
