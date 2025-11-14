@@ -58,6 +58,14 @@ import { useNodeConnections } from "@xyflow/react";
 import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 import { TradeMode } from "@/types/strategy";
 import useTradingModeStore from "@/store/use-trading-mode-store";
+import {
+	generateNumberHint,
+	generateStringHint,
+	generateBooleanHint,
+	generateEnumHint,
+	generateTimeHint,
+	generatePercentageHint,
+} from "../../../../hint-generators";
 
 interface UpdateVarConfigItemProps {
 	id: string;
@@ -549,6 +557,71 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 				? JSON.stringify(config.updateOperationValue)
 				: "";
 
+	// 根据变量类型选择对应的生成器
+	const getHintGenerator = (varValueType?: VariableValueType) => {
+		if (!varValueType) return generateNumberHint;
+
+		switch (varValueType) {
+			case VariableValueType.STRING:
+				return generateStringHint;
+			case VariableValueType.BOOLEAN:
+				return generateBooleanHint;
+			case VariableValueType.ENUM:
+				return generateEnumHint;
+			case VariableValueType.TIME:
+				return generateTimeHint;
+			case VariableValueType.PERCENTAGE:
+				return generatePercentageHint;
+			default:
+				return generateNumberHint;
+		}
+	};
+
+	// 条件触发的提示文案
+	const conditionHint =
+		effectiveTriggerType === "condition" && config.varDisplayName && triggerCase
+			? getHintGenerator(config.varValueType)({
+					t,
+					varOperation: "update",
+					variableDisplayName: config.varDisplayName,
+					conditionTrigger: triggerCase,
+					timerTrigger: undefined,
+					dataflowTrigger: undefined,
+					operationType: config.updateVarValueOperation,
+					value: updateValue,
+				})
+			: null;
+
+	// 定时触发的提示文案
+	const timerHint =
+		effectiveTriggerType === "timer" && config.varDisplayName && timerConfig
+			? getHintGenerator(config.varValueType)({
+					t,
+					varOperation: "update",
+					variableDisplayName: config.varDisplayName,
+					conditionTrigger: undefined,
+					timerTrigger: timerConfig,
+					dataflowTrigger: undefined,
+					operationType: config.updateVarValueOperation,
+					value: updateValue,
+				})
+			: null;
+
+	// 数据流触发的提示文案
+	const dataflowHint =
+		effectiveTriggerType === "dataflow" && config.varDisplayName && dataflowConfig
+			? getHintGenerator(config.varValueType)({
+					t,
+					varOperation: "update",
+					variableDisplayName: config.varDisplayName,
+					conditionTrigger: undefined,
+					timerTrigger: undefined,
+					dataflowTrigger: dataflowConfig,
+					operationType: config.updateVarValueOperation,
+					value: updateValue,
+				})
+			: null;
+
 	return (
 		<div className={`group flex-1 space-y-2 p-3 rounded-md border bg-background ${hasError ? "border-red-500" : "border-border"}`}>
 			<Collapsible open={isOpen} onOpenChange={setIsOpen}>
@@ -728,6 +801,23 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 					</div>
 				</CollapsibleContent>
 			</Collapsible>
+
+			{/* 折叠状态下显示描述文案 */}
+			{!isOpen && (
+				<>
+					{effectiveTriggerType === "condition" && conditionHint && (
+						<p className="text-xs text-muted-foreground">{conditionHint}</p>
+					)}
+
+					{effectiveTriggerType === "timer" && timerHint && (
+						<p className="text-xs text-muted-foreground">{timerHint}</p>
+					)}
+
+					{effectiveTriggerType === "dataflow" && dataflowHint && (
+						<p className="text-xs text-muted-foreground">{dataflowHint}</p>
+					)}
+				</>
+			)}
 		</div>
 	);
 };

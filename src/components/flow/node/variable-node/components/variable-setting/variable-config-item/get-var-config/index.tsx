@@ -565,25 +565,21 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 								{errors.triggerCase}
 							</p>
 						)}
+
+						{/* 展开状态下显示描述文案 */}
+						{effectiveTriggerType === "condition" && conditionHint && (
+							<p className="text-xs text-muted-foreground mt-2">{conditionHint}</p>
+						)}
+
+						{effectiveTriggerType === "timer" && timerHint && (
+							<p className="text-xs text-muted-foreground mt-2">{timerHint}</p>
+						)}
 					</div>
 				</CollapsibleContent>
 			</Collapsible>
 
 			{/* 折叠状态下显示描述文案 */}
 			{!isOpen && (
-				<>
-					{effectiveTriggerType === "condition" && conditionHint && (
-						<p className="text-xs text-muted-foreground">{conditionHint}</p>
-					)}
-
-					{effectiveTriggerType === "timer" && timerHint && (
-						<p className="text-xs text-muted-foreground">{timerHint}</p>
-					)}
-				</>
-			)}
-
-			{/* 展开状态下显示描述文案 */}
-			{isOpen && (
 				<>
 					{effectiveTriggerType === "condition" && conditionHint && (
 						<p className="text-xs text-muted-foreground">{conditionHint}</p>
