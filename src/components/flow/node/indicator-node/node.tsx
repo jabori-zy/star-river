@@ -1,4 +1,4 @@
-import { type NodeProps, Position } from "@xyflow/react";
+import { type NodeProps, Position, useNodeConnections, useNodesData } from "@xyflow/react";
 import { Play } from "lucide-react";
 import { useEffect } from "react";
 import type { BaseHandleProps } from "@/components/flow/base/BaseHandle";
@@ -16,6 +16,7 @@ import type { IndicatorNode as IndicatorNodeType } from "@/types/node/indicator-
 import { TradeMode } from "@/types/strategy";
 import BacktestModeShow from "./components/node-show/backtest-mode-show";
 import LiveModeShow from "./components/node-show/live-mode-show";
+import type { StrategyFlowNode } from "@/types/node";
 
 const IndicatorNode: React.FC<NodeProps<IndicatorNodeType>> = ({
 	id,
@@ -26,6 +27,14 @@ const IndicatorNode: React.FC<NodeProps<IndicatorNodeType>> = ({
 	const { tradingMode } = useTradingModeStore();
 	// 直接订阅 store 状态变化
 	const { backtestConfig: startNodeBacktestConfig } = useStartNodeDataStore();
+
+	// get connections
+	const connections = useNodeConnections({id, handleType: 'target'})
+	const sourceNodeData = useNodesData<StrategyFlowNode>(connections.map(connection => connection.source));
+
+	useEffect(() => {
+		console.log(`${id}源节点数据变化了`, sourceNodeData);
+	}, [sourceNodeData, id]);
 
 	// 使用分离的hooks
 	const { setDefaultLiveConfig } = useUpdateLiveConfig({

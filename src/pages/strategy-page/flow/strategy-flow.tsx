@@ -10,6 +10,7 @@ import {
 	MiniMap,
 	type Node,
 	type NodeChange,
+	type NodeSelectionChange,
 	NodeToolbar,
 	type OnConnect,
 	type OnEdgesChange,
@@ -19,7 +20,7 @@ import {
 	useEdgesState,
 	useNodesState,
 } from "@xyflow/react";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import "@xyflow/react/dist/style.css";
 import { useReactFlow } from "@xyflow/react";
 import { DevTools } from "@/components/flow/devtools"; // 开发者工具
@@ -38,8 +39,10 @@ export default function StrategyFlow({ strategy }: { strategy: Strategy }) {
 	const { dragNodeItem, setDragNodeItem } = useDndNodeStore();
 	const { screenToFlowPosition } = useReactFlow();
 
-	const { checkIsValidConnection, handleNodeChanges, handleEdgeChanges } =
-		useStrategyWorkflow();
+	const { checkIsValidConnection, handleNodeChanges, handleEdgeChanges } = useStrategyWorkflow();
+
+
+	const [selectedNodeId, setSelectedNodeId] = useState<string | undefined>(undefined);
 
 	// 创建一个唯一的 key 用于强制重新渲染，包含策略ID和交易模式
 	const flowKey = useMemo(() => {
@@ -133,6 +136,19 @@ export default function StrategyFlow({ strategy }: { strategy: Strategy }) {
 	const onNodesChange: OnNodesChange = useCallback(
 		(changes: NodeChange[]) => {
 			// 先应用变化，获取更新后的节点状态
+			console.log("changes", changes);
+			const selectedChange = changes.find((change) => change.type === 'select' && change.selected) as NodeSelectionChange;
+
+			const notSelectedChanges = changes.find((change) => change.type === 'select' && !change.selected) as NodeSelectionChange;
+			if (selectedChange) {
+				setSelectedNodeId(selectedChange?.id);
+			}
+
+			if (notSelectedChanges && notSelectedChanges.id === selectedNodeId) {
+				setSelectedNodeId(undefined);
+			}
+			
+
 			setNodes((oldNodes: Node[]) => {
 				// 先应用变化，获取自动更新后的节点状态
 				const newNodes = applyNodeChanges(changes, oldNodes);
@@ -239,7 +255,7 @@ export default function StrategyFlow({ strategy }: { strategy: Strategy }) {
 				<Background />
 				<NodeToolbar />
 				{/* 节点面板 */}
-				<NodePanel />
+				<NodePanel selectedNodeId={selectedNodeId} />
 				{/* 节点控制面板 */}
 				<ControlPanel />
 			</ReactFlow>

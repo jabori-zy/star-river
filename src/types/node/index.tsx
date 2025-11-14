@@ -3,6 +3,12 @@ import type { IndicatorNodeData } from "./indicator-node";
 import type { KlineNodeData } from "./kline-node";
 import type { PositionManagementNodeData } from "./position-management-node";
 import type { StartNodeData } from "./start-node";
+import type { StartNode } from "./start-node";
+import type { KlineNode } from "./kline-node";
+import type { IndicatorNode } from "./indicator-node";
+import type { IfElseNode } from "./if-else-node";
+import type { PositionManagementNode } from "./position-management-node";
+import type { VariableNode } from "./variable-node";
 
 export type NodeId = string;
 export type NodeName = string;
@@ -75,3 +81,6 @@ export type NodeData =
 	| IndicatorNodeData
 	| IfElseNodeData
 	| PositionManagementNodeData;
+
+
+export type StrategyFlowNode = StartNode | KlineNode | IndicatorNode | IfElseNode | PositionManagementNode | VariableNode;

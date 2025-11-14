@@ -1,7 +1,6 @@
 // import { FileWithPreview } from "@/hooks/use-file-upload"
 
-// import { useNodeConnections, useReactFlow } from "@xyflow/react";
-import { useState } from "react";
+import {  useState } from "react";
 import AccountSelector from "@/components/flow/account-selector";
 import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
 // import { getNodeDefaultInputHandleId, NodeType } from "@/types/node/index";
@@ -22,8 +21,11 @@ import SymbolSelector from "../components/symbol-selector";
 const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	id,
 	data,
+	sourceNodeData,
 }) => {
 	const klineNodeData = data as KlineNodeData;
+
+	console.log(`${id}源节点数据变化了 backtest-setting-panel`, sourceNodeData);
 
 	// 开始节点的回测配置
 	const { backtestConfig: startNodeBacktestConfig } = useStartNodeDataStore();

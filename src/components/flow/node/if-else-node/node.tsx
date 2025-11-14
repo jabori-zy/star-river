@@ -1,4 +1,4 @@
-import { type NodeProps, Position } from "@xyflow/react";
+import { type NodeProps, Position, useNodeConnections, useNodesData } from "@xyflow/react";
 import { Play } from "lucide-react";
 import { useEffect } from "react";
 import type { BaseHandleProps } from "@/components/flow/base/BaseHandle";
@@ -10,6 +10,7 @@ import { getNodeDefaultInputHandleId, NodeType } from "@/types/node/index";
 import { TradeMode } from "@/types/strategy";
 import BacktestModeShow from "./components/node-show/backtest-mode-show";
 import LiveModeShow from "./components/node-show/live-mode-show";
+import type { StrategyFlowNode } from "@/types/node";
 
 const IfElseNode: React.FC<NodeProps<IfElseNodeType>> = ({
 	id,
@@ -18,6 +19,14 @@ const IfElseNode: React.FC<NodeProps<IfElseNodeType>> = ({
 }) => {
 	const nodeName = data?.nodeName || "条件节点";
 	const { tradingMode } = useTradingModeStore();
+
+	// get connections
+	const connections = useNodeConnections({id, handleType: 'target'})
+	const sourceNodeData = useNodesData<StrategyFlowNode>(connections.map(connection => connection.source));
+
+	useEffect(() => {
+		console.log(`${id}源节点数据变化了`, sourceNodeData);
+	}, [sourceNodeData, id]);
 
 	const { setDefaultBacktestConfig } = useUpdateBacktestConfig({
 		id,

@@ -9,7 +9,7 @@ interface BasePanelHeaderProps {
 	iconBackgroundColor: string;
 	isEditingTitle: boolean;
 	setIsEditingTitle: (isEditingTitle: boolean) => void;
-	setIsShow: (isShow: boolean) => void;
+	onClosePanel: () => void;
 }
 
 const BasePanelHeader: React.FC<BasePanelHeaderProps> = ({
@@ -19,7 +19,7 @@ const BasePanelHeader: React.FC<BasePanelHeaderProps> = ({
 	setTitle,
 	isEditingTitle,
 	setIsEditingTitle,
-	setIsShow,
+	onClosePanel,
 }) => {
 	return (
 		// flex 弹性盒子布局
@@ -99,7 +99,7 @@ const BasePanelHeader: React.FC<BasePanelHeaderProps> = ({
 				variant="ghost"
 				size="icon"
 				className="flex-shrink-0 hover:bg-gray-100"
-				onClick={() => setIsShow(false)}
+				onClick={onClosePanel}
 			>
 				<X className="h-4 w-4" />
 			</Button>

@@ -14,11 +14,12 @@ import TradeModeSwitcher, {
 } from "./trade-mode-switcher";
 
 interface BasePanelProps extends PanelProps {
-	id: string; // 节点id
-	data: NodeData; // 节点数据
+	id: string | undefined; // 节点id
+	data: NodeData | undefined; // 节点数据
+	// sourceNodeData: Pick<StrategyFlowNode, 'id' | 'type' | 'data'>[]; // 源节点数据
 	children: ReactElement; // 面板内容
-	isShow: boolean; // 是否显示面板
-	setIsShow: (isShow: boolean) => void; // 设置是否显示面板
+	// isShow: boolean; // 是否显示面板
+	// setIsShow: (isShow: boolean) => void; // 设置是否显示面板
 	tradeMode: string; // 交易模式
 	settingPanel: SettingPanelProps; // 设置面板
 }
@@ -26,33 +27,38 @@ interface BasePanelProps extends PanelProps {
 const BasePanel: React.FC<BasePanelProps> = ({
 	id,
 	data,
-	isShow,
+	// sourceNodeData,
+	// isShow,
+	// setIsShow,
 	settingPanel,
 }) => {
 	const panelRef = useRef<HTMLDivElement>(null);
 	// 获取ReactFlow实例
-	const { updateNodeData, getNodes, setNodes } = useReactFlow();
+	const { updateNodeData, setNodes } = useReactFlow();
 
 	// 面板标题
-	const [panelTitle, setPanelTitle] = useState(data.nodeName || "未命名节点");
+	const [panelTitle, setPanelTitle] = useState(data?.nodeName || "未命名节点");
+
+	// 是否显示面板
+	const [isShow, setIsShow] = useState(true);
 
 	// 是否在编辑标题
 	const [isEditingTitle, setIsEditingTitle] = useState(false);
 	// 是否展示面板 - 与外部的isShow状态同步
-	const [isShowPanel, setIsShowPanel] = useState(isShow);
+	// const [isShowPanel, setIsShowPanel] = useState(isShow);
 
 	// 监听外部isShow变化，同步内部状态
-	useEffect(() => {
-		setIsShowPanel(isShow);
-	}, [isShow]);
+	// useEffect(() => {
+	// 	setIsShowPanel(isShow);
+	// }, [isShow]);
 
 	// 监听data.nodeName变化，更新面板标题
 	useEffect(() => {
 		// 只有在不是编辑状态时才同步外部数据变化
 		if (!isEditingTitle) {
-			setPanelTitle(data.nodeName || "未命名节点");
+			setPanelTitle(data?.nodeName || "未命名节点");
 		}
-	}, [data.nodeName, isEditingTitle]);
+	}, [data?.nodeName, isEditingTitle]);
 
 	// 自定义的标题更新函数，同时更新节点数据
 	const handleSetTitle = useCallback(
@@ -60,49 +66,24 @@ const BasePanel: React.FC<BasePanelProps> = ({
 			setPanelTitle(newTitle);
 			// 允许空值在编辑过程中存在，但保存时如果为空则设为默认值
 			// 注意：这里直接保存用户输入的值，包括空字符串
-			updateNodeData(id, {
+			updateNodeData(id || "", {
 				nodeName: newTitle,
 			});
 		},
 		[id, updateNodeData],
 	);
 
-	// 节点选中状态管理函数，参考 dify 的实现
-	const handleNodeSelect = useCallback(
-		(nodeId: string, cancelSelection?: boolean) => {
-			// console.log('handleNodeSelect', nodeId, cancelSelection);
-			const nodes = getNodes();
-
-			// 使用 map 创建新的节点数组，确保不可变更新
-			const newNodes = nodes.map((node) => {
-				if (node.id === nodeId) {
-					return {
-						...node,
-						selected: !cancelSelection, // 修改顶级属性 selected
-					};
-				} else {
-					return {
-						...node,
-						selected: false, // 重置其他节点的顶级属性 selected
-					};
-				}
-			});
-
-			setNodes(newNodes);
-		},
-		[getNodes, setNodes],
-	);
-
 	// 关闭面板处理函数
 	const handleClosePanel = useCallback(
-		(show: boolean) => {
-			setIsShowPanel(show);
-			// 如果关闭面板，取消节点选中状态
-			if (!show) {
-				handleNodeSelect(id, true); // cancelSelection = true
-			}
+		() => {
+			console.log("handleClosePanel", id);
+			setNodes((nodes) => nodes.map((node) => ({
+				...node,
+				selected: node.id === id ? false : node.selected,
+			})));
+			setIsShow(false);
 		},
-		[id, handleNodeSelect],
+		[id, setNodes],
 	);
 
 	// 面板宽度状态
@@ -165,7 +146,7 @@ const BasePanel: React.FC<BasePanelProps> = ({
 
 	return (
 		// 是否显示面板
-		isShowPanel && (
+		id && isShow && (
 			// 面板容器
 			<div
 				ref={panelRef}
@@ -206,7 +187,7 @@ const BasePanel: React.FC<BasePanelProps> = ({
 						setTitle={handleSetTitle}
 						isEditingTitle={isEditingTitle}
 						setIsEditingTitle={setIsEditingTitle}
-						setIsShow={handleClosePanel}
+						onClosePanel={handleClosePanel}
 						icon={settingPanel.icon}
 						iconBackgroundColor={settingPanel.iconBackgroundColor}
 					/>
@@ -214,7 +195,10 @@ const BasePanel: React.FC<BasePanelProps> = ({
 
 				{/* 交易模式切换器 - 弹性高度 */}
 				<div className="flex-1 min-h-0 p-2 pt-4">
-					<TradeModeSwitcher settingPanel={settingPanel} id={id} data={data} />
+					<TradeModeSwitcher
+						id={id}
+						data={data}
+						settingPanel={settingPanel} />
 				</div>
 				{/* <div className="w-full mt-2">
                     <BasePanelFooter 

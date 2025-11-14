@@ -12,9 +12,7 @@ export interface SettingPanelProps {
 	iconBackgroundColor: string;
 	liveModeSettingPanel: React.ComponentType<SettingProps> | React.ReactNode; // 实时模式设置面板
 	backtestModeSettingPanel: React.ComponentType<SettingProps> | React.ReactNode; // 回测模式设置面板
-	simulationModeSettingPanel:
-		| React.ComponentType<SettingProps>
-		| React.ReactNode; // 模拟模式设置面板
+	simulationModeSettingPanel: React.ComponentType<SettingProps> |React.ReactNode; // 模拟模式设置面板
 }
 
 interface TradeModeSwitcherProps {

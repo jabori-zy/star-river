@@ -1,4 +1,4 @@
-import { type NodeProps, Position } from "@xyflow/react";
+import { type NodeProps, Position, useNodeConnections, useNodesData } from "@xyflow/react";
 import { Play } from "lucide-react";
 import { useEffect, useRef } from "react";
 import type { BaseHandleProps } from "@/components/flow/base/BaseHandle";
@@ -20,6 +20,7 @@ import type {
 import { TradeMode } from "@/types/strategy";
 import BacktestModeShow from "./components/show/backtest-mode-show";
 import LiveModeShow from "./components/show/live-mode-show";
+import type { StrategyFlowNode } from "@/types/node";
 
 const KlineNode: React.FC<NodeProps<KlineNodeType>> = ({
 	id,
@@ -28,6 +29,14 @@ const KlineNode: React.FC<NodeProps<KlineNodeType>> = ({
 }) => {
 	const nodeName = data?.nodeName || "K线节点";
 	const { tradingMode } = useTradingModeStore();
+
+	// get connections
+	const connections = useNodeConnections({id, handleType: 'target'})
+	const sourceNodeData = useNodesData<StrategyFlowNode>(connections.map(connection => connection.source));
+
+	useEffect(() => {
+		console.log("源节点数据变化了", sourceNodeData);
+	}, [sourceNodeData]);
 
 	// 直接订阅 store 状态变化
 	const { backtestConfig: startNodeBacktestConfig } = useStartNodeDataStore();
