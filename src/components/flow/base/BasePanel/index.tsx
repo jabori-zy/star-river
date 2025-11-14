@@ -16,10 +16,8 @@ import TradeModeSwitcher, {
 interface BasePanelProps extends PanelProps {
 	id: string | undefined; // 节点id
 	data: NodeData | undefined; // 节点数据
-	// sourceNodeData: Pick<StrategyFlowNode, 'id' | 'type' | 'data'>[]; // 源节点数据
+	setSelectedNodeId: (id: string | undefined) => void;
 	children: ReactElement; // 面板内容
-	// isShow: boolean; // 是否显示面板
-	// setIsShow: (isShow: boolean) => void; // 设置是否显示面板
 	tradeMode: string; // 交易模式
 	settingPanel: SettingPanelProps; // 设置面板
 }
@@ -27,9 +25,7 @@ interface BasePanelProps extends PanelProps {
 const BasePanel: React.FC<BasePanelProps> = ({
 	id,
 	data,
-	// sourceNodeData,
-	// isShow,
-	// setIsShow,
+	setSelectedNodeId,
 	settingPanel,
 }) => {
 	const panelRef = useRef<HTMLDivElement>(null);
@@ -82,8 +78,9 @@ const BasePanel: React.FC<BasePanelProps> = ({
 				selected: node.id === id ? false : node.selected,
 			})));
 			setIsShow(false);
+			setSelectedNodeId(undefined);
 		},
-		[id, setNodes],
+		[id, setNodes, setSelectedNodeId],
 	);
 
 	// 面板宽度状态

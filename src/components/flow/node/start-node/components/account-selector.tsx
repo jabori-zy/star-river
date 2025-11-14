@@ -88,7 +88,7 @@ const AccountSelector = ({
 	const fetchExchangeStatus = useCallback(async (accountId: number) => {
 		try {
 			const status = await getExchangeStatus(accountId);
-			console.log("获取到的交易所状态:", status);
+			// console.log("获取到的交易所状态:", status);
 			setAccountStatuses((prev) => ({ ...prev, [accountId]: status }));
 			return status;
 		} catch (error) {

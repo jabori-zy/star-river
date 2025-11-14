@@ -21,11 +21,11 @@ import SymbolSelector from "../components/symbol-selector";
 const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	id,
 	data,
-	sourceNodeData,
+	// sourceNodeData,
 }) => {
 	const klineNodeData = data as KlineNodeData;
 
-	console.log(`${id}源节点数据变化了 backtest-setting-panel`, sourceNodeData);
+	// console.log(`${id}源节点数据变化了 backtest-setting-panel`, sourceNodeData);
 
 	// 开始节点的回测配置
 	const { backtestConfig: startNodeBacktestConfig } = useStartNodeDataStore();
@@ -67,9 +67,9 @@ const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	// 处理连接状态变化
 	const handleConnectionStatusChange = (
 		status: ExchangeStatus,
-		accountId: number,
+		// accountId: number,
 	) => {
-		console.log(`账户 ${accountId} 连接状态变化为: ${status}`);
+		// console.log(`账户 ${accountId} 连接状态变化为: ${status}`);
 		// 当连接状态变为 "Connected" 时，触发 SymbolSelector 刷新
 		if (status === "Connected") {
 			setRefreshTrigger((prev) => prev + 1);

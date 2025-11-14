@@ -9,13 +9,14 @@ import { PanelComponentMap } from "./constants";
 
 interface NodePanelProps {
 	selectedNodeId: string | undefined;
+	setSelectedNodeId: (id: string | undefined) => void;
 }
 
 /**
  * 所有节点的面板。根据选择的节点，在同一个面板中，切换不同节点的面板
  * 参考dify框架的实现方式，使用映射表来管理不同节点的设置面板
  */
-const NodePanel: React.FC<NodePanelProps> = ({ selectedNodeId }) => {
+const NodePanel: React.FC<NodePanelProps> = ({ selectedNodeId, setSelectedNodeId }) => {
 
 	console.log("selectedNodeId", selectedNodeId);
 	// 获取节点实例
@@ -24,8 +25,6 @@ const NodePanel: React.FC<NodePanelProps> = ({ selectedNodeId }) => {
 	const [selectedNodeType, setSelectedNodeType] = useState<string | undefined>(undefined);
 	// 当前选中的节点数据
 	const [selectedNodeData, setSelectedNodeData] = useState<NodeData | undefined>(undefined);
-	// 是否显示面板
-	const [isShow, setIsShow] = useState(false);
 
 
 	// 监听节点选择状态变化
@@ -118,8 +117,7 @@ const NodePanel: React.FC<NodePanelProps> = ({ selectedNodeId }) => {
 			id={selectedNodeId}
 			data={selectedNodeData}
 			settingPanel={currentPanelConfig}
-			// isShow={isShow}
-			// setIsShow={setIsShow}
+			setSelectedNodeId={setSelectedNodeId}
 			tradeMode="backtest" // 默认交易模式
 		>
 			<div>

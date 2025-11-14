@@ -34,9 +34,9 @@ const KlineNode: React.FC<NodeProps<KlineNodeType>> = ({
 	const connections = useNodeConnections({id, handleType: 'target'})
 	const sourceNodeData = useNodesData<StrategyFlowNode>(connections.map(connection => connection.source));
 
-	useEffect(() => {
-		console.log("源节点数据变化了", sourceNodeData);
-	}, [sourceNodeData]);
+	// useEffect(() => {
+	// 	console.log("源节点数据变化了", sourceNodeData);
+	// }, [sourceNodeData]);
 
 	// 直接订阅 store 状态变化
 	const { backtestConfig: startNodeBacktestConfig } = useStartNodeDataStore();
