@@ -3,47 +3,40 @@ import { useEffect, useState } from "react";
 import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
 import IndicatorEditor from "@/components/flow/node/indicator-node/components/indicator-editor";
 
-import { useUpdateBacktestConfig } from "@/hooks/node-config/indicator-node/use-update-backtest-config";
+import { useBacktestConfig } from "@/hooks/node-config/indicator-node";
 import {
 	getNodeDefaultInputHandleId,
 	isDefaultOutputHandleId,
 	NodeType,
 } from "@/types/node/index";
-import type { IndicatorNodeData } from "@/types/node/indicator-node";
 import type { KlineNodeData, SelectedSymbol } from "@/types/node/kline-node";
 import SymbolSelector from "../components/symbol-selector";
-import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 
 
 const IndicatorNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	id,
 }) => {
-	const { getNodeData } = useStrategyWorkflow();
-	
-	const currentNodeData = getNodeData(id) as IndicatorNodeData;
+
 	const connections = useNodeConnections({
 		id,
 		handleType: "target",
 		handleId: getNodeDefaultInputHandleId(id, NodeType.IndicatorNode),
-	});	
+	});
 
 	// 交易对列表
 	const [localSymbolList, setLocalSymbolList] = useState<SelectedSymbol[]>([]);
 
 	const { getNode } = useReactFlow();
 
-	//
-	const exchangeModeConfig = currentNodeData?.backtestConfig?.exchangeModeConfig;
-
-	// 使用自定义hook管理指标配置
+	// ✅ 使用新版本 hook 管理回测配置
 	const {
+		backtestConfig,
 		updateSelectedIndicators,
 		updateSelectedSymbol,
 		updateSelectedAccount,
-	} = useUpdateBacktestConfig({
-		id,
-		initialConfig: currentNodeData?.backtestConfig,
-	});
+	} = useBacktestConfig({ id });
+
+	const exchangeModeConfig = backtestConfig?.exchangeModeConfig;
 
 	useEffect(() => {
 		for (const connection of connections) {

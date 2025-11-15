@@ -8,18 +8,20 @@ import {
 	getNodeDefaultOutputHandleId,
 	NodeType,
 } from "@/types/node/index";
-import type { VariableNode as VariableNodeType } from "@/types/node/variable-node";
+import type { VariableNode as VariableNodeType, VariableNodeData } from "@/types/node/variable-node";
 import { TradeMode } from "@/types/strategy";
 import BacktestModeShow from "./components/node-show/backtest-mode-show";
 import LiveModeShow from "./components/node-show/live-mode-show";
 import SimulateModeShow from "./components/node-show/simulate-mode-show";
+import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 
 const VariableNode: React.FC<NodeProps<VariableNodeType>> = ({
 	id,
-	data,
 	selected,
 }) => {
-	const nodeName = data.nodeName || "变量节点";
+	const { getNodeData } = useStrategyWorkflow();
+	const variableNodeData = getNodeData(id) as VariableNodeData;
+	const nodeName = variableNodeData.nodeName || "变量节点";
 
 	// 获取当前的交易模式
 	const { tradingMode } = useTradingModeStore();
@@ -28,12 +30,12 @@ const VariableNode: React.FC<NodeProps<VariableNodeType>> = ({
 	const renderModeShow = () => {
 		switch (tradingMode) {
 			case TradeMode.LIVE:
-				return <LiveModeShow id={id} data={data} />;
+				return <LiveModeShow id={id} data={variableNodeData} />;
 			case TradeMode.SIMULATE:
-				return <SimulateModeShow id={id} data={data} />;
+				return <SimulateModeShow id={id} data={variableNodeData} />;
 			case TradeMode.BACKTEST:
 			default:
-				return <BacktestModeShow id={id} data={data} />;
+				return <BacktestModeShow id={id} data={variableNodeData} />;
 		}
 	};
 

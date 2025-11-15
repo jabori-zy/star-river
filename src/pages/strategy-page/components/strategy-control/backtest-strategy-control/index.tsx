@@ -35,7 +35,6 @@ const BacktestStrategyControl: React.FC<BacktestStrategyControlProps> = ({
 		const checkStrategyStatus = async () => {
 			try {
 				const status = await getStrategyStatus(strategyId);
-				console.log("初始化策略状态:", status);
 
 				// 根据接口返回的状态设置按钮状态
 				switch (status) {

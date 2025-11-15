@@ -1,221 +1,214 @@
+import { useCallback } from "react";
 import { useReactFlow } from "@xyflow/react";
-import { useCallback, useEffect, useState } from "react";
-import { useStartNodeDataStore } from "@/store/node/use-start-node-data-store";
+import { produce } from "immer";
+import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 import type {
 	IndicatorNodeBacktestConfig,
 	IndicatorNodeBacktestExchangeModeConfig,
+    IndicatorNodeBacktestFileConfig,
+	IndicatorNodeData,
 	SelectedIndicator,
 } from "@/types/node/indicator-node";
 import type { SelectedSymbol } from "@/types/node/kline-node";
-import {
-	BacktestDataSource,
-	type SelectedAccount,
-	type TimeRange,
-} from "@/types/strategy";
+import type { SelectedAccount, TimeRange } from "@/types/strategy";
+import { BacktestDataSource } from "@/types/strategy";
+import { Exchange } from "@/types/market";
+import dayjs from "dayjs";
 
-interface UseUpdateBacktestConfigProps {
-	id: string;
-	initialConfig?: IndicatorNodeBacktestConfig;
+/**
+ * Create default indicator node backtest config
+ */
+export const createDefaultIndicatorBacktestConfig =
+	(): IndicatorNodeBacktestConfig => {
+		return {
+			dataSource: BacktestDataSource.EXCHANGE,
+			exchangeModeConfig: {
+				selectedAccount: null,
+				selectedSymbol: null,
+				selectedIndicators: [],
+				timeRange: {
+					startDate: dayjs().subtract(2, "day").format("YYYY-MM-DD"),
+					endDate: dayjs().subtract(1, "day").format("YYYY-MM-DD"),
+				},
+			},
+			fileModeConfig: null,
+		};
+	};
+
+interface UseBacktestConfigProps {
+	id: string; // Node ID
 }
 
-export const useUpdateBacktestConfig = ({
-	id,
-	initialConfig,
-}: UseUpdateBacktestConfigProps) => {
+export const useBacktestConfig = ({ id }: UseBacktestConfigProps) => {
 	const { updateNodeData } = useReactFlow();
+	const { getNodeData } = useStrategyWorkflow();
 
-	// 统一的状态管理
-	const [config, setConfig] = useState<IndicatorNodeBacktestConfig | undefined>(
-		initialConfig,
-	);
+	const nodeData = getNodeData(id) as IndicatorNodeData;
+	const backtestConfig = nodeData?.backtestConfig ?? null;
 
-	// 监听 config 变化，同步到 ReactFlow
-	useEffect(() => {
-		if (config) {
-			updateNodeData(id, {
-				backtestConfig: config,
-			});
-		}
-	}, [config, id, updateNodeData]);
-
-	// 通用的更新函数
+	/**
+	 * Generic update function: use Immer to simplify nested updates
+	 */
 	const updateConfig = useCallback(
-		(
-			updater: (
-				prev: IndicatorNodeBacktestConfig | undefined,
-			) => IndicatorNodeBacktestConfig,
-		) => {
-			setConfig((prevConfig) => updater(prevConfig));
+		(updater: (draft: IndicatorNodeBacktestConfig) => void) => {
+			const currentConfig =
+				backtestConfig ?? createDefaultIndicatorBacktestConfig();
+			const newConfig = produce(currentConfig, updater);
+
+			updateNodeData(id, { backtestConfig: newConfig });
 		},
-		[],
+		[backtestConfig, id, updateNodeData],
 	);
 
-	// 默认配置值
-	const getDefaultConfig = useCallback(
-		(prev?: IndicatorNodeBacktestConfig): IndicatorNodeBacktestConfig => {
-			const { backtestConfig: startNodeBacktestConfig } =
-				useStartNodeDataStore.getState();
-			const timeRange = startNodeBacktestConfig?.exchangeModeConfig?.timeRange;
-			return {
-				dataSource: prev?.dataSource || BacktestDataSource.EXCHANGE,
-				fileModeConfig: prev?.fileModeConfig,
-				exchangeModeConfig: {
-					selectedAccount: prev?.exchangeModeConfig?.selectedAccount || null,
-					selectedSymbol: prev?.exchangeModeConfig?.selectedSymbol || null,
-					selectedIndicators:
-						prev?.exchangeModeConfig?.selectedIndicators || [],
-					timeRange: timeRange || { startDate: "", endDate: "" },
-				},
-			};
-		},
-		[],
-	);
-
-	// 通用的字段更新方法
-	const updateField = useCallback(
-		<K extends keyof IndicatorNodeBacktestConfig>(
-			field: K,
-			value: IndicatorNodeBacktestConfig[K],
-		) => {
-			updateConfig((prev) => ({
-				...getDefaultConfig(prev),
-				[field]: value,
-			}));
-		},
-		[updateConfig, getDefaultConfig],
-	);
+	// ==================== Basic Config Updates ====================
 
 	const setDefaultBacktestConfig = useCallback(() => {
-		const defaultConfig = getDefaultConfig();
-		updateConfig(() => defaultConfig);
-	}, [updateConfig, getDefaultConfig]);
+		const defaultConfig = createDefaultIndicatorBacktestConfig();
+		updateNodeData(id, { backtestConfig: defaultConfig });
+	}, [id, updateNodeData]);
 
-	// 更新数据源
 	const updateDataSource = useCallback(
 		(dataSource: BacktestDataSource) => {
-			updateField("dataSource", dataSource);
+			updateConfig((draft) => {
+				draft.dataSource = dataSource;
+			});
 		},
-		[updateField],
+		[updateConfig],
 	);
 
-	// 更新交易所配置
-	const updateExchangeConfig = useCallback(
-		(exchangeConfig: IndicatorNodeBacktestExchangeModeConfig) => {
-			updateField("exchangeModeConfig", exchangeConfig);
+	// ==================== File Mode Config Updates ====================
+
+	const updateFileModeConfig = useCallback(
+		(fileModeConfig: IndicatorNodeBacktestFileConfig) => {
+			updateConfig((draft) => {
+				draft.fileModeConfig = fileModeConfig;
+			});
 		},
-		[updateField],
+		[updateConfig],
 	);
 
-	// 更新选中的账户
+	const updateFilePath = useCallback(
+		(filePath: string) => {
+			updateConfig((draft) => {
+				draft.fileModeConfig = {
+					filePath,
+				};
+			});
+		},
+		[updateConfig],
+	);
+
+	// ==================== Exchange Mode Config Updates ====================
+
+	const updateExchangeModeConfig = useCallback(
+		(exchangeModeConfig: IndicatorNodeBacktestExchangeModeConfig) => {
+			updateConfig((draft) => {
+				draft.exchangeModeConfig = exchangeModeConfig;
+			});
+		},
+		[updateConfig],
+	);
+
 	const updateSelectedAccount = useCallback(
 		(selectedAccount: SelectedAccount | null) => {
-			updateConfig((prev) => {
-				const baseConfig = getDefaultConfig(prev);
-				return {
-					...baseConfig,
-					exchangeModeConfig: {
+			updateConfig((draft) => {
+				if (!draft.exchangeModeConfig) {
+					draft.exchangeModeConfig = {
 						selectedAccount,
-						selectedSymbol:
-							baseConfig.exchangeModeConfig?.selectedSymbol || null,
-						selectedIndicators:
-							baseConfig.exchangeModeConfig?.selectedIndicators || [],
-						timeRange: baseConfig.exchangeModeConfig?.timeRange || {
+						selectedSymbol: null,
+						selectedIndicators: [],
+						timeRange: {
 							startDate: "",
 							endDate: "",
 						},
-					},
-				};
+					};
+				} else {
+					draft.exchangeModeConfig.selectedAccount = selectedAccount;
+				}
 			});
 		},
-		[updateConfig, getDefaultConfig],
+		[updateConfig],
 	);
 
-	// 更新选中的交易对
 	const updateSelectedSymbol = useCallback(
 		(selectedSymbol: SelectedSymbol | null) => {
-			updateConfig((prev) => {
-				const baseConfig = getDefaultConfig(prev);
-				return {
-					...baseConfig,
-					exchangeModeConfig: {
-						selectedAccount:
-							baseConfig.exchangeModeConfig?.selectedAccount || null,
+			updateConfig((draft) => {
+				if (!draft.exchangeModeConfig) {
+					draft.exchangeModeConfig = {
+						selectedAccount: {
+							id: 0,
+							exchange: Exchange.BINANCE,
+							accountName: "",
+						},
 						selectedSymbol,
-						selectedIndicators:
-							baseConfig.exchangeModeConfig?.selectedIndicators || [],
-						timeRange: baseConfig.exchangeModeConfig?.timeRange || {
+						selectedIndicators: [],
+						timeRange: {
 							startDate: "",
 							endDate: "",
 						},
-					},
-				};
+					};
+				} else {
+					draft.exchangeModeConfig.selectedSymbol = selectedSymbol;
+				}
 			});
 		},
-		[updateConfig, getDefaultConfig],
+		[updateConfig],
 	);
 
-	// 更新选中的指标
 	const updateSelectedIndicators = useCallback(
 		(selectedIndicators: SelectedIndicator[]) => {
-			updateConfig((prev) => {
-				const baseConfig = getDefaultConfig(prev);
-				return {
-					...baseConfig,
-					exchangeModeConfig: {
-						selectedAccount:
-							baseConfig.exchangeModeConfig?.selectedAccount || null,
-						selectedSymbol:
-							baseConfig.exchangeModeConfig?.selectedSymbol || null,
+			updateConfig((draft) => {
+				if (!draft.exchangeModeConfig) {
+					draft.exchangeModeConfig = {
+						selectedAccount: {
+							id: 0,
+							exchange: Exchange.BINANCE,
+							accountName: "",
+						},
+						selectedSymbol: null,
 						selectedIndicators,
-						timeRange: baseConfig.exchangeModeConfig?.timeRange || {
+						timeRange: {
 							startDate: "",
 							endDate: "",
 						},
-					},
-				};
+					};
+				} else {
+					draft.exchangeModeConfig.selectedIndicators = selectedIndicators;
+				}
 			});
 		},
-		[updateConfig, getDefaultConfig],
+		[updateConfig],
 	);
 
 	const updateTimeRange = useCallback(
 		(timeRange: TimeRange) => {
-			updateConfig((prev) => {
-				// 检查是否需要更新，避免无意义的重复更新
-				const currentTimeRange = prev?.exchangeModeConfig?.timeRange;
-				if (
-					currentTimeRange &&
-					currentTimeRange.startDate === timeRange.startDate &&
-					currentTimeRange.endDate === timeRange.endDate
-				) {
-					return prev || getDefaultConfig();
-				}
-
-				const baseConfig = getDefaultConfig(prev);
-				return {
-					...baseConfig,
-					exchangeModeConfig: {
-						selectedAccount:
-							baseConfig.exchangeModeConfig?.selectedAccount || null,
-						selectedSymbol:
-							baseConfig.exchangeModeConfig?.selectedSymbol || null,
-						selectedIndicators:
-							baseConfig.exchangeModeConfig?.selectedIndicators || [],
+			updateConfig((draft) => {
+				if (!draft.exchangeModeConfig) {
+					draft.exchangeModeConfig = {
+						selectedAccount: {
+							id: 0,
+							exchange: Exchange.BINANCE,
+							accountName: "",
+						},
+						selectedSymbol: null,
+						selectedIndicators: [],
 						timeRange,
-					},
-				};
+					};
+				} else {
+					draft.exchangeModeConfig.timeRange = timeRange;
+				}
 			});
 		},
-		[updateConfig, getDefaultConfig],
+		[updateConfig],
 	);
 
 	return {
-		// 状态
-		config,
+		backtestConfig,
 		setDefaultBacktestConfig,
-		// 具体更新方法
 		updateDataSource,
-		updateExchangeConfig,
+		updateFileModeConfig,
+		updateFilePath,
+		updateExchangeModeConfig,
 		updateSelectedAccount,
 		updateSelectedSymbol,
 		updateSelectedIndicators,

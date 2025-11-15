@@ -3,21 +3,20 @@ import React from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import useTradingModeStore from "@/store/use-trading-mode-store";
-import type { NodeData } from "@/types/node/index";
 import { TradeMode } from "@/types/strategy";
 import type { SettingProps } from "./setting-panel";
+import type { NodeData } from "@/types/node/index";
 
 export interface SettingPanelProps {
 	icon: LucideIcon;
 	iconBackgroundColor: string;
-	liveModeSettingPanel: React.ComponentType<SettingProps> | React.ReactNode; // 实时模式设置面板
-	backtestModeSettingPanel: React.ComponentType<SettingProps> | React.ReactNode; // 回测模式设置面板
-	simulationModeSettingPanel: React.ComponentType<SettingProps> |React.ReactNode; // 模拟模式设置面板
+	liveModeSettingPanel?: React.ComponentType<SettingProps> | React.ReactNode; // 实时模式设置面板
+	backtestModeSettingPanel?: React.ComponentType<SettingProps> | React.ReactNode; // 回测模式设置面板
+	simulationModeSettingPanel?: React.ComponentType<SettingProps> |React.ReactNode; // 模拟模式设置面板
 }
 
 interface TradeModeSwitcherProps {
-	id?: string; // 节点ID
-	data?: NodeData; // 节点数据
+	id: string; // 节点ID
 	settingPanel: SettingPanelProps; // 设置面板
 }
 
@@ -28,7 +27,6 @@ interface TradeModeSwitcherProps {
 const TradeModeSwitcher: React.FC<TradeModeSwitcherProps> = ({
 	settingPanel,
 	id,
-	data,
 }) => {
 	const { tradingMode } = useTradingModeStore();
 
@@ -44,7 +42,7 @@ const TradeModeSwitcher: React.FC<TradeModeSwitcherProps> = ({
 		if (typeof panel === "function") {
 			// 如果是组件函数，传递props
 			const PanelComponent = panel as React.ComponentType<SettingProps>;
-			return <PanelComponent id={id || ""} data={data || ({} as NodeData)} />;
+			return <PanelComponent id={id} />;
 		}
 
 		return null;
@@ -58,9 +56,9 @@ const TradeModeSwitcher: React.FC<TradeModeSwitcherProps> = ({
             
             */}
 			<TabsList className="flex flex-wrap h-10 gap-1 w-full px-2 flex-shrink-0">
-				<TabsTrigger value={TradeMode.LIVE}>实时设置</TabsTrigger>
+				<TabsTrigger value={TradeMode.LIVE} disabled={true}>实时设置</TabsTrigger>
 				<TabsTrigger value={TradeMode.BACKTEST}>回测设置</TabsTrigger>
-				<TabsTrigger value={TradeMode.SIMULATE}>模拟设置</TabsTrigger>
+				<TabsTrigger value={TradeMode.SIMULATE} disabled={true}>模拟设置</TabsTrigger>
 			</TabsList>
 			<TabsContent className="w-full flex-1 min-h-0" value="live">
 				<ScrollArea className="h-full bg-white ">

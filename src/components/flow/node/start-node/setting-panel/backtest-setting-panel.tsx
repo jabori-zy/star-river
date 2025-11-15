@@ -1,25 +1,22 @@
 import type React from "react";
 import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
-import { useBacktestConfig } from "@/hooks/node-config/start-node/use-update-backtest-config";
-import { useStartNodeDataStore } from "@/store/node/use-start-node-data-store";
 import type { StartNodeData } from "@/types/node/start-node";
 import { BacktestDataSource } from "@/types/strategy";
+import { useBacktestConfig } from "@/hooks/node-config/start-node/use-update-backtest-config";
 import AccountSelector from "../components/account-selector";
 import BacktestStrategySetting from "../components/backtest-strategy-setting";
 import DataSourceSelector from "../components/data-source-selector";
 import TimeRangeSelector from "../components/time-range-selector";
 import VariableEditor from "../components/variable-editor";
+import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 
 // 新开始节点回测模式设置面板
 export const StartNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	id,
-	data,
 }) => {
-	// 将data转换为StartNodeData类型
-	const startNodeData = data as StartNodeData;
-
-	// 从全局状态获取数据
-	const { backtestConfig: globalBacktestConfig } = useStartNodeDataStore();
+	// ✅ 使用 useNodesData 订阅节点数据变化，确保 UI 实时更新
+	const { getNodeData } = useStrategyWorkflow();
+	const startNodeData = getNodeData(id) as StartNodeData;
 
 	// 使用自定义 hook 管理回测配置
 	const {
@@ -28,27 +25,25 @@ export const StartNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 		updateFeeRate,
 		updatePlaySpeed,
 		updateDataSource,
-		updateSelectedAccounts,
+		updateBacktestAccounts,
 		updateTimeRange,
-		updateVariables,
-	} = useBacktestConfig({
-		initialConfig: startNodeData.backtestConfig || undefined,
-		nodeId: id,
-	});
+		updateBacktestVariables,
+	} = useBacktestConfig({ id });
 
-	// 从全局状态获取所有需要的数据
+	// 从节点数据读取所有需要的配置（实时响应更新）
+	const backtestConfig = startNodeData?.backtestConfig;
 	const dataSource =
-		globalBacktestConfig?.dataSource || BacktestDataSource.EXCHANGE;
+		backtestConfig?.dataSource || BacktestDataSource.EXCHANGE;
 	const selectedAccounts =
-		globalBacktestConfig?.exchangeModeConfig?.selectedAccounts || [];
-	const timeRange = globalBacktestConfig?.exchangeModeConfig?.timeRange || {
+		backtestConfig?.exchangeModeConfig?.selectedAccounts || [];
+	const timeRange = backtestConfig?.exchangeModeConfig?.timeRange || {
 		startDate: "",
 		endDate: "",
 	};
-	const initialBalance = globalBacktestConfig?.initialBalance || 10000;
-	const leverage = globalBacktestConfig?.leverage || 1;
-	const feeRate = globalBacktestConfig?.feeRate || 0.001;
-	const playSpeed = globalBacktestConfig?.playSpeed || 1;
+	const initialBalance = backtestConfig?.initialBalance || 10000;
+	const leverage = backtestConfig?.leverage || 5;
+	const feeRate = backtestConfig?.feeRate || 0.001;
+	const playSpeed = backtestConfig?.playSpeed || 20;
 
 	return (
 		<div className="p-4 space-y-4">
@@ -63,7 +58,7 @@ export const StartNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 					<AccountSelector
 						selectedAccounts={selectedAccounts}
 						setSelectedAccounts={() => {}} // 不再需要本地状态设置
-						updateSelectedAccounts={updateSelectedAccounts}
+						updateSelectedAccounts={updateBacktestAccounts}
 					/>
 					<TimeRangeSelector
 						timeRange={timeRange}
@@ -87,8 +82,8 @@ export const StartNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 			/>
 
 			<VariableEditor
-				variables={globalBacktestConfig?.customVariables || []}
-				onVariablesChange={updateVariables}
+				variables={backtestConfig?.customVariables || []}
+				onVariablesChange={updateBacktestVariables}
 			/>
 		</div>
 	);

@@ -1,11 +1,8 @@
-import { type NodeProps, Position, useNodeConnections, useNodesData } from "@xyflow/react";
+import { type NodeProps, Position } from "@xyflow/react";
 import { Play } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { memo, useEffect } from "react";
 import type { BaseHandleProps } from "@/components/flow/base/BaseHandle";
 import BaseNode from "@/components/flow/base/BaseNode";
-import { useUpdateBacktestConfig } from "@/hooks/node-config/kline-node/use-update-backtest-config";
-import { useUpdateLiveConfig } from "@/hooks/node-config/kline-node/use-update-live-config";
-import { useStartNodeDataStore } from "@/store/node/use-start-node-data-store";
 import useTradingModeStore from "@/store/use-trading-mode-store";
 import {
 	getNodeDefaultInputHandleId,
@@ -21,64 +18,35 @@ import { TradeMode } from "@/types/strategy";
 import BacktestModeShow from "./components/show/backtest-mode-show";
 import LiveModeShow from "./components/show/live-mode-show";
 import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
+import type { KlineNodeData } from "@/types/node/kline-node";
+import { useBacktestConfig } from "@/hooks/node-config/kline-node";
 
 const KlineNode: React.FC<NodeProps<KlineNodeType>> = ({
 	id,
-	data,
 	selected,
 }) => {
-	const nodeName = data?.nodeName || "K线节点";
 	const { tradingMode } = useTradingModeStore();
-	const { getStartNodeData } = useStrategyWorkflow();
+	const { getStartNodeData, getNodeData } = useStrategyWorkflow();
 
 	const startNodeData = getStartNodeData();
+	const startNodeTimeRange = startNodeData?.backtestConfig?.exchangeModeConfig?.timeRange;
+	const currentNodeData = getNodeData(id) as KlineNodeData;
 
 	// 实盘配置
-	const liveConfig = data?.liveConfig || ({} as KlineNodeLiveConfig);
+	const liveConfig = currentNodeData?.liveConfig || ({} as KlineNodeLiveConfig);
 	// 回测配置
-	const backtestConfig =
-		data?.backtestConfig || ({} as KlineNodeBacktestConfig);
+	const backtestConfig = currentNodeData?.backtestConfig || ({} as KlineNodeBacktestConfig);
 
-	const { updateTimeRange, setDefaultBacktestConfig } = useUpdateBacktestConfig(
-		{ id, initialBacktestConfig: data?.backtestConfig },
-	);
-	const { setDefaultLiveConfig } = useUpdateLiveConfig({
-		id,
-		initialLiveConfig: data?.liveConfig,
-	});
-	// 使用 ref 存储最新的配置值，避免依赖项循环问题
-	const liveConfigRef = useRef(liveConfig);
-	const backtestConfigRef = useRef(backtestConfig);
 
-	// 更新 ref 值
-	useEffect(() => {
-		liveConfigRef.current = liveConfig;
-		backtestConfigRef.current = backtestConfig;
-	});
+	const { updateTimeRange } = useBacktestConfig({ id });
+
 
 	// 监听开始节点的时间范围变化
 	useEffect(() => {
-		// const timeRange = startNodeBacktestConfig?.exchangeModeConfig?.timeRange;
-		const timeRange = startNodeData?.backtestConfig?.exchangeModeConfig?.timeRange;
-		if (timeRange) {
-			updateTimeRange(timeRange);
+		if (startNodeTimeRange) {
+			updateTimeRange(startNodeTimeRange);
 		}
-	}, [startNodeData?.backtestConfig?.exchangeModeConfig?.timeRange, updateTimeRange]);
-
-	// 初始化时设置默认回测配置
-	useEffect(() => {
-		if (!data?.liveConfig) {
-			setDefaultLiveConfig();
-		}
-		if (!data?.backtestConfig) {
-			setDefaultBacktestConfig();
-		}
-	}, [
-		setDefaultLiveConfig,
-		setDefaultBacktestConfig,
-		data?.liveConfig,
-		data?.backtestConfig,
-	]);
+	}, [startNodeTimeRange, updateTimeRange]);
 
 	// 默认输入
 	const defaultInputHandle: BaseHandleProps = {
@@ -99,7 +67,7 @@ const KlineNode: React.FC<NodeProps<KlineNodeType>> = ({
 	return (
 		<BaseNode
 			id={id}
-			nodeName={nodeName}
+			nodeName={currentNodeData?.nodeName || "kline node"}
 			icon={Play}
 			selected={selected}
 			selectedBorderColor="border-red-400"
@@ -120,4 +88,4 @@ const KlineNode: React.FC<NodeProps<KlineNodeType>> = ({
 	);
 };
 
-export default KlineNode;
+export default memo(KlineNode);

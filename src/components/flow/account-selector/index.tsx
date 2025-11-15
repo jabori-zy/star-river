@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { connectExchange, getExchangeStatus } from "@/service/exchange";
-import { useStartNodeDataStore } from "@/store/node/use-start-node-data-store";
 import type { ExchangeStatus } from "@/types/market";
 import { type SelectedAccount, TradeMode } from "@/types/strategy";
 
@@ -19,6 +18,7 @@ interface AccountSelectorProps {
 	label: string;
 	tradeMode: TradeMode;
 	selectedAccount: SelectedAccount | null; // 当前选中的账户
+	accountList: SelectedAccount[];
 	onAccountChange: (account: SelectedAccount) => void; // 账户变更回调
 	onConnectionStatusChange?: (
 		status: ExchangeStatus,
@@ -30,24 +30,25 @@ interface AccountSelectorProps {
 const AccountSelector: React.FC<AccountSelectorProps> = ({
 	label,
 	tradeMode,
+	accountList,
 	selectedAccount,
 	onAccountChange,
 	onConnectionStatusChange,
 }) => {
 	// 开始节点的回测配置
-	const {
-		backtestConfig: startNodeBacktestConfig,
-		liveConfig: startNodeLiveConfig,
-	} = useStartNodeDataStore();
+	// const {
+	// 	backtestConfig: startNodeBacktestConfig,
+	// 	liveConfig: startNodeLiveConfig,
+	// } = useStartNodeDataStore();
 
 	// 可选的账户列表
-	const [accountList, setAccountList] = useState<SelectedAccount[]>(
-		tradeMode === TradeMode.BACKTEST
-			? startNodeBacktestConfig?.exchangeModeConfig?.selectedAccounts || []
-			: tradeMode === TradeMode.LIVE
-				? startNodeLiveConfig?.selectedAccounts || []
-				: [],
-	);
+	// const [accountList, setAccountList] = useState<SelectedAccount[]>(
+	// 	tradeMode === TradeMode.BACKTEST
+	// 		? startNodeBacktestConfig?.exchangeModeConfig?.selectedAccounts || []
+	// 		: tradeMode === TradeMode.LIVE
+	// 			? startNodeLiveConfig?.selectedAccounts || []
+	// 			: [],
+	// );
 
 	const [localSelectedAccount, setLocalSelectedAccount] =
 		useState<SelectedAccount | null>(selectedAccount);
@@ -113,37 +114,6 @@ const AccountSelector: React.FC<AccountSelectorProps> = ({
 			setIsConnecting(false);
 		}
 	}, [localSelectedAccount?.id, startPolling]);
-
-	useEffect(() => {
-		if (tradeMode === TradeMode.BACKTEST) {
-			setAccountList(
-				startNodeBacktestConfig?.exchangeModeConfig?.selectedAccounts || [],
-			);
-		} else if (tradeMode === TradeMode.LIVE) {
-			setAccountList(startNodeLiveConfig?.selectedAccounts || []);
-		}
-		if (selectedAccount) {
-			setLocalSelectedAccount(selectedAccount);
-		}
-		// 如果账户列表为空，则设置为false
-		if (accountList.length === 0) {
-			setHasAccounts(false);
-		} else {
-			setHasAccounts(true);
-		}
-
-		// 清理定时器
-		return () => {
-			clearPollingTimer();
-		};
-	}, [
-		selectedAccount,
-		accountList,
-		tradeMode,
-		startNodeBacktestConfig,
-		startNodeLiveConfig,
-		clearPollingTimer,
-	]);
 
 	// 当选择的账户变化时，获取交易所状态
 	useEffect(() => {

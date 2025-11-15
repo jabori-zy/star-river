@@ -1,21 +1,21 @@
-import { type PanelProps, useReactFlow } from "@xyflow/react";
+import { type PanelProps, useReactFlow, useNodesData } from "@xyflow/react";
 import { GripVertical } from "lucide-react";
 import {
 	type ReactElement,
+	memo,
 	useCallback,
 	useEffect,
 	useRef,
 	useState,
 } from "react";
-import type { NodeData } from "@/types/node/index";
 import BasePanelHeader from "./header";
 import TradeModeSwitcher, {
 	type SettingPanelProps,
 } from "./trade-mode-switcher";
+import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 
 interface BasePanelProps extends PanelProps {
-	id: string | undefined; // 节点id
-	data: NodeData | undefined; // 节点数据
+	id: string; // 节点id
 	setSelectedNodeId: (id: string | undefined) => void;
 	children: ReactElement; // 面板内容
 	tradeMode: string; // 交易模式
@@ -24,37 +24,31 @@ interface BasePanelProps extends PanelProps {
 
 const BasePanel: React.FC<BasePanelProps> = ({
 	id,
-	data,
 	setSelectedNodeId,
 	settingPanel,
 }) => {
 	const panelRef = useRef<HTMLDivElement>(null);
 	// 获取ReactFlow实例
 	const { updateNodeData, setNodes } = useReactFlow();
-
+	const { getNodeData } = useStrategyWorkflow();
+	const nodeData = getNodeData(id);
 	// 面板标题
-	const [panelTitle, setPanelTitle] = useState(data?.nodeName || "未命名节点");
+	const [panelTitle, setPanelTitle] = useState(nodeData?.nodeName || "未命名节点");
 
 	// 是否显示面板
 	const [isShow, setIsShow] = useState(true);
 
 	// 是否在编辑标题
 	const [isEditingTitle, setIsEditingTitle] = useState(false);
-	// 是否展示面板 - 与外部的isShow状态同步
-	// const [isShowPanel, setIsShowPanel] = useState(isShow);
 
-	// 监听外部isShow变化，同步内部状态
-	// useEffect(() => {
-	// 	setIsShowPanel(isShow);
-	// }, [isShow]);
 
 	// 监听data.nodeName变化，更新面板标题
 	useEffect(() => {
 		// 只有在不是编辑状态时才同步外部数据变化
 		if (!isEditingTitle) {
-			setPanelTitle(data?.nodeName || "未命名节点");
+			setPanelTitle(nodeData?.nodeName || "未命名节点");
 		}
-	}, [data?.nodeName, isEditingTitle]);
+	}, [nodeData, isEditingTitle]);
 
 	// 自定义的标题更新函数，同时更新节点数据
 	const handleSetTitle = useCallback(
@@ -72,7 +66,6 @@ const BasePanel: React.FC<BasePanelProps> = ({
 	// 关闭面板处理函数
 	const handleClosePanel = useCallback(
 		() => {
-			console.log("handleClosePanel", id);
 			setNodes((nodes) => nodes.map((node) => ({
 				...node,
 				selected: node.id === id ? false : node.selected,
@@ -194,7 +187,6 @@ const BasePanel: React.FC<BasePanelProps> = ({
 				<div className="flex-1 min-h-0 p-2 pt-4">
 					<TradeModeSwitcher
 						id={id}
-						data={data}
 						settingPanel={settingPanel} />
 				</div>
 				{/* <div className="w-full mt-2">
@@ -211,4 +203,4 @@ const BasePanel: React.FC<BasePanelProps> = ({
 	);
 };
 
-export default BasePanel;
+export default memo(BasePanel);

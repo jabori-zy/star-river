@@ -10,13 +10,10 @@ import {
 	LogicalSymbol,
 	VarType,
 } from "@/types/node/if-else-node";
-import type { NodeData } from "@/types/node/index";
 import { VariableValueType } from "@/types/variable";
 import ConditionSetting from "./condition-setting";
 
 interface CaseEditorProps {
-	id: string;
-	data: NodeData;
 	variableItemList: VariableItem[]; // 变量列表
 	caseItem: CaseItem; // 条件
 	onCaseChange: (caseItem: CaseItem) => void;

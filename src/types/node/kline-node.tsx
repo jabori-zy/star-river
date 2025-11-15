@@ -41,8 +41,8 @@ export type KlineNodeBacktestExchangeModeConfig = {
 // k线节点回测交易 配置
 export type KlineNodeBacktestConfig = {
 	dataSource: BacktestDataSource; // 数据来源
-	fileModeConfig?: KlineNodeBacktestFileModeConfig; // 文件数据源配置
-	exchangeModeConfig?: KlineNodeBacktestExchangeModeConfig; // 交易所数据源配置
+	fileModeConfig: KlineNodeBacktestFileModeConfig | null; // 文件数据源配置
+	exchangeModeConfig: KlineNodeBacktestExchangeModeConfig | null; // 交易所数据源配置
 };
 
 export type KlineData = {

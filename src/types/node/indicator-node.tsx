@@ -48,8 +48,8 @@ export type IndicatorNodeBacktestExchangeModeConfig = {
 // 指标节点回测模式配置
 export type IndicatorNodeBacktestConfig = {
 	dataSource: BacktestDataSource; // 数据来源
-	fileModeConfig?: IndicatorNodeBacktestFileConfig; // 文件数据源配置
-	exchangeModeConfig?: IndicatorNodeBacktestExchangeModeConfig; // 交易所数据源配置
+	fileModeConfig: IndicatorNodeBacktestFileConfig | null;  // 文件数据源配置
+	exchangeModeConfig: IndicatorNodeBacktestExchangeModeConfig | null; // 交易所数据源配置
 };
 
 // 指标节点数据类型

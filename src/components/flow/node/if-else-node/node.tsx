@@ -3,7 +3,7 @@ import { Play } from "lucide-react";
 import { useEffect } from "react";
 import type { BaseHandleProps } from "@/components/flow/base/BaseHandle";
 import BaseNode from "@/components/flow/base/BaseNode";
-import { useUpdateBacktestConfig } from "@/hooks/node-config/if-else-node/use-update-backtest-config";
+import { useBacktestConfig } from "@/hooks/node-config/if-else-node";
 import useTradingModeStore from "@/store/use-trading-mode-store";
 import type { IfElseNode as IfElseNodeType } from "@/types/node/if-else-node";
 import { getNodeDefaultInputHandleId, NodeType } from "@/types/node/index";
@@ -11,34 +11,25 @@ import { TradeMode } from "@/types/strategy";
 import BacktestModeShow from "./components/node-show/backtest-mode-show";
 import LiveModeShow from "./components/node-show/live-mode-show";
 import type { StrategyFlowNode } from "@/types/node";
+import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
+import type { IfElseNodeData } from "@/types/node/if-else-node";
 
 const IfElseNode: React.FC<NodeProps<IfElseNodeType>> = ({
 	id,
-	data,
 	selected,
 }) => {
-	const nodeName = data?.nodeName || "条件节点";
 	const { tradingMode } = useTradingModeStore();
+
+	const { getSourceNodes, getNodeData } = useStrategyWorkflow();
+
+	const currentNodeData = getNodeData(id) as IfElseNodeData;
+
+	const sourceNodes = getSourceNodes(id);
 
 	// get connections
 	const connections = useNodeConnections({id, handleType: 'target'})
 	const sourceNodeData = useNodesData<StrategyFlowNode>(connections.map(connection => connection.source));
 
-	useEffect(() => {
-		console.log(`${id}源节点数据变化了`, sourceNodeData);
-	}, [sourceNodeData, id]);
-
-	const { setDefaultBacktestConfig } = useUpdateBacktestConfig({
-		id,
-		initialConfig: data?.backtestConfig,
-	});
-
-	// 初始化时设置默认配置
-	useEffect(() => {
-		if (!data?.backtestConfig) {
-			setDefaultBacktestConfig();
-		}
-	}, [setDefaultBacktestConfig, data?.backtestConfig]);
 
 	const defaultInputHandle: BaseHandleProps = {
 		type: "target",
@@ -50,16 +41,16 @@ const IfElseNode: React.FC<NodeProps<IfElseNodeType>> = ({
 	return (
 		<BaseNode
 			id={id}
-			nodeName={nodeName}
+			nodeName={currentNodeData?.nodeName || "if else node"}
 			icon={Play}
 			selected={selected}
 			defaultInputHandle={defaultInputHandle}
 			className="!max-w-none"
 		>
 			{tradingMode === TradeMode.BACKTEST && (
-				<BacktestModeShow id={id} data={data} />
+				<BacktestModeShow id={id} data={currentNodeData} />
 			)}
-			{tradingMode === TradeMode.LIVE && <LiveModeShow id={id} data={data} />}
+			{tradingMode === TradeMode.LIVE && <LiveModeShow id={id} data={currentNodeData} />}
 		</BaseNode>
 	);
 };

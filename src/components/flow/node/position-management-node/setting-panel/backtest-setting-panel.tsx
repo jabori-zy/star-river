@@ -1,59 +1,40 @@
 import { useEffect, useState } from "react";
 import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
-import { useUpdateBacktestConfig } from "@/hooks/node-config/position-management-node/use-update-backtest-config";
-import { useStartNodeDataStore } from "@/store/node/use-start-node-data-store";
-import type {
-	PositionManagementNodeData,
-	PositionOperationConfig,
-} from "@/types/node/position-management-node";
+import { useBacktestConfig } from "@/hooks/node-config/position-management-node";
+import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
+import type { PositionOperationConfig } from "@/types/node/position-management-node";
 import type { SelectedAccount } from "@/types/strategy";
 import OperationSetting from "../components/operation-setting";
 import OptAccountSelector from "../components/opt-account-selector";
 
 const PositionManagementNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	id,
-	data,
 }) => {
-	// 开始节点的回测配置
-	const { backtestConfig: startNodeBacktestConfig } = useStartNodeDataStore();
+	// 获取开始节点数据
+	const { getStartNodeData } = useStrategyWorkflow();
+	const startNodeData = getStartNodeData();
+	const accountList = startNodeData?.backtestConfig?.exchangeModeConfig?.selectedAccounts || [];
 
-	// 获取节点数据
-	const positionNodeData = data as PositionManagementNodeData;
+	// ✅ 使用新版本 hook 管理回测配置
+	const { backtestConfig, updateSelectedAccount, updatePositionOperations } =
+		useBacktestConfig({ id });
 
-	// 使用hooks管理节点数据更新
-	const { config, updateSelectedAccount, updatePositionOperations } =
-		useUpdateBacktestConfig({
-			id,
-			initialConfig: positionNodeData?.backtestConfig,
-		});
-
-	// 可选的账户列表
-	const [accountList, setAccountList] = useState<SelectedAccount[]>(
-		startNodeBacktestConfig?.exchangeModeConfig?.selectedAccounts || [],
-	);
 	// 当前选中的账户
 	const [selectedAccount, setSelectedAccount] =
-		useState<SelectedAccount | null>(config?.selectedAccount || null);
+		useState<SelectedAccount | null>(backtestConfig?.selectedAccount || null);
 
-	// 当前的操作配置 - 从config中获取，保持同步
+	// 当前的操作配置 - 从backtestConfig中获取，保持同步
 	const [operationConfigs, setOperationConfigs] = useState<
 		PositionOperationConfig[]
-	>(config?.positionOperations || []);
+	>(backtestConfig?.positionOperations || []);
 
-	// 当开始节点的回测配置变化时，更新可选的账户列表
+	// 当backtestConfig变化时，同步更新本地状态
 	useEffect(() => {
-		setAccountList(
-			startNodeBacktestConfig?.exchangeModeConfig?.selectedAccounts || [],
-		);
-	}, [startNodeBacktestConfig]);
-
-	// 当config变化时，同步更新本地状态
-	useEffect(() => {
-		if (config) {
-			setSelectedAccount(config.selectedAccount || null);
-			setOperationConfigs(config.positionOperations || []);
+		if (backtestConfig) {
+			setSelectedAccount(backtestConfig.selectedAccount || null);
+			setOperationConfigs(backtestConfig.positionOperations || []);
 		}
-	}, [config]);
+	}, [backtestConfig]);
 
 	// 处理账户选择变更
 	const handleAccountChange = (account: SelectedAccount | null) => {

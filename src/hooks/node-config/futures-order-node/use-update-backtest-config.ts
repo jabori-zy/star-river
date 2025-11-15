@@ -1,197 +1,155 @@
+import { useCallback } from "react";
 import { useReactFlow } from "@xyflow/react";
-import { useCallback, useEffect, useState } from "react";
-import { useStartNodeDataStore } from "@/store/node/use-start-node-data-store";
+import { produce } from "immer";
+import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 import type {
 	FuturesOrderNodeBacktestConfig,
 	FuturesOrderNodeBacktestExchangeModeConfig,
+	FuturesOrderNodeData,
 } from "@/types/node/futures-order-node";
 import type { FuturesOrderConfig } from "@/types/order";
 import { BacktestDataSource, type TimeRange } from "@/types/strategy";
 
-interface UseUpdateBacktestConfigProps {
-	id: string;
-	initialConfig?: FuturesOrderNodeBacktestConfig;
+/**
+ * Create default futures order node backtest config
+ */
+export const createDefaultFuturesOrderBacktestConfig =
+	(): FuturesOrderNodeBacktestConfig => {
+		return {
+			dataSource: BacktestDataSource.EXCHANGE,
+			exchangeModeConfig: {
+				timeRange: {
+					startDate: "",
+					endDate: "",
+				},
+			},
+			futuresOrderConfigs: [],
+		};
+	};
+
+interface UseBacktestConfigProps {
+	id: string; // Node ID
 }
 
-export const useUpdateBacktestConfig = ({
-	id,
-	initialConfig,
-}: UseUpdateBacktestConfigProps) => {
-	const { updateNodeData, getNode } = useReactFlow();
+export const useBacktestConfig = ({ id }: UseBacktestConfigProps) => {
+	const { updateNodeData } = useReactFlow();
+	const { getNodeData } = useStrategyWorkflow();
 
-	// 统一的状态管理
-	const [config, setConfig] = useState<
-		FuturesOrderNodeBacktestConfig | undefined
-	>(initialConfig);
+	const nodeData = getNodeData(id) as FuturesOrderNodeData;
+	const backtestConfig = nodeData?.backtestConfig ?? null;
 
-	// 监听 config 变化，同步到 ReactFlow
-	useEffect(() => {
-		if (config) {
-			updateNodeData(id, {
-				backtestConfig: config,
-			});
-		}
-	}, [config, id, updateNodeData]);
-
-	// 通用的更新函数
+	/**
+	 * Generic update function: use Immer to simplify nested updates
+	 */
 	const updateConfig = useCallback(
-		(
-			updater: (
-				prev: FuturesOrderNodeBacktestConfig | undefined,
-			) => FuturesOrderNodeBacktestConfig,
-		) => {
-			setConfig((prevConfig) => updater(prevConfig));
+		(updater: (draft: FuturesOrderNodeBacktestConfig) => void) => {
+			const currentConfig =
+				backtestConfig ?? createDefaultFuturesOrderBacktestConfig();
+			const newConfig = produce(currentConfig, updater);
+
+			updateNodeData(id, { backtestConfig: newConfig });
 		},
-		[],
+		[backtestConfig, id, updateNodeData],
 	);
 
-	// 默认配置值
-	const getDefaultConfig = useCallback(
-		(prev?: FuturesOrderNodeBacktestConfig): FuturesOrderNodeBacktestConfig => {
-			const { backtestConfig: startNodeBacktestConfig } =
-				useStartNodeDataStore.getState();
-			const timeRange = startNodeBacktestConfig?.exchangeModeConfig?.timeRange;
+	// ==================== Basic Config Updates ====================
 
-			return {
-				dataSource: prev?.dataSource || BacktestDataSource.EXCHANGE,
-				exchangeModeConfig: {
-					...prev?.exchangeModeConfig,
-					timeRange: timeRange || { startDate: "", endDate: "" },
-				},
-				futuresOrderConfigs: prev?.futuresOrderConfigs || [],
-			};
-		},
-		[],
-	);
-
-	// 通用的字段更新方法
-	const updateField = useCallback(
-		<K extends keyof FuturesOrderNodeBacktestConfig>(
-			field: K,
-			value: FuturesOrderNodeBacktestConfig[K],
-		) => {
-			updateConfig((prev) => ({
-				...prev,
-				dataSource: prev?.dataSource || BacktestDataSource.EXCHANGE,
-				futuresOrderConfigs: prev?.futuresOrderConfigs || [],
-				[field]: value,
-			}));
-		},
-		[updateConfig],
-	);
-
-	// 设置默认回测配置
 	const setDefaultBacktestConfig = useCallback(() => {
-		updateConfig((prev) => getDefaultConfig(prev));
-	}, [updateConfig, getDefaultConfig]);
+		const defaultConfig = createDefaultFuturesOrderBacktestConfig();
+		updateNodeData(id, { backtestConfig: defaultConfig });
+	}, [id, updateNodeData]);
 
-	// 更新数据源
 	const updateDataSource = useCallback(
 		(dataSource: BacktestDataSource) => {
-			updateField("dataSource", dataSource);
-		},
-		[updateField],
-	);
-
-	// 更新时间范围 - 只更新timeRange，保留所有其他数据
-	const updateTimeRange = useCallback(
-		(timeRange: TimeRange) => {
-			updateConfig((prev) => ({
-				...prev,
-				dataSource: prev?.dataSource || BacktestDataSource.EXCHANGE,
-				futuresOrderConfigs: prev?.futuresOrderConfigs || [],
-				exchangeModeConfig: {
-					...prev?.exchangeModeConfig,
-					timeRange: timeRange,
-				},
-			}));
+			updateConfig((draft) => {
+				draft.dataSource = dataSource;
+			});
 		},
 		[updateConfig],
 	);
 
-	// 更新交易所配置
+	// ==================== Exchange Mode Config Updates ====================
+
 	const updateExchangeModeConfig = useCallback(
 		(exchangeModeConfig: FuturesOrderNodeBacktestExchangeModeConfig) => {
-			updateField("exchangeModeConfig", exchangeModeConfig);
+			updateConfig((draft) => {
+				draft.exchangeModeConfig = exchangeModeConfig;
+			});
 		},
-		[updateField],
+		[updateConfig],
 	);
 
-	// 更新订单配置列表
+	const updateTimeRange = useCallback(
+		(timeRange: TimeRange) => {
+			updateConfig((draft) => {
+				if (!draft.exchangeModeConfig) {
+					draft.exchangeModeConfig = {
+						timeRange,
+					};
+				} else {
+					draft.exchangeModeConfig.timeRange = timeRange;
+				}
+			});
+		},
+		[updateConfig],
+	);
+
+	// ==================== Futures Order Configs Updates ====================
+
 	const updateFuturesOrderConfigs = useCallback(
 		(futuresOrderConfigs: FuturesOrderConfig[]) => {
-			updateField("futuresOrderConfigs", futuresOrderConfigs);
+			updateConfig((draft) => {
+				draft.futuresOrderConfigs = futuresOrderConfigs;
+			});
 		},
-		[updateField],
+		[updateConfig],
 	);
 
-	// 添加订单配置
 	const addFuturesOrderConfig = useCallback(
 		(orderConfig: FuturesOrderConfig) => {
-			updateConfig((prev) => {
-				const currentConfigs = prev?.futuresOrderConfigs || [];
-				return {
-					...prev,
-					dataSource: prev?.dataSource || BacktestDataSource.EXCHANGE,
-					futuresOrderConfigs: [...currentConfigs, orderConfig],
-				};
+			updateConfig((draft) => {
+				draft.futuresOrderConfigs.push(orderConfig);
 			});
 		},
 		[updateConfig],
 	);
 
-	// 更新指定订单配置
 	const updateFuturesOrderConfig = useCallback(
 		(index: number, orderConfig: FuturesOrderConfig) => {
-			updateConfig((prev) => {
-				const currentConfigs = prev?.futuresOrderConfigs || [];
-				const updatedConfigs = [...currentConfigs];
-				updatedConfigs[index] = orderConfig;
-
-				return {
-					...prev,
-					dataSource: prev?.dataSource || BacktestDataSource.EXCHANGE,
-					futuresOrderConfigs: updatedConfigs,
-				};
+			updateConfig((draft) => {
+				if (index >= 0 && index < draft.futuresOrderConfigs.length) {
+					draft.futuresOrderConfigs[index] = orderConfig;
+				}
 			});
 		},
 		[updateConfig],
 	);
 
-	// 删除订单配置
 	const removeFuturesOrderConfig = useCallback(
 		(index: number) => {
-			updateConfig((prev) => {
-				const currentConfigs = prev?.futuresOrderConfigs || [];
-				const updatedConfigs = currentConfigs
-					.filter((_, i) => i !== index)
-					.map((order, newIndex) => ({
-						...order,
-						id: newIndex + 1, // 重新分配id，保持连续性
-					}));
+			updateConfig((draft) => {
+				// Remove the order at the specified index
+				draft.futuresOrderConfigs.splice(index, 1);
 
-				return {
-					...prev,
-					dataSource: prev?.dataSource || BacktestDataSource.EXCHANGE,
-					futuresOrderConfigs: updatedConfigs,
-				};
+				// Reassign IDs to maintain continuity
+				draft.futuresOrderConfigs = draft.futuresOrderConfigs.map(
+					(order, newIndex) => ({
+						...order,
+						id: newIndex + 1,
+					}),
+				);
 			});
 		},
 		[updateConfig],
 	);
 
 	return {
-		// 状态
-		config,
-
-		// 基础配置方法
+		backtestConfig,
 		setDefaultBacktestConfig,
 		updateDataSource,
 		updateTimeRange,
 		updateExchangeModeConfig,
 		updateFuturesOrderConfigs,
-
-		// 订单配置管理方法
 		addFuturesOrderConfig,
 		updateFuturesOrderConfig,
 		removeFuturesOrderConfig,

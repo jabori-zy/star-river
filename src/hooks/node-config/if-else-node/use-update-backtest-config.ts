@@ -1,159 +1,118 @@
+import { useCallback } from "react";
 import { useReactFlow } from "@xyflow/react";
-import { useCallback, useEffect, useState } from "react";
-import {
-	type CaseItem,
-	type IfElseNodeBacktestConfig,
-	LogicalSymbol,
+import { produce } from "immer";
+import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
+import type {
+	CaseItem,
+	IfElseNodeBacktestConfig,
+	IfElseNodeData,
 } from "@/types/node/if-else-node";
+import { LogicalSymbol } from "@/types/node/if-else-node";
 
-interface UseUpdateBacktestConfigProps {
-	id: string;
-	initialConfig?: IfElseNodeBacktestConfig;
+/**
+ * Create default if-else node backtest config
+ */
+export const createDefaultIfElseBacktestConfig = (
+	nodeId: string,
+): IfElseNodeBacktestConfig => {
+	return {
+		cases: [
+			{
+				caseId: 1,
+				logicalSymbol: LogicalSymbol.AND,
+				conditions: [],
+				outputHandleId: `${nodeId}_output_1`,
+			},
+		],
+	};
+};
+
+interface UseBacktestConfigProps {
+	id: string; // Node ID
 }
 
-export const useUpdateBacktestConfig = ({
-	id,
-	initialConfig,
-}: UseUpdateBacktestConfigProps) => {
+export const useBacktestConfig = ({ id }: UseBacktestConfigProps) => {
 	const { updateNodeData } = useReactFlow();
+	const { getNodeData } = useStrategyWorkflow();
 
-	// 统一的状态管理
-	const [config, setConfig] = useState<IfElseNodeBacktestConfig | undefined>(
-		initialConfig,
-	);
+	const nodeData = getNodeData(id) as IfElseNodeData;
+	const backtestConfig = nodeData?.backtestConfig ?? null;
 
-	// 同步外部传入的初始配置，确保在重新打开面板时能恢复已有数据
-	useEffect(() => {
-		setConfig(initialConfig);
-	}, [initialConfig]);
-
-	// 监听 config 变化，同步到 ReactFlow
-	useEffect(() => {
-		if (config) {
-			updateNodeData(id, {
-				backtestConfig: config,
-			});
-		}
-	}, [config, id, updateNodeData]);
-
-	// 通用的更新函数
+	/**
+	 * Generic update function: use Immer to simplify nested updates
+	 */
 	const updateConfig = useCallback(
-		(
-			updater: (
-				prev: IfElseNodeBacktestConfig | undefined,
-			) => IfElseNodeBacktestConfig,
-		) => {
-			setConfig((prevConfig) => updater(prevConfig));
+		(updater: (draft: IfElseNodeBacktestConfig) => void) => {
+			const currentConfig =
+				backtestConfig ?? createDefaultIfElseBacktestConfig(id);
+			const newConfig = produce(currentConfig, updater);
+
+			updateNodeData(id, { backtestConfig: newConfig });
 		},
-		[],
+		[backtestConfig, id, updateNodeData],
 	);
 
-	// 默认配置值
-	const getDefaultConfig = useCallback(
-		(prev?: IfElseNodeBacktestConfig): IfElseNodeBacktestConfig => ({
-			cases: prev?.cases || [
-				{
-					caseId: 1,
-					logicalSymbol: LogicalSymbol.AND,
-					conditions: [],
-					outputHandleId: `${id}_output_1`,
-				},
-			],
-			...prev,
-		}),
-		[id],
-	);
+	// ==================== Basic Config Updates ====================
 
-	// 通用的字段更新方法
-	const updateField = useCallback(
-		<K extends keyof IfElseNodeBacktestConfig>(
-			field: K,
-			value: IfElseNodeBacktestConfig[K],
-		) => {
-			updateConfig((prev) => ({
-				...getDefaultConfig(prev),
-				[field]: value,
-			}));
-		},
-		[updateConfig, getDefaultConfig],
-	);
-
-	// 设置默认回测配置
 	const setDefaultBacktestConfig = useCallback(() => {
-		const defaultConfig = getDefaultConfig();
-		updateField("cases", defaultConfig.cases);
-	}, [updateField, getDefaultConfig]);
+		const defaultConfig = createDefaultIfElseBacktestConfig(id);
+		updateNodeData(id, { backtestConfig: defaultConfig });
+	}, [id, updateNodeData]);
 
-	// 更新所有案例
+	// ==================== Cases Updates ====================
+
 	const updateCases = useCallback(
 		(cases: CaseItem[]) => {
-			updateField("cases", cases);
+			updateConfig((draft) => {
+				draft.cases = cases;
+			});
 		},
-		[updateField],
+		[updateConfig],
 	);
 
-	// 删除案例
-	const removeCase = useCallback(
-		(caseId: number) => {
-			updateConfig((prev) => ({
-				...getDefaultConfig(prev),
-				cases: (prev?.cases || []).filter((c) => c.caseId !== caseId),
-			}));
-		},
-		[updateConfig, getDefaultConfig],
-	);
-
-	// 更新指定案例
 	const updateCase = useCallback(
 		(updatedCase: Partial<CaseItem>) => {
-			updateConfig((prev) => {
-				const currentCases = prev?.cases || [];
-
-				// 如果配置为空且要更新的case有完整信息，则添加为新case
-				if (currentCases.length === 0 && updatedCase.caseId) {
-					const newConfig = {
-						...getDefaultConfig(prev),
-						cases: [updatedCase as CaseItem],
-					};
-					return newConfig;
+			updateConfig((draft) => {
+				// If config is empty and updated case has complete info, add as new case
+				if (draft.cases.length === 0 && updatedCase.caseId) {
+					draft.cases = [updatedCase as CaseItem];
+					return;
 				}
 
-				// 查找是否存在匹配的case
-				const caseExists = currentCases.some(
+				// Check if case exists
+				const caseIndex = draft.cases.findIndex(
 					(c) => c.caseId === updatedCase.caseId,
 				);
 
-				if (!caseExists && updatedCase.caseId) {
-					// 如果case不存在，添加新case
-					const newConfig = {
-						...getDefaultConfig(prev),
-						cases: [...currentCases, updatedCase as CaseItem],
+				if (caseIndex === -1 && updatedCase.caseId) {
+					// Case doesn't exist, add new case
+					draft.cases.push(updatedCase as CaseItem);
+				} else if (caseIndex !== -1) {
+					// Case exists, update it
+					draft.cases[caseIndex] = {
+						...draft.cases[caseIndex],
+						...updatedCase,
 					};
-					return newConfig;
-				} else {
-					// 如果case存在，更新它
-					const newConfig = {
-						...getDefaultConfig(prev),
-						cases: currentCases.map((c) =>
-							c.caseId === updatedCase.caseId ? { ...c, ...updatedCase } : c,
-						),
-					};
-					return newConfig;
 				}
 			});
 		},
-		[updateConfig, getDefaultConfig],
+		[updateConfig],
+	);
+
+	const removeCase = useCallback(
+		(caseId: number) => {
+			updateConfig((draft) => {
+				draft.cases = draft.cases.filter((c) => c.caseId !== caseId);
+			});
+		},
+		[updateConfig],
 	);
 
 	return {
-		// 状态
-		config,
-
-		// 基础配置方法
+		backtestConfig,
 		setDefaultBacktestConfig,
 		updateCases,
-
-		removeCase,
 		updateCase,
+		removeCase,
 	};
 };

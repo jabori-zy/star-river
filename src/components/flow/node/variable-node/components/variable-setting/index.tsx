@@ -4,7 +4,6 @@ import { NodeOpConfirmDialog } from "@/components/flow/node-op-confirm-dialog";
 import { Label } from "@/components/ui/label";
 import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 import { getSymbolList } from "@/service/market";
-import { useStartNodeDataStore } from "@/store/node/use-start-node-data-store";
 import type { MarketSymbol } from "@/types/market";
 import type { VariableConfig, GetCustomVariableConfig, UpdateVariableConfig, ResetVariableConfig } from "@/types/node/variable-node";
 import {
@@ -16,7 +15,6 @@ import { TradeMode } from "@/types/strategy";
 import VariableConfigItem from "./variable-config-item";
 import AddConfigButton from "./components/add-config-button";
 import { useTranslation } from "react-i18next";
-import useTradingModeStore from "@/store/use-trading-mode-store";
 import {
 	VariableValueType,
 	getVariableValueTypeIcon,
@@ -38,22 +36,11 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 	onVariableConfigsChange,
 }) => {
 	const { t } = useTranslation();
-	const {
-		backtestConfig: startNodeBacktestConfig,
-		liveConfig: startNodeLiveConfig,
-	} = useStartNodeDataStore();
-	const { tradingMode } = useTradingModeStore();
-
-	// 获取自定义变量列表
-	const customVariables = React.useMemo(() => {
-		if (tradingMode === TradeMode.BACKTEST) {
-			return startNodeBacktestConfig?.customVariables || [];
-		} else if (tradingMode === TradeMode.LIVE) {
-			return startNodeLiveConfig?.customVariables || [];
-		} else {
-			return [];
-		}
-	}, [tradingMode, startNodeBacktestConfig, startNodeLiveConfig]);
+	
+	const { getStartNodeData } = useStrategyWorkflow();
+	const startNodeData = getStartNodeData();
+	const customVariables = startNodeData?.backtestConfig?.customVariables || [];
+	console.log("customVariables", customVariables);
 
 	// 生成自定义变量选项
 	const customVariableOptions = React.useMemo(
@@ -123,17 +110,17 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 	const selectedAccountId = useMemo(() => {
 		if (tradeMode === TradeMode.BACKTEST) {
 			return (
-				startNodeBacktestConfig?.exchangeModeConfig?.selectedAccounts?.[0]
+				startNodeData?.backtestConfig?.exchangeModeConfig?.selectedAccounts?.[0]
 					?.id ?? undefined
 			);
 		}
 
 		if (tradeMode === TradeMode.LIVE) {
-			return startNodeLiveConfig?.selectedAccounts?.[0]?.id ?? undefined;
+			return startNodeData?.liveConfig?.selectedAccounts?.[0]?.id ?? undefined;
 		}
 
 		return undefined;
-	}, [tradeMode, startNodeBacktestConfig, startNodeLiveConfig]);
+	}, [tradeMode, startNodeData]);
 
 	const [symbolList, setSymbolList] = useState<MarketSymbol[]>([]);
 	const [isSymbolLoading, setIsSymbolLoading] = useState(false);

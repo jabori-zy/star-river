@@ -8,7 +8,7 @@ import { PanelComponentMap } from "./constants";
 
 
 interface NodePanelProps {
-	selectedNodeId: string | undefined;
+	selectedNodeId: string;
 	setSelectedNodeId: (id: string | undefined) => void;
 }
 
@@ -23,7 +23,6 @@ const NodePanel: React.FC<NodePanelProps> = ({ selectedNodeId, setSelectedNodeId
 	// 当前选中的节点类型
 	const [selectedNodeType, setSelectedNodeType] = useState<string | undefined>(undefined);
 	// 当前选中的节点数据
-	const [selectedNodeData, setSelectedNodeData] = useState<NodeData | undefined>(undefined);
 
 
 	// 监听节点选择状态变化
@@ -38,12 +37,10 @@ const NodePanel: React.FC<NodePanelProps> = ({ selectedNodeId, setSelectedNodeId
 			if (selectedNode) {
 				// setSelectedNodeId(selectedNodeId);
 				setSelectedNodeType(selectedNode.type || undefined);
-				setSelectedNodeData(selectedNode.data as NodeData);
 				// setIsShow(true);
 			} else {
 				// setSelectedNodeId(undefined);
 				setSelectedNodeType(undefined);
-				setSelectedNodeData(undefined);
 				// setIsShow(false);
 			}
 		// };
@@ -114,7 +111,6 @@ const NodePanel: React.FC<NodePanelProps> = ({ selectedNodeId, setSelectedNodeId
 		<BasePanel
 			key={selectedNodeId} // 使用selectedNodeId作为key，强制重新渲染
 			id={selectedNodeId}
-			data={selectedNodeData}
 			settingPanel={currentPanelConfig}
 			setSelectedNodeId={setSelectedNodeId}
 			tradeMode="backtest" // 默认交易模式

@@ -1,10 +1,8 @@
-import { type NodeProps, Position } from "@xyflow/react";
+import { type NodeProps, Position, useNodeConnections, useNodesData } from "@xyflow/react";
 import { Play } from "lucide-react";
-import { useEffect } from "react";
+import { memo, useEffect } from "react";
 import type { BaseHandleProps } from "@/components/flow/base/BaseHandle";
 import BaseNode from "@/components/flow/base/BaseNode";
-import { useUpdateBacktestConfig } from "@/hooks/node-config/indicator-node/use-update-backtest-config";
-import { useUpdateLiveConfig } from "@/hooks/node-config/indicator-node/use-update-live-config";
 import useTradingModeStore from "@/store/use-trading-mode-store";
 import {
 	getNodeDefaultInputHandleId,
@@ -19,6 +17,8 @@ import LiveModeShow from "./components/node-show/live-mode-show";
 import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 import { toast } from "sonner";
 import type { KlineNodeData } from "@/types/node/kline-node";
+import type { StrategyFlowNode } from "@/types/node";
+import { useBacktestConfig } from "@/hooks/node-config/indicator-node";
 
 
 const IndicatorNode: React.FC<NodeProps<IndicatorNodeType>> = ({
@@ -27,26 +27,19 @@ const IndicatorNode: React.FC<NodeProps<IndicatorNodeType>> = ({
 }) => {
 	const { tradingMode } = useTradingModeStore();
 
-	const { getStartNodeData, getNodeData, getSourceNodes } = useStrategyWorkflow();
+	const { getStartNodeData, getNodeData } = useStrategyWorkflow();
 	
 	
 	const startNodeData = getStartNodeData();
 	const currentNodeData = getNodeData(id) as IndicatorNodeData;
-	const sourceNodes = getSourceNodes(id);
+	// const sourceNodes = getSourceNodes(id);
+	const connections = useNodeConnections({id, handleType: 'target'})
+	const sourceNodes = useNodesData<StrategyFlowNode>(connections.map(connection => connection.source));
 
-
-	// 使用分离的hooks
-	const { setDefaultLiveConfig } = useUpdateLiveConfig({
-		id,
-		initialLiveConfig: currentNodeData?.liveConfig,
-	});
-
-	const { setDefaultBacktestConfig, updateTimeRange, updateSelectedSymbol } = useUpdateBacktestConfig(
-		{
-			id,
-			initialConfig: currentNodeData?.backtestConfig,
-		},
-	);
+	const {
+		updateSelectedSymbol,
+		updateTimeRange,
+	} = useBacktestConfig({ id });
 
 	// 监听开始节点的时间范围变化
 	useEffect(() => {
@@ -93,29 +86,11 @@ const IndicatorNode: React.FC<NodeProps<IndicatorNodeType>> = ({
 					
 				}
 			} else {
-				toast.error("indicator node only has been connected by kline node");
+				// toast.error("indicator node only has been connected by kline node");
 			}
 		}
-	}, [sourceNodes, currentNodeData?.backtestConfig?.exchangeModeConfig?.selectedSymbol, updateSelectedSymbol]);
+	}, [sourceNodes, updateSelectedSymbol]);
 
-
-
-
-	// 初始化时设置默认配置
-	useEffect(() => {
-		if (!currentNodeData?.liveConfig) {
-			setDefaultLiveConfig();
-		}
-		// 如果回测节点没有配置，则设置默认配置
-		if (!currentNodeData?.backtestConfig) {
-			setDefaultBacktestConfig();
-		}
-	}, [
-		setDefaultLiveConfig,
-		setDefaultBacktestConfig,
-		currentNodeData?.liveConfig,
-		currentNodeData?.backtestConfig,
-	]);
 
 	const defaultInputHandle: BaseHandleProps = {
 		id: getNodeDefaultInputHandleId(id, NodeType.IndicatorNode),
@@ -148,4 +123,4 @@ const IndicatorNode: React.FC<NodeProps<IndicatorNodeType>> = ({
 	);
 };
 
-export default IndicatorNode;
+export default memo(IndicatorNode);

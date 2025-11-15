@@ -1,181 +1,175 @@
+import { useCallback } from "react";
 import { useReactFlow } from "@xyflow/react";
-import { useCallback, useEffect } from "react";
-import { useStartNodeDataStore } from "@/store/node/use-start-node-data-store";
-import {
+import { produce } from "immer";
+import type {
+	StrategyBacktestConfig,
 	BacktestDataSource,
-	type CustomVariable,
-	type SelectedAccount,
-	type StrategyBacktestConfig,
-	type TimeRange,
+	SelectedAccount,
+	TimeRange,
 } from "@/types/strategy";
+import { BacktestDataSource as BacktestDataSourceEnum } from "@/types/strategy";
+import type { CustomVariable } from "@/types/variable";
+import { DateTime } from "luxon";
+import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
+import type { StartNodeData } from "@/types/node/start-node";
 
-interface UseBacktestConfigProps {
-	initialConfig?: StrategyBacktestConfig;
-	nodeId?: string; // 节点ID，用于同步节点数据
-}
 
-const defaultBacktestConfig: StrategyBacktestConfig = {
-	dataSource: BacktestDataSource.EXCHANGE,
-	exchangeModeConfig: null,
-	fileModeConfig: null,
-	initialBalance: 10000,
-	leverage: 1,
-	feeRate: 0.001,
-	playSpeed: 1,
-	customVariables: [],
+
+
+
+/**
+ * 创建默认的回测配置
+ */
+export const createDefaultBacktestConfig = (): StrategyBacktestConfig => {
+	return {
+		dataSource: BacktestDataSourceEnum.EXCHANGE,
+		exchangeModeConfig: {
+			selectedAccounts: [],
+			timeRange: {
+				startDate: DateTime.now().minus({ days: 2 }).startOf("day").toFormat("yyyy-MM-dd HH:mm:ss ZZ"),
+				endDate: DateTime.now().minus({ days: 1 }).startOf("day").toFormat("yyyy-MM-dd HH:mm:ss ZZ"),
+			},
+		},
+		fileModeConfig: null,
+		initialBalance: 10000,
+		leverage: 5,
+		feeRate: 0.001,
+		playSpeed: 20,
+		customVariables: [],
+	};
 };
 
+
+interface UseBacktestConfigProps {
+	id: string; // 节点ID
+}
+
 export const useBacktestConfig = ({
-	initialConfig,
-	nodeId,
+	id,
 }: UseBacktestConfigProps) => {
-	// 获取ReactFlow实例
-	const { setNodes } = useReactFlow();
+	const { updateNodeData } = useReactFlow();
+	const { getNodeData } = useStrategyWorkflow();
 
-	// 获取全局状态store的方法和数据
-	const {
-		backtestConfig: config,
-		setBacktestConfig: setGlobalBacktestConfig,
-		setDefaultBacktestConfig: setGlobalDefaultBacktestConfig,
-		updateInitialBalance: updateGlobalInitialBalance,
-		updateLeverage: updateGlobalLeverage,
-		updateFeeRate: updateGlobalFeeRate,
-		updatePlaySpeed: updateGlobalPlaySpeed,
-		updateDataSource: updateGlobalDataSource,
-		updateBacktestAccounts: updateGlobalBacktestAccounts,
-		updateTimeRange: updateGlobalTimeRange,
-		updateBacktestVariables: updateGlobalBacktestVariables,
-	} = useStartNodeDataStore();
+    const nodeData = getNodeData(id) as StartNodeData;
+	const backtestConfig = nodeData?.backtestConfig ?? null;
 
-	// 初始化配置（仅在首次使用时设置）
-	useEffect(() => {
-		if (!config && initialConfig) {
-			setGlobalBacktestConfig(initialConfig);
-		}
-	}, [config, initialConfig, setGlobalBacktestConfig]);
+	/**
+	 * 通用更新函数：使用 Immer 简化嵌套更新
+	 */
+	const updateConfig = useCallback(
+		(updater: (draft: StrategyBacktestConfig) => void) => {
+			const currentConfig = backtestConfig ?? createDefaultBacktestConfig();
+			const newConfig = produce(currentConfig, updater);
 
-	// 设置默认回测配置
-	const setDefaultBacktestConfig = useCallback(() => {
-		setGlobalDefaultBacktestConfig();
-	}, [setGlobalDefaultBacktestConfig]);
-
-	// 监听全局配置变化，同步到节点
-	useEffect(() => {
-		if (nodeId && config) {
-			setNodes((nodes) =>
-				nodes.map((node) =>
-					node.id === nodeId
-						? {
-								...node,
-								data: {
-									...node.data,
-									backtestConfig: config,
-								},
-							}
-						: node,
-				),
-			);
-		}
-	}, [config, nodeId, setNodes]);
-
-	// 辅助函数：同步节点数据（现在只是一个占位符，实际同步通过 useEffect）
-	const syncToNode = useCallback(
-		(_updateFn: (config: StrategyBacktestConfig) => StrategyBacktestConfig) => {
-			// 同步现在通过 useEffect 自动完成
+			updateNodeData(id, { backtestConfig: newConfig });
 		},
-		[],
+		[backtestConfig, id, updateNodeData],
 	);
 
-	// 具体的更新方法 - 直接调用全局状态方法并同步节点
+	// ==================== 基础配置更新 ====================
+
 	const updateInitialBalance = useCallback(
 		(initialBalance: number) => {
-			updateGlobalInitialBalance(initialBalance);
-			syncToNode((config) => ({ ...config, initialBalance }));
+			updateConfig((draft) => {
+				draft.initialBalance = initialBalance;
+			});
 		},
-		[updateGlobalInitialBalance, syncToNode],
+		[updateConfig],
 	);
 
 	const updateLeverage = useCallback(
 		(leverage: number) => {
-			updateGlobalLeverage(leverage);
-			syncToNode((config) => ({ ...config, leverage }));
+			updateConfig((draft) => {
+				draft.leverage = leverage;
+			});
 		},
-		[updateGlobalLeverage, syncToNode],
+		[updateConfig],
 	);
 
 	const updateFeeRate = useCallback(
 		(feeRate: number) => {
-			updateGlobalFeeRate(feeRate);
-			syncToNode((config) => ({ ...config, feeRate }));
+			updateConfig((draft) => {
+				draft.feeRate = feeRate;
+			});
 		},
-		[updateGlobalFeeRate, syncToNode],
+		[updateConfig],
 	);
 
 	const updatePlaySpeed = useCallback(
 		(playSpeed: number) => {
-			updateGlobalPlaySpeed(playSpeed);
-			syncToNode((config) => ({ ...config, playSpeed }));
+			updateConfig((draft) => {
+				draft.playSpeed = playSpeed;
+			});
 		},
-		[updateGlobalPlaySpeed, syncToNode],
+		[updateConfig],
 	);
 
 	const updateDataSource = useCallback(
 		(dataSource: BacktestDataSource) => {
-			updateGlobalDataSource(dataSource);
-			syncToNode((config) => ({ ...config, dataSource }));
+			updateConfig((draft) => {
+				draft.dataSource = dataSource;
+			});
 		},
-		[updateGlobalDataSource, syncToNode],
+		[updateConfig],
 	);
 
-	const updateVariables = useCallback(
-		(variables: CustomVariable[]) => {
-			updateGlobalBacktestVariables(variables);
-			syncToNode((config) => ({ ...config, customVariables: variables }));
-		},
-		[updateGlobalBacktestVariables, syncToNode],
-	);
+	// ==================== 交易所模式配置更新 ====================
 
-	const updateSelectedAccounts = useCallback(
+	const updateBacktestAccounts = useCallback(
 		(accounts: SelectedAccount[]) => {
-			updateGlobalBacktestAccounts(accounts);
-			syncToNode((config) => ({
-				...config,
-				exchangeModeConfig: {
-					selectedAccounts: accounts,
-					timeRange: config.exchangeModeConfig?.timeRange || {
-						startDate: "",
-						endDate: "",
-					},
-				},
-			}));
+			updateConfig((draft) => {
+				if (!draft.exchangeModeConfig) {
+					draft.exchangeModeConfig = {
+						selectedAccounts: accounts,
+						timeRange: {
+							startDate: "",
+							endDate: "",
+						},
+					};
+				} else {
+					draft.exchangeModeConfig.selectedAccounts = accounts;
+				}
+			});
 		},
-		[updateGlobalBacktestAccounts, syncToNode],
+		[updateConfig],
 	);
 
 	const updateTimeRange = useCallback(
 		(timeRange: TimeRange) => {
-			updateGlobalTimeRange(timeRange);
-			syncToNode((config) => ({
-				...config,
-				exchangeModeConfig: {
-					selectedAccounts: config.exchangeModeConfig?.selectedAccounts || [],
-					timeRange,
-				},
-			}));
+			updateConfig((draft) => {
+				if (!draft.exchangeModeConfig) {
+					draft.exchangeModeConfig = {
+						selectedAccounts: [],
+						timeRange,
+					};
+				} else {
+					draft.exchangeModeConfig.timeRange = timeRange;
+				}
+			});
 		},
-		[updateGlobalTimeRange, syncToNode],
+		[updateConfig],
+	);
+
+	// ==================== 自定义变量更新 ====================
+
+	const updateBacktestVariables = useCallback(
+		(variables: CustomVariable[]) => {
+			updateConfig((draft) => {
+				draft.customVariables = variables;
+			});
+		},
+		[updateConfig],
 	);
 
 	return {
-		config,
-		setDefaultBacktestConfig,
+        backtestConfig,
 		updateInitialBalance,
 		updateLeverage,
 		updateFeeRate,
 		updatePlaySpeed,
 		updateDataSource,
-		updateSelectedAccounts,
+		updateBacktestAccounts,
 		updateTimeRange,
-		updateVariables,
+		updateBacktestVariables,
 	};
 };

@@ -2,7 +2,6 @@ import { type NodeProps, useReactFlow } from "@xyflow/react";
 import type { LucideIcon } from "lucide-react";
 import type React from "react";
 import { type ReactNode, useState } from "react";
-import { useChangeNodeName } from "@/hooks/node-config/use-change-node-name";
 import BaseHandle, { type BaseHandleProps } from "../BaseHandle";
 
 // BaseNode的属性接口
@@ -51,11 +50,11 @@ const BaseNode: React.FC<BaseNodeProps> = ({
 	// 获取ReactFlow实例
 	const { setEdges } = useReactFlow();
 
-	// 使用节点名称管理 hook（只用于数据同步）
-	const { nodeName: currentNodeName } = useChangeNodeName({
-		id,
-		initialNodeName: nodeName,
-	});
+	// // 使用节点名称管理 hook（只用于数据同步）
+	// const { nodeName: currentNodeName } = useChangeNodeName({
+	// 	id,
+	// 	initialNodeName: nodeName,
+	// });
 
 	// 根据selected状态决定边框样式
 	const borderClass = selected
@@ -86,53 +85,53 @@ const BaseNode: React.FC<BaseNodeProps> = ({
   `.trim();
 
 	// 处理鼠标进入事件
-	const handleMouseEnter = () => {
-		setIsHovered(true);
+	// const handleMouseEnter = () => {
+	// 	setIsHovered(true);
 
-		// console.log(`Mouse enter node ${id}`);
+	// 	// console.log(`Mouse enter node ${id}`);
 
-		// 设置所有相关边的_connectedNodeIsHovering状态为true
-		setEdges((edges) =>
-			edges.map((edge) => {
-				// 如果边连接到当前节点，设置_connectedNodeIsHovering状态
-				if (edge.source === id || edge.target === id) {
-					return {
-						...edge,
-						selected: true,
-					};
-				}
-				return edge;
-			}),
-		);
-	};
+	// 	// 设置所有相关边的_connectedNodeIsHovering状态为true
+	// 	setEdges((edges) =>
+	// 		edges.map((edge) => {
+	// 			// 如果边连接到当前节点，设置_connectedNodeIsHovering状态
+	// 			if (edge.source === id || edge.target === id) {
+	// 				return {
+	// 					...edge,
+	// 					selected: true,
+	// 				};
+	// 			}
+	// 			return edge;
+	// 		}),
+	// 	);
+	// };
 
 	// 处理鼠标离开事件
-	const handleMouseLeave = () => {
-		setIsHovered(false);
+	// const handleMouseLeave = () => {
+	// 	setIsHovered(false);
 
-		// console.log(`Mouse leave node ${id}`);
+	// 	// console.log(`Mouse leave node ${id}`);
 
-		// 设置所有相关边的_connectedNodeIsHovering状态为false
-		setEdges((edges) =>
-			edges.map((edge) => {
-				// 如果边连接到当前节点，取消_connectedNodeIsHovering状态
-				if (edge.source === id || edge.target === id) {
-					// console.log(`Setting edge ${edge.id} _connectedNodeIsHovering=false`);
-					return {
-						...edge,
-						selected: false,
-					};
-				}
-				return edge;
-			}),
-		);
-	};
+	// 	// 设置所有相关边的_connectedNodeIsHovering状态为false
+	// 	setEdges((edges) =>
+	// 		edges.map((edge) => {
+	// 			// 如果边连接到当前节点，取消_connectedNodeIsHovering状态
+	// 			if (edge.source === id || edge.target === id) {
+	// 				// console.log(`Setting edge ${edge.id} _connectedNodeIsHovering=false`);
+	// 				return {
+	// 					...edge,
+	// 					selected: false,
+	// 				};
+	// 			}
+	// 			return edge;
+	// 		}),
+	// 	);
+	// };
 
 	return (
 		<div
 			className={baseClasses}
-			onMouseEnter={handleMouseEnter}
-			onMouseLeave={handleMouseLeave}
+			// onMouseEnter={handleMouseEnter}
+			// onMouseLeave={handleMouseLeave}
 			{...props}
 		>
 			{/* 标题区域 */}
@@ -149,7 +148,7 @@ const BaseNode: React.FC<BaseNodeProps> = ({
 
 					{/* 标题文本 */}
 					<div className="text-base font-bold text-black break-words leading-relaxed">
-						{currentNodeName}
+						{nodeName}
 					</div>
 				</div>
 				{/* 默认的输入输出handle */}

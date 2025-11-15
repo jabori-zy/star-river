@@ -1,183 +1,135 @@
+import { useCallback } from "react";
 import { useReactFlow } from "@xyflow/react";
-import { useCallback, useEffect, useState } from "react";
+import { produce } from "immer";
+import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 import type {
 	PositionBacktestConfig,
+	PositionManagementNodeData,
 	PositionOperationConfig,
 } from "@/types/node/position-management-node";
 import type { SelectedAccount } from "@/types/strategy";
 
-interface UseUpdateBacktestConfigProps {
-	id: string;
-	initialConfig?: PositionBacktestConfig;
+/**
+ * Create default position management node backtest config
+ */
+export const createDefaultPositionBacktestConfig =
+	(): PositionBacktestConfig => {
+		return {
+			selectedAccount: null,
+			positionOperations: [],
+		};
+	};
+
+interface UseBacktestConfigProps {
+	id: string; // Node ID
 }
 
-export const useUpdateBacktestConfig = ({
-	id,
-	initialConfig,
-}: UseUpdateBacktestConfigProps) => {
-	const { updateNodeData, getNode } = useReactFlow();
+export const useBacktestConfig = ({ id }: UseBacktestConfigProps) => {
+	const { updateNodeData } = useReactFlow();
+	const { getNodeData } = useStrategyWorkflow();
 
-	// 统一的状态管理
-	const [config, setConfig] = useState<PositionBacktestConfig | undefined>(
-		initialConfig,
-	);
+	const nodeData = getNodeData(id) as PositionManagementNodeData;
+	const backtestConfig = nodeData?.backtestConfig ?? null;
 
-	// 监听 config 变化，同步到 ReactFlow
-	useEffect(() => {
-		if (config) {
-			updateNodeData(id, {
-				backtestConfig: config,
-			});
-		}
-	}, [config, id, updateNodeData]);
-
-	// 通用的更新函数
+	/**
+	 * Generic update function: use Immer to simplify nested updates
+	 */
 	const updateConfig = useCallback(
-		(
-			updater: (
-				prev: PositionBacktestConfig | undefined,
-			) => PositionBacktestConfig,
-		) => {
-			setConfig((prevConfig) => updater(prevConfig));
+		(updater: (draft: PositionBacktestConfig) => void) => {
+			const currentConfig =
+				backtestConfig ?? createDefaultPositionBacktestConfig();
+			const newConfig = produce(currentConfig, updater);
+
+			updateNodeData(id, { backtestConfig: newConfig });
 		},
-		[],
+		[backtestConfig, id, updateNodeData],
 	);
 
-	// 默认配置值
-	const getDefaultConfig = useCallback(
-		(prev?: PositionBacktestConfig): PositionBacktestConfig => ({
-			selectedAccount: prev?.selectedAccount || null,
-			positionOperations: prev?.positionOperations || [],
-			...prev,
-		}),
-		[],
-	);
+	// ==================== Basic Config Updates ====================
 
-	// 通用的字段更新方法
-	const updateField = useCallback(
-		<K extends keyof PositionBacktestConfig>(
-			field: K,
-			value: PositionBacktestConfig[K],
-		) => {
-			updateConfig((prev) => ({
-				...prev,
-				selectedAccount: prev?.selectedAccount || null,
-				positionOperations: prev?.positionOperations || [],
-				[field]: value,
-			}));
-		},
-		[updateConfig],
-	);
-
-	// 设置默认回测配置
 	const setDefaultBacktestConfig = useCallback(() => {
-		updateConfig((prev) => getDefaultConfig(prev));
-	}, [updateConfig, getDefaultConfig]);
+		const defaultConfig = createDefaultPositionBacktestConfig();
+		updateNodeData(id, { backtestConfig: defaultConfig });
+	}, [id, updateNodeData]);
 
-	// 更新账户选择
 	const updateSelectedAccount = useCallback(
 		(selectedAccount: SelectedAccount | null) => {
-			updateField("selectedAccount", selectedAccount);
+			updateConfig((draft) => {
+				draft.selectedAccount = selectedAccount;
+			});
 		},
-		[updateField],
+		[updateConfig],
 	);
 
-	// 更新操作配置列表
+	// ==================== Position Operations Updates ====================
+
 	const updatePositionOperations = useCallback(
 		(positionOperations: PositionOperationConfig[]) => {
-			updateField("positionOperations", positionOperations);
+			updateConfig((draft) => {
+				draft.positionOperations = positionOperations;
+			});
 		},
-		[updateField],
+		[updateConfig],
 	);
 
-	// 添加操作配置
 	const addPositionOperation = useCallback(
 		(operationConfig: PositionOperationConfig) => {
-			updateConfig((prev) => {
-				const currentOperations = prev?.positionOperations || [];
+			updateConfig((draft) => {
+				// Calculate new ID based on max existing ID
 				const newId =
-					Math.max(
-						0,
-						...currentOperations.map((op) => op.positionOperationId),
-					) + 1;
-				const newOperation = { ...operationConfig, positionOperationId: newId };
+					draft.positionOperations.length > 0
+						? Math.max(
+								...draft.positionOperations.map(
+									(op) => op.positionOperationId,
+								),
+						  ) + 1
+						: 1;
 
-				return {
-					...prev,
-					selectedAccount: prev?.selectedAccount || null,
-					positionOperations: [...currentOperations, newOperation],
-				};
+				const newOperation = { ...operationConfig, positionOperationId: newId };
+				draft.positionOperations.push(newOperation);
 			});
 		},
 		[updateConfig],
 	);
 
-	// 更新指定操作配置
 	const updatePositionOperation = useCallback(
 		(index: number, operationConfig: PositionOperationConfig) => {
-			updateConfig((prev) => {
-				const currentOperations = prev?.positionOperations || [];
-				const updatedOperations = [...currentOperations];
-				updatedOperations[index] = operationConfig;
-
-				return {
-					...prev,
-					selectedAccount: prev?.selectedAccount || null,
-					positionOperations: updatedOperations,
-				};
+			updateConfig((draft) => {
+				if (index >= 0 && index < draft.positionOperations.length) {
+					draft.positionOperations[index] = operationConfig;
+				}
 			});
 		},
 		[updateConfig],
 	);
 
-	// 删除操作配置
 	const removePositionOperation = useCallback(
 		(index: number) => {
-			updateConfig((prev) => {
-				const currentOperations = prev?.positionOperations || [];
-				const updatedOperations = currentOperations.filter(
-					(_, i) => i !== index,
-				);
-
-				return {
-					...prev,
-					selectedAccount: prev?.selectedAccount || null,
-					positionOperations: updatedOperations,
-				};
+			updateConfig((draft) => {
+				if (index >= 0 && index < draft.positionOperations.length) {
+					draft.positionOperations.splice(index, 1);
+				}
 			});
 		},
 		[updateConfig],
 	);
 
-	// 根据ID删除操作配置
 	const removePositionOperationById = useCallback(
 		(operationId: number) => {
-			updateConfig((prev) => {
-				const currentOperations = prev?.positionOperations || [];
-				const updatedOperations = currentOperations.filter(
+			updateConfig((draft) => {
+				draft.positionOperations = draft.positionOperations.filter(
 					(op) => op.positionOperationId !== operationId,
 				);
-
-				return {
-					...prev,
-					selectedAccount: prev?.selectedAccount || null,
-					positionOperations: updatedOperations,
-				};
 			});
 		},
 		[updateConfig],
 	);
 
 	return {
-		// 状态
-		config,
-
-		// 基础配置方法
+		backtestConfig,
 		setDefaultBacktestConfig,
 		updateSelectedAccount,
 		updatePositionOperations,
-
-		// 操作配置管理方法
 		addPositionOperation,
 		updatePositionOperation,
 		removePositionOperation,

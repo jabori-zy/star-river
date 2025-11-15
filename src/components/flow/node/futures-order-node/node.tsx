@@ -1,14 +1,12 @@
 import type { NodeProps } from "@xyflow/react";
 import { Play } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import BaseNode from "@/components/flow/base/BaseNode";
-import { useUpdateBacktestConfig } from "@/hooks/node-config/futures-order-node/use-update-backtest-config";
-import { useUpdateLiveConfig } from "@/hooks/node-config/futures-order-node/use-update-live-config";
-import { useUpdateSimulateConfig } from "@/hooks/node-config/futures-order-node/use-update-simulate-config";
-import { useStartNodeDataStore } from "@/store/node/use-start-node-data-store";
+import { useBacktestConfig } from "@/hooks/node-config/futures-order-node";
+import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 import useTradingModeStore from "@/store/use-trading-mode-store";
 import type { FuturesOrderNode as FuturesOrderNodeType } from "@/types/node/futures-order-node";
-import { type TimeRange, TradeMode } from "@/types/strategy";
+import { TradeMode } from "@/types/strategy";
 import BacktestModeShow from "./components/node-show/backtest-mode-show";
 import LiveModeShow from "./components/node-show/live-mode-show";
 import SimulateModeShow from "./components/node-show/simulate-mode-show";
@@ -23,44 +21,20 @@ const FuturesOrderNode: React.FC<NodeProps<FuturesOrderNodeType>> = ({
 	// 获取当前的交易模式
 	const { tradingMode } = useTradingModeStore();
 
-	// 获取开始节点的配置
-	const { backtestConfig: startNodeBacktestConfig } = useStartNodeDataStore();
+	// 获取开始节点数据
+	const { getStartNodeData } = useStrategyWorkflow();
+	const startNodeData = getStartNodeData();
+	const startNodeTimeRange = startNodeData?.backtestConfig?.exchangeModeConfig?.timeRange;
 
-	// 回测模式的hooks
-	const { updateTimeRange } = useUpdateBacktestConfig({
-		id,
-		initialConfig: data?.backtestConfig,
-	});
+	// 使用新版本 hook 管理回测配置
+	const { updateTimeRange } = useBacktestConfig({ id });
 
-	// 实盘和模拟模式的hooks - 初始化但不使用，为了确保节点数据结构正确
-	useUpdateLiveConfig({
-		id,
-		initialConfig: data?.liveConfig,
-	});
-
-	useUpdateSimulateConfig({
-		id,
-		initialConfig: data?.simulateConfig,
-	});
-
-	// 防止循环更新的ref
-	const lastTimeRangeRef = useRef<TimeRange | null>(null);
-
-	// 回测模式特有的时间范围同步逻辑
+	// 监听开始节点的时间范围变化
 	useEffect(() => {
-		if (tradingMode === TradeMode.BACKTEST) {
-			const newTimeRange =
-				startNodeBacktestConfig?.exchangeModeConfig?.timeRange;
-			if (
-				newTimeRange &&
-				JSON.stringify(newTimeRange) !==
-					JSON.stringify(lastTimeRangeRef.current)
-			) {
-				lastTimeRangeRef.current = newTimeRange;
-				updateTimeRange(newTimeRange);
-			}
+		if (startNodeTimeRange) {
+			updateTimeRange(startNodeTimeRange);
 		}
-	}, [startNodeBacktestConfig, updateTimeRange, tradingMode]);
+	}, [startNodeTimeRange, updateTimeRange]);
 
 	// 根据交易模式渲染不同的显示组件
 	const renderModeShow = () => {

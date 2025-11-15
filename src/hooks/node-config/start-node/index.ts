@@ -1,10 +1,10 @@
-import { createDefaultVariableBacktestConfig } from "./use-update-backtest-config";
+import {createDefaultBacktestConfig} from "./use-update-backtest-config";
 export { useBacktestConfig } from "./use-update-backtest-config";
 
 /**
- * Create default variable node data
+ * 创建默认的开始节点配置
  */
-export const createDefaultVariableNodeData = (
+export const createDefaultStartNodeData = (
 	strategyId: number,
 	strategyName: string,
 	nodeName: string,
@@ -15,6 +15,6 @@ export const createDefaultVariableNodeData = (
 		nodeName,
 		liveConfig: null,
 		simulateConfig: null,
-		backtestConfig: createDefaultVariableBacktestConfig(),
+		backtestConfig: createDefaultBacktestConfig(),
 	};
 };

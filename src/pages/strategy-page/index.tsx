@@ -16,8 +16,6 @@ function StrategyPageMainContent() {
 	// 活跃的tab
 	const [activeTab, setActiveTab] = useState("flow");
 	const { setCenterContent } = useHeaderStore();
-	// 连接 SSE
-	// useStrategyEventSSE(strategyId);
 
 	useEffect(() => {
 		// 获取策略信息
@@ -71,7 +69,7 @@ function StrategyPageMainContent() {
 					>
 						{/* 高度改为窗口高度-40px */}
 
-						<StrategyFlowContent strategy={strategy!} />
+						<StrategyFlowContent strategyId={strategyId} strategy={strategy!} />
 					</TabsContent>
 
 					<TabsContent

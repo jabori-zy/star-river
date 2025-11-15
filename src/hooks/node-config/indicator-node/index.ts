@@ -1,10 +1,10 @@
-import { createDefaultVariableBacktestConfig } from "./use-update-backtest-config";
+import { createDefaultIndicatorBacktestConfig } from "./use-update-backtest-config";
 export { useBacktestConfig } from "./use-update-backtest-config";
 
 /**
- * Create default variable node data
+ * Create default indicator node data
  */
-export const createDefaultVariableNodeData = (
+export const createDefaultIndicatorNodeData = (
 	strategyId: number,
 	strategyName: string,
 	nodeName: string,
@@ -15,6 +15,6 @@ export const createDefaultVariableNodeData = (
 		nodeName,
 		liveConfig: null,
 		simulateConfig: null,
-		backtestConfig: createDefaultVariableBacktestConfig(),
+		backtestConfig: createDefaultIndicatorBacktestConfig(),
 	};
 };

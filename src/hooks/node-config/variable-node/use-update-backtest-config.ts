@@ -1,212 +1,158 @@
+import { useCallback } from "react";
 import { useReactFlow } from "@xyflow/react";
-import { useCallback, useEffect, useState } from "react";
+import { produce } from "immer";
+import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 import type {
 	VariableConfig,
 	VariableNodeBacktestConfig,
 	VariableNodeBacktestExchangeModeConfig,
+	VariableNodeData,
 } from "@/types/node/variable-node";
 import { BacktestDataSource, type SelectedAccount } from "@/types/strategy";
 
-interface UseUpdateBacktestConfigProps {
-	id: string;
-	initialConfig?: VariableNodeBacktestConfig;
+/**
+ * Create default variable node backtest config
+ */
+export const createDefaultVariableBacktestConfig =
+	(): VariableNodeBacktestConfig => {
+		return {
+			dataSource: BacktestDataSource.EXCHANGE,
+			exchangeModeConfig: undefined,
+			variableConfigs: [],
+		};
+	};
+
+interface UseBacktestConfigProps {
+	id: string; // Node ID
 }
 
-export const useUpdateBacktestConfig = ({
-	id,
-	initialConfig,
-}: UseUpdateBacktestConfigProps) => {
+export const useBacktestConfig = ({ id }: UseBacktestConfigProps) => {
 	const { updateNodeData } = useReactFlow();
+	const { getNodeData } = useStrategyWorkflow();
 
-	// 统一的状态管理
-	const [config, setConfig] = useState<VariableNodeBacktestConfig | undefined>(
-		initialConfig,
-	);
+	const nodeData = getNodeData(id) as VariableNodeData;
+	const backtestConfig = nodeData?.backtestConfig ?? null;
 
-	// 监听 config 变化，同步到 ReactFlow
-	useEffect(() => {
-		if (config) {
-			updateNodeData(id, {
-				backtestConfig: config,
-			});
-		}
-	}, [config, id, updateNodeData]);
-
-	// 通用的更新函数
+	/**
+	 * Generic update function: use Immer to simplify nested updates
+	 */
 	const updateConfig = useCallback(
-		(
-			updater: (
-				prev: VariableNodeBacktestConfig | undefined,
-			) => VariableNodeBacktestConfig,
-		) => {
-			setConfig((prevConfig) => updater(prevConfig));
+		(updater: (draft: VariableNodeBacktestConfig) => void) => {
+			const currentConfig =
+				backtestConfig ?? createDefaultVariableBacktestConfig();
+			const newConfig = produce(currentConfig, updater);
+
+			updateNodeData(id, { backtestConfig: newConfig });
 		},
-		[],
+		[backtestConfig, id, updateNodeData],
 	);
 
-	// 默认配置值
-	const getDefaultConfig = useCallback(
-		(prev?: VariableNodeBacktestConfig): VariableNodeBacktestConfig => ({
-			dataSource: prev?.dataSource || BacktestDataSource.EXCHANGE,
-			exchangeModeConfig: prev?.exchangeModeConfig || undefined,
-			variableConfigs: prev?.variableConfigs || [],
-			...prev,
-		}),
-		[],
-	);
+	// ==================== Basic Config Updates ====================
 
-	// 通用的字段更新方法
-	const updateField = useCallback(
-		<K extends keyof VariableNodeBacktestConfig>(
-			field: K,
-			value: VariableNodeBacktestConfig[K],
-		) => {
-			updateConfig((prev) => ({
-				...prev,
-				dataSource: prev?.dataSource || BacktestDataSource.EXCHANGE,
-				exchangeModeConfig: prev?.exchangeModeConfig || undefined,
-				variableConfigs: prev?.variableConfigs || [],
-				[field]: value,
-			}));
-		},
-		[updateConfig],
-	);
-
-	// 设置默认回测配置
 	const setDefaultBacktestConfig = useCallback(() => {
-		updateConfig((prev) => getDefaultConfig(prev));
-	}, [updateConfig, getDefaultConfig]);
+		const defaultConfig = createDefaultVariableBacktestConfig();
+		updateNodeData(id, { backtestConfig: defaultConfig });
+	}, [id, updateNodeData]);
 
-	// 更新数据源
 	const updateDataSource = useCallback(
 		(dataSource: BacktestDataSource) => {
-			updateField("dataSource", dataSource);
+			updateConfig((draft) => {
+				draft.dataSource = dataSource;
+			});
 		},
-		[updateField],
+		[updateConfig],
 	);
 
-	// 更新交易所模式配置
+	// ==================== Exchange Mode Config Updates ====================
+
 	const updateExchangeModeConfig = useCallback(
-		(
-			exchangeModeConfig: VariableNodeBacktestExchangeModeConfig | undefined,
-		) => {
-			updateField("exchangeModeConfig", exchangeModeConfig);
+		(exchangeModeConfig: VariableNodeBacktestExchangeModeConfig | undefined) => {
+			updateConfig((draft) => {
+				draft.exchangeModeConfig = exchangeModeConfig;
+			});
 		},
-		[updateField],
+		[updateConfig],
 	);
 
-	// 更新交易所模式的选中账户
 	const updateSelectedAccount = useCallback(
 		(selectedAccount: SelectedAccount) => {
-			updateConfig((prev) => ({
-				...prev,
-				dataSource: prev?.dataSource || BacktestDataSource.EXCHANGE,
-				variableConfigs: prev?.variableConfigs || [],
-				exchangeModeConfig: {
+			updateConfig((draft) => {
+				draft.exchangeModeConfig = {
 					selectedAccount,
-				},
-			}));
+				};
+			});
 		},
 		[updateConfig],
 	);
 
-	// 更新变量配置列表
+	// ==================== Variable Configs Updates ====================
+
 	const updateVariableConfigs = useCallback(
 		(variableConfigs: VariableConfig[]) => {
-			updateField("variableConfigs", variableConfigs);
+			updateConfig((draft) => {
+				draft.variableConfigs = variableConfigs;
+			});
 		},
-		[updateField],
+		[updateConfig],
 	);
 
-	// 添加变量配置
 	const addVariableConfig = useCallback(
 		(variableConfig: Omit<VariableConfig, "configId">) => {
-			updateConfig((prev) => {
-				const currentConfigs = prev?.variableConfigs || [];
+			updateConfig((draft) => {
+				// Calculate new ID based on max existing ID
 				const newId =
-					Math.max(0, ...currentConfigs.map((config) => config.configId)) + 1;
-				const newConfig = { ...variableConfig, configId: newId } as VariableConfig;
+					draft.variableConfigs.length > 0
+						? Math.max(...draft.variableConfigs.map((config) => config.configId)) +
+						  1
+						: 1;
 
-				return {
-					...prev,
-					dataSource: prev?.dataSource || BacktestDataSource.EXCHANGE,
-					exchangeModeConfig: prev?.exchangeModeConfig || undefined,
-					variableConfigs: [...currentConfigs, newConfig],
-				};
+				const newConfig = { ...variableConfig, configId: newId } as VariableConfig;
+				draft.variableConfigs.push(newConfig);
 			});
 		},
 		[updateConfig],
 	);
 
-	// 更新指定变量配置
 	const updateVariableConfig = useCallback(
 		(index: number, variableConfig: VariableConfig) => {
-			updateConfig((prev) => {
-				const currentConfigs = prev?.variableConfigs || [];
-				const updatedConfigs = [...currentConfigs];
-				updatedConfigs[index] = variableConfig;
-
-				return {
-					...prev,
-					dataSource: prev?.dataSource || BacktestDataSource.EXCHANGE,
-					exchangeModeConfig: prev?.exchangeModeConfig || undefined,
-					variableConfigs: updatedConfigs,
-				};
+			updateConfig((draft) => {
+				if (index >= 0 && index < draft.variableConfigs.length) {
+					draft.variableConfigs[index] = variableConfig;
+				}
 			});
 		},
 		[updateConfig],
 	);
 
-	// 删除变量配置
 	const removeVariableConfig = useCallback(
 		(index: number) => {
-			updateConfig((prev) => {
-				const currentConfigs = prev?.variableConfigs || [];
-				const updatedConfigs = currentConfigs.filter((_, i) => i !== index);
-
-				return {
-					...prev,
-					dataSource: prev?.dataSource || BacktestDataSource.EXCHANGE,
-					exchangeModeConfig: prev?.exchangeModeConfig || undefined,
-					variableConfigs: updatedConfigs,
-				};
+			updateConfig((draft) => {
+				if (index >= 0 && index < draft.variableConfigs.length) {
+					draft.variableConfigs.splice(index, 1);
+				}
 			});
 		},
 		[updateConfig],
 	);
 
-	// 根据ID删除变量配置
 	const removeVariableConfigById = useCallback(
 		(configId: number) => {
-			updateConfig((prev) => {
-				const currentConfigs = prev?.variableConfigs || [];
-				const updatedConfigs = currentConfigs.filter(
+			updateConfig((draft) => {
+				draft.variableConfigs = draft.variableConfigs.filter(
 					(config) => config.configId !== configId,
 				);
-
-				return {
-					...prev,
-					dataSource: prev?.dataSource || BacktestDataSource.EXCHANGE,
-					exchangeModeConfig: prev?.exchangeModeConfig || undefined,
-					variableConfigs: updatedConfigs,
-				};
 			});
 		},
 		[updateConfig],
 	);
 
 	return {
-		// 状态
-		config,
-
-		// 基础配置方法
+		backtestConfig,
 		setDefaultBacktestConfig,
 		updateDataSource,
 		updateExchangeModeConfig,
 		updateSelectedAccount,
 		updateVariableConfigs,
-
-		// 变量配置管理方法
 		addVariableConfig,
 		updateVariableConfig,
 		removeVariableConfig,

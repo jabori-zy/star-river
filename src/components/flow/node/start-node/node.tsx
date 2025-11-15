@@ -1,11 +1,8 @@
-import { type NodeProps, Position, useReactFlow } from "@xyflow/react";
+import { type NodeProps, Position } from "@xyflow/react";
 import { Play } from "lucide-react";
-import { useEffect } from "react";
+import { memo } from "react";
 import type { BaseHandleProps } from "@/components/flow/base/BaseHandle";
 import BaseNode from "@/components/flow/base/BaseNode";
-import { useBacktestConfig } from "@/hooks/node-config/start-node/use-update-backtest-config";
-import { useLiveConfig } from "@/hooks/node-config/start-node/use-update-live-config";
-import { useStartNodeDataStore } from "@/store/node/use-start-node-data-store";
 import useTradingModeStore from "@/store/use-trading-mode-store";
 import { getNodeDefaultOutputHandleId, NodeType } from "@/types/node/index";
 import type { StartNode as StartNodeType } from "@/types/node/start-node";
@@ -16,41 +13,23 @@ import {
 } from "@/types/strategy";
 import BacktestNodeShow from "./components/node-show/backtest-mode-show";
 import LiveNodeShow from "./components/node-show/live-mode-show";
+import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
+import type { StartNodeData } from "@/types/node/start-node";
 
 const StartNode: React.FC<NodeProps<StartNodeType>> = ({
 	id,
-	data,
 	selected,
 	isConnectable,
 }) => {
 	const { tradingMode } = useTradingModeStore();
 
-	// 获取ReactFlow实例以更新节点数据
-	const { setNodes } = useReactFlow();
-
-	// 从全局状态获取数据
-	const { liveConfig: globalLiveConfig, backtestConfig: globalBacktestConfig } =
-		useStartNodeDataStore();
-
-	const { setDefaultLiveConfig } = useLiveConfig({
-		initialConfig: data?.liveConfig || undefined,
-		nodeId: id,
-	});
-	const { setDefaultBacktestConfig } = useBacktestConfig({
-		initialConfig: data?.backtestConfig || undefined,
-		nodeId: id,
-	});
+	const { getNodeData } = useStrategyWorkflow();
+	const startNodeData = getNodeData(id) as StartNodeData;
 
 	// 节点名称
-	const nodeName = data?.nodeName || "策略起点";
-	// 实盘配置 - 优先使用全局状态数据
-	const liveConfig =
-		globalLiveConfig || data?.liveConfig || ({} as StrategyLiveConfig);
-	// 回测配置 - 优先使用全局状态数据
-	const backtestConfig =
-		globalBacktestConfig ||
-		data?.backtestConfig ||
-		({} as StrategyBacktestConfig);
+	const nodeName = startNodeData?.nodeName || "策略起点";
+	const liveConfig = startNodeData?.liveConfig || ({} as StrategyLiveConfig);
+	const backtestConfig = startNodeData?.backtestConfig ||({} as StrategyBacktestConfig);
 
 	const defaultOutputHandle: BaseHandleProps = {
 		id: getNodeDefaultOutputHandleId(id, NodeType.StartNode),
@@ -61,44 +40,44 @@ const StartNode: React.FC<NodeProps<StartNodeType>> = ({
 	};
 
 	// 设置默认实盘和回测配置 - 只在配置为空时初始化
-	useEffect(() => {
-		// 只有当配置为空或未定义时才设置默认配置
-		if (!data?.liveConfig) {
-			setDefaultLiveConfig();
-		}
-		if (!data?.backtestConfig) {
-			setDefaultBacktestConfig();
-		}
-	}, [
-		setDefaultLiveConfig,
-		setDefaultBacktestConfig,
-		data?.liveConfig,
-		data?.backtestConfig,
-	]);
+	// useEffect(() => {
+	// 	// 只有当配置为空或未定义时才设置默认配置
+	// 	if (!startNodeData?.liveConfig) {
+	// 		setDefaultLiveConfig();
+	// 	}
+	// 	if (!startNodeData?.backtestConfig) {
+	// 		setDefaultBacktestConfig();
+	// 	}
+	// }, [
+	// 	setDefaultLiveConfig,
+	// 	setDefaultBacktestConfig,
+	// 	startNodeData?.liveConfig,
+	// 	startNodeData?.backtestConfig,
+	// ]);
 
 	// 关键：监听全局状态变化，同步到节点data
-	useEffect(() => {
-		// 只有当全局状态存在时才同步到节点
-		if (globalLiveConfig || globalBacktestConfig) {
-			setNodes((nodes) =>
-				nodes.map((node) =>
-					node.id === id
-						? {
-								...node,
-								data: {
-									...node.data,
-									// 如果全局状态存在，则更新对应的配置
-									...(globalLiveConfig && { liveConfig: globalLiveConfig }),
-									...(globalBacktestConfig && {
-										backtestConfig: globalBacktestConfig,
-									}),
-								},
-							}
-						: node,
-				),
-			);
-		}
-	}, [id, globalLiveConfig, globalBacktestConfig, setNodes]);
+	// useEffect(() => {
+	// 	// 只有当全局状态存在时才同步到节点
+	// 	if (startNodeData?.liveConfig || startNodeData?.backtestConfig) {
+	// 		setNodes((nodes) =>
+	// 			nodes.map((node) =>
+	// 				node.id === id
+	// 					? {
+	// 							...node,
+	// 							data: {
+	// 								...node.data,
+	// 								// 如果全局状态存在，则更新对应的配置
+	// 								...(startNodeData?.liveConfig && { liveConfig: startNodeData?.liveConfig }),
+	// 								...(startNodeData?.backtestConfig && {
+	// 									backtestConfig: startNodeData?.backtestConfig,
+	// 								}),
+	// 							},
+	// 						}
+	// 					: node,
+	// 			),
+	// 		);
+	// 	}
+	// }, [id, startNodeData?.liveConfig, startNodeData?.backtestConfig, setNodes]);
 
 	return (
 		<BaseNode
@@ -121,4 +100,4 @@ const StartNode: React.FC<NodeProps<StartNodeType>> = ({
 	);
 };
 
-export default StartNode;
+export default memo(StartNode);

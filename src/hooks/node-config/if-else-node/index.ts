@@ -1,13 +1,14 @@
-import { createDefaultVariableBacktestConfig } from "./use-update-backtest-config";
+import { createDefaultIfElseBacktestConfig } from "./use-update-backtest-config";
 export { useBacktestConfig } from "./use-update-backtest-config";
 
 /**
- * Create default variable node data
+ * Create default if-else node data
  */
-export const createDefaultVariableNodeData = (
+export const createDefaultIfElseNodeData = (
 	strategyId: number,
 	strategyName: string,
 	nodeName: string,
+	nodeId: string,
 ) => {
 	return {
 		strategyId,
@@ -15,6 +16,6 @@ export const createDefaultVariableNodeData = (
 		nodeName,
 		liveConfig: null,
 		simulateConfig: null,
-		backtestConfig: createDefaultVariableBacktestConfig(),
+		backtestConfig: createDefaultIfElseBacktestConfig(nodeId),
 	};
 };

@@ -8,10 +8,9 @@ import { Separator } from "@/components/ui/separator";
 import useStrategyWorkflow, {
 	type VariableItem,
 } from "@/hooks/flow/use-strategy-workflow";
-import { useUpdateBacktestConfig } from "@/hooks/node-config/if-else-node/use-update-backtest-config";
+import { useBacktestConfig } from "@/hooks/node-config/if-else-node";
 import {
 	type CaseItem,
-	type IfElseNodeData,
 	LogicalSymbol,
 } from "@/types/node/if-else-node";
 import { TradeMode } from "@/types/strategy";
@@ -19,18 +18,17 @@ import CaseEditor from "../components/case-editor";
 
 const IfElseNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	id,
-	data,
 }) => {
-	const ifElseNodeData = data as IfElseNodeData;
 	const { t } = useTranslation();
+
+	// ✅ 使用新版本 hook 管理回测配置
+	const { backtestConfig, updateCase, removeCase, updateCases } =
+		useBacktestConfig({ id });
+
 	const [localBacktestCases, setLocalBacktestCases] = useState<CaseItem[]>(
-		ifElseNodeData?.backtestConfig?.cases || [],
+		backtestConfig?.cases || [],
 	);
 
-	const { updateCase, removeCase, updateCases } = useUpdateBacktestConfig({
-		id,
-		initialConfig: ifElseNodeData?.backtestConfig,
-	});
 	const { getConnectedNodeVariables } = useStrategyWorkflow();
 
 	// 获取所有连接
@@ -40,7 +38,7 @@ const IfElseNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 
 	// 当节点的回测配置发生变化时，同步到本地状态，确保重新打开面板时能看到已保存的数据
 	useEffect(() => {
-		const cases = ifElseNodeData?.backtestConfig?.cases;
+		const cases = backtestConfig?.cases;
 
 		if (!cases || cases.length === 0) {
 			setLocalBacktestCases([]);
@@ -60,16 +58,12 @@ const IfElseNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 				...caseItem,
 				conditions: (caseItem.conditions ?? []).map((condition) => ({
 					...condition,
-					left: condition.left
-						? { ...condition.left }
-						: null,
-					right: condition.right
-						? { ...condition.right }
-						: null,
+					left: condition.left ? { ...condition.left } : null,
+					right: condition.right ? { ...condition.right } : null,
 				})),
 			}));
 		});
-	}, [ifElseNodeData?.backtestConfig?.cases]);
+	}, [backtestConfig?.cases]);
 
 	useEffect(() => {
 		// 获取连接节点的变量并更新状态
@@ -176,8 +170,6 @@ const IfElseNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 			{/* 如果cases为空，则传一个空的case */}
 			{!localBacktestCases || localBacktestCases.length === 0 ? (
 				<CaseEditor
-					id={id}
-					data={data}
 					variableItemList={variableItemList}
 					caseItem={{
 						caseId: 1,
@@ -199,8 +191,6 @@ const IfElseNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 					{casesWithId.map((caseItem) => (
 						<div key={caseItem.caseId}>
 							<CaseEditor
-								id={id}
-								data={data}
 								variableItemList={variableItemList}
 								caseItem={caseItem}
 								onCaseChange={handleCaseChange}

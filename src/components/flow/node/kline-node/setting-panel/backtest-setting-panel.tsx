@@ -1,63 +1,37 @@
-// import { FileWithPreview } from "@/hooks/use-file-upload"
-
-import {  useState } from "react";
+import { useState } from "react";
 import AccountSelector from "@/components/flow/account-selector";
 import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
-// import { getNodeDefaultInputHandleId, NodeType } from "@/types/node/index";
 import FileUpload from "@/components/ui/file-upload";
 import { Label } from "@/components/ui/label";
-import { useUpdateBacktestConfig } from "@/hooks/node-config/kline-node/use-update-backtest-config";
 import type { ExchangeStatus } from "@/types/market";
-import type { KlineNodeData } from "@/types/node/kline-node";
 import {
 	BacktestDataSource,
 	type SelectedAccount,
 	TradeMode,
 } from "@/types/strategy";
-// import { StartNodeData } from "@/types/node/start-node";
 import SymbolSelector from "../components/symbol-selector";
-import { useNodesData } from "@xyflow/react";
-import { StrategyFlowNode } from "@/types/node";
-import { StartNode } from "@/types/node/start-node";
+import type { StartNodeData } from "@/types/node/start-node";
+import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
+import { useBacktestConfig } from "@/hooks/node-config/kline-node";
 
 const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	id,
-	data,
-	// sourceNodeData,
 }) => {
-	const klineNodeData = data as KlineNodeData;
-
-	// console.log(`${id}源节点数据变化了 backtest-setting-panel`, sourceNodeData);
-	const startNode = useNodesData<StrategyFlowNode>("start_node") as StartNode;
-
-	// 开始节点的回测配置
-	// const { backtestConfig: startNodeBacktestConfig } = useStartNodeDataStore();
-
-	// 回测数据源
-	// const backtestDataSource = startNodeBacktestConfig?.dataSource;
-	const backtestDataSource = startNode?.data?.backtestConfig?.dataSource;
-
-	// const { getNode } = useReactFlow()
-
-	// 当前节点的connection
-	// const connections = useNodeConnections({id, handleType: 'target', handleId: getNodeDefaultInputHandleId(id, NodeType.KlineNode)})
-
-	// timeRange
-	// const timeRange = startNodeBacktestConfig?.exchangeModeConfig?.timeRange;
-	const timeRange = startNode?.data?.backtestConfig?.exchangeModeConfig?.timeRange;
+	const { getNodeData } = useStrategyWorkflow();
+	const startNodeData = getNodeData("start_node") as StartNodeData;
+	const accountList = startNodeData?.backtestConfig?.exchangeModeConfig?.selectedAccounts || [];
 
 	// 刷新触发器 - 用于触发 SymbolSelector 重新获取交易对列表
 	const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-	// 使用自定义hook管理回测配置
+	// ✅ 使用新版本 hook 管理回测配置
 	const {
-		config: backtestConfig,
+		backtestConfig,
 		updateSelectedAccount,
 		updateSelectedSymbols,
-	} = useUpdateBacktestConfig({
-		id,
-		initialBacktestConfig: klineNodeData.backtestConfig,
-	});
+	} = useBacktestConfig({ id });
+
+	const timeRange = backtestConfig?.exchangeModeConfig?.timeRange;
 
 	// 处理数据源选择（回测模式下选择的是交易所数据源）
 	const handleDataSourceChange = (selectedAccount: SelectedAccount) => {
@@ -72,10 +46,7 @@ const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	// 处理连接状态变化
 	const handleConnectionStatusChange = (
 		status: ExchangeStatus,
-		// accountId: number,
 	) => {
-		// console.log(`账户 ${accountId} 连接状态变化为: ${status}`);
-		// 当连接状态变为 "Connected" 时，触发 SymbolSelector 刷新
 		if (status === "Connected") {
 			setRefreshTrigger((prev) => prev + 1);
 		}
@@ -84,7 +55,7 @@ const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	return (
 		// space-y-4 是上下间距为4
 		<div className="space-y-2">
-			{backtestDataSource === BacktestDataSource.EXCHANGE ? (
+			{backtestConfig?.dataSource === BacktestDataSource.EXCHANGE ? (
 				<>
 					<AccountSelector
 						label="回测账户"
@@ -92,6 +63,7 @@ const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 						selectedAccount={
 							backtestConfig?.exchangeModeConfig?.selectedAccount || null
 						}
+						accountList={accountList}
 						onAccountChange={handleDataSourceChange}
 						onConnectionStatusChange={handleConnectionStatusChange}
 					/>

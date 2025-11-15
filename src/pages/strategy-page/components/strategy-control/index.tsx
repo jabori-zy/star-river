@@ -150,12 +150,12 @@ function TradingModeSelector({
 function SaveStrategyButton({ strategy }: { strategy: Strategy }) {
 	// console.log("保存策略按钮组件", strategy);
 	const [isSaving, setIsSaving] = useState(false);
-	const reactFlowInstance = useReactFlow();
+	const {getNodes, getEdges} = useReactFlow();
 
 	// 保存策略
 	const handleSaveStrategy = async () => {
-		const nodes = reactFlowInstance.getNodes();
-		const edges = reactFlowInstance.getEdges();
+		const nodes = getNodes();
+		const edges = getEdges();
 
 		// 根据策略模式获取正确的TradeMode枚举值
 		let tradeMode = TradeMode.BACKTEST; // 默认值
