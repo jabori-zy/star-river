@@ -84,3 +84,21 @@ export type NodeData =
 
 
 export type StrategyFlowNode = StartNode | KlineNode | IndicatorNode | IfElseNode | PositionManagementNode | VariableNode;
+
+
+// 节点类型守卫
+export const isStartNode = (node: StrategyFlowNode): node is StartNode => {
+	return node.type === NodeType.StartNode;
+};
+export const isKlineNode = (node: StrategyFlowNode | Pick<StrategyFlowNode, "type">): node is KlineNode => {
+	return node.type === NodeType.KlineNode;
+};
+export const isIndicatorNode = (node: StrategyFlowNode): node is IndicatorNode => {
+	return node.type === NodeType.IndicatorNode;
+};
+export const isIfElseNode = (node: StrategyFlowNode): node is IfElseNode => {
+	return node.type === NodeType.IfElseNode;
+};
+export const isPositionManagementNode = (node: StrategyFlowNode): node is PositionManagementNode => {
+	return node.type === NodeType.PositionManagementNode;
+};

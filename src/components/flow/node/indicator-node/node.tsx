@@ -1,76 +1,120 @@
-import { type NodeProps, Position, useNodeConnections, useNodesData } from "@xyflow/react";
+import { type NodeProps, Position } from "@xyflow/react";
 import { Play } from "lucide-react";
 import { useEffect } from "react";
 import type { BaseHandleProps } from "@/components/flow/base/BaseHandle";
 import BaseNode from "@/components/flow/base/BaseNode";
 import { useUpdateBacktestConfig } from "@/hooks/node-config/indicator-node/use-update-backtest-config";
 import { useUpdateLiveConfig } from "@/hooks/node-config/indicator-node/use-update-live-config";
-import { useStartNodeDataStore } from "@/store/node/use-start-node-data-store";
 import useTradingModeStore from "@/store/use-trading-mode-store";
 import {
 	getNodeDefaultInputHandleId,
 	getNodeDefaultOutputHandleId,
 	NodeType,
+	isKlineNode,
 } from "@/types/node/index";
-import type { IndicatorNode as IndicatorNodeType } from "@/types/node/indicator-node";
+import type { IndicatorNode as IndicatorNodeType, IndicatorNodeData } from "@/types/node/indicator-node";
 import { TradeMode } from "@/types/strategy";
 import BacktestModeShow from "./components/node-show/backtest-mode-show";
 import LiveModeShow from "./components/node-show/live-mode-show";
-import type { StrategyFlowNode } from "@/types/node";
+import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
+import { toast } from "sonner";
+import type { KlineNodeData } from "@/types/node/kline-node";
+
 
 const IndicatorNode: React.FC<NodeProps<IndicatorNodeType>> = ({
 	id,
-	data,
 	selected,
 }) => {
-	const nodeName = data?.nodeName || "指标节点";
 	const { tradingMode } = useTradingModeStore();
-	// 直接订阅 store 状态变化
-	const { backtestConfig: startNodeBacktestConfig } = useStartNodeDataStore();
 
-	// get connections
-	const connections = useNodeConnections({id, handleType: 'target'})
-	const sourceNodeData = useNodesData<StrategyFlowNode>(connections.map(connection => connection.source));
+	const { getStartNodeData, getNodeData, getSourceNodes } = useStrategyWorkflow();
+	
+	
+	const startNodeData = getStartNodeData();
+	const currentNodeData = getNodeData(id) as IndicatorNodeData;
+	const sourceNodes = getSourceNodes(id);
 
-	useEffect(() => {
-		console.log(`${id}源节点数据变化了`, sourceNodeData);
-	}, [sourceNodeData, id]);
 
 	// 使用分离的hooks
 	const { setDefaultLiveConfig } = useUpdateLiveConfig({
 		id,
-		initialLiveConfig: data?.liveConfig,
+		initialLiveConfig: currentNodeData?.liveConfig,
 	});
 
-	const { setDefaultBacktestConfig, updateTimeRange } = useUpdateBacktestConfig(
+	const { setDefaultBacktestConfig, updateTimeRange, updateSelectedSymbol } = useUpdateBacktestConfig(
 		{
 			id,
-			initialConfig: data?.backtestConfig,
+			initialConfig: currentNodeData?.backtestConfig,
 		},
 	);
 
 	// 监听开始节点的时间范围变化
 	useEffect(() => {
-		const timeRange = startNodeBacktestConfig?.exchangeModeConfig?.timeRange;
+		const timeRange = startNodeData?.backtestConfig?.exchangeModeConfig?.timeRange;
 		if (timeRange) {
 			updateTimeRange(timeRange);
 		}
-	}, [startNodeBacktestConfig?.exchangeModeConfig?.timeRange, updateTimeRange]);
+	}, [startNodeData?.backtestConfig?.exchangeModeConfig?.timeRange, updateTimeRange]);
+
+
+	useEffect(() => {
+		// indicator node just has one source kline node
+		if (sourceNodes.length > 1) {
+			toast.error("indicator node only has one source node");
+		}
+		// disconnected. clear selected symbol
+		else if (sourceNodes.length === 0) {
+			updateSelectedSymbol(null);
+		}
+		else if (sourceNodes.length === 1) {
+			if (isKlineNode(sourceNodes[0])) {
+				const klineNodeData = sourceNodes[0].data as KlineNodeData;
+				// 1.find current node's selected symbol
+				const selectedSymbol = currentNodeData?.backtestConfig?.exchangeModeConfig?.selectedSymbol;
+				if (selectedSymbol) {
+					// 2. find kline node's symbol config
+					const klineNodeSymbols = klineNodeData.backtestConfig?.exchangeModeConfig?.selectedSymbols;
+					// if kline node has no symbol config, then clear current node's selected symbol
+					if (klineNodeSymbols && klineNodeSymbols.length === 0) {
+						updateSelectedSymbol(null);
+					} else {
+						// 3. find matching symbol in kline node's symbol config
+						const matchingSymbol = klineNodeSymbols?.find(symbol => symbol.configId === selectedSymbol.configId);
+						if (!matchingSymbol) {
+							updateSelectedSymbol(null);
+						} else {
+							if (matchingSymbol.symbol !== selectedSymbol.symbol || matchingSymbol.interval !== selectedSymbol.interval) {
+								updateSelectedSymbol(matchingSymbol);
+							} else {
+								// symbol is the same, do nothing
+							}
+						}
+					}
+					
+				}
+			} else {
+				toast.error("indicator node only has been connected by kline node");
+			}
+		}
+	}, [sourceNodes, currentNodeData?.backtestConfig?.exchangeModeConfig?.selectedSymbol, updateSelectedSymbol]);
+
+
+
 
 	// 初始化时设置默认配置
 	useEffect(() => {
-		if (!data?.liveConfig) {
+		if (!currentNodeData?.liveConfig) {
 			setDefaultLiveConfig();
 		}
 		// 如果回测节点没有配置，则设置默认配置
-		if (!data?.backtestConfig) {
+		if (!currentNodeData?.backtestConfig) {
 			setDefaultBacktestConfig();
 		}
 	}, [
 		setDefaultLiveConfig,
 		setDefaultBacktestConfig,
-		data.liveConfig,
-		data.backtestConfig,
+		currentNodeData?.liveConfig,
+		currentNodeData?.backtestConfig,
 	]);
 
 	const defaultInputHandle: BaseHandleProps = {
@@ -90,15 +134,15 @@ const IndicatorNode: React.FC<NodeProps<IndicatorNodeType>> = ({
 	return (
 		<BaseNode
 			id={id}
-			nodeName={nodeName}
+			nodeName={currentNodeData?.nodeName || "indicator node"}
 			icon={Play}
 			selected={selected}
 			defaultInputHandle={defaultInputHandle}
 			defaultOutputHandle={defaultOutputHandle}
 		>
-			{tradingMode === TradeMode.LIVE && <LiveModeShow id={id} data={data} />}
+			{tradingMode === TradeMode.LIVE && <LiveModeShow id={id} data={currentNodeData} />}
 			{tradingMode === TradeMode.BACKTEST && (
-				<BacktestModeShow id={id} data={data} />
+				<BacktestModeShow id={id} data={currentNodeData} />
 			)}
 		</BaseNode>
 	);

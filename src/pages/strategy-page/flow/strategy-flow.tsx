@@ -81,10 +81,6 @@ export default function StrategyFlow({ strategy }: { strategy: Strategy }) {
 		}
 	}, [strategy.id, strategy.nodes, strategy.edges, setNodes, setEdges]);
 
-	useEffect(() => {
-		console.log("selectedNodeId", selectedNodeId);
-	}, [selectedNodeId]);
-
 	const onDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
 		event.preventDefault();
 		event.dataTransfer.dropEffect = "move";
@@ -140,18 +136,15 @@ export default function StrategyFlow({ strategy }: { strategy: Strategy }) {
 	const onNodesChange: OnNodesChange = useCallback(
 		(changes: NodeChange[]) => {
 			// 先应用变化，获取更新后的节点状态
-			console.log("changes", changes);
 			const selectedChange = changes.find((change) => change.type === 'select' && change.selected) as NodeSelectionChange;
 			const deselectedChange = changes.find((change) => change.type === 'select' && !change.selected) as NodeSelectionChange;
 
 			// 如果有节点被选中，更新selectedNodeId
 			if (selectedChange) {
-				console.log("selectedChange.id", selectedChange.id);
 				setSelectedNodeId(selectedChange.id);
 			}
 			// 如果有节点被取消选中，且正好是当前选中的节点，则清空selectedNodeId
 			else if (deselectedChange && deselectedChange.id === selectedNodeId) {
-				console.log("deselectedChange.id", deselectedChange.id);
 				setSelectedNodeId(undefined);
 			}
 

@@ -20,7 +20,7 @@ import type {
 import { TradeMode } from "@/types/strategy";
 import BacktestModeShow from "./components/show/backtest-mode-show";
 import LiveModeShow from "./components/show/live-mode-show";
-import type { StrategyFlowNode } from "@/types/node";
+import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 
 const KlineNode: React.FC<NodeProps<KlineNodeType>> = ({
 	id,
@@ -29,17 +29,9 @@ const KlineNode: React.FC<NodeProps<KlineNodeType>> = ({
 }) => {
 	const nodeName = data?.nodeName || "K线节点";
 	const { tradingMode } = useTradingModeStore();
+	const { getStartNodeData } = useStrategyWorkflow();
 
-	// get connections
-	const connections = useNodeConnections({id, handleType: 'target'})
-	const sourceNodeData = useNodesData<StrategyFlowNode>(connections.map(connection => connection.source));
-
-	// useEffect(() => {
-	// 	console.log("源节点数据变化了", sourceNodeData);
-	// }, [sourceNodeData]);
-
-	// 直接订阅 store 状态变化
-	const { backtestConfig: startNodeBacktestConfig } = useStartNodeDataStore();
+	const startNodeData = getStartNodeData();
 
 	// 实盘配置
 	const liveConfig = data?.liveConfig || ({} as KlineNodeLiveConfig);
@@ -66,11 +58,12 @@ const KlineNode: React.FC<NodeProps<KlineNodeType>> = ({
 
 	// 监听开始节点的时间范围变化
 	useEffect(() => {
-		const timeRange = startNodeBacktestConfig?.exchangeModeConfig?.timeRange;
+		// const timeRange = startNodeBacktestConfig?.exchangeModeConfig?.timeRange;
+		const timeRange = startNodeData?.backtestConfig?.exchangeModeConfig?.timeRange;
 		if (timeRange) {
 			updateTimeRange(timeRange);
 		}
-	}, [startNodeBacktestConfig?.exchangeModeConfig?.timeRange, updateTimeRange]);
+	}, [startNodeData?.backtestConfig?.exchangeModeConfig?.timeRange, updateTimeRange]);
 
 	// 初始化时设置默认回测配置
 	useEffect(() => {

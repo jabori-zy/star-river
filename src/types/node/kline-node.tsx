@@ -62,4 +62,6 @@ export type KlineNodeData = {
 	backtestConfig?: KlineNodeBacktestConfig; // 回测交易配置
 };
 
+
+
 export type KlineNode = Node<KlineNodeData, "klineNode">;

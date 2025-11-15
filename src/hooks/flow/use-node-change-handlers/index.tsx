@@ -31,15 +31,15 @@ const useNodeChangeHandlers = () => {
 					const newNode = change.item;
 
 					if (change.item.type === NodeType.KlineNode) {
-						const oldNode = oldNodes.find((n) => n.id === change.item.id);
-						if (oldNode) {
-							updatedNodes = handleKlineNodeChange(
-								oldNode,
-								newNode,
-								newNodes,
-								edges,
-							);
-						}
+						// const oldNode = oldNodes.find((n) => n.id === change.item.id);
+						// if (oldNode) {
+						// 	updatedNodes = handleKlineNodeChange(
+						// 		oldNode,
+						// 		newNode,
+						// 		newNodes,
+						// 		edges,
+						// 	);
+						// }
 					} else if (change.item.type === NodeType.IndicatorNode) {
 						const oldNode = oldNodes.find((n) => n.id === change.item.id);
 						if (oldNode) {

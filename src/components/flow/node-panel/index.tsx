@@ -18,7 +18,6 @@ interface NodePanelProps {
  */
 const NodePanel: React.FC<NodePanelProps> = ({ selectedNodeId, setSelectedNodeId }) => {
 
-	console.log("selectedNodeId", selectedNodeId);
 	// 获取节点实例
 	const { getNodes } = useReactFlow();
 	// 当前选中的节点类型

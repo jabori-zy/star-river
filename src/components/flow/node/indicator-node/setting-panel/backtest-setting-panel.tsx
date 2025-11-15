@@ -1,10 +1,8 @@
 import { useNodeConnections, useReactFlow } from "@xyflow/react";
-import { Activity } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
 import IndicatorEditor from "@/components/flow/node/indicator-node/components/indicator-editor";
-import { Badge } from "@/components/ui/badge";
-import { Label } from "@/components/ui/label";
+
 import { useUpdateBacktestConfig } from "@/hooks/node-config/indicator-node/use-update-backtest-config";
 import {
 	getNodeDefaultInputHandleId,
@@ -14,18 +12,20 @@ import {
 import type { IndicatorNodeData } from "@/types/node/indicator-node";
 import type { KlineNodeData, SelectedSymbol } from "@/types/node/kline-node";
 import SymbolSelector from "../components/symbol-selector";
+import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
+
 
 const IndicatorNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	id,
-	data,
 }) => {
-	const indicatorNodeData = data as IndicatorNodeData;
+	const { getNodeData } = useStrategyWorkflow();
+	
+	const currentNodeData = getNodeData(id) as IndicatorNodeData;
 	const connections = useNodeConnections({
 		id,
 		handleType: "target",
 		handleId: getNodeDefaultInputHandleId(id, NodeType.IndicatorNode),
-	});
-	const [isConnected, setIsConnected] = useState(false);
+	});	
 
 	// 交易对列表
 	const [localSymbolList, setLocalSymbolList] = useState<SelectedSymbol[]>([]);
@@ -33,8 +33,7 @@ const IndicatorNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	const { getNode } = useReactFlow();
 
 	//
-	const exchangeModeConfig =
-		indicatorNodeData.backtestConfig?.exchangeModeConfig;
+	const exchangeModeConfig = currentNodeData?.backtestConfig?.exchangeModeConfig;
 
 	// 使用自定义hook管理指标配置
 	const {
@@ -43,12 +42,10 @@ const IndicatorNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 		updateSelectedAccount,
 	} = useUpdateBacktestConfig({
 		id,
-		initialConfig: indicatorNodeData.backtestConfig,
+		initialConfig: currentNodeData?.backtestConfig,
 	});
 
 	useEffect(() => {
-		const hasConnection = connections.length === 1;
-		setIsConnected(hasConnection);
 		for (const connection of connections) {
 			const sourceNodeId = connection.source;
 			const sourceHandleId = connection.sourceHandle;
@@ -98,7 +95,7 @@ const IndicatorNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	return (
 		<div className="space-y-4">
 			{/* 连接状态显示 */}
-			<div className="space-y-2">
+			{/* <div className="space-y-2">
 				<Label className="flex items-center gap-2">
 					<Activity className="h-4 w-4 text-muted-foreground" />
 					连接状态
@@ -110,7 +107,7 @@ const IndicatorNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 				) : (
 					<Badge variant="destructive">未连接</Badge>
 				)}
-			</div>
+			</div> */}
 			<SymbolSelector
 				symbolList={localSymbolList}
 				selectedSymbol={exchangeModeConfig?.selectedSymbol || null}

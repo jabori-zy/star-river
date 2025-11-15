@@ -34,6 +34,9 @@ const useStrategyWorkflow = () => {
 		getTargetNodeIdsBySourceHandleId,
 		deleteEdgeBySourceHandleId,
 		deleteEdgesByTargetHandleId,
+		getStartNodeData,
+		getNodeData,
+		getSourceNodes,
 	} = useWorkflowUtils();
 
 	return {
@@ -54,6 +57,9 @@ const useStrategyWorkflow = () => {
 		getTargetNodeIdsBySourceHandleId,
 		deleteEdgeBySourceHandleId,
 		deleteEdgesByTargetHandleId,
+		getStartNodeData,
+		getNodeData,
+		getSourceNodes,
 	};
 };
 

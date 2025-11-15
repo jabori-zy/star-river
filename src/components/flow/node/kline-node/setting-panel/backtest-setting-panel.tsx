@@ -7,7 +7,6 @@ import type { SettingProps } from "@/components/flow/base/BasePanel/setting-pane
 import FileUpload from "@/components/ui/file-upload";
 import { Label } from "@/components/ui/label";
 import { useUpdateBacktestConfig } from "@/hooks/node-config/kline-node/use-update-backtest-config";
-import { useStartNodeDataStore } from "@/store/node/use-start-node-data-store";
 import type { ExchangeStatus } from "@/types/market";
 import type { KlineNodeData } from "@/types/node/kline-node";
 import {
@@ -17,6 +16,9 @@ import {
 } from "@/types/strategy";
 // import { StartNodeData } from "@/types/node/start-node";
 import SymbolSelector from "../components/symbol-selector";
+import { useNodesData } from "@xyflow/react";
+import { StrategyFlowNode } from "@/types/node";
+import { StartNode } from "@/types/node/start-node";
 
 const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	id,
@@ -26,12 +28,14 @@ const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	const klineNodeData = data as KlineNodeData;
 
 	// console.log(`${id}源节点数据变化了 backtest-setting-panel`, sourceNodeData);
+	const startNode = useNodesData<StrategyFlowNode>("start_node") as StartNode;
 
 	// 开始节点的回测配置
-	const { backtestConfig: startNodeBacktestConfig } = useStartNodeDataStore();
+	// const { backtestConfig: startNodeBacktestConfig } = useStartNodeDataStore();
 
 	// 回测数据源
-	const backtestDataSource = startNodeBacktestConfig?.dataSource;
+	// const backtestDataSource = startNodeBacktestConfig?.dataSource;
+	const backtestDataSource = startNode?.data?.backtestConfig?.dataSource;
 
 	// const { getNode } = useReactFlow()
 
@@ -39,7 +43,8 @@ const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	// const connections = useNodeConnections({id, handleType: 'target', handleId: getNodeDefaultInputHandleId(id, NodeType.KlineNode)})
 
 	// timeRange
-	const timeRange = startNodeBacktestConfig?.exchangeModeConfig?.timeRange;
+	// const timeRange = startNodeBacktestConfig?.exchangeModeConfig?.timeRange;
+	const timeRange = startNode?.data?.backtestConfig?.exchangeModeConfig?.timeRange;
 
 	// 刷新触发器 - 用于触发 SymbolSelector 重新获取交易对列表
 	const [refreshTrigger, setRefreshTrigger] = useState(0);

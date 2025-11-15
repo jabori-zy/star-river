@@ -73,21 +73,21 @@ const useEdgeChangeHandlers = () => {
 			}
 
 			// 批量处理每个 klineNode 的边删除
-			for (const [sourceNodeId, removedEdges] of klineNodeRemovedEdges) {
-				const sourceNode = updatedNodes.find(
-					(node) => node.id === sourceNodeId,
-				);
-				if (sourceNode) {
-					// 处理每条被删除的边
-					for (const removedEdge of removedEdges) {
-						updatedNodes = handleKlineNodeEdgeRemoved(
-							sourceNode,
-							removedEdge,
-							updatedNodes,
-						);
-					}
-				}
-			}
+			// for (const [sourceNodeId, removedEdges] of klineNodeRemovedEdges) {
+			// 	const sourceNode = updatedNodes.find(
+			// 		(node) => node.id === sourceNodeId,
+			// 	);
+			// 	if (sourceNode) {
+			// 		// 处理每条被删除的边
+			// 		for (const removedEdge of removedEdges) {
+			// 			updatedNodes = handleKlineNodeEdgeRemoved(
+			// 				sourceNode,
+			// 				removedEdge,
+			// 				updatedNodes,
+			// 			);
+			// 		}
+			// 	}
+			// }
 			for (const [sourceNodeId, removedEdges] of indicatorNodeRemovedEdges) {
 				const sourceNode = updatedNodes.find(
 					(node) => node.id === sourceNodeId,
