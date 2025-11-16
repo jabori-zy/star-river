@@ -1,4 +1,5 @@
 import { Search } from "lucide-react";
+import { DynamicIcon } from "lucide-react/dynamic";
 import type React from "react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -8,6 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { nodeList } from "@/constants/node-list";
 import { useDndNodeStore } from "@/store/use-dnd-node-store";
 import type { NodeItemProps } from "@/types/nodeCategory";
+import { getNodeTypeName, NodeType } from "@/types/node";
 
 function NodeItem(props: NodeItemProps) {
 	const { setDragNodeItem } = useDndNodeStore();
@@ -21,10 +23,9 @@ function NodeItem(props: NodeItemProps) {
 		setDragNodeItem({
 			nodeId: props.nodeId,
 			nodeType: props.nodeType,
-			nodeName: props.nodeName,
+			nodeIcon: props.nodeIcon,
+			nodeIconBackgroundColor: props.nodeIconBackgroundColor,
 			nodeDescription: props.nodeDescription || "",
-			nodeColor: props.nodeColor,
-			nodeData: props.nodeData,
 		});
 	};
 
@@ -36,12 +37,23 @@ function NodeItem(props: NodeItemProps) {
 
 	return (
 		<div
-			className="flex items-center px-2 py-1.5 text-sm rounded hover:bg-gray-50 cursor-grab active:cursor-grabbing"
+			className="flex items-center gap-2 px-2 py-1.5 text-sm rounded hover:bg-gray-50 cursor-grab active:cursor-grabbing"
 			draggable
 			onDragStart={handleDragStart}
 			onDragEnd={handleDragEnd}
 		>
-			{t(props.nodeName)}
+			{props.nodeIcon && (
+				<div
+					className="w-6 h-6 rounded-sm flex items-center justify-center flex-shrink-0"
+					style={{ backgroundColor: props.nodeIconBackgroundColor }}
+				>
+					<DynamicIcon
+						name={props.nodeIcon}
+						className="w-3.5 h-3.5 text-white"
+					/>
+				</div>
+			)}
+			{getNodeTypeName(props.nodeType as NodeType, t)}
 		</div>
 	);
 }
@@ -64,7 +76,7 @@ const NodeListPanel: React.FC = () => {
 					.includes(lowercasedFilter);
 
 				const filteredItems = item.items.filter((item) =>
-					t(item.nodeName).toLowerCase().includes(lowercasedFilter),
+					getNodeTypeName(item.nodeType as NodeType, t).toLowerCase().includes(lowercasedFilter),
 				);
 
 				if (categoryTitleMatches) {

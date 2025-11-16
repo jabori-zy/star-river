@@ -4,18 +4,19 @@ export { useSyncSourceNode } from "./use-sync-source-node";
 export { useSyncTimeRange } from "./use-sync-time-range";
 import type { IndicatorNodeData } from "@/types/node/indicator-node";
 import { getNodeIconName, getNodeDefaultColor, NodeType } from "@/types/node";
+import type { TFunction } from "i18next";
 /**
  * Create default indicator node data
  */
 export const createDefaultIndicatorNodeData = (
 	strategyId: number,
 	strategyName: string,
-	nodeName: string,
+	t: TFunction,
 ): IndicatorNodeData => {
 	return {
 		strategyId,
 		strategyName,
-		nodeName,
+		nodeName: t("node.indicatorNode"),
 		liveConfig: undefined,
 		simulateConfig: undefined,
 		backtestConfig: createDefaultIndicatorBacktestConfig(),

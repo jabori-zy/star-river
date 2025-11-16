@@ -76,7 +76,7 @@ export default function StrategyFlow({ strategyId, strategy }: { strategyId: num
 		else {
 			setTimeout(() => {
 
-				const startNodeData = createDefaultStartNodeData(strategyId, strategy.name, t("node.startNode"));
+				const startNodeData = createDefaultStartNodeData(strategyId, strategy.name, t);
 				const startNode: Node = {
 					id: "start_node",
 					type: "startNode",
@@ -86,7 +86,7 @@ export default function StrategyFlow({ strategyId, strategy }: { strategyId: num
 				setNodes([startNode]);
 			}, 0);
 		}
-	}, [strategyId, setNodes, setEdges]);
+	}, [strategyId, strategy, setNodes, setEdges, t]);
 
 	const onDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
 		event.preventDefault();
@@ -94,16 +94,16 @@ export default function StrategyFlow({ strategyId, strategy }: { strategyId: num
 	}, []);
 
 	const onDrop = useCallback((event: React.DragEvent<HTMLDivElement>) => {
-			event.preventDefault();
+		event.preventDefault();
 
-			// console.log("nodeItemType", dragNodeItem);
+		// console.log("nodeItemType", dragNodeItem);
 
-			if (!dragNodeItem) return;
+		if (!dragNodeItem) return;
 
-			const position = screenToFlowPosition({
-				x: event.clientX,
-				y: event.clientY,
-			});
+		const position = screenToFlowPosition({
+			x: event.clientX,
+			y: event.clientY,
+		});
 
 		// 使用函数式状态更新，基于时间戳和随机数生成唯一ID
 		setNodes((currentNodes) => {
@@ -114,22 +114,22 @@ export default function StrategyFlow({ strategyId, strategy }: { strategyId: num
 			let defaultNodeData: Record<string, unknown>;
 			switch (dragNodeItem.nodeType) {
 				case NodeType.KlineNode:
-					defaultNodeData = createDefaultKlineNodeData(strategyId, strategy.name, t(dragNodeItem.nodeName));
+					defaultNodeData = createDefaultKlineNodeData(strategyId, strategy.name, t);
 					break;
 				case NodeType.IndicatorNode:
-					defaultNodeData = createDefaultIndicatorNodeData(strategyId, strategy.name, t(dragNodeItem.nodeName));
+					defaultNodeData = createDefaultIndicatorNodeData(strategyId, strategy.name, t);
 					break;
 				case NodeType.IfElseNode:
-					defaultNodeData = createDefaultIfElseNodeData(strategyId, strategy.name, t(dragNodeItem.nodeName), uniqueId);
+					defaultNodeData = createDefaultIfElseNodeData(strategyId, strategy.name, uniqueId, t);
 					break;
 				case NodeType.FuturesOrderNode:
-					defaultNodeData = createDefaultFuturesOrderNodeData(strategyId, strategy.name, t(dragNodeItem.nodeName));
+					defaultNodeData = createDefaultFuturesOrderNodeData(strategyId, strategy.name, t);
 					break;
 				case NodeType.PositionManagementNode:
-					defaultNodeData = createDefaultPositionManagementNodeData(strategyId, strategy.name, t(dragNodeItem.nodeName));
+					defaultNodeData = createDefaultPositionManagementNodeData(strategyId, strategy.name, t);
 					break;
 				case NodeType.VariableNode:
-					defaultNodeData = createDefaultVariableNodeData(strategyId, strategy.name, t(dragNodeItem.nodeName));
+					defaultNodeData = createDefaultVariableNodeData(strategyId, strategy.name, t);
 					break;
 				default:
 					defaultNodeData = {};
@@ -155,7 +155,9 @@ export default function StrategyFlow({ strategyId, strategy }: { strategyId: num
 			dragNodeItem,
 			setNodes,
 			strategyId,
+			strategy.name,
 			setDragNodeItem,
+			t,
 		],
 	);
 

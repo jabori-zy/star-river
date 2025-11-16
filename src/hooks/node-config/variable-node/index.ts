@@ -2,18 +2,19 @@ import { createDefaultVariableBacktestConfig } from "./use-update-backtest-confi
 export { useBacktestConfig } from "./use-update-backtest-config";
 import type { VariableNodeData } from "@/types/node/variable-node";
 import { getNodeIconName, getNodeDefaultColor, NodeType } from "@/types/node";
+import type { TFunction } from "i18next";
 /**
  * Create default variable node data
  */
 export const createDefaultVariableNodeData = (
 	strategyId: number,
 	strategyName: string,
-	nodeName: string,
+	t: TFunction,
 ): VariableNodeData => {
 	return {
 		strategyId,
 		strategyName,
-		nodeName,
+		nodeName: t("node.variableNode"),
 		liveConfig: undefined,
 		simulateConfig: undefined,
 		backtestConfig: createDefaultVariableBacktestConfig(),

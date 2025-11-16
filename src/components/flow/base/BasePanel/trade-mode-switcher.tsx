@@ -1,6 +1,5 @@
 import type { LucideIcon } from "lucide-react";
 import React from "react";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import useTradingModeStore from "@/store/use-trading-mode-store";
 import { TradeMode } from "@/types/strategy";

@@ -1,62 +1,55 @@
 import { Hexagon} from "lucide-react";
 import type { NodeItemProps } from "@/types/nodeCategory";
+import { getNodeDefaultColor, getNodeIconName ,NodeType } from "@/types/node";
 
 export const nodeList = [
 	{
 		title: "node.node",
 		icon: Hexagon,
-		color:
-			"from-[#4776E6]/20 to-[#8E54E9]/20 hover:from-[#4776E6]/30 hover:to-[#8E54E9]/30",
+		color:"from-[#4776E6]/20 to-[#8E54E9]/20 hover:from-[#4776E6]/30 hover:to-[#8E54E9]/30",
 		items: [
 			{
 				nodeId: "kline_node",
-				nodeType: "klineNode",
-				nodeName: "node.klineNode",
+				nodeType: NodeType.KlineNode,
+				nodeIcon: getNodeIconName(NodeType.KlineNode),
+				nodeIconBackgroundColor: getNodeDefaultColor(NodeType.KlineNode),
 				nodeDescription: "获取K线数据",
-				nodeColor:
-					"from-[#4776E6]/20 to-[#8E54E9]/20 hover:from-[#4776E6]/30 hover:to-[#8E54E9]/30",
 			} as NodeItemProps,
 			{
 				nodeId: "indicator_node",
-				nodeType: "indicatorNode",
-				nodeName: "node.indicatorNode",
+				nodeType: NodeType.IndicatorNode,
+				nodeIcon: getNodeIconName(NodeType.IndicatorNode),
+				nodeIconBackgroundColor: getNodeDefaultColor(NodeType.IndicatorNode),
 				nodeDescription: "技术分析指标",
-				nodeColor:
-					"from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
 			} as NodeItemProps,
 			{
 				nodeId: "if_else_node",
-				nodeType: "ifElseNode",
-				nodeName: "node.ifElseNode",
+				nodeType: NodeType.IfElseNode,
+				nodeIcon: getNodeIconName(NodeType.IfElseNode),
+				nodeIconBackgroundColor: getNodeDefaultColor(NodeType.IfElseNode),
 				nodeDescription: "条件节点",
-				nodeColor:
-					"from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
 			} as NodeItemProps,
 			{
 				nodeId: "futures_order_node",
-				nodeType: "futuresOrderNode",
-				nodeName: "node.futuresOrderNode",
+				nodeType: NodeType.FuturesOrderNode,
+				nodeIcon: getNodeIconName(NodeType.FuturesOrderNode),
+				nodeIconBackgroundColor: getNodeDefaultColor(NodeType.FuturesOrderNode),
 				nodeDescription: "期货订单节点",
-				nodeColor:
-					"from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
 			} as NodeItemProps,
 			{
 				nodeId: "position_management_node",
-				nodeType: "positionManagementNode",
-				nodeName: "node.positionManagementNode",
+				nodeType: NodeType.PositionManagementNode,
+				nodeIcon: getNodeIconName(NodeType.PositionManagementNode),
+				nodeIconBackgroundColor: getNodeDefaultColor(NodeType.PositionManagementNode),
 				nodeDescription: "仓位管理节点",
-				nodeColor:
-					"from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
 			} as NodeItemProps,
 			{
 				nodeId: "variable_node",
-				nodeType: "variableNode",
-				nodeName: "node.variableNode",
+				nodeType: NodeType.VariableNode,
+				nodeIcon: getNodeIconName(NodeType.VariableNode),
+				nodeIconBackgroundColor: getNodeDefaultColor(NodeType.VariableNode),
 				nodeDescription: "变量节点",
-				nodeColor:
-					"from-[#FF416C]/20 to-[#FF4B2B]/20 hover:from-[#FF416C]/30 hover:to-[#FF4B2B]/30",
 			} as NodeItemProps,
-
 		],
 	},
 ];

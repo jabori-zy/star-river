@@ -2,18 +2,19 @@ import { createDefaultFuturesOrderBacktestConfig } from "./use-update-backtest-c
 export { useBacktestConfig } from "./use-update-backtest-config";
 import type { FuturesOrderNodeData } from "@/types/node/futures-order-node";
 import { getNodeIconName, getNodeDefaultColor, NodeType } from "@/types/node";
+import type { TFunction } from "i18next";
 /**
  * Create default futures order node data
  */
 export const createDefaultFuturesOrderNodeData = (
 	strategyId: number,
 	strategyName: string,
-	nodeName: string,
+	t: TFunction,
 ): FuturesOrderNodeData => {
 	return {
 		strategyId,
 		strategyName,
-		nodeName,
+		nodeName: t("node.futuresOrderNode"),
 		liveConfig: undefined,
 		simulateConfig: undefined,
 		backtestConfig: createDefaultFuturesOrderBacktestConfig(),

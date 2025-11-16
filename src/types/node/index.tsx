@@ -11,6 +11,7 @@ import type { PositionManagementNode } from "./position-management-node";
 import type { VariableNode } from "./variable-node";
 import type { VariableNodeData } from "./variable-node";
 import type { IconName } from "lucide-react/dynamic";
+import { TFunction } from "i18next";
 
 export type NodeId = string;
 export type NodeName = string;
@@ -24,6 +25,28 @@ export enum NodeType {
 	PositionManagementNode = "positionManagementNode",
 	VariableNode = "variableNode",
 }
+
+
+export const getNodeTypeName = (nodeType: NodeType, t: TFunction): string => {
+	switch (nodeType) {
+		case NodeType.StartNode:
+			return t("node.startNode");
+		case NodeType.KlineNode:
+			return t("node.klineNode");
+		case NodeType.IndicatorNode:
+			return t("node.indicatorNode");
+		case NodeType.IfElseNode:
+			return t("node.ifElseNode");
+		case NodeType.FuturesOrderNode:
+			return t("node.futuresOrderNode");
+		case NodeType.PositionManagementNode:
+			return t("node.positionManagementNode");
+		case NodeType.VariableNode:
+			return t("node.variableNode");
+		default:
+			return "";
+	}
+};
 
 // 节点类型对应的边框颜色（16进制）
 export const NodeDefaultColorsMap: Record<NodeType, string> = {

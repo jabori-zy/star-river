@@ -2,18 +2,19 @@ import { createDefaultKlineBacktestConfig } from "./use-update-backtest-config";
 export { useBacktestConfig } from "./use-update-backtest-config";
 import type { KlineNodeData } from "@/types/node/kline-node";
 import { getNodeIconName, getNodeDefaultColor, NodeType } from "@/types/node";
+import type { TFunction } from "i18next";
 /**
  * 创建默认的 K线节点数据
  */
 export const createDefaultKlineNodeData = (
 	strategyId: number,
 	strategyName: string,
-	nodeName: string,
+	t: TFunction,
 ): KlineNodeData => {
 	return {
 		strategyId,
 		strategyName,
-		nodeName,
+		nodeName: t("node.klineNode"),
 		liveConfig: undefined,
 		simulateConfig: undefined,
 		backtestConfig: createDefaultKlineBacktestConfig(),
