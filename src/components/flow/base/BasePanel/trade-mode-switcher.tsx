@@ -5,7 +5,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import useTradingModeStore from "@/store/use-trading-mode-store";
 import { TradeMode } from "@/types/strategy";
 import type { SettingProps } from "./setting-panel";
-import type { NodeData } from "@/types/node/index";
 
 export interface SettingPanelProps {
 	icon: LucideIcon;

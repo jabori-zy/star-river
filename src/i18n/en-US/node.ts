@@ -1,29 +1,56 @@
 const translation = {
-	common: {
+	node: {
+		node: "Node",
 		kline: "Kline",
 		indicator: "Indicator",
 		variable: "Variable",
 		order: "Order",
+		klineNode: "Kline Node",
+		indicatorNode: "Indicator Node",
+		variableNode: "Variable Node",
+		futuresOrderNode: "Futures Order Node",
+		positionManagementNode: "Position Management Node",
+		startNode: "Start Node",
+		ifElseNode: "If-Else Node",
 	},
 	ifElseNode: {
 		if: "IF",
-		elif: "ELIF",
-		notSet: "Not Set",
-		indicator: "Indicator",
-		variable: "Variable",
-		config: "Config",
-		leftVariable: "Left Variable",
-		rightVariable: "Right Variable",
-		operator: "Operator",
-		addCondition: "Add Condition",
-		deleteBranch: "Delete Branch",
-		selectNode: "Select Node",
-		selectVariable: "Select Variable",
-		constant: "constant",
-		elseDescription:
-			"When all conditions are not met, the ELSE branch will be executed",
-		noConditions: "No Conditions",
-		allSymbols: "All Syms",
+			elif: "ELIF",
+			notSet: "Not Set",
+			indicator: "Indicator",
+			variable: "Variable",
+			config: "Config",
+			leftVariable: "Left Variable",
+			rightVariable: "Right Variable",
+			operator: "Operator",
+			addCondition: "Add Condition",
+			deleteBranch: "Delete Branch",
+			selectNode: "Select Node",
+			selectVariable: "Select Variable",
+			constant: "constant",
+			elseDescription:
+				"When all conditions are not met, the ELSE branch will be executed",
+			noConditions: "No Conditions",
+			allSymbols: "All Syms",
+			comparisonSymbols: {
+				equal: "=",
+				notEqual: "!=",
+				greaterThan: ">",
+				lessThan: "<",
+				greaterThanOrEqual: ">=",
+				lessThanOrEqual: "<=",
+				is: "is",
+				isNot: "is not",
+				like: "like",
+				notLike: "not like",
+				isIn: "is in",
+				isNotIn: "is not in",
+				isEmpty: "is empty",
+				isNotEmpty: "is not empty",
+				contains: "contains",
+				notContains: "not contains",
+			},
+	
 	},
 	variableNode: {
 		edit: "Edit",
@@ -155,7 +182,7 @@ const translation = {
 			cumulativeYield: "Cumulative Yield",
 
 		}
-	}
+	},
 };
 
 export default translation;

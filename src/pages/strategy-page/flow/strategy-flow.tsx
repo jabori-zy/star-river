@@ -18,6 +18,7 @@ import {
 	// type OnEdgesDelete,
 	type OnNodesChange,
 	type NodeMouseHandler,
+	type OnBeforeDelete,
 	ReactFlow,
 	useEdgesState,
 	useNodesState,
@@ -34,22 +35,24 @@ import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 import { useDndNodeStore } from "@/store/use-dnd-node-store";
 import type { Strategy } from "@/types/strategy";
 import { createDefaultStartNodeData } from "@/hooks/node-config/start-node";
-import { NodeData, NodeType } from "@/types/node";
+import { NodeData, NodeType, StrategyFlowNode } from "@/types/node";
 import { createDefaultKlineNodeData } from "@/hooks/node-config/kline-node";
 import { createDefaultIndicatorNodeData } from "@/hooks/node-config/indicator-node";
 import { createDefaultIfElseNodeData } from "@/hooks/node-config/if-else-node";
 import { createDefaultFuturesOrderNodeData } from "@/hooks/node-config/futures-order-node";
 import { createDefaultPositionManagementNodeData } from "@/hooks/node-config/position-management-node";
 import { createDefaultVariableNodeData } from "@/hooks/node-config/variable-node";
+import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 
 export default function StrategyFlow({ strategyId, strategy }: { strategyId: number, strategy: Strategy }) {
 	const [nodes, setNodes] = useNodesState<Node>([]);
 	const [edges, setEdges] = useEdgesState<Edge>([]);
 	// 正在拖拽的节点
 	const { dragNodeItem, setDragNodeItem } = useDndNodeStore();
-	const { screenToFlowPosition } = useReactFlow();
-
-	const { checkIsValidConnection, handleNodeChanges, handleEdgeChanges } = useStrategyWorkflow();
+	const { screenToFlowPosition, getNodeConnections, updateNodeData } = useReactFlow();
+	const { t } = useTranslation();
+	const { checkIsValidConnection } = useStrategyWorkflow();
 
 
 	const [selectedNodeId, setSelectedNodeId] = useState<string | undefined>(undefined);
@@ -76,7 +79,7 @@ export default function StrategyFlow({ strategyId, strategy }: { strategyId: num
 		else {
 			setTimeout(() => {
 
-				const startNodeData = createDefaultStartNodeData(strategyId, strategy.name, "策略起点");
+				const startNodeData = createDefaultStartNodeData(strategyId, strategy.name, t("node.common.startNode"));
 				const startNode: Node = {
 					id: "start_node",
 					type: "startNode",
@@ -107,30 +110,29 @@ export default function StrategyFlow({ strategyId, strategy }: { strategyId: num
 
 		// 使用函数式状态更新，基于时间戳和随机数生成唯一ID
 		setNodes((currentNodes) => {
-			// 生成唯一ID：节点类型 + 时间戳 + 随机数
-			const timestamp = Date.now();
+			// 生成唯一ID：节点类型 + 随机数
 			const random = Math.random().toString(36).substring(2, 9);
-			const uniqueId = `${dragNodeItem.nodeId}_${timestamp}_${random}`;
+			const uniqueId = `${dragNodeItem.nodeId}_${random}`;
 
 			let defaultNodeData: Record<string, unknown>;
 			switch (dragNodeItem.nodeType) {
 				case NodeType.KlineNode:
-					defaultNodeData = createDefaultKlineNodeData(strategyId, strategy.name, dragNodeItem.nodeName);
+					defaultNodeData = createDefaultKlineNodeData(strategyId, strategy.name, t(dragNodeItem.nodeName));
 					break;
 				case NodeType.IndicatorNode:
-					defaultNodeData = createDefaultIndicatorNodeData(strategyId, strategy.name, dragNodeItem.nodeName);
+					defaultNodeData = createDefaultIndicatorNodeData(strategyId, strategy.name, t(dragNodeItem.nodeName));
 					break;
 				case NodeType.IfElseNode:
-					defaultNodeData = createDefaultIfElseNodeData(strategyId, strategy.name, dragNodeItem.nodeName, uniqueId);
+					defaultNodeData = createDefaultIfElseNodeData(strategyId, strategy.name, t(dragNodeItem.nodeName), uniqueId);
 					break;
 				case NodeType.FuturesOrderNode:
-					defaultNodeData = createDefaultFuturesOrderNodeData(strategyId, strategy.name, dragNodeItem.nodeName);
+					defaultNodeData = createDefaultFuturesOrderNodeData(strategyId, strategy.name, t(dragNodeItem.nodeName));
 					break;
 				case NodeType.PositionManagementNode:
-					defaultNodeData = createDefaultPositionManagementNodeData(strategyId, strategy.name, dragNodeItem.nodeName);
+					defaultNodeData = createDefaultPositionManagementNodeData(strategyId, strategy.name, t(dragNodeItem.nodeName));
 					break;
 				case NodeType.VariableNode:
-					defaultNodeData = createDefaultVariableNodeData(strategyId, strategy.name, dragNodeItem.nodeName);
+					defaultNodeData = createDefaultVariableNodeData(strategyId, strategy.name, t(dragNodeItem.nodeName));
 					break;
 				default:
 					defaultNodeData = {};
@@ -198,30 +200,35 @@ export default function StrategyFlow({ strategyId, strategy }: { strategyId: num
 		[setNodes],
 	  );
 
-	// 当拖动或者选择边时，将会触发onEdgesChange事件
 	const onEdgesChange: OnEdgesChange = useCallback(
-		(changes: EdgeChange[]) => {
-			setEdges((oldEdges) => {
-				const newEdges = applyEdgeChanges(changes, oldEdges);
-				// 如果changes中都是replace或select类型，则不处理
-				const isAllReplaceOrSelect = changes.every(
-					(change) => change.type === "replace" || change.type === "select",
-				);
-				if (!isAllReplaceOrSelect) {
-					const [_, updatedNodes] = handleEdgeChanges(
-						changes,
-						oldEdges,
-						newEdges,
-					);
-					// 更新节点
-					setNodes(updatedNodes);
-				}
+		(changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
+		[setEdges],
+	  );
 
-				return newEdges;
-			});
-		},
-		[setEdges, handleEdgeChanges, setNodes],
-	);
+	// 当拖动或者选择边时，将会触发onEdgesChange事件
+	// const onEdgesChange: OnEdgesChange = useCallback(
+	// 	(changes: EdgeChange[]) => {
+	// 		setEdges((oldEdges) => {
+	// 			const newEdges = applyEdgeChanges(changes, oldEdges);
+	// 			// 如果changes中都是replace或select类型，则不处理
+	// 			const isAllReplaceOrSelect = changes.every(
+	// 				(change) => change.type === "replace" || change.type === "select",
+	// 			);
+	// 			if (!isAllReplaceOrSelect) {
+	// 				const [_, updatedNodes] = handleEdgeChanges(
+	// 					changes,
+	// 					oldEdges,
+	// 					newEdges,
+	// 				);
+	// 				// 更新节点
+	// 				setNodes(updatedNodes);
+	// 			}
+
+	// 			return newEdges;
+	// 		});
+	// 	},
+	// 	[setEdges, handleEdgeChanges, setNodes],
+	// );
 
 	// 当连接节点时，将会触发onConnect事件
 	const onConnect: OnConnect = useCallback(
@@ -264,6 +271,61 @@ export default function StrategyFlow({ strategyId, strategy }: { strategyId: num
 		setSelectedNodeId(undefined);
 	}, []);
 
+
+	const onBeforeDeleteNode: OnBeforeDelete = useCallback(async ({ nodes, edges }) => {
+		// 过滤掉 start node,不允许删除开始节点
+		const nodesToDelete = nodes.filter((nd) => nd.type !== NodeType.StartNode);
+
+		// 检查是否有 start node 在删除列表中
+		const hasStartNode = nodes.length !== nodesToDelete.length;
+
+		// 如果包含 start node,弹出提示
+		if (hasStartNode) {
+			toast.error(t("workflow.cannotDeleteStartNode"));
+
+			// 如果所有节点都是 start node,则阻止删除
+			if (nodesToDelete.length === 0) {
+				return false;
+			}
+		}
+
+		// 返回过滤后的节点列表,只删除非 start node 的节点
+		return {
+			nodes: nodesToDelete,
+			edges,
+		};
+	}, [t]);
+
+
+	const onNodeMouseEnter: NodeMouseHandler = useCallback((_event, node) => {
+		const connections = getNodeConnections({ nodeId: node.id});
+		connections.forEach((connection) => {
+			setEdges((eds) => eds.map((edge) => {
+				if (edge.source === connection.source && edge.target === connection.target) {
+					return { ...edge, selected: true };
+				}
+				return edge;
+			}));
+		});
+
+		// 设置节点悬停状态
+		updateNodeData(node.id, { nodeConfig: { isHovered: true } });
+	}, [getNodeConnections, setEdges]);
+
+
+	const onNodeMouseLeave: NodeMouseHandler = useCallback((_event, node) => {
+		const connections = getNodeConnections({ nodeId: node.id});
+		connections.forEach((connection) => {
+			setEdges((eds) => eds.map((edge) => {
+				if (edge.source === connection.source && edge.target === connection.target) {
+					return { ...edge, selected: false };
+				}
+				return edge;
+			}));
+		});
+		updateNodeData(node.id, { nodeConfig: { isHovered: false } });
+	}, [getNodeConnections, setEdges]);
+
 	// 添加 useEffect 来监听 edges 的变化
 	useEffect(() => {
 		// console.log("Current nodes:", nodes);
@@ -280,10 +342,12 @@ export default function StrategyFlow({ strategyId, strategy }: { strategyId: num
 				onNodeClick={onNodeClick}
 				onNodesDelete={handleNodeDelete}
 				onEdgesChange={onEdgesChange}
+				onNodeMouseEnter={onNodeMouseEnter}
+				onNodeMouseLeave={onNodeMouseLeave}
 				onConnect={onConnect}
 				onPaneClick={onPaneClick}
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				nodeTypes={nodeTypes} // 临时使用 any 类型来解决类型兼容性问题
+				onBeforeDelete={onBeforeDeleteNode}
+				nodeTypes={nodeTypes}
 				edgeTypes={edgeTypes}
 				onDragOver={onDragOver}
 				onDrop={onDrop}

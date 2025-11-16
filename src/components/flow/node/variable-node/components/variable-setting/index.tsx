@@ -40,7 +40,6 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 	const { getStartNodeData } = useStrategyWorkflow();
 	const startNodeData = getStartNodeData();
 	const customVariables = startNodeData?.backtestConfig?.customVariables || [];
-	console.log("customVariables", customVariables);
 
 	// 生成自定义变量选项
 	const customVariableOptions = React.useMemo(

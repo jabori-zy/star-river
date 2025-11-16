@@ -1,4 +1,4 @@
-import { type PanelProps, useReactFlow, useNodesData } from "@xyflow/react";
+import { type PanelProps, useReactFlow } from "@xyflow/react";
 import { GripVertical } from "lucide-react";
 import {
 	type ReactElement,
@@ -77,62 +77,74 @@ const BasePanel: React.FC<BasePanelProps> = ({
 	);
 
 	// 面板宽度状态
-	const [panelWidth, setPanelWidth] = useState(400);
-	const [isResizing, setIsResizing] = useState(false);
-	const [startX, setStartX] = useState(0);
-	const [startWidth, setStartWidth] = useState(0);
+	const panelWidthRef = useRef(400);
+	const startXRef = useRef(0);
+	const startWidthRef = useRef(0);
+	const isResizingRef = useRef(false);
+
+	const applyPanelWidth = useCallback((width: number) => {
+		panelWidthRef.current = width;
+		if (panelRef.current) {
+			panelRef.current.style.width = `${width}px`;
+		}
+	}, []);
 
 	// 最小和最大宽度
 	const MIN_WIDTH = 375;
 	const MAX_WIDTH = 600;
 
 	// 开始拖拽缩放
+	const handleResizeMove = useCallback(
+		(e: MouseEvent) => {
+			if (!isResizingRef.current) return;
+
+			const deltaX = startXRef.current - e.clientX;
+			const newWidth = Math.max(
+				MIN_WIDTH,
+				Math.min(MAX_WIDTH, startWidthRef.current + deltaX),
+			);
+			applyPanelWidth(newWidth);
+		},
+		[applyPanelWidth, MAX_WIDTH, MIN_WIDTH],
+	);
+
+	const handleResizeEnd = useCallback(() => {
+		if (!isResizingRef.current) return;
+		isResizingRef.current = false;
+		document.removeEventListener("mousemove", handleResizeMove);
+		document.removeEventListener("mouseup", handleResizeEnd);
+		document.body.style.cursor = "";
+		document.body.style.userSelect = "";
+	}, [handleResizeMove]);
+
 	const handleResizeStart = useCallback(
 		(e: React.MouseEvent) => {
 			e.preventDefault();
-			setIsResizing(true);
-			setStartX(e.clientX);
-			setStartWidth(panelWidth);
-		},
-		[panelWidth],
-	);
+			if (isResizingRef.current) return;
+			isResizingRef.current = true;
+			startXRef.current = e.clientX;
+			startWidthRef.current = panelWidthRef.current;
 
-	// 处理拖拽缩放
-	const handleResizeMove = useCallback(
-		(e: MouseEvent) => {
-			if (!isResizing) return;
-
-			const deltaX = startX - e.clientX; // 注意这里是减法，因为左拖拽时X减小但宽度增大
-			const newWidth = Math.max(
-				MIN_WIDTH,
-				Math.min(MAX_WIDTH, startWidth + deltaX),
-			);
-			setPanelWidth(newWidth);
-		},
-		[isResizing, startX, startWidth],
-	);
-
-	// 结束拖拽缩放
-	const handleResizeEnd = useCallback(() => {
-		setIsResizing(false);
-	}, []);
-
-	// 添加全局鼠标事件监听
-	useEffect(() => {
-		if (isResizing) {
 			document.addEventListener("mousemove", handleResizeMove);
 			document.addEventListener("mouseup", handleResizeEnd);
 			document.body.style.cursor = "ew-resize";
 			document.body.style.userSelect = "none";
-		}
+		},
+		[handleResizeMove, handleResizeEnd],
+	);
 
+	useEffect(() => {
 		return () => {
 			document.removeEventListener("mousemove", handleResizeMove);
 			document.removeEventListener("mouseup", handleResizeEnd);
 			document.body.style.cursor = "";
 			document.body.style.userSelect = "";
 		};
-	}, [isResizing, handleResizeMove, handleResizeEnd]);
+	}, [handleResizeMove, handleResizeEnd]);
+
+	useEffect(() => {
+		applyPanelWidth(panelWidthRef.current);
+	}, [applyPanelWidth]);
 
 	return (
 		// 是否显示面板
@@ -142,7 +154,7 @@ const BasePanel: React.FC<BasePanelProps> = ({
 				ref={panelRef}
 				className="absolute right-4 top-4 bottom-4 z-50 flex flex-col bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden"
 				style={{
-					width: `${panelWidth}px`,
+					width: `${panelWidthRef.current}px`,
 				}}
 			>
 				{/* 左侧拖拽区域 */}
@@ -173,6 +185,7 @@ const BasePanel: React.FC<BasePanelProps> = ({
 				{/* 标题区域 - 固定高度 */}
 				<div className="flex-shrink-0 p-2 pb-0">
 					<BasePanelHeader
+						id={id}
 						title={panelTitle}
 						setTitle={handleSetTitle}
 						isEditingTitle={isEditingTitle}

@@ -5,6 +5,8 @@ import type {
 	SelectedAccount,
 	TimeRange,
 } from "@/types/strategy";
+import type { NodeDataBase } from ".";
+
 
 export type FuturesOrderNodeLiveConfig = {
 	futuresOrderConfigs: FuturesOrderConfig[];
@@ -27,8 +29,7 @@ export type FuturesOrderNodeBacktestConfig = {
 	futuresOrderConfigs: FuturesOrderConfig[];
 };
 
-export type FuturesOrderNodeData = {
-	nodeName: string; // 节点名称
+export type FuturesOrderNodeData = NodeDataBase & {
 	// 针对不同交易模式的条件配置
 	liveConfig?: FuturesOrderNodeLiveConfig;
 	backtestConfig?: FuturesOrderNodeBacktestConfig;

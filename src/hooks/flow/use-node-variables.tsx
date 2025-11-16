@@ -173,7 +173,6 @@ const useNodeVariables = () => {
 				} else if (nodeType === NodeType.VariableNode) {
 					// 处理变量节点
 					const variableNodeData = node.data as VariableNodeData;
-					console.log("variableNodeData", variableNodeData);
 					const variableConfigs =
 						tradeMode === TradeMode.LIVE
 							? variableNodeData?.liveConfig?.variableConfigs

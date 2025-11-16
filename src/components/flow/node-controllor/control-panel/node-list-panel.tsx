@@ -1,6 +1,7 @@
 import { Search } from "lucide-react";
 import type React from "react";
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
@@ -10,6 +11,7 @@ import type { NodeItemProps } from "@/types/nodeCategory";
 
 function NodeItem(props: NodeItemProps) {
 	const { setDragNodeItem } = useDndNodeStore();
+	const { t } = useTranslation();
 
 	const handleDragStart = (event: React.DragEvent<HTMLDivElement>) => {
 		event.dataTransfer.setData("application/reactflow", props.nodeType);
@@ -39,7 +41,7 @@ function NodeItem(props: NodeItemProps) {
 			onDragStart={handleDragStart}
 			onDragEnd={handleDragEnd}
 		>
-			{props.nodeName}
+			{t(props.nodeName)}
 		</div>
 	);
 }
@@ -47,6 +49,7 @@ function NodeItem(props: NodeItemProps) {
 // 节点列表面板
 const NodeListPanel: React.FC = () => {
 	const [searchTerm, setSearchTerm] = useState("");
+	const { t } = useTranslation();
 
 	const filteredCategories = useMemo(() => {
 		const lowercasedFilter = searchTerm.trim().toLowerCase();
@@ -61,7 +64,7 @@ const NodeListPanel: React.FC = () => {
 					.includes(lowercasedFilter);
 
 				const filteredItems = item.items.filter((item) =>
-					item.nodeName.toLowerCase().includes(lowercasedFilter),
+					t(item.nodeName).toLowerCase().includes(lowercasedFilter),
 				);
 
 				if (categoryTitleMatches) {
@@ -75,7 +78,7 @@ const NodeListPanel: React.FC = () => {
 				return null;
 			})
 			.filter((item): item is NonNullable<typeof item> => item !== null);
-	}, [searchTerm]);
+	}, [searchTerm, t]);
 
 	return (
 		<div className="bg-white rounded-lg shadow-sm border border-gray-200 px-3 pb-3 pt-8 w-[240px] relative">
@@ -101,7 +104,7 @@ const NodeListPanel: React.FC = () => {
 							<div key={item.title} className="space-y-1">
 								<div className="text-xs text-gray-500 px-2 py-1 flex items-center">
 									<item.icon className="w-3 h-3 mr-1" />
-									{item.title}
+									{t(item.title)}
 								</div>
 								<div className="space-y-1">
 									{item.items.map((item) => (

@@ -1,8 +1,10 @@
 import { type LucideIcon, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { memo } from "react";
 
 interface BasePanelHeaderProps {
+	id: string;
 	title: string;
 	setTitle: (title: string) => void; // 修改标题
 	icon: LucideIcon;
@@ -13,6 +15,7 @@ interface BasePanelHeaderProps {
 }
 
 const BasePanelHeader: React.FC<BasePanelHeaderProps> = ({
+	id,
 	title,
 	icon: Icon,
 	iconBackgroundColor,
@@ -63,7 +66,7 @@ const BasePanelHeader: React.FC<BasePanelHeaderProps> = ({
 						onBlur={() => {
 							// 如果标题为空，设置默认值
 							if (!title.trim()) {
-								setTitle("未命名节点");
+								setTitle(`${id}`);
 							}
 							setIsEditingTitle(false);
 						}}
@@ -71,7 +74,7 @@ const BasePanelHeader: React.FC<BasePanelHeaderProps> = ({
 							if (e.key === "Enter") {
 								// 如果标题为空，设置默认值
 								if (!title.trim()) {
-									setTitle("未命名节点");
+									setTitle(`${id}`);
 								}
 								setIsEditingTitle(false);
 							} else if (e.key === "Escape") {
@@ -86,7 +89,7 @@ const BasePanelHeader: React.FC<BasePanelHeaderProps> = ({
 						className="text-md font-bold text-gray-800 leading-8 py-1"
 						onDoubleClick={() => setIsEditingTitle(true)}
 					>
-						{title || "未命名节点"}
+						{title || `${id}`}
 					</h3>
 				)}
 			</div>
@@ -107,4 +110,4 @@ const BasePanelHeader: React.FC<BasePanelHeaderProps> = ({
 	);
 };
 
-export default BasePanelHeader;
+export default memo(BasePanelHeader);

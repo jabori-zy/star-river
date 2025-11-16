@@ -1,7 +1,8 @@
-import { type NodeProps, useReactFlow } from "@xyflow/react";
+import { type NodeProps } from "@xyflow/react";
 import type { LucideIcon } from "lucide-react";
 import type React from "react";
-import { type ReactNode, useState } from "react";
+import { type ReactNode } from "react";
+import { cn } from "@/lib/utils";
 import BaseHandle, { type BaseHandleProps } from "../BaseHandle";
 
 // BaseNode的属性接口
@@ -19,12 +20,14 @@ export interface BaseNodeProps extends Pick<NodeProps, "id" | "selected"> {
 	children?: ReactNode;
 	/** 自定义类名 */
 	className?: string;
-	// 选中时边框颜色
-	selectedBorderColor?: string;
+	// 边框颜色
+	borderColor?: string;
 	// 默认输入handle属性
 	defaultInputHandle?: BaseHandleProps;
 	// 默认输出handle属性
 	defaultOutputHandle?: BaseHandleProps;
+	// 是否悬停
+	isHovered?: boolean;
 }
 
 /**
@@ -36,102 +39,36 @@ const BaseNode: React.FC<BaseNodeProps> = ({
 	nodeName, // 节点标题
 	icon: Icon, // 节点图标
 	children, // 子内容
-	className = "", // 自定义类名
+	className, // 自定义类名
 	selected = false, // 是否选中
-	selectedBorderColor = "border-red-400", // 选中时边框颜色
+	isHovered = false, // 是否悬停
+	borderColor = "border-gray-400", // 边框颜色
 	iconBackgroundColor = "bg-red-400", // 图标背景颜色
 	defaultInputHandle, // 默认输入handle属性
 	defaultOutputHandle, // 默认输出handle属性
 	...props
 }) => {
-	// 悬停状态管理
-	const [isHovered, setIsHovered] = useState(false);
-
-	// 获取ReactFlow实例
-	const { setEdges } = useReactFlow();
-
-	// // 使用节点名称管理 hook（只用于数据同步）
-	// const { nodeName: currentNodeName } = useChangeNodeName({
-	// 	id,
-	// 	initialNodeName: nodeName,
-	// });
-
 	// 根据selected状态决定边框样式
 	const borderClass = selected
-		? `${selectedBorderColor} border-2`
+		? `${borderColor} border-2`
 		: "border-transparent border-2";
 
 	// 根据悬停状态决定阴影效果 - 移除transform，只用shadow
 	const shadowClass = isHovered
-		? "shadow-lg"
+		? "shadow-2xl"
 		: selected
 			? "shadow-md"
 			: "shadow-sm";
 
-	// 基础样式类 - 移除z-20
-	const baseClasses = `
-    bg-white 
-    rounded-lg 
-    transition-all
-    duration-200 
-    relative
-    cursor-pointer
-    min-w-[200px]
-    max-w-[400px]
-    w-fit
-    ${borderClass}
-    ${shadowClass}
-    ${className}
-  `.trim();
-
-	// 处理鼠标进入事件
-	// const handleMouseEnter = () => {
-	// 	setIsHovered(true);
-
-	// 	// console.log(`Mouse enter node ${id}`);
-
-	// 	// 设置所有相关边的_connectedNodeIsHovering状态为true
-	// 	setEdges((edges) =>
-	// 		edges.map((edge) => {
-	// 			// 如果边连接到当前节点，设置_connectedNodeIsHovering状态
-	// 			if (edge.source === id || edge.target === id) {
-	// 				return {
-	// 					...edge,
-	// 					selected: true,
-	// 				};
-	// 			}
-	// 			return edge;
-	// 		}),
-	// 	);
-	// };
-
-	// 处理鼠标离开事件
-	// const handleMouseLeave = () => {
-	// 	setIsHovered(false);
-
-	// 	// console.log(`Mouse leave node ${id}`);
-
-	// 	// 设置所有相关边的_connectedNodeIsHovering状态为false
-	// 	setEdges((edges) =>
-	// 		edges.map((edge) => {
-	// 			// 如果边连接到当前节点，取消_connectedNodeIsHovering状态
-	// 			if (edge.source === id || edge.target === id) {
-	// 				// console.log(`Setting edge ${edge.id} _connectedNodeIsHovering=false`);
-	// 				return {
-	// 					...edge,
-	// 					selected: false,
-	// 				};
-	// 			}
-	// 			return edge;
-	// 		}),
-	// 	);
-	// };
-
 	return (
 		<div
-			className={baseClasses}
-			// onMouseEnter={handleMouseEnter}
-			// onMouseLeave={handleMouseLeave}
+			className={cn(
+				"bg-white rounded-lg transition-all duration-200 relative cursor-pointer",
+				"min-w-[200px] max-w-[400px] w-fit",
+				borderClass,
+				shadowClass,
+				className
+			)}
 			{...props}
 		>
 			{/* 标题区域 */}
@@ -139,9 +76,7 @@ const BaseNode: React.FC<BaseNodeProps> = ({
 				<div className="flex items-center gap-2">
 					{/* 图标 */}
 					{Icon && (
-						<div
-							className={`p-1 rounded-sm flex-shrink-0 ${iconBackgroundColor}`}
-						>
+						<div className={cn("p-1 rounded-sm flex-shrink-0", iconBackgroundColor)}>
 							<Icon className="w-3 h-3 text-white flex-shrink-0" />
 						</div>
 					)}

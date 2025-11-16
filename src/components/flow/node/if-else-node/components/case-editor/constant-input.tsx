@@ -13,13 +13,17 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { ComparisonSymbol } from "@/types/node/if-else-node";
 import { VariableValueType } from "@/types/variable";
+import { cn } from "@/lib/utils";
 
 interface ConstantInputProps {
 	className?: string;
 	value: number | string | boolean | string[]; // 支持多种类型
 	onValueChange: (value: number | string | boolean) => void; // 回调支持多种类型
 	valueType: VariableValueType; // 变量值类型
+	comparisonSymbol?: ComparisonSymbol | null; // 比较符号（用于判断特殊情况）
+	leftVarValueType?: VariableValueType | null; // 左变量类型（用于 isIn/isNotIn 时的提示）
 }
 
 const ConstantInput: React.FC<ConstantInputProps> = ({
@@ -27,6 +31,8 @@ const ConstantInput: React.FC<ConstantInputProps> = ({
 	value,
 	onValueChange,
 	valueType,
+	comparisonSymbol,
+	leftVarValueType,
 }) => {
 	// 数字类型的本地状态管理
 	const [localValue, setLocalValue] = useState<string>(value.toString());
@@ -135,6 +141,41 @@ const ConstantInput: React.FC<ConstantInputProps> = ({
 		const values = options.map((opt) => opt.value);
 		onValueChange(JSON.stringify(values));
 	};
+
+	// 获取 isIn/isNotIn 的 placeholder
+	const getIsInPlaceholder = (): string => {
+		switch (leftVarValueType) {
+			case VariableValueType.NUMBER:
+				return "输入或选择数字 (如: 1, 2, 3)";
+			case VariableValueType.STRING:
+				return "输入或选择字符串";
+			case VariableValueType.BOOLEAN:
+				return "选择 true 或 false";
+			case VariableValueType.TIME:
+				return "选择时间";
+			case VariableValueType.PERCENTAGE:
+				return "输入百分比 (如: 5, 10)";
+			default:
+				return "选择或输入值";
+		}
+	};
+
+	// 优先判断比较符号：isIn 或 isNotIn 使用 MultipleSelector
+	if (
+		comparisonSymbol === ComparisonSymbol.isIn ||
+		comparisonSymbol === ComparisonSymbol.isNotIn
+	) {
+		return (
+			<MultipleSelector
+				value={enumOptions}
+				onChange={handleEnumChange}
+				placeholder={getIsInPlaceholder()}
+				creatable={true}
+				className={cn(className, "min-h-9")}
+				hidePlaceholderWhenSelected
+			/>
+		);
+	}
 
 	// 根据类型渲染不同的输入组件
 	switch (valueType) {

@@ -37,7 +37,6 @@ interface UpdateOptions {
  */
 export async function getStrategyById(strategyId: number): Promise<Strategy> {
 	try {
-		console.log(`${API_URL}/${strategyId}`);
 		const response = await axios.get(`${API_URL}/${strategyId}`);
 
 		if (response.status !== 200) {
@@ -45,7 +44,7 @@ export async function getStrategyById(strategyId: number): Promise<Strategy> {
 		}
 
 		const data = response.data;
-		console.log("接口获取的原始策略数据", data.data);
+		// console.log("接口获取的原始策略数据", data.data);
 
 		if (!data.data) {
 			throw new Error("获取策略数据为空");

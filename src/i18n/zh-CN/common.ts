@@ -17,8 +17,18 @@ const translation = {
         saturday: "周六",
         sunday: "周日",
     },
-
-    
+    timeUnit: {
+        millisecond: "毫秒",
+        second: "秒",
+        minute: "分钟",
+        hour: "小时",
+        day: "天",
+    },
+    save: "保存",
+    cancel: "取消",
+    next: "下一步",
+    previous: "上一步",
+    confirm: "确认",
 }
 
 export default translation;

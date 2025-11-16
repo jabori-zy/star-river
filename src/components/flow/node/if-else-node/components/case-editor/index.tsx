@@ -16,6 +16,7 @@ import ConditionSetting from "./condition-setting";
 interface CaseEditorProps {
 	variableItemList: VariableItem[]; // 变量列表
 	caseItem: CaseItem; // 条件
+	caseIndex?: number; // 显示用的顺序索引（1, 2, 3...），用于 UI 显示
 	onCaseChange: (caseItem: CaseItem) => void;
 	onCaseRemove: (caseId: number) => void;
 }
@@ -23,6 +24,7 @@ interface CaseEditorProps {
 const CaseEditor: React.FC<CaseEditorProps> = ({
 	variableItemList,
 	caseItem,
+	caseIndex,
 	onCaseChange,
 	onCaseRemove,
 }) => {
@@ -94,12 +96,12 @@ const CaseEditor: React.FC<CaseEditorProps> = ({
 		<div className="flex flex-col gap-2">
 			{/* 标题 */}
 			<div className="flex flex-row gap-2 items-center h-8 p-2 justify-between">
-				<div className="flex flex-row gap-2 items-center ">
+				<div className="flex flex-row gap-2 items-center">
 					<GripVertical className="w-4 h-4 text-gray-400 drag-handle cursor-grab active:cursor-grabbing" />
 					<h3 className="text-sm font-bold">
-						{caseItem.caseId === 1
-							? `IF${caseItem.caseId}`
-							: `ELIF${caseItem.caseId}`}
+						{(caseIndex ?? caseItem.caseId) === 1
+							? `IF${caseIndex ?? caseItem.caseId}`
+							: `ELIF${caseIndex ?? caseItem.caseId}`}
 					</h3>
 					<Button
 						variant="ghost"

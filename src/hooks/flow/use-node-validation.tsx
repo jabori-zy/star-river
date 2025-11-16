@@ -11,7 +11,6 @@ import { NodeType } from "@/types/node/index";
 const NodeSupportConnectionMap: Record<NodeType, NodeType[]> = {
 	[NodeType.StartNode]: [
 		NodeType.KlineNode,
-		NodeType.IndicatorNode,
 		NodeType.IfElseNode,
 		NodeType.VariableNode,
 	],
@@ -83,9 +82,10 @@ const useNodeValidation = () => {
 			// 检查目标节点的连接数量限制
 			const targetNodeConnections = getNodeConnections({
 				nodeId: targetNodeId,
+				type: "target",
 			});
-			const targetNodeSupportConnectionLimit =
-				NodeSupportConnectionLimit[targetNode.type as NodeType];
+			console.log("targetNodeConnections", targetNodeConnections);
+			const targetNodeSupportConnectionLimit = NodeSupportConnectionLimit[targetNode.type as NodeType];
 
 			// -1表示无限制，直接允许连接
 			if (targetNodeSupportConnectionLimit === -1) {
@@ -93,7 +93,8 @@ const useNodeValidation = () => {
 			}
 
 			// 检查是否超过连接数量限制
-			return targetNodeSupportConnectionLimit > targetNodeConnections.length;
+			const isOverLimit = targetNodeSupportConnectionLimit > targetNodeConnections.length;
+			return isOverLimit;
 		},
 		[getNode, getNodeConnections],
 	);

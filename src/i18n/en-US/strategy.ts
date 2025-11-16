@@ -4,6 +4,9 @@ const translation = {
 		start: "Start",
 		stop: "Stop",
 	},
+	workflow: {
+		cannotDeleteStartNode: "Cannot delete start node",
+	},
 };
 
 export default translation;

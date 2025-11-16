@@ -1,6 +1,6 @@
 import type { Node } from "@xyflow/react";
 import type { SelectedAccount } from "@/types/strategy";
-
+import type { NodeDataBase } from ".";
 // 仓位操作类型
 export enum PositionOperation {
 	UPDATE = "update", // 更新仓位
@@ -34,9 +34,7 @@ export type PositionBacktestConfig = {
 	positionOperations: PositionOperationConfig[]; // 操作列表
 };
 
-export type PositionManagementNodeData = {
-	strategyId: number;
-	nodeName: string | null;
+export type PositionManagementNodeData = NodeDataBase & {
 	liveConfig?: PositionLiveConfig;
 	simulateConfig?: PositionSimulateConfig;
 	backtestConfig?: PositionBacktestConfig;

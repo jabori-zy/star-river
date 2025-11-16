@@ -1,12 +1,10 @@
 import { useNodeConnections } from "@xyflow/react";
-import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ReactSortable } from "react-sortablejs";
 import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import useStrategyWorkflow, {
-	type VariableItem,
 } from "@/hooks/flow/use-strategy-workflow";
 import { useBacktestConfig } from "@/hooks/node-config/if-else-node";
 import {
@@ -22,87 +20,46 @@ const IfElseNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	const { t } = useTranslation();
 
 	// ✅ 使用新版本 hook 管理回测配置
-	const { backtestConfig, updateCase, removeCase, updateCases } =
-		useBacktestConfig({ id });
-
-	const [localBacktestCases, setLocalBacktestCases] = useState<CaseItem[]>(
-		backtestConfig?.cases || [],
-	);
+	const { backtestConfig, updateCase, removeCase, updateCases } = useBacktestConfig({ id });
 
 	const { getConnectedNodeVariables } = useStrategyWorkflow();
 
+	
+
 	// 获取所有连接
 	const connections = useNodeConnections({ id, handleType: "target" });
-	// 收集到的所有变量列表
-	const [variableItemList, setVariableItemList] = useState<VariableItem[]>([]);
 
-	// 当节点的回测配置发生变化时，同步到本地状态，确保重新打开面板时能看到已保存的数据
-	useEffect(() => {
-		const cases = backtestConfig?.cases;
 
-		if (!cases || cases.length === 0) {
-			setLocalBacktestCases([]);
-			return;
-		}
+	const variables = getConnectedNodeVariables(connections,TradeMode.BACKTEST);
 
-		setLocalBacktestCases((prevCases) => {
-			const hasReferenceDiff =
-				prevCases.length !== cases.length ||
-				prevCases.some((prevCase, index) => prevCase !== cases[index]);
 
-			if (!hasReferenceDiff) {
-				return prevCases;
-			}
+	
 
-			return cases.map((caseItem) => ({
-				...caseItem,
-				conditions: (caseItem.conditions ?? []).map((condition) => ({
-					...condition,
-					left: condition.left ? { ...condition.left } : null,
-					right: condition.right ? { ...condition.right } : null,
-				})),
-			}));
-		});
-	}, [backtestConfig?.cases]);
-
-	useEffect(() => {
-		// 获取连接节点的变量并更新状态
-		// console.log("connections", connections);
-		const variables = getConnectedNodeVariables(
-			connections,
-			TradeMode.BACKTEST,
-		);
-		setVariableItemList(variables);
-	}, [connections, getConnectedNodeVariables]);
-
-	// 更新case
-	const handleCaseChange = (caseItem: CaseItem) => {
-		// 如果当前配置为空，先初始化一个case
-		if (!localBacktestCases || localBacktestCases.length === 0) {
-			// 确保第一个case的ID为1，符合其他地方的预期
-			const normalizedCase = { ...caseItem, caseId: 1 };
-			setLocalBacktestCases([normalizedCase]);
-			updateCase(normalizedCase);
-		} else {
-			setLocalBacktestCases(
-				localBacktestCases.map((c) =>
-					c.caseId === caseItem.caseId ? caseItem : c,
-				),
-			);
-			updateCase(caseItem);
-		}
-	};
 
 	// 添加ELIF分支
 	const handleAddElif = () => {
-		const caseId = localBacktestCases?.length + 1 || 1;
+		const cases = backtestConfig?.cases;
+		if (!cases || cases.length === 0) {
+			// 如果没有 case，创建 ID 为 1 的第一个 case
+			updateCase({
+				caseId: 1,
+				outputHandleId: `${id}_output_1`,
+				logicalSymbol: LogicalSymbol.AND,
+				conditions: [],
+			});
+			return;
+		}
+
+		// 找到最大的 caseId，新增时使用 maxId + 1
+		const maxCaseId = Math.max(...cases.map((c) => c.caseId));
+		const newCaseId = maxCaseId + 1;
+
 		const newCaseItem: CaseItem = {
-			caseId: caseId,
-			outputHandleId: `${id}_output_${caseId}`,
+			caseId: newCaseId,
+			outputHandleId: `${id}_output_${newCaseId}`,
 			logicalSymbol: LogicalSymbol.AND,
 			conditions: [],
 		};
-		setLocalBacktestCases([...localBacktestCases, newCaseItem]);
 		updateCase(newCaseItem);
 	};
 
@@ -110,57 +67,26 @@ const IfElseNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	const handleRemoveCase = (caseId: number) => {
 		console.log("删除case", caseId);
 		removeCase(caseId);
-
-		// 先过滤掉要删除的case
-		const filteredCases = localBacktestCases.filter((c) => c.caseId !== caseId);
-		console.log("重置id前", filteredCases);
-
-		// 判断filteredCases是否为空
-		// 如果为空，则添加一个id为1的case
-		if (filteredCases.length === 0) {
-			const newCase: CaseItem = {
-				caseId: 1,
-				outputHandleId: `${id}_output_1`,
-				logicalSymbol: LogicalSymbol.AND,
-				conditions: [],
-			};
-			setLocalBacktestCases([newCase]);
-			updateCases([newCase]);
-			return;
-		} else {
-			// 重新设置caseId，确保连续性（1,2,3...）
-			const resetCases = filteredCases.map((c, index) => ({
-				...c,
-				caseId: index + 1,
-			}));
-
-			// 更新本地状态
-			setLocalBacktestCases(resetCases);
-
-			// 同步更新后的case到配置中
-			updateCases(resetCases);
-		}
+		// 注意：不需要重新设置 caseId，保持 ID 不变
 	};
 
 	// 处理拖拽排序
 	const handleSortCases = (newList: CaseItem[]) => {
 		// 只保留CaseItem应有的字段，过滤掉ReactSortable添加的内部字段
-		const resetCases = newList.map((c, index) => ({
-			caseId: index + 1, // 重新设置caseId，确保连续性（1,2,3...）
+		// 保持原有的 caseId 不变，只改变顺序
+		const cleanedCases = newList.map((c) => ({
+			caseId: c.caseId, // 保持原有 ID 不变
 			logicalSymbol: c.logicalSymbol,
 			conditions: c.conditions,
-			outputHandleId: `${id}_output_${index + 1}`,
+			outputHandleId: c.outputHandleId, // 保持原有 outputHandleId
 		}));
 
 		// 更新本地状态
-		setLocalBacktestCases(resetCases);
-
-		// 同步更新后的case到配置中
-		updateCases(resetCases);
+		updateCases(cleanedCases);
 	};
 
 	// 为ReactSortable准备的带有id的cases
-	const casesWithId = localBacktestCases.map((caseItem) => ({
+	const casesWithId = backtestConfig?.cases?.map((caseItem) => ({
 		...caseItem,
 		id: caseItem.caseId,
 	}));
@@ -168,16 +94,16 @@ const IfElseNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	return (
 		<div className="flex flex-col gap-2">
 			{/* 如果cases为空，则传一个空的case */}
-			{!localBacktestCases || localBacktestCases.length === 0 ? (
+			{!backtestConfig?.cases || backtestConfig?.cases.length === 0 ? (
 				<CaseEditor
-					variableItemList={variableItemList}
+					variableItemList={variables}
 					caseItem={{
 						caseId: 1,
 						outputHandleId: `${id}_output_1`,
 						logicalSymbol: LogicalSymbol.AND,
 						conditions: [],
 					}}
-					onCaseChange={handleCaseChange}
+					onCaseChange={updateCase}
 					onCaseRemove={handleRemoveCase}
 				/>
 			) : (
@@ -188,12 +114,13 @@ const IfElseNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 					animation={200}
 					className="flex flex-col gap-2"
 				>
-					{casesWithId.map((caseItem) => (
+					{casesWithId?.map((caseItem, index) => (
 						<div key={caseItem.caseId}>
 							<CaseEditor
-								variableItemList={variableItemList}
+								variableItemList={variables}
 								caseItem={caseItem}
-								onCaseChange={handleCaseChange}
+								caseIndex={index + 1}
+								onCaseChange={updateCase}
 								onCaseRemove={handleRemoveCase}
 							/>
 						</div>

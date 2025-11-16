@@ -1,5 +1,7 @@
 import { createDefaultIndicatorBacktestConfig } from "./use-update-backtest-config";
 export { useBacktestConfig } from "./use-update-backtest-config";
+export { useSyncSourceNode } from "./use-sync-source-node";
+export { useSyncTimeRange } from "./use-sync-time-range";
 
 /**
  * Create default indicator node data

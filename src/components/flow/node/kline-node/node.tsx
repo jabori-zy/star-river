@@ -69,8 +69,8 @@ const KlineNode: React.FC<NodeProps<KlineNodeType>> = ({
 			id={id}
 			nodeName={currentNodeData?.nodeName || "kline node"}
 			icon={Play}
+			isHovered={currentNodeData?.nodeConfig?.isHovered || false}
 			selected={selected}
-			selectedBorderColor="border-red-400"
 			defaultOutputHandle={defaultOutputHandle}
 			defaultInputHandle={defaultInputHandle}
 		>

@@ -5,11 +5,13 @@ import {
 	type Variable,
 	type Constant,
 	VarType,
+	getComparisonSymbolLabel,
 } from "@/types/node/if-else-node";
 import { NodeType } from "@/types/node/index";
 import type { IndicatorNodeData } from "@/types/node/indicator-node";
 import type { KlineNodeData } from "@/types/node/kline-node";
 import { getNodeTypeLabel } from "@/components/flow/node/node-utils";
+import { TFunction } from "i18next";
 
 // 获取条件类型的中文标签
 export const getCaseTypeLabel = (caseId: number) => {
@@ -17,9 +19,9 @@ export const getCaseTypeLabel = (caseId: number) => {
 };
 
 // 获取比较符号 - 直接返回符号
-export const getComparisonLabel = (symbol: ComparisonSymbol | null) => {
+export const getComparisonLabel = (symbol: ComparisonSymbol | null, t: TFunction) => {
 	if (!symbol) return "";
-	return symbol;
+	return getComparisonSymbolLabel(symbol, t);
 };
 
 // 获取逻辑符号的中文标签
@@ -37,7 +39,15 @@ const formatConstantValue = (constant: Constant): string => {
 	const { varValue } = constant;
 
 	if (Array.isArray(varValue)) {
-		return varValue.length > 0 ? varValue.join(", ") : "[]";
+		if (varValue.length === 0) {
+			return "[]";
+		}
+		// 只显示前5个元素
+		if (varValue.length > 5) {
+			const displayValues = varValue.slice(0, 5);
+			return `${displayValues.join(", ")}...`;
+		}
+		return varValue.join(", ");
 	}
 
 	return String(varValue);
@@ -94,8 +104,7 @@ export const getIndicatorNodeVariableLabel = (
 ) => {
 	const indicatorNode = nodes.find((node) => node.id === variable.nodeId);
 	const indicatorNodeData = indicatorNode?.data as IndicatorNodeData;
-	const selectedIndicators =
-		indicatorNodeData.backtestConfig?.exchangeModeConfig?.selectedIndicators;
+	const selectedIndicators = indicatorNodeData.backtestConfig?.exchangeModeConfig?.selectedIndicators;
 	const selectedIndicator = selectedIndicators?.find(
 		(indicator) => indicator.configId === variable.varConfigId,
 	);

@@ -108,11 +108,93 @@ export const useBacktestConfig = ({ id }: UseBacktestConfigProps) => {
 		[updateConfig],
 	);
 
+
+	const resetCases = useCallback(
+		() => {
+			let emptyCase: CaseItem = {
+				caseId: 1,
+				outputHandleId: `${id}_output_1`,
+				logicalSymbol: LogicalSymbol.AND,
+				conditions: [],
+			};
+			updateConfig((draft) => {
+				draft.cases = [emptyCase];
+			});
+		},
+		[updateConfig],
+	);
+
+	/**
+	 * Reset a variable (left or right) in a specific condition
+	 * Used when upstream node's config is deleted
+	 */
+	const resetConditionVariable = useCallback(
+		(caseId: number, conditionId: number, side: 'left' | 'right') => {
+			updateConfig((draft) => {
+				// Find target case
+				const targetCase = draft.cases.find(c => c.caseId === caseId);
+				if (!targetCase) return;
+
+				// Find target condition
+				const targetCondition = targetCase.conditions.find(c => c.conditionId === conditionId);
+				if (!targetCondition) return;
+
+				// Reset the variable
+				if (side === 'left') {
+					// Reset left variable and comparison symbol (symbol depends on left variable type)
+					targetCondition.left = null;
+					targetCondition.comparisonSymbol = null;
+				} else {
+					// Only reset right variable
+					targetCondition.right = null;
+				}
+			});
+		},
+		[updateConfig],
+	);
+
+	/**
+	 * Update a variable's metadata (varName, varDisplayName, varValueType)
+	 * Used when upstream variable node's config is modified
+	 */
+	const updateConditionVariableMetadata = useCallback(
+		(
+			caseId: number,
+			conditionId: number,
+			side: 'left' | 'right',
+			varName: string,
+			varDisplayName: string,
+			varValueType: import('@/types/variable').VariableValueType
+		) => {
+			updateConfig((draft) => {
+				// Find target case
+				const targetCase = draft.cases.find(c => c.caseId === caseId);
+				if (!targetCase) return;
+
+				// Find target condition
+				const targetCondition = targetCase.conditions.find(c => c.conditionId === conditionId);
+				if (!targetCondition) return;
+
+				// Update the variable metadata
+				const targetVariable = side === 'left' ? targetCondition.left : targetCondition.right;
+				if (targetVariable && 'nodeId' in targetVariable) {
+					targetVariable.varName = varName;
+					targetVariable.varDisplayName = varDisplayName;
+					targetVariable.varValueType = varValueType;
+				}
+			});
+		},
+		[updateConfig],
+	);
+
 	return {
 		backtestConfig,
 		setDefaultBacktestConfig,
 		updateCases,
 		updateCase,
 		removeCase,
+		resetCases,
+		resetConditionVariable,
+		updateConditionVariableMetadata,
 	};
 };

@@ -162,6 +162,12 @@ const EditDialog: React.FC<EditDialogProps> = ({
 		}
 	}, [isOpen, isEditing, getCurrentConfigInstance]);
 
+	// 获取下一个配置 ID
+	const getNextConfigId = (): number => {
+		if (selectedIndicators.length === 0) return 1;
+		return Math.max(...selectedIndicators.map((i) => i.configId)) + 1;
+	};
+
 	// 根据指标类型创建初始值
 	const createInitialValue = (type: IndicatorType): Record<string, number> => {
 		const configInstance = getIndicatorConfig(type);
@@ -175,7 +181,7 @@ const EditDialog: React.FC<EditDialogProps> = ({
 	// 创建指标配置
 	const createIndicatorConfig = (
 		type: IndicatorType,
-		index: number,
+		configId: number,
 	): SelectedIndicator => {
 		const configInstance = getIndicatorConfig(type);
 		if (!configInstance) {
@@ -197,8 +203,8 @@ const EditDialog: React.FC<EditDialogProps> = ({
 		const config = configInstance.getDefaultConfig();
 
 		return {
-			configId: index + 1,
-			outputHandleId: `${nodeId}_output_${index + 1}`,
+			configId: configId,
+			outputHandleId: `${nodeId}_output_${configId}`,
 			indicatorType: type,
 			indicatorConfig: config,
 			value: createInitialValue(type),
@@ -235,13 +241,15 @@ const EditDialog: React.FC<EditDialogProps> = ({
 			return;
 		}
 
-		const targetIndex =
+		// 确定使用的 configId
+		const configId =
 			isEditing && editingIndex !== null
-				? editingIndex
-				: selectedIndicators.length;
-		const configObj = createIndicatorConfig(indicatorType, targetIndex);
+				? selectedIndicators[editingIndex].configId // 编辑模式：保持原有 ID
+				: getNextConfigId(); // 新增模式：获取下一个 ID
 
-		// 如果是编辑模式，保持原有的 handleId
+		const configObj = createIndicatorConfig(indicatorType, configId);
+
+		// 如果是编辑模式，保持原有的 outputHandleId
 		if (isEditing && editingIndex !== null) {
 			configObj.outputHandleId =
 				selectedIndicators[editingIndex].outputHandleId;

@@ -5,6 +5,7 @@ import type {
 	TriggerConfig,
 } from "./trigger-types";
 import type { UpdateVarValueOperation } from "./variable-operation-types";
+import type { NodeDataBase } from "..";
 
 type BaseVariableConfig = {
 	configId: number;
@@ -85,9 +86,7 @@ export type VariableNodeBacktestConfig = {
 	variableConfigs: VariableConfig[];
 };
 
-export type VariableNodeData = {
-	strategyId: number;
-	nodeName: string;
+export type VariableNodeData = NodeDataBase & {
 	liveConfig?: VariableNodeLiveConfig;
 	simulateConfig?: VariableNodeSimulateConfig;
 	backtestConfig?: VariableNodeBacktestConfig;

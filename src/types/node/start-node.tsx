@@ -4,12 +4,10 @@ import type {
 	StrategyLiveConfig,
 	StrategySimulateConfig,
 } from "@/types/strategy";
+import type { NodeDataBase } from ".";
 
 // 开始节点数据
-export type StartNodeData = {
-	strategyId: number;
-	strategyName: string;
-	nodeName: string;
+export type StartNodeData = NodeDataBase & {
 	liveConfig: StrategyLiveConfig | null; // 实盘交易配置。三个配置中，只有一个有效，可以共存
 	backtestConfig: StrategyBacktestConfig | null; // 回测交易配置
 	simulateConfig: StrategySimulateConfig | null; // 模拟交易配置

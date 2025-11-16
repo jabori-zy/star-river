@@ -7,6 +7,7 @@ import type {
 	TimeRange,
 } from "@/types/strategy";
 import type { SelectedSymbol } from "./kline-node";
+import type { NodeDataBase } from ".";
 
 // 选中的指标, 用于连接到其他节点, 使用新的指标配置结构
 export type SelectedIndicator = {
@@ -53,8 +54,7 @@ export type IndicatorNodeBacktestConfig = {
 };
 
 // 指标节点数据类型
-export type IndicatorNodeData = {
-	nodeName: string;
+export type IndicatorNodeData = NodeDataBase & {
 	liveConfig?: IndicatorNodeLiveConfig; // 实盘交易配置
 	simulateConfig?: IndicatorNodeSimulateConfig; // 模拟交易配置
 	backtestConfig?: IndicatorNodeBacktestConfig; // 回测交易配置

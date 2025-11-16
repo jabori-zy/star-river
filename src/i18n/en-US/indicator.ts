@@ -19,6 +19,9 @@ const translation = {
 		vwap: "VWAP",
 		wma: "WMA",
 		zscore: "ZScore",
+		lower: "Lower",
+		upper: "Upper",
+		middle: "Middle",
 	},
 };
 

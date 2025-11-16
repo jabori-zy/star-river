@@ -14,6 +14,7 @@ import BacktestModeShow from "./components/node-show/backtest-mode-show";
 import LiveModeShow from "./components/node-show/live-mode-show";
 import SimulateModeShow from "./components/node-show/simulate-mode-show";
 import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
+import { memo } from "react";
 
 const VariableNode: React.FC<NodeProps<VariableNodeType>> = ({
 	id,
@@ -59,8 +60,8 @@ const VariableNode: React.FC<NodeProps<VariableNodeType>> = ({
 			nodeName={nodeName}
 			icon={Play}
 			selected={selected}
+			isHovered={variableNodeData?.nodeConfig?.isHovered || false}
 			defaultInputHandle={defaultInputHandle}
-			selectedBorderColor="border-red-400"
 			defaultOutputHandle={defaultOutputHandle}
 		>
 			{renderModeShow()}
@@ -68,4 +69,4 @@ const VariableNode: React.FC<NodeProps<VariableNodeType>> = ({
 	);
 };
 
-export default VariableNode;
+export default memo(VariableNode);

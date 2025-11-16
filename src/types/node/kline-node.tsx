@@ -5,6 +5,8 @@ import type {
 	SelectedAccount,
 	TimeRange,
 } from "@/types/strategy";
+import type { NodeDataBase } from ".";
+
 
 export type SelectedSymbol = {
 	configId: number; // 配置id
@@ -55,13 +57,9 @@ export type KlineData = {
 };
 
 // 实时数据节点数据
-export type KlineNodeData = {
-	nodeName: string; // 节点名称
+export type KlineNodeData = NodeDataBase & {
 	liveConfig?: KlineNodeLiveConfig; // 实盘交易配置。三个配置中，只有一个有效，可以共存
 	simulateConfig?: KlineNodeSimulateConfig; // 模拟交易配置
 	backtestConfig?: KlineNodeBacktestConfig; // 回测交易配置
 };
-
-
-
 export type KlineNode = Node<KlineNodeData, "klineNode">;

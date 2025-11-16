@@ -1,6 +1,8 @@
 import type { Node } from "@xyflow/react";
 import type { NodeType } from "@/types/node/index";
 import { VariableValueType } from "@/types/variable";
+import { TFunction } from "i18next";
+import type { NodeDataBase } from ".";
 
 // 条件判断节点回测模式配置
 export type IfElseNodeBacktestConfig = {
@@ -16,8 +18,7 @@ export type IfElseNodeSimulateConfig = {
 };
 
 // 条件判断节点数据
-export type IfElseNodeData = {
-	nodeName: string; // 节点名称
+export type IfElseNodeData = NodeDataBase & {
 	// 针对不同交易模式的条件配置
 	liveConfig?: IfElseNodeLiveConfig;
 	simulateConfig?: IfElseNodeSimulateConfig;
@@ -139,24 +140,24 @@ export const getAvailableComparisonSymbols = (
 /**
  * 获取比较运算符的显示文本
  */
-export const getComparisonSymbolLabel = (symbol: ComparisonSymbol): string => {
+export const getComparisonSymbolLabel = (symbol: ComparisonSymbol, t: TFunction): string => {
 	const labels: Record<ComparisonSymbol, string> = {
-		[ComparisonSymbol.equal]: "=",
-		[ComparisonSymbol.notEqual]: "!=",
-		[ComparisonSymbol.greaterThan]: ">",
-		[ComparisonSymbol.lessThan]: "<",
-		[ComparisonSymbol.greaterThanOrEqual]: ">=",
-		[ComparisonSymbol.lessThanOrEqual]: "<=",
-		[ComparisonSymbol.is]: "是",
-		[ComparisonSymbol.isNot]: "不是",
-		[ComparisonSymbol.like]: "包含",
-		[ComparisonSymbol.notLike]: "不包含",
-		[ComparisonSymbol.isIn]: "存在于",
-		[ComparisonSymbol.isNotIn]: "不存在于",
-		[ComparisonSymbol.isEmpty]: "为空",
+		[ComparisonSymbol.equal]: t("ifElseNode.comparisonSymbols.equal"),
+		[ComparisonSymbol.notEqual]: t("ifElseNode.comparisonSymbols.notEqual"),
+		[ComparisonSymbol.greaterThan]: t("ifElseNode.comparisonSymbols.greaterThan"),
+		[ComparisonSymbol.lessThan]: t("ifElseNode.comparisonSymbols.lessThan"),
+		[ComparisonSymbol.greaterThanOrEqual]: t("ifElseNode.comparisonSymbols.greaterThanOrEqual"),
+		[ComparisonSymbol.lessThanOrEqual]: t("ifElseNode.comparisonSymbols.lessThanOrEqual"),
+		[ComparisonSymbol.is]: t("ifElseNode.comparisonSymbols.is"),
+		[ComparisonSymbol.isNot]: t("ifElseNode.comparisonSymbols.isNot"),
+		[ComparisonSymbol.like]: t("ifElseNode.comparisonSymbols.like"),
+		[ComparisonSymbol.notLike]: t("ifElseNode.comparisonSymbols.notLike"),
+		[ComparisonSymbol.isIn]: t("ifElseNode.comparisonSymbols.isIn"),
+		[ComparisonSymbol.isNotIn]: t("ifElseNode.comparisonSymbols.isNotIn"),
+		[ComparisonSymbol.isEmpty]: t("ifElseNode.comparisonSymbols.isEmpty"),
 		[ComparisonSymbol.isNotEmpty]: "不为空",
-		[ComparisonSymbol.contains]: "包含",
-		[ComparisonSymbol.notContains]: "不包含",
+		[ComparisonSymbol.contains]: t("ifElseNode.comparisonSymbols.contains"),
+		[ComparisonSymbol.notContains]: t("ifElseNode.comparisonSymbols.notContains"),
 	};
 	return labels[symbol];
 };

@@ -1,6 +1,6 @@
 import type { NodeProps } from "@xyflow/react";
 import { Play } from "lucide-react";
-import { useEffect } from "react";
+import { memo, useEffect } from "react";
 import BaseNode from "@/components/flow/base/BaseNode";
 import { useBacktestConfig } from "@/hooks/node-config/futures-order-node";
 import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
@@ -50,10 +50,16 @@ const FuturesOrderNode: React.FC<NodeProps<FuturesOrderNodeType>> = ({
 	};
 
 	return (
-		<BaseNode id={id} nodeName={nodeName} icon={Play} selected={selected}>
+		<BaseNode 
+			id={id} 
+			nodeName={nodeName} 
+			icon={Play} 
+			selected={selected} 
+			isHovered={data?.nodeConfig?.isHovered || false}
+		>
 			{renderModeShow()}
 		</BaseNode>
 	);
 };
 
-export default FuturesOrderNode;
+export default memo(FuturesOrderNode);

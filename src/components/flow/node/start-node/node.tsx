@@ -84,8 +84,8 @@ const StartNode: React.FC<NodeProps<StartNodeType>> = ({
 			id={id}
 			nodeName={nodeName}
 			icon={Play}
+			isHovered={startNodeData?.nodeConfig?.isHovered || false}
 			selected={selected}
-			selectedBorderColor="border-red-400"
 			defaultOutputHandle={defaultOutputHandle}
 		>
 			{/* 实盘模式 */}

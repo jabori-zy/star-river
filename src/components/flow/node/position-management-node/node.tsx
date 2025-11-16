@@ -7,6 +7,7 @@ import { TradeMode } from "@/types/strategy";
 import BacktestModeShow from "./components/show/backtest-mode-show";
 import LiveModeShow from "./components/show/live-mode-show";
 import SimulateModeShow from "./components/show/simulate-mode-show";
+import { memo } from "react";
 
 const PositionManagementNode: React.FC<
 	NodeProps<PositionManagementNodeType>
@@ -33,12 +34,12 @@ const PositionManagementNode: React.FC<
 			id={id}
 			nodeName={nodeName}
 			icon={Play}
+			isHovered={data?.nodeConfig?.isHovered || false}
 			selected={selected}
-			selectedBorderColor="border-red-400"
 		>
 			{renderModeContent()}
 		</BaseNode>
 	);
 };
 
-export default PositionManagementNode;
+export default memo(PositionManagementNode);

@@ -26,10 +26,11 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ id, data }) => {
 	return (
 		<div className="space-y-2">
 			{/* 渲染所有的条件case */}
-			{backtestConfig.cases.map((caseItem) => (
+			{backtestConfig.cases.map((caseItem, index) => (
 				<IfElseCaseItem
 					key={caseItem.caseId}
 					caseItem={caseItem}
+					caseIndex={index + 1}
 					handleId={`${id}_output_${caseItem.caseId}`}
 				/>
 			))}

@@ -101,6 +101,8 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 		nodeName: string,
 	) => {
 		const currentLeftVariable = localCondition.left;
+
+		// 处理清空场景（用户取消选择节点）
 		if (!nodeId) {
 			if (!currentLeftVariable) {
 				return;
@@ -116,6 +118,7 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 			return;
 		}
 
+		// 检查是否实际改变（避免重复更新）
 		if (
 			currentLeftVariable?.varType === VarType.variable &&
 			currentLeftVariable.nodeId === nodeId &&
@@ -125,12 +128,8 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 			return;
 		}
 
-		const previousVarValueType = currentLeftVariable?.varValueType ?? null;
-		const resolvedVarValueType =
-			nodeType === NodeType.IndicatorNode || nodeType === NodeType.KlineNode
-				? VariableValueType.NUMBER
-				: previousVarValueType ?? VariableValueType.NUMBER;
-
+		// 创建新左变量（部分信息，等待用户选择具体变量）
+		// 保留之前的 varValueType，避免不必要的类型重置
 		const newLeftVariable: Variable = {
 			varType: VarType.variable,
 			nodeId: nodeId,
@@ -140,34 +139,21 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 			varConfigId: null,
 			varName: null,
 			varDisplayName: null,
-			varValueType: resolvedVarValueType,
+			varValueType: currentLeftVariable?.varValueType ?? VariableValueType.NUMBER,
 		};
 
-		const hasTypeChanged = previousVarValueType !== resolvedVarValueType;
-		const availableSymbols = hasTypeChanged
-			? getAvailableComparisonSymbols(resolvedVarValueType)
-			: null;
-		const nextComparisonSymbol =
-			hasTypeChanged && availableSymbols
-				? availableSymbols.length === 0
-					? null
-					: localCondition.comparisonSymbol &&
-						availableSymbols.includes(localCondition.comparisonSymbol)
-						? localCondition.comparisonSymbol
-						: availableSymbols[0]
-				: localCondition.comparisonSymbol;
-
+		// 创建新 condition - 保留右变量和比较符号
+		// 让 handleUpdateLeftVariable 来决定是否需要清空右变量
 		const newCondition: Condition = {
 			...localCondition,
 			left: newLeftVariable,
-			right: null,
-			comparisonSymbol: nextComparisonSymbol,
 		};
+
 		if (areConditionsEqual(localCondition, newCondition)) {
 			return;
 		}
+
 		setLocalCondition(newCondition);
-		// 执行回调，更新条件
 		onConditionChange(newCondition);
 	};
 	// 更新左变量
@@ -179,6 +165,9 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 		varValueType: VariableValueType,
 	) => {
 		const currentLeftVariable = localCondition.left;
+		const currentRightVariable = localCondition.right;
+
+		// 检查是否实际改变（避免重复更新）
 		if (
 			currentLeftVariable?.varType === VarType.variable &&
 			currentLeftVariable.varConfigId === variableId &&
@@ -190,16 +179,15 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 			return;
 		}
 
-		// 检查左变量类型是否发生变化
+		// 检查左变量类型是否发生变化（与右变量对比）
 		const hasTypeChanged =
-			localCondition.left?.varValueType !== varValueType;
-		
+			currentLeftVariable?.varValueType !== varValueType;
 
 		const newLeftVariable: Variable = {
 			varType: VarType.variable,
-			nodeId: localCondition.left?.nodeId ?? null,
-			nodeType: localCondition.left?.nodeType ?? null,
-			nodeName: localCondition.left?.nodeName ?? null,
+			nodeId: currentLeftVariable?.nodeId ?? null,
+			nodeType: currentLeftVariable?.nodeType ?? null,
+			nodeName: currentLeftVariable?.nodeName ?? null,
 			outputHandleId: handleId,
 			varConfigId: variableId,
 			varName: variable,
@@ -207,41 +195,65 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 			varValueType: varValueType,
 		};
 
-		// 如果类型发生变化，重置右变量为对应类型的常量默认值
-		let newRightVariable: Variable | Constant | null = localCondition.right;
+		// 智能处理右变量
+		let newRightVariable: Variable | Constant | null = currentRightVariable;
 		let newComparisonSymbol = localCondition.comparisonSymbol;
 
 		if (hasTypeChanged) {
-			// 根据新的左变量类型创建默认常量值
-			let defaultValue: string | number | boolean | string[];
-			switch (varValueType) {
-				case VariableValueType.STRING:
-					defaultValue = "";
-					break;
-				case VariableValueType.BOOLEAN:
-					defaultValue = true;
-					break;
-				case VariableValueType.TIME:
-					defaultValue = formatDate(new Date());
-					break;
-				case VariableValueType.ENUM:
-					defaultValue = [];
-					break;
-				case VariableValueType.PERCENTAGE:
-					defaultValue = 0;
-					break;
-				case VariableValueType.NUMBER:
-				default:
-					defaultValue = 0;
-					break;
-			}
+			// 类型改变，需要检查右变量是否兼容
+			if (currentRightVariable) {
+				const rightVarType = currentRightVariable.varValueType;
 
-			// 创建常量类型的右变量
-			newRightVariable = {
-				varType: VarType.constant,
-				varValueType: varValueType,
-				varValue: defaultValue,
-			};
+				if (rightVarType !== varValueType) {
+					// 右变量类型不匹配，需要重置
+					// 保持原有的 varType (constant/variable)，只更新 varValueType
+					if (currentRightVariable.varType === VarType.constant) {
+						// 原本是常量，重置为新类型的默认常量
+						let defaultValue: string | number | boolean | string[];
+						switch (varValueType) {
+							case VariableValueType.STRING:
+								defaultValue = "";
+								break;
+							case VariableValueType.BOOLEAN:
+								defaultValue = true;
+								break;
+							case VariableValueType.TIME:
+								defaultValue = formatDate(new Date());
+								break;
+							case VariableValueType.ENUM:
+								defaultValue = [];
+								break;
+							case VariableValueType.PERCENTAGE:
+								defaultValue = 0;
+								break;
+							case VariableValueType.NUMBER:
+							default:
+								defaultValue = 0;
+								break;
+						}
+
+						newRightVariable = {
+							varType: VarType.constant,
+							varValueType: varValueType,
+							varValue: defaultValue,
+						};
+					} else {
+						// 原本是变量，重置为新类型的空变量
+						newRightVariable = {
+							varType: VarType.variable,
+							nodeId: null,
+							nodeType: null,
+							nodeName: null,
+							outputHandleId: null,
+							varConfigId: null,
+							varName: null,
+							varDisplayName: null,
+							varValueType: varValueType,
+						};
+					}
+				}
+				// 如果 rightVarType === varValueType，保留原右变量
+			}
 
 			// 检查当前的比较符号是否适用于新的变量类型
 			const availableSymbols = getAvailableComparisonSymbols(varValueType);
@@ -255,6 +267,7 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 				newComparisonSymbol = availableSymbols[0];
 			}
 		}
+		// 如果类型未变，保持 newRightVariable = currentRightVariable
 
 		const newCondition: Condition = {
 			...localCondition,
@@ -268,7 +281,6 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 		}
 
 		setLocalCondition(newCondition);
-		// 执行回调，更新条件
 		onConditionChange(newCondition);
 	};
 
@@ -365,15 +377,98 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 			return;
 		}
 
+		const currentRightVariable = localCondition.right;
+		let newRightVariable = currentRightVariable;
+
+		// 检查是否切换到/从 isIn/isNotIn
+		const isNewSymbolArrayType =
+			comparisonSymbol === ComparisonSymbol.isIn ||
+			comparisonSymbol === ComparisonSymbol.isNotIn;
+
+		const isOldSymbolArrayType =
+			localCondition.comparisonSymbol === ComparisonSymbol.isIn ||
+			localCondition.comparisonSymbol === ComparisonSymbol.isNotIn;
+
+		const leftVarType =
+			localCondition.left?.varValueType || VariableValueType.NUMBER;
+
+		// 处理右变量的类型转换
+		if (currentRightVariable?.varType === VarType.constant) {
+			const currentConst = currentRightVariable as Constant;
+
+			// 情况1: 从非数组类型切换到数组类型
+			if (isNewSymbolArrayType && !isOldSymbolArrayType) {
+				// 切换到 isIn/isNotIn 时，清空右变量值，使用空数组
+				newRightVariable = {
+					varType: VarType.constant,
+					varValueType: VariableValueType.ENUM,
+					varValue: [],
+				};
+			}
+			// 情况2: 从数组类型切换到非数组类型
+			else if (!isNewSymbolArrayType && isOldSymbolArrayType) {
+				const currentValue = currentConst.varValue;
+				let singleValue: string | number | boolean | string[];
+
+				if (Array.isArray(currentValue) && currentValue.length > 0) {
+					singleValue = currentValue[0];
+				} else {
+					// 空数组，使用默认值
+					switch (leftVarType) {
+						case VariableValueType.STRING:
+							singleValue = "";
+							break;
+						case VariableValueType.BOOLEAN:
+							singleValue = true;
+							break;
+						case VariableValueType.TIME:
+							singleValue = formatDate(new Date());
+							break;
+						case VariableValueType.PERCENTAGE:
+							singleValue = 0;
+							break;
+						case VariableValueType.NUMBER:
+						default:
+							singleValue = 0;
+							break;
+					}
+				}
+
+				newRightVariable = {
+					varType: VarType.constant,
+					varValueType: leftVarType,
+					varValue: singleValue,
+				};
+			}
+			// 情况3: 切换到 isIn/isNotIn，但当前 varValueType 不是 ENUM
+			else if (isNewSymbolArrayType && currentConst.varValueType !== VariableValueType.ENUM) {
+				// 切换到 isIn/isNotIn 时，清空右变量值，使用空数组
+				newRightVariable = {
+					varType: VarType.constant,
+					varValueType: VariableValueType.ENUM,
+					varValue: [],
+				};
+			}
+		} else if (isNewSymbolArrayType && !currentRightVariable) {
+			// 情况4: 切换到 isIn/isNotIn，但右变量为 null，创建默认 ENUM 数组
+			newRightVariable = {
+				varType: VarType.constant,
+				varValueType: VariableValueType.ENUM,
+				varValue: [],
+			};
+		}
+
 		const newCondition = {
 			...localCondition,
 			comparisonSymbol: comparisonSymbol,
+			right: newRightVariable,
 		};
+
 		if (areConditionsEqual(localCondition, newCondition)) {
 			return;
 		}
+
 		setLocalCondition(newCondition);
-		// 执行回调，更新条件
 		onConditionChange(newCondition);
 	};
 
@@ -456,20 +551,30 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 
 		const currentRightVariable = localCondition.right;
 
+		// 判断是否是 isIn/isNotIn 模式
+		const isArrayMode =
+			localCondition.comparisonSymbol === ComparisonSymbol.isIn ||
+			localCondition.comparisonSymbol === ComparisonSymbol.isNotIn;
+
+		// 确定右变量的 varValueType
+		const rightVarValueType = isArrayMode
+			? VariableValueType.ENUM
+			: leftVarType;
+
 		// 将输入值转换为正确的类型
 		let typedValue: string | number | boolean | string[];
 
-		if (leftVarType === VariableValueType.ENUM) {
-			// ENUM 类型：value 应该是 JSON 字符串
+		if (isArrayMode || rightVarValueType === VariableValueType.ENUM) {
+			// ENUM 类型或 isIn/isNotIn 模式：value 应该是 JSON 字符串
 			try {
 				const parsed = typeof value === 'string' ? JSON.parse(value) : value;
 				typedValue = Array.isArray(parsed) ? parsed : [];
 			} catch {
 				typedValue = [];
 			}
-		} else if (leftVarType === VariableValueType.NUMBER || leftVarType === VariableValueType.PERCENTAGE) {
+		} else if (rightVarValueType === VariableValueType.NUMBER || rightVarValueType === VariableValueType.PERCENTAGE) {
 			typedValue = typeof value === 'number' ? value : Number(value) || 0;
-		} else if (leftVarType === VariableValueType.BOOLEAN) {
+		} else if (rightVarValueType === VariableValueType.BOOLEAN) {
 			typedValue = typeof value === 'boolean' ? value : value === 'true';
 		} else {
 			// STRING, TIME 等其他类型
@@ -480,7 +585,7 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 		if (currentRightVariable?.varType === VarType.constant) {
 			const currentConst = currentRightVariable as Constant;
 			if (
-				currentConst.varValueType === leftVarType &&
+				currentConst.varValueType === rightVarValueType &&
 				JSON.stringify(currentConst.varValue) === JSON.stringify(typedValue)
 			) {
 				return;
@@ -489,7 +594,7 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 
 		const newRightVariable: Constant = {
 			varType: VarType.constant,
-			varValueType: leftVarType,
+			varValueType: rightVarValueType,
 			varValue: typedValue,
 		};
 
@@ -580,7 +685,7 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 	};
 
 	return (
-		<div className="flex flex-row justify-between px-2 rounded-md bg-gray-100 w-full">
+			<div className="flex flex-row justify-between px-2 py-2 rounded-md bg-gray-100 w-full">
 			<div className="flex flex-col flex-1">
 				<div className="flex flex-col gap-1 p-2 min-h-16">
 					<div className="flex flex-row justify-between">
@@ -604,7 +709,7 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 						onVariableChange={handleUpdateLeftVariable}
 					/>
 				</div>
-				<div className="flex flex-col gap-1 px-2 min-h-16">
+						<div className="flex flex-col gap-1 p-2 min-h-16">
 					<div className="text-sm font-bold text-muted-foreground text-left">
 						{t("ifElseNode.operator")}
 					</div>
@@ -626,7 +731,7 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 					</ButtonGroup>
 				</div>
 				{needsRightVariable && (
-					<div className="flex flex-col gap-1 px-2 min-h-16">
+					<div className="flex flex-col gap-1 p-2 min-h-16">
 						<div className="text-sm font-bold text-muted-foreground text-left">
 							{t("ifElseNode.rightVariable")}
 						</div>
@@ -649,7 +754,14 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 								className="w-full"
 								value={getRightConstantValue()}
 								onValueChange={handleUpdateRightConstantValue}
-								valueType={leftVarValueType || VariableValueType.NUMBER}
+								valueType={
+									localCondition.comparisonSymbol === ComparisonSymbol.isIn ||
+									localCondition.comparisonSymbol === ComparisonSymbol.isNotIn
+										? VariableValueType.ENUM
+										: leftVarValueType || VariableValueType.NUMBER
+								}
+								comparisonSymbol={localCondition.comparisonSymbol}
+								leftVarValueType={leftVarValueType}
 							/>
 						)}
 					</div>

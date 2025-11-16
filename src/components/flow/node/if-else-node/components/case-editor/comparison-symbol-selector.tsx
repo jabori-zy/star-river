@@ -7,6 +7,7 @@ import {
 	getComparisonSymbolLabel,
 } from "@/types/node/if-else-node";
 import type { VariableValueType } from "@/types/variable";
+import { useTranslation } from "react-i18next";
 
 interface ComparisonSymbolSelectorProps {
 	className?: string;
@@ -23,7 +24,7 @@ const ComparisonSymbolSelector: React.FC<ComparisonSymbolSelectorProps> = ({
 }) => {
 	const [localComparisonSymbol, setLocalComparisonSymbol] =
 		useState<ComparisonSymbol>(comparisonSymbol);
-
+	const { t } = useTranslation();
 	// 使用 ref 跟踪上一次的左变量类型
 	const prevLeftVarValueType = useRef<VariableValueType | null | undefined>(
 		undefined,
@@ -93,7 +94,7 @@ const ComparisonSymbolSelector: React.FC<ComparisonSymbolSelectorProps> = ({
 		>
 			{availableSymbols.map((symbol) => (
 				<SelectItem key={symbol} value={symbol}>
-					{getComparisonSymbolLabel(symbol)}
+					{getComparisonSymbolLabel(symbol, t)}
 				</SelectItem>
 			))}
 		</Selector>

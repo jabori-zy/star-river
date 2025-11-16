@@ -9,6 +9,7 @@ import type { IndicatorNode } from "./indicator-node";
 import type { IfElseNode } from "./if-else-node";
 import type { PositionManagementNode } from "./position-management-node";
 import type { VariableNode } from "./variable-node";
+import type { VariableNodeData } from "./variable-node";
 
 export type NodeId = string;
 export type NodeName = string;
@@ -74,13 +75,31 @@ export const isDefaultOutputHandleId = (handleId: string) => {
 	return handleId.endsWith("_default_output");
 };
 
+
+
+export type NodeDataBase = {
+	strategyId: number;
+	strategyName: string;
+	nodeName: string;
+	nodeConfig: {
+		isHovered?: boolean; // is hovered
+	}
+	
+
+}
+
+
+
+
+
 // 所有节点的数据类型的联合类型
 export type NodeData =
 	| StartNodeData
 	| KlineNodeData
 	| IndicatorNodeData
 	| IfElseNodeData
-	| PositionManagementNodeData;
+	| PositionManagementNodeData
+	| VariableNodeData;
 
 
 export type StrategyFlowNode = StartNode | KlineNode | IndicatorNode | IfElseNode | PositionManagementNode | VariableNode;
