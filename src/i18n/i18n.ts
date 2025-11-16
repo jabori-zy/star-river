@@ -1,69 +1,92 @@
 import i18n from "i18next";
+import { camelCase } from "lodash-es";
 import { initReactI18next } from "react-i18next";
 import { SupportLanguage } from "@/types/system";
+
+// 静态导入 en-US 资源作为默认
+import enUSCommon from "./en-US/common";
+import enUSStrategy from "./en-US/strategy";
+import enUSNode from "./en-US/node";
+import enUSIfElseNode from "./en-US/if-else-node";
+import enUSVariableNode from "./en-US/variable-node";
 import enUSIndicator from "./en-US/indicator";
 import enUSMarket from "./en-US/market";
-import enUSNode from "./en-US/node";
 import enUSSetting from "./en-US/setting";
-import enUSStrategy from "./en-US/strategy";
-import zhCNIndicator from "./zh-CN/indicator";
-import zhCNMarket from "./zh-CN/market";
-import zhCNNode from "./zh-CN/node";
-// 导入所有语言模块
-import zhCNSetting from "./zh-CN/setting";
-import zhCNStrategy from "./zh-CN/strategy";
-import enUSCommon from "./en-US/common";
-import zhCNCommon from "./zh-CN/common";
-// 语言模块映射
-const languageModules = {
-	[SupportLanguage.ZH_CN]: {
-		setting: zhCNSetting,
-		strategy: zhCNStrategy,
-		indicator: zhCNIndicator,
-		market: zhCNMarket,
-		node: zhCNNode,
-		common: zhCNCommon,
-	},
-	[SupportLanguage.EN_US]: {
-		setting: enUSSetting,
-		strategy: enUSStrategy,
-		indicator: enUSIndicator,
-		market: enUSMarket,
-		node: enUSNode,
-		common: enUSCommon,
-	},
+
+// 定义所有命名空间(模块名)
+const NAMESPACES = [
+	"common",
+	"strategy",
+	"node",
+	"if-else-node",
+	"variable-node",
+	"indicator",
+	"market",
+	"setting",
+];
+
+// 动态导入语言资源,带容错机制
+const requireSilent = async (lang: string, namespace: string) => {
+	let res;
+	try {
+		res = (await import(`./${lang}/${namespace}.ts`)).default;
+	} catch {
+		// 如果目标语言不存在,回退到 en-US
+		res = (await import(`./en-US/${namespace}.ts`)).default;
+	}
+	return res;
 };
 
-// 构建语言资源的函数
-const buildLanguageResource = (
-	modules: Record<string, Record<string, any>>,
-) => ({
-	translation: {
-		...Object.values(modules).reduce(
-			(acc, module) => ({ ...acc, ...module }),
-			{},
-		),
-	},
-});
-
-// 构建所有语言资源
-const resources = Object.entries(languageModules).reduce(
-	(acc, [lang, modules]) => {
-		acc[lang] = buildLanguageResource(modules);
+// 异步加载指定语言的所有资源
+export const loadLangResources = async (lang: string) => {
+	const modules = await Promise.all(
+		NAMESPACES.map((ns) => requireSilent(lang, ns)),
+	);
+	const resources = modules.reduce((acc, mod, index) => {
+		acc[camelCase(NAMESPACES[index])] = mod;
 		return acc;
-	},
-	{} as Record<string, { translation: Record<string, any> }>,
-);
+	}, {} as Record<string, any>);
+	return resources;
+};
 
-i18n.use(initReactI18next).init({
-	resources,
-	lng: undefined, // 不设置初始语言，等待从数据库加载
-	fallbackLng: SupportLanguage.ZH_CN,
-	interpolation: {
-		escapeValue: false,
-	},
-});
+// 初始化时使用静态导入的 en-US 资源
+const getInitialTranslations = () => {
+	return {
+		[SupportLanguage.EN_US]: {
+			translation: {
+				common: enUSCommon,
+				strategy: enUSStrategy,
+				node: enUSNode,
+				ifElseNode: enUSIfElseNode,
+				variableNode: enUSVariableNode,
+				indicator: enUSIndicator,
+				market: enUSMarket,
+				setting: enUSSetting,
+			},
+		},
+	};
+};
 
-export const changeLanguage = i18n.changeLanguage;
+// 初始化 i18n
+if (!i18n.isInitialized) {
+	i18n.use(initReactI18next).init({
+		lng: undefined, // 不设置初始语言,等待从数据库加载
+		fallbackLng: SupportLanguage.EN_US,
+		resources: getInitialTranslations(),
+		interpolation: {
+			escapeValue: false,
+		},
+	});
+}
+
+// 切换语言(按需加载)
+export const changeLanguage = async (lng?: string) => {
+	if (!lng) return;
+	if (!i18n.hasResourceBundle(lng, "translation")) {
+		const resource = await loadLangResources(lng);
+		i18n.addResourceBundle(lng, "translation", resource, true, true);
+	}
+	await i18n.changeLanguage(lng);
+};
 
 export default i18n;

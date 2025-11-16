@@ -76,7 +76,7 @@ export default function StrategyFlow({ strategyId, strategy }: { strategyId: num
 		else {
 			setTimeout(() => {
 
-				const startNodeData = createDefaultStartNodeData(strategyId, strategy.name, t("node.common.startNode"));
+				const startNodeData = createDefaultStartNodeData(strategyId, strategy.name, t("node.startNode"));
 				const startNode: Node = {
 					id: "start_node",
 					type: "startNode",

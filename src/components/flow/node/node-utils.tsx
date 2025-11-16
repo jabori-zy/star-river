@@ -401,14 +401,14 @@ export const formatDate = (date: Date | undefined): string => {
 export const getNodeTypeLabel = (nodeType: NodeType | null, t: (key: string) => string) => {
 	switch (nodeType) {
 		case NodeType.KlineNode:
-			return t("common.kline");
+			return t("node.kline");
 		case NodeType.IndicatorNode:
-			return t("common.indicator");
+			return t("node.indicator");
 		case NodeType.VariableNode:
-			return t("common.variable");
+			return t("node.variable");
 		case NodeType.FuturesOrderNode:
-			return t("common.order");
+			return t("node.order");
 		default:
-			return t("common.config");
+			return t("ifElseNode.config");
 	}
 };

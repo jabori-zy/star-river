@@ -115,13 +115,13 @@ export const generateSchedulePrefix = (
 		// 每天: 每天 {}:{} (周一，周二...)
 		const { time, daysOfWeek } = timerConfig;
 		const weekdayMap: Record<number, string> = {
-			1: t("weekdayAbbr.monday"),
-			2: t("weekdayAbbr.tuesday"),
-			3: t("weekdayAbbr.wednesday"),
-			4: t("weekdayAbbr.thursday"),
-			5: t("weekdayAbbr.friday"),
-			6: t("weekdayAbbr.saturday"),
-			7: t("weekdayAbbr.sunday"),
+			1: t("common.weekdayAbbr.monday"),
+			2: t("common.weekdayAbbr.tuesday"),
+			3: t("common.weekdayAbbr.wednesday"),
+			4: t("common.weekdayAbbr.thursday"),
+			5: t("common.weekdayAbbr.friday"),
+			6: t("common.weekdayAbbr.saturday"),
+			7: t("common.weekdayAbbr.sunday"),
 		};
 
 		let prefix = t("variableNode.hint.scheduleDaily", { time: time });
@@ -139,13 +139,13 @@ export const generateSchedulePrefix = (
 		// 每周: 每周{三} {}:{}
 		const { time, dayOfWeek } = timerConfig;
 		const weekdayMap: Record<number, string> = {
-			1: t("weekday.monday"),
-			2: t("weekday.tuesday"),
-			3: t("weekday.wednesday"),
-			4: t("weekday.thursday"),
-			5: t("weekday.friday"),
-			6: t("weekday.saturday"),
-			7: t("weekday.sunday"),
+			1: t("common.weekday.monday"),
+			2: t("common.weekday.tuesday"),
+			3: t("common.weekday.wednesday"),
+			4: t("common.weekday.thursday"),
+			5: t("common.weekday.friday"),
+			6: t("common.weekday.saturday"),
+			7: t("common.weekday.sunday"),
 		};
 		const weekdayName = weekdayMap[dayOfWeek] || "";
 		return t("variableNode.hint.scheduleWeekly", {

@@ -28,7 +28,7 @@ const translation = {
     cancel: "取消",
     next: "下一步",
     previous: "上一步",
-    confirm: "确认",
+    confirm: "确定",
 }
 
 export default translation;
