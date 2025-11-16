@@ -4,9 +4,10 @@ import { OrderHandleItem } from "../order-handle-item";
 interface SimulateModeShowProps {
 	id: string;
 	data: FuturesOrderNodeData;
+	handleColor: string;
 }
 
-const SimulateModeShow: React.FC<SimulateModeShowProps> = ({ data }) => {
+const SimulateModeShow: React.FC<SimulateModeShowProps> = ({ id,data, handleColor }) => {
 	// 获取模拟模式配置
 	const simulateConfig = data.simulateConfig;
 
@@ -37,6 +38,7 @@ const SimulateModeShow: React.FC<SimulateModeShowProps> = ({ data }) => {
 					key={config.orderConfigId}
 					id={id}
 					orderConfig={config}
+					handleColor={handleColor}
 				/>
 			))}
 		</div>

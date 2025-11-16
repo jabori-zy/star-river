@@ -4,9 +4,10 @@ import { OrderHandleItem } from "../order-handle-item";
 interface BacktestModeShowProps {
 	id: string;
 	data: FuturesOrderNodeData;
+	handleColor: string;
 }
 
-const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ id, data }) => {
+const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ id, data, handleColor }) => {
 	// 获取回测模式配置
 	const backtestConfig = data.backtestConfig;
 
@@ -38,6 +39,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ id, data }) => {
 					id={id}
 					key={config.orderConfigId}
 					orderConfig={config}
+					handleColor={handleColor}
 				/>
 			))}
 		</div>

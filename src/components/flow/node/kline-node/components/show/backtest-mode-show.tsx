@@ -5,10 +5,12 @@ import type { KlineNodeBacktestConfig } from "@/types/node/kline-node";
 import { SymbolItem } from "./kline-config-show-item";
 
 interface BacktestModeShowProps {
+	handleColor: string;
 	backtestConfig: KlineNodeBacktestConfig;
 }
 
 const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
+	handleColor,
 	backtestConfig,
 }) => {
 	const selectedAccount = backtestConfig?.exchangeModeConfig?.selectedAccount;
@@ -42,6 +44,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 								<SymbolItem
 									key={`${symbol.symbol}-${symbol.interval}-${index}`}
 									symbol={symbol}
+									handleColor={handleColor}
 								/>
 							))}
 						</div>

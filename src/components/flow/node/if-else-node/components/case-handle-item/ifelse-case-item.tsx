@@ -28,6 +28,7 @@ interface IfElseCaseItemProps {
 	caseItem: CaseItem;
 	caseIndex?: number; // 显示用的顺序索引（1, 2, 3...），用于 UI 显示
 	handleId: string;
+	handleColor: string;
 }
 
 const ConditionItem = ({
@@ -119,7 +120,7 @@ const ConditionItem = ({
 	);
 };
 
-export function IfElseCaseItem({ caseItem, caseIndex, handleId }: IfElseCaseItemProps) {
+export function IfElseCaseItem({ caseItem, caseIndex, handleId, handleColor }: IfElseCaseItemProps) {
 	// 使用 caseIndex 来确定显示的编号和类型标签，如果没有则回退到 caseId
 	const displayIndex = caseIndex ?? caseItem.caseId;
 	const caseTypeLabel = getCaseTypeLabel(displayIndex);
@@ -138,7 +139,7 @@ export function IfElseCaseItem({ caseItem, caseIndex, handleId }: IfElseCaseItem
 					id={handleId}
 					type="source"
 					position={Position.Right}
-					handleColor="!bg-blue-400"
+					handleColor={handleColor}
 					className="translate-x-2 -translate-y-2.5"
 				/>
 			</div>

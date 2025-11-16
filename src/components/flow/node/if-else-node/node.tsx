@@ -1,12 +1,11 @@
 import { type NodeProps, Position } from "@xyflow/react";
-import { Play } from "lucide-react";
 import { memo, useEffect } from "react";
 import type { BaseHandleProps } from "@/components/flow/base/BaseHandle";
 import BaseNode from "@/components/flow/base/BaseNode";
 import { useBacktestConfig } from "@/hooks/node-config/if-else-node";
 import useTradingModeStore from "@/store/use-trading-mode-store";
 import type { IfElseNode as IfElseNodeType } from "@/types/node/if-else-node";
-import { getNodeDefaultInputHandleId, NodeType } from "@/types/node/index";
+import { getNodeDefaultInputHandleId, getNodeIconName, getNodeDefaultColor, NodeType } from "@/types/node/index";
 import { TradeMode } from "@/types/strategy";
 import BacktestModeShow from "./components/node-show/backtest-mode-show";
 import LiveModeShow from "./components/node-show/live-mode-show";
@@ -27,7 +26,7 @@ const IfElseNode: React.FC<NodeProps<IfElseNodeType>> = ({
 	const { backtestConfig, resetCases: resetBacktestCases, resetConditionVariable, updateConditionVariableMetadata } = useBacktestConfig({ id });
 
 	const currentNodeData = getNodeData(id) as IfElseNodeData;
-
+	const handleColor = currentNodeData?.nodeConfig?.handleColor || getNodeDefaultColor(NodeType.IfElseNode);
 	const sourceNodes = getSourceNodes(id);
 
 	useEffect(() => {
@@ -253,21 +252,23 @@ const IfElseNode: React.FC<NodeProps<IfElseNodeType>> = ({
 		type: "target",
 		position: Position.Left,
 		id: getNodeDefaultInputHandleId(id, NodeType.IfElseNode),
-		handleColor: "!bg-red-400",
+		handleColor: handleColor,
 	};
 
 	return (
 		<BaseNode
 			id={id}
 			nodeName={currentNodeData?.nodeName || "if else node"}
-			icon={Play}
+			iconName={currentNodeData?.nodeConfig?.iconName || getNodeIconName(NodeType.IfElseNode)}
+			iconBackgroundColor={currentNodeData?.nodeConfig?.iconBackgroundColor || getNodeDefaultColor(NodeType.IfElseNode)}
+			borderColor={currentNodeData?.nodeConfig?.borderColor || getNodeDefaultColor(NodeType.IfElseNode)}
 			isHovered={currentNodeData?.nodeConfig?.isHovered || false}
 			selected={selected}
 			defaultInputHandle={defaultInputHandle}
 			className="!max-w-none"
 		>
 			{tradingMode === TradeMode.BACKTEST && (
-				<BacktestModeShow id={id} data={currentNodeData} />
+				<BacktestModeShow id={id} data={currentNodeData} handleColor={handleColor} />
 			)}
 			{tradingMode === TradeMode.LIVE && <LiveModeShow id={id} data={currentNodeData} />}
 		</BaseNode>

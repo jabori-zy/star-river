@@ -26,11 +26,13 @@ import { useTranslation } from "react-i18next";
 interface ResetVarHandleItemProps {
 	id: string;
 	variableConfig: ResetVariableConfig;
+	handleColor: string;
 }
 
 export const ResetVarHandleItem: React.FC<ResetVarHandleItemProps> = ({
 	id,
 	variableConfig,
+	handleColor,
 }) => {
 	const { t } = useTranslation();
 	const effectiveTriggerType = getEffectiveTriggerType(variableConfig) ?? "condition";
@@ -61,7 +63,7 @@ export const ResetVarHandleItem: React.FC<ResetVarHandleItemProps> = ({
 					id={`${id}_input_${variableConfig.configId}`}
 					type="target"
 					position={Position.Left}
-					handleColor="!bg-black"
+					handleColor={handleColor}
 					className="-translate-x-2 -translate-y-3"
 				/>
 			</div>
@@ -108,7 +110,7 @@ export const ResetVarHandleItem: React.FC<ResetVarHandleItemProps> = ({
 				id={`${id}_output_${variableConfig.configId}`}
 				type="source"
 				position={Position.Right}
-				handleColor="!bg-black"
+				handleColor={handleColor}
 				className="translate-x-2 translate-y-7"
 			/>
 		</div>

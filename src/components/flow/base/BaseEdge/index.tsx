@@ -16,7 +16,7 @@ const BaseEdge: React.FC<EdgeProps> = ({ selected, ...props }) => {
 	// 根据连接节点的悬停状态和选中状态计算边的颜色
 	const stroke = React.useMemo(() => {
 		if (selected) {
-			return "#3b82f6"; // 选中时蓝色
+			return "#101112"; // 选中时黑色
 		}
 
 		return "#9ca3af"; // 默认灰色

@@ -21,11 +21,13 @@ import {
 interface OrderHandleItemProps {
 	id: string;
 	orderConfig: FuturesOrderConfig;
+	handleColor: string;
 }
 
 const OrderHandleItem: React.FC<OrderHandleItemProps> = ({
 	id,
 	orderConfig,
+	handleColor,
 }) => {
 	const isMarketOrder =
 		orderConfig.orderType === OrderType.MARKET ||
@@ -53,7 +55,7 @@ const OrderHandleItem: React.FC<OrderHandleItemProps> = ({
 						id={`${id}_input_${orderConfig.orderConfigId}`}
 						type="target"
 						position={Position.Left}
-						handleColor="!bg-black-400"
+						handleColor={handleColor}
 						className="-translate-x-2 -translate-y-3"
 					/>
 				) : (
@@ -61,7 +63,7 @@ const OrderHandleItem: React.FC<OrderHandleItemProps> = ({
 						id={`${id}_input_${orderConfig.orderConfigId}`}
 						type="target"
 						position={Position.Left}
-						handleColor="!bg-red-500"
+						handleColor={handleColor}
 						className="-translate-x-2 -translate-y-3"
 					/>
 				)}

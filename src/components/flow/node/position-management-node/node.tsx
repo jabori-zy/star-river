@@ -1,5 +1,4 @@
 import type { NodeProps } from "@xyflow/react";
-import { Play } from "lucide-react";
 import BaseNode from "@/components/flow/base/BaseNode";
 import useTradingModeStore from "@/store/use-trading-mode-store";
 import type { PositionManagementNode as PositionManagementNodeType } from "@/types/node/position-management-node";
@@ -8,6 +7,7 @@ import BacktestModeShow from "./components/show/backtest-mode-show";
 import LiveModeShow from "./components/show/live-mode-show";
 import SimulateModeShow from "./components/show/simulate-mode-show";
 import { memo } from "react";
+import { getNodeIconName, getNodeDefaultColor, NodeType } from "@/types/node/index";
 
 const PositionManagementNode: React.FC<
 	NodeProps<PositionManagementNodeType>
@@ -33,7 +33,9 @@ const PositionManagementNode: React.FC<
 		<BaseNode
 			id={id}
 			nodeName={nodeName}
-			icon={Play}
+			iconName={data?.nodeConfig?.iconName || getNodeIconName(NodeType.PositionManagementNode)}
+			iconBackgroundColor={data?.nodeConfig?.iconBackgroundColor || getNodeDefaultColor(NodeType.PositionManagementNode)}
+			borderColor={data?.nodeConfig?.borderColor || getNodeDefaultColor(NodeType.PositionManagementNode)}
 			isHovered={data?.nodeConfig?.isHovered || false}
 			selected={selected}
 		>

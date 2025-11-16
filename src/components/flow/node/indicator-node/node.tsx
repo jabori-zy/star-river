@@ -1,5 +1,4 @@
 import { type NodeProps, Position } from "@xyflow/react";
-import { Play } from "lucide-react";
 import { memo } from "react";
 import type { BaseHandleProps } from "@/components/flow/base/BaseHandle";
 import BaseNode from "@/components/flow/base/BaseNode";
@@ -7,6 +6,8 @@ import useTradingModeStore from "@/store/use-trading-mode-store";
 import {
 	getNodeDefaultInputHandleId,
 	getNodeDefaultOutputHandleId,
+	getNodeIconName,
+	getNodeDefaultColor,
 	NodeType,
 } from "@/types/node/index";
 import type { IndicatorNode as IndicatorNodeType, IndicatorNodeData } from "@/types/node/indicator-node";
@@ -27,6 +28,7 @@ const IndicatorNode: React.FC<NodeProps<IndicatorNodeType>> = ({
 
 	const startNodeData = getStartNodeData();
 	const currentNodeData = getNodeData(id) as IndicatorNodeData;
+	const handleColor = currentNodeData?.nodeConfig?.handleColor || getNodeDefaultColor(NodeType.IndicatorNode);
 
 	// 同步源节点的 Symbol 配置
 	useSyncSourceNode({ id, currentNodeData });
@@ -39,21 +41,23 @@ const IndicatorNode: React.FC<NodeProps<IndicatorNodeType>> = ({
 		id: getNodeDefaultInputHandleId(id, NodeType.IndicatorNode),
 		type: "target",
 		position: Position.Left,
-		handleColor: "!bg-red-400",
+		handleColor: handleColor,
 	};
 
 	const defaultOutputHandle: BaseHandleProps = {
 		id: getNodeDefaultOutputHandleId(id, NodeType.IndicatorNode),
 		type: "source",
 		position: Position.Right,
-		handleColor: "!bg-red-400",
+		handleColor: handleColor,
 	};
 
 	return (
 		<BaseNode
 			id={id}
 			nodeName={currentNodeData?.nodeName || "indicator node"}
-			icon={Play}
+			iconName={currentNodeData?.nodeConfig?.iconName || getNodeIconName(NodeType.IndicatorNode)}
+			iconBackgroundColor={currentNodeData?.nodeConfig?.iconBackgroundColor || getNodeDefaultColor(NodeType.IndicatorNode)}
+			borderColor={currentNodeData?.nodeConfig?.borderColor || getNodeDefaultColor(NodeType.IndicatorNode)}
 			isHovered={currentNodeData?.nodeConfig?.isHovered || false}
 			selected={selected}
 			defaultInputHandle={defaultInputHandle}
@@ -61,7 +65,7 @@ const IndicatorNode: React.FC<NodeProps<IndicatorNodeType>> = ({
 		>
 			{tradingMode === TradeMode.LIVE && <LiveModeShow id={id} data={currentNodeData} />}
 			{tradingMode === TradeMode.BACKTEST && (
-				<BacktestModeShow id={id} data={currentNodeData} />
+				<BacktestModeShow id={id} data={currentNodeData} handleColor={handleColor} />
 			)}
 		</BaseNode>
 	);

@@ -4,9 +4,10 @@ import { ElseCaseItem, IfElseCaseItem } from "../case-handle-item";
 interface BacktestModeShowProps {
 	id: string;
 	data: IfElseNodeData;
+	handleColor: string;
 }
 
-const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ id, data }) => {
+const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ id, data, handleColor }) => {
 	// 获取回测模式配置
 	const backtestConfig = data.backtestConfig;
 
@@ -32,11 +33,12 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ id, data }) => {
 					caseItem={caseItem}
 					caseIndex={index + 1}
 					handleId={`${id}_output_${caseItem.caseId}`}
+					handleColor={handleColor}
 				/>
 			))}
 
 			{/* 固定的ELSE分支 */}
-			<ElseCaseItem handleId={`${id}_else_output`} />
+			<ElseCaseItem handleId={`${id}_else_output`} handleColor={handleColor} />
 		</div>
 	);
 };

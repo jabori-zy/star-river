@@ -7,6 +7,7 @@ import { IndicatorConfigShowItem } from "./indicator-config-show-item";
 interface BacktestModeShowProps {
 	id: string;
 	data: IndicatorNodeData;
+	handleColor: string;
 }
 
 // 获取时间周期的中文标签
@@ -24,7 +25,7 @@ const getIntervalLabel = (interval: string) => {
 	return intervalMap[interval] || interval;
 };
 
-const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ data }) => {
+const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ data, handleColor }) => {
 	const exchangeModeConfig = data?.backtestConfig?.exchangeModeConfig;
 
 	return (
@@ -55,6 +56,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ data }) => {
 									key={indicator.outputHandleId}
 									indicator={indicator}
 									handleId={indicator.outputHandleId}
+									handleColor={handleColor}
 								/>
 							))}
 						</div>

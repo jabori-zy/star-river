@@ -5,9 +5,10 @@ import { VariableHandleItem } from "../variable-handle-item/index";
 interface BacktestModeShowProps {
 	id: string;
 	data: VariableNodeData;
+	handleColor: string;
 }
 
-const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ id, data }) => {
+const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ id, data, handleColor }) => {
 	// 获取回测模式配置
 	const backtestConfig = data.backtestConfig;
 
@@ -32,6 +33,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ id, data }) => {
 					key={variableConfig.configId}
 					id={id}
 					variableConfig={variableConfig}
+					handleColor={handleColor}
 				/>
 			))}
 		</div>

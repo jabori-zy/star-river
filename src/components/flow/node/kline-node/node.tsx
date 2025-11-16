@@ -1,5 +1,4 @@
 import { type NodeProps, Position } from "@xyflow/react";
-import { Play } from "lucide-react";
 import { memo, useEffect } from "react";
 import type { BaseHandleProps } from "@/components/flow/base/BaseHandle";
 import BaseNode from "@/components/flow/base/BaseNode";
@@ -7,6 +6,8 @@ import useTradingModeStore from "@/store/use-trading-mode-store";
 import {
 	getNodeDefaultInputHandleId,
 	getNodeDefaultOutputHandleId,
+	getNodeIconName,
+	getNodeDefaultColor,
 	NodeType,
 } from "@/types/node/index";
 import type {
@@ -37,6 +38,8 @@ const KlineNode: React.FC<NodeProps<KlineNodeType>> = ({
 	// 回测配置
 	const backtestConfig = currentNodeData?.backtestConfig || ({} as KlineNodeBacktestConfig);
 
+	const handleColor = currentNodeData?.nodeConfig?.handleColor || getNodeDefaultColor(NodeType.KlineNode);
+
 
 	const { updateTimeRange } = useBacktestConfig({ id });
 
@@ -53,7 +56,7 @@ const KlineNode: React.FC<NodeProps<KlineNodeType>> = ({
 		id: getNodeDefaultInputHandleId(id, NodeType.KlineNode),
 		type: "target",
 		position: Position.Left,
-		handleColor: "!bg-red-400",
+		handleColor: currentNodeData?.nodeConfig?.handleColor || getNodeDefaultColor(NodeType.KlineNode),
 	};
 
 	// 默认输出
@@ -61,14 +64,16 @@ const KlineNode: React.FC<NodeProps<KlineNodeType>> = ({
 		id: getNodeDefaultOutputHandleId(id, NodeType.KlineNode),
 		type: "source",
 		position: Position.Right,
-		handleColor: "!bg-red-400",
+		handleColor: currentNodeData?.nodeConfig?.handleColor || getNodeDefaultColor(NodeType.KlineNode),
 	};
 
 	return (
 		<BaseNode
 			id={id}
 			nodeName={currentNodeData?.nodeName || "kline node"}
-			icon={Play}
+			iconName={currentNodeData?.nodeConfig?.iconName || getNodeIconName(NodeType.KlineNode)}
+			iconBackgroundColor={currentNodeData?.nodeConfig?.iconBackgroundColor || getNodeDefaultColor(NodeType.KlineNode)}
+			borderColor={currentNodeData?.nodeConfig?.borderColor || getNodeDefaultColor(NodeType.KlineNode)}
 			isHovered={currentNodeData?.nodeConfig?.isHovered || false}
 			selected={selected}
 			defaultOutputHandle={defaultOutputHandle}
@@ -82,7 +87,7 @@ const KlineNode: React.FC<NodeProps<KlineNodeType>> = ({
 			)}
 			{/* 回测模式 */}
 			{tradingMode === TradeMode.BACKTEST && (
-				<BacktestModeShow backtestConfig={backtestConfig} />
+				<BacktestModeShow handleColor={handleColor} backtestConfig={backtestConfig} />
 			)}
 		</BaseNode>
 	);

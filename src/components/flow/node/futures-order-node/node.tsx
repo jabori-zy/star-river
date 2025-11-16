@@ -1,5 +1,4 @@
 import type { NodeProps } from "@xyflow/react";
-import { Play } from "lucide-react";
 import { memo, useEffect } from "react";
 import BaseNode from "@/components/flow/base/BaseNode";
 import { useBacktestConfig } from "@/hooks/node-config/futures-order-node";
@@ -10,14 +9,20 @@ import { TradeMode } from "@/types/strategy";
 import BacktestModeShow from "./components/node-show/backtest-mode-show";
 import LiveModeShow from "./components/node-show/live-mode-show";
 import SimulateModeShow from "./components/node-show/simulate-mode-show";
+import { getNodeIconName, getNodeDefaultColor, NodeType } from "@/types/node/index";
+import type { FuturesOrderNodeData } from "@/types/node/futures-order-node";
 
 const FuturesOrderNode: React.FC<NodeProps<FuturesOrderNodeType>> = ({
 	id,
-	data,
 	selected,
 }) => {
-	const nodeName = data?.nodeName || "期货订单节点";
-
+	const { getNodeData } = useStrategyWorkflow();
+	const currentNodeData = getNodeData(id) as FuturesOrderNodeData;
+	const nodeName = currentNodeData?.nodeName || "期货订单节点";
+	const handleColor = currentNodeData?.nodeConfig?.handleColor || getNodeDefaultColor(NodeType.FuturesOrderNode);
+	const iconName = currentNodeData?.nodeConfig?.iconName || getNodeIconName(NodeType.FuturesOrderNode);
+	const iconBackgroundColor = currentNodeData?.nodeConfig?.iconBackgroundColor || getNodeDefaultColor(NodeType.FuturesOrderNode);
+	const borderColor = currentNodeData?.nodeConfig?.borderColor || getNodeDefaultColor(NodeType.FuturesOrderNode);
 	// 获取当前的交易模式
 	const { tradingMode } = useTradingModeStore();
 
@@ -40,22 +45,24 @@ const FuturesOrderNode: React.FC<NodeProps<FuturesOrderNodeType>> = ({
 	const renderModeShow = () => {
 		switch (tradingMode) {
 			case TradeMode.LIVE:
-				return <LiveModeShow id={id} data={data} />;
+				return <LiveModeShow id={id} data={currentNodeData} />;
 			case TradeMode.SIMULATE:
-				return <SimulateModeShow id={id} data={data} />;
+				return <SimulateModeShow id={id} data={currentNodeData} handleColor={handleColor} />;
 			case TradeMode.BACKTEST:
 			default:
-				return <BacktestModeShow id={id} data={data} />;
+				return <BacktestModeShow id={id} data={currentNodeData} handleColor={handleColor} />;
 		}
 	};
 
 	return (
-		<BaseNode 
-			id={id} 
-			nodeName={nodeName} 
-			icon={Play} 
-			selected={selected} 
-			isHovered={data?.nodeConfig?.isHovered || false}
+		<BaseNode
+			id={id}
+			nodeName={nodeName}
+			iconName={iconName}
+			iconBackgroundColor={iconBackgroundColor}
+			borderColor={borderColor}
+			selected={selected}
+			isHovered={currentNodeData?.nodeConfig?.isHovered || false}
 		>
 			{renderModeShow()}
 		</BaseNode>

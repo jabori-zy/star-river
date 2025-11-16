@@ -6,11 +6,8 @@ import {
 	Background,
 	type Connection,
 	type Edge,
-	type EdgeChange,
 	MiniMap,
 	type Node,
-	type NodeChange,
-	type NodeSelectionChange,
 	type OnNodesDelete,
 	NodeToolbar,
 	type OnConnect,
@@ -35,7 +32,7 @@ import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 import { useDndNodeStore } from "@/store/use-dnd-node-store";
 import type { Strategy } from "@/types/strategy";
 import { createDefaultStartNodeData } from "@/hooks/node-config/start-node";
-import { NodeData, NodeType, StrategyFlowNode } from "@/types/node";
+import { NodeType } from "@/types/node";
 import { createDefaultKlineNodeData } from "@/hooks/node-config/kline-node";
 import { createDefaultIndicatorNodeData } from "@/hooks/node-config/indicator-node";
 import { createDefaultIfElseNodeData } from "@/hooks/node-config/if-else-node";
@@ -138,6 +135,7 @@ export default function StrategyFlow({ strategyId, strategy }: { strategyId: num
 					defaultNodeData = {};
 					break;
 			}
+			console.log("defaultNodeData", defaultNodeData);
 
 			const newNode = {
 					id: uniqueId,

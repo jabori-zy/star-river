@@ -68,11 +68,13 @@ const getIndicatorParams = (
 interface IndicatorConfigShowItemProps {
 	indicator: SelectedIndicator;
 	handleId: string;
+	handleColor: string;
 }
 
 export function IndicatorConfigShowItem({
 	indicator,
 	handleId,
+	handleColor,
 }: IndicatorConfigShowItemProps) {
 	const priceSource = indicator.indicatorConfig.priceSource as PriceSource;
 
@@ -104,7 +106,7 @@ export function IndicatorConfigShowItem({
 				id={handleId}
 				type="source"
 				position={Position.Right}
-				handleColor="!bg-red-400"
+				handleColor={handleColor}
 				className="translate-x-2 translate-y-2"
 			/>
 		</div>

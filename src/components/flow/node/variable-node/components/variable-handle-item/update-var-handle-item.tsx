@@ -23,11 +23,13 @@ import { useTranslation } from "react-i18next";
 interface UpdateVarHandleItemProps {
 	id: string;
 	variableConfig: UpdateVariableConfig;
+	handleColor: string;
 }
 
 export const UpdateVarHandleItem: React.FC<UpdateVarHandleItemProps> = ({
 	id,
 	variableConfig,
+	handleColor,
 }) => {
 	const { t } = useTranslation();
 	const effectiveTriggerType =
@@ -68,7 +70,7 @@ export const UpdateVarHandleItem: React.FC<UpdateVarHandleItemProps> = ({
 					id={`${id}_input_${variableConfig.configId}`}
 					type="target"
 					position={Position.Left}
-					handleColor="!bg-black"
+					handleColor={handleColor}
 					className="-translate-x-2 -translate-y-3"
 				/>
 			</div>
@@ -118,7 +120,7 @@ export const UpdateVarHandleItem: React.FC<UpdateVarHandleItemProps> = ({
 				id={`${id}_output_${variableConfig.configId}`}
 				type="source"
 				position={Position.Right}
-				handleColor="!bg-black"
+				handleColor={handleColor}
 				className="translate-x-2 translate-y-7"
 			/>
 		</div>

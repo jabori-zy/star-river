@@ -1,5 +1,5 @@
 import { type NodeProps } from "@xyflow/react";
-import type { LucideIcon } from "lucide-react";
+import { DynamicIcon, IconName } from "lucide-react/dynamic";
 import type React from "react";
 import { type ReactNode } from "react";
 import { cn } from "@/lib/utils";
@@ -12,15 +12,15 @@ import BaseHandle, { type BaseHandleProps } from "../BaseHandle";
 export interface BaseNodeProps extends Pick<NodeProps, "id" | "selected"> {
 	/** 节点标题 */
 	nodeName: string;
-	/** 节点图标 (来自lucide-react) */
-	icon: LucideIcon;
-	// 图标的背景颜色
+	/** 节点图标名称 (lucide-react 图标名称，如 "chart-candlestick") */
+	iconName: IconName;
+	// 图标的背景颜色 - 16进制颜色值，如 "#9ca3af"
 	iconBackgroundColor?: string;
 	/** 子内容 */
 	children?: ReactNode;
 	/** 自定义类名 */
 	className?: string;
-	// 边框颜色
+	// 边框颜色(选中时边框颜色) - 16进制颜色值，如 "#9ca3af"
 	borderColor?: string;
 	// 默认输入handle属性
 	defaultInputHandle?: BaseHandleProps;
@@ -37,21 +37,21 @@ export interface BaseNodeProps extends Pick<NodeProps, "id" | "selected"> {
 const BaseNode: React.FC<BaseNodeProps> = ({
 	id,
 	nodeName, // 节点标题
-	icon: Icon, // 节点图标
+	iconName, // 节点图标名称
 	children, // 子内容
 	className, // 自定义类名
 	selected = false, // 是否选中
 	isHovered = false, // 是否悬停
-	borderColor = "border-gray-400", // 边框颜色
-	iconBackgroundColor = "bg-red-400", // 图标背景颜色
+	borderColor = "#9ca3af", // 边框颜色 (默认 gray-400)
+	iconBackgroundColor = "#9ca3af", // 图标背景颜色 (默认 red-400)
 	defaultInputHandle, // 默认输入handle属性
 	defaultOutputHandle, // 默认输出handle属性
 	...props
 }) => {
-	// 根据selected状态决定边框样式
-	const borderClass = selected
-		? `${borderColor} border-2`
-		: "border-transparent border-2";
+	// 根据selected状态决定边框样式和边框颜色
+	const borderStyle = selected
+		? { borderColor: borderColor, borderWidth: '2px' }
+		: { borderColor: 'transparent', borderWidth: '2px' };
 
 	// 根据悬停状态决定阴影效果 - 移除transform，只用shadow
 	const shadowClass = isHovered
@@ -65,19 +65,22 @@ const BaseNode: React.FC<BaseNodeProps> = ({
 			className={cn(
 				"bg-white rounded-lg transition-all duration-200 relative cursor-pointer",
 				"min-w-[200px] max-w-[400px] w-fit",
-				borderClass,
 				shadowClass,
 				className
 			)}
+			style={borderStyle}
 			{...props}
 		>
 			{/* 标题区域 */}
 			<div className="p-2">
 				<div className="flex items-center gap-2">
 					{/* 图标 */}
-					{Icon && (
-						<div className={cn("p-1 rounded-sm flex-shrink-0", iconBackgroundColor)}>
-							<Icon className="w-3 h-3 text-white flex-shrink-0" />
+					{iconName && (
+						<div
+							className="p-1 rounded-sm flex-shrink-0"
+							style={{ backgroundColor: iconBackgroundColor }}
+						>
+							<DynamicIcon name={iconName} className="w-3 h-3 text-white flex-shrink-0" />
 						</div>
 					)}
 

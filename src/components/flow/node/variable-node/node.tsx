@@ -1,11 +1,12 @@
 import { type NodeProps, Position } from "@xyflow/react";
-import { Play } from "lucide-react";
 import type { BaseHandleProps } from "@/components/flow/base/BaseHandle";
 import BaseNode from "@/components/flow/base/BaseNode";
 import useTradingModeStore from "@/store/use-trading-mode-store";
 import {
 	getNodeDefaultInputHandleId,
 	getNodeDefaultOutputHandleId,
+	getNodeIconName,
+	getNodeDefaultColor,
 	NodeType,
 } from "@/types/node/index";
 import type { VariableNode as VariableNodeType, VariableNodeData } from "@/types/node/variable-node";
@@ -23,7 +24,10 @@ const VariableNode: React.FC<NodeProps<VariableNodeType>> = ({
 	const { getNodeData } = useStrategyWorkflow();
 	const variableNodeData = getNodeData(id) as VariableNodeData;
 	const nodeName = variableNodeData.nodeName || "变量节点";
-
+	const handleColor = variableNodeData?.nodeConfig?.handleColor || getNodeDefaultColor(NodeType.VariableNode);
+	const iconName = variableNodeData?.nodeConfig?.iconName || getNodeIconName(NodeType.VariableNode);
+	const iconBackgroundColor = variableNodeData?.nodeConfig?.iconBackgroundColor || getNodeDefaultColor(NodeType.VariableNode);
+	const borderColor = variableNodeData?.nodeConfig?.borderColor || getNodeDefaultColor(NodeType.VariableNode);
 	// 获取当前的交易模式
 	const { tradingMode } = useTradingModeStore();
 
@@ -36,7 +40,7 @@ const VariableNode: React.FC<NodeProps<VariableNodeType>> = ({
 				return <SimulateModeShow id={id} data={variableNodeData} />;
 			case TradeMode.BACKTEST:
 			default:
-				return <BacktestModeShow id={id} data={variableNodeData} />;
+				return <BacktestModeShow id={id} data={variableNodeData} handleColor={handleColor} />;
 		}
 	};
 
@@ -44,21 +48,23 @@ const VariableNode: React.FC<NodeProps<VariableNodeType>> = ({
 		type: "source",
 		position: Position.Right,
 		id: getNodeDefaultOutputHandleId(id, NodeType.VariableNode),
-		handleColor: "!bg-red-400",
+		handleColor: handleColor,
 	};
 
 	const defaultInputHandle: BaseHandleProps = {
 		type: "target",
 		position: Position.Left,
 		id: getNodeDefaultInputHandleId(id, NodeType.VariableNode),
-		handleColor: "!bg-red-400",
+		handleColor: handleColor,
 	};
 
 	return (
 		<BaseNode
 			id={id}
 			nodeName={nodeName}
-			icon={Play}
+			iconName={iconName}
+			iconBackgroundColor={iconBackgroundColor}
+			borderColor={borderColor}
 			selected={selected}
 			isHovered={variableNodeData?.nodeConfig?.isHovered || false}
 			defaultInputHandle={defaultInputHandle}
