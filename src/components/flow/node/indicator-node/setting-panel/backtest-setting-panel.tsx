@@ -86,31 +86,33 @@ const IndicatorNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	};
 
 	return (
-		<div className="space-y-4">
-			{/* 连接状态显示 */}
-			{/* <div className="space-y-2">
-				<Label className="flex items-center gap-2">
-					<Activity className="h-4 w-4 text-muted-foreground" />
-					连接状态
-				</Label>
-				{isConnected ? (
-					<Badge variant="secondary" className="bg-green-100 text-green-800">
-						已连接到K线节点
-					</Badge>
-				) : (
-					<Badge variant="destructive">未连接</Badge>
-				)}
-			</div> */}
-			<SymbolSelector
-				symbolList={localSymbolList}
-				selectedSymbol={exchangeModeConfig?.selectedSymbol || null}
-				onSymbolChange={handleSymbolChange}
-			/>
-			<IndicatorEditor
-				id={id}
-				selectedIndicators={exchangeModeConfig?.selectedIndicators || []}
-				onSelectedIndicatorsChange={updateSelectedIndicators}
-			/>
+		<div className="h-full overflow-y-auto bg-white">
+			<div className="flex flex-col gap-4 p-2">
+				{/* 连接状态显示 */}
+				{/* <div className="space-y-2">
+					<Label className="flex items-center gap-2">
+						<Activity className="h-4 w-4 text-muted-foreground" />
+						连接状态
+					</Label>
+					{isConnected ? (
+						<Badge variant="secondary" className="bg-green-100 text-green-800">
+							已连接到K线节点
+						</Badge>
+					) : (
+						<Badge variant="destructive">未连接</Badge>
+					)}
+				</div> */}
+				<SymbolSelector
+					symbolList={localSymbolList}
+					selectedSymbol={exchangeModeConfig?.selectedSymbol || null}
+					onSymbolChange={handleSymbolChange}
+				/>
+				<IndicatorEditor
+					id={id}
+					selectedIndicators={exchangeModeConfig?.selectedIndicators || []}
+					onSelectedIndicatorsChange={updateSelectedIndicators}
+				/>
+			</div>
 		</div>
 	);
 };

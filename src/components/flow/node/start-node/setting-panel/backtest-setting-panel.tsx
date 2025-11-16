@@ -46,8 +46,9 @@ export const StartNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	const playSpeed = backtestConfig?.playSpeed || 20;
 
 	return (
-		<div className="p-4 space-y-4">
-			<DataSourceSelector
+		<div className="h-full overflow-y-auto bg-white">
+			<div className="flex flex-col gap-4 p-4">
+				<DataSourceSelector
 				dataSource={dataSource}
 				setDataSource={() => {}} // 不再需要本地状态设置
 				updateDataSource={updateDataSource}
@@ -81,10 +82,11 @@ export const StartNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 				updatePlaySpeed={updatePlaySpeed}
 			/>
 
-			<VariableEditor
-				variables={backtestConfig?.customVariables || []}
-				onVariablesChange={updateBacktestVariables}
-			/>
+				<VariableEditor
+					variables={backtestConfig?.customVariables || []}
+					onVariablesChange={updateBacktestVariables}
+				/>
+			</div>
 		</div>
 	);
 };

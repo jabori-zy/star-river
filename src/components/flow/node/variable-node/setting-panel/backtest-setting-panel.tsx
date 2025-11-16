@@ -51,21 +51,23 @@ const VariableNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 			: null;
 
 	return (
-		<div className="flex flex-col gap-2">
-			<AccountSelector
-				label="数据来源账户"
-				tradeMode={TradeMode.BACKTEST}
-				selectedAccount={selectedAccount}
-				onAccountChange={handleAccountChange}
-				accountList={accountList}
-			/>
-			<div className="m-2">
-				<VariableSetting
-					id={id}
+		<div className="h-full overflow-y-auto bg-white">
+			<div className="flex flex-col gap-2">
+				<AccountSelector
+					label="数据来源账户"
 					tradeMode={TradeMode.BACKTEST}
-					variableConfigs={backtestConfig?.variableConfigs || []}
-					onVariableConfigsChange={handleVariableConfigsChange}
+					selectedAccount={selectedAccount}
+					onAccountChange={handleAccountChange}
+					accountList={accountList}
 				/>
+				<div className="m-2">
+					<VariableSetting
+						id={id}
+						tradeMode={TradeMode.BACKTEST}
+						variableConfigs={backtestConfig?.variableConfigs || []}
+						onVariableConfigsChange={handleVariableConfigsChange}
+					/>
+				</div>
 			</div>
 		</div>
 	);

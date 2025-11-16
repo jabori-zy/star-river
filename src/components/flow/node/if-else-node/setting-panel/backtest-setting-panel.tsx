@@ -92,7 +92,8 @@ const IfElseNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	}));
 
 	return (
-		<div className="flex flex-col gap-2">
+		<div className="h-full overflow-y-auto bg-white">
+			<div className="flex flex-col gap-2 p-2">
 			{/* 如果cases为空，则传一个空的case */}
 			{!backtestConfig?.cases || backtestConfig?.cases.length === 0 ? (
 				<CaseEditor
@@ -144,6 +145,7 @@ const IfElseNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 				<div className="text-xs text-muted-foreground">
 					{t("ifElseNode.elseDescription")}
 				</div>
+			</div>
 			</div>
 		</div>
 	);

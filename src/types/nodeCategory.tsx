@@ -4,6 +4,6 @@ export type NodeItemProps = {
 	nodeType: string;
 	nodeName: string;
 	nodeDescription: string;
-	nodeColor: string;
+	nodeColor?: string;
 	nodeData?: Record<string, unknown>;
 };

@@ -85,6 +85,7 @@ const translation = {
 		firstDay: "First Day",
 		lastDay: "Last Day",
 		nextExecutionTime: "Next Execution Time",
+		unavailableInBacktestMode: "Timer is unavailable in Backtest Mode",
 	},
 	caseSelector: {
 		chooseNode: "Choose a Node",

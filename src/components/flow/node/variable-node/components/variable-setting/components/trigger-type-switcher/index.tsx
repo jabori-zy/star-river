@@ -79,7 +79,7 @@ const TriggerTypeSwitcher: React.FC<TriggerTypeSwitcherProps> = ({
 			{/* 触发类型选择器 */}
 			<div className="space-y-1">
 				<Label className="text-sm font-medium">{t("variableNode.triggerType")}</Label>
-				<div className="flex items-center space-x-4 pt-1">
+				<div className="flex flex-row items-center justify-between pt-1 px-2">
 					<TooltipProvider>
 						{displayTypes.map((type) => {
 							const typeInfo = getTriggerTypeInfo(type, t);
@@ -103,7 +103,7 @@ const TriggerTypeSwitcher: React.FC<TriggerTypeSwitcherProps> = ({
 									/>
 									<Label
 										htmlFor={triggerId}
-										className={`text-sm flex items-center ${
+										className={`text-sm flex items-center gap-1 ${
 											isTimerDisabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"
 										}`}
 									>
@@ -121,7 +121,7 @@ const TriggerTypeSwitcher: React.FC<TriggerTypeSwitcherProps> = ({
 											{checkboxContent}
 										</TooltipTrigger>
 										<TooltipContent>
-											<p>Timer is unavailable in Backtest Mode</p>
+											<p>{t("variableNode.timerConfig.unavailableInBacktestMode")}</p>
 										</TooltipContent>
 									</Tooltip>
 								);

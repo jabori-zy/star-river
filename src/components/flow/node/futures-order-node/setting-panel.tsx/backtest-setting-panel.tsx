@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
 import { Label } from "@/components/ui/label";
 import { useBacktestConfig } from "@/hooks/node-config/futures-order-node";
@@ -49,7 +49,8 @@ const FuturesOrderNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	};
 
 	return (
-		<div className="flex flex-col gap-2">
+		<div className="h-full overflow-y-auto bg-white">
+			<div className="flex flex-col gap-2">
 			<div className="flex flex-col items-start justify-start gap-2 p-2">
 				<Label
 					htmlFor="trade-account-selector"
@@ -71,6 +72,7 @@ const FuturesOrderNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 					orderConfigs={orderConfigs}
 					onOrderConfigsChange={handleOrderConfigsChange}
 				/>
+			</div>
 			</div>
 		</div>
 	);

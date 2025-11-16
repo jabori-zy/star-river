@@ -60,19 +60,13 @@ const TradeModeSwitcher: React.FC<TradeModeSwitcherProps> = ({
 				<TabsTrigger value={TradeMode.SIMULATE} disabled={true}>模拟设置</TabsTrigger>
 			</TabsList>
 			<TabsContent className="w-full flex-1 min-h-0" value="live">
-				<ScrollArea className="h-full bg-white ">
 					{renderSettingPanel(settingPanel.liveModeSettingPanel)}
-				</ScrollArea>
 			</TabsContent>
 			<TabsContent className="w-full flex-1 min-h-0" value="backtest">
-				<ScrollArea className="h-full bg-white ">
-					{renderSettingPanel(settingPanel.backtestModeSettingPanel)}
-				</ScrollArea>
+				{renderSettingPanel(settingPanel.backtestModeSettingPanel)}
 			</TabsContent>
 			<TabsContent className="w-full flex-1 min-h-0" value="simulation">
-				<ScrollArea className="h-full bg-white ">
-					{renderSettingPanel(settingPanel.simulationModeSettingPanel)}
-				</ScrollArea>
+				{renderSettingPanel(settingPanel.simulationModeSettingPanel)}
 			</TabsContent>
 		</Tabs>
 	);

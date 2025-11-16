@@ -53,8 +53,8 @@ const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	};
 
 	return (
-		// space-y-4 是上下间距为4
-		<div className="space-y-2">
+		<div className="h-full overflow-y-auto bg-white">
+			<div className="flex flex-col gap-2 p-2">
 			{backtestConfig?.dataSource === BacktestDataSource.EXCHANGE ? (
 				<>
 					<AccountSelector
@@ -114,6 +114,7 @@ const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 					</div>
 				</div>
 			)}
+			</div>
 		</div>
 	);
 };

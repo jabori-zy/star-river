@@ -189,7 +189,7 @@ export const renderVariableOptions = ({
 								localNodeId,
 								variable.outputHandleId,
 								varName,
-								t(`indicatorValueField.${varName}`),
+								t(`indicator.indicatorValueField.${varName}`),
 							)}
 						>
 							<div className="flex items-center w-full gap-1">
@@ -203,7 +203,7 @@ export const renderVariableOptions = ({
 									</Badge>
 								</div>
 								<span className="font-medium text-gray-900 flex-1 text-right truncate">
-									{t(`indicatorValueField.${varName}`)}
+									{t(`indicator.indicatorValueField.${varName}`)}
 								</span>
 							</div>
 						</SelectItem>,
@@ -383,7 +383,7 @@ export const renderNodeOptions = (variableItemList: VariableItem[]) => {
 		value: item.nodeId,
 		label: (
 			<div className="flex items-center gap-1">
-				<span className="font-medium text-gray-900">{item.nodeName}</span>
+				<span className="font-medium text-gray-900 truncate">{item.nodeName}</span>
 			</div>
 		),
 	}));

@@ -8,11 +8,10 @@ const translation = {
 	condition: "条件触发",
 	interval: "定时触发",
 	schedule: "定时执行",
-	dataflow: "数据流触发",
+	dataflow: "数据流",
 	variableConfig: "变量配置",
-	clickAddVariable: "点击 + 添加变量配置",
-	duplicateOperationError:
-		"该变量已配置{{operation}}操作,同一变量只能配置一种操作",
+	clickAddVariable: "添加变量配置",
+	duplicateOperationError: "该变量已配置{{operation}}操作,同一变量只能配置一种操作",
 	variableRequired: "请选择变量",
 	symbolRequired: "请选择交易对",
 	triggerConditionRequired: "请选择触发条件",
@@ -125,6 +124,7 @@ const translation = {
 		firstDay: "第一天",
 		lastDay: "最后一天",
 		nextExecutionTime: "下次执行时间",
+		unavailableInBacktestMode: "定时器在回测模式下不可用",
 	},
 	op: "操作",
 };
