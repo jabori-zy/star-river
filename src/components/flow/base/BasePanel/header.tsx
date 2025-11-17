@@ -1,4 +1,5 @@
-import { type LucideIcon, X } from "lucide-react";
+import { X } from "lucide-react";
+import { DynamicIcon, IconName } from "lucide-react/dynamic";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { memo } from "react";
@@ -7,7 +8,7 @@ interface BasePanelHeaderProps {
 	id: string;
 	title: string;
 	setTitle: (title: string) => void; // 修改标题
-	icon: LucideIcon;
+	icon: IconName;
 	iconBackgroundColor: string;
 	isEditingTitle: boolean;
 	setIsEditingTitle: (isEditingTitle: boolean) => void;
@@ -17,7 +18,7 @@ interface BasePanelHeaderProps {
 const BasePanelHeader: React.FC<BasePanelHeaderProps> = ({
 	id,
 	title,
-	icon: Icon,
+	icon,
 	iconBackgroundColor,
 	setTitle,
 	isEditingTitle,
@@ -43,16 +44,17 @@ const BasePanelHeader: React.FC<BasePanelHeaderProps> = ({
             */}
 			<div className="flex-1 flex items-center border-gray-100 mr-2 ">
 				{/* 图标 */}
-				{Icon && (
+				{icon && (
 					// p-1 内边距
 					// rounded-sm 圆角
 					// flex-shrink-0 效果是，如果内容超出，不收缩
 					// bg-red-400 背景颜色
 					// mr-2 右外边距
 					<div
-						className={`p-1 mr-2 rounded-sm flex-shrink-0 ${iconBackgroundColor} `}
+						className="p-1 mr-2 rounded-sm flex-shrink-0"
+						style={{ backgroundColor: iconBackgroundColor }}
 					>
-						<Icon className="w-4 h-4 text-white flex-shrink-0" />
+						<DynamicIcon name={icon} className="w-4 h-4 text-white flex-shrink-0" />
 					</div>
 				)}
 				{/* 标题 */}

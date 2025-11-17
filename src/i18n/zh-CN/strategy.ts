@@ -5,7 +5,10 @@ const translation = {
         stop: "停止",
     },
     workflow: {
-        cannotDeleteStartNode: "",
+        liveSetting: "实时设置",
+        backtestSetting: "回测设置",
+        simulateSetting: "模拟设置",
+        cannotDeleteStartNode: "不能删除开始节点",
     },
 }
 

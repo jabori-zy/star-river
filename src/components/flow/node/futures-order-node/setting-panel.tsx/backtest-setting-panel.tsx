@@ -15,7 +15,6 @@ const FuturesOrderNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	const { getStartNodeData } = useStrategyWorkflow();
 	const startNodeData = getStartNodeData();
 	const accountList = startNodeData?.backtestConfig?.exchangeModeConfig?.selectedAccounts || [];
-	console.log("accountList", accountList);
 
 	// ✅ 使用新版本 hook 管理回测配置
 	const { backtestConfig, updateExchangeModeConfig, updateFuturesOrderConfigs } = useBacktestConfig({ id });

@@ -308,9 +308,16 @@ export default function StrategyFlow({ strategyId, strategy }: { strategyId: num
 			}));
 		});
 
-		// 设置节点悬停状态
-		updateNodeData(node.id, { nodeConfig: { isHovered: true } });
-	}, [getNodeConnections, setEdges]);
+		// 设置节点悬停状态 - 深度合并以保留 nodeConfig 中的其他属性
+		if (node.data?.nodeConfig) {
+			updateNodeData(node.id, {
+				nodeConfig: {
+					...node.data.nodeConfig,
+					isHovered: true
+				}
+			});
+		}
+	}, [getNodeConnections, setEdges, updateNodeData]);
 
 
 	const onNodeMouseLeave: NodeMouseHandler = useCallback((_event, node) => {
@@ -323,8 +330,16 @@ export default function StrategyFlow({ strategyId, strategy }: { strategyId: num
 				return edge;
 			}));
 		});
-		updateNodeData(node.id, { nodeConfig: { isHovered: false } });
-	}, [getNodeConnections, setEdges]);
+		// 设置节点悬停状态 - 深度合并以保留 nodeConfig 中的其他属性
+		if (node.data?.nodeConfig) {
+			updateNodeData(node.id, {
+				nodeConfig: {
+					...node.data.nodeConfig,
+					isHovered: false
+				}
+			});
+		}
+	}, [getNodeConnections, setEdges, updateNodeData]);
 
 	// 添加 useEffect 来监听 edges 的变化
 	useEffect(() => {

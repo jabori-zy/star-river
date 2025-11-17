@@ -74,17 +74,17 @@ function RouteArrow() {
 }
 
 function AppTitle() {
-	const { centerContent } = useHeaderStore();
+	// const { centerContent } = useHeaderStore();
 
 	return (
 		<div className="flex items-center gap-2">
-			{centerContent ? (
+			{/* {centerContent ? (
 				<div className="flex items-center">{centerContent}</div>
-			) : (
+			) : ( */}
 				<h1 className="text-lg font-bold select-none cursor-default">
 					Star River
 				</h1>
-			)}
+			{/* )} */}
 		</div>
 	);
 }

@@ -147,8 +147,6 @@ export type NodeDataBase = {
 		handleColor: string;
 		isHovered?: boolean; // is hovered
 	}
-
-
 }
 
 

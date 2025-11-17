@@ -12,8 +12,8 @@ import BasePanelHeader from "./header";
 import TradeModeSwitcher, {
 	type SettingPanelProps,
 } from "./trade-mode-switcher";
-import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
-
+import { getNodeIconName, getNodeDefaultColor, NodeType } from "@/types/node";
+import { NodeData } from "@/types/node";
 interface BasePanelProps extends PanelProps {
 	id: string; // 节点id
 	setSelectedNodeId: (id: string | undefined) => void;
@@ -29,9 +29,11 @@ const BasePanel: React.FC<BasePanelProps> = ({
 }) => {
 	const panelRef = useRef<HTMLDivElement>(null);
 	// 获取ReactFlow实例
-	const { updateNodeData, setNodes } = useReactFlow();
-	const { getNodeData } = useStrategyWorkflow();
-	const nodeData = getNodeData(id);
+	const { updateNodeData, setNodes, getNode } = useReactFlow();
+	const node = getNode(id);
+	const nodeData = node?.data as NodeData;
+	const nodeType = node?.type;
+	const nodeConfig = nodeData?.nodeConfig;
 	// 面板标题
 	const [panelTitle, setPanelTitle] = useState(nodeData?.nodeName || "未命名节点");
 
@@ -184,16 +186,18 @@ const BasePanel: React.FC<BasePanelProps> = ({
 
 				{/* 标题区域 - 固定高度 */}
 				<div className="flex-shrink-0 p-2 pb-0">
-					<BasePanelHeader
-						id={id}
-						title={panelTitle}
-						setTitle={handleSetTitle}
-						isEditingTitle={isEditingTitle}
-						setIsEditingTitle={setIsEditingTitle}
-						onClosePanel={handleClosePanel}
-						icon={settingPanel.icon}
-						iconBackgroundColor={settingPanel.iconBackgroundColor}
-					/>
+					{nodeConfig && (
+						<BasePanelHeader
+							id={id}
+							title={panelTitle}
+							setTitle={handleSetTitle}
+							isEditingTitle={isEditingTitle}
+							setIsEditingTitle={setIsEditingTitle}
+							onClosePanel={handleClosePanel}
+							icon={nodeConfig.iconName || getNodeIconName(nodeType as NodeType)} 
+							iconBackgroundColor={nodeConfig.iconBackgroundColor || getNodeDefaultColor(nodeType as NodeType)}
+							/>
+					)}
 				</div>
 
 				{/* 交易模式切换器 - 弹性高度 */}
