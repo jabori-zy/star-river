@@ -8,6 +8,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { BacktestDataSource } from "@/types/strategy";
+import { useTranslation } from "react-i18next";
 
 interface DataSourceSelectorProps {
 	dataSource: BacktestDataSource;
@@ -20,12 +21,13 @@ const DataSourceSelector: React.FC<DataSourceSelectorProps> = ({
 	setDataSource,
 	updateDataSource,
 }) => {
+	const { t } = useTranslation();
 	return (
 		<div className="space-y-2">
 			<div className="flex items-center justify-between">
 				<div className="flex items-center gap-2">
 					<File className="h-4 w-4 text-muted-foreground" />
-					<span className="font-medium text-sm">数据源</span>
+					<span className="font-medium text-sm">{t("startNode.dataSource")}</span>
 				</div>
 			</div>
 			<div className="flex items-center justify-between">
@@ -39,11 +41,11 @@ const DataSourceSelector: React.FC<DataSourceSelectorProps> = ({
 					}}
 				>
 					<SelectTrigger>
-						<SelectValue placeholder="选择数据源" />
+						<SelectValue />
 					</SelectTrigger>
 					<SelectContent>
-						<SelectItem value={BacktestDataSource.FILE}>文件</SelectItem>
-						<SelectItem value={BacktestDataSource.EXCHANGE}>交易所</SelectItem>
+						<SelectItem value={BacktestDataSource.FILE}>{t("startNode.file")}</SelectItem>
+						<SelectItem value={BacktestDataSource.EXCHANGE}>{t("startNode.exchange")}</SelectItem>
 					</SelectContent>
 				</Select>
 			</div>

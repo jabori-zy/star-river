@@ -9,6 +9,7 @@ import DataSourceSelector from "../components/data-source-selector";
 import TimeRangeSelector from "../components/time-range-selector";
 import VariableEditor from "../components/variable-editor";
 import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
+import { useTranslation } from "react-i18next";
 
 // 新开始节点回测模式设置面板
 export const StartNodeBacktestSettingPanel: React.FC<SettingProps> = ({
@@ -17,7 +18,7 @@ export const StartNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	// ✅ 使用 useNodesData 订阅节点数据变化，确保 UI 实时更新
 	const { getNodeData } = useStrategyWorkflow();
 	const startNodeData = getNodeData(id) as StartNodeData;
-
+	const { t } = useTranslation();
 	// 使用自定义 hook 管理回测配置
 	const {
 		updateInitialBalance,
@@ -49,9 +50,9 @@ export const StartNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 		<div className="h-full overflow-y-auto bg-white">
 			<div className="flex flex-col gap-4 p-4">
 				<DataSourceSelector
-				dataSource={dataSource}
-				setDataSource={() => {}} // 不再需要本地状态设置
-				updateDataSource={updateDataSource}
+					dataSource={dataSource}
+					setDataSource={() => {}} // 不再需要本地状态设置
+					updateDataSource={updateDataSource}
 			/>
 			{/* 根据数据源切换不同的组件 */}
 			{dataSource === BacktestDataSource.EXCHANGE && (

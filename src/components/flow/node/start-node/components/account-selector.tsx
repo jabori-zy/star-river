@@ -33,6 +33,7 @@ import type { Account } from "@/types/account";
 import type { Exchange } from "@/types/market";
 import { ExchangeStatus } from "@/types/market";
 import type { SelectedAccount } from "@/types/strategy";
+import { useTranslation } from "react-i18next";
 
 interface AccountSelectorProps {
 	selectedAccounts: SelectedAccount[]; // 已选择账户，可以多选
@@ -46,6 +47,7 @@ const AccountSelector = ({
 	setSelectedAccounts,
 	updateSelectedAccounts,
 }: AccountSelectorProps) => {
+	const { t } = useTranslation();
 	// 可用的MT5账户列表
 	const [availableAccounts, setAvailableAccounts] = useState<Account[]>([]);
 	// 是否正在加载账户
@@ -74,7 +76,6 @@ const AccountSelector = ({
 		try {
 			const accounts = (await getAccountConfigs(null)) as Account[];
 			setAvailableAccounts(accounts);
-			console.log("获取到的账户配置:", accounts);
 		} catch (error) {
 			console.error("获取账户配置失败:", error);
 			setErrorMessage("获取账户配置失败");
@@ -337,7 +338,7 @@ const AccountSelector = ({
 			<div className="flex items-center justify-between">
 				<div className="flex items-center gap-2">
 					<DollarSign className="h-4 w-4 text-muted-foreground" />
-					<span className="font-medium text-sm">交易账户</span>
+					<span className="font-medium text-sm">{t("startNode.account")}</span>
 				</div>
 				<div className="flex items-center gap-2">
 					{/* 锁定账户选择 */}

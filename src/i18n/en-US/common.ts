@@ -27,9 +27,23 @@ const translation = {
         day: "Day",
     },
 
+    timeFormat: {
+        justNow: "Just Now",
+        minuteAgo: "{{minutes}} minutes ago",
+        today: "Today {{time}}",
+        yesterday: "Yesterday {{time}}",
+        daysAgo: "{{days}} days ago",
+        monthsAgo: "{{months}} months ago",
+        yearsAgo: "{{years}} years ago",
+    },
+
     save: "Save",
+    saved: "Saved",
     saving: "Saving...",
+    unsaved: "Unsaved",
+    haveUnsavedChanges: "have unsaved changes",
     cancel: "Cancel",
+    close: "Close",
     next: "Next",
     previous: "Previous",
     confirm: "Confirm",

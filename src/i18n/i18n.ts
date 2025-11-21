@@ -14,11 +14,12 @@ import enUSMarket from "./en-US/market";
 import enUSSetting from "./en-US/setting";
 import enUSDektop from "./en-US/desktop";
 import enUSApiMessage from "./en-US/api-message";
+import enUSStartNode from "./en-US/start-node";
 // 定义所有命名空间(模块名)
 const NAMESPACES = [
 	"common",
 	"desktop",
-	"apiMessage",
+	"api-message",
 	"strategy",
 	"node",
 	"if-else-node",
@@ -26,6 +27,7 @@ const NAMESPACES = [
 	"indicator",
 	"market",
 	"setting",
+	"start-node",
 ];
 
 // 动态导入语言资源,带容错机制
@@ -67,6 +69,7 @@ const getInitialTranslations = () => {
 				indicator: enUSIndicator,
 				market: enUSMarket,
 				setting: enUSSetting,
+				startNode: enUSStartNode,
 			},
 		},
 	};

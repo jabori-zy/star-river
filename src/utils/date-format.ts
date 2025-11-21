@@ -1,4 +1,5 @@
 import { DateTime } from "luxon";
+import type { TFunction } from "i18next";
 
 // ============================================
 // Time Format Options
@@ -50,7 +51,8 @@ export interface TimeFormatOptions {
  */
 export function formatTimeWithTimezone(
 	date: Date | string | DateTime | undefined,
-	options: TimeFormatOptions = {}
+	options: TimeFormatOptions = {},
+	t: TFunction
 ): string {
 	if (!date) return "";
 
@@ -102,19 +104,19 @@ export function formatTimeWithTimezone(
 		// Smart relative time
 		if (totalSeconds < 60) {
 			// Less than 1 minute
-			timeStr = '刚刚';
+			timeStr = t('common.timeFormat.justNow');
 		} else if (totalMinutes < 60) {
 			// Less than 1 hour
-			timeStr = `${totalMinutes}分钟前`;
+			timeStr = t('common.timeFormat.minuteAgo', { minutes: totalMinutes });
 		} else if (totalHours < 24 && targetDate.hasSame(now, 'day')) {
 			// Today (within same day)
-			timeStr = `今天 ${targetDate.toFormat('HH:mm')}`;
+			timeStr = t('common.timeFormat.today', { time: targetDate.toFormat('HH:mm') });
 		} else if (targetDate.hasSame(now.minus({ days: 1 }), 'day')) {
 			// Yesterday
-			timeStr = `昨天 ${targetDate.toFormat('HH:mm')}`;
+			timeStr = t('common.timeFormat.yesterday', { time: targetDate.toFormat('HH:mm') });
 		} else if (totalDays < 7) {
 			// Within 7 days
-			timeStr = `${totalDays}天前`;
+			timeStr = t('common.timeFormat.daysAgo', { days: totalDays });
 		} else if (targetDate.hasSame(now, 'year')) {
 			// Same year
 			timeStr = targetDate.toFormat('MM-dd HH:mm');
@@ -179,11 +181,11 @@ export const formatDate = (date: Date | undefined): string => {
  * formatSmartTime(new Date())
  * // => "刚刚 (UTC+8)"
  */
-export function formatSmartTime(date: Date | string | DateTime | undefined): string {
-	return formatTimeWithTimezone(date, {
+export function formatSmartTime(date: Date | string | DateTime | undefined, t: TFunction): string {
+		return formatTimeWithTimezone(date, {
 		dateFormat: 'smart',
 		timezoneFormat: 'short',
-	});
+	}, t);
 }
 
 /**
@@ -193,11 +195,11 @@ export function formatSmartTime(date: Date | string | DateTime | undefined): str
  * formatCompactTime(new Date())
  * // => "11-18 17:06 (UTC+8)"
  */
-export function formatCompactTime(date: Date | string | DateTime | undefined): string {
+export function formatCompactTime(date: Date | string | DateTime | undefined, t: TFunction): string {
 	return formatTimeWithTimezone(date, {
 		dateFormat: 'compact',
 		timezoneFormat: 'short',
-	});
+	}, t);
 }
 
 /**
@@ -207,11 +209,11 @@ export function formatCompactTime(date: Date | string | DateTime | undefined): s
  * formatFullTime(new Date())
  * // => "2025-11-18 17:06 (UTC+8)"
  */
-export function formatFullTime(date: Date | string | DateTime | undefined): string {
+export function formatFullTime(date: Date | string | DateTime | undefined, t: TFunction): string {
 	return formatTimeWithTimezone(date, {
 		dateFormat: 'full',
 		timezoneFormat: 'short',
-	});
+	}, t);
 }
 
 /**
@@ -221,11 +223,11 @@ export function formatFullTime(date: Date | string | DateTime | undefined): stri
  * formatTimeOnly(new Date())
  * // => "刚刚"
  */
-export function formatTimeOnly(date: Date | string | DateTime | undefined): string {
+export function formatTimeOnly(date: Date | string | DateTime | undefined, t: TFunction): string {
 	return formatTimeWithTimezone(date, {
 		dateFormat: 'smart',
 		showTimezone: false,
-	});
+	}, t);
 }
 
 /**

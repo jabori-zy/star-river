@@ -5,6 +5,7 @@ import { Play, ExternalLink, Square, ChevronDown } from "lucide-react"
 import { Spinner } from "@/components/ui/spinner"
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu"
 import { ButtonGroup } from "@/components/ui/button-group"
+import { useTranslation } from "react-i18next"
 
 
 const BacktestControl: React.FC<BacktestControlProps> = ({
@@ -16,7 +17,7 @@ const BacktestControl: React.FC<BacktestControlProps> = ({
     onReopenDialog,
 }) => {
     console.log('strategyRunState', strategyRunState);
-
+    const { t } = useTranslation();
     const getControlButton = (strategyRunState: BacktestStrategyRunStatus) => {
         switch (strategyRunState) {
             case BacktestStrategyRunStatus.Stopped:
@@ -27,7 +28,7 @@ const BacktestControl: React.FC<BacktestControlProps> = ({
                         className="text-white  border border-amber-500"
                         onClick={() => onStartBacktest(strategyId)}>
                             <Play className="h-4 w-4 fill-current" />
-                            Start Backtest
+                            {t("desktop.strategyWorkflowPage.startBacktest")}
                         </Button>
                     )
             case BacktestStrategyRunStatus.Created:
@@ -41,7 +42,7 @@ const BacktestControl: React.FC<BacktestControlProps> = ({
                         className="border border-gray-500 hover:bg-gray-400"
                         onClick={() => onReopenDialog?.('init')}>
                             <Spinner className="size-4 animate-spin" />
-                            Loading...
+                            {t("desktop.strategyWorkflowPage.loading")}
                         </Button>
                     )
             case BacktestStrategyRunStatus.Stopping:
@@ -52,7 +53,7 @@ const BacktestControl: React.FC<BacktestControlProps> = ({
                         className="border border-gray-500"
                         onClick={() => onReopenDialog?.('stop')}>
                             <Spinner className="size-4 animate-spin" />
-                            Stopping...
+                            {t("desktop.strategyWorkflowPage.stopping")}
                         </Button>
                     )
             case BacktestStrategyRunStatus.Ready:
@@ -81,11 +82,11 @@ const BacktestControl: React.FC<BacktestControlProps> = ({
                             <DropdownMenuContent align="end" className="">
                                 <DropdownMenuItem onClick={onOpenBacktestWindow}>
                                     <ExternalLink className="w-4 h-4" />
-                                    打开回测窗口
+                                    {t("desktop.strategyWorkflowPage.openBacktestWindow")}
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onClick={onStopBacktest}>
                                     <Square className="w-4 h-4 text-red-500" />
-                                    <span className="text-red-500">停止策略</span>
+                                    <span className="text-red-500">{t("desktop.strategyWorkflowPage.stopStrategy")}</span>
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>

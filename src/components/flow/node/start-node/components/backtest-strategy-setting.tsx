@@ -9,6 +9,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { useTranslation } from "react-i18next";
 
 interface BacktestStrategySettingProps {
 	initialBalance: number;
@@ -40,11 +41,12 @@ const BacktestStrategySetting: React.FC<BacktestStrategySettingProps> = ({
 	setPlaySpeed,
 	updatePlaySpeed,
 }) => {
+	const { t } = useTranslation();
 	return (
 		<div className="space-y-4">
 			<div className="flex items-center gap-2">
 				<Wallet className="h-4 w-4 text-muted-foreground" />
-				<Label className="font-medium">初始资金</Label>
+				<Label className="font-medium">{t("startNode.initialBalance")}</Label>
 			</div>
 			<Input
 				type="number"
@@ -60,7 +62,7 @@ const BacktestStrategySetting: React.FC<BacktestStrategySettingProps> = ({
 			<div className="space-y-2">
 				<div className="flex items-center gap-2">
 					<TrendingUp className="h-4 w-4 text-muted-foreground" />
-					<Label className="font-medium">杠杆倍数</Label>
+					<Label className="font-medium">{t("startNode.leverage")}</Label>
 				</div>
 				<Input
 					type="number"
@@ -77,7 +79,7 @@ const BacktestStrategySetting: React.FC<BacktestStrategySettingProps> = ({
 			<div className="space-y-2">
 				<div className="flex items-center gap-2">
 					<PercentSquare className="h-4 w-4 text-muted-foreground" />
-					<Label className="font-medium">手续费率</Label>
+					<Label className="font-medium">{t("startNode.feeRate")}</Label>
 				</div>
 				<Input
 					type="number"
@@ -95,7 +97,7 @@ const BacktestStrategySetting: React.FC<BacktestStrategySettingProps> = ({
 			<div className="space-y-2">
 				<div className="flex items-center gap-2">
 					<Play className="h-4 w-4 text-muted-foreground" />
-					<Label className="font-medium">播放速度</Label>
+					<Label className="font-medium">{t("startNode.playSpeed")}</Label>
 				</div>
 
 				{playSpeed !== undefined && setPlaySpeed && updatePlaySpeed && (
@@ -108,7 +110,7 @@ const BacktestStrategySetting: React.FC<BacktestStrategySettingProps> = ({
 						}}
 					>
 						<SelectTrigger className="h-8 text-sm">
-							<SelectValue placeholder="选择播放速度" />
+							<SelectValue />
 						</SelectTrigger>
 						<SelectContent>
 							<SelectItem value="1">1x</SelectItem>

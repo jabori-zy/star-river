@@ -5,7 +5,7 @@ import { TradeMode } from "@/types/strategy"
 import { useInitBacktestStrategy } from "@/service/backtest-strategy/init-strategy"
 import { useStopBacktestStrategy } from "@/service/backtest-strategy/stop-strategy"
 import { openBacktestWindow } from "@/utils/open-backtest-window"
-
+import { useTranslation } from "react-i18next"
 
 
 const StrategyControl: React.FC<StrategyControlProps> = ({
@@ -14,12 +14,12 @@ const StrategyControl: React.FC<StrategyControlProps> = ({
     strategyRunState,
     onOperationSuccess,
 }) => {
-
+    const { t } = useTranslation();
     // Use useInitBacktestStrategy hook
     const { mutate: initBacktestStrategy } = useInitBacktestStrategy({
         meta: {
             showSuccessToast: false,
-            errorMessage: "策略初始化失败",
+            errorMessage: t("apiMessage.initStrategyFailed"),
             showErrorToast: true,
         },
         onSuccess: () => {
@@ -30,9 +30,8 @@ const StrategyControl: React.FC<StrategyControlProps> = ({
     // Use useStopBacktestStrategy hook
     const { mutate: stopBacktestStrategy } = useStopBacktestStrategy({
         meta: {
-            showSuccessToast: true,
-            successMessage: "策略已停止",
-            errorMessage: "停止策略失败",
+            showSuccessToast: false,
+            errorMessage: t("apiMessage.stopStrategyFailed"),
             showErrorToast: true,
         },
         onSuccess: () => {

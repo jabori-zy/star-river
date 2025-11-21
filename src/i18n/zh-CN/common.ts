@@ -24,11 +24,28 @@ const translation = {
         hour: "小时",
         day: "天",
     },
+    timeFormat: {
+        justNow: "刚刚",
+        minuteAgo: "{{minutes}} 分钟前",
+        today: "今天 {{time}}",
+        yesterday: "昨天 {{time}}",
+        daysAgo: "{{days}} 天前",
+        monthsAgo: "{{months}} 个月前",
+        yearsAgo: "{{years}} 年前",
+    },
     save: "保存",
+    saved: "已保存",
+    saving: "保存中...",
+    unsaved: "未保存",
+    haveUnsavedChanges: "有未保存的更改",
     cancel: "取消",
+    close: "关闭",
     next: "下一步",
     previous: "上一步",
     confirm: "确定",
+    deleting: "删除中...",
+    lastUpdated: "最后更新",
+    createTime: "创建时间",
 }
 
 export default translation;

@@ -27,6 +27,7 @@ import {
 	getVariableValueTypeIconColor,
 } from "@/types/variable";
 import { formatVariableValue } from "../utils";
+import { useTranslation } from "react-i18next";
 
 interface BacktestModeShowProps {
 	backtestConfig: StrategyBacktestConfig;
@@ -37,7 +38,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 }) => {
 	const [isSettingsOpen, setIsSettingsOpen] = useState(true);
 	const [isVariablesOpen, setIsVariablesOpen] = useState(true);
-
+	const { t } = useTranslation();
 	return (
 		<div className="space-y-2">
 			{/* 数据源展示 */}
@@ -46,7 +47,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 					<div className="space-y-2">
 						<div>
 							<Label className="text-xm font-bold text-muted-foreground">
-								数据源
+								{t("startNode.dataSource")}
 							</Label>
 							<div className="flex flex-col gap-2 mt-2">
 								{backtestConfig.exchangeModeConfig.selectedAccounts.map(
@@ -76,7 +77,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 							<ChevronRight className="w-4 h-4" />
 						)}
 						<Label className="text-xm font-bold text-muted-foreground">
-							回测设置
+							{t("startNode.backtestSettings")}
 						</Label>
 					</CollapsibleTrigger>
 					<CollapsibleContent className="mt-2">
@@ -85,7 +86,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 							<div className="flex items-center justify-between gap-2 rounded-md ">
 								<div className="flex items-center gap-2">
 									<Wallet className="w-4 h-4 text-blue-500" />
-									<span className="text-sm">初始资金: </span>
+									<span className="text-sm">{t("startNode.initialBalance")}: </span>
 								</div>
 								<span className="text-sm  font-bold">
 									{backtestConfig.initialBalance}
@@ -95,7 +96,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 							<div className="flex items-center justify-between gap-2 rounded-md ">
 								<div className="flex items-center gap-2">
 									<TrendingUp className="w-4 h-4 text-orange-500" />
-									<span className="text-sm">杠杆倍数: </span>
+									<span className="text-sm">{t("startNode.leverage")}: </span>
 								</div>
 								<span className="text-sm  font-bold">
 									{backtestConfig.leverage}x
@@ -105,7 +106,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 							<div className="flex items-center justify-between gap-2 rounded-md ">
 								<div className="flex items-center gap-2">
 									<PercentSquare className="w-4 h-4 text-purple-500" />
-									<span className="text-sm">手续费率: </span>
+									<span className="text-sm">{t("startNode.feeRate")}: </span>
 								</div>
 								<span className="text-sm  font-bold">
 									{(backtestConfig.feeRate * 100).toFixed(2)}%
@@ -115,7 +116,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 							<div className="flex items-center justify-between gap-2 rounded-md ">
 								<div className="flex items-center gap-2">
 									<Play className="w-4 h-4 text-green-500" />
-									<span className="text-sm">播放速度: </span>
+									<span className="text-sm">{t("startNode.playSpeed")}: </span>
 								</div>
 								<span className="text-sm  font-bold">
 									{backtestConfig.playSpeed}x
@@ -133,20 +134,20 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 						<CollapsibleTrigger className="flex items-center gap-2 w-full">
 							<ChevronDown className="w-4 h-4" />
 							<Label className="text-xm font-bold text-muted-foreground">
-								回测时间范围
+								{t("startNode.timeRange")}
 							</Label>
 						</CollapsibleTrigger>
 						<CollapsibleContent className="mt-2">
 							<div className="flex flex-col gap-2 bg-gray-100 rounded-md p-2">
 								<div className="flex flex-col gap-1 text-sm">
 									<div className="flex items-center gap-2">
-										<span className="text-gray-600">开始时间:</span>
+										<span className="text-gray-600">{t("startNode.startTime")}:</span>
 										<span className="font-medium">
 											{backtestConfig.exchangeModeConfig.timeRange.startDate}
 										</span>
 									</div>
 									<div className="flex items-center gap-2">
-										<span className="text-gray-600">结束时间:</span>
+										<span className="text-gray-600">{t("startNode.endTime")}:</span>
 										<span className="font-medium">
 											{backtestConfig.exchangeModeConfig.timeRange.endDate}
 										</span>
@@ -164,9 +165,9 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 				backtestConfig.customVariables.length === 0 ? (
 					<div className="flex items-center justify-between gap-2 rounded-md">
 						<Label className="text-xm font-bold text-muted-foreground">
-							变量
+							{t("startNode.customVariables")}
 						</Label>
-						<span className="text-sm text-red-500"> 未配置 </span>
+						<span className="text-sm text-red-500"> {t("startNode.noVariable")} </span>
 					</div>
 				) : (
 					<Collapsible open={isVariablesOpen} onOpenChange={setIsVariablesOpen}>
@@ -177,7 +178,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 								<ChevronRight className="w-4 h-4" />
 							)}
 							<Label className="text-xm font-bold text-muted-foreground">
-								变量
+								{t("startNode.customVariables")}
 							</Label>
 							<Badge className="h-4 min-w-4 rounded-full px-1 font-mono tabular-nums text-xs bg-gray-200 text-gray-500">
 								{backtestConfig.customVariables.length}
@@ -224,13 +225,13 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 													<div className="w-4 shrink-0" />
 													<div className="flex flex-wrap items-start gap-x-4 gap-y-1 min-w-0 flex-1">
 														<div className="flex items-start gap-1">
-															<span className="shrink-0">初始值:</span>
+															<span className="shrink-0">{t("startNode.initialValue")}:</span>
 															<span className="font-medium break-all">
 																{formattedInitialValue}
 															</span>
 														</div>
 														<div className="flex items-start gap-1">
-															<span className="shrink-0">当前值:</span>
+															<span className="shrink-0">{t("startNode.currentValue")}:</span>
 															<span className="font-medium break-all">
 																{formattedCurrentValue}
 															</span>

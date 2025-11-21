@@ -14,11 +14,12 @@ import { StrategyRunState } from "@/types/strategy";
 import { BacktestStrategyRunStatus } from "@/types/strategy/backtest-strategy";
 import type { OperationType } from "./components/strategy-control/type";
 import { openBacktestWindow } from "@/utils/open-backtest-window";
+import { useTranslation } from "react-i18next";
 
 export default function StrategyPage() {
 	const location = useLocation();
 	const queryClient = useQueryClient();
-
+	const { t } = useTranslation();
 	// 从路由状态获取策略 ID
 	const strategyId = location.state?.strategyId;
 
@@ -28,7 +29,7 @@ export default function StrategyPage() {
 	const [saveStatus, setSaveStatus] = useState<"saved" | "unsaved" | "saving">("saved");
 	const { tradingMode, setTradingMode } = useTradingModeStore();
 	const [showLoadingDialog, setShowLoadingDialog] = useState(false);
-	const [dialogTitle, setDialogTitle] = useState("加载策略");
+	const [dialogTitle, setDialogTitle] = useState(t("desktop.strategyWorkflowPage.loadingStrategy"));
 	const [strategyRunState, setStrategyRunState] = useState<StrategyRunState>(strategy?.status || BacktestStrategyRunStatus.Stopped);
 
 	// ✅ 使用 React Query Hook 获取策略（重命名为 queryStrategy 避免冲突）
@@ -39,9 +40,9 @@ export default function StrategyPage() {
 	// ✅ 使用 useUpdateStrategy hook
 	const { mutate: updateStrategy, isPending } = useUpdateStrategy({
 		meta: {
-			successMessage: "策略保存成功",
+			successMessage: t("apiMessage.strategySavedSuccess"),
 			showSuccessToast: true,
-			errorMessage: "策略保存失败",
+			errorMessage: t("apiMessage.strategySavedError"),
 			showErrorToast: true,
 		},
 		onSuccess: (updatedStrategy) => {
@@ -86,9 +87,9 @@ export default function StrategyPage() {
 	}, []);
 
 	const handleOperationSuccess = useCallback((operationType: OperationType) => {
-		setDialogTitle(operationType === 'init' ? '加载策略' : '停止策略');
+		setDialogTitle(operationType === 'init' ? t("desktop.strategyWorkflowPage.loadingStrategy") : t("desktop.strategyWorkflowPage.stoppingStrategy"));
 		setShowLoadingDialog(true);
-	}, []);
+	}, [t]);
 
 	const handleCloseLoadingDialog = useCallback(() => {
 		setShowLoadingDialog(false);

@@ -24,6 +24,7 @@ import { StrategyRunState, TradeMode, type Strategy } from "@/types/strategy";
 import { formatTimeWithTimezone } from "@/utils/date-format";
 import StrategyControl from "../strategy-control";
 import type { OperationType } from "../strategy-control/type";
+import { useTranslation } from "react-i18next";
 
 interface StrategyPageHeaderProps {
 	strategy: Strategy;
@@ -44,6 +45,7 @@ export default function StrategyPageHeader({
 	onStrategyChange,
 	onOperationSuccess,
 }: StrategyPageHeaderProps) {
+	const { t } = useTranslation();
 	const [isEditingTitle, setIsEditingTitle] = useState(false);
 	const [isEditingDesc, setIsEditingDesc] = useState(false);
 	const [titleInput, setTitleInput] = useState(strategy.name);
@@ -67,7 +69,7 @@ export default function StrategyPageHeader({
 					formatTimeWithTimezone(strategy.updateTime, {
 						dateFormat: "smart",
 						showTimezone: false,
-					}),
+					}, t),
 				);
 			}
 		};
@@ -125,12 +127,12 @@ export default function StrategyPageHeader({
 
 	const getSaveStatusText = () => {
 		if (saveStatus === "saving") {
-			return "正在同步...";
+			return `${t("common.saving")}...`;
 		}
 		if (saveStatus === "unsaved") {
-			return "有未保存的更改";
+			return `${t("common.haveUnsavedChanges")}`;
 		}
-		return `上次保存: ${timeDisplay}`;
+		return `${t("common.lastUpdated")}: ${timeDisplay}`;
 	};
 
 	return (
@@ -174,7 +176,7 @@ export default function StrategyPageHeader({
 									className="bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 gap-1.5 font-normal"
 								>
 									<Cloud className="w-3 h-3 animate-pulse" />
-									<span>保存中</span>
+									<span>{t("common.saving")}</span>
 								</Badge>
 							)}
 							{saveStatus === "unsaved" && (
@@ -183,7 +185,7 @@ export default function StrategyPageHeader({
 									className="bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 gap-1.5 font-normal"
 								>
 									<div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-									<span>未保存</span>
+									<span>{t("common.unsaved")}</span>
 								</Badge>
 							)}
 							{saveStatus === "saved" && (
@@ -192,7 +194,7 @@ export default function StrategyPageHeader({
 									className="bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/20 gap-1.5 font-normal"
 								>
 									<Check className="w-3 h-3" />
-									<span>已保存</span>
+									<span>{t("common.saved")}</span>
 								</Badge>
 							)}
 						</div>
@@ -213,7 +215,6 @@ export default function StrategyPageHeader({
 									})
 								}
 								className="text-sm h-6 w-full min-w-[300px] max-w-[450px] px-2"
-								placeholder="添加策略描述..."
 							/>
 						) : (
 							<div
@@ -227,7 +228,7 @@ export default function StrategyPageHeader({
 											: "text-slate-500 hover:text-slate-800"
 									}`}
 								>
-									{descInput || "添加策略描述..."}
+									{descInput || t("desktop.strategyWorkflowPage.addStrategyDescription")}
 								</p>
 								<Pencil className="w-3 h-3 text-slate-400 opacity-0 group-hover:opacity-100 transition-all" />
 							</div>
@@ -256,7 +257,7 @@ export default function StrategyPageHeader({
 					}`}
 				>
 					<Save className="w-4 h-4 mr-1" />
-					保存
+					{t("common.save")}
 				</Button>
 
 				<StrategyControl
@@ -276,24 +277,24 @@ export default function StrategyPageHeader({
 						<DropdownMenuSub>
 							<DropdownMenuSubTrigger>
 								<Blend className="w-4 h-4" />
-								交易模式
+								{t("desktop.strategyWorkflowPage.tradeMode")}
 							</DropdownMenuSubTrigger>
 							<DropdownMenuSubContent>
 								<DropdownMenuItem disabled={true}>
 									<div className="flex items-center justify-center gap-4 ">
-										实盘
+										{t("desktop.strategyWorkflowPage.live")}
 										<Construction className="w-4 h-4 text-yellow-500" />
 										
 									</div>
 								</DropdownMenuItem>
 								<DropdownMenuItem>
 									<div className="flex items-center justify-center gap-4">
-										回测
+										{t("desktop.strategyWorkflowPage.backtest")}
 									</div>
 								</DropdownMenuItem>
 								<DropdownMenuItem disabled={true}>
 									<div className="flex items-center justify-center gap-4">
-										模拟
+										{t("desktop.strategyWorkflowPage.simulate")}
 										<Construction className="w-4 h-4 text-yellow-500" />
 									</div>
 								</DropdownMenuItem>

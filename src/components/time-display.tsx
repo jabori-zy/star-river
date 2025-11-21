@@ -9,7 +9,7 @@ import {
 	formatFullTimeWithSeconds,
 	type TimeFormatOptions,
 } from "@/utils/date-format";
-
+import { useTranslation } from "react-i18next";
 // ============================================
 // TimeDisplay Component Props
 // ============================================
@@ -75,13 +75,13 @@ export function TimeDisplay({
 	if (!date) {
 		return null;
 	}
-
+	const { t } = useTranslation();
 	// Format display time using provided options or defaults
-	const displayTime = formatTimeWithTimezone(date, displayOptions);
+	const displayTime = formatTimeWithTimezone(date, displayOptions, t);
 
 	// Format tooltip time - use custom options or default to full time with seconds
 	const tooltipTime = tooltipOptions
-		? formatTimeWithTimezone(date, tooltipOptions)
+		? formatTimeWithTimezone(date, tooltipOptions, t)
 		: formatFullTimeWithSeconds(date);
 
 	// If tooltip is disabled, just show the text

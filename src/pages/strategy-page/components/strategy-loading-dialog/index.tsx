@@ -170,13 +170,13 @@ export const StrategyLoadingDialog: React.FC<StrategyLoadingDialogProps> = ({
 								handleClearLogEvents(); // clear log events
 								onOpenChange(false); // close dialog
 							}}>
-								Close
+								{t("common.close")}
 							</Button>
 							<Button onClick={() => {
 								handleClearLogEvents(); // clear log events
 								onOpenBacktestWindow(strategyId); // open backtest window
 							}}>
-								Let's Go
+								{t("desktop.strategyWorkflowPage.letGo")}
 							</Button>
 						</>
 					)}
@@ -186,7 +186,7 @@ export const StrategyLoadingDialog: React.FC<StrategyLoadingDialogProps> = ({
 								handleClearLogEvents(); // clear log events
 								onOpenChange(false); // close dialog
 							}}>
-								Close
+								{t("common.close")}
 							</Button>
 						</>
 					)}

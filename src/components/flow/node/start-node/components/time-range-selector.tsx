@@ -3,6 +3,7 @@ import type React from "react";
 import { DateTimePicker24h } from "@/components/datetime-picker";
 import { formatDate } from "@/components/flow/node/node-utils";
 import type { TimeRange } from "@/types/strategy";
+import { useTranslation } from "react-i18next";
 
 interface TimeRangeSelectorProps {
 	timeRange: TimeRange;
@@ -13,6 +14,7 @@ const TimeRangeSelector: React.FC<TimeRangeSelectorProps> = ({
 	timeRange,
 	setTimeRange,
 }) => {
+	const { t } = useTranslation();
 	// const { systemConfig } = useSystemConfigStore();
 	// 将字符串转换为Date对象
 	const parseDatetime = (datetimeString: string): Date | undefined => {
@@ -31,7 +33,7 @@ const TimeRangeSelector: React.FC<TimeRangeSelectorProps> = ({
 			<div className="space-y-1">
 				<div className="flex items-center gap-2">
 					<Clock className="h-4 w-4 text-muted-foreground" />
-					<span className="font-medium text-sm">开始日期</span>
+					<span className="font-medium text-sm">{t("startNode.startTime")}</span>
 				</div>
 				<DateTimePicker24h
 					value={parseDatetime(timeRange.startDate)}
@@ -42,13 +44,13 @@ const TimeRangeSelector: React.FC<TimeRangeSelectorProps> = ({
 							startDate: formatDate(date),
 						})
 					}
-					placeholder="选择开始日期和时间"
+					placeholder={t("startNode.startTime")}
 				/>
 			</div>
 			<div className="space-y-1">
 				<div className="flex items-center gap-2">
 					<Clock className="h-4 w-4 text-muted-foreground" />
-					<span className="font-medium text-sm">结束日期</span>
+					<span className="font-medium text-sm">{t("startNode.endTime")}</span>
 				</div>
 				<DateTimePicker24h
 					value={parseDatetime(timeRange.endDate)}
@@ -58,7 +60,6 @@ const TimeRangeSelector: React.FC<TimeRangeSelectorProps> = ({
 							endDate: formatDate(date),
 						})
 					}
-					placeholder="选择结束日期和时间"
 				/>
 			</div>
 		</div>
