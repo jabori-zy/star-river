@@ -28,10 +28,14 @@ const translation = {
     },
 
     save: "Save",
+    saving: "Saving...",
     cancel: "Cancel",
     next: "Next",
     previous: "Previous",
     confirm: "Confirm",
+    deleting: "Deleting...",
+    lastUpdated: "Last Updated",
+    createTime: "Create Time",
 }
 
 

@@ -1,9 +1,10 @@
 import { IconName } from "lucide-react/dynamic";
+import { NodeType } from "./node";
 
 // 节点目录中的节点item
 export type NodeItemProps = {
 	nodeId: string;
-	nodeType: string;
+	nodeType: NodeType;
 	nodeIcon: IconName;
 	nodeIconBackgroundColor: string;
 	nodeDescription: string;

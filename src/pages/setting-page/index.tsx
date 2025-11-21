@@ -13,7 +13,7 @@ import {
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import useSystemConfigStore from "@/store/useSystemConfigStore";
+import useSystemConfigStore from "@/store/use-system-config-store";
 import type { SystemConfig } from "@/types/system";
 import { LocalizationSelect } from "./localization-select";
 import { TimezoneSelect } from "./timezone-select";

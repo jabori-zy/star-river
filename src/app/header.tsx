@@ -11,7 +11,7 @@ import ConfirmBox from "@/components/confirm-box";
 import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/components/ui/sidebar";
 import useSidebarToggleStore from "@/store/use-sidebar-toggle-store";
-import { useHeaderStore } from "@/store/useHeaderStore";
+import { useHeaderStore } from "@/store/use-header-store";
 
 // 声明electron的require
 const { ipcRenderer } = window.require
@@ -144,7 +144,7 @@ export function AppHeader() {
 		// border-b: 底部边框
 		// bg-background的具体含义是：背景颜色为背景色
 		// h-10: 高度为10 这里固定设置为10
-		<header className="flex sticky h-10 w-full items-center bg-background">
+		<header className="flex sticky h-10 w-full items-center bg-background border-b border-gray-200">
 			{/* 
     h-[--header-height]: 的意思是，div的高度等于头部的高度
     w-full: 占据整个宽度

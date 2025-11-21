@@ -1,14 +1,14 @@
 import { createBrowserRouter } from "react-router";
-import StrategyListPage from "../components/StrategyListPage";
+import StrategyListPage from "../pages/strategy-list-page";
 import AccountPage from "../pages/account-page";
 import BacktestPage from "../pages/backtest-page";
-import Dashboard from "../pages/Dashboard";
+import Dashboard from "../pages/dashboard";
 import Login from "../pages/login";
 import SettingPage from "../pages/setting-page";
 import StrategyPage from "../pages/strategy-page";
-import TestPage from "../pages/TestPage/index";
 import TestRunningLogPage from "../pages/test-running-log-page";
 import TestStrategyPerformanceReportPage from "../pages/test-page/test-strategy-performance-report-page";
+import TestLogShowPage from "../pages/test-page/test-log-show";
 
 const router = createBrowserRouter([
 	{
@@ -36,16 +36,16 @@ const router = createBrowserRouter([
 				element: <SettingPage />,
 			},
 			{
-				path: "test",
-				element: <TestPage />,
-			},
-			{
 				path: "test-running-log",
 				element: <TestRunningLogPage />,
 			},
 			{
 				path: "test-strategy-performance-report",
 				element: <TestStrategyPerformanceReportPage />,
+			},
+			{
+				path: "test-log-show",
+				element: <TestLogShowPage />,
 			},
 		],
 	},

@@ -1,7 +1,8 @@
 import type { Edge, Node } from "@xyflow/react";
-import type { StrategyChartConfig } from "@/types/chart/strategy-chart-config";
+import type { BacktestStrategyChartConfig } from "@/types/chart";
 import type { Exchange } from "@/types/market";
 import type { CustomVariable } from "@/types/variable";
+import type { BacktestStrategyRunStatus } from "@/types/strategy/backtest-strategy";
 
 export type StrategyId = number;
 
@@ -73,40 +74,20 @@ export interface StrategyBacktestConfig {
 	customVariables: CustomVariable[]; // 回测策略自定义变量
 }
 
-// 策略变量定义
+export type StrategyRunState = BacktestStrategyRunStatus;
 
-// 策略配置
-export interface StrategyConfig {
-	liveConfig: StrategyLiveConfig | null; // 实盘交易配置
-	simulateConfig: StrategySimulateConfig | null; // 模拟交易配置
-	backtestConfig: StrategyBacktestConfig | null; // 回测交易配置
-}
 
 export interface Strategy {
-	id: number; // 策略ID
-	name: string; // 策略名称
-	description: string; // 策略描述
-	isDeleted: boolean; // 是否删除
-	status: number; // 状态
-	tradeMode: TradeMode; // 交易模式
-	config: StrategyConfig; // 策略配置
-	nodes: Node[]; // 节点列表
-	edges: Edge[]; // 边列表
-	chartConfig: StrategyChartConfig[]; // 图表配置
-	createTime: string; // 创建时间
-	updateTime: string; // 更新时间
+	id: number; // strategy id
+	name: string; // strategy name
+	description: string; // strategy description
+	isDeleted: boolean; // is deleted
+	status: StrategyRunState; // status
+	tradeMode: TradeMode; // trade mode
+	nodes: Node[]; // nodes
+	edges: Edge[]; // edges
+	backtestChartConfig: BacktestStrategyChartConfig | null; // backtest chart config
+	createTime: string; // create time
+	updateTime: string; // update time
 }
 
-// 策略列表项组件的属性
-export interface StrategyItemProps {
-	strategyId: number;
-	// 策略名称
-	strategyName: string;
-	// 策略描述
-	strategyDescription: string;
-	// 创建时间
-	createTime: string;
-	// 状态
-	strategyStatus: "running" | "paused" | "error";
-	onDelete: () => void;
-}

@@ -12,10 +12,13 @@ import enUSVariableNode from "./en-US/variable-node";
 import enUSIndicator from "./en-US/indicator";
 import enUSMarket from "./en-US/market";
 import enUSSetting from "./en-US/setting";
-
+import enUSDektop from "./en-US/desktop";
+import enUSApiMessage from "./en-US/api-message";
 // 定义所有命名空间(模块名)
 const NAMESPACES = [
 	"common",
+	"desktop",
+	"apiMessage",
 	"strategy",
 	"node",
 	"if-else-node",
@@ -55,6 +58,8 @@ const getInitialTranslations = () => {
 		[SupportLanguage.EN_US]: {
 			translation: {
 				common: enUSCommon,
+				desktop: enUSDektop,
+				apiMessage: enUSApiMessage,
 				strategy: enUSStrategy,
 				node: enUSNode,
 				ifElseNode: enUSIfElseNode,

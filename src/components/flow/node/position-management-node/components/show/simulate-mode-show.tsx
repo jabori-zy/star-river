@@ -1,9 +1,9 @@
-import type { PositionManagementNodeData } from "@/types/node/position-management-node";
+import type { PositionNodeData } from "@/types/node/position-management-node";
 import { PositionHandleItem } from "../position-handle-item/index";
 
 interface SimulateModeShowProps {
 	id: string;
-	data: PositionManagementNodeData;
+	data: PositionNodeData;
 }
 
 const SimulateModeShow: React.FC<SimulateModeShowProps> = ({ id, data }) => {

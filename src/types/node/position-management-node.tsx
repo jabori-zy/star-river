@@ -34,13 +34,13 @@ export type PositionBacktestConfig = {
 	positionOperations: PositionOperationConfig[]; // 操作列表
 };
 
-export type PositionManagementNodeData = NodeDataBase & {
+export type PositionNodeData = NodeDataBase & {
 	liveConfig?: PositionLiveConfig;
 	simulateConfig?: PositionSimulateConfig;
 	backtestConfig?: PositionBacktestConfig;
 };
 
-export type PositionManagementNode = Node<
-	PositionManagementNodeData,
-	"positionManagementNode"
+export type PositionNode = Node<
+	PositionNodeData,
+	"positionNode"
 >;

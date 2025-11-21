@@ -15,30 +15,20 @@ export const sideBarMenu = {
 	},
 	navMain: [
 		{
-			title: "策略列表",
+			title: "desktop.strategyList",
 			url: "/strategy-list",
-			icon: SquareTerminal,
+			icon: Bot,
 			isActive: true,
 		},
 		{
-			title: "账户管理",
+			title: "desktop.accountManagement",
 			url: "/account",
 			icon: Bot,
 		},
 		{
-			title: "测试页面",
-			url: "/test",
-			icon: BookOpen,
-		},
-		{
-			title: "设置",
+			title: "desktop.setting",
 			url: "/setting",
 			icon: Settings2,
-		},
-		{
-			title: "策略流",
-			url: "/strategy-flow",
-			icon: Play,
 		},
 	],
 };

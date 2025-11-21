@@ -8,6 +8,7 @@ import type {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import type { IndicatorKeyStr, KeyStr } from "@/types/symbol-key";
 import type { StrategyStatsName } from "../statistics";
+export type { BacktestStrategyChartConfig } from "./backtest-chart";
 
 export type LayoutMode = "vertical" | "horizontal" | "grid" | "grid-alt";
 

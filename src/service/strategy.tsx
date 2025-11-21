@@ -1,6 +1,6 @@
 import axios from "axios";
 import { toast } from "sonner";
-import { useStrategyStore } from "@/store/useStrategyStore";
+import { useStrategyStore } from "@/store/use-strategy-store";
 import type { BacktestStrategyChartConfig } from "@/types/chart/backtest-chart";
 import type { Strategy } from "@/types/strategy";
 import { API_BASE_URL } from "./index";
@@ -10,20 +10,6 @@ const API_VERSION = "api/v1";
 
 const API_URL = `${API_BASE_URL}/${API_VERSION}/${ROUTER}`;
 
-export async function getStrategyList(
-	page: number,
-	strategy_per_page: number,
-): Promise<Strategy[]> {
-	try {
-		const response = await axios.get(
-			`${API_URL}?page=${page}&strategy_per_page=${strategy_per_page}`,
-		);
-		return response.data["data"] as Strategy[];
-	} catch (error) {
-		console.error("获取策略列表错误:", error);
-		throw error;
-	}
-}
 
 interface UpdateOptions {
 	onSuccess?: () => void;
@@ -56,11 +42,10 @@ export async function getStrategyById(strategyId: number): Promise<Strategy> {
 			description: data.data["description"],
 			isDeleted: data.data["is_deleted"],
 			tradeMode: data.data["trade_mode"],
-			config: data.data["config"] || {},
 			nodes: data.data["nodes"],
 			edges: data.data["edges"],
 			status: data.data["status"],
-			chartConfig: data.data["chart_config"],
+			backtestChartConfig: data.data["backtest_chart_config"] || {},
 			createTime: data.data["created_time"],
 			updateTime: data.data["updated_time"],
 		};
@@ -108,7 +93,7 @@ export async function getAllStrategies(): Promise<Strategy[]> {
 }
 
 /**
- * 创建新策略
+ * create a new strategy
  */
 export async function createStrategy(
 	strategyName: string,
@@ -172,11 +157,10 @@ export async function updateStrategy(
 			description: strategyData.description ?? "",
 			is_deleted: strategyData.isDeleted ?? false,
 			trade_mode: strategyData.tradeMode ?? "",
-			config: strategyData.config ?? {},
 			nodes: strategyData.nodes ?? [],
 			edges: strategyData.edges ?? [],
 			status: strategyData.status ?? 0,
-			chart_config: strategyData.chartConfig ?? [],
+			backtest_chart_config: strategyData.backtestChartConfig ?? {},
 		};
 
 		// console.log("requestBody", requestBody);

@@ -1,7 +1,7 @@
 import type { NodeProps } from "@xyflow/react";
 import BaseNode from "@/components/flow/base/BaseNode";
 import useTradingModeStore from "@/store/use-trading-mode-store";
-import type { PositionManagementNode as PositionManagementNodeType } from "@/types/node/position-management-node";
+import type { PositionNode as PositionNodeType } from "@/types/node/position-management-node";
 import { TradeMode } from "@/types/strategy";
 import BacktestModeShow from "./components/show/backtest-mode-show";
 import LiveModeShow from "./components/show/live-mode-show";
@@ -9,8 +9,8 @@ import SimulateModeShow from "./components/show/simulate-mode-show";
 import { memo } from "react";
 import { getNodeIconName, getNodeDefaultColor, NodeType } from "@/types/node/index";
 
-const PositionManagementNode: React.FC<
-	NodeProps<PositionManagementNodeType>
+const PositionNode: React.FC<
+	NodeProps<PositionNodeType>
 > = ({ id, data, selected }) => {
 	const nodeName = data.nodeName || "仓位管理节点";
 	const { tradingMode } = useTradingModeStore();
@@ -33,9 +33,9 @@ const PositionManagementNode: React.FC<
 		<BaseNode
 			id={id}
 			nodeName={nodeName}
-			iconName={data?.nodeConfig?.iconName || getNodeIconName(NodeType.PositionManagementNode)}
-			iconBackgroundColor={data?.nodeConfig?.iconBackgroundColor || getNodeDefaultColor(NodeType.PositionManagementNode)}
-			borderColor={data?.nodeConfig?.borderColor || getNodeDefaultColor(NodeType.PositionManagementNode)}
+			iconName={data?.nodeConfig?.iconName || getNodeIconName(NodeType.PositionNode)}
+			iconBackgroundColor={data?.nodeConfig?.iconBackgroundColor || getNodeDefaultColor(NodeType.PositionNode)}
+			borderColor={data?.nodeConfig?.borderColor || getNodeDefaultColor(NodeType.PositionNode)}
 			isHovered={data?.nodeConfig?.isHovered || false}
 			selected={selected}
 		>
@@ -44,4 +44,4 @@ const PositionManagementNode: React.FC<
 	);
 };
 
-export default memo(PositionManagementNode);
+export default memo(PositionNode);

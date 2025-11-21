@@ -307,7 +307,7 @@ export const generateTriggerConditionText = (
 			ifElseNode: "条件",
 			startNode: "起点",
 			futuresOrderNode: "合约订单",
-			positionManagementNode: "持仓管理",
+			PositionNode: "持仓管理",
 		};
 		const nodeTypeLabel = nodeTypeLabels[fromNodeType] || "节点";
 

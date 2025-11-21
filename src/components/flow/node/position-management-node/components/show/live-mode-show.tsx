@@ -1,9 +1,9 @@
-import type { PositionManagementNodeData } from "@/types/node/position-management-node";
+import type { PositionNodeData } from "@/types/node/position-management-node";
 import { PositionHandleItem } from "../position-handle-item/index";
 
 interface LiveModeShowProps {
 	id: string;
-	data: PositionManagementNodeData;
+	data: PositionNodeData;
 }
 
 const LiveModeShow: React.FC<LiveModeShowProps> = ({ id, data }) => {

@@ -7,7 +7,7 @@ import type { SelectedAccount } from "@/types/strategy";
 import OperationSetting from "../components/operation-setting";
 import OptAccountSelector from "../components/opt-account-selector";
 
-const PositionManagementNodeBacktestSettingPanel: React.FC<SettingProps> = ({
+const PositionNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	id,
 }) => {
 	// 获取开始节点数据
@@ -70,4 +70,4 @@ const PositionManagementNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	);
 };
 
-export default PositionManagementNodeBacktestSettingPanel;
+export default PositionNodeBacktestSettingPanel;

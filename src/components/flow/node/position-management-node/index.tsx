@@ -1,5 +1,5 @@
-import PositionManagementNode from "./node";
-import PositionManagementNodeSettingPanel from "./panel";
+import PositionNode from "./node";
+import PositionNodeSettingPanel from "./panel";
 
-export { PositionManagementNodeSettingPanel };
-export default PositionManagementNode;
+export { PositionNodeSettingPanel };
+export default PositionNode;

@@ -1,9 +1,9 @@
-import type { PositionManagementNodeData } from "@/types/node/position-management-node";
+import type { PositionNodeData } from "@/types/node/position-management-node";
 import { PositionHandleItem } from "../position-handle-item/index";
 
 interface BacktestModeShowProps {
 	id: string;
-	data: PositionManagementNodeData;
+	data: PositionNodeData;
 }
 
 const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ id, data }) => {

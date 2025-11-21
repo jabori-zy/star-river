@@ -4,19 +4,21 @@ import {
 	SidebarMenuButton,
 	SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { useTranslation } from "react-i18next";
 
 const CreateStrategyButton = () => {
+	const { t } = useTranslation();
 	return (
 		<SidebarMenu>
-			<SidebarMenuItem>
-				<SidebarMenuButton asChild>
-					<a
-						className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-						href="#"
-					>
+			<SidebarMenuItem className="flex items-center gap-2">
+				<SidebarMenuButton
+				 tooltip={t("desktop.newStrategy")}
+				 className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear"
+				>
+					<div className="flex items-center gap-2">
 						<Plus className="h-4 w-4 font-bold shrink-0 ml-2" />
-						<span>创建策略</span>
-					</a>
+						<span>{t("desktop.newStrategy")}</span>
+					</div>
 				</SidebarMenuButton>
 			</SidebarMenuItem>
 		</SidebarMenu>

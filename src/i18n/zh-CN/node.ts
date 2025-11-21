@@ -8,8 +8,8 @@ const translation = {
 	indicatorNode: "指标节点",
 	variableNode: "变量节点",
 	futuresOrderNode: "期货订单节点",
-	positionManagementNode: "仓位管理节点",
-	startNode: "起始节点",
+	positionNode: "仓位节点",
+	startNode: "开始节点",
 	ifElseNode: "条件判断节点",
 };
 

@@ -8,7 +8,7 @@ const translation = {
 	indicatorNode: "Indicator Node",
 	variableNode: "Variable Node",
 	futuresOrderNode: "Futures Order Node",
-	positionManagementNode: "Position Management Node",
+	positionNode: "Position Node",
 	startNode: "Start Node",
 	ifElseNode: "If-Else Node",
 };

@@ -84,34 +84,14 @@ class BacktestStrategyStateLogObservableService {
 
 			// 连接错误
 			this.eventSource.onerror = (error) => {
-				console.error("策略状态日志SSE连接错误:", error);
+				console.error("Strategy state log sse connection error:", error);
 				this.connectionState$.next(SSEConnectionState.ERROR);
 				this.handleError();
 			};
 		} catch (error) {
-			console.error("创建策略状态日志SSE连接失败:", error);
+			console.error("Strategy state log sse connection failed:", error);
 			this.connectionState$.next(SSEConnectionState.ERROR);
 		}
-	}
-
-	/**
-	 * 判断是否为策略状态日志事件
-	 */
-	private isStrategyStateLogEvent(
-		event: StrategyStateLogEvent | NodeStateLogEvent,
-	): event is StrategyStateLogEvent {
-		return "strategyState" in event && "strategyStateAction" in event;
-	}
-
-	/**
-	 * 判断是否为节点状态日志事件
-	 */
-	private isNodeStateLogEvent(
-		event: StrategyStateLogEvent | NodeStateLogEvent,
-	): event is NodeStateLogEvent {
-		return (
-			"nodeId" in event && "nodeState" in event && "nodeStateAction" in event
-		);
 	}
 
 	/**
@@ -119,33 +99,10 @@ class BacktestStrategyStateLogObservableService {
 	 */
 	private handleMessage(event: MessageEvent): void {
 		try {
-			const logEvent = JSON.parse(event.data) as
-				| StrategyStateLogEvent
-				| NodeStateLogEvent;
-
-			// 通过类型保护函数确定具体类型
-			if (this.isStrategyStateLogEvent(logEvent)) {
-				// 这里 logEvent 的类型被确定为 StrategyStateLogEvent
-				console.log(
-					"策略状态日志:",
-					logEvent.strategyState,
-					logEvent.strategyStateAction,
-				);
-			} else if (this.isNodeStateLogEvent(logEvent)) {
-				// 这里 logEvent 的类型被确定为 NodeStateLogEvent
-				console.log(
-					"节点状态日志:",
-					logEvent.nodeId,
-					logEvent.nodeState,
-					logEvent.nodeStateAction,
-				);
-			} else {
-				console.warn("未知的日志事件类型:", logEvent);
-			}
-
+			const logEvent = JSON.parse(event.data) as StrategyStateLogEvent | NodeStateLogEvent;
 			this.logDataSubject.next(logEvent);
 		} catch (error) {
-			console.error("解析策略状态日志SSE消息失败:", error);
+			console.error("Parse strategy state log sse message failed:", error);
 		}
 	}
 

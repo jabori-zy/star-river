@@ -37,10 +37,10 @@ export const nodeList = [
 				nodeDescription: "期货订单节点",
 			} as NodeItemProps,
 			{
-				nodeId: "position_management_node",
-				nodeType: NodeType.PositionManagementNode,
-				nodeIcon: getNodeIconName(NodeType.PositionManagementNode),
-				nodeIconBackgroundColor: getNodeDefaultColor(NodeType.PositionManagementNode),
+				nodeId: "position_node",
+				nodeType: NodeType.PositionNode,
+				nodeIcon: getNodeIconName(NodeType.PositionNode),
+				nodeIconBackgroundColor: getNodeDefaultColor(NodeType.PositionNode),
 				nodeDescription: "仓位管理节点",
 			} as NodeItemProps,
 			{

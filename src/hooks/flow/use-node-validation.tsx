@@ -23,10 +23,10 @@ const NodeSupportConnectionMap: Record<NodeType, NodeType[]> = {
 	[NodeType.IfElseNode]: [NodeType.FuturesOrderNode, NodeType.VariableNode],
 	[NodeType.FuturesOrderNode]: [
 		NodeType.IfElseNode,
-		NodeType.PositionManagementNode,
+		NodeType.PositionNode,
 		NodeType.VariableNode,
 	],
-	[NodeType.PositionManagementNode]: [
+	[NodeType.PositionNode]: [
 		NodeType.IfElseNode,
 		NodeType.VariableNode,
 	],
@@ -40,7 +40,7 @@ const NodeSupportConnectionLimit: Record<NodeType, number> = {
 	[NodeType.IndicatorNode]: 1, // 只能有一个入口
 	[NodeType.IfElseNode]: -1, // -1代表不限制
 	[NodeType.FuturesOrderNode]: -1, // -1代表不限制
-	[NodeType.PositionManagementNode]: -1, // -1代表不限制
+	[NodeType.PositionNode]: -1, // -1代表不限制
 	[NodeType.VariableNode]: -1, // -1代表不限制
 };
 

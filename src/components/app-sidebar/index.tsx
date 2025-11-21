@@ -26,9 +26,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 				<NavMain items={sideBarMenu.navMain} />
 			</div>
 			<SidebarContent>{/* 这里未来放置常用策略的列表 */}</SidebarContent>
-			<SidebarFooter>
+			{/* <SidebarFooter>
 				<NavUser user={sideBarMenu.user} />
-			</SidebarFooter>
+			</SidebarFooter> */}
 		</Sidebar>
 	);
 }

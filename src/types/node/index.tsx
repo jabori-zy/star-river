@@ -1,13 +1,13 @@
 import type { IfElseNodeData } from "./if-else-node";
 import type { IndicatorNodeData } from "./indicator-node";
 import type { KlineNodeData } from "./kline-node";
-import type { PositionManagementNodeData } from "./position-management-node";
+import type { PositionNodeData } from "./position-management-node";
 import type { StartNodeData } from "./start-node";
 import type { StartNode } from "./start-node";
 import type { KlineNode } from "./kline-node";
 import type { IndicatorNode } from "./indicator-node";
 import type { IfElseNode } from "./if-else-node";
-import type { PositionManagementNode } from "./position-management-node";
+import type { PositionNode } from "./position-management-node";
 import type { VariableNode } from "./variable-node";
 import type { VariableNodeData } from "./variable-node";
 import type { IconName } from "lucide-react/dynamic";
@@ -22,7 +22,7 @@ export enum NodeType {
 	IndicatorNode = "indicatorNode",
 	IfElseNode = "ifElseNode",
 	FuturesOrderNode = "futuresOrderNode",
-	PositionManagementNode = "positionManagementNode",
+	PositionNode = "positionNode",
 	VariableNode = "variableNode",
 }
 
@@ -39,8 +39,8 @@ export const getNodeTypeName = (nodeType: NodeType, t: TFunction): string => {
 			return t("node.ifElseNode");
 		case NodeType.FuturesOrderNode:
 			return t("node.futuresOrderNode");
-		case NodeType.PositionManagementNode:
-			return t("node.positionManagementNode");
+		case NodeType.PositionNode:
+			return t("node.positionNode");
 		case NodeType.VariableNode:
 			return t("node.variableNode");
 		default:
@@ -55,7 +55,7 @@ export const NodeDefaultColorsMap: Record<NodeType, string> = {
 	[NodeType.IndicatorNode]: "#8b5cf6", // 紫色 - 指标节点
 	[NodeType.IfElseNode]: "#f59e0b", // 橙色 - 条件节点
 	[NodeType.FuturesOrderNode]: "#ef4444", // 红色 - 期货订单节点
-	[NodeType.PositionManagementNode]: "#ec4899", // 粉色 - 持仓管理节点
+	[NodeType.PositionNode]: "#ec4899", // 粉色 - 持仓管理节点
 	[NodeType.VariableNode]: "#06b6d4", // 青色 - 变量节点
 };
 
@@ -73,7 +73,7 @@ export const NodeIconsMap: Record<NodeType, IconName> = {
 	[NodeType.IndicatorNode]: "chart-line",
 	[NodeType.IfElseNode]: "git-branch",
 	[NodeType.FuturesOrderNode]: "shopping-cart",
-	[NodeType.PositionManagementNode]: "wallet",
+	[NodeType.PositionNode]: "wallet",
 	[NodeType.VariableNode]: "variable",
 };
 
@@ -91,7 +91,7 @@ export const getNodeDefaultInputHandleId = (id: NodeId, nodeType: NodeType) => {
 			return `${id}_default_input`;
 		case NodeType.FuturesOrderNode:
 			return `${id}_default_input`;
-		case NodeType.PositionManagementNode:
+		case NodeType.PositionNode:
 			return `${id}_default_input`;
 		case NodeType.VariableNode:
 			return `${id}_default_input`;
@@ -113,7 +113,7 @@ export const getNodeDefaultOutputHandleId = (
 			return `${id}_default_output`;
 		case NodeType.FuturesOrderNode:
 			return `${id}_default_output`;
-		case NodeType.PositionManagementNode:
+		case NodeType.PositionNode:
 			return `${id}_default_output`;
 		case NodeType.VariableNode:
 			return `${id}_default_output`;
@@ -159,11 +159,11 @@ export type NodeData =
 	| KlineNodeData
 	| IndicatorNodeData
 	| IfElseNodeData
-	| PositionManagementNodeData
+	| PositionNodeData
 	| VariableNodeData;
 
 
-export type StrategyFlowNode = StartNode | KlineNode | IndicatorNode | IfElseNode | PositionManagementNode | VariableNode;
+export type StrategyFlowNode = StartNode | KlineNode | IndicatorNode | IfElseNode | PositionNode | VariableNode;
 
 
 // 节点类型守卫
@@ -179,6 +179,6 @@ export const isIndicatorNode = (node: StrategyFlowNode): node is IndicatorNode =
 export const isIfElseNode = (node: StrategyFlowNode): node is IfElseNode => {
 	return node.type === NodeType.IfElseNode;
 };
-export const isPositionManagementNode = (node: StrategyFlowNode): node is PositionManagementNode => {
-	return node.type === NodeType.PositionManagementNode;
+export const isPositionNode = (node: StrategyFlowNode): node is PositionNode => {
+	return node.type === NodeType.PositionNode;
 };

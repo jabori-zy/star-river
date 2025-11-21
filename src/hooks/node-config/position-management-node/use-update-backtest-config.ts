@@ -4,7 +4,7 @@ import { produce } from "immer";
 import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 import type {
 	PositionBacktestConfig,
-	PositionManagementNodeData,
+	PositionNodeData,
 	PositionOperationConfig,
 } from "@/types/node/position-management-node";
 import type { SelectedAccount } from "@/types/strategy";
@@ -28,7 +28,7 @@ export const useBacktestConfig = ({ id }: UseBacktestConfigProps) => {
 	const { updateNodeData } = useReactFlow();
 	const { getNodeData } = useStrategyWorkflow();
 
-	const nodeData = getNodeData(id) as PositionManagementNodeData;
+	const nodeData = getNodeData(id) as PositionNodeData;
 	const backtestConfig = nodeData?.backtestConfig ?? null;
 
 	/**
