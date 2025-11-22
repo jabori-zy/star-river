@@ -17,6 +17,8 @@ const translation = {
 		"When all conditions are not met, the ELSE branch will be executed",
 	noConditions: "No Conditions",
 	allSymbols: "All Syms",
+	nested: "Nested",
+	nestedDescription: "When the upper case is true, this node will execute",
 	comparisonSymbols: {
 		equal: "=",
 		notEqual: "!=",

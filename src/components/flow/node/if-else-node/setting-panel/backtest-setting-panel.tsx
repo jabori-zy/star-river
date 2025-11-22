@@ -32,10 +32,6 @@ const IfElseNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 
 	const variables = getConnectedNodeVariables(connections,TradeMode.BACKTEST);
 
-
-	
-
-
 	// 添加ELIF分支
 	const handleAddElif = () => {
 		const cases = backtestConfig?.cases;

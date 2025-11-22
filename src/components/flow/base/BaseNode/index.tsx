@@ -72,7 +72,7 @@ const BaseNode: React.FC<BaseNodeProps> = ({
 			{...props}
 		>
 			{/* 标题区域 */}
-			<div className="p-2">
+			<div className="px-2 pt-2">
 				<div className="flex items-center gap-2">
 					{/* 图标 */}
 					{iconName && (

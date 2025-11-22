@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
-import { useBacktestConfig } from "@/hooks/node-config/position-management-node";
+import { useBacktestConfig } from "@/hooks/node-config/position-node";
 import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 import type { PositionOperationConfig } from "@/types/node/position-management-node";
 import type { SelectedAccount } from "@/types/strategy";

@@ -37,7 +37,7 @@ import { createDefaultKlineNodeData } from "@/hooks/node-config/kline-node";
 import { createDefaultIndicatorNodeData } from "@/hooks/node-config/indicator-node";
 import { createDefaultIfElseNodeData } from "@/hooks/node-config/if-else-node";
 import { createDefaultFuturesOrderNodeData } from "@/hooks/node-config/futures-order-node";
-import { createDefaultPositionNodeData } from "@/hooks/node-config/position-management-node";
+import { createDefaultPositionNodeData } from "@/hooks/node-config/position-node";
 import { createDefaultVariableNodeData } from "@/hooks/node-config/variable-node";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -254,7 +254,7 @@ export default function StrategyFlow({ strategy, onSaveStatusChange }: StrategyF
 
 		// 如果包含 start node,弹出提示
 		if (hasStartNode) {
-			toast.error(t("workflow.cannotDeleteStartNode"));
+			toast.error(t("strategy.workflow.cannotDeleteStartNode"));
 
 			// 如果所有节点都是 start node,则阻止删除
 			if (nodesToDelete.length === 0) {

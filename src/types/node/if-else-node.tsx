@@ -23,6 +23,7 @@ export type IfElseNodeData = NodeDataBase & {
 	liveConfig?: IfElseNodeLiveConfig;
 	simulateConfig?: IfElseNodeSimulateConfig;
 	backtestConfig?: IfElseNodeBacktestConfig;
+	isNested: boolean; // is nested if-else node
 };
 
 // 条件组

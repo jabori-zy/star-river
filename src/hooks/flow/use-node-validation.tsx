@@ -2,6 +2,8 @@ import {
 	type Connection,
 	type Edge,
 	type IsValidConnection,
+	type Node,
+	getOutgoers,
 	useReactFlow,
 } from "@xyflow/react";
 import { useCallback } from "react";
@@ -20,7 +22,7 @@ const NodeSupportConnectionMap: Record<NodeType, NodeType[]> = {
 		NodeType.VariableNode,
 	],
 	[NodeType.IndicatorNode]: [NodeType.IfElseNode, NodeType.VariableNode],
-	[NodeType.IfElseNode]: [NodeType.FuturesOrderNode, NodeType.VariableNode],
+	[NodeType.IfElseNode]: [NodeType.FuturesOrderNode, NodeType.VariableNode, NodeType.PositionNode, NodeType.IfElseNode],
 	[NodeType.FuturesOrderNode]: [
 		NodeType.IfElseNode,
 		NodeType.PositionNode,
@@ -45,11 +47,44 @@ const NodeSupportConnectionLimit: Record<NodeType, number> = {
 };
 
 /**
+ * 检测是否会形成循环连接
+ * 使用深度优先搜索(DFS)从目标节点向下遍历，检查是否能到达源节点
+ *
+ * @param sourceNodeId - 待连接的源节点ID
+ * @param targetNode - 待连接的目标节点对象
+ * @param nodes - 所有节点列表
+ * @param edges - 所有边列表
+ * @returns true 表示会形成循环，false 表示不会
+ */
+const hasCycle = (
+	sourceNodeId: string,
+	targetNode: Node,
+	nodes: Node[],
+	edges: Edge[],
+): boolean => {
+	const visited = new Set<string>();
+
+	const dfs = (currentNode: Node): boolean => {
+		if (visited.has(currentNode.id)) return false;
+		visited.add(currentNode.id);
+
+		for (const outgoer of getOutgoers(currentNode, nodes, edges)) {
+			if (outgoer.id === sourceNodeId) return true;
+			if (dfs(outgoer)) return true;
+		}
+
+		return false;
+	};
+
+	return dfs(targetNode);
+};
+
+/**
  * 节点连接验证相关的hook
  */
 const useNodeValidation = () => {
 	// 获取 ReactFlow 的节点和连接信息
-	const { getNode, getNodeConnections } = useReactFlow();
+	const { getNode, getNodeConnections, getNodes, getEdges } = useReactFlow();
 
 	/**
 	 * 检查连接是否有效
@@ -69,6 +104,11 @@ const useNodeValidation = () => {
 				return false;
 			}
 
+			// 防止自循环 (A → A)
+			if (sourceNode.id === targetNode.id) {
+				return false;
+			}
+
 			// 检查源节点是否支持连接到目标节点类型
 			const supportedConnections =
 				NodeSupportConnectionMap[sourceNode.type as NodeType];
@@ -84,19 +124,25 @@ const useNodeValidation = () => {
 				nodeId: targetNodeId,
 				type: "target",
 			});
-			console.log("targetNodeConnections", targetNodeConnections);
 			const targetNodeSupportConnectionLimit = NodeSupportConnectionLimit[targetNode.type as NodeType];
 
-			// -1表示无限制，直接允许连接
-			if (targetNodeSupportConnectionLimit === -1) {
-				return true;
+			// -1表示无限制，需要继续检查循环
+			if (targetNodeSupportConnectionLimit !== -1) {
+				// 检查是否超过连接数量限制
+				const isOverLimit = targetNodeSupportConnectionLimit > targetNodeConnections.length;
+				if (!isOverLimit) {
+					return false;
+				}
 			}
 
-			// 检查是否超过连接数量限制
-			const isOverLimit = targetNodeSupportConnectionLimit > targetNodeConnections.length;
-			return isOverLimit;
+			// 防止形成循环连接 (A → B → C → A)
+			if (hasCycle(sourceNode.id, targetNode, getNodes(), getEdges())) {
+				return false;
+			}
+
+			return true;
 		},
-		[getNode, getNodeConnections],
+		[getNode, getNodeConnections, getNodes, getEdges],
 	);
 
 	return {

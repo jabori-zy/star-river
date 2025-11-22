@@ -274,7 +274,7 @@ export const renderVariableOptions = ({
 								localNodeId,
 								variable.outputHandleId,
 								field,
-								t(`klineValueField.${field}`),
+								t(`market.klineValueField.${field}`),
 							)}
 						>
 							<div className="flex items-center w-full gap-1">
@@ -288,7 +288,7 @@ export const renderVariableOptions = ({
 									</Badge>
 								</div>
 								<span className="font-medium text-gray-900 flex-1 text-right truncate">
-									{t(`klineValueField.${field}`)}
+									{t(`market.klineValueField.${field}`)}
 								</span>
 							</div>
 						</SelectItem>,

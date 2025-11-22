@@ -1,8 +1,40 @@
 import { createDefaultIfElseBacktestConfig } from "./use-update-backtest-config";
 export { useBacktestConfig } from "./use-update-backtest-config";
+export { useSyncSourceNode } from "./use-sync-source-node";
 import type { IfElseNodeData } from "@/types/node/if-else-node";
 import { getNodeIconName, getNodeDefaultColor, NodeType } from "@/types/node";
 import type { TFunction } from "i18next";
+import { useCallback } from "react";
+import { useReactFlow } from "@xyflow/react";
+import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
+
+/**
+ * Hook to update isNested property of if-else node
+ *
+ * @param id - If-else node ID
+ * @returns Current isNested value and update function
+ */
+export const useUpdateIsNested = ({ id }: { id: string }) => {
+	const { updateNodeData } = useReactFlow();
+	const { getNodeData } = useStrategyWorkflow();
+
+	const nodeData = getNodeData(id) as IfElseNodeData;
+	const isNested = nodeData?.isNested ?? false;
+
+	/**
+	 * Update isNested property
+	 * @param value - New isNested value
+	 */
+	const updateIsNested = useCallback(
+		(value: boolean) => {
+			updateNodeData(id, { isNested: value });
+		},
+		[id, updateNodeData],
+	);
+
+	return { isNested, updateIsNested };
+};
+
 /**
  * Create default if-else node data
  */
@@ -16,6 +48,7 @@ export const createDefaultIfElseNodeData = (
 		strategyId,
 		strategyName,
 		nodeName: t("node.ifElseNode"),
+		isNested: false,
 		liveConfig: undefined,
 		simulateConfig: undefined,
 		backtestConfig: createDefaultIfElseBacktestConfig(nodeId),

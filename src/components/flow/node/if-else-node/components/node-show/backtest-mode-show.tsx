@@ -1,6 +1,8 @@
 import type { IfElseNodeData } from "@/types/node/if-else-node";
 import { ElseCaseItem, IfElseCaseItem } from "../case-handle-item";
-
+import { CircleAlert } from "lucide-react";
+import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/components/ui/tooltip"
+import { useTranslation } from "react-i18next";
 interface BacktestModeShowProps {
 	id: string;
 	data: IfElseNodeData;
@@ -10,7 +12,8 @@ interface BacktestModeShowProps {
 const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ id, data, handleColor }) => {
 	// 获取回测模式配置
 	const backtestConfig = data.backtestConfig;
-
+	const isNested = data.isNested;
+	const { t } = useTranslation();
 	// 如果没有配置或者没有cases，显示提示信息
 	if (
 		!backtestConfig ||
@@ -25,7 +28,23 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ id, data, handleCol
 	}
 
 	return (
-		<div className="space-y-2">
+		<div className="space-y-1">
+			{isNested && (
+				<TooltipProvider>
+					<Tooltip>
+						<TooltipTrigger>
+							<div className="flex items-center text-xs text-muted-foreground">
+								<CircleAlert className="w-4 h-4 text-yellow-500" />
+								<span className="ml-2">{t("ifElseNode.nested")}</span>
+							</div>
+						</TooltipTrigger>
+					<TooltipContent>
+						{/* 当上层循环为true时，该节点才会执行 */}
+						<p>{t("ifElseNode.nestedDescription")}</p>
+					</TooltipContent>
+				</Tooltip>
+				</TooltipProvider>
+			)}
 			{/* 渲染所有的条件case */}
 			{backtestConfig.cases.map((caseItem, index) => (
 				<IfElseCaseItem
