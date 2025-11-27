@@ -76,7 +76,7 @@ export default function StrategyPageHeader({
 		updateTimer();
 		const interval = setInterval(updateTimer, 5000); // 每5秒更新
 		return () => clearInterval(interval);
-	}, [strategy.updateTime]);
+	}, [strategy.updateTime,t]);
 
 	// 自动聚焦输入框
 	useEffect(() => {

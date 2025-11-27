@@ -6,7 +6,6 @@ import Dashboard from "../pages/dashboard";
 import Login from "../pages/login";
 import SettingPage from "../pages/setting-page";
 import StrategyPage from "../pages/strategy-page";
-import TestRunningLogPage from "../pages/test-running-log-page";
 import TestStrategyPerformanceReportPage from "../pages/test-page/test-strategy-performance-report-page";
 import TestLogShowPage from "../pages/test-page/test-log-show";
 
@@ -34,10 +33,6 @@ const router = createBrowserRouter([
 			{
 				path: "setting",
 				element: <SettingPage />,
-			},
-			{
-				path: "test-running-log",
-				element: <TestRunningLogPage />,
 			},
 			{
 				path: "test-strategy-performance-report",

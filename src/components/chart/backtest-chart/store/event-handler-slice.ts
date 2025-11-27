@@ -55,45 +55,14 @@ export const createEventHandlerSlice =
 					klineSeries.setData(newData);
 				}
 			}
-
-			// // 获取最后一根k线
-			// const lastData = get().getLastKline(klineKeyStr);
-
-			// // 如果最后一根k线的时间戳与新k线的时间戳相同，则替换最后一根k线
-			// if (lastData && lastData.time === timestamp) {
-			// 	const data = get().klineData;
-			// 	// 创建新数组，替换最后一根k线
-			// 	const newData = [...data.slice(0, -1), candlestickData];
-			// 	get().setKlineData(newData);
-			// } else {
-			// 	const data = get().klineData;
-			// 	// 说明策略还未开始，当前是第一根k线
-			// 	if (!data) {
-			// 		get().setKlineData([candlestickData]);
-			// 	}
-
-			// 	// 创建新数组，添加新k线
-			// 	const newData = [...data, candlestickData];
-			// 	get().setKlineData(newData);
-			// }
 		},
 
 		onNewIndicator: (
 			indicatorKeyStr: KeyStr,
 			indicator: Record<keyof IndicatorValueConfig, SingleValueData[]>,
 		) => {
-			// const existingIndicatorData = get().indicatorData[indicatorKeyStr] || {};
-			// const indicatorConfig = context.chartConfig.indicatorChartConfigs.find(
-			// 	(config) => config.indicatorKeyStr === indicatorKeyStr,
-			// );
-			// const isInMainChart = indicatorConfig?.isInMainChart;
-
-			// 处理每个指标值字段
-			// const updatedIndicator: Record<keyof IndicatorValueConfig, SingleValueData[]> = { ...existingIndicatorData };
 
 			Object.entries(indicator).forEach(([indicatorValueKey, newDataArray]) => {
-				// const indicatorValueField = indicatorValueKey as keyof IndicatorValueConfig;
-				// const existingData = existingIndicatorData[indicatorValueField] || [];
 
 				// 处理新数据数组中的每个数据点
 				newDataArray.forEach((newDataPoint, _) => {
@@ -124,21 +93,6 @@ export const createEventHandlerSlice =
 							indicatorSeriesRef.setData(newData);
 						}
 					}
-
-					// // 如果最后一个数据点的时间戳与新数据点的时间戳相同，则替换最后一个数据点
-					// if (lastData && lastData.time === newDataPoint.time) {
-					// 	// 创建新数组，替换最后一个数据点
-					// 	updatedIndicator[indicatorValueField] = [
-					// 		...existingData.slice(0, -1),
-					// 		newDataPoint,
-					// 	];
-					// } else {
-					// 	// 创建新数组，添加新数据点
-					// 	updatedIndicator[indicatorValueField] = [
-					// 		...existingData,
-					// 		newDataPoint,
-					// 	];
-					// }
 				});
 			});
 

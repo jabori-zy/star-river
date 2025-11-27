@@ -119,17 +119,17 @@ export function formatTimeWithTimezone(
 			timeStr = t('common.timeFormat.daysAgo', { days: totalDays });
 		} else if (targetDate.hasSame(now, 'year')) {
 			// Same year
-			timeStr = targetDate.toFormat('MM-dd HH:mm');
+			timeStr = targetDate.toFormat('MM-dd HH:mm:ss');
 		} else {
 			// Different year
-			timeStr = targetDate.toFormat('yyyy-MM-dd HH:mm');
+			timeStr = targetDate.toFormat('yyyy-MM-dd HH:mm:ss');
 		}
 	} else if (dateFormat === 'compact') {
 		// Compact format: MM-DD HH:mm
-		timeStr = targetDate.toFormat('MM-dd HH:mm');
+		timeStr = targetDate.toFormat('MM-dd HH:mm:ss');
 	} else {
 		// Full format: YYYY-MM-DD HH:mm
-		timeStr = targetDate.toFormat('yyyy-MM-dd HH:mm');
+		timeStr = targetDate.toFormat('yyyy-MM-dd HH:mm:ss');
 	}
 
 	if (!showTimezone) {

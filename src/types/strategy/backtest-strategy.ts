@@ -2,7 +2,7 @@
 
 
 
-export enum BacktestStrategyRunStatus {
+export enum BacktestStrategyRunState {
     Created = "Created",
     Checking = "Checking",
     CheckPassed = "CheckPassed",
@@ -13,7 +13,6 @@ export enum BacktestStrategyRunStatus {
     PlayComplete = "PlayComplete",
     Stopping = "Stopping",
     Stopped = "Stopped",
-    Failed = "Failed",
     Error = "Error",
 }
 

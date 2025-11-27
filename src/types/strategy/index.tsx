@@ -2,7 +2,7 @@ import type { Edge, Node } from "@xyflow/react";
 import type { BacktestStrategyChartConfig } from "@/types/chart";
 import type { Exchange } from "@/types/market";
 import type { CustomVariable } from "@/types/variable";
-import type { BacktestStrategyRunStatus } from "@/types/strategy/backtest-strategy";
+import type { BacktestStrategyRunState } from "@/types/strategy/backtest-strategy";
 
 export type StrategyId = number;
 
@@ -74,7 +74,7 @@ export interface StrategyBacktestConfig {
 	customVariables: CustomVariable[]; // 回测策略自定义变量
 }
 
-export type StrategyRunState = BacktestStrategyRunStatus;
+export type StrategyRunState = BacktestStrategyRunState;
 
 
 export interface Strategy {

@@ -10,11 +10,10 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { LogLevel } from "@/types/strategy-event";
-import type { StrategyRunningLogEvent } from "@/types/strategy-event/strategy-running-log-event";
-import { StrategyRunningLogSource } from "@/types/strategy-event/strategy-running-log-event";
+import type { NodeRunningLogEvent, StrategyRunningLogEvent } from "@/types/strategy-event/running-log-event";
 
 interface LogTableFiltersProps {
-	table: Table<StrategyRunningLogEvent>;
+	table: Table<StrategyRunningLogEvent | NodeRunningLogEvent>;
 }
 
 export function LogTableFilters({ table }: LogTableFiltersProps) {
@@ -32,7 +31,7 @@ export function LogTableFilters({ table }: LogTableFiltersProps) {
 	const logLevelFilter = table
 		.getColumn("logLevel")
 		?.getFilterValue() as string;
-	const sourceFilter = table.getColumn("source")?.getFilterValue() as string;
+	const typeFilter = table.getColumn("type")?.getFilterValue() as string;
 	const nodeNameFilter = table
 		.getColumn("nodeName")
 		?.getFilterValue() as string;
@@ -40,12 +39,12 @@ export function LogTableFilters({ table }: LogTableFiltersProps) {
 	// 清空所有筛选
 	const clearAllFilters = () => {
 		table.getColumn("logLevel")?.setFilterValue(undefined);
-		table.getColumn("source")?.setFilterValue(undefined);
+		table.getColumn("type")?.setFilterValue(undefined);
 		table.getColumn("nodeName")?.setFilterValue(undefined);
 	};
 
 	// 检查是否有任何筛选器处于激活状态
-	const hasActiveFilters = !!(logLevelFilter || sourceFilter || nodeNameFilter);
+	const hasActiveFilters = !!(logLevelFilter || typeFilter || nodeNameFilter);
 
 	return (
 		<div className="flex flex-wrap gap-3 items-center p-4 bg-muted/30 border-b">
@@ -66,7 +65,7 @@ export function LogTableFilters({ table }: LogTableFiltersProps) {
 					<SelectContent>
 						<SelectItem value="all">所有级别</SelectItem>
 						<SelectItem value={LogLevel.ERROR}>ERROR</SelectItem>
-						<SelectItem value={LogLevel.WARNING}>WARNING</SelectItem>
+						<SelectItem value={LogLevel.WARN}>WARN</SelectItem>
 						<SelectItem value={LogLevel.INFO}>INFO</SelectItem>
 						<SelectItem value={LogLevel.DEBUG}>DEBUG</SelectItem>
 						<SelectItem value={LogLevel.TRACE}>TRACE</SelectItem>
@@ -78,22 +77,20 @@ export function LogTableFilters({ table }: LogTableFiltersProps) {
 			<div className="flex items-center gap-2">
 				<span className="text-sm font-medium text-muted-foreground">来源:</span>
 				<Select
-					value={sourceFilter || "all"}
+					value={typeFilter || "all"}
 					onValueChange={(value) =>
 						table
-							.getColumn("source")
+							.getColumn("type")
 							?.setFilterValue(value === "all" ? undefined : value)
 					}
 				>
 					<SelectTrigger className="w-40">
-						<SelectValue placeholder="所有来源" />
+						<SelectValue placeholder="所有类型" />
 					</SelectTrigger>
 					<SelectContent>
-						<SelectItem value="all">所有来源</SelectItem>
-						<SelectItem value={StrategyRunningLogSource.Node}>Node</SelectItem>
-						<SelectItem value={StrategyRunningLogSource.VirtualTradingSystem}>
-							VirtualTradingSystem
-						</SelectItem>
+						<SelectItem value="all">所有类型</SelectItem>
+						<SelectItem value={"strategy"}>Strategy</SelectItem>
+						<SelectItem value={"node"}>Node</SelectItem>
 					</SelectContent>
 				</Select>
 			</div>
@@ -143,15 +140,15 @@ export function LogTableFilters({ table }: LogTableFiltersProps) {
 								</Button>
 							</Badge>
 						)}
-						{sourceFilter && (
+						{typeFilter && (
 							<Badge variant="secondary" className="text-xs">
-								来源: {sourceFilter}
+								类型: {typeFilter}
 								<Button
 									variant="ghost"
 									size="sm"
 									className="h-4 w-4 p-0 ml-1 hover:bg-destructive"
 									onClick={() =>
-										table.getColumn("source")?.setFilterValue(undefined)
+										table.getColumn("type")?.setFilterValue(undefined)
 									}
 								>
 									<X className="h-3 w-3" />

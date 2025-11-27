@@ -32,6 +32,7 @@ const translation = {
         loading: "Loading...",
         running: "Running...",
         stopping: "Stopping...",
+        error: "Error",
     }
 
 

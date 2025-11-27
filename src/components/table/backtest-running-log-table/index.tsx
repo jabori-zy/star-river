@@ -37,12 +37,12 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import type { StrategyRunningLogEvent } from "@/types/strategy-event/strategy-running-log-event";
+import type { StrategyRunningLogEvent, NodeRunningLogEvent } from "@/types/strategy-event/running-log-event";
 import { createStrategyRunningLogColumns } from "./columns";
 import { LogTableFilters } from "./filters";
 
 interface BacktestRunningLogTableProps {
-	data?: StrategyRunningLogEvent[];
+	data?: (StrategyRunningLogEvent | NodeRunningLogEvent)[];
 	title?: string;
 	showTitle?: boolean;
 }

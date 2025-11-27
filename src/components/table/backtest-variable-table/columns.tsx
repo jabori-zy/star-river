@@ -12,6 +12,7 @@ import {
 } from "@/types/strategy-event/backtest-strategy-event";
 import { getUpdateOperationLabel } from "@/types/node/variable-node/variable-operation-types";
 import type { TFunction } from "i18next";
+import { formatTimeWithTimezone } from "@/utils/date-format";
 
 // 渲染变量值
 const renderValue = (v: unknown): string => {
@@ -112,15 +113,15 @@ export const createStrategyVariableColumns = (
         },
     },
     {
-        id: "fromNodeName",
+        id: "nodeName",
         header: "节点名称",
         size: 220,
         minSize: 120,
         enableSorting: false,
-        accessorFn: (row) => row.fromNodeName ?? "",
+        accessorFn: (row) => row.nodeName ?? "",
         cell: ({ row }) => (
-            <div className="text-left truncate text-sm" title={row.original.fromNodeName}>
-                {row.original.fromNodeName}
+            <div className="text-left truncate text-sm" title={row.original.nodeName}>
+                {row.original.nodeName}
             </div>
         ),
     },
@@ -222,5 +223,18 @@ export const createStrategyVariableColumns = (
                 </div>
             );
         },
+    },
+    {
+        id: "datetime",
+        header: "更新时间",
+        size: 200,
+        minSize: 120,
+        enableSorting: false,
+        accessorFn: (row) => row.datetime,
+        cell: ({ row }) => <div className="text-left truncate text-sm" title={row.original.datetime}>{
+            formatTimeWithTimezone(row.original.datetime, {
+                dateFormat: "full",
+                timezoneFormat: "short",
+            }, t)}</div>,
     },
 ];

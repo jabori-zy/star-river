@@ -257,11 +257,13 @@ class BacktestStrategyDataObservableService {
 		symbol: string,
 		enabled: boolean = true,
 	): Observable<VirtualPositionEvent> {
+
 		return this.createPositionStream(enabled).pipe(
 			filter(
-				(event) =>
-					event.virtualPosition.exchange === exchange &&
-					event.virtualPosition.symbol === symbol,
+				(event) =>{
+					return event.virtualPosition.exchange === exchange &&
+					event.virtualPosition.symbol === symbol;
+				}
 			),
 			share(),
 		);
@@ -405,16 +407,14 @@ class BacktestStrategyDataObservableService {
 			// 处理K线更新事件
 			if (strategyEvent.event === "kline-update-event") {
 				// 类型安全的事件构建
-
 				const klineEvent: KlineUpdateEvent = {
 					channel: strategyEvent.channel,
-					eventType: strategyEvent.eventType,
 					event: strategyEvent.event,
-					datetime: strategyEvent.timestamp,
-					fromNodeId: strategyEvent.fromNodeId,
-					fromNodeName: strategyEvent.fromNodeName,
-					fromNodeHandleId: strategyEvent.fromNodeHandleId,
-					klineCacheIndex: strategyEvent.klineCacheIndex || 0,
+					datetime: strategyEvent.datetime,
+					cycleId: strategyEvent.cycleId,
+					nodeId: strategyEvent.nodeId,
+					nodeName: strategyEvent.nodeName,
+					outputHandleId: strategyEvent.outputHandleId,
 					klineKey: strategyEvent.klineKey,
 					kline: strategyEvent.kline,
 				};

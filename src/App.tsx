@@ -4,7 +4,6 @@ import "./i18n";
 import { Settings } from "luxon";
 import { useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/sonner";
-import { Button } from "@/components/ui/button";
 import useSystemConfigStore from "./store/use-system-config-store";
 import {
 	QueryClient,
@@ -19,9 +18,8 @@ import {
 	TriangleAlertIcon,
 	OctagonXIcon,
 	Loader2Icon,
-	CopyIcon,
 } from "lucide-react";
-import { ApiError } from "./service";
+import type { ApiError } from "./service";
 
 // 创建 QueryClient 实例，配置全局默认选项
 const queryClient = new QueryClient({

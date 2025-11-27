@@ -1,7 +1,7 @@
 import { BacktestControlProps } from "./type"
 import { Button } from "@/components/ui/button"
-import { BacktestStrategyRunStatus } from "@/types/strategy/backtest-strategy"
-import { Play, ExternalLink, Square, ChevronDown } from "lucide-react"
+import { BacktestStrategyRunState } from "@/types/strategy/backtest-strategy"
+import { Play, ExternalLink, Square, ChevronDown, AlertCircle } from "lucide-react"
 import { Spinner } from "@/components/ui/spinner"
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu"
 import { ButtonGroup } from "@/components/ui/button-group"
@@ -16,49 +16,48 @@ const BacktestControl: React.FC<BacktestControlProps> = ({
     onOpenBacktestWindow,
     onReopenDialog,
 }) => {
-    console.log('strategyRunState', strategyRunState);
     const { t } = useTranslation();
-    const getControlButton = (strategyRunState: BacktestStrategyRunStatus) => {
+    const getControlButton = (strategyRunState: BacktestStrategyRunState) => {
         switch (strategyRunState) {
-            case BacktestStrategyRunStatus.Stopped:
+            case BacktestStrategyRunState.Stopped:
                 return (
                     <Button
                         variant="default"
                         size="sm"
-                        className="text-white  border border-amber-500"
+                        className="text-white  border border-amber-500 cursor-pointer"
                         onClick={() => onStartBacktest(strategyId)}>
                             <Play className="h-4 w-4 fill-current" />
                             {t("desktop.strategyWorkflowPage.startBacktest")}
                         </Button>
                     )
-            case BacktestStrategyRunStatus.Created:
-            case BacktestStrategyRunStatus.Checking:
-            case BacktestStrategyRunStatus.CheckPassed:
-            case BacktestStrategyRunStatus.Initializing:
+            case BacktestStrategyRunState.Created:
+            case BacktestStrategyRunState.Checking:
+            case BacktestStrategyRunState.CheckPassed:
+            case BacktestStrategyRunState.Initializing:
                 return (
                     <Button
                         variant="secondary"
                         size="sm"
-                        className="border border-gray-500 hover:bg-gray-400"
+                        className="border border-gray-500 hover:bg-gray-400 cursor-pointer"
                         onClick={() => onReopenDialog?.('init')}>
                             <Spinner className="size-4 animate-spin" />
                             {t("desktop.strategyWorkflowPage.loading")}
                         </Button>
                     )
-            case BacktestStrategyRunStatus.Stopping:
+            case BacktestStrategyRunState.Stopping:
                 return (
                     <Button
                         variant="secondary"
                         size="sm"
-                        className="border border-gray-500"
+                        className="border border-gray-500 cursor-pointer"
                         onClick={() => onReopenDialog?.('stop')}>
                             <Spinner className="size-4 animate-spin" />
                             {t("desktop.strategyWorkflowPage.stopping")}
                         </Button>
                     )
-            case BacktestStrategyRunStatus.Ready:
-            case BacktestStrategyRunStatus.Playing:
-            case BacktestStrategyRunStatus.Pausing:
+            case BacktestStrategyRunState.Ready:
+            case BacktestStrategyRunState.Playing:
+            case BacktestStrategyRunState.Pausing:
                 return (
                     <ButtonGroup>
                         <Button
@@ -91,7 +90,17 @@ const BacktestControl: React.FC<BacktestControlProps> = ({
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </ButtonGroup>
-                    
+                    )
+            case BacktestStrategyRunState.Error:
+                return (
+                    <Button
+                        variant="secondary"
+                        size="sm"
+                        className="border border-red-500 cursor-pointer"
+                        onClick={() => onStartBacktest(strategyId)}>
+                            <AlertCircle className="w-4 h-4 text-red-500" />
+                            <span className="text-red-500">{t("desktop.strategyWorkflowPage.error")}</span>
+                        </Button>
                     )
             default:
                 return null;

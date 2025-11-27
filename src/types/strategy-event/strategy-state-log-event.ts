@@ -3,18 +3,6 @@ import { LogLevel } from "./index";
 import type { StrategyRunState } from "@/types/strategy";
 import type { BacktestNodeRunState } from "@/types/strategy/backtest-strategy";
 
-// export type StrategyStateLogEvent = {
-// 	strategyId: number;
-// 	strategyName: string;
-// 	strategyState: StrategyRunState;
-// 	strategyStateAction: string | null;
-// 	logLevel: LogLevel;
-// 	errorCode: string | null;
-// 	errorCodeChain: string[] | null;
-// 	message: string;
-// 	datetime: string;
-// };
-
 
 export type StrategyStateLogEvent = StrategyStateInfoLog | StrategyStateWarnLog | StrategyStateErrorLog;
 

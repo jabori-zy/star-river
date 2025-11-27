@@ -13,7 +13,6 @@ import { NodeType } from "@/types/node/index";
 const NodeSupportConnectionMap: Record<NodeType, NodeType[]> = {
 	[NodeType.StartNode]: [
 		NodeType.KlineNode,
-		NodeType.IfElseNode,
 		NodeType.VariableNode,
 	],
 	[NodeType.KlineNode]: [

@@ -11,7 +11,7 @@ import type { Subscription } from "rxjs";
 import BacktestRunningLogTable from "@/components/table/backtest-running-log-table";
 import { createBacktestStrategyRunningLogStream } from "@/hooks/obs/backtest-strategy-running-log-obs";
 import { getStrategyRunningLog } from "@/service/backtest-strategy";
-import type { StrategyRunningLogEvent } from "@/types/strategy-event/strategy-running-log-event";
+import type { NodeRunningLogEvent, StrategyRunningLogEvent } from "@/types/strategy-event/running-log-event";
 
 interface RunningLogProps {
 	strategyId: number;
@@ -23,7 +23,7 @@ export interface RunningLogRef {
 
 const RunningLog = forwardRef<RunningLogRef, RunningLogProps>(
 	({ strategyId }, ref) => {
-		const [logData, setLogData] = useState<StrategyRunningLogEvent[]>([]);
+		const [logData, setLogData] = useState<(StrategyRunningLogEvent | NodeRunningLogEvent)[]>([]);
 		const logStreamSubscriptionRef = useRef<Subscription | null>(null);
 
 		// 暴露清空日志的方法

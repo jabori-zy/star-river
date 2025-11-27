@@ -13,6 +13,7 @@ export async function getInitialChartData(
 	index: number | null,
 	limit: number | null,
 ): Promise<[]> {
+
 	try {
 		const params = new URLSearchParams();
 		params.append("key", keyStr);

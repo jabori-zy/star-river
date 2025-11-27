@@ -6,7 +6,7 @@ import { createBacktestStrategyStateLogStream } from "@/hooks/obs/backtest-strat
 import { useRef } from "react";
 import { Subscription } from "rxjs";
 import { StrategyRunState, TradeMode } from "@/types/strategy"
-import { BacktestStrategyRunStatus } from "@/types/strategy/backtest-strategy";
+import { BacktestStrategyRunState } from "@/types/strategy/backtest-strategy";
 import { BacktestNodeRunState } from "@/types/strategy/backtest-strategy";
 import {
 	isStrategyStateInfoLog,
@@ -14,6 +14,7 @@ import {
 	isNodeStateErrorLog,
 	StrategyStateLogEvent,
 	NodeStateLogEvent,
+	isStrategyStateErrorLog,
 } from "@/types/strategy-event/strategy-state-log-event";
 import { getNodeDefaultColor, NodeId, NodeType, getNodeIconName, getNodeTypeName } from "@/types/node";
 import { getStrategyRunStateBadge } from "./utils";
@@ -45,7 +46,7 @@ export const StrategyLoadingDialog: React.FC<StrategyLoadingDialogProps> = ({
 
 	const logStreamSubscriptionRef = useRef<Subscription | null>(null);
 	const { t } = useTranslation();
-	const [strategyRunState, setStrategyRunState] = useState<StrategyRunState>(BacktestStrategyRunStatus.Created);
+	const [strategyRunState, setStrategyRunState] = useState<StrategyRunState>(BacktestStrategyRunState.Created);
 	const [processingNode, setProcessingNode] = useState<{
 		nodeId: NodeId,
 		nodeName: string, 
@@ -71,6 +72,7 @@ export const StrategyLoadingDialog: React.FC<StrategyLoadingDialogProps> = ({
 		const logStream = createBacktestStrategyStateLogStream(true);
 		logStreamSubscriptionRef.current = logStream.subscribe({
 			next: (logEvent) => {
+				console.log('logEvent', logEvent);
 				setLogEvents(prevLogEvents => [...prevLogEvents, logEvent]);
 
 				if (isStrategyStateInfoLog(logEvent)) {
@@ -80,6 +82,11 @@ export const StrategyLoadingDialog: React.FC<StrategyLoadingDialogProps> = ({
 						onStrategyStateChange(currentStrategyRunState);
 					}
 
+				}
+
+				if (isStrategyStateErrorLog(logEvent)) {
+					setStrategyRunState(BacktestStrategyRunState.Error);
+					onStrategyStateChange(BacktestStrategyRunState.Error);
 				}
 
 				if (isNodeStateInfoLog(logEvent)) {
@@ -101,8 +108,8 @@ export const StrategyLoadingDialog: React.FC<StrategyLoadingDialogProps> = ({
 				}
 
 				if (isNodeStateErrorLog(logEvent)) {
-					setStrategyRunState(BacktestStrategyRunStatus.Failed);
-					onStrategyStateChange(BacktestStrategyRunStatus.Failed);
+					setStrategyRunState(BacktestStrategyRunState.Error);
+					onStrategyStateChange(BacktestStrategyRunState.Error);
 				}
 
 			},
@@ -121,10 +128,9 @@ export const StrategyLoadingDialog: React.FC<StrategyLoadingDialogProps> = ({
 				<DialogHeader className="flex-shrink-0">
 					<DialogTitle className="flex items-center gap-2">
 						{!(
-							strategyRunState===BacktestStrategyRunStatus.Failed || 
-							strategyRunState===BacktestStrategyRunStatus.Error ||
-							strategyRunState===BacktestStrategyRunStatus.Ready ||
-							strategyRunState===BacktestStrategyRunStatus.Stopped
+							strategyRunState===BacktestStrategyRunState.Error ||
+							strategyRunState===BacktestStrategyRunState.Ready ||
+							strategyRunState===BacktestStrategyRunState.Stopped
 
 						) && (
 							<Spinner className="size-4 animate-spin" />
@@ -133,10 +139,10 @@ export const StrategyLoadingDialog: React.FC<StrategyLoadingDialogProps> = ({
 						{getStrategyRunStateBadge(strategyRunState)}
 					</DialogTitle>
 				</DialogHeader>
-				<div className="flex flex-row items-center justify-between gap-2 p-2 rounded-md border border-dashed border-gray-200 shadow-xs">
-
+				
 					{processingNode && (
 						<>
+						<div className="flex flex-row items-center justify-between gap-2 p-2 rounded-md border border-dashed border-gray-200 shadow-xs">
 							<div className="flex flex-row items-center gap-2 flex-1">
 								<div
 									className="p-1 rounded-sm flex-shrink-0"
@@ -155,16 +161,16 @@ export const StrategyLoadingDialog: React.FC<StrategyLoadingDialogProps> = ({
 								<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
 								<span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500" />
 							</span>
+						</div>
 						</>
 					)}
-				</div>
 
 				{/* Log display component */}
 				<div className="flex-1 overflow-hidden min-h-0">
 					<LogDisplay logs={logEvents} />
 				</div>
 				<DialogFooter>
-					{strategyRunState===BacktestStrategyRunStatus.Ready && (
+					{strategyRunState===BacktestStrategyRunState.Ready && (
 						<>
 							<Button variant="outline" onClick={() => {
 								handleClearLogEvents(); // clear log events
@@ -180,7 +186,7 @@ export const StrategyLoadingDialog: React.FC<StrategyLoadingDialogProps> = ({
 							</Button>
 						</>
 					)}
-					{strategyRunState===BacktestStrategyRunStatus.Stopped && (
+					{strategyRunState===BacktestStrategyRunState.Stopped && (
 						<>
 							<Button variant="outline" onClick={() => {
 								handleClearLogEvents(); // clear log events

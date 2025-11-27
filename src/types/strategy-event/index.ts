@@ -1,11 +1,11 @@
 export * from "./backtest-strategy-event";
-export * from "./strategy-running-log-event";
+export * from "./running-log-event";
 export * from "./strategy-state-log-event";
 
 export enum LogLevel {
 	DEBUG = "Debug",
 	INFO = "Info",
-	WARNING = "Warning",
+	WARN = "Warn",
 	ERROR = "Error",
 	TRACE = "Trace",
 }
@@ -13,10 +13,10 @@ export enum LogLevel {
 
 export type BaseEventProps = {
 	channel: string;
-	eventType: string;
 	event: string;
 	datetime: string;
-	fromNodeId: string;
-	fromNodeName: string;
-	fromNodeHandleId: string;
+	cycleId: number;
+	nodeId: string;
+	nodeName: string;
+	outputHandleId: string;
 };

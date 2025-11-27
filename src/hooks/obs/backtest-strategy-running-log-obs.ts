@@ -1,8 +1,13 @@
 import { BehaviorSubject, Observable, Subject } from "rxjs";
 import { share, takeUntil } from "rxjs/operators";
-import type { StrategyRunningLogEvent } from "@/types/strategy-event/strategy-running-log-event";
+import type {
+	StrategyRunningLogEvent,
+	NodeRunningLogEvent,
+} from "@/types/strategy-event/running-log-event";
+import { RunningLogEventSchema } from "@/types/strategy-event/running-log-event";
 import { BACKTEST_STRATEGY_RUNNING_LOG_URL } from ".";
 import { SSEConnectionState } from "./backtest-strategy-event-obs";
+import { ZodError } from "zod";
 
 /**
  * 回测策略运行日志Observable服务
@@ -14,7 +19,7 @@ class BacktestStrategyRunningLogObservableService {
 		SSEConnectionState.DISCONNECTED,
 	);
 	private destroy$ = new Subject<void>();
-	private logDataSubject = new Subject<StrategyRunningLogEvent>();
+	private logDataSubject = new Subject<StrategyRunningLogEvent | NodeRunningLogEvent>();
 
 	/**
 	 * 获取连接状态Observable
@@ -30,7 +35,7 @@ class BacktestStrategyRunningLogObservableService {
 	 */
 	createBacktestStrategyRunningLogStream(
 		enabled: boolean = true,
-	): Observable<StrategyRunningLogEvent> {
+	): Observable<StrategyRunningLogEvent | NodeRunningLogEvent> {
 		if (!enabled) {
 			this.disconnect();
 			return new Observable((subscriber) => {
@@ -91,13 +96,34 @@ class BacktestStrategyRunningLogObservableService {
 
 	/**
 	 * 处理SSE消息
+	 * Uses Zod for runtime validation and data transformation
 	 */
 	private handleMessage(event: MessageEvent): void {
 		try {
-			const logEvent = JSON.parse(event.data) as StrategyRunningLogEvent;
+			const rawData = JSON.parse(event.data);
+
+			// Use Zod to validate and parse the data
+			const result = RunningLogEventSchema.safeParse(rawData);
+
+			if (!result.success) {
+				// Validation failed - log detailed error information
+				console.error("strategy running log validation failed:", {
+					raw: rawData,
+					errors: result.error.format(), // Structured error info
+					flatErrors: result.error.flatten(), // Flattened error info
+				});
+				return;
+			}
+
+			// Data is validated and transformed (e.g., logLevel converted from "warn" to LogLevel.WARNING)
+			const logEvent = result.data;
 			this.logDataSubject.next(logEvent);
 		} catch (error) {
-			console.error("解析策略运行日志SSE消息失败:", error);
+			if (error instanceof ZodError) {
+				console.error("Zod validation error:", error.issues);
+			} else {
+				console.error("parse strategy running log SSE message failed:", error);
+			}
 		}
 	}
 

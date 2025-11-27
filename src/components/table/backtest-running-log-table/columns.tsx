@@ -12,7 +12,7 @@ import { DateTime } from "luxon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { LogLevel } from "@/types/strategy-event";
-import type { StrategyRunningLogEvent } from "@/types/strategy-event/strategy-running-log-event";
+import type { NodeRunningLogEvent, StrategyRunningLogEvent } from "@/types/strategy-event/running-log-event";
 
 // 日志级别图标映射
 const getLogLevelIcon = (logLevel: LogLevel) => {
@@ -21,7 +21,7 @@ const getLogLevelIcon = (logLevel: LogLevel) => {
 			return <Bug className="w-4 h-4 text-gray-500" />;
 		case LogLevel.INFO:
 			return <Info className="w-4 h-4 text-blue-500" />;
-		case LogLevel.WARNING:
+		case LogLevel.WARN:
 			return <AlertTriangle className="w-4 h-4 text-yellow-500" />;
 		case LogLevel.ERROR:
 			return <X className="w-4 h-4 text-red-500" />;
@@ -39,7 +39,7 @@ const getLogLevelStyle = (logLevel: LogLevel) => {
 			return "bg-gray-100 text-gray-800 border-gray-300 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700";
 		case LogLevel.INFO:
 			return "bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700";
-		case LogLevel.WARNING:
+		case LogLevel.WARN:
 			return "bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900 dark:text-yellow-300 dark:border-yellow-700";
 		case LogLevel.ERROR:
 			return "bg-red-100 text-red-800 border-red-300 dark:bg-red-900 dark:text-red-300 dark:border-red-700";
@@ -50,22 +50,10 @@ const getLogLevelStyle = (logLevel: LogLevel) => {
 	}
 };
 
-// 格式化时间戳
-const formatTimestamp = (timestamp: number) => {
-	return new Date(timestamp).toLocaleString("zh-CN", {
-		year: "numeric",
-		month: "2-digit",
-		day: "2-digit",
-		hour: "2-digit",
-		minute: "2-digit",
-		second: "2-digit",
-	});
-};
-
 // Strategy Running Log 表格列定义
 export const createStrategyRunningLogColumns = (
 	isCompactMode: boolean,
-): ColumnDef<StrategyRunningLogEvent>[] => [
+): ColumnDef<StrategyRunningLogEvent | NodeRunningLogEvent>[] => [
 	{
 		id: "expander",
 		header: "",
@@ -102,7 +90,6 @@ export const createStrategyRunningLogColumns = (
 		filterFn: "equals",
 		cell: ({ row }) => {
 			const logLevel = row.getValue("logLevel") as LogLevel;
-
 			return isCompactMode ? (
 				<div className="flex justify-center">{getLogLevelIcon(logLevel)}</div>
 			) : (
@@ -135,8 +122,8 @@ export const createStrategyRunningLogColumns = (
 		},
 	},
 	{
-		accessorKey: "source",
-		header: "来源",
+		accessorKey: "type",
+		header: "类型",
 		size: 160,
 		minSize: 160,
 		maxSize: 160,
@@ -144,14 +131,14 @@ export const createStrategyRunningLogColumns = (
 		enableColumnFilter: true,
 		filterFn: "equals",
 		cell: ({ row }) => {
-			const source = row.getValue("source") as string;
+			const type = row.getValue("type") as string;
 			return (
 				<Badge
 					variant="outline"
 					className="text-xs justify-start font-mono overflow-hidden text-ellipsis whitespace-nowrap max-w-full"
-					title={source}
+					title={type}
 				>
-					{source}
+					{type}
 				</Badge>
 			);
 		},

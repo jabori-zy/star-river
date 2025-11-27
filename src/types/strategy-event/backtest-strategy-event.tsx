@@ -4,8 +4,8 @@ import type { KeyStr } from "@/types/symbol-key";
 import type { VirtualPosition } from "../position";
 import type { StrategyStats } from "../statistics";
 import type { VirtualTransaction } from "../transaction";
-import { CustomVariable, SystemVariable } from "../variable";
-import { UpdateVarValueOperation, VariableValue } from "../node/variable-node";
+import type { CustomVariable, SystemVariable } from "../variable";
+import type{ UpdateVarValueOperation, VariableValue } from "../node/variable-node";
 import type { BaseEventProps } from "./index";
 
 export type BacktestStrategyEvent =
@@ -21,7 +21,6 @@ export type BacktestStrategyEvent =
 
 
 export type KlineUpdateEvent = BaseEventProps & {
-	klineCacheIndex: number;
 	klineKey: KeyStr;
 	kline: Kline;
 };
@@ -64,11 +63,11 @@ export type SystemVariableUpdateEvent = BaseEventProps & {
 
 
 export function isCustomVariableUpdateEvent(event: BacktestStrategyEvent): event is CustomVariableUpdateEvent {
-	return event.eventType === "custom-variable-update-event" || event.event === "custom-variable-update-event";
+	return event.event === "custom-variable-update-event";
 }
 
 export function isSystemVariableUpdateEvent(event: BacktestStrategyEvent): event is SystemVariableUpdateEvent {
-	return event.eventType === "system-variable-update-event" || event.event === "sys-variable-update-event";
+	return event.event === "sys-variable-update-event";
 }
 
 export type PlayFinishedEvent = Omit<

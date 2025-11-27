@@ -24,14 +24,15 @@ const translation = {
         backtest: "回测",
         simulate: "模拟",
         letGo: "开始",
-        loadingStrategy: "加载策略中",
-        stoppingStrategy: "停止策略中",
+        loadingStrategy: "加载策略",
+        stoppingStrategy: "停止策略",
         openBacktestWindow: "打开新窗口",
         startBacktest: "开始回测",
         stopStrategy: "停止策略",
         loading: "加载中...",
         running: "运行中...",
         stopping: "停止中...",
+        error: "错误",
     }
 };
 

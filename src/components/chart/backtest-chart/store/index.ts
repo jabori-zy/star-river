@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import type { StoreApi, UseBoundStore } from "zustand";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import { createDataInitializationSlice } from "./data-initialization-slice";
 import { createDataSlice } from "./data-slice";
@@ -14,7 +15,7 @@ import { createVisibilitySlice } from "./visibility-slice";
 const createBacktestChartStore = (
 	chartId: number,
 	chartConfig: BacktestChartConfig,
-) => {
+): UseBoundStore<StoreApi<BacktestChartStore>> => {
 	const context: StoreContext = {
 		chartId,
 		chartConfig,

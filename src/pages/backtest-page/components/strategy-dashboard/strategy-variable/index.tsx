@@ -2,9 +2,10 @@ import { useState, useCallback, useEffect, useRef, forwardRef, useImperativeHand
 import { isCustomVariable, isSystemVariable } from "@/types/variable";
 import BacktestVariableTable from "@/components/table/backtest-variable-table";
 import { getStrategyVariables } from "@/service/backtest-strategy/variable";
-import { Subscription } from "rxjs";
+import type { Subscription } from "rxjs";
 import { createCustomVariableStream, createSystemVariableStream } from "@/hooks/obs/backtest-strategy-event-obs";
-import { CustomVariableUpdateEvent, SystemVariableUpdateEvent, isCustomVariableUpdateEvent, isSystemVariableUpdateEvent } from "@/types/strategy-event";
+import type { CustomVariableUpdateEvent, SystemVariableUpdateEvent } from "@/types/strategy-event";
+import { isCustomVariableUpdateEvent, isSystemVariableUpdateEvent } from "@/types/strategy-event/backtest-strategy-event";
 
 interface StrategyVariableProps {
 	strategyId: number;
@@ -55,24 +56,24 @@ const StrategyVariable = forwardRef<StrategyVariableRef, StrategyVariableProps>(
                 if (isCustomVariable(variable)) {
                     events.push({
                         channel: "",
-                        eventType: "custom-variable-update-event",
+                        cycleId: 0,
                         event: "custom-variable-update-event",
                         datetime: new Date().toISOString(),
-                        fromNodeId: "",
-                        fromNodeName: "",
-                        fromNodeHandleId: "",
+                        nodeId: "",
+                        nodeName: "",
+                        outputHandleId: "",
                         varOperation: "get",
                         customVariable: variable,
                     });
                 } else if (isSystemVariable(variable)) {
                     events.push({
                         channel: "",
-                        eventType: "system-variable-update-event",
+                        cycleId: 0,
                         event: "sys-variable-update-event",
                         datetime: new Date().toISOString(),
-                        fromNodeId: "",
-                        fromNodeName: "",
-                        fromNodeHandleId: "",
+                        nodeId: "",
+                        nodeName: "",
+                        outputHandleId: "",
                         sysVariable: variable,
                     });
                 }

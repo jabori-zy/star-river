@@ -5,13 +5,14 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useGetStrategyById } from "@/service/strategy-management/get-strategy-by-id";
 import { useUpdateStrategy } from "@/service/strategy-management/update-strategy";
 import { strategyKeys } from "@/service/strategy-management/query-keys";
+import { useGetStrategyRunState } from "@/service/backtest-strategy/strategy-run-state";
 import type { Strategy } from "@/types/strategy";
 import { ReactFlowProvider } from "@xyflow/react";
 import useTradingModeStore from "@/store/use-trading-mode-store";
 import { WorkFlow } from "./components/flow";
 import { StrategyLoadingDialog } from "./components/strategy-loading-dialog";
 import { StrategyRunState } from "@/types/strategy";
-import { BacktestStrategyRunStatus } from "@/types/strategy/backtest-strategy";
+import { BacktestStrategyRunState } from "@/types/strategy/backtest-strategy";
 import type { OperationType } from "./components/strategy-control/type";
 import { openBacktestWindow } from "@/utils/open-backtest-window";
 import { useTranslation } from "react-i18next";
@@ -30,11 +31,18 @@ export default function StrategyPage() {
 	const { tradingMode, setTradingMode } = useTradingModeStore();
 	const [showLoadingDialog, setShowLoadingDialog] = useState(false);
 	const [dialogTitle, setDialogTitle] = useState(t("desktop.strategyWorkflowPage.loadingStrategy"));
-	const [strategyRunState, setStrategyRunState] = useState<StrategyRunState>(strategy?.status || BacktestStrategyRunStatus.Stopped);
+	const [strategyRunState, setStrategyRunState] = useState<StrategyRunState>(BacktestStrategyRunState.Stopped);
 
 	// ✅ 使用 React Query Hook 获取策略（重命名为 queryStrategy 避免冲突）
 	const { data: queryStrategy, isLoading, error } = useGetStrategyById(strategyId, {
 		enabled: !!strategyId && strategyId >= 0,
+	});
+
+	// ✅ 使用 React Query Hook 获取策略运行状态
+	// 默认配置: staleTime=0, refetchOnMount=true, refetchOnWindowFocus=true
+	// 确保页面刷新和窗口聚焦时始终获取最新状态
+	const { data: apiRunState } = useGetStrategyRunState(strategyId, {
+		enabled: !!strategyId && strategyId > 0,
 	});
 
 	// ✅ 使用 useUpdateStrategy hook
@@ -65,15 +73,21 @@ export default function StrategyPage() {
 	// ✅ 当 React Query 数据更新时，同步到本地 state
 	useEffect(() => {
 		if (queryStrategy) {
-			console.log('queryStrategy', queryStrategy);
 			setStrategy(queryStrategy);
 			setTradingMode(queryStrategy.tradeMode);
-			console.log('queryStrategy.status', queryStrategy.status);
-			setStrategyRunState(queryStrategy.status);
 			// 首次加载策略时，设置为 saved 状态
 			setSaveStatus("saved");
 		}
 	}, [queryStrategy, setTradingMode]);
+
+	// ✅ 从 API 获取的运行状态同步到本地 state（初始化用）
+	useEffect(() => {
+		console.log('apiRunState from API:', apiRunState);
+		if (apiRunState) {
+			console.log('apiRunState from API:', apiRunState);
+			setStrategyRunState(apiRunState);
+		}
+	}, [apiRunState]);
 
 
 	const handleStrategyChange = useCallback((updates: Partial<Strategy>) => {
@@ -100,16 +114,15 @@ export default function StrategyPage() {
 
 		// 只在终态时刷新缓存
 		if ([
-			BacktestStrategyRunStatus.Ready,
-			BacktestStrategyRunStatus.Stopped,
-			BacktestStrategyRunStatus.Failed,
-			BacktestStrategyRunStatus.Error
-		].includes(state as BacktestStrategyRunStatus)) {
+			BacktestStrategyRunState.Ready,
+			BacktestStrategyRunState.Stopped,
+			BacktestStrategyRunState.Error
+		].includes(state as BacktestStrategyRunState)) {
 			queryClient.invalidateQueries({
 				queryKey: strategyKeys.detail(strategyId)
 			});
 		}
-	}, [setStrategyRunState, queryClient, strategyId]);
+	}, [queryClient, strategyId]);
 
 	const handleOpenBacktestWindow = useCallback(async (strategyId: number) => {
 		try {

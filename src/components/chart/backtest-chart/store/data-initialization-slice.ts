@@ -8,7 +8,7 @@ import {
 	getVirtualOrder,
 	getVirtualPosition,
 } from "@/service/backtest-strategy";
-import { getInitialChartData } from "@/service/backtest-strategy/chart";
+import { getStrategyDataApi } from "@/service/backtest-strategy/get-strategy-data";
 import type {
 	LimitOrderPriceLine,
 	OrderMarker,
@@ -40,14 +40,14 @@ export const createDataInitializationSlice =
 		_processKlineData: async (
 			strategyId: number,
 			klineKeyStr: KeyStr,
-			playIndex: number,
+			datetime: string,
 		) => {
-			const initialKlines = (await getInitialChartData(
+			const initialKlines = (await getStrategyDataApi({
 				strategyId,
-				klineKeyStr,
-				playIndex,
-				INITIAL_DATA_LENGTH,
-			)) as Kline[];
+				keyStr: klineKeyStr,
+				datetime: datetime,
+				limit: INITIAL_DATA_LENGTH,
+			})) as Kline[];
 
 			// 安全检查：确保 initialKlines 存在且是数组
 			if (
@@ -82,16 +82,16 @@ export const createDataInitializationSlice =
 		_processIndicatorData: async (
 			strategyId: number,
 			keyStr: KeyStr,
-			playIndex: number,
+			datetime: string,
 		) => {
 			const state = get();
-			// console.log("playindex: ", playIndex);
-			const initialIndicatorData = (await getInitialChartData(
+			// console.log("circleId: ", circleId);
+			const initialIndicatorData = (await getStrategyDataApi({
 				strategyId,
 				keyStr,
-				playIndex,
-				INITIAL_DATA_LENGTH,
-			)) as Record<keyof IndicatorValueConfig, number | Date>[];
+				datetime,
+				limit: INITIAL_DATA_LENGTH,
+			})) as Record<keyof IndicatorValueConfig, number | Date>[];
 			// 安全检查：确保指标数据存在
 			if (
 				initialIndicatorData &&
@@ -157,87 +157,85 @@ export const createDataInitializationSlice =
 			}
 		},
 
-		// 通用方法：处理单个keyStr的数据初始化
-		_initSingleKeyData: async (
-			strategyId: number,
-			keyStr: KeyStr,
-			playIndex: number,
-		) => {
+		initChartData: async (datetime: string, circleId: number, strategyId: number) => {
 			const state = get();
-			try {
-				const key = parseKey(keyStr);
+			if (circleId === 0) {
+				return;
 
-				if (key.type === "kline") {
-					await state._processKlineData(strategyId, keyStr, playIndex);
-				} else if (key.type === "indicator") {
-					return await state._processIndicatorData(
-						strategyId,
-						keyStr,
-						playIndex,
-					);
-				}
-			} catch (error) {
-				console.error(`Error loading data for keyStr: ${keyStr}`, error);
-				return null;
 			}
+			// 使用 Promise.all 等待所有异步操作完成
+			const promises = state
+				.getKeyStr()
+				.map(async (keyStr: KeyStr) => {
+					try {
+						const key = parseKey(keyStr);
+
+						if (key.type === "kline") {
+							await state._processKlineData(strategyId, keyStr, datetime);
+						} else if (key.type === "indicator") {
+							return await state._processIndicatorData(
+								strategyId,
+								keyStr,
+								datetime,
+							);
+						}
+					} catch (error) {
+						console.error(`Error loading data for keyStr: ${keyStr}`, error);
+						return null;
+					}
+				});
+
+			await state.initVirtualOrderData(strategyId);
+			await state.initVirtualPositionData(strategyId);
+			// 等待所有数据加载完成
+			await Promise.all(promises);
+			// 标记数据已初始化
+			state.setIsDataInitialized(true);
+
 		},
 
-		initChartData: async (playIndex: number, strategyId: number) => {
-			const state = get();
-
-			if (playIndex > -1) {
-				// 使用 Promise.all 等待所有异步操作完成
-				const promises = state
-					.getKeyStr()
-					.map((keyStr: KeyStr) =>
-						state._initSingleKeyData(strategyId, keyStr, playIndex),
-					);
-
-				await state.initVirtualOrderData(strategyId);
-				await state.initVirtualPositionData(strategyId);
-				// 等待所有数据加载完成
-				await Promise.all(promises);
-				// 标记数据已初始化
-				state.setIsDataInitialized(true);
+		initKlineData: async (datetime: string, circleId: number, strategyId: number) => {
+			if (circleId === 0) {
+				return;
 			}
-		},
-
-		initKlineData: async (playIndex: number, strategyId: number) => {
 			const state = get();
 			const klineKeyStr = state.getKlineKeyStr();
 			if (klineKeyStr) {
-				await state._processKlineData(strategyId, klineKeyStr, playIndex);
+				await state._processKlineData(strategyId, klineKeyStr, datetime);
 			}
 		},
 
 		initIndicatorData: async (
 			strategyId: number,
 			indicatorKeyStr: IndicatorKeyStr,
-			playIndex: number,
+			datetime: string,
+			circleId: number,
 		) => {
-			const state = get();
-
-			if (playIndex > -1) {
-				try {
-					const key = parseKey(indicatorKeyStr);
-
-					// 只处理指标类型的key
-					if (key.type === "indicator") {
-						await state._processIndicatorData(
-							strategyId,
-							indicatorKeyStr,
-							playIndex,
-						);
-					} else {
-						console.warn(`Key ${indicatorKeyStr} is not an indicator key`);
-					}
-				} catch (error) {
-					console.error(
-						`Error loading indicator data for keyStr: ${indicatorKeyStr}`,
-						error,
-					);
-				}
+			if (circleId === 0) {
+				return;
 			}
+			const state = get();
+			
+			try {
+				const key = parseKey(indicatorKeyStr);
+
+				// 只处理指标类型的key
+				if (key.type === "indicator") {
+					await state._processIndicatorData(
+						strategyId,
+						indicatorKeyStr,
+						datetime,
+					);
+				} else {
+					console.warn(`Key ${indicatorKeyStr} is not an indicator key`);
+				}
+			} catch (error) {
+				console.error(
+					`Error loading indicator data for keyStr: ${indicatorKeyStr}`,
+					error,
+				);
+			}
+			
 		},
 
 		initVirtualOrderData: async (strategyId: number) => {
