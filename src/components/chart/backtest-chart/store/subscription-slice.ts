@@ -54,26 +54,27 @@ export const createSubscriptionSlice: SliceCreator<SubscriptionSlice> = (
 					);
 					const orderSubscription = orderStream.subscribe(
 						(virtualOrderEvent: VirtualOrderEvent) => {
-							// console.log("virtualOrderEvent", virtualOrderEvent);
 							// 统一处理订单成交事件
 							if (
 								virtualOrderEvent.event === "futures-order-filled-event" ||
 								virtualOrderEvent.event === "take-profit-order-filled-event" ||
 								virtualOrderEvent.event === "stop-loss-order-filled-event"
 							) {
-								if (
-									virtualOrderEvent.event === "futures-order-filled-event" &&
-									virtualOrderEvent.futuresOrder.orderType === OrderType.LIMIT
-								) {
-									state.onLimitOrderFilled(virtualOrderEvent.futuresOrder);
-								} else {
-									state.onNewOrder(virtualOrderEvent.futuresOrder);
-								}
-							} else if (
-								virtualOrderEvent.event === "futures-order-created-event" &&
-								virtualOrderEvent.futuresOrder.orderType === OrderType.LIMIT
+								state.onOrderFilled(virtualOrderEvent.futuresOrder);
+							} 
+							else if (
+								virtualOrderEvent.event === "futures-order-created-event" ||
+								virtualOrderEvent.event === "take-profit-order-created-event" ||
+								virtualOrderEvent.event === "stop-loss-order-created-event"
 							) {
-								state.onNewOrder(virtualOrderEvent.futuresOrder);
+								state.onOrderCreated(virtualOrderEvent.futuresOrder);
+							}
+							else if (
+								virtualOrderEvent.event === "futures-order-canceled-event" ||
+								virtualOrderEvent.event === "take-profit-order-canceled-event" ||
+								virtualOrderEvent.event === "stop-loss-order-canceled-event"
+							) {
+								state.onOrderCanceled(virtualOrderEvent.futuresOrder);
 							}
 						},
 					);
@@ -172,6 +173,7 @@ export const createSubscriptionSlice: SliceCreator<SubscriptionSlice> = (
 			const orderStream = createOrderStreamForSymbol(key.exchange, key.symbol);
 			const orderSubscription = orderStream.subscribe(
 				(virtualOrderEvent: VirtualOrderEvent) => {
+					console.log("virtualOrderEvent", virtualOrderEvent);
 					if (
 						virtualOrderEvent.event === "futures-order-filled-event" ||
 						virtualOrderEvent.event === "take-profit-order-filled-event" ||

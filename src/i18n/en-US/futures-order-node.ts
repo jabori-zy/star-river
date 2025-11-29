@@ -1,0 +1,36 @@
+const translation = {
+    create: "Create",
+    tradingAccount: "Trading Account",
+    order: "Order",
+    allStatus: "All Status",
+    orderSendDescription: "The order will be sent to  ",
+    orderConfig: {
+        orderConfigLabel: "Order Config",
+        orderType: "Order Type",
+        symbol: "Symbol",
+        symbolPlaceholder: "Select symbol",
+        symbolSearchPlaceholder: "Search symbol",
+        symbolEmptyMessage: "No symbol found",
+        orderSide: "Order Side",
+        orderSidePlaceholder: "Select order side",
+        price: "Price",
+        pricePlaceholder: "Enter price",
+        quantity: "Quantity",
+        quantityPlaceholder: "Enter quantity",
+        takeProfit: "Take Profit",
+        takeProfitPricePlaceholder: "Enter take profit price",
+        takeProfitPercentagePlaceholder: "Enter take profit percentage",
+        takeProfitPointPlaceholder: "The point is {{point}}",
+        stopLoss: "Stop Loss",
+        stopLossPricePlaceholder: "Enter stop loss price",
+        stopLossPercentagePlaceholder: "Enter stop loss percentage",
+        stopLossPointPlaceholder: "The point is {{point}}",
+    },
+    tpSlType: {
+		price: "Price",
+		percentage: "Percentage",
+		point: "Point",
+	},
+}
+
+export default translation;

@@ -48,7 +48,7 @@ export const useChartInitialization = ({
 		setOrderMarkerSeriesRef,
 		getOrderMarkers,
 		getPositionPriceLine,
-		getLimitOrderPriceLine,
+		getOrderPriceLine: getLimitOrderPriceLine,
 		initObserverSubscriptions,
 		addSubChartPaneHtmlElementRef,
 	} = useBacktestChartStore(chartConfig.id, chartConfig);

@@ -1,13 +1,13 @@
 import type React from "react";
 import { SelectWithSearch } from "@/components/select-components/select-with-search";
-import type { MarketSymbol } from "@/types/market";
+import type { Instrument } from "@/types/market";
 
 interface SymbolSelectorProps {
 	value: string;
 	onChange: (value: string | null) => void;
 	disabled?: boolean;
 	allowEmpty?: boolean;
-	symbolList: MarketSymbol[];
+	symbolList: Instrument[];
 }
 
 const SymbolSelector: React.FC<SymbolSelectorProps> = ({

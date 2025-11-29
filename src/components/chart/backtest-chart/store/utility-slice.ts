@@ -72,7 +72,7 @@ export const createUtilitySlice =
 				paneVersion: 0,
 				orderMarkers: [],
 				positionPriceLine: [],
-				limitOrderPriceLine: [],
+				orderPriceLine: [],
 				// 重置时保持可见性状态，不清空
 			});
 		},

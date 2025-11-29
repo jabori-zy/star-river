@@ -116,7 +116,7 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 		);
 		const cases = getIfElseNodeCases(conn, tradingMode as TradeMode);
 		setCaseItemList(cases);
-	}, [connections, getIfElseNodeCases, id, tradingMode]);
+	}, [connections, getIfElseNodeCases, id, tradingMode, config.inputHandleId]);
 
 	// 当从 props 接收到新的配置时，更新缓存
 	useEffect(() => {
@@ -148,7 +148,7 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 			}
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [customNames, config.varName, isSystemVariable]);
+	}, [config, getCustomName, onConfigChange, isSystemVariable]);
 
 	// 判断当前选中的变量是否需要选择交易对
 	const shouldShowSymbolSelector =

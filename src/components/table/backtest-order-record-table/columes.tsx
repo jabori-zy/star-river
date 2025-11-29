@@ -26,15 +26,15 @@ export const virtualOrderColumns: ColumnDef<VirtualOrder>[] = [
 		),
 	},
 	{
-		accessorKey: "nodeId",
-		header: "节点ID",
+		accessorKey: "nodeName",
+		header: "节点名称",
 		size: 140,
 		cell: ({ row }) => (
 			<div
 				className="text-left truncate font-mono text-xs"
-				title={row.getValue("nodeId")}
+				title={row.getValue("nodeName")}
 			>
-				{row.getValue("nodeId")}
+				{row.getValue("nodeName")}
 			</div>
 		),
 	},

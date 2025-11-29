@@ -1,10 +1,10 @@
 import { useEffect } from "react";
-import type { IfElseNodeBacktestConfig, IfElseNodeData, CaseItem } from "@/types/node/if-else-node";
+import type { IfElseNodeBacktestConfig, CaseItem } from "@/types/node/if-else-node";
 import type { StrategyFlowNode } from "@/types/node";
 import { NodeType } from "@/types/node/index";
-import { IndicatorNodeData } from "@/types/node/indicator-node";
-import { KlineNodeData } from "@/types/node/kline-node";
-import { VariableNodeData } from "@/types/node/variable-node/variable-config-types";
+import type { IndicatorNodeData } from "@/types/node/indicator-node";
+import type { KlineNodeData } from "@/types/node/kline-node";
+import type { VariableNodeData } from "@/types/node/variable-node/variable-config-types";
 import { useBacktestConfig } from "./use-update-backtest-config";
 import { useUpdateIsNested } from "./index";
 
@@ -341,5 +341,5 @@ export const useSyncSourceNode = ({
 			// Cleanup orphan conditions that reference disconnected nodes
 			cleanupOrphanConditions(sourceNodes, backtestConfig, resetConditionVariable);
 		}
-	}, [id, sourceNodes]);
+	}, [sourceNodes, backtestConfig, resetBacktestCases, resetConditionVariable, updateIsNested, updateConditionVariableMetadata]);
 };

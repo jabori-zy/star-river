@@ -4,7 +4,7 @@ import { FuturesOrderNodeSettingPanel } from "../node/futures-order-node";
 import { IfElseNodeSettingPanel } from "../node/if-else-node";
 import IndicatorNodeSettingPanel from "../node/indicator-node/setting-panel";
 import KlineNodeSettingPanel from "../node/kline-node/setting-panel";
-import { PositionNodeSettingPanel } from "../node/position-management-node";
+import { PositionNodeSettingPanel } from "../node/position-node";
 import StartNodeSettingPanel from "../node/start-node/setting-panel";
 import { VariableNodeSettingPanel } from "../node/variable-node";
 

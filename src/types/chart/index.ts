@@ -114,7 +114,7 @@ export type PositionPriceLine =
 /**
  * 限价单价格线
  */
-export type LimitOrderPriceLine = {
+export type OrderPriceLine = {
 	id: string;
 	price: number;
 	color: string;

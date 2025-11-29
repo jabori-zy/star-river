@@ -1,0 +1,36 @@
+const translation = {
+    create: "创建",
+    tradingAccount: "交易账户",
+    order: "订单",
+    allStatus: "所有状态",
+    orderSendDescription: "订单将会发送至",
+    orderConfig: {
+        orderConfigLabel: "订单配置",
+        orderType: "订单类型",
+        symbol: "交易对",
+        symbolPlaceholder: "选择交易对",
+        symbolSearchPlaceholder: "搜索交易对",
+        symbolEmptyMessage: "无交易对",
+        orderSide: "订单方向",
+        orderSidePlaceholder: "选择订单方向",
+        price: "价格",
+        pricePlaceholder: "输入价格",
+        quantity: "数量",
+        quantityPlaceholder: "输入数量",
+        takeProfit: "止盈",
+        takeProfitPricePlaceholder: "输入止盈价格",
+        takeProfitPercentagePlaceholder: "输入止盈百分比",
+        takeProfitPointPlaceholder: "止盈点数为{{point}}",
+        stopLoss: "止损",
+        stopLossPricePlaceholder: "输入止损价格",
+        stopLossPercentagePlaceholder: "输入止损百分比",
+        stopLossPointPlaceholder: "止损点数为{{point}}",
+    },
+    tpSlType: {
+		price: "价格",
+		percentage: "百分比",
+		point: "点",
+	},
+}
+
+export default translation;

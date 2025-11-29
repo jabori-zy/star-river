@@ -79,35 +79,6 @@ export const virtualPositionColumns: ColumnDef<VirtualPosition>[] = [
 		),
 	},
 	{
-		accessorKey: "orderId",
-		header: "订单ID",
-		size: 50,
-		minSize: 50,
-		maxSize: 80,
-		enableResizing: false,
-		cell: ({ row }) => (
-			<div
-				className="text-left truncate font-mono text-xs"
-				title={row.getValue("orderId")}
-			>
-				{row.getValue("orderId")}
-			</div>
-		),
-	},
-	{
-		accessorKey: "nodeId",
-		header: "节点ID",
-		size: 140,
-		cell: ({ row }) => (
-			<div
-				className="text-left truncate font-mono text-xs"
-				title={row.getValue("nodeId")}
-			>
-				{row.getValue("nodeId")}
-			</div>
-		),
-	},
-	{
 		accessorKey: "exchange",
 		header: "交易所",
 		size: 140,
@@ -246,52 +217,6 @@ export const virtualPositionColumns: ColumnDef<VirtualPosition>[] = [
 					title={formatted}
 				>
 					{isPositive ? "+" : ""}
-					{formatted}
-				</div>
-			);
-		},
-	},
-	{
-		accessorKey: "tp",
-		header: "止盈",
-		size: 100,
-		cell: ({ row }) => {
-			const tp = row.getValue("tp") as number | null;
-			if (tp === null || tp === undefined) {
-				return <div className="text-center text-gray-400 text-sm">-</div>;
-			}
-			const formatted = new Intl.NumberFormat("zh-CN", {
-				minimumFractionDigits: 2,
-				maximumFractionDigits: 4,
-			}).format(tp);
-			return (
-				<div
-					className="text-left font-mono text-green-600 dark:text-green-400 text-sm truncate"
-					title={formatted}
-				>
-					{formatted}
-				</div>
-			);
-		},
-	},
-	{
-		accessorKey: "sl",
-		header: "止损",
-		size: 100,
-		cell: ({ row }) => {
-			const sl = row.getValue("sl") as number | null;
-			if (sl === null || sl === undefined) {
-				return <div className="text-center text-gray-400 text-sm">-</div>;
-			}
-			const formatted = new Intl.NumberFormat("zh-CN", {
-				minimumFractionDigits: 2,
-				maximumFractionDigits: 4,
-			}).format(sl);
-			return (
-				<div
-					className="text-left font-mono text-red-600 dark:text-red-400 text-sm truncate"
-					title={formatted}
-				>
 					{formatted}
 				</div>
 			);

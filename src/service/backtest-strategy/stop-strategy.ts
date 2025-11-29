@@ -53,7 +53,7 @@ export async function stopBacktestStrategyApi(
 			`${API_URL}/${params.strategyId}/stop`,
 			{},
 			{
-				timeout: 5000, // 5s timeout
+				timeout: 20000, // 5s timeout
 			},
 		);
 

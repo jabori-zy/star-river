@@ -9,7 +9,7 @@ import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 import useWorkflowUtils from "@/hooks/flow/use-workflow-utils";
 import { getSupportKlineInterval, getSymbolList } from "@/service/market";
 import { INTERVAL_LABEL_MAP } from "@/types/kline";
-import type { MarketSymbol } from "@/types/market";
+import type { Instrument } from "@/types/market";
 import type { SelectedSymbol } from "@/types/node/kline-node";
 import type { SelectedAccount } from "@/types/strategy";
 import { SymbolSelectDialog } from "./symbol-select-dialog";
@@ -48,7 +48,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 	} | null>(null);
 	const [pendingDeleteSymbol, setPendingDeleteSymbol] =
 		useState<SelectedSymbol | null>(null);
-	const [symbolList, setSymbolList] = useState<MarketSymbol[]>([]);
+	const [symbolList, setSymbolList] = useState<Instrument[]>([]);
 	const [supportKlineInterval, setSupportKlineInterval] = useState<string[]>(
 		[],
 	);

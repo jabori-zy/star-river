@@ -10,7 +10,7 @@ import {
 } from "@/service/backtest-strategy";
 import { getStrategyDataApi } from "@/service/backtest-strategy/get-strategy-data";
 import type {
-	LimitOrderPriceLine,
+	OrderPriceLine,
 	OrderMarker,
 	PositionPriceLine,
 } from "@/types/chart";
@@ -25,9 +25,7 @@ import {
 	getChartAlignedUtcTimestamp,
 	virtualOrderToLimitOrderPriceLine,
 	virtualOrderToMarker,
-	virtualPositionToOpenPositionPriceLine,
-	virtualPositionToStopLossPriceLine,
-	virtualPositionToTakeProfitPriceLine,
+	virtualPositionToOpenPositionPriceLine
 } from "../utls";
 import type { DataInitializationSlice, SliceCreator } from "./types";
 
@@ -243,7 +241,7 @@ export const createDataInitializationSlice =
 			// 清除订单标记
 			get().setOrderMarkers([]);
 			// 清除限价单价格线
-			get().setLimitOrderPriceLine([]);
+			get().setOrderPriceLine([]);
 
 			// 按updateTime升序排序
 			virtualOrderData.sort(
@@ -252,7 +250,7 @@ export const createDataInitializationSlice =
 					DateTime.fromISO(b.updateTime).toMillis(),
 			);
 			const orderMarkers: OrderMarker[] = [];
-			const limitOrderPriceLines: LimitOrderPriceLine[] = [];
+			const limitOrderPriceLines: OrderPriceLine[] = [];
 			virtualOrderData.forEach((order: VirtualOrder) => {
 				if (order.orderStatus === OrderStatus.FILLED) {
 					if (
@@ -276,7 +274,7 @@ export const createDataInitializationSlice =
 				}
 			});
 			get().setOrderMarkers(orderMarkers);
-			get().setLimitOrderPriceLine(limitOrderPriceLines);
+			get().setOrderPriceLine(limitOrderPriceLines);
 		},
 
 		initVirtualPositionData: async (strategyId: number) => {
@@ -299,17 +297,6 @@ export const createDataInitializationSlice =
 							virtualPositionToOpenPositionPriceLine(position);
 
 						orderPriceLine.push(openPositionPriceLine);
-
-						const takeProfitPriceLine =
-							virtualPositionToTakeProfitPriceLine(position);
-						const stopLossPriceLine =
-							virtualPositionToStopLossPriceLine(position);
-						if (takeProfitPriceLine) {
-							orderPriceLine.push(takeProfitPriceLine);
-						}
-						if (stopLossPriceLine) {
-							orderPriceLine.push(stopLossPriceLine);
-						}
 					});
 				}
 				get().setPositionPriceLine(orderPriceLine);

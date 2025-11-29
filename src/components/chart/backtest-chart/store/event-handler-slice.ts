@@ -11,11 +11,11 @@ import type { VirtualPosition } from "@/types/position";
 import type { KeyStr } from "@/types/symbol-key";
 import {
 	getChartAlignedUtcTimestamp,
+	TpOrderToTakeProfitPriceLine,
+	SlOrderToStopLossPriceLine,
 	virtualOrderToLimitOrderPriceLine,
 	virtualOrderToMarker,
 	virtualPositionToOpenPositionPriceLine,
-	virtualPositionToStopLossPriceLine,
-	virtualPositionToTakeProfitPriceLine,
 } from "../utls";
 import type { EventHandlerSlice, SliceCreator, StoreContext } from "./types";
 
@@ -108,7 +108,6 @@ export const createEventHandlerSlice =
 		onNewOrder: (newOrder: VirtualOrder) => {
 			// 后端返回时间，转换为时间戳：2025-07-25T00:20:00Z -> timestamp
 			// 开仓订单
-			// console.log("newOrder", newOrder);
 			if (newOrder.orderStatus === OrderStatus.FILLED) {
 				const markers = virtualOrderToMarker(newOrder);
 				get().setOrderMarkers([...get().orderMarkers, ...markers]);
@@ -122,14 +121,13 @@ export const createEventHandlerSlice =
 			// 限价单, 状态为挂单和已创建时，创建限价单价格线
 			else if (
 				newOrder.orderType === OrderType.LIMIT &&
-				(newOrder.orderStatus === OrderStatus.PLACED ||
-					newOrder.orderStatus === OrderStatus.CREATED)
+				(newOrder.orderStatus === OrderStatus.PLACED || newOrder.orderStatus === OrderStatus.CREATED)
 			) {
 				// 创建限价单价格线
 				const limitOrderPriceLine = virtualOrderToLimitOrderPriceLine(newOrder);
 				if (limitOrderPriceLine) {
-					get().setLimitOrderPriceLine([
-						...get().limitOrderPriceLine,
+					get().setOrderPriceLine([
+						...get().orderPriceLine,
 						limitOrderPriceLine,
 					]);
 					const candleSeriesRef = get().getKlineSeriesRef();
@@ -138,6 +136,159 @@ export const createEventHandlerSlice =
 					}
 				}
 			}
+			// tp order or stop order
+			else if (newOrder.orderStatus === OrderStatus.CREATED && (newOrder.orderType === OrderType.TAKE_PROFIT_MARKET || newOrder.orderType===OrderType.STOP_MARKET)) {
+				if (newOrder.orderType === OrderType.TAKE_PROFIT_MARKET) {
+					const takeProfitPriceLine = TpOrderToTakeProfitPriceLine(newOrder);
+					if (takeProfitPriceLine) {
+						get().setOrderPriceLine([
+							...get().orderPriceLine,
+							takeProfitPriceLine,
+						]);
+					}
+					const candleSeriesRef = get().getKlineSeriesRef();
+					if (candleSeriesRef) {
+						candleSeriesRef.createPriceLine(takeProfitPriceLine);
+					}
+				}
+				else if (newOrder.orderType === OrderType.STOP_MARKET) {
+					const stopLossPriceLine = SlOrderToStopLossPriceLine(newOrder);
+					if (stopLossPriceLine) {
+						get().setOrderPriceLine([
+							...get().orderPriceLine,
+							stopLossPriceLine,
+						]);
+					}
+					const candleSeriesRef = get().getKlineSeriesRef();
+					if (candleSeriesRef) {
+						candleSeriesRef.createPriceLine(stopLossPriceLine);
+					}
+				}
+
+			}
+		},
+
+		onOrderFilled(order: VirtualOrder) {
+			if (order.orderStatus !== OrderStatus.FILLED) {
+				return;
+			}
+			// limit order filled, remove price line and create a marker 
+			if (order.orderType === OrderType.LIMIT) {
+				this.onLimitOrderFilled(order);
+			}
+			
+			else if (order.orderType === OrderType.TAKE_PROFIT_MARKET) {
+				this.onTpOrderFilled(order);
+			}
+
+			else if (order.orderType === OrderType.STOP_MARKET) {
+				this.onSlOrderFilled(order);
+			}
+			else {
+				console.log("onOrderFilled", order);
+				const markers = virtualOrderToMarker(order);
+				get().setOrderMarkers([...get().orderMarkers, ...markers]);
+				// console.log("orderMarkers", get().getOrderMarkers());
+				const orderMarkerSeriesRef = get().getOrderMarkerSeriesRef();
+				if (orderMarkerSeriesRef) {
+					orderMarkerSeriesRef.setMarkers(get().getOrderMarkers());
+				}
+			}
+
+			
+		},
+
+		onOrderCreated: (order: VirtualOrder) => {
+			if (order.orderStatus !== OrderStatus.CREATED) {
+				return;
+			}
+
+			if (order.orderType === OrderType.TAKE_PROFIT_MARKET) {
+				const takeProfitPriceLine = TpOrderToTakeProfitPriceLine(order);
+				if (takeProfitPriceLine) {
+					get().setOrderPriceLine([
+						...get().orderPriceLine,
+						takeProfitPriceLine,
+					]);
+				}
+				const candleSeriesRef = get().getKlineSeriesRef();
+				if (candleSeriesRef) {
+					candleSeriesRef.createPriceLine(takeProfitPriceLine);
+				}
+			}
+			else if (order.orderType === OrderType.STOP_MARKET) {
+				const stopLossPriceLine = SlOrderToStopLossPriceLine(order);
+				if (stopLossPriceLine) {
+					get().setOrderPriceLine([
+						...get().orderPriceLine,
+						stopLossPriceLine,
+					]);
+				}
+				const candleSeriesRef = get().getKlineSeriesRef();
+				if (candleSeriesRef) {
+					candleSeriesRef.createPriceLine(stopLossPriceLine);
+				}
+			}
+			else if (
+				order.orderType === OrderType.LIMIT
+			) {
+				// 创建限价单价格线
+				const limitOrderPriceLine = virtualOrderToLimitOrderPriceLine(order);
+				if (limitOrderPriceLine) {
+					get().setOrderPriceLine([
+						...get().orderPriceLine,
+						limitOrderPriceLine,
+					]);
+					const candleSeriesRef = get().getKlineSeriesRef();
+					if (candleSeriesRef) {
+						candleSeriesRef.createPriceLine(limitOrderPriceLine);
+					}
+				}
+			}
+			
+			
+		},
+
+		onOrderCanceled(order) {
+			if (order.orderStatus !== OrderStatus.CANCELED) {
+				return;
+			}
+			if (order.orderType === OrderType.TAKE_PROFIT_MARKET) {
+				const candleSeriesRef = get().getKlineSeriesRef();
+				if (candleSeriesRef) {
+					const readyToRemovePriceLines = candleSeriesRef
+						.priceLines()
+						.filter((priceLine) =>
+							priceLine
+								.options()
+								.id?.includes(`${order.orderId.toString()}-take-profit`),
+						);
+					readyToRemovePriceLines.forEach((priceLine) => {
+						const pricelineId = priceLine.options().id as string;
+						candleSeriesRef.removePriceLine(priceLine);
+						get().deleteOrderPriceLine(pricelineId);
+					});
+				}
+			}
+			else if (order.orderType === OrderType.STOP_MARKET) {
+				const candleSeriesRef = get().getKlineSeriesRef();
+				if (candleSeriesRef) {
+					const readyToRemovePriceLines = candleSeriesRef
+						.priceLines()
+						.filter((priceLine) =>
+							priceLine
+								.options()
+								.id?.includes(`${order.orderId.toString()}-stop-loss`),
+						);
+					readyToRemovePriceLines.forEach((priceLine) => {
+						const pricelineId = priceLine.options().id as string;
+						candleSeriesRef.removePriceLine(priceLine);
+						get().deleteOrderPriceLine(pricelineId);
+					});
+				}
+			}
+
+			
 		},
 
 		onLimitOrderFilled: (limitOrder: VirtualOrder) => {
@@ -154,7 +305,7 @@ export const createEventHandlerSlice =
 				readyToRemovePriceLines.forEach((priceLine) => {
 					const pricelineId = priceLine.options().id as string;
 					candleSeriesRef.removePriceLine(priceLine);
-					get().deleteLimitOrderPriceLine(pricelineId);
+					get().deleteOrderPriceLine(pricelineId);
 				});
 			}
 			// 创建标记
@@ -169,33 +320,71 @@ export const createEventHandlerSlice =
 			}
 		},
 
+		onTpOrderFilled: (tpOrder: VirtualOrder) => {
+			const candleSeriesRef = get().getKlineSeriesRef();
+			if (candleSeriesRef) {
+				const readyToRemovePriceLines = candleSeriesRef
+					.priceLines()
+					.filter((priceLine) =>
+						priceLine
+							.options()
+							.id?.includes(`${tpOrder.orderId.toString()}-take-profit`),
+					);
+				readyToRemovePriceLines.forEach((priceLine) => {
+					const pricelineId = priceLine.options().id as string;
+					candleSeriesRef.removePriceLine(priceLine);
+					get().deleteOrderPriceLine(pricelineId);
+				});
+			}
+			// 创建标记
+			if (tpOrder.orderStatus === OrderStatus.FILLED) {
+				const markers = virtualOrderToMarker(tpOrder);
+				get().setOrderMarkers([...get().orderMarkers, ...markers]);
+				// console.log("orderMarkers", get().getOrderMarkers());
+				const orderMarkerSeriesRef = get().getOrderMarkerSeriesRef();
+				if (orderMarkerSeriesRef) {
+					orderMarkerSeriesRef.setMarkers(get().getOrderMarkers());
+				}
+			}
+
+		},
+
+		onSlOrderFilled: (slOrder: VirtualOrder) => {
+			const candleSeriesRef = get().getKlineSeriesRef();
+			if (candleSeriesRef) {
+				const readyToRemovePriceLines = candleSeriesRef
+					.priceLines()
+					.filter((priceLine) =>
+						priceLine
+							.options()
+							.id?.includes(`${slOrder.orderId.toString()}-stop-loss`),
+					);
+				readyToRemovePriceLines.forEach((priceLine) => {
+					const pricelineId = priceLine.options().id as string;
+					candleSeriesRef.removePriceLine(priceLine);
+					get().deleteOrderPriceLine(pricelineId);
+				});
+			}
+			// 创建标记
+			if (slOrder.orderStatus === OrderStatus.FILLED) {
+				const markers = virtualOrderToMarker(slOrder);
+				get().setOrderMarkers([...get().orderMarkers, ...markers]);
+				// console.log("orderMarkers", get().getOrderMarkers());
+				const orderMarkerSeriesRef = get().getOrderMarkerSeriesRef();
+				if (orderMarkerSeriesRef) {
+					orderMarkerSeriesRef.setMarkers(get().getOrderMarkers());
+				}
+			}
+
+		},
+
 		onNewPosition: (position: VirtualPosition) => {
 			const openPositionPriceLine =
 				virtualPositionToOpenPositionPriceLine(position);
-			const takeProfitPriceLine =
-				virtualPositionToTakeProfitPriceLine(position);
-			const stopLossPriceLine = virtualPositionToStopLossPriceLine(position);
-			if (takeProfitPriceLine) {
-				get().setPositionPriceLine([
-					...get().positionPriceLine,
-					takeProfitPriceLine,
-				]);
-			}
-			if (stopLossPriceLine) {
-				get().setPositionPriceLine([
-					...get().positionPriceLine,
-					stopLossPriceLine,
-				]);
-			}
+
 			const candleSeriesRef = get().getKlineSeriesRef();
 			if (candleSeriesRef) {
 				candleSeriesRef.createPriceLine(openPositionPriceLine);
-				if (takeProfitPriceLine) {
-					candleSeriesRef.createPriceLine(takeProfitPriceLine);
-				}
-				if (stopLossPriceLine) {
-					candleSeriesRef.createPriceLine(stopLossPriceLine);
-				}
 			}
 		},
 

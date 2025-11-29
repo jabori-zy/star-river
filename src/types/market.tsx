@@ -4,7 +4,7 @@ export enum Exchange {
 	OKX = "okx",
 }
 
-export type MarketSymbol = {
+export type Instrument = {
 	name: string;
 	base: string | null;
 	quote: string | null;

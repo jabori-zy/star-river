@@ -15,6 +15,7 @@ import enUSSetting from "./en-US/setting";
 import enUSDektop from "./en-US/desktop";
 import enUSApiMessage from "./en-US/api-message";
 import enUSStartNode from "./en-US/start-node";
+import enUSFuturesOrderNode from "./en-US/futures-order-node";
 // 定义所有命名空间(模块名)
 const NAMESPACES = [
 	"common",
@@ -28,11 +29,12 @@ const NAMESPACES = [
 	"market",
 	"setting",
 	"start-node",
+	"futures-order-node",
 ];
 
 // 动态导入语言资源,带容错机制
 const requireSilent = async (lang: string, namespace: string) => {
-	let res;
+	let res: Record<string, any>;
 	try {
 		res = (await import(`./${lang}/${namespace}.ts`)).default;
 	} catch {
@@ -70,6 +72,7 @@ const getInitialTranslations = () => {
 				market: enUSMarket,
 				setting: enUSSetting,
 				startNode: enUSStartNode,
+				futuresOrderNode: enUSFuturesOrderNode,
 			},
 		},
 	};

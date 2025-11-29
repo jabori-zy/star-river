@@ -4,7 +4,7 @@ import { NodeOpConfirmDialog } from "@/components/flow/node-op-confirm-dialog";
 import { Label } from "@/components/ui/label";
 import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 import { getSymbolList } from "@/service/market";
-import type { MarketSymbol } from "@/types/market";
+import type { Instrument } from "@/types/market";
 import type { VariableConfig, GetCustomVariableConfig, UpdateVariableConfig, ResetVariableConfig } from "@/types/node/variable-node";
 import {
 	type VariableOperation,
@@ -121,7 +121,7 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 		return undefined;
 	}, [tradeMode, startNodeData]);
 
-	const [symbolList, setSymbolList] = useState<MarketSymbol[]>([]);
+	const [symbolList, setSymbolList] = useState<Instrument[]>([]);
 	const [isSymbolLoading, setIsSymbolLoading] = useState(false);
 
 	useEffect(() => {

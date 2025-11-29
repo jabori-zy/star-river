@@ -69,7 +69,7 @@ const ConstantInput: React.FC<ConstantInputProps> = ({
 			// 如果输入为空，默认设置为0
 			setLocalValue("0");
 			onValueChange(0);
-		} else if (isNaN(Number(localValue))) {
+		} else if (Number.isNaN(Number(localValue))) {
 			// 如果输入无效，重置为原始值
 			setLocalValue(value.toString());
 		} else {
@@ -209,34 +209,35 @@ const ConstantInput: React.FC<ConstantInputProps> = ({
 				</Select>
 			);
 
-		case VariableValueType.TIME:
-			const dateValue =
-				typeof value === "string" ? parseDatetime(value) : undefined;
+	case VariableValueType.TIME: {
+		const dateValue =
+			typeof value === "string" ? parseDatetime(value) : undefined;
 
-			return (
-				<div className={className}>
-					<style>{`
-						/* 覆盖时间选择器按钮样式 */
-						.time-picker-override button {
-							background-color: transparent !important;
-							border-color: rgb(209 213 219) !important;
-							height: 2rem !important;
-							font-size: 0.75rem !important;
-							line-height: 1rem !important;
-						}
-						.time-picker-override button:hover {
-							background-color: rgb(229 231 235) !important;
-						}
-					`}</style>
-					<div className="time-picker-override">
-						<DateTimePicker24h
-							value={dateValue}
-							onChange={handleTimeChange}
-							showSeconds={true}
-						/>
-					</div>
+		return (
+			<div className={className}>
+				<style>{`
+					/* 覆盖时间选择器按钮样式 */
+					.time-picker-override button {
+						background-color: transparent !important;
+						border-color: rgb(209 213 219) !important;
+						height: 2rem !important;
+						font-size: 0.75rem !important;
+						line-height: 1rem !important;
+					}
+					.time-picker-override button:hover {
+						background-color: rgb(229 231 235) !important;
+					}
+				`}</style>
+				<div className="time-picker-override">
+					<DateTimePicker24h
+						value={dateValue}
+						onChange={handleTimeChange}
+						showSeconds={true}
+					/>
 				</div>
-			);
+			</div>
+		);
+	}
 
 		case VariableValueType.ENUM:
 			return (

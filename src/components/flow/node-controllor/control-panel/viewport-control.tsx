@@ -67,7 +67,6 @@ enum ZoomType {
 	zoomIn = "zoomIn",
 	zoomOut = "zoomOut",
 	zoomToFit = "zoomToFit",
-	zoomTo25 = "zoomTo25",
 	zoomTo50 = "zoomTo50",
 	zoomTo75 = "zoomTo75",
 	zoomTo100 = "zoomTo100",
@@ -89,7 +88,6 @@ const ViewportControl: React.FC = () => {
 			{ key: ZoomType.zoomTo100, text: "100%", value: 1 },
 			{ key: ZoomType.zoomTo75, text: "75%", value: 0.75 },
 			{ key: ZoomType.zoomTo50, text: "50%", value: 0.5 },
-			{ key: ZoomType.zoomTo25, text: "25%", value: 0.25 },
 		],
 		[{ key: ZoomType.zoomToFit, text: "适应视图", value: null }],
 	];
@@ -123,8 +121,6 @@ const ViewportControl: React.FC = () => {
 		(type: string) => {
 			if (type === ZoomType.zoomToFit) {
 				handleFitView();
-			} else if (type === ZoomType.zoomTo25) {
-				zoomTo(0.25, { duration: 800 });
 			} else if (type === ZoomType.zoomTo50) {
 				zoomTo(0.5, { duration: 800 });
 			} else if (type === ZoomType.zoomTo75) {
@@ -168,20 +164,21 @@ const ViewportControl: React.FC = () => {
 					align="start"
 				>
 					{ZOOM_OPTIONS.map((options, i) => (
-						<React.Fragment key={i}>
+						<React.Fragment key={`zoom-options-group-${options[0].key}`}>
 							{i !== 0 && <Separator className="my-1" />}
 							<div className="space-y-1">
 								{options.map((option) => (
-									<div
-										key={option.key}
-										className="flex items-center justify-between px-2 py-1.5 text-sm rounded hover:bg-gray-100 cursor-pointer"
+									<button
+										key={`zoom-option-${option.key}`}
+										type="button"
+										className="w-full flex items-center justify-between px-2 py-1.5 text-sm rounded hover:bg-gray-100 cursor-pointer"
 										onClick={() => handleZoom(option.key)}
 									>
 										<span>{option.text}</span>
 										{option.value && zoom === option.value && (
 											<div className="w-1.5 h-1.5 bg-blue-500 rounded-full" />
 										)}
-									</div>
+									</button>
 								))}
 							</div>
 						</React.Fragment>

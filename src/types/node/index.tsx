@@ -54,7 +54,7 @@ export const NodeDefaultColorsMap: Record<NodeType, string> = {
 	[NodeType.KlineNode]: "#3b82f6", // 蓝色 - K线节点
 	[NodeType.IndicatorNode]: "#8b5cf6", // 紫色 - 指标节点
 	[NodeType.IfElseNode]: "#f59e0b", // 橙色 - 条件节点
-	[NodeType.FuturesOrderNode]: "#ef4444", // 红色 - 期货订单节点
+	[NodeType.FuturesOrderNode]: "#0f766e", // 红色 - 期货订单节点
 	[NodeType.PositionNode]: "#ec4899", // 粉色 - 持仓管理节点
 	[NodeType.VariableNode]: "#06b6d4", // 青色 - 变量节点
 };

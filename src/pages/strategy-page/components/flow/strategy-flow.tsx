@@ -237,7 +237,7 @@ export default function StrategyFlow({ strategy, onSaveStatusChange }: StrategyF
 	const handleNodeDelete: OnNodesDelete = useCallback((nodes: Node[]) => {
 		setNodes((nds) => nds.filter((nd) => !nodes.includes(nd)));
 		setSelectedNodeId(undefined);
-	}, []);
+	}, [setNodes]);
 
 
 	const onPaneClick = useCallback((_event: React.MouseEvent) => {
@@ -315,10 +315,10 @@ export default function StrategyFlow({ strategy, onSaveStatusChange }: StrategyF
 	}, [getNodeConnections, setEdges, updateNodeData]);
 
 	// 添加 useEffect 来监听 edges 的变化
-	useEffect(() => {
-		// console.log("Current nodes:", nodes);
-		// console.log("Current edges:", edges);
-	}, [nodes, edges]);
+	// useEffect(() => {
+	// 	// console.log("Current nodes:", nodes);
+	// 	// console.log("Current edges:", edges);
+	// }, [nodes, edges]);
 
 	return (
 		<div className="flex-1 h-full w-full overflow-x-auto">
@@ -349,7 +349,6 @@ export default function StrategyFlow({ strategy, onSaveStatusChange }: StrategyF
 			>
 				<DevTools />
 				<MiniMap position="bottom-left" />
-				{/* <Controls /> */}
 				{/* 背景颜色：深灰色 */}
 				<Background />
 				<NodeToolbar />

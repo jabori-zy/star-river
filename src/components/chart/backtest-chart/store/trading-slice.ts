@@ -1,5 +1,5 @@
 import type {
-	LimitOrderPriceLine,
+	OrderPriceLine,
 	OrderMarker,
 	PositionPriceLine,
 } from "@/types/chart";
@@ -8,7 +8,7 @@ import type { SliceCreator, TradingSlice } from "./types";
 export const createTradingSlice: SliceCreator<TradingSlice> = (set, get) => ({
 	orderMarkers: [], // 订单标记
 	positionPriceLine: [], // 仓位价格线
-	limitOrderPriceLine: [], // 限价单价格线
+	orderPriceLine: [], // 限价单价格线
 
 	setOrderMarkers: (markers: OrderMarker[]) => set({ orderMarkers: markers }),
 
@@ -26,14 +26,14 @@ export const createTradingSlice: SliceCreator<TradingSlice> = (set, get) => ({
 			),
 		}),
 
-	setLimitOrderPriceLine: (priceLine: LimitOrderPriceLine[]) =>
-		set({ limitOrderPriceLine: priceLine }),
+	setOrderPriceLine: (priceLine: OrderPriceLine[]) =>
+		set({ orderPriceLine: priceLine }),
 
-	getLimitOrderPriceLine: () => get().limitOrderPriceLine,
+	getOrderPriceLine: () => get().orderPriceLine,
 
-	deleteLimitOrderPriceLine: (priceLineId: string) =>
+	deleteOrderPriceLine: (priceLineId: string) =>
 		set({
-			limitOrderPriceLine: get().limitOrderPriceLine.filter(
+			orderPriceLine: get().orderPriceLine.filter(
 				(priceLine) => priceLine.id !== priceLineId,
 			),
 		}),

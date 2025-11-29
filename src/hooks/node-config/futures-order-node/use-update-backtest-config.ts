@@ -132,12 +132,12 @@ export const useBacktestConfig = ({ id }: UseBacktestConfigProps) => {
 				draft.futuresOrderConfigs.splice(index, 1);
 
 				// Reassign IDs to maintain continuity
-				draft.futuresOrderConfigs = draft.futuresOrderConfigs.map(
-					(order, newIndex) => ({
-						...order,
-						id: newIndex + 1,
-					}),
-				);
+				// draft.futuresOrderConfigs = draft.futuresOrderConfigs.map(
+				// 	(order, newIndex) => ({
+				// 		...order,
+				// 		id: newIndex + 1,
+				// 	}),
+				// );
 			});
 		},
 		[updateConfig],

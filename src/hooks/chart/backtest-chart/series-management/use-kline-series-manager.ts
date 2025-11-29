@@ -45,7 +45,7 @@ export const useKlineSeriesManager = ({
 		subscribe,
 		getOrderMarkers,
 		getPositionPriceLine,
-		getLimitOrderPriceLine,
+		getOrderPriceLine: getLimitOrderPriceLine,
 		setOrderMarkerSeriesRef,
 	} = useBacktestChartStore(chartConfig.id);
 

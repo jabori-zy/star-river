@@ -5,7 +5,7 @@ import type { SymbolSelectorOption } from "../components/symbol-selector";
 import GetVarConfigItem from "./get-var-config";
 import ResetVarConfigItem from "./reset-var-config";
 import UpdateVarConfigItem from "./update-var-config";
-import { TFunction } from "i18next";
+import type { TFunction } from "i18next";
 
 interface VariableConfigItemProps {
 	id: string;

@@ -4,6 +4,7 @@ import BaseHandle from "@/components/flow/base/BaseHandle";
 export const getLimitOrderHandleGroup = (
 	nodeId: string,
 	orderConfigId: number,
+	handleColor: string,
 ) => {
 	return (
 		<div className="flex flex-row gap-1">
@@ -11,14 +12,14 @@ export const getLimitOrderHandleGroup = (
 				id={`${nodeId}_all_status_output_${orderConfigId}`}
 				type="source"
 				position={Position.Right}
-				handleColor="!bg-black-400"
+				handleColor={handleColor}
 				className="translate-x-2 translate-y-2"
 			/>
 			<BaseHandle
 				id={`${nodeId}_created_output_${orderConfigId}`}
 				type="source"
 				position={Position.Right}
-				handleColor="!bg-black-400"
+				handleColor={handleColor}
 				className="translate-x-2 translate-y-8"
 			/>
 
@@ -26,7 +27,7 @@ export const getLimitOrderHandleGroup = (
 				id={`${nodeId}_placed_output_${orderConfigId}`}
 				type="source"
 				position={Position.Right}
-				handleColor="!bg-black-400"
+				handleColor={handleColor}
 				className="translate-x-2 translate-y-14"
 			/>
 
@@ -34,42 +35,42 @@ export const getLimitOrderHandleGroup = (
 				id={`${nodeId}_partial_output_${orderConfigId}`}
 				type="source"
 				position={Position.Right}
-				handleColor="!bg-black-400"
+				handleColor={handleColor}
 				className="translate-x-2 translate-y-20"
 			/>
 			<BaseHandle
 				id={`${nodeId}_filled_output_${orderConfigId}`}
 				type="source"
 				position={Position.Right}
-				handleColor="!bg-black-400"
+				handleColor={handleColor}
 				className="translate-x-2 translate-y-26"
 			/>
 			<BaseHandle
 				id={`${nodeId}_canceled_output_${orderConfigId}`}
 				type="source"
 				position={Position.Right}
-				handleColor="!bg-black-400"
+				handleColor={handleColor}
 				className="translate-x-2 translate-y-32"
 			/>
 			<BaseHandle
 				id={`${nodeId}_expired_output_${orderConfigId}`}
 				type="source"
 				position={Position.Right}
-				handleColor="!bg-black-400"
+				handleColor={handleColor}
 				className="translate-x-2 translate-y-38"
 			/>
 			<BaseHandle
 				id={`${nodeId}_rejected_output_${orderConfigId}`}
 				type="source"
 				position={Position.Right}
-				handleColor="!bg-black-400"
+				handleColor={handleColor}
 				className="translate-x-2 translate-y-44"
 			/>
 			<BaseHandle
 				id={`${nodeId}_error_output_${orderConfigId}`}
 				type="source"
 				position={Position.Right}
-				handleColor="!bg-black-400"
+				handleColor={handleColor}
 				className="translate-x-2 translate-y-50"
 			/>
 		</div>
@@ -79,6 +80,7 @@ export const getLimitOrderHandleGroup = (
 export const getMarketOrderHandleGroup = (
 	nodeId: string,
 	orderConfigId: number,
+	handleColor: string,
 ) => {
 	return (
 		<div className="flex flex-row gap-1">
@@ -86,14 +88,14 @@ export const getMarketOrderHandleGroup = (
 				id={`${nodeId}_all_status_output_${orderConfigId}`}
 				type="source"
 				position={Position.Right}
-				handleColor="!bg-black-400"
+				handleColor={handleColor}
 				className="translate-x-2 translate-y-2"
 			/>
 			<BaseHandle
 				id={`${nodeId}_created_output_${orderConfigId}`}
 				type="source"
 				position={Position.Right}
-				handleColor="!bg-black-400"
+				handleColor={handleColor}
 				className="translate-x-2 translate-y-8"
 			/>
 
@@ -101,42 +103,42 @@ export const getMarketOrderHandleGroup = (
 				id={`${nodeId}_partial_output_${orderConfigId}`}
 				type="source"
 				position={Position.Right}
-				handleColor="!bg-black-400"
+				handleColor={handleColor}
 				className="translate-x-2 translate-y-14"
 			/>
 			<BaseHandle
 				id={`${nodeId}_filled_output_${orderConfigId}`}
 				type="source"
 				position={Position.Right}
-				handleColor="!bg-black-400"
+				handleColor={handleColor}
 				className="translate-x-2 translate-y-20"
 			/>
 			<BaseHandle
 				id={`${nodeId}_canceled_output_${orderConfigId}`}
 				type="source"
 				position={Position.Right}
-				handleColor="!bg-black-400"
+				handleColor={handleColor}
 				className="translate-x-2 translate-y-26"
 			/>
 			<BaseHandle
 				id={`${nodeId}_expired_output_${orderConfigId}`}
 				type="source"
 				position={Position.Right}
-				handleColor="!bg-black-400"
+				handleColor={handleColor}
 				className="translate-x-2 translate-y-32"
 			/>
 			<BaseHandle
 				id={`${nodeId}_rejected_output_${orderConfigId}`}
 				type="source"
 				position={Position.Right}
-				handleColor="!bg-black-400"
+				handleColor={handleColor}
 				className="translate-x-2 translate-y-38"
 			/>
 			<BaseHandle
 				id={`${nodeId}_error_output_${orderConfigId}`}
 				type="source"
 				position={Position.Right}
-				handleColor="!bg-black-400"
+				handleColor={handleColor}
 				className="translate-x-2 translate-y-44"
 			/>
 		</div>

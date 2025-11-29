@@ -102,8 +102,8 @@ export async function getStrategyByIdApi(
 
 			// Check if it's a standard error response from backend
 			let message = axiosError.message || "network request failed";
-			let errorCode: string | undefined = undefined;
-			let errorCodeChain: string[] | undefined = undefined;
+			let errorCode: string | undefined;
+			let errorCodeChain: string[] | undefined;
 
 			if (responseData && !responseData.success) {
 				// Use error message from backend

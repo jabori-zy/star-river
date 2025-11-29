@@ -49,8 +49,8 @@ const FuturesOrderNode: React.FC<NodeProps<FuturesOrderNodeType>> = ({
 			case TradeMode.SIMULATE:
 				return <SimulateModeShow id={id} data={currentNodeData} handleColor={handleColor} />;
 			case TradeMode.BACKTEST:
-			default:
 				return <BacktestModeShow id={id} data={currentNodeData} handleColor={handleColor} />;
+				
 		}
 	};
 

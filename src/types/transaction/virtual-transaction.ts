@@ -2,7 +2,7 @@ import type { Exchange } from "@/types/market";
 import type { NodeId } from "@/types/node";
 import type { OrderId } from "@/types/order";
 import type { PositionId } from "@/types/position";
-import type { TransactionId, TransactionSide, TransactionType } from ".";
+import type { TransactionId, TransactionSide } from ".";
 
 export type VirtualTransaction = {
 	transactionId: TransactionId; // 交易明细id
@@ -20,8 +20,6 @@ export type VirtualTransaction = {
 	exchange: string | Exchange; // 交易所
 
 	symbol: string; // 交易品种
-
-	transactionType: TransactionType; // 交易类型
 
 	transactionSide: TransactionSide; // 交易方向
 

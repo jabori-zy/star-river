@@ -1,5 +1,5 @@
 import type React from "react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,11 +12,11 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { connectExchange, getExchangeStatus } from "@/service/exchange";
 import type { ExchangeStatus } from "@/types/market";
-import { type SelectedAccount, TradeMode } from "@/types/strategy";
+import type { SelectedAccount, TradeMode } from "@/types/strategy";
 
 interface AccountSelectorProps {
 	label: string;
-	tradeMode: TradeMode;
+	tradeMode?: TradeMode;
 	selectedAccount: SelectedAccount | null; // 当前选中的账户
 	accountList: SelectedAccount[];
 	onAccountChange: (account: SelectedAccount) => void; // 账户变更回调
@@ -29,35 +29,15 @@ interface AccountSelectorProps {
 // 已选择的账户列表
 const AccountSelector: React.FC<AccountSelectorProps> = ({
 	label,
-	tradeMode,
 	accountList,
 	selectedAccount,
 	onAccountChange,
 	onConnectionStatusChange,
 }) => {
-	// 开始节点的回测配置
-	// const {
-	// 	backtestConfig: startNodeBacktestConfig,
-	// 	liveConfig: startNodeLiveConfig,
-	// } = useStartNodeDataStore();
-
-	// 可选的账户列表
-	// const [accountList, setAccountList] = useState<SelectedAccount[]>(
-	// 	tradeMode === TradeMode.BACKTEST
-	// 		? startNodeBacktestConfig?.exchangeModeConfig?.selectedAccounts || []
-	// 		: tradeMode === TradeMode.LIVE
-	// 			? startNodeLiveConfig?.selectedAccounts || []
-	// 			: [],
-	// );
-
 	const [localSelectedAccount, setLocalSelectedAccount] =
 		useState<SelectedAccount | null>(selectedAccount);
-	const [hasAccounts, setHasAccounts] = useState<boolean>(
-		accountList.length > 0,
-	);
-	const [exchangeStatus, setExchangeStatus] = useState<ExchangeStatus | null>(
-		null,
-	);
+	const hasAccounts = useMemo(() => accountList.length > 0, [accountList]);
+	const [exchangeStatus, setExchangeStatus] = useState<ExchangeStatus | null>(null);
 	const [isConnecting, setIsConnecting] = useState(false);
 	const pollingTimer = useRef<NodeJS.Timeout | null>(null);
 

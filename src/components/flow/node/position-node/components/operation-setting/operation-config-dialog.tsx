@@ -12,7 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getSymbolList } from "@/service/market";
-import type { MarketSymbol } from "@/types/market";
+import type { Instrument } from "@/types/market";
 import {
 	PositionOperation,
 	type PositionOperationConfig,
@@ -56,7 +56,7 @@ const OperationConfigDialog: React.FC<OperationConfigDialogProps> = ({
 		React.useState<boolean>(true);
 
 	// 交易对列表状态
-	const [symbolList, setSymbolList] = React.useState<MarketSymbol[]>([]);
+	const [symbolList, setSymbolList] = React.useState<Instrument[]>([]);
 
 	// 获取交易对列表
 	React.useEffect(() => {

@@ -1,5 +1,6 @@
 import type { FuturesOrderNodeData } from "@/types/node/futures-order-node";
-import { OrderHandleItem } from "../order-handle-item";
+import OrderHandleItem from "../order-handle-item";
+import { useTranslation } from "react-i18next";
 
 interface BacktestModeShowProps {
 	id: string;
@@ -8,6 +9,7 @@ interface BacktestModeShowProps {
 }
 
 const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ id, data, handleColor }) => {
+	const { t } = useTranslation();
 	// 获取回测模式配置
 	const backtestConfig = data.backtestConfig;
 
@@ -29,9 +31,9 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ id, data, handleCol
 
 	return (
 		<div className="flex flex-col gap-2">
-			<div className="flex items-center mb-1">
-				<span className="text-xs text-muted-foreground">订单将会发送至</span>
-				<span className="text-xs font-bold ">{exchangeName}</span>
+			<div className="flex items-center gap-1 mb-1">
+				<span className="text-xs text-muted-foreground">{t("futuresOrderNode.orderSendDescription")}</span>
+				<span className="text-xs font-bold">{exchangeName}</span>
 			</div>
 			{/* 渲染所有的订单配置 */}
 			{backtestConfig.futuresOrderConfigs.map((config) => (

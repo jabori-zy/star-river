@@ -13,7 +13,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { getExchangeStatus } from "@/service/exchange";
 import { INTERVAL_LABEL_MAP } from "@/types/kline";
-import type { ExchangeStatus, MarketSymbol } from "@/types/market";
+import type { ExchangeStatus, Instrument } from "@/types/market";
 import type { SelectedSymbol } from "@/types/node/kline-node";
 
 interface SymbolSelectDialogProps {
@@ -32,7 +32,7 @@ interface SymbolSelectDialogProps {
 	originalSymbolName?: string;
 	originalSymbolInterval?: string;
 	// 从父组件传入的数据
-	symbolList: MarketSymbol[];
+	symbolList: Instrument[];
 	supportKlineInterval: string[];
 }
 

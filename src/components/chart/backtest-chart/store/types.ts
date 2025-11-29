@@ -12,7 +12,7 @@ import type { Subscription } from "rxjs";
 import type { StateCreator } from "zustand";
 import type {
 	ChartId,
-	LimitOrderPriceLine,
+	OrderPriceLine,
 	OrderMarker,
 	PositionPriceLine,
 } from "@/types/chart";
@@ -140,16 +140,16 @@ export interface VisibilitySlice {
 export interface TradingSlice {
 	orderMarkers: OrderMarker[];
 	positionPriceLine: PositionPriceLine[];
-	limitOrderPriceLine: LimitOrderPriceLine[];
+	orderPriceLine: OrderPriceLine[];
 
 	setOrderMarkers: (markers: OrderMarker[]) => void;
 	getOrderMarkers: () => OrderMarker[];
 	setPositionPriceLine: (priceLine: PositionPriceLine[]) => void;
 	getPositionPriceLine: () => PositionPriceLine[];
 	deletePositionPriceLine: (priceLineId: string) => void;
-	setLimitOrderPriceLine: (priceLine: LimitOrderPriceLine[]) => void;
-	getLimitOrderPriceLine: () => LimitOrderPriceLine[];
-	deleteLimitOrderPriceLine: (priceLineId: string) => void;
+	setOrderPriceLine: (priceLine: OrderPriceLine[]) => void;
+	getOrderPriceLine: () => OrderPriceLine[];
+	deleteOrderPriceLine: (priceLineId: string) => void;
 }
 
 // ==================== Subscription Slice Types ====================
@@ -174,7 +174,12 @@ export interface EventHandlerSlice {
 		indicatorData: Record<keyof IndicatorValueConfig, SingleValueData[]>,
 	) => void;
 	onNewOrder: (newOrder: VirtualOrder) => void;
+	onOrderFilled: (order: VirtualOrder) => void;
+	onOrderCreated: (order: VirtualOrder) => void;
+	onOrderCanceled: (order: VirtualOrder) => void;
 	onLimitOrderFilled: (limitOrder: VirtualOrder) => void;
+	onTpOrderFilled: (tpOrder: VirtualOrder) => void;
+	onSlOrderFilled: (slOrder: VirtualOrder) => void;
 	onNewPosition: (position: VirtualPosition) => void;
 	onPositionClosed: (position: VirtualPosition) => void;
 }
