@@ -185,7 +185,6 @@ export const createEventHandlerSlice =
 				this.onSlOrderFilled(order);
 			}
 			else {
-				console.log("onOrderFilled", order);
 				const markers = virtualOrderToMarker(order);
 				get().setOrderMarkers([...get().orderMarkers, ...markers]);
 				// console.log("orderMarkers", get().getOrderMarkers());

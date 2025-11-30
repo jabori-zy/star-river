@@ -72,7 +72,7 @@ const ResetVarConfigItem: React.FC<ResetVarConfigItemProps> = ({
 	duplicateOperation,
 }) => {
 	const { t } = useTranslation();
-	const [isOpen, setIsOpen] = useState(true);
+	const [isOpen, setIsOpen] = useState(false);
 	const { getIfElseNodeCases } = useStrategyWorkflow();
 	const { tradingMode } = useTradingModeStore();
 
@@ -103,7 +103,7 @@ const ResetVarConfigItem: React.FC<ResetVarConfigItemProps> = ({
 		);
 		const cases = getIfElseNodeCases(conn, tradingMode as TradeMode);
 		setCaseItemList(cases);
-	}, [connections, getIfElseNodeCases, id, tradingMode]);
+	}, [connections, getIfElseNodeCases, id, tradingMode, config.inputHandleId]);
 
 	// 当从 props 接收到新的配置时，更新缓存
 	useEffect(() => {

@@ -223,6 +223,26 @@ export const virtualPositionColumns: ColumnDef<VirtualPosition>[] = [
 		},
 	},
 	{
+		accessorKey: "roi",
+		header: "投资回报率",
+		size: 100,
+		cell: ({ row }) => {
+			const roi = (row.getValue("roi") as number) * 100;
+			if (roi === null || roi === undefined) {
+				return <div className="text-center text-gray-400 text-sm">-</div>;
+			}
+			const formatted = new Intl.NumberFormat("zh-CN", {
+				minimumFractionDigits: 2,
+				maximumFractionDigits: 4,
+			}).format(roi);
+			return (
+				<div className="text-left font-mono text-sm truncate" title={formatted}>
+					{formatted} %
+				</div>
+			);
+		},
+	},
+	{
 		accessorKey: "forcePrice",
 		header: "强制平仓价",
 		size: 100,
@@ -267,7 +287,7 @@ export const virtualPositionColumns: ColumnDef<VirtualPosition>[] = [
 		header: "保证金比例",
 		size: 100,
 		cell: ({ row }) => {
-			const marginRatio = row.getValue("marginRatio") as number;
+			const marginRatio = (row.getValue("marginRatio") as number) * 100;
 			if (marginRatio === null || marginRatio === undefined) {
 				return <div className="text-center text-gray-400 text-sm">-</div>;
 			}
@@ -277,7 +297,7 @@ export const virtualPositionColumns: ColumnDef<VirtualPosition>[] = [
 			}).format(marginRatio);
 			return (
 				<div className="text-left font-mono text-sm truncate" title={formatted}>
-					{formatted}
+					{formatted} %
 				</div>
 			);
 		},

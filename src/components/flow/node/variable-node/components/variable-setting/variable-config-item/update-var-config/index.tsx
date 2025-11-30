@@ -268,7 +268,7 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 	duplicateOperation,
 }) => {
 	const { t } = useTranslation();
-	const [isOpen, setIsOpen] = useState(true);
+	const [isOpen, setIsOpen] = useState(false);
 	const { getIfElseNodeCases, getConnectedNodeVariables } = useStrategyWorkflow();
 	const { tradingMode } = useTradingModeStore();
 
@@ -322,7 +322,7 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 		// 获取连接节点的变量并更新状态
 		const variables = getConnectedNodeVariables(connections, tradingMode as TradeMode);
 		setVariableItemList(variables);
-	}, [connections, getIfElseNodeCases, getConnectedNodeVariables, id, tradingMode]);
+	}, [connections, getIfElseNodeCases, getConnectedNodeVariables, id, tradingMode, config.inputHandleId]);
 
 	// 当从 props 接收到新的配置时，更新缓存
 	useEffect(() => {
@@ -452,7 +452,7 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 		(isValid: boolean) => {
 			dataflowValidationRef.current = isValid;
 		},
-		[dataflowValidationRef],
+		[],
 	);
 
 	// 处理过期时长变化

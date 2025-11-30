@@ -11,7 +11,8 @@ import { NodeType } from "@/types/node/index";
 import type { IndicatorNodeData } from "@/types/node/indicator-node";
 import type { KlineNodeData } from "@/types/node/kline-node";
 import { getNodeTypeLabel } from "@/components/flow/node/node-utils";
-import { TFunction } from "i18next";
+import type { TFunction } from "i18next";
+import { VariableValueType } from "@/types/variable";
 
 // 获取条件类型的中文标签
 export const getCaseTypeLabel = (caseId: number) => {
@@ -38,7 +39,7 @@ export const getLogicalLabel = (symbol: LogicalSymbol | null) => {
 const formatConstantValue = (constant: Constant): string => {
 	const { varValue } = constant;
 
-	if (Array.isArray(varValue)) {
+	if (constant.varValueType === VariableValueType.ENUM && Array.isArray(varValue)) {
 		if (varValue.length === 0) {
 			return "[]";
 		}
@@ -49,8 +50,12 @@ const formatConstantValue = (constant: Constant): string => {
 		}
 		return varValue.join(", ");
 	}
-
-	return String(varValue);
+	else if (constant.varValueType === VariableValueType.PERCENTAGE) {
+		return `${varValue}%`;
+	}
+	else {
+		return String(varValue);
+	}
 };
 
 export const getVariableLabel = (

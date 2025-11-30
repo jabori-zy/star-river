@@ -83,10 +83,14 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 	duplicateOperation,
 }) => {
 	const { t } = useTranslation();
-	const { getCustomName, setCustomName, customNames } = useCustomSysVariableName();
-	const [isOpen, setIsOpen] = useState(true);
+	const { getCustomName, setCustomName } = useCustomSysVariableName();
+	const [isOpen, setIsOpen] = useState(false);
 	const { getIfElseNodeCases } = useStrategyWorkflow();
 	const { tradingMode } = useTradingModeStore();
+
+	// 本地状态管理显示名称输入框，避免光标跳转问题
+	const [localDisplayName, setLocalDisplayName] = useState(config.varDisplayName);
+	const isLocalEditingRef = useRef(false);
 
 	const effectiveTriggerType =
 		getEffectiveTriggerType(config) ?? "condition";
@@ -136,9 +140,16 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 		? Object.values(SystemVariableType).includes(config.varName as SystemVariableType)
 		: false;
 
+	// 当外部 config.varDisplayName 变化时同步到本地状态（非本地编辑触发时）
+	useEffect(() => {
+		if (!isLocalEditingRef.current && config.varDisplayName !== localDisplayName) {
+			setLocalDisplayName(config.varDisplayName);
+		}
+	}, [config.varDisplayName, localDisplayName]);
+
 	// 监听 store 中系统变量自定义名称的变化，实时更新 varDisplayName
 	useEffect(() => {
-		if (isSystemVariable && config.varName) {
+		if (isSystemVariable && config.varName && !isLocalEditingRef.current) {
 			const customName = getCustomName(config.varName);
 			if (customName && customName !== config.varDisplayName) {
 				onConfigChange({
@@ -230,19 +241,27 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 		}
 	};
 
-	// 处理自定义变量名称变化
+	// 处理自定义变量名称变化 - 只更新本地状态
 	const handleDisplayNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const newDisplayName = e.target.value;
+		isLocalEditingRef.current = true;
+		setLocalDisplayName(e.target.value);
+	};
 
-		// 如果是系统变量,同时更新 store
-		if (isSystemVariable && config.varName) {
-			setCustomName(config.varName, newDisplayName);
+	// 失焦时同步到外部状态
+	const handleDisplayNameBlur = () => {
+		isLocalEditingRef.current = false;
+
+		if (localDisplayName !== config.varDisplayName) {
+			// 如果是系统变量,同时更新 store
+			if (isSystemVariable && config.varName) {
+				setCustomName(config.varName, localDisplayName);
+			}
+
+			onConfigChange({
+				...config,
+				varDisplayName: localDisplayName,
+			});
 		}
-
-		onConfigChange({
-			...config,
-			varDisplayName: newDisplayName,
-		});
 	};
 
 	// 处理触发条件变化
@@ -540,8 +559,9 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 								<Input
 									id="variableName"
 									type="text"
-									value={config.varDisplayName}
+									value={localDisplayName}
 									onChange={handleDisplayNameChange}
+									onBlur={handleDisplayNameBlur}
 									placeholder="输入变量名称"
 									className="w-full"
 								/>

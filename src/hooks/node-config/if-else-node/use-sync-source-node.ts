@@ -290,6 +290,7 @@ export const useSyncSourceNode = ({
 	const { resetCases: resetBacktestCases, resetConditionVariable, updateConditionVariableMetadata } = useBacktestConfig({ id });
 	const { updateIsNested } = useUpdateIsNested({ id });
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: backtestConfig is intentionally omitted to prevent infinite loops. This effect should only run when sourceNodes change.
 	useEffect(() => {
 		// No source nodes: reset cases and isNested
 		if (sourceNodes.length === 0 && backtestConfig?.cases?.length !== 0) {
@@ -338,8 +339,8 @@ export const useSyncSourceNode = ({
 				}
 			});
 
-			// Cleanup orphan conditions that reference disconnected nodes
-			cleanupOrphanConditions(sourceNodes, backtestConfig, resetConditionVariable);
-		}
-	}, [sourceNodes, backtestConfig, resetBacktestCases, resetConditionVariable, updateIsNested, updateConditionVariableMetadata]);
+		// Cleanup orphan conditions that reference disconnected nodes
+		cleanupOrphanConditions(sourceNodes, backtestConfig, resetConditionVariable);
+	}
+}, [id, sourceNodes]);
 };

@@ -110,7 +110,6 @@ const StrategyVariable = forwardRef<StrategyVariableRef, StrategyVariableProps>(
         // 创建自定义变量数据流订阅
         const customVariableStream = createCustomVariableStream(true);
         const customVariableSubscription = customVariableStream.subscribe(async (customVariableEvent) => {
-            console.log("customVariableEvent", customVariableEvent);
             // 如果列表为空且未初始化，先获取初始数据
             if (variableUpdateEventsRef.current.length === 0 && !isInitializingRef.current && !hasInitializedRef.current) {
                 await getInitVariableData();
@@ -141,6 +140,7 @@ const StrategyVariable = forwardRef<StrategyVariableRef, StrategyVariableProps>(
         // 创建系统变量数据流订阅
         const systemVariableStream = createSystemVariableStream(true);
         const systemVariableSubscription = systemVariableStream.subscribe(async (systemVariableEvent) => {
+            console.log("systemVariableEvent", systemVariableEvent);
             // 如果列表为空且未初始化，先获取初始数据
             if (variableUpdateEventsRef.current.length === 0 && !isInitializingRef.current && !hasInitializedRef.current) {
                 await getInitVariableData();

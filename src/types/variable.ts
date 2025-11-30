@@ -99,10 +99,15 @@ export enum SystemVariableType {
 	IS_MARKET_OPEN = "is_market_open", // 是否开盘
 	IS_MARKET_CLOSED = "is_market_closed", // 是否收盘
 	IS_TRADABLE = "is_tradable", // 是否可交易
-	TOTAL_POSITION_NUMBER = "total_position_number", // 总持仓数量
-	POSITION_NUMBER = "position_number", // 持仓数量
-	TOTAL_FILLED_ORDER_NUMBER = "total_filled_order_number", // 总已成交订单数量
-	FILLED_ORDER_NUMBER = "filled_order_number", // 已成交订单数量
+	TOTAL_CURRENT_POSITION_AMOUNT = "total_current_position_amount", // 当前总持仓数量
+	CURRENT_POSITION_AMOUNT = "current_position_amount", // 当前持仓数量(指定交易对)
+	TOTAL_HISTORY_POSITION_AMOUNT = "total_history_position_amount", // 历史总持仓数量
+	HISTORY_POSITION_AMOUNT = "history_position_amount", // 历史持仓数量(指定交易对)
+	TOTAL_UNFILLED_ORDER_AMOUNT = "total_unfilled_order_amount", // 总未成交订单数量
+	UNFILLED_ORDER_AMOUNT = "unfilled_order_amount", // 未成交订单数量(指定交易对)
+	TOTAL_HISTORY_ORDER_AMOUNT = "total_history_order_amount", // 历史总订单数量
+	HISTORY_ORDER_AMOUNT = "history_order_amount", // 历史订单数量(指定交易对)
+	CURRENT_ROI = "current_roi", // 当前投资回报率
 	CUMULATIVE_YIELD = "cumulative_yield", // 累计收益率
 }
 
@@ -147,33 +152,61 @@ export const getSystemVariableMetadata = (
 		shouldSelectSymbol: true,
 		description: t("variableNode.systemVariableName.isTradable"),
 	},
-	[SystemVariableType.TOTAL_POSITION_NUMBER]: {
-		varName: "total_position_number",
-		varDisplayName: t("variableNode.systemVariableName.totalPositionNumber"),
+	[SystemVariableType.TOTAL_CURRENT_POSITION_AMOUNT]: {
+		varName: "total_current_position_amount",
+		varDisplayName: t("variableNode.systemVariableName.totalCurrentPositionAmount"),
 		varValueType: VariableValueType.NUMBER,
 		shouldSelectSymbol: false,
-		description: t("variableNode.systemVariableName.totalPositionNumber"),
+		description: t("variableNode.systemVariableName.totalCurrentPositionAmount"),
 	},
-	[SystemVariableType.TOTAL_FILLED_ORDER_NUMBER]: {
-		varName: "total_filled_order_number",
-		varDisplayName: t("variableNode.systemVariableName.totalFilledOrderNumber"),
+	[SystemVariableType.TOTAL_UNFILLED_ORDER_AMOUNT]: {
+		varName: "total_unfilled_order_amount",
+		varDisplayName: t("variableNode.systemVariableName.totalUnfilledOrderAmount"),
 		varValueType: VariableValueType.NUMBER,
 		shouldSelectSymbol: false,
-		description: t("variableNode.systemVariableName.totalFilledOrderNumber"),
+		description: t("variableNode.systemVariableName.totalUnfilledOrderAmount"),
 	},
-	[SystemVariableType.POSITION_NUMBER]: {
-		varName: "position_number",
-		varDisplayName: t("variableNode.systemVariableName.positionNumber"),
+	[SystemVariableType.CURRENT_POSITION_AMOUNT]: {
+		varName: "current_position_amount",
+		varDisplayName: t("variableNode.systemVariableName.currentPositionAmount"),
 		varValueType: VariableValueType.NUMBER,
 		shouldSelectSymbol: true,
-		description: t("variableNode.systemVariableName.positionNumber"),
+		description: t("variableNode.systemVariableName.currentPositionAmount"),
 	},
-	[SystemVariableType.FILLED_ORDER_NUMBER]: {
-		varName: "filled_order_number",
-		varDisplayName: t("variableNode.systemVariableName.filledOrderNumber"),
+	[SystemVariableType.UNFILLED_ORDER_AMOUNT]: {
+		varName: "unfilled_order_amount",
+		varDisplayName: t("variableNode.systemVariableName.unfilledOrderAmount"),
 		varValueType: VariableValueType.NUMBER,
 		shouldSelectSymbol: true,
-		description: t("variableNode.systemVariableName.filledOrderNumber"),
+		description: t("variableNode.systemVariableName.unfilledOrderAmount"),
+	},
+	[SystemVariableType.TOTAL_HISTORY_POSITION_AMOUNT]: {
+		varName: "total_history_position_amount",
+		varDisplayName: t("variableNode.systemVariableName.totalHistoryPositionAmount"),
+		varValueType: VariableValueType.NUMBER,
+		shouldSelectSymbol: false,
+		description: t("variableNode.systemVariableName.totalHistoryPositionAmount"),
+	},
+	[SystemVariableType.HISTORY_POSITION_AMOUNT]: {
+		varName: "history_position_amount",
+		varDisplayName: t("variableNode.systemVariableName.historyPositionAmount"),
+		varValueType: VariableValueType.NUMBER,
+		shouldSelectSymbol: true,
+		description: t("variableNode.systemVariableName.historyPositionAmount"),
+	},
+	[SystemVariableType.TOTAL_HISTORY_ORDER_AMOUNT]: {
+		varName: "total_history_order_amount",
+		varDisplayName: t("variableNode.systemVariableName.totalHistoryOrderAmount"),
+		varValueType: VariableValueType.NUMBER,
+		shouldSelectSymbol: false,
+		description: t("variableNode.systemVariableName.totalHistoryOrderAmount"),
+	},
+	[SystemVariableType.HISTORY_ORDER_AMOUNT]: {
+		varName: "history_order_amount",
+		varDisplayName: t("variableNode.systemVariableName.historyOrderAmount"),
+		varValueType: VariableValueType.NUMBER,
+		shouldSelectSymbol: true,
+		description: t("variableNode.systemVariableName.historyOrderAmount"),
 	},
 	[SystemVariableType.CUMULATIVE_YIELD]: {
 		varName: "cumulative_yield",
@@ -181,5 +214,12 @@ export const getSystemVariableMetadata = (
 		varValueType: VariableValueType.PERCENTAGE,
 		shouldSelectSymbol: false,
 		description: t("variableNode.systemVariableName.cumulativeYield"),
+	},
+	[SystemVariableType.CURRENT_ROI]: {
+		varName: "current_roi",
+		varDisplayName: t("variableNode.systemVariableName.currentRoi"),
+		varValueType: VariableValueType.PERCENTAGE,
+		shouldSelectSymbol: true,
+		description: t("variableNode.systemVariableName.currentRoi"),
 	},
 });

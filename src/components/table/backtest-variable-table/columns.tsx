@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import {
     getVariableValueTypeIcon,
     getVariableValueTypeIconColor,
+    VariableValueType,
 } from "@/types/variable";
 import {
     type CustomVariableUpdateEvent,
@@ -15,8 +16,9 @@ import type { TFunction } from "i18next";
 import { formatTimeWithTimezone } from "@/utils/date-format";
 
 // 渲染变量值
-const renderValue = (v: unknown): string => {
-    if (v === null || v === undefined) return "";
+const renderValue = (v: string | number | boolean | string[] | null, varValueType: VariableValueType): string => {
+    if (v === null || v === undefined) return "N/A";
+    if (varValueType === VariableValueType.PERCENTAGE) return `${(v as number * 100).toFixed(4)}%`;
     if (Array.isArray(v)) return v.join(", ");
     if (typeof v === "boolean") return v ? "true" : "false";
     return String(v);
@@ -179,10 +181,10 @@ export const createStrategyVariableColumns = (
         size: 260,
         minSize: 120,
         enableSorting: false,
-        accessorFn: (row) => (isCustomVariableUpdateEvent(row) ? renderValue(row.customVariable.initialValue) : ""),
+        accessorFn: (row) => (isCustomVariableUpdateEvent(row) ? renderValue(row.customVariable.initialValue, row.customVariable.varValueType) : ""),
         cell: ({ row }) => {
             const value = isCustomVariableUpdateEvent(row.original)
-                ? renderValue(row.original.customVariable.initialValue)
+                ? renderValue(row.original.customVariable.initialValue, row.original.customVariable.varValueType)
                 : "";
             return (
                 <div className="text-left truncate text-sm" title={value}>
@@ -214,9 +216,10 @@ export const createStrategyVariableColumns = (
         minSize: 120,
         enableSorting: false,
         enableResizing: false,
-        accessorFn: (row) => renderValue(getVar(row).varValue),
+        accessorFn: (row) => renderValue(getVar(row).varValue, getVar(row).varValueType),
         cell: ({ row }) => {
-            const value = renderValue(getVar(row.original).varValue);
+
+            const value = renderValue(getVar(row.original).varValue, getVar(row.original).varValueType);
             return (
                 <div className="text-left truncate text-sm font-medium" title={value}>
                     {value}

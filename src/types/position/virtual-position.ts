@@ -16,6 +16,7 @@ export type VirtualPosition = {
 	forcePrice: number; // 强制平仓价格
 	margin: number; // 保证金
 	marginRatio: number; // 保证金比例
+	roi: number; // 投资回报率
 	createTime: string;
 	updateTime: string;
 };
