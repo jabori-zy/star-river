@@ -46,6 +46,8 @@ const translation = {
     deleting: "删除中...",
     lastUpdated: "最后更新",
     createTime: "创建时间",
+    success: "",
+    failed: "",
 }
 
 export default translation;

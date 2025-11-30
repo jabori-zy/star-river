@@ -50,6 +50,8 @@ const translation = {
     deleting: "Deleting...",
     lastUpdated: "Last Updated",
     createTime: "Create Time",
+    success: "Success",
+    failed: "Failed",
 }
 
 

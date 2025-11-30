@@ -26,6 +26,14 @@ const translation = {
 		variable: "Variable",
 		variableName: "Variable Name",
 		variableType: "Variable Type",
+	},
+	account: {
+		notConnected: "Click to connect.",
+		connecting: "Connecting...",
+		connect: "Connect",
+		pleaseSelectAccount: "Please select an account.",
+		pleaseConfigureAtStartNode: "Please configure at start node.",
+		noAccount: "No account configured.",
 	}
 };
 

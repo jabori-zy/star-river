@@ -1,13 +1,13 @@
 import type { IfElseNodeData } from "./if-else-node";
 import type { IndicatorNodeData } from "./indicator-node";
 import type { KlineNodeData } from "./kline-node";
-import type { PositionNodeData } from "./position-management-node";
+import type { PositionNodeData } from "./position-node";
 import type { StartNodeData } from "./start-node";
 import type { StartNode } from "./start-node";
 import type { KlineNode } from "./kline-node";
 import type { IndicatorNode } from "./indicator-node";
 import type { IfElseNode } from "./if-else-node";
-import type { PositionNode } from "./position-management-node";
+import type { PositionNode } from "./position-node";
 import type { VariableNode } from "./variable-node";
 import type { VariableNodeData } from "./variable-node";
 import type { IconName } from "lucide-react/dynamic";

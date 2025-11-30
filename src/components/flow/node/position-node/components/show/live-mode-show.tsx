@@ -1,5 +1,5 @@
-import type { PositionNodeData } from "@/types/node/position-management-node";
-import { PositionHandleItem } from "../position-handle-item/index";
+import type { PositionNodeData } from "@/types/node/position-node";
+import { PositionHandleItem } from "../position-handle-item";
 
 interface LiveModeShowProps {
 	id: string;
@@ -36,7 +36,7 @@ const LiveModeShow: React.FC<LiveModeShowProps> = ({ id, data }) => {
 			{/* 渲染所有的仓位操作 */}
 			{liveConfig.positionOperations.map((operationConfig) => (
 				<PositionHandleItem
-					key={operationConfig.positionOperationId}
+					key={operationConfig.configId}
 					id={id}
 					operationConfig={operationConfig}
 				/>

@@ -6,6 +6,7 @@ import {
 	TbPercentage,
 	TbToggleLeft,
 } from "react-icons/tb";
+import type { TFunction } from "i18next";
 
 export enum VariableValueType {
 	NUMBER = "number", // 数字
@@ -122,7 +123,7 @@ export interface SystemVariableMetadata {
 
 // 工具函数：获取系统变量元数据（支持多语言）
 export const getSystemVariableMetadata = (
-	t: (key: string) => string,
+	t: TFunction,
 ): Record<SystemVariableType, SystemVariableMetadata> => ({
 	[SystemVariableType.CURRENT_TIME]: {
 		varName: "current_time",

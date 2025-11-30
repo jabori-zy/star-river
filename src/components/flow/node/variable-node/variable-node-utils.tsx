@@ -12,7 +12,7 @@ import {
 	getSystemVariableMetadata,
 	SystemVariableType,
 } from "@/types/variable";
-import { TFunction } from "i18next";
+import type { TFunction } from "i18next";
 /**
  * 获取变量类型的中文名称（仅用于系统变量）
  * 对于自定义变量，应该直接返回变量名

@@ -63,7 +63,7 @@ export const UpdateVarHandleItem: React.FC<UpdateVarHandleItemProps> = ({
 				<div className="flex items-center gap-1">
 					<TbEdit className="h-3 w-3 text-green-600 flex-shrink-0" />
 					<span className="text-xs font-bold text-muted-foreground">
-						{t("variableNode.update")}
+						{t("variableNode.updateVariable")}
 					</span>
 				</div>
 				<BaseHandle

@@ -1,4 +1,13 @@
-import { ChevronDown, ChevronRight, X } from "lucide-react";
+import {
+	ArrowUpCircle,
+	ChevronDown,
+	ChevronRight,
+	Coins,
+	Hash,
+	Settings2,
+	Trash2,
+	TrendingUp,
+} from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { InputWithDropdown } from "@/components/input-components/input-with-dropdown";
@@ -19,9 +28,9 @@ import {
 	type FuturesOrderConfig,
 	FuturesOrderSide,
 	OrderType,
-	getOrderTypeLabel,
-	getFuturesOrderSideLabel,
 	getFuturesOrderSideColor,
+	getFuturesOrderSideLabel,
+	getOrderTypeLabel,
 	getTpSlTypeLabel,
 } from "@/types/order";
 
@@ -52,16 +61,28 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 		() => [
 			{ value: OrderType.LIMIT, label: getOrderTypeLabel(OrderType.LIMIT, t) },
 			{ value: OrderType.MARKET, label: getOrderTypeLabel(OrderType.MARKET, t) },
-			{ value: OrderType.STOP_MARKET, label: getOrderTypeLabel(OrderType.STOP_MARKET, t) },
-			{ value: OrderType.TAKE_PROFIT_MARKET, label: getOrderTypeLabel(OrderType.TAKE_PROFIT_MARKET, t) },
+			{
+				value: OrderType.STOP_MARKET,
+				label: getOrderTypeLabel(OrderType.STOP_MARKET, t),
+			},
+			{
+				value: OrderType.TAKE_PROFIT_MARKET,
+				label: getOrderTypeLabel(OrderType.TAKE_PROFIT_MARKET, t),
+			},
 		],
 		[t],
 	);
 
 	const ORDER_SIDE_OPTIONS = useMemo(
 		() => [
-			{ value: FuturesOrderSide.LONG, label: getFuturesOrderSideLabel(FuturesOrderSide.LONG, t) },
-			{ value: FuturesOrderSide.SHORT, label: getFuturesOrderSideLabel(FuturesOrderSide.SHORT, t) },
+			{
+				value: FuturesOrderSide.LONG,
+				label: getFuturesOrderSideLabel(FuturesOrderSide.LONG, t),
+			},
+			{
+				value: FuturesOrderSide.SHORT,
+				label: getFuturesOrderSideLabel(FuturesOrderSide.SHORT, t),
+			},
 		],
 		[t],
 	);
@@ -231,35 +252,52 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 		orderType === OrderType.MARKET || orderType === OrderType.STOP_MARKET;
 
 	return (
-		<div className="group flex-1 space-y-1 p-2 rounded-md border bg-slate-50/50">
+		<div className="group flex-1 rounded-lg border border-slate-200 bg-slate-50/50 hover:border-slate-300 transition-all">
 			<Collapsible open={isOpen} onOpenChange={setIsOpen}>
 				{/* 标题行 */}
-				<div className="flex items-center justify-between gap-2">
+				<div className="flex items-center justify-between p-2">
 					<CollapsibleTrigger asChild>
-						<div className="flex items-center gap-2 cursor-pointer">
-							{isOpen ? (
-								<ChevronDown className="h-4 w-4 flex-shrink-0" />
-							) : (
-								<ChevronRight className="h-4 w-4 flex-shrink-0" />
-							)}
-							{isOpen ? (
-								<span className="text-sm font-medium">
-									{t("futuresOrderNode.create")} {getOrderTypeLabel(orderType, t)}
-								</span>
-							) : (
-								<div className="flex items-center gap-2">
-									<span className="text-sm font-medium">{symbol || t("common.notSelected")}</span>
-									<Badge
-										variant="outline"
-										style={{ color: getFuturesOrderSideColor(orderSide), borderColor: getFuturesOrderSideColor(orderSide) }}
-									>
-										{getFuturesOrderSideLabel(orderSide, t)}
-									</Badge>
-									<span className="text-sm text-muted-foreground">
-										{t("futuresOrderNode.orderConfig.quantity")}: {quantityStr || "0"}
-									</span>
-								</div>
-							)}
+						<div className="flex flex-1 items-center gap-2 cursor-pointer select-none">
+							<Button
+								variant="ghost"
+								size="icon"
+								className="h-6 w-6 shrink-0 text-slate-500 hover:text-slate-900 hover:bg-slate-200/50"
+							>
+								{isOpen ? (
+									<ChevronDown className="h-4 w-4" />
+								) : (
+									<ChevronRight className="h-4 w-4" />
+								)}
+							</Button>
+							<div className="flex items-center gap-3 overflow-hidden">
+								{isOpen ? (
+									<div className="flex items-center gap-2 text-sm font-medium text-slate-700">
+										<Settings2 className="h-4 w-4 text-blue-500" />
+										<span>
+											{t("futuresOrderNode.create")} {getOrderTypeLabel(orderType, t)}
+										</span>
+									</div>
+								) : (
+									<div className="flex items-center gap-2 min-w-0">
+										<span className="text-sm font-medium truncate">
+											{symbol || t("common.notSelected")}
+										</span>
+										<Badge
+											variant="outline"
+											className="shrink-0 border-opacity-50"
+											style={{
+												color: getFuturesOrderSideColor(orderSide),
+												borderColor: getFuturesOrderSideColor(orderSide),
+											}}
+										>
+											{getFuturesOrderSideLabel(orderSide, t)}
+										</Badge>
+										<span className="text-sm text-slate-500 truncate">
+											{quantityStr || "0"}
+										</span>
+									</div>
+								)}
+							</div>
 						</div>
 					</CollapsibleTrigger>
 
@@ -267,33 +305,37 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 					<Button
 						variant="ghost"
 						size="icon"
-						className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+						className="h-8 w-8 text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors ml-2 shrink-0"
 						onClick={onDelete}
 					>
-						<X className="h-4 w-4" />
+						<Trash2 className="h-4 w-4" />
 					</Button>
 				</div>
 
 				{/* 表单内容 */}
 				<CollapsibleContent>
-					<div className="flex flex-col gap-4 mt-3">
+					<div className="px-4 pb-4 pt-1 grid gap-4">
 						{/* 订单类型 */}
-						<div className="flex flex-col gap-1.5">
-							<Label className="text-sm font-medium">{t("futuresOrderNode.orderConfig.orderType")}</Label>
+						<div className="grid gap-2">
+							<Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+								<Settings2 className="h-3.5 w-3.5 text-blue-500" />
+								{t("futuresOrderNode.orderConfig.orderType")}
+							</Label>
 							<Selector
 								value={orderType}
-								onValueChange={(value) =>
-									handleOrderTypeChange(value as OrderType)
-								}
+								onValueChange={(value) => handleOrderTypeChange(value as OrderType)}
 								placeholder={t("market.orderType.placeholder")}
 								options={ORDER_TYPE_OPTIONS}
-                                className="cursor-pointer hover:bg-gray-100"
+								className="w-full hover:bg-slate-100 cursor-pointer"
 							/>
 						</div>
 
 						{/* 交易对 */}
-						<div className="flex flex-col gap-1.5">
-							<Label className="text-sm font-medium">{t("futuresOrderNode.orderConfig.symbol")}</Label>
+						<div className="grid gap-2">
+							<Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+								<Hash className="h-3.5 w-3.5 text-orange-500" />
+								{t("futuresOrderNode.orderConfig.symbol")}
+							</Label>
 							<SelectWithSearch
 								options={symbolList.map((s) => ({
 									value: s.name,
@@ -302,30 +344,42 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 								value={symbol}
 								onValueChange={handleSymbolChange}
 								placeholder={t("futuresOrderNode.orderConfig.symbolPlaceholder")}
-								searchPlaceholder={t("futuresOrderNode.orderConfig.symbolSearchPlaceholder")}
-								emptyMessage={t("futuresOrderNode.orderConfig.symbolEmptyMessage")}
-                                className="cursor-pointer hover:!bg-gray-100 !bg-transparent"
+								searchPlaceholder={t(
+									"futuresOrderNode.orderConfig.symbolSearchPlaceholder",
+								)}
+								emptyMessage={t(
+									"futuresOrderNode.orderConfig.symbolEmptyMessage",
+								)}
+								className="w-full bg-slate-50/50 hover:bg-slate-100 cursor-pointer"
 							/>
 						</div>
 
 						{/* 买卖方向 */}
-						<div className="flex flex-col gap-1.5">
-							<Label className="text-sm font-medium">{t("futuresOrderNode.orderConfig.orderSide")}</Label>
+						<div className="grid gap-2">
+							<Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+								<TrendingUp className="h-3.5 w-3.5 text-emerald-500" />
+								{t("futuresOrderNode.orderConfig.orderSide")}
+							</Label>
 							<Selector
 								value={orderSide}
 								onValueChange={(value) =>
 									handleOrderSideChange(value as FuturesOrderSide)
 								}
-								placeholder={t("futuresOrderNode.orderConfig.orderSidePlaceholder")}
+								placeholder={t(
+									"futuresOrderNode.orderConfig.orderSidePlaceholder",
+								)}
 								options={ORDER_SIDE_OPTIONS}
-                                className="cursor-pointer hover:!bg-gray-100"
+								className="w-full hover:bg-slate-100 cursor-pointer"
 							/>
 						</div>
 
 						{/* 价格 - 仅限价单显示 */}
 						{!isMarketOrder && (
-							<div className="flex flex-col gap-1.5">
-								<Label className="text-sm font-medium">{t("futuresOrderNode.orderConfig.price")}</Label>
+							<div className="grid gap-2">
+								<Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+									<Coins className="h-3.5 w-3.5 text-yellow-500" />
+									{t("futuresOrderNode.orderConfig.price")}
+								</Label>
 								<Input
 									type="text"
 									inputMode="decimal"
@@ -338,23 +392,32 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 						)}
 
 						{/* 数量 */}
-						<div className="flex flex-col gap-1.5">
-							<Label className="text-sm font-medium">{t("futuresOrderNode.orderConfig.quantity")}</Label>
+						<div className="grid gap-2">
+							<Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+								<Coins className="h-3.5 w-3.5 text-purple-500" />
+								{t("futuresOrderNode.orderConfig.quantity")}
+							</Label>
 							<InputWithDropdown
 								type="text"
 								value={quantityStr}
 								onChange={handleQuantityInputChange}
 								onBlur={handleQuantityBlur}
-								placeholder={t("futuresOrderNode.orderConfig.quantityPlaceholder")}
+								placeholder={t(
+									"futuresOrderNode.orderConfig.quantityPlaceholder",
+								)}
 								dropdownValue="USDT"
 								dropdownOptions={[{ value: "USDT", label: "USDT" }]}
 								onDropdownChange={() => {}}
+								
 							/>
 						</div>
 
 						{/* 止盈 */}
-						<div className="flex flex-col gap-1.5">
-							<Label className="text-sm font-medium">{t("futuresOrderNode.orderConfig.takeProfit")}</Label>
+						<div className="grid gap-2">
+							<Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+								<ArrowUpCircle className="h-3.5 w-3.5 text-green-500" />
+								{t("futuresOrderNode.orderConfig.takeProfit")}
+							</Label>
 							<InputWithDropdown
 								type="number"
 								value={tp}
@@ -365,7 +428,9 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 									tpType === "price"
 										? t("futuresOrderNode.orderConfig.takeProfitPricePlaceholder")
 										: tpType === "percentage"
-											? t("futuresOrderNode.orderConfig.takeProfitPercentagePlaceholder")
+											? t(
+													"futuresOrderNode.orderConfig.takeProfitPercentagePlaceholder",
+												)
 											: `${t("futuresOrderNode.orderConfig.takeProfitPointPlaceholder", { point: symbolInfo?.point || "N/A" })}`
 								}
 								dropdownValue={tpType}
@@ -377,8 +442,11 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 						</div>
 
 						{/* 止损 */}
-						<div className="flex flex-col gap-1.5">
-							<Label className="text-sm font-medium">{t("futuresOrderNode.orderConfig.stopLoss")}</Label>
+						<div className="grid gap-2">
+							<Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+								<ArrowUpCircle className="h-3.5 w-3.5 text-red-500 rotate-180" />
+								{t("futuresOrderNode.orderConfig.stopLoss")}
+							</Label>
 							<InputWithDropdown
 								type="number"
 								value={sl}
@@ -389,7 +457,9 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 									slType === "price"
 										? t("futuresOrderNode.orderConfig.stopLossPricePlaceholder")
 										: slType === "percentage"
-											? t("futuresOrderNode.orderConfig.stopLossPercentagePlaceholder")
+											? t(
+													"futuresOrderNode.orderConfig.stopLossPercentagePlaceholder",
+												)
 											: `${t("futuresOrderNode.orderConfig.stopLossPointPlaceholder", { point: symbolInfo?.point || "N/A" })}`
 								}
 								dropdownValue={slType}

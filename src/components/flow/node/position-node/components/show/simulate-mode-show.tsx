@@ -1,4 +1,4 @@
-import type { PositionNodeData } from "@/types/node/position-management-node";
+import type { PositionNodeData } from "@/types/node/position-node";
 import { PositionHandleItem } from "../position-handle-item/index";
 
 interface SimulateModeShowProps {
@@ -36,7 +36,7 @@ const SimulateModeShow: React.FC<SimulateModeShowProps> = ({ id, data }) => {
 			{/* 渲染所有的仓位操作 */}
 			{simulateConfig.positionOperations.map((operationConfig) => (
 				<PositionHandleItem
-					key={operationConfig.positionOperationId}
+					key={operationConfig.configId}
 					id={id}
 					operationConfig={operationConfig}
 				/>

@@ -38,16 +38,6 @@ const OrderHandleItem: React.FC<OrderHandleItemProps> = ({
 		<div className="flex flex-col gap-1 relative ">
 			{/* 标题 */}
 			<div className="flex items-center gap-2 pr-2 relative">
-				<Badge
-					variant="outline"
-					className="h-4 px-1 text-xs rounded-sm"
-					style={{
-						color: getFuturesOrderSideColor(orderConfig.orderSide),
-						borderColor: getFuturesOrderSideColor(orderConfig.orderSide),
-					}}
-				>
-					{getFuturesOrderSideLabel(orderConfig.orderSide, t)}
-				</Badge>
 				<div className="text-xs font-bold text-muted-foreground">
 					{t("futuresOrderNode.order")}-{orderConfig.orderConfigId}
 				</div>

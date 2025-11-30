@@ -56,7 +56,7 @@ export const ResetVarHandleItem: React.FC<ResetVarHandleItemProps> = ({
 				<div className="flex items-center gap-1">
 					<TbRefresh className="h-3 w-3 text-orange-600 flex-shrink-0" />
 					<span className="text-xs font-bold text-muted-foreground">
-						{t("variableNode.reset")}
+						{t("variableNode.resetVariable")}
 					</span>
 				</div>
 				<BaseHandle

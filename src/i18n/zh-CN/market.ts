@@ -17,12 +17,8 @@ const translation = {
         takeProfitMarket: "止盈市价单",
     },
     futuresOrderSide: {
-        openLong: "开多",
-        openShort: "开空",
-        closeLong: "平多",
-        closeShort: "平空",
-        long: "",
-        short: "",
+        long: "多",
+        short: "空",
     },
     orderSide: {
         label: "买卖方向",
@@ -38,7 +34,11 @@ const translation = {
         rejected: "已拒绝",
         error: "错误",
     },
-    
+    tpSlType: {
+        price: "价格",
+        percentage: "百分比",
+        point: "点数",
+    },
 }
 
 export default translation;

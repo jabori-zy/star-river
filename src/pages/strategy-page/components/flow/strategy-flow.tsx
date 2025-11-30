@@ -203,8 +203,25 @@ export default function StrategyFlow({ strategy, onSaveStatusChange }: StrategyF
 	  );
 
 	const onEdgesChange: OnEdgesChange = useCallback(
-		(changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
-		[setEdges],
+		(changes) => {
+			
+			setEdges((eds) => {
+				const newEdges = applyEdgeChanges(changes, eds);
+				const oldEdgesFiltered = eds.map(edge => 
+					omit(edge, ['selected'])
+				);
+				const newEdgesFiltered = newEdges.map(edge => 
+					omit(edge, ['selected'])
+				);
+				const areEqual = isEqual(oldEdgesFiltered, newEdgesFiltered);
+				if (!areEqual) {
+					onSaveStatusChange("unsaved");
+				}
+				return newEdges;
+				
+			});
+		},
+		[setEdges, onSaveStatusChange],
 	  );
 
 	// 当连接节点时，将会触发onConnect事件
@@ -237,7 +254,8 @@ export default function StrategyFlow({ strategy, onSaveStatusChange }: StrategyF
 	const handleNodeDelete: OnNodesDelete = useCallback((nodes: Node[]) => {
 		setNodes((nds) => nds.filter((nd) => !nodes.includes(nd)));
 		setSelectedNodeId(undefined);
-	}, [setNodes]);
+		onSaveStatusChange("unsaved");
+	}, [setNodes, onSaveStatusChange]);
 
 
 	const onPaneClick = useCallback((_event: React.MouseEvent) => {

@@ -16,6 +16,7 @@ import enUSDektop from "./en-US/desktop";
 import enUSApiMessage from "./en-US/api-message";
 import enUSStartNode from "./en-US/start-node";
 import enUSFuturesOrderNode from "./en-US/futures-order-node";
+import enUSPositionNode from "./en-US/position-node";
 // 定义所有命名空间(模块名)
 const NAMESPACES = [
 	"common",
@@ -30,6 +31,7 @@ const NAMESPACES = [
 	"setting",
 	"start-node",
 	"futures-order-node",
+	"position-node",
 ];
 
 // 动态导入语言资源,带容错机制
@@ -73,6 +75,7 @@ const getInitialTranslations = () => {
 				setting: enUSSetting,
 				startNode: enUSStartNode,
 				futuresOrderNode: enUSFuturesOrderNode,
+				positionNode: enUSPositionNode,
 			},
 		},
 	};

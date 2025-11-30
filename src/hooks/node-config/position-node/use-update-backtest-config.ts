@@ -6,7 +6,7 @@ import type {
 	PositionBacktestConfig,
 	PositionNodeData,
 	PositionOperationConfig,
-} from "@/types/node/position-management-node";
+} from "@/types/node/position-node";
 import type { SelectedAccount } from "@/types/strategy";
 
 /**
@@ -80,7 +80,7 @@ export const useBacktestConfig = ({ id }: UseBacktestConfigProps) => {
 					draft.positionOperations.length > 0
 						? Math.max(
 								...draft.positionOperations.map(
-									(op) => op.positionOperationId,
+									(op) => op.configId,
 								),
 						  ) + 1
 						: 1;
@@ -118,7 +118,7 @@ export const useBacktestConfig = ({ id }: UseBacktestConfigProps) => {
 		(operationId: number) => {
 			updateConfig((draft) => {
 				draft.positionOperations = draft.positionOperations.filter(
-					(op) => op.positionOperationId !== operationId,
+					(op) => op.configId !== operationId,
 				);
 			});
 		},

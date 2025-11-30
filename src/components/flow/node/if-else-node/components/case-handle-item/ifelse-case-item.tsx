@@ -131,7 +131,7 @@ export function IfElseCaseItem({ caseItem, caseIndex, handleId, handleColor }: I
 			{/* 标题 */}
 			<div className="flex items-center justify-between gap-2 pr-2 pl-1 relative">
 				<span className="text-xs font-bold text-muted-foreground">
-					Case{displayIndex}
+					{t("ifElseNode.case")}-{displayIndex}
 				</span>
 				<span className="text-sm font-bold">{caseTypeLabel}</span>
 				{/* 右侧连接点 - 直接放在内容框右侧 */}

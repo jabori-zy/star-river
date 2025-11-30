@@ -27,6 +27,14 @@ const translation = {
         variableName: "变量名称",
         variableType: "变量类型",
     },
+    account: {
+        notConnected: "点击连接",
+        connecting: "连接中...",
+        connect: "连接",
+        pleaseSelectAccount: "请选择账户",
+        pleaseConfigureAtStartNode: "在策略起点配置",
+        noAccount: "未配置账户",
+    },
 }
 
 export default translation;

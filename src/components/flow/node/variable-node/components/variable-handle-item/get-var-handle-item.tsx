@@ -52,7 +52,7 @@ export const GetVarHandleItem: React.FC<GetVarHandleItemProps> = ({
 				<div className="flex items-center gap-1">
 					<TbFileImport className="h-3 w-3 text-blue-600 flex-shrink-0" />
 					<span className="text-xs font-bold text-muted-foreground">
-						{t("variableNode.get")}
+						{t("variableNode.getVariable")}
 					</span>
 				</div>
 				<BaseHandle
