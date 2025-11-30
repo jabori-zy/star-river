@@ -2,6 +2,7 @@ import type { Node } from "@xyflow/react";
 import type { TFunction } from "i18next";
 import type { SelectedAccount } from "@/types/strategy";
 import type { NodeDataBase } from ".";
+import type { ConditionTrigger } from "@/types/condition-trigger";
 // 仓位操作类型
 export enum PositionOperation {
 	CloseAllPositions = "CloseAllPositions", // 全部平仓
@@ -72,7 +73,8 @@ export type PositionOperationConfig = {
 	inputHandleId: string; // 输入handleId
 	symbol: string | null; // 交易对(可以不配置)
 	positionOperation: PositionOperation; // 操作类型
-	positionOperationName: string; // 操作名称
+	operationName: string; // 操作名称
+	triggerConfig: ConditionTrigger | null; // 触发条件
 };
 
 // 实盘仓位管理配置

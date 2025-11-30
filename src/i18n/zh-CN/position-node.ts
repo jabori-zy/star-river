@@ -3,6 +3,7 @@ const translation = {
     operationConfig: "操作配置",
     operationConfigLabel: "仓位操作",
     emptyOperationHint: "点击+号添加操作配置",
+    case: "分支",
     operation: {
         closeAllPositions: "全部平仓",
         closeAllPositionsDescription: "平掉该账户的所有仓位",
@@ -29,6 +30,10 @@ const translation = {
     noPositionOperationHint: "未配置仓位操作",
     noSymbolConfigured: "未配置交易对",
     notConfigured: "未配置",
+    triggerCondition: "触发条件",
+    validation: {
+        noTriggerCondition: "请选择触发条件",
+    },
 }
 
 export default translation;

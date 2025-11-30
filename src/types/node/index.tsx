@@ -11,7 +11,7 @@ import type { PositionNode } from "./position-node";
 import type { VariableNode } from "./variable-node";
 import type { VariableNodeData } from "./variable-node";
 import type { IconName } from "lucide-react/dynamic";
-import { TFunction } from "i18next";
+import type { TFunction } from "i18next";
 
 export type NodeId = string;
 export type NodeName = string;

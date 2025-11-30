@@ -42,9 +42,9 @@ import {
 	VariableValueType,
 } from "@/types/variable";
 import { useTranslation } from "react-i18next";
-import { TFunction } from "i18next";
+import type { TFunction } from "i18next";
 import { getUpdateOperationPlaceholder } from "../../../../variable-node-utils";
-import type { CaseItemInfo } from "../../components/trigger-type-switcher/case-selector";
+import type { CaseItemInfo } from "@/components/flow/case-selector";
 import DataFlowSelector from "../../components/dataflow-selector";
 import TriggerTypeSwitcher from "../../components/trigger-type-switcher";
 import BoolTypeOpEditor from "../../components/variable-op-editor/bool-type-op-editor";
@@ -56,7 +56,7 @@ import TimeTypeOpEditor from "../../components/variable-op-editor/time-type-op-e
 import { useValidateUpdateConfig } from "../validate";
 import { useNodeConnections } from "@xyflow/react";
 import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
-import { TradeMode } from "@/types/strategy";
+import type { TradeMode } from "@/types/strategy";
 import useTradingModeStore from "@/store/use-trading-mode-store";
 import {
 	generateNumberHint,

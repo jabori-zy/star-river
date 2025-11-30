@@ -44,12 +44,12 @@ import {
 	generateTimeHint,
 	generatePercentageHint,
 } from "../../../../hint-generators";
-import type { CaseItemInfo } from "../../components/trigger-type-switcher/case-selector";
+import type { CaseItemInfo } from "@/components/flow/case-selector";
 import TriggerTypeSwitcher from "../../components/trigger-type-switcher";
 import { useValidateResetConfig } from "../validate";
 import { useNodeConnections } from "@xyflow/react";
 import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
-import { TradeMode } from "@/types/strategy";
+import type { TradeMode } from "@/types/strategy";
 import useTradingModeStore from "@/store/use-trading-mode-store";
 
 interface ResetVarConfigItemProps {

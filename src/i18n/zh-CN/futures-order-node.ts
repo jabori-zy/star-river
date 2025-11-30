@@ -1,4 +1,5 @@
 const translation = {
+    case: "分支",
     create: "创建",
     tradingAccount: "交易账户",
     order: "订单",
@@ -25,12 +26,20 @@ const translation = {
         stopLossPricePlaceholder: "输入止损价格",
         stopLossPercentagePlaceholder: "输入止损百分比",
         stopLossPointPlaceholder: "止损点数为{{point}}",
+        triggerCondition: "触发条件",
     },
     tpSlType: {
 		price: "价格",
 		percentage: "百分比",
 		point: "点",
 	},
+    validation: {
+        notConfigured: "未配置",
+        noSymbol: "请选择交易对",
+        noTriggerCondition: "请选择触发条件",
+        noPrice: "请输入价格",
+        noQuantity: "请输入数量",
+    },
 }
 
 export default translation;

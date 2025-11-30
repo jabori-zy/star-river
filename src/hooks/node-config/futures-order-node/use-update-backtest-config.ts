@@ -9,6 +9,7 @@ import type {
 } from "@/types/node/futures-order-node";
 import type { FuturesOrderConfig } from "@/types/order";
 import { BacktestDataSource, type TimeRange } from "@/types/strategy";
+import type { ConditionTrigger } from "@/types/condition-trigger";
 
 /**
  * Create default futures order node backtest config
@@ -143,6 +144,20 @@ export const useBacktestConfig = ({ id }: UseBacktestConfigProps) => {
 		[updateConfig],
 	);
 
+	const updateOrderTriggerConfigById = useCallback(
+		(orderConfigId: number, triggerConfig: ConditionTrigger | null) => {
+			updateConfig((draft) => {
+				const orderConfig = draft.futuresOrderConfigs.find(
+					(config) => config.orderConfigId === orderConfigId,
+				);
+				if (orderConfig) {
+					orderConfig.triggerConfig = triggerConfig;
+				}
+			});
+		},
+		[updateConfig],
+	);
+
 	return {
 		backtestConfig,
 		setDefaultBacktestConfig,
@@ -153,5 +168,6 @@ export const useBacktestConfig = ({ id }: UseBacktestConfigProps) => {
 		addFuturesOrderConfig,
 		updateFuturesOrderConfig,
 		removeFuturesOrderConfig,
+		updateOrderTriggerConfigById,
 	};
 };

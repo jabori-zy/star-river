@@ -80,6 +80,7 @@ const FuturesOrderNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 			sl: null,
 			tpType: "price",
 			slType: "price",
+			triggerConfig: null,
 		};
 		addFuturesOrderConfig(newOrderConfig);
 	};
@@ -113,18 +114,21 @@ const FuturesOrderNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 						点击+号添加订单配置
 					</div>
 				) : (
-					orderConfigs.map((config, index) => (
-						<OrderConfigForm
-							key={config.orderConfigId}
-							accountId={selectedAccount?.id}
-							nodeId={id}
-							config={config}
-							orderConfigId={config.orderConfigId}
-							symbolList={symbolList}
-							onChange={(updatedConfig) => handleOrderConfigChange(index, updatedConfig)}
-							onDelete={() => handleDeleteOrder(index)}
-						/>
-					))
+					<div className="flex flex-col gap-2">
+						{orderConfigs.map((config, index) => (
+							<OrderConfigForm
+								id={id}
+								key={config.orderConfigId}
+								accountId={selectedAccount?.id}
+								nodeId={id}
+								config={config}
+								orderConfigId={config.orderConfigId}
+								symbolList={symbolList}
+								onChange={(updatedConfig) => handleOrderConfigChange(index, updatedConfig)}
+								onDelete={() => handleDeleteOrder(index)}
+							/>
+						))}
+					</div>
 				)}
 			</div>
 		</div>

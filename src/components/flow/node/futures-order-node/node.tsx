@@ -11,6 +11,9 @@ import LiveModeShow from "./components/node-show/live-mode-show";
 import SimulateModeShow from "./components/node-show/simulate-mode-show";
 import { getNodeIconName, getNodeDefaultColor, NodeType } from "@/types/node/index";
 import type { FuturesOrderNodeData } from "@/types/node/futures-order-node";
+import type { BaseHandleProps } from "@/components/flow/base/BaseHandle";
+import { Position } from "@xyflow/react";
+import { getNodeDefaultInputHandleId } from "@/types/node/index";
 
 const FuturesOrderNode: React.FC<NodeProps<FuturesOrderNodeType>> = ({
 	id,
@@ -54,6 +57,13 @@ const FuturesOrderNode: React.FC<NodeProps<FuturesOrderNodeType>> = ({
 		}
 	};
 
+	const defaultInputHandle: BaseHandleProps = {
+		type: "target",
+		position: Position.Left,
+		id: getNodeDefaultInputHandleId(id, NodeType.FuturesOrderNode),
+		handleColor: handleColor,
+	};
+
 	return (
 		<BaseNode
 			id={id}
@@ -63,6 +73,7 @@ const FuturesOrderNode: React.FC<NodeProps<FuturesOrderNodeType>> = ({
 			borderColor={borderColor}
 			selected={selected}
 			isHovered={currentNodeData?.nodeConfig?.isHovered || false}
+			defaultInputHandle={defaultInputHandle}
 		>
 			{renderModeShow()}
 		</BaseNode>

@@ -68,7 +68,7 @@ const PositionNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 			inputHandleId: `${id}_input_${newConfigId}`,
 			symbol: null,
 			positionOperation: PositionOperation.CLOSE_POSITION,
-			positionOperationName: "Close Position",
+			operationName: "Close Position",
 		};
 		addPositionOperation(newConfig);
 	};
@@ -107,6 +107,7 @@ const PositionNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 					operationConfigs.map((config, index) => (
 						<PositionOpItem
 							key={config.configId}
+							id={id}
 							config={config}
 							symbolList={symbolList}
 							onChange={(updatedConfig) =>

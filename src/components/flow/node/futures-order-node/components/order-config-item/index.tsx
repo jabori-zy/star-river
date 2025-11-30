@@ -3,12 +3,14 @@ import {
 	ChevronDown,
 	ChevronRight,
 	Coins,
+	GitBranch,
 	Hash,
 	Settings2,
 	Trash2,
 	TrendingUp,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useNodeConnections } from "@xyflow/react";
 import { useTranslation } from "react-i18next";
 import { InputWithDropdown } from "@/components/input-components/input-with-dropdown";
 import { Selector } from "@/components/select-components/select";
@@ -33,12 +35,19 @@ import {
 	getOrderTypeLabel,
 	getTpSlTypeLabel,
 } from "@/types/order";
+import type { ConditionTrigger } from "@/types/condition-trigger";
+import CaseSelector from "@/components/flow/case-selector";
+import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
+import useTradingModeStore from "@/store/use-trading-mode-store";
+import type { TradeMode } from "@/types/strategy";
+import type { CaseItemInfo } from "@/components/flow/case-selector";
 
 
 interface OrderConfigFormProps {
+	id: string;
 	accountId: number | undefined;
 	nodeId: string;
-	config?: FuturesOrderConfig;
+	config: FuturesOrderConfig;
 	orderConfigId: number;
 	symbolList: Instrument[];
 	onChange: (config: FuturesOrderConfig) => void;
@@ -46,6 +55,7 @@ interface OrderConfigFormProps {
 }
 
 const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
+	id,
 	accountId,
 	nodeId,
 	config,
@@ -55,6 +65,9 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 	onDelete,
 }) => {
 	const { t } = useTranslation();
+	const { getIfElseNodeCases } = useStrategyWorkflow();
+	const { tradingMode } = useTradingModeStore();
+	const connections = useNodeConnections({ id: nodeId, handleType: "target" });
 
 	// 使用 useMemo 生成多语言选项
 	const ORDER_TYPE_OPTIONS = useMemo(
@@ -122,9 +135,22 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 	const [slType, setSlType] = useState<"price" | "percentage" | "point">(
 		config?.slType || "price",
 	);
+	const [triggerConfig, setTriggerConfig] = useState<ConditionTrigger | null>(config?.triggerConfig ?? null);
 
+	// 存储上游节点的case列表
+	const [caseItemList, setCaseItemList] = useState<CaseItemInfo[]>([]);
 	// 获取symbol信息
 	const [symbolInfo, setSymbolInfo] = useState<Instrument | null>(null);
+
+	useEffect(() => {
+		// filter default input handle connection
+		const conn = connections.filter(
+			connection => (connection.targetHandle === `${id}_default_input` || connection.targetHandle === config.inputHandleId)
+		);
+		const cases = getIfElseNodeCases(conn, tradingMode as TradeMode);
+		console.log("cases", cases);
+		setCaseItemList(cases);
+	}, [connections, getIfElseNodeCases, id, tradingMode, config.inputHandleId]);
 
 	// 获取symbol信息的函数
 	const loadSymbolInfo = useCallback(
@@ -171,6 +197,7 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 				sl: updates.sl !== undefined ? updates.sl : sl,
 				tpType: updates.tpType ?? tpType,
 				slType: updates.slType ?? slType,
+				triggerConfig: updates.triggerConfig ?? triggerConfig,
 			};
 			onChange(newConfig);
 		},
@@ -186,6 +213,7 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 			slType,
 			orderConfigId,
 			nodeId,
+			triggerConfig,
 			onChange,
 		],
 	);
@@ -246,6 +274,11 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 	const handleSlTypeChange = (value: "price" | "percentage" | "point") => {
 		setSlType(value);
 		saveConfig({ slType: value });
+	};
+
+	const handleTriggerConfigChange = (triggerCase: ConditionTrigger | null) => {
+		setTriggerConfig(triggerCase);
+		saveConfig({ triggerConfig: triggerCase });
 	};
 
 	const isMarketOrder =
@@ -315,6 +348,25 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 				{/* 表单内容 */}
 				<CollapsibleContent>
 					<div className="px-4 pb-4 pt-1 grid gap-4">
+
+						{/* 触发条件 */}
+						<div className="grid gap-2">
+							<Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+								<GitBranch className="h-3.5 w-3.5 text-indigo-500" />
+								{t("futuresOrderNode.orderConfig.triggerCondition")}
+							</Label>
+							<CaseSelector
+								caseList={caseItemList}
+								selectedTriggerCase={triggerConfig}
+								onTriggerCaseChange={handleTriggerConfigChange}
+							/>
+							{!triggerConfig && (
+								<p className="text-xs text-red-500 mt-1">
+									{t("futuresOrderNode.validation.noTriggerCondition")}
+								</p>
+							)}
+						</div>
+
 						{/* 订单类型 */}
 						<div className="grid gap-2">
 							<Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
@@ -352,6 +404,11 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 								)}
 								className="w-full bg-slate-50/50 hover:bg-slate-100 cursor-pointer"
 							/>
+							{!symbol && (
+								<p className="text-xs text-red-500 mt-1">
+									{t("futuresOrderNode.validation.noSymbol")}
+								</p>
+							)}
 						</div>
 
 						{/* 买卖方向 */}
@@ -388,6 +445,11 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 									onBlur={handlePriceBlur}
 									placeholder={t("futuresOrderNode.orderConfig.pricePlaceholder")}
 								/>
+								{!priceStr && (
+									<p className="text-xs text-red-500 mt-1">
+										{t("futuresOrderNode.validation.noPrice")}
+									</p>
+								)}
 							</div>
 						)}
 
@@ -408,8 +470,13 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 								dropdownValue="USDT"
 								dropdownOptions={[{ value: "USDT", label: "USDT" }]}
 								onDropdownChange={() => {}}
-								
+
 							/>
+							{!quantityStr && (
+								<p className="text-xs text-red-500 mt-1">
+									{t("futuresOrderNode.validation.noQuantity")}
+								</p>
+							)}
 						</div>
 
 						{/* 止盈 */}

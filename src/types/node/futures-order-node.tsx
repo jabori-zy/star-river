@@ -8,6 +8,7 @@ import type {
 import type { NodeDataBase } from ".";
 
 
+
 export type FuturesOrderNodeLiveConfig = {
 	futuresOrderConfigs: FuturesOrderConfig[];
 	selectedAccount?: SelectedAccount;

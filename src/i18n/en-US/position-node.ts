@@ -3,6 +3,7 @@ const translation = {
 	operationConfig: "Operation Config",
 	operationConfigLabel: "Operation",
 	emptyOperationHint: "Click + to add operation config",
+	case: "Case",
 	noPositionOperationHint: "No position operation configured",
 	noSymbolConfigured: "symbol is not configured",
 	notConfigured: "Not configured",
@@ -28,6 +29,10 @@ const translation = {
 	operationName: {
 		label: "Operation Name",
 		placeholder: "Enter operation name",
+	},
+	triggerCondition: "Trigger Condition",
+	validation: {
+		noTriggerCondition: "Please select a trigger condition",
 	},
 };
 

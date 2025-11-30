@@ -7,6 +7,7 @@ import type {
 	PositionNodeData,
 	PositionOperationConfig,
 } from "@/types/node/position-node";
+import type { ConditionTrigger } from "@/types/condition-trigger";
 import type { SelectedAccount } from "@/types/strategy";
 
 /**
@@ -125,6 +126,20 @@ export const useBacktestConfig = ({ id }: UseBacktestConfigProps) => {
 		[updateConfig],
 	);
 
+	const updateOperationTriggerConfigById = useCallback(
+		(configId: number, triggerConfig: ConditionTrigger | null) => {
+			updateConfig((draft) => {
+				const operation = draft.positionOperations.find(
+					(op) => op.configId === configId,
+				);
+				if (operation) {
+					operation.triggerConfig = triggerConfig;
+				}
+			});
+		},
+		[updateConfig],
+	);
+
 	return {
 		backtestConfig,
 		setDefaultBacktestConfig,
@@ -134,5 +149,6 @@ export const useBacktestConfig = ({ id }: UseBacktestConfigProps) => {
 		updatePositionOperation,
 		removePositionOperation,
 		removePositionOperationById,
+		updateOperationTriggerConfigById,
 	};
 };

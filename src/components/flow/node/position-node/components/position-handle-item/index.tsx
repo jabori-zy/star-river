@@ -8,7 +8,7 @@ import {
 } from "@/types/node/position-node";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { Hash, Settings2, Tag } from "lucide-react";
+import { GitBranch, Hash, Settings2, Tag } from "lucide-react";
 
 interface PositionHandleItemProps {
 	id: string;
@@ -55,14 +55,37 @@ export function PositionHandleItem({
 						<Tag className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
 						<div
 							className="font-medium text-sm truncate text-slate-700"
-							title={operationConfig.positionOperationName}
+							title={operationConfig.operationName}
 						>
-							{operationConfig.positionOperationName ||
+							{operationConfig.operationName ||
 								t("positionNode.operationName.placeholder")}
 						</div>
 					</div>
 
 					<div className="flex flex-col gap-1.5 pl-0.5">
+						{/* Trigger Condition */}
+						<div className="flex items-center justify-between gap-2 text-xs">
+							<div className="flex items-center gap-1.5 text-slate-500">
+								<GitBranch className="w-3 h-3 text-indigo-500" />
+								<span>{t("positionNode.triggerCondition")}</span>
+							</div>
+							<Badge
+								variant="outline"
+								className={cn(
+									"text-[10px] px-1.5 py-0 h-5 font-normal max-w-[120px] break-words text-right",
+									operationConfig.triggerConfig
+										? "bg-white text-slate-600"
+										: "bg-red-50 text-red-500 border-red-200"
+								)}
+							>
+								{operationConfig.triggerConfig
+									? operationConfig.triggerConfig.triggerType === "case"
+										? `${operationConfig.triggerConfig.fromNodeName}/${t("positionNode.case")}${operationConfig.triggerConfig.caseId}`
+										: `${operationConfig.triggerConfig.fromNodeName}/Else`
+									: t("positionNode.notConfigured")}
+							</Badge>
+						</div>
+
 						{/* Type */}
 						<div className="flex items-center justify-between gap-2 text-xs">
 							<div className="flex items-center gap-1.5 text-slate-500">

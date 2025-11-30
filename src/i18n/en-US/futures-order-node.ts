@@ -1,4 +1,5 @@
 const translation = {
+    case: "Case",
     create: "Create",
     tradingAccount: "Trading Account",
     order: "Order",
@@ -25,12 +26,20 @@ const translation = {
         stopLossPricePlaceholder: "Enter stop loss price",
         stopLossPercentagePlaceholder: "Enter stop loss percentage",
         stopLossPointPlaceholder: "The point is {{point}}",
+        triggerCondition: "Trigger Condition",
     },
     tpSlType: {
 		price: "Price",
 		percentage: "Percentage",
 		point: "Point",
 	},
+    validation: {
+        notConfigured: "Not configured",
+        noSymbol: "Please select a symbol",
+        noTriggerCondition: "Please select a trigger condition",
+        noPrice: "Please enter a price",
+        noQuantity: "Please enter a quantity",
+    },
 }
 
 export default translation;

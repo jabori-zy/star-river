@@ -39,7 +39,6 @@ const VariableNode: React.FC<NodeProps<VariableNodeType>> = ({
 			case TradeMode.SIMULATE:
 				return <SimulateModeShow id={id} data={variableNodeData} />;
 			case TradeMode.BACKTEST:
-			default:
 				return <BacktestModeShow id={id} data={variableNodeData} handleColor={handleColor} />;
 		}
 	};

@@ -63,9 +63,23 @@ const OrderHandleItem: React.FC<OrderHandleItemProps> = ({
 			<div className="flex flex-row flex-1 gap-1 justify-between">
 				{/* 订单配置 */}
 				<div className="flex flex-1 flex-col gap-2 p-3 text-xs bg-gray-50 rounded min-w-[160px]">
+
+					<div className="flex justify-between gap-4">
+						<span className="text-gray-500 whitespace-nowrap">{t("futuresOrderNode.orderConfig.triggerCondition")}</span>
+						<span className={`font-medium text-right break-words ${!orderConfig.triggerConfig ? "text-red-500" : ""}`}>
+							{orderConfig.triggerConfig
+								? orderConfig.triggerConfig.triggerType === "case"
+									? `${orderConfig.triggerConfig.fromNodeName}/${t("futuresOrderNode.case")}${orderConfig.triggerConfig.caseId}`
+									: `${orderConfig.triggerConfig.fromNodeName}/Else`
+								: t("futuresOrderNode.validation.notConfigured")}
+						</span>
+					</div>
+
 					<div className="flex justify-between gap-4">
 						<span className="text-gray-500 whitespace-nowrap">{t("futuresOrderNode.orderConfig.symbol")}</span>
-						<span className="font-semibold text-right">{orderConfig.symbol}</span>
+						<span className={`font-semibold text-right ${!orderConfig.symbol ? "text-red-500" : ""}`}>
+							{orderConfig.symbol || t("futuresOrderNode.validation.notConfigured")}
+						</span>
 					</div>
 
 					<div className="flex justify-between gap-4">
@@ -86,13 +100,17 @@ const OrderHandleItem: React.FC<OrderHandleItemProps> = ({
 
 					<div className="flex justify-between gap-4">
 						<span className="text-gray-500 whitespace-nowrap">{t("futuresOrderNode.orderConfig.quantity")}</span>
-						<span className="font-medium text-right">{orderConfig.quantity}</span>
+						<span className={`font-medium text-right ${!orderConfig.quantity ? "text-red-500" : ""}`}>
+							{orderConfig.quantity || t("futuresOrderNode.validation.notConfigured")}
+						</span>
 					</div>
 
 					{!isMarketOrder && (
 						<div className="flex justify-between gap-4">
 							<span className="text-gray-500 whitespace-nowrap">{t("futuresOrderNode.orderConfig.price")}</span>
-							<span className="font-medium text-right">{orderConfig.price}</span>
+							<span className={`font-medium text-right ${!orderConfig.price ? "text-red-500" : ""}`}>
+								{orderConfig.price || t("futuresOrderNode.validation.notConfigured")}
+							</span>
 						</div>
 					)}
 

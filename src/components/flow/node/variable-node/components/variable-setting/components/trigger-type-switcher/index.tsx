@@ -16,11 +16,11 @@ import type {
 	DataflowErrorPolicy,
 	UpdateVarValueOperation,
 } from "@/types/node/variable-node";
-import { VariableValueType } from "@/types/variable";
+import type { VariableValueType } from "@/types/variable";
 import { TradeMode } from "@/types/strategy";
 import { useTranslation } from "react-i18next";
 import useTradingModeStore from "@/store/use-trading-mode-store";
-import CaseSelector, { type CaseItemInfo } from "./case-selector";
+import CaseSelector, { type CaseItemInfo } from "@/components/flow/case-selector";
 import TimerConfigComponent from "./timer-config";
 import DataflowConfig from "./dataflow-config";
 

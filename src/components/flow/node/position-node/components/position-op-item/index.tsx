@@ -1,13 +1,20 @@
 import {
 	ChevronDown,
 	ChevronRight,
+	GitBranch,
 	Hash,
 	Settings2,
 	Tag,
 	Trash2,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useNodeConnections } from "@xyflow/react";
 import { useTranslation } from "react-i18next";
+import CaseSelector, { type CaseItemInfo } from "@/components/flow/case-selector";
+import type { ConditionTrigger } from "@/types/condition-trigger";
+import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
+import useTradingModeStore from "@/store/use-trading-mode-store";
+import type { TradeMode } from "@/types/strategy";
 import { Selector } from "@/components/select-components/select";
 import { SelectWithSearch } from "@/components/select-components/select-with-search";
 import { Badge } from "@/components/ui/badge";
@@ -28,6 +35,7 @@ import {
 } from "@/types/node/position-node";
 
 interface PositionOpItemProps {
+	id: string;
 	config: PositionOperationConfig;
 	symbolList: Instrument[];
 	onChange: (config: PositionOperationConfig) => void;
@@ -35,14 +43,30 @@ interface PositionOpItemProps {
 }
 
 const PositionOpItem: React.FC<PositionOpItemProps> = ({
+	id,
 	config,
 	symbolList,
 	onChange,
 	onDelete,
 }) => {
 	const { t } = useTranslation();
+	const { getIfElseNodeCases } = useStrategyWorkflow();
+	const { tradingMode } = useTradingModeStore();
+	const connections = useNodeConnections({ id, handleType: "target" });
 
 	const [isOpen, setIsOpen] = useState(true);
+	const [caseItemList, setCaseItemList] = useState<CaseItemInfo[]>([]);
+
+	// 获取上游节点的 case 列表
+	useEffect(() => {
+		const conn = connections.filter(
+			(connection) =>
+				connection.targetHandle === `${id}_default_input` ||
+				connection.targetHandle === config.inputHandleId,
+		);
+		const cases = getIfElseNodeCases(conn, tradingMode as TradeMode);
+		setCaseItemList(cases);
+	}, [connections, getIfElseNodeCases, id, tradingMode, config.inputHandleId]);
 
 	const OPERATION_TYPE_OPTIONS = useMemo(
 		() => [
@@ -94,8 +118,8 @@ const PositionOpItem: React.FC<PositionOpItemProps> = ({
 			positionOperation: value,
 		};
 
-		if (!config.positionOperationName.trim()) {
-			updates.positionOperationName = getPositionOperationLabel(value, t);
+		if (!config.operationName.trim()) {
+			updates.operationName = getPositionOperationLabel(value, t);
 		}
 
 		if (!needsSymbol) {
@@ -106,7 +130,11 @@ const PositionOpItem: React.FC<PositionOpItemProps> = ({
 	};
 
 	const handleOperationNameChange = (value: string) => {
-		saveConfig({ positionOperationName: value });
+		saveConfig({ operationName: value });
+	};
+
+	const handleTriggerConfigChange = (triggerCase: ConditionTrigger | null) => {
+		saveConfig({ triggerConfig: triggerCase });
 	};
 
 	return (
@@ -166,6 +194,25 @@ const PositionOpItem: React.FC<PositionOpItemProps> = ({
 
 				<CollapsibleContent>
 					<div className="px-4 pb-4 pt-1 grid gap-4">
+
+						{/* 触发条件 */}
+						<div className="grid gap-2">
+							<Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+								<GitBranch className="h-3.5 w-3.5 text-indigo-500" />
+								{t("positionNode.triggerCondition")}
+							</Label>
+							<CaseSelector
+								caseList={caseItemList}
+								selectedTriggerCase={config.triggerConfig}
+								onTriggerCaseChange={handleTriggerConfigChange}
+							/>
+							{!config.triggerConfig && (
+								<p className="text-xs text-red-500 mt-1">
+									{t("positionNode.validation.noTriggerCondition")}
+								</p>
+							)}
+						</div>
+
 						<div className="grid gap-2">
 							<Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
 								<Settings2 className="h-3.5 w-3.5 text-blue-500" />
@@ -212,7 +259,7 @@ const PositionOpItem: React.FC<PositionOpItemProps> = ({
 							</Label>
 							<Input
 								type="text"
-								value={config.positionOperationName}
+								value={config.operationName}
 								onChange={(e) => handleOperationNameChange(e.target.value)}
 								placeholder={t("positionNode.operationName.placeholder")}
 								className="bg-white"

@@ -9,7 +9,8 @@ import { Separator } from "@/components/ui/separator";
 import { nodeList } from "@/constants/node-list";
 import { useDndNodeStore } from "@/store/use-dnd-node-store";
 import type { NodeItemProps } from "@/types/nodeCategory";
-import { getNodeTypeName, NodeType } from "@/types/node";
+import { getNodeTypeName, type NodeType } from "@/types/node";
+
 
 function NodeItem(props: NodeItemProps) {
 	const { setDragNodeItem } = useDndNodeStore();

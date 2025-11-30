@@ -1,4 +1,5 @@
 import type { TFunction } from "i18next";
+import type { ConditionTrigger } from "@/types/condition-trigger";
 export type { VirtualOrder } from "./virtual-order";
 
 export type OrderId = number;
@@ -109,4 +110,5 @@ export type FuturesOrderConfig = {
 	sl: number | null;
 	tpType: "price" | "percentage" | "point" | null;
 	slType: "price" | "percentage" | "point" | null;
+	triggerConfig: ConditionTrigger | null;
 };

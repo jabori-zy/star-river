@@ -49,11 +49,11 @@ import {
 import SymbolSelector from "../../components/symbol-selector";
 import TriggerTypeSwitcher from "../../components/trigger-type-switcher";
 import type { SymbolSelectorOption } from "../../components/symbol-selector";
-import type { CaseItemInfo } from "../../components/trigger-type-switcher/case-selector";
+import type { CaseItemInfo } from "@/components/flow/case-selector";
 import { useValidateGetConfig } from "../validate";
 import { useNodeConnections } from "@xyflow/react";
 import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
-import { TradeMode } from "@/types/strategy";
+import type { TradeMode } from "@/types/strategy";
 import useTradingModeStore from "@/store/use-trading-mode-store";
 
 
