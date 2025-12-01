@@ -11,6 +11,7 @@ import { getStrategyCacheKeys } from "@/service/strategy";
 import type { IndicatorKey, Key, KlineKey } from "@/types/symbol-key";
 import { parseKey } from "@/utils/parse-key";
 import { getIndicatorConfigDisplay, type IndicatorOption } from "./utils";
+import { useTranslation } from "react-i18next";
 
 interface IndicatorSelectorProps {
 	klineKeyStr: string; // K线指标的缓存键
@@ -31,6 +32,7 @@ export default function IndicatorSelector({
 	disabled = false,
 	strategyId,
 }: IndicatorSelectorProps) {
+	const { t } = useTranslation();
 	const [keys, setKeys] = useState<Record<string, Key>>({});
 	const [loading, setLoading] = useState(false);
 	const [isSelectOpen, setIsSelectOpen] = useState(false);
@@ -82,6 +84,7 @@ export default function IndicatorSelector({
 				) {
 					const configDisplay = getIndicatorConfigDisplay(
 						indicatorData.indicatorConfig,
+						t,
 						indicatorData.indicatorType,
 					);
 					const label = `${indicatorData.indicatorType.toUpperCase()} (${configDisplay})`;
@@ -97,7 +100,7 @@ export default function IndicatorSelector({
 		// console.log("options", options);
 
 		return options;
-	}, [keys, klineConfig]);
+	}, [keys, klineConfig, t]);
 
 	// 组件挂载时获取缓存数据
 	useEffect(() => {
@@ -110,12 +113,13 @@ export default function IndicatorSelector({
 	const renderIndicatorOption = (option: IndicatorOption) => {
 		const configDisplay = getIndicatorConfigDisplay(
 			option.indicatorConfig,
+			t,
 			option.indicatorType,
 		);
 		return (
 			<div className="flex items-center gap-2">
-				<Badge variant="outline">{option.indicatorType.toUpperCase()}</Badge>
-				<span className="font-medium">{configDisplay}</span>
+				<Badge variant="outline" className="shrink-0 min-w-16">{option.indicatorType.toUpperCase()}</Badge>
+				<span className="font-medium flex-1">{configDisplay}</span>
 			</div>
 		);
 	};
@@ -164,7 +168,7 @@ export default function IndicatorSelector({
 			}}
 			disabled={disabled}
 		>
-			<SelectTrigger className={`w-full ${className}`}>
+			<SelectTrigger className={`w-full overflow-hidden ${className}`}>
 				<SelectValue placeholder={placeholder}>
 					{selectedOption && renderIndicatorOption(selectedOption)}
 				</SelectValue>

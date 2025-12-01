@@ -1,5 +1,6 @@
 import { type IndicatorType, MAType } from "@/types/indicator";
 import { getIndicatorConfig } from "@/types/indicator/indicator-config";
+import type { TFunction } from "i18next";
 
 export interface IndicatorOption {
 	key: string;
@@ -24,6 +25,7 @@ const MA_TYPE_LABELS: Record<MAType, string> = {
 // 根据新的配置结构获取指标参数显示文本
 export const getIndicatorConfigDisplay = (
 	indicatorConfig: Record<string, unknown>,
+	t: TFunction,
 	indicatorType?: string,
 ): string => {
 	if (!indicatorType) return "";
@@ -38,10 +40,10 @@ export const getIndicatorConfigDisplay = (
 		const value = indicatorConfig[key];
 		if (value !== undefined && key !== "priceSource") {
 			if (key === "maType") {
-				const maTypeLabel = MA_TYPE_LABELS[value as MAType] || value;
-				paramParts.push(`${param.label}:${maTypeLabel}`);
+				const maTypeLabel = value as MAType || value;
+				paramParts.push(`${t(param.label)}:${maTypeLabel}`);
 			} else {
-				paramParts.push(`${param.label}:${value}`);
+				paramParts.push(`${t(param.label)}:${value}`);
 			}
 		}
 	});

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import IndicatorSelector from "@/components/indicator-selector";
+import IndicatorSelector from "@/pages/backtest-page/components/chart-card/add-indicator-dialog/indicator-selector";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
