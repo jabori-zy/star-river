@@ -1,4 +1,4 @@
-// 填写策略名称，策略描述等信息
+// Fill in strategy name, description and other information
 
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
@@ -30,7 +30,7 @@ const CreateStrategyDialog = ({
 	const [strategyName, setStrategyName] = useState("");
 	const [description, setDescription] = useState("");
 	const { t } = useTranslation();
-	// ✅ 使用新版本的 TanStack Query Hook
+	// Use TanStack Query Hook
 	const { mutate: createStrategy, isPending } = useCreateStrategy({
 		meta: {
 			successMessage: "Create strategy success.",
@@ -39,14 +39,14 @@ const CreateStrategyDialog = ({
 			showErrorToast: true,
 		},
 		onSuccess: (strategy) => {
-			// 关闭对话框
+			// Close dialog
 			onOpenChange(false);
 
-			// 清空表单
+			// Clear form
 			setStrategyName("");
 			setDescription("");
 
-			// 导航到策略编辑页面
+			// Navigate to strategy edit page
 			navigate("/strategy", {
 				state: {
 					strategyId: strategy.id,
@@ -56,13 +56,13 @@ const CreateStrategyDialog = ({
 			});
 		},
 		onError: () => {
-			// ✅ 错误已由全局 MutationCache 处理，这里不需要额外处理
-			// 如果需要特殊的业务逻辑，可以在这里添加
+			// Error is handled by global MutationCache, no extra handling needed here
+			// Add special business logic here if needed
 		},
 	});
 
 	const handleCreate = () => {
-		// ✅ 调用 mutation（toast 由全局处理）
+		// Call mutation (toast is handled globally)
 		createStrategy({
 			name: strategyName.trim(),
 			description: description.trim(),
@@ -79,7 +79,7 @@ const CreateStrategyDialog = ({
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent
 				className="sm:max-w-[425px]"
-				onOpenAutoFocus={(e) => e.preventDefault()} // 防止自动聚焦
+				onOpenAutoFocus={(e) => e.preventDefault()} // Prevent auto focus
 			>
 				<DialogHeader>
 					<DialogTitle>{t("desktop.createStrategy")}</DialogTitle>

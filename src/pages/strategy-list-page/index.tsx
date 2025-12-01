@@ -11,7 +11,7 @@ import {
 	PaginationPrevious,
 } from "@/components/ui/pagination";
 import { useStrategyList } from "@/service/strategy-management/get-strategy-list";
-import CreateStrategyDialog from "./component/create-strategy-dialog";
+import CreateStrategyDialog from "@/components/create-strategy-dialog";
 import { StrategyItem } from "./component/strategy-list-item";
 import { useTranslation } from "react-i18next";
 
