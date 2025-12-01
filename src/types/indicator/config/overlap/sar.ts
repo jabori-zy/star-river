@@ -29,14 +29,14 @@ export const SARConfig: IndicatorConfig<SARConfigType> = {
 	description: "Parabolic SAR",
 	params: {
 		acceleration: {
-			label: "加速因子",
+			label: "indicator.configField.acceleration",
 			description: "初始加速因子",
 			defaultValue: 0.02,
 			required: true,
 			legendShowName: "accel",
 		},
 		maximum: {
-			label: "最大值",
+			label: "indicator.configField.maximum",
 			description: "最大加速因子",
 			defaultValue: 0.2,
 			required: true,
@@ -52,7 +52,7 @@ export const SARConfig: IndicatorConfig<SARConfigType> = {
 		seriesConfigs: [
 			{
 				name: "sar",
-				type: SeriesType.SCATTER,
+				type: SeriesType.LINE,
 				color: "#FF6347",
 				lineWidth: 1,
 				indicatorValueKey: "sar" as keyof IndicatorValueConfig,

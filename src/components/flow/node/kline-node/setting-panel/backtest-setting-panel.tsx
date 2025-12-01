@@ -1,4 +1,3 @@
-import { useState } from "react";
 import AccountSelector from "@/components/flow/account-selector";
 import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
 import FileUpload from "@/components/ui/file-upload";
@@ -13,16 +12,17 @@ import SymbolSelector from "../components/symbol-selector";
 import type { StartNodeData } from "@/types/node/start-node";
 import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 import { useBacktestConfig } from "@/hooks/node-config/kline-node";
+import { useTranslation } from "react-i18next";
+import { useSymbolList } from "@/service/market/symbol-list";
+import { useSupportKlineInterval } from "@/service/market/support-kline-interval";
 
 const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	id,
 }) => {
+	const { t } = useTranslation();
 	const { getNodeData } = useStrategyWorkflow();
 	const startNodeData = getNodeData("start_node") as StartNodeData;
 	const accountList = startNodeData?.backtestConfig?.exchangeModeConfig?.selectedAccounts || [];
-
-	// 刷新触发器 - 用于触发 SymbolSelector 重新获取交易对列表
-	const [refreshTrigger, setRefreshTrigger] = useState(0);
 
 	// ✅ 使用新版本 hook 管理回测配置
 	const {
@@ -31,7 +31,12 @@ const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 		updateSelectedSymbols,
 	} = useBacktestConfig({ id });
 
+	const selectedAccount = backtestConfig?.exchangeModeConfig?.selectedAccount;
 	const timeRange = backtestConfig?.exchangeModeConfig?.timeRange;
+
+	// 获取代币列表和支持的K线周期（在父组件统一获取，避免子组件重复请求）
+	const { data: symbolList = [] } = useSymbolList(selectedAccount?.id ?? 0);
+	const { data: supportKlineInterval = [] } = useSupportKlineInterval(selectedAccount?.id ?? 0);
 
 	// 处理数据源选择（回测模式下选择的是交易所数据源）
 	const handleDataSourceChange = (selectedAccount: SelectedAccount) => {
@@ -43,13 +48,11 @@ const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 		});
 	};
 
-	// 处理连接状态变化
+	// 处理连接状态变化（TanStack Query 会自动处理缓存刷新，无需手动触发）
 	const handleConnectionStatusChange = (
-		status: ExchangeStatus,
+		_status: ExchangeStatus,
 	) => {
-		if (status === "Connected") {
-			setRefreshTrigger((prev) => prev + 1);
-		}
+		// TanStack Query 会根据 accountId 变化自动重新获取数据
 	};
 
 	return (
@@ -58,7 +61,7 @@ const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 			{backtestConfig?.dataSource === BacktestDataSource.EXCHANGE ? (
 				<>
 					<AccountSelector
-						label="回测账户"
+						label={t("klineNode.dataSource")}
 						tradeMode={TradeMode.BACKTEST}
 						selectedAccount={
 							backtestConfig?.exchangeModeConfig?.selectedAccount || null
@@ -73,15 +76,14 @@ const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 							backtestConfig?.exchangeModeConfig?.selectedSymbols || []
 						}
 						onSymbolsChange={updateSelectedSymbols}
-						selectedDataSource={
-							backtestConfig?.exchangeModeConfig?.selectedAccount
-						}
-						refreshTrigger={refreshTrigger}
+						selectedDataSource={selectedAccount}
+						symbolList={symbolList}
+						supportKlineInterval={supportKlineInterval}
 					/>
 					<div className="flex items-center justify-between gap-2 bg-gray-100 p-2 rounded-md">
 						<Label className="text-sm font-bold whitespace-nowrap">
 							{" "}
-							回测时间范围：{" "}
+							{t("klineNode.timeRange")}: {" "}
 						</Label>
 						<Label className="text-xs text-muted-foreground">
 							{" "}

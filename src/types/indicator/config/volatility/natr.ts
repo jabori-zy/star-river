@@ -30,7 +30,7 @@ export const NATRConfig: IndicatorConfig<NATRConfigType> = {
 	description: "Normalized Average True Range",
 	params: {
 		timePeriod: {
-			label: "时间周期",
+			label: "indicator.configField.timePeriod",
 			description: "选择NATR的计算周期",
 			defaultValue: 14,
 			required: true,

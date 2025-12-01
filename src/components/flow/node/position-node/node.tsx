@@ -7,9 +7,11 @@ import BacktestModeShow from "./components/show/backtest-mode-show";
 import LiveModeShow from "./components/show/live-mode-show";
 import SimulateModeShow from "./components/show/simulate-mode-show";
 import { memo } from "react";
-import { getNodeIconName, getNodeDefaultColor, NodeType } from "@/types/node/index";
+import { getNodeIconName, getNodeDefaultColor, NodeType, getNodeDefaultInputHandleId } from "@/types/node/index";
 import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 import type { PositionNodeData } from "@/types/node/position-node";
+import type { BaseHandleProps } from "@/components/flow/base/BaseHandle";
+import { Position } from "@xyflow/react";
 
 const PositionNode: React.FC<
 	NodeProps<PositionNodeType>
@@ -37,6 +39,12 @@ const PositionNode: React.FC<
 				return <BacktestModeShow id={id} data={currentNodeData} handleColor={handleColor} />;
 		}
 	};
+	const defaultInputHandle: BaseHandleProps = {
+		type: "target",
+		position: Position.Left,
+		id: getNodeDefaultInputHandleId(id, NodeType.PositionNode),
+		handleColor: handleColor,
+	};
 
 	return (
 		<BaseNode
@@ -47,6 +55,7 @@ const PositionNode: React.FC<
 			borderColor={borderColor}
 			isHovered={isHovered}
 			selected={selected}
+			defaultInputHandle={defaultInputHandle}
 		>
 			{renderModeContent()}
 		</BaseNode>

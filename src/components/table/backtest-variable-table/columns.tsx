@@ -18,7 +18,7 @@ import { formatTimeWithTimezone } from "@/utils/date-format";
 // 渲染变量值
 const renderValue = (v: string | number | boolean | string[] | null, varValueType: VariableValueType): string => {
     if (v === null || v === undefined) return "N/A";
-    if (varValueType === VariableValueType.PERCENTAGE) return `${(v as number * 100).toFixed(4)}%`;
+    if (varValueType === VariableValueType.PERCENTAGE) return `${(v as number).toFixed(4)}%`;
     if (Array.isArray(v)) return v.join(", ");
     if (typeof v === "boolean") return v ? "true" : "false";
     return String(v);

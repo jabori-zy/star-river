@@ -36,14 +36,14 @@ export const DEMAConfig: IndicatorConfig<DEMAConfigType> = {
 	description: "Double Exponential Moving Average",
 	params: {
 		timePeriod: {
-			label: "周期",
+			label: "indicator.configField.timePeriod",
 			description: "计算周期",
 			defaultValue: 30,
 			required: true,
 			legendShowName: "period",
 		},
 		priceSource: {
-			label: "价格源",
+			label: "indicator.configField.dataSource",
 			description: "选择指标计算价格源",
 			defaultValue: PriceSource.CLOSE,
 			required: true,

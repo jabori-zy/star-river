@@ -39,14 +39,14 @@ export const MOMConfig: IndicatorConfig<MOMConfigType> = {
 	description: "动量指标",
 	params: {
 		timePeriod: {
-			label: "周期",
+			label: "indicator.configField.timePeriod",
 			description: "选择动量指标的时间周期",
 			defaultValue: 10,
 			required: true,
 			legendShowName: "period",
 		},
 		priceSource: {
-			label: "价格源",
+			label: "indicator.configField.dataSource",
 			description: "选择指标计算价格源",
 			defaultValue: PriceSource.CLOSE,
 			required: true,

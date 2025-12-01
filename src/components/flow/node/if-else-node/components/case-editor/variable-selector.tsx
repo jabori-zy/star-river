@@ -246,7 +246,7 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 		if (!options || options.length === 0) {
 			return (
 				<div className="py-2 text-center text-sm text-muted-foreground">
-					无可用变量
+					{t("ifElseNode.noAvailableVariables")}
 				</div>
 			);
 		}
@@ -261,7 +261,7 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 		}
 		return hasAvailableVariables()
 			? t("ifElseNode.selectVariable")
-			: "无可用变量";
+			: t("ifElseNode.noAvailableVariables");
 	};
 
 	return (

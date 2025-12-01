@@ -26,9 +26,11 @@ const useWorkflowUtils = () => {
 		(sourceNodeId: string) => {
 			const edges = getEdges();
 
-			return edges
+			const targetIds = edges
 				.filter((edge) => edge.source === sourceNodeId)
 				.map((edge) => edge.target);
+
+			return [...new Set(targetIds)];
 		},
 		[getEdges],
 	);

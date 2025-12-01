@@ -27,7 +27,7 @@ export const MinusDiConfig: IndicatorConfig<MinusDiConfigType> = {
 	description: "Minus Directional Indicator",
 	params: {
 		timePeriod: {
-			label: "周期",
+			label: "indicator.configField.timePeriod",
 			description: "计算周期",
 			defaultValue: 14,
 			required: true,

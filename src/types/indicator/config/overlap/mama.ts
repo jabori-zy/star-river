@@ -38,21 +38,21 @@ export const MAMAConfig: IndicatorConfig<MAMAConfigType> = {
 	description: "MESA Adaptive Moving Average",
 	params: {
 		fastLimit: {
-			label: "快速限制",
+			label: "indicator.configField.fastLimit",
 			description: "快速限制参数",
 			defaultValue: 0.5,
 			required: true,
 			legendShowName: "fast",
 		},
 		slowLimit: {
-			label: "慢速限制",
+			label: "indicator.configField.slowLimit",
 			description: "慢速限制参数",
 			defaultValue: 0.05,
 			required: true,
 			legendShowName: "slow",
 		},
 		priceSource: {
-			label: "价格源",
+			label: "indicator.configField.dataSource",
 			description: "选择指标计算价格源",
 			defaultValue: PriceSource.CLOSE,
 			required: true,

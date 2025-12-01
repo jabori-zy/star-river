@@ -32,14 +32,14 @@ export const ADOSCConfig: IndicatorConfig<ADOSCConfigType> = {
 	description: "Accumulation/Distribution Oscillator",
 	params: {
 		fastPeriod: {
-			label: "快线周期",
+			label: "indicator.configField.fastPeriod",
 			description: "选择快线的计算周期",
 			defaultValue: 12,
 			required: true,
 			legendShowName: "fast",
 		},
 		slowPeriod: {
-			label: "慢线周期",
+			label: "indicator.configField.slowPeriod",
 			description: "选择慢线的计算周期",
 			defaultValue: 26,
 			required: true,

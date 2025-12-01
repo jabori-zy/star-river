@@ -30,7 +30,7 @@ export const PlusDiConfig: IndicatorConfig<PlusDiConfigType> = {
 	description: "正方向性指标",
 	params: {
 		timePeriod: {
-			label: "周期",
+			label: "indicator.configField.timePeriod",
 			description: "选择正方向性指标的时间周期",
 			defaultValue: 14,
 			required: true,

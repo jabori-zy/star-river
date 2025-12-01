@@ -36,14 +36,14 @@ export const MIDPOINTConfig: IndicatorConfig<MIDPOINTConfigType> = {
 	description: "MidPoint over period",
 	params: {
 		timePeriod: {
-			label: "周期",
+			label: "indicator.configField.timePeriod",
 			description: "计算周期",
 			defaultValue: 14,
 			required: true,
 			legendShowName: "period",
 		},
 		priceSource: {
-			label: "价格源",
+			label: "indicator.configField.dataSource",
 			description: "选择指标计算价格源",
 			defaultValue: PriceSource.CLOSE,
 			required: true,

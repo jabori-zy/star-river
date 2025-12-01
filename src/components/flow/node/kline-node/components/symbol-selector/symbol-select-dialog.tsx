@@ -15,6 +15,7 @@ import { getExchangeStatus } from "@/service/exchange";
 import { INTERVAL_LABEL_MAP } from "@/types/kline";
 import type { ExchangeStatus, Instrument } from "@/types/market";
 import type { SelectedSymbol } from "@/types/node/kline-node";
+import { useTranslation } from "react-i18next";
 
 interface SymbolSelectDialogProps {
 	accountId: number | undefined;
@@ -53,6 +54,7 @@ export const SymbolSelectDialog: React.FC<SymbolSelectDialogProps> = ({
 	symbolList,
 	supportKlineInterval,
 }) => {
+	const { t } = useTranslation();
 	const [exchangeStatus, setExchangeStatus] = useState<ExchangeStatus | null>(
 		null,
 	);
@@ -96,68 +98,64 @@ export const SymbolSelectDialog: React.FC<SymbolSelectDialogProps> = ({
 			<DialogContent className="sm:max-w-[425px]">
 				<DialogHeader>
 					<DialogTitle>
-						{editingSymbol ? "Edit Symbol" : "Add Symbol"}
+						{editingSymbol ? t("klineNode.symbolDialog.editTitle") : t("klineNode.symbolDialog.addTitle")}
 					</DialogTitle>
 					<DialogDescription>
-						Add trading symbols and time intervals to get kline data.
+						{editingSymbol ? t("klineNode.symbolDialog.editDescription") : t("klineNode.symbolDialog.addDescription")}
 					</DialogDescription>
 				</DialogHeader>
 
 				{/* 交易所未连接警告 */}
 				{exchangeStatus && exchangeStatus !== "Connected" && (
 					<div className="">
-						<p className="text-sm text-yellow-700">{accountName} 未连接.</p>
+						<p className="text-sm text-yellow-700">{accountName} {t("klineNode.symbolDialog.notConnected")}.</p>
 					</div>
 				)}
 
 				<div className="grid gap-4">
-					<div className="grid grid-cols-4 items-center gap-4">
-						<Label htmlFor="symbol-name" className="text-right">
-							Symbol
+					<div className="space-y-2">
+						<Label>
+							{t("klineNode.symbolDialog.symbol")}
 						</Label>
-						<div className="col-span-3">
-							<SelectWithSearch
-								id="symbol-name"
-								options={symbolList.map((symbol) => ({
-									value: symbol.name,
-									label: symbol.name,
-								}))}
-								value={symbolName}
-								onValueChange={onSymbolNameChange}
-								placeholder={isConnected ? "Select Symbol" : null}
-								searchPlaceholder="Search symbol"
-								emptyMessage="No symbol found."
-								error={!!nameError}
-								disabled={!isConnected}
-							/>
-							{nameError && <p className="text-xs text-red-500">{nameError}</p>}
-						</div>
+						<SelectWithSearch
+							id="symbol-name"
+							options={symbolList.map((symbol) => ({
+								value: symbol.name,
+								label: symbol.name,
+							}))}
+							value={symbolName}
+							onValueChange={onSymbolNameChange}
+							placeholder={isConnected ? t("klineNode.symbolDialog.placeholder") : null}
+							searchPlaceholder={t("klineNode.symbolDialog.searchPlaceholder")}
+							emptyMessage={t("klineNode.symbolDialog.emptyMessage")}
+							error={!!nameError}
+							disabled={!isConnected}
+						/>
+						{nameError && <p className="text-xs text-red-500">{nameError}</p>}
 					</div>
-					<div className="grid grid-cols-4 items-center gap-4">
-						<Label htmlFor="symbol-interval" className="text-right">
-							Interval
+					<div className="space-y-2">
+						<Label>
+							{t("klineNode.symbolDialog.interval")}
 						</Label>
-						<div className="col-span-3">
-							<SelectInDialog
-								id="symbol-interval"
-								value={symbolInterval}
-								onValueChange={onSymbolIntervalChange}
-								placeholder="Select Interval"
-								options={supportKlineInterval.map((interval) => ({
-									value: interval,
-									label: INTERVAL_LABEL_MAP[interval] || interval,
-								}))}
-								disabled={!isConnected}
-							/>
-						</div>
+						<SelectInDialog
+							id="symbol-interval"
+							value={symbolInterval}
+							onValueChange={onSymbolIntervalChange}
+							placeholder={t("klineNode.symbolDialog.intervalPlaceholder")}
+							options={supportKlineInterval.map((interval) => ({
+								value: interval,
+								label: INTERVAL_LABEL_MAP[interval] || interval,
+							}))}
+							disabled={!isConnected}
+						/>
 					</div>
 				</div>
 				<DialogFooter>
 					<Button variant="outline" onClick={() => onOpenChange(false)}>
-						Cancel
+						{t("common.cancel")}
 					</Button>
 					<Button onClick={onSave} disabled={isSaveDisabled}>
-						Save
+						{t("common.save")}
 					</Button>
 				</DialogFooter>
 			</DialogContent>

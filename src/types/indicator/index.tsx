@@ -1,13 +1,31 @@
+import type { TFunction } from "i18next";
+
 export enum IndicatorCategory {
-	OVERLAP = "overlap",
-	MOMENTUM = "momentum",
-	VOLATILITY = "volatility",
-	VOLUME = "volume",
-	PRICE_TRANSFORM = "price_transform",
-	CYCLE = "cycle",
-	PATTERN_RECOGNITION = "pattern_recognition",
-	CUSTOM = "custom",
+	OVERLAP = "Overlap",
+	MOMENTUM = "Momentum",
+	VOLATILITY = "Volatility",
+	VOLUME = "Volume",
+	PRICE_TRANSFORM = "PriceTransform",
+	CYCLE = "Cycle",
+	PATTERN_RECOGNITION = "PatternRecognition",
+	CUSTOM = "Custom",
 }
+
+export const IndicatorCategoryDisplayNames: Record<IndicatorCategory, string> = {
+	[IndicatorCategory.OVERLAP]: "indicator.category.overlap",
+	[IndicatorCategory.MOMENTUM]: "indicator.category.momentum",
+	[IndicatorCategory.VOLATILITY]: "indicator.category.volatility",
+	[IndicatorCategory.VOLUME]: "indicator.category.volume",
+	[IndicatorCategory.PRICE_TRANSFORM]: "indicator.category.priceTransform",
+	[IndicatorCategory.CYCLE]: "indicator.category.cycle",
+	[IndicatorCategory.PATTERN_RECOGNITION]: "indicator.category.patternRecognition",
+	[IndicatorCategory.CUSTOM]: "indicator.category.custom",
+};
+
+export const getIndicatorCategoryDisplayName = (category: IndicatorCategory, t: TFunction) => {
+	return t(IndicatorCategoryDisplayNames[category]);
+};
+
 
 export enum MAType {
 	SMA = "SMA",
@@ -171,3 +189,13 @@ export enum PriceSource {
 	HIGH = "HIGH",
 	LOW = "LOW",
 }
+
+export const getPriceSourceDisplayName = (priceSource: PriceSource, t: TFunction) => {
+	const priceSourceLabel = {
+		[PriceSource.CLOSE]: "market.klineValueField.close",
+		[PriceSource.OPEN]: "market.klineValueField.open",
+		[PriceSource.HIGH]: "market.klineValueField.high",
+		[PriceSource.LOW]: "market.klineValueField.low",
+	};
+	return t(priceSourceLabel[priceSource]);
+};

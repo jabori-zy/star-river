@@ -45,28 +45,28 @@ export const PPOConfig: IndicatorConfig<PPOConfigType> = {
 	description: "百分比价格振荡器",
 	params: {
 		maType: {
-			label: "MA类型",
+			label: "indicator.configField.maType",
 			description: "选择移动平均线的计算方式",
 			defaultValue: MAType.SMA,
 			required: true,
 			legendShowName: "ma type",
 		},
 		fastPeriod: {
-			label: "快线周期",
+			label: "indicator.configField.fastPeriod",
 			description: "选择快线的计算周期",
 			defaultValue: 12,
 			required: true,
 			legendShowName: "fast",
 		},
 		slowPeriod: {
-			label: "慢线周期",
+			label: "indicator.configField.slowPeriod",
 			description: "选择慢线的计算周期",
 			defaultValue: 26,
 			required: true,
 			legendShowName: "slow",
 		},
 		priceSource: {
-			label: "价格源",
+			label: "indicator.configField.dataSource",
 			description: "选择指标计算价格源",
 			defaultValue: PriceSource.CLOSE,
 			required: true,

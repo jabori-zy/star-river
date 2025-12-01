@@ -38,28 +38,28 @@ export const MACDConfig: IndicatorConfig<MACDConfigType> = {
 	description: "指数平滑移动平均线收敛发散指标",
 	params: {
 		fastPeriod: {
-			label: "快线周期",
+			label: "indicator.configField.fastPeriod",
 			description: "选择快线的计算周期",
 			defaultValue: 12,
 			required: true,
 			legendShowName: "fast",
 		},
 		slowPeriod: {
-			label: "慢线周期",
+			label: "indicator.configField.slowPeriod",
 			description: "选择慢线的计算周期",
 			defaultValue: 26,
 			required: true,
 			legendShowName: "slow",
 		},
 		signalPeriod: {
-			label: "信号周期",
+			label: "indicator.configField.signalPeriod",
 			description: "选择信号线的计算周期",
 			defaultValue: 9,
 			required: true,
 			legendShowName: "signal",
 		},
 		priceSource: {
-			label: "价格源",
+			label: "indicator.configField.dataSource",
 			description: "选择指标计算价格源",
 			defaultValue: PriceSource.CLOSE,
 			required: true,

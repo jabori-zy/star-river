@@ -7,14 +7,9 @@ import {
 	getIndicatorDisplayName,
 } from "@/types/indicator/indicator-config";
 import type { SelectedIndicator } from "@/types/node/indicator-node";
-
-// 价格源选项映射
-const PRICE_SOURCE_LABELS: Record<PriceSource, string> = {
-	[PriceSource.CLOSE]: "收盘价",
-	[PriceSource.OPEN]: "开盘价",
-	[PriceSource.HIGH]: "最高价",
-	[PriceSource.LOW]: "最低价",
-};
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
+import { getPriceSourceDisplayName } from "@/types/indicator";
 
 // MA类型选项映射
 const MA_TYPE_LABELS: Record<MAType, string> = {
@@ -35,14 +30,15 @@ const getIndicatorLabel = (type: IndicatorType): string => {
 };
 
 // 获取价格源的中文标签
-const getPriceSourceLabel = (priceSource: PriceSource): string => {
-	return PRICE_SOURCE_LABELS[priceSource] || priceSource;
+const getPriceSourceLabel = (priceSource: PriceSource, t: TFunction): string => {
+	return getPriceSourceDisplayName(priceSource, t);
 };
 
 // 根据新的配置结构获取指标参数显示文本
 const getIndicatorParams = (
 	indicatorType: IndicatorType,
 	indicatorConfig: Record<string, unknown>,
+	t: TFunction
 ): string => {
 	const configInstance = getIndicatorConfig(indicatorType);
 	if (!configInstance) return "";
@@ -55,9 +51,9 @@ const getIndicatorParams = (
 		if (value !== undefined && key !== "priceSource") {
 			if (key === "maType") {
 				const maTypeLabel = MA_TYPE_LABELS[value as MAType] || value;
-				paramParts.push(`${param.label}:${maTypeLabel}`);
+				paramParts.push(`${t(param.label)}:${maTypeLabel}`);
 			} else {
-				paramParts.push(`${param.label}:${value}`);
+				paramParts.push(`${t(param.label)}:${value}`);
 			}
 		}
 	});
@@ -77,7 +73,7 @@ export function IndicatorConfigShowItem({
 	handleColor,
 }: IndicatorConfigShowItemProps) {
 	const priceSource = indicator.indicatorConfig.priceSource as PriceSource;
-
+	const { t } = useTranslation();
 	return (
 		<div className="flex items-center justify-between px-2 py-2 bg-gray-100 rounded-md relative">
 			<div className="flex items-center gap-2 justify-between w-full">
@@ -92,13 +88,14 @@ export function IndicatorConfigShowItem({
 						{getIndicatorParams(
 							indicator.indicatorType,
 							indicator.indicatorConfig,
+							t,
 						)}
-						{priceSource && ` | ${getPriceSourceLabel(priceSource)}`}
+						{priceSource && ` | ${getPriceSourceLabel(priceSource, t)}`}
 					</div>
 				</div>
 				<div className="text-xs text-muted-foreground font-bold">
 					<Badge variant="outline" className="border-gray-400">
-						指标 {indicator.configId}
+						{t("indicatorNode.indicator")} {indicator.configId}
 					</Badge>
 				</div>
 			</div>

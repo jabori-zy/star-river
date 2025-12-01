@@ -101,6 +101,7 @@ export const getOrderStatusLabel = (status: OrderStatus, t: TFunction): string =
 export type FuturesOrderConfig = {
 	orderConfigId: number;
 	inputHandleId: string;
+	outputHandleIds: string[];
 	symbol: string;
 	orderType: OrderType;
 	orderSide: FuturesOrderSide;

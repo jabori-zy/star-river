@@ -30,7 +30,8 @@ export const TRANGEConfig: IndicatorConfig<TRANGEConfigType> = {
 	description: "True Range",
 	params: {
 		timePeriod: {
-			label: "时间周期",
+			label: "indicator.configField.timePeriod",
+			description: "Select the time period",
 			legendShowName: "timePeriod",
 			required: true,
 			defaultValue: 14,

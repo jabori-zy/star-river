@@ -34,21 +34,21 @@ export const ULTOSCConfig: IndicatorConfig<ULTOSCConfigType> = {
 	description: "终极振荡器",
 	params: {
 		timePeriod1: {
-			label: "第一周期",
+			label: "indicator.configField.timePeriod1",
 			description: "选择第一个时间周期",
 			defaultValue: 7,
 			required: true,
 			legendShowName: "period1",
 		},
 		timePeriod2: {
-			label: "第二周期",
+			label: "indicator.configField.timePeriod2",
 			description: "选择第二个时间周期",
 			defaultValue: 14,
 			required: true,
 			legendShowName: "period2",
 		},
 		timePeriod3: {
-			label: "第三周期",
+			label: "indicator.configField.timePeriod3",
 			description: "选择第三个时间周期",
 			defaultValue: 28,
 			required: true,

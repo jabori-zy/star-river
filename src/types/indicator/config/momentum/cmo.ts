@@ -39,14 +39,14 @@ export const CMOConfig: IndicatorConfig<CMOConfigType> = {
 	description: "Chande Momentum Oscillator",
 	params: {
 		timePeriod: {
-			label: "周期",
+			label: "indicator.configField.timePeriod",
 			description: "选择CMO指标的时间周期",
 			defaultValue: 14,
 			required: true,
 			legendShowName: "period",
 		},
 		priceSource: {
-			label: "价格源",
+			label: "indicator.configField.dataSource",
 			description: "选择指标计算价格源",
 			defaultValue: PriceSource.CLOSE,
 			required: true,

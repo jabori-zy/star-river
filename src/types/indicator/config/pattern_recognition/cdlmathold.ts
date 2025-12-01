@@ -27,7 +27,7 @@ export const CDLMATHOLDConfig: IndicatorConfig<CDLMATHOLDConfigType> = {
 	description: "Mat Hold",
 	params: {
 		penetration: {
-			label: "穿透度",
+			label: "indicator.configField.penetration",
 			description: "穿透度参数",
 			defaultValue: 0.5,
 			required: true,

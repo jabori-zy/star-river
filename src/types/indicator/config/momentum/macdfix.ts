@@ -36,14 +36,14 @@ export const MACDFIXConfig: IndicatorConfig<MACDFIXConfigType> = {
 	description: "Moving Average Convergence/Divergence Fix 12/26",
 	params: {
 		signalPeriod: {
-			label: "信号周期",
+			label: "indicator.configField.signalPeriod",
 			description: "信号线周期",
 			defaultValue: 9,
 			required: true,
 			legendShowName: "signal",
 		},
 		priceSource: {
-			label: "价格源",
+			label: "indicator.configField.dataSource",
 			description: "选择指标计算价格源",
 			defaultValue: PriceSource.CLOSE,
 			required: true,

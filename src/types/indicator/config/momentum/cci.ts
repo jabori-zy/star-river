@@ -30,7 +30,7 @@ export const CCIConfig: IndicatorConfig<CCIConfigType> = {
 	description: "Commodity Channel Index",
 	params: {
 		timePeriod: {
-			label: "周期",
+			label: "indicator.configField.timePeriod",
 			description: "选择CCI指标的时间周期",
 			defaultValue: 14,
 			required: true,

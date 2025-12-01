@@ -34,7 +34,7 @@ export const HtTrendlineConfig: IndicatorConfig<HtTrendlineConfigType> = {
 	description: "Hilbert Transform - Instantaneous Trendline",
 	params: {
 		priceSource: {
-			label: "价格源",
+			label: "indicator.configField.dataSource",
 			description: "选择指标计算价格源",
 			defaultValue: PriceSource.CLOSE,
 			required: true,

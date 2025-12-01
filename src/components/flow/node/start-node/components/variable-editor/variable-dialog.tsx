@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { DateTimePicker24h } from "@/components/datetime-picker";
 import { formatDate } from "@/components/flow/node/node-utils";
-import { PercentInput } from "@/components/percent-input";
+import { PercentInput } from "@/components/input-components/percent-input";
 import MultipleSelector, {
 	type Option,
 } from "@/components/select-components/multi-select";

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { DateTimePicker24h } from "@/components/datetime-picker";
 import { formatDate } from "@/components/flow/node/node-utils";
-import { PercentInput } from "@/components/percent-input";
+import { PercentInput } from "@/components/input-components/percent-input";
 import MultipleSelector, {
 	type Option,
 } from "@/components/select-components/multi-select";
@@ -254,9 +254,29 @@ const ConstantInput: React.FC<ConstantInputProps> = ({
 		case VariableValueType.PERCENTAGE:
 			return (
 				<PercentInput
-					value={typeof value === "number" ? value.toString() : "0"}
-					onChange={(val) => onValueChange(val)}
-					placeholder="如: 5"
+					value={localValue}
+					onChange={(val) => {
+						setLocalValue(val);
+						if (val !== "" && !Number.isNaN(Number(val))) {
+							onValueChange(Number(val));
+						}
+					}}
+					onBlur={() => {
+						setIsFocused(false);
+						if (localValue === "") {
+							setLocalValue("0");
+							onValueChange(0);
+						} else if (Number.isNaN(Number(localValue))) {
+							setLocalValue(value.toString());
+						} else {
+							const numValue = Number(localValue);
+							if (numValue !== value) {
+								onValueChange(numValue);
+							}
+						}
+					}}
+					onFocus={() => setIsFocused(true)}
+					// placeholder="如: 5"
 					className={className}
 				/>
 			);

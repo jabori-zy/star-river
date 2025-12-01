@@ -299,7 +299,7 @@ export const renderVariableOptions = ({
 			result.push(
 				<SelectGroup key={`kline_group_${configId}`}>
 					<SelectLabel className="text-xs font-semibold text-green-600 px-2 py-1.5">
-						K线 {configId}
+						{t("ifElseNode.kline")} {configId}
 					</SelectLabel>
 					{groupItems}
 				</SelectGroup>,
@@ -349,14 +349,14 @@ export const renderVariableOptions = ({
 					<div className="flex items-center w-full gap-1">
 						<div className="flex items-center gap-0.5 flex-shrink-0">
 							<TypeIconComponent className={`h-4 w-4 ${typeIconColor}`} />
-							{"symbol" in variable && variable.symbol && (
+							{/* {"symbol" in variable && variable.symbol && (
 								<Badge
 									variant="outline"
 									className="flex items-center justify-center text-[10px] leading-none py-1 border-gray-400 rounded-sm"
 								>
 									{variable.symbol}
 								</Badge>
-							)}
+							)} */}
 						</div>
 						<span className="text-xs text-gray-900 font-medium flex-1 text-right truncate">
 							{variable.varDisplayName}

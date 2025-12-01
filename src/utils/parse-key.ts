@@ -1,5 +1,4 @@
 import { parseIndicatorConfig } from "@/types/indicator/indicator-config";
-import type { KlineInterval } from "@/types/kline";
 import type { IndicatorType } from "../types/indicator";
 import type { IndicatorKey, Key, KlineKey } from "../types/symbol-key";
 
@@ -15,7 +14,7 @@ export function parseKey(keyStr: string): Key {
 			type: "kline",
 			exchange: parts[1],
 			symbol: parts[2],
-			interval: parts[3] as unknown as KlineInterval,
+			interval: parts[3],
 			startTime: parts[4],
 			endTime: parts[5],
 		} as KlineKey;
@@ -37,7 +36,7 @@ export function parseKey(keyStr: string): Key {
 			type: "indicator",
 			exchange: parts[1],
 			symbol: parts[2],
-			interval: parts[3] as unknown as KlineInterval,
+			interval: parts[3],
 			indicatorType: indicatorType,
 			indicatorConfig: indicatorConfig,
 			startTime: parts[5],

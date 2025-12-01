@@ -17,6 +17,8 @@ import enUSApiMessage from "./en-US/api-message";
 import enUSStartNode from "./en-US/start-node";
 import enUSFuturesOrderNode from "./en-US/futures-order-node";
 import enUSPositionNode from "./en-US/position-node";
+import enUSKlineNode from "./en-US/kline-node";
+import enUSIndicatorNode from "./en-US/indicator-node";
 // 定义所有命名空间(模块名)
 const NAMESPACES = [
 	"common",
@@ -32,6 +34,8 @@ const NAMESPACES = [
 	"start-node",
 	"futures-order-node",
 	"position-node",
+	"kline-node",
+	"indicator-node",
 ];
 
 // 动态导入语言资源,带容错机制
@@ -76,6 +80,8 @@ const getInitialTranslations = () => {
 				startNode: enUSStartNode,
 				futuresOrderNode: enUSFuturesOrderNode,
 				positionNode: enUSPositionNode,
+				klineNode: enUSKlineNode,
+				indicatorNode: enUSIndicatorNode,
 			},
 		},
 	};

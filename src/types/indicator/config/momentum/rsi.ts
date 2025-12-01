@@ -39,14 +39,14 @@ export const RSIConfig: IndicatorConfig<RSIConfigType> = {
 	description: "计算指定周期的相对强弱指数",
 	params: {
 		timePeriod: {
-			label: "周期",
+			label: "indicator.configField.timePeriod",
 			description: "选择相对强弱指数的时间周期",
 			defaultValue: 14,
 			required: true,
 			legendShowName: "period",
 		},
 		priceSource: {
-			label: "价格源",
+			label: "indicator.configField.dataSource",
 			description: "选择指标计算价格源",
 			defaultValue: PriceSource.CLOSE,
 			required: true,

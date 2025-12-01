@@ -30,7 +30,7 @@ export const CDLEVENINGDOJISTARConfig: IndicatorConfig<CDLEVENINGDOJISTARConfigT
 		description: "Evening Doji Star",
 		params: {
 			penetration: {
-				label: "穿透度",
+				label: "indicator.configField.penetration",
 				description: "穿透度参数",
 				defaultValue: 0.3,
 				required: true,

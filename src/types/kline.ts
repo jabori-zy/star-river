@@ -8,13 +8,26 @@ export type Kline = {
 };
 
 export enum KlineInterval {
-	"1m" = 60,
-	"5m" = 300,
-	"15m" = 900,
-	"30m" = 1800,
-	"1h" = 3600,
-	"4h" = 14400,
-	"1d" = 86400,
+	m1 = "1m",
+	m2 = "2m",
+	m3 = "3m",
+	m4 = "4m",
+	m5 = "5m",
+	m6 = "6m",
+	m10 = "10m",
+	m12 = "12m",
+	m15 = "15m",
+	m30 = "30m",
+	h1 = "1h",
+	h2 = "2h",
+	h3 = "3h",
+	h4 = "4h",
+	h6 = "6h",
+	h8 = "8h",
+	h12 = "12h",
+	d1 = "1d",
+	w1 = "1w",
+	M1 = "1M",
 }
 
 // Time interval value to label mapping
@@ -40,4 +53,8 @@ export const INTERVAL_LABEL_MAP: Record<string, string> = {
 	"1d": "1 Day",
 	"1w": "1 Week",
 	"1M": "1 Month",
+};
+
+export const getKlineIntervalLabel = (interval: string) => {
+	return INTERVAL_LABEL_MAP[interval];
 };

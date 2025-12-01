@@ -34,7 +34,7 @@ export const HtDcphaseConfig: IndicatorConfig<HtDcphaseConfigType> = {
 	description: "Hilbert Transform - Dominant Cycle Phase",
 	params: {
 		priceSource: {
-			label: "价格源",
+			label: "indicator.configField.dataSource",
 			description: "选择指标计算价格源",
 			defaultValue: PriceSource.CLOSE,
 			required: true,

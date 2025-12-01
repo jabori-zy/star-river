@@ -11,7 +11,7 @@ import { ReactFlowProvider } from "@xyflow/react";
 import useTradingModeStore from "@/store/use-trading-mode-store";
 import { WorkFlow } from "./components/flow";
 import { StrategyLoadingDialog } from "./components/strategy-loading-dialog";
-import { StrategyRunState } from "@/types/strategy";
+import type { StrategyRunState } from "@/types/strategy";
 import { BacktestStrategyRunState } from "@/types/strategy/backtest-strategy";
 import type { OperationType } from "./components/strategy-control/type";
 import { openBacktestWindow } from "@/utils/open-backtest-window";
@@ -82,9 +82,7 @@ export default function StrategyPage() {
 
 	// ✅ 从 API 获取的运行状态同步到本地 state（初始化用）
 	useEffect(() => {
-		console.log('apiRunState from API:', apiRunState);
 		if (apiRunState) {
-			console.log('apiRunState from API:', apiRunState);
 			setStrategyRunState(apiRunState);
 		}
 	}, [apiRunState]);

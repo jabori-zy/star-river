@@ -34,7 +34,7 @@ export const HtTrendmodeConfig: IndicatorConfig<HtTrendmodeConfigType> = {
 	description: "Hilbert Transform - Trend vs Cycle Mode",
 	params: {
 		priceSource: {
-			label: "价格源",
+			label: "indicator.configField.dataSource",
 			description: "选择指标计算价格源",
 			defaultValue: PriceSource.CLOSE,
 			required: true,

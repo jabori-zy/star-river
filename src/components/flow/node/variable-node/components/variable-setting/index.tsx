@@ -6,9 +6,9 @@ import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 import { getSymbolList } from "@/service/market";
 import type { Instrument } from "@/types/market";
 import type { VariableConfig, GetCustomVariableConfig, UpdateVariableConfig, ResetVariableConfig } from "@/types/node/variable-node";
-import {
-	type VariableOperation,
-	type UpdateVarValueOperation,
+import type {
+	VariableOperation,
+	UpdateVarValueOperation,
 } from "@/types/node/variable-node";
 import { getUpdateOperationLabel } from "@/types/node/variable-node/variable-operation-types";
 import { TradeMode } from "@/types/strategy";
@@ -296,17 +296,10 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 				edge.sourceHandle !== sourceHandleId &&
 				edge.targetHandle !== targetHandleId,
 		);
-		console.log("remainingEdges", remainingEdges);
 		setEdges(remainingEdges);
 
 		const updatedVariables = variableConfigs
 			.filter((_, i) => i !== targetIndex)
-			.map((variable, newIndex) => ({
-				...variable,
-				configId: newIndex + 1,
-				inputHandleId: `${id}_input_${newIndex + 1}`,
-				outputHandleId: `${id}_output_${newIndex + 1}`,
-			}));
 		onVariableConfigsChange(updatedVariables);
 
 		// 清理删除相关状态

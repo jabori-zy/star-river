@@ -3,6 +3,8 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import type { IndicatorNodeData } from "@/types/node/indicator-node";
 import { IndicatorConfigShowItem } from "./indicator-config-show-item";
+import { getKlineIntervalLabel } from "@/types/kline";
+import { useTranslation } from "react-i18next";
 
 interface BacktestModeShowProps {
 	id: string;
@@ -10,22 +12,8 @@ interface BacktestModeShowProps {
 	handleColor: string;
 }
 
-// 获取时间周期的中文标签
-const getIntervalLabel = (interval: string) => {
-	const intervalMap: Record<string, string> = {
-		"1m": "1分钟",
-		"5m": "5分钟",
-		"15m": "15分钟",
-		"30m": "30分钟",
-		"1h": "1小时",
-		"4h": "4小时",
-		"1d": "1天",
-		"1w": "1周",
-	};
-	return intervalMap[interval] || interval;
-};
-
 const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ data, handleColor }) => {
+	const { t } = useTranslation();
 	const exchangeModeConfig = data?.backtestConfig?.exchangeModeConfig;
 
 	return (
@@ -36,15 +24,15 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ data, handleColor }
 				exchangeModeConfig.selectedIndicators.length === 0 ? (
 					<div className="flex items-center justify-between gap-2 rounded-md">
 						<Label className="text-sm font-bold text-muted-foreground">
-							计算指标
+							{t("indicatorNode.technicalIndicators")}
 						</Label>
-						<span className="text-sm text-red-500">未配置</span>
+						<span className="text-sm text-red-500">{t("indicatorNode.noIndicatorConfig")}</span>
 					</div>
 				) : (
 					<div>
 						<div className="flex items-center gap-2">
 							<Label className="text-sm font-bold text-muted-foreground">
-								计算指标
+								{t("indicatorNode.technicalIndicators")}
 							</Label>
 							<Badge className="h-4 min-w-4 rounded-full px-1 font-mono tabular-nums text-xs bg-gray-200 text-gray-500">
 								{exchangeModeConfig.selectedIndicators.length}
@@ -70,30 +58,30 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ data, handleColor }
 				!exchangeModeConfig?.selectedSymbol ? (
 					<div className="flex items-center justify-between gap-2 rounded-md">
 						<Label className="text-sm font-bold text-muted-foreground">
-							数据源
+							{t("indicatorNode.dataSource")}
 						</Label>
-						<span className="text-sm text-red-500">未配置</span>
+						<span className="text-sm text-red-500">{t("indicatorNode.noConfig")}</span>
 					</div>
 				) : (
 					<div>
 						<Label className="text-sm font-bold text-muted-foreground">
-							数据源
+							{t("indicatorNode.dataSource")}
 						</Label>
 						<div className="flex flex-col gap-2 bg-gray-100 p-2 rounded-md mt-1">
 							<div className="flex flex-row items-center justify-between gap-2 pr-2">
-								<span className="text-xs font-bold">交易对:</span>
+								<span className="text-xs font-bold">{t("indicatorNode.symbol")}:</span>
 								<span className="text-xs">
 									{exchangeModeConfig.selectedSymbol.symbol}
 								</span>
 							</div>
 							<div className="flex flex-row items-center justify-between gap-2 pr-2">
-								<span className="text-xs font-bold">时间周期:</span>
+								<span className="text-xs font-bold">{t("indicatorNode.interval")}:</span>
 								<span className="text-xs">
-									{getIntervalLabel(exchangeModeConfig.selectedSymbol.interval)}
+									{getKlineIntervalLabel(exchangeModeConfig.selectedSymbol.interval)}
 								</span>
 							</div>
 							<div className="flex flex-row items-center justify-between gap-2 pr-2">
-								<span className="text-xs font-bold">交易所:</span>
+								<span className="text-xs font-bold">{t("indicatorNode.exchange")}:</span>
 								<span className="text-xs">
 									{exchangeModeConfig.selectedAccount.exchange}
 								</span>

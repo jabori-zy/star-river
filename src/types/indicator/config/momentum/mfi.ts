@@ -27,7 +27,7 @@ export const MFIConfig: IndicatorConfig<MFIConfigType> = {
 	description: "Money Flow Index",
 	params: {
 		timePeriod: {
-			label: "周期",
+			label: "indicator.configField.timePeriod",
 			description: "计算周期",
 			defaultValue: 14,
 			required: true,

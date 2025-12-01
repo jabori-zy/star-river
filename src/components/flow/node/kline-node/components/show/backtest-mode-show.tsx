@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import type { KlineNodeBacktestConfig } from "@/types/node/kline-node";
 import { SymbolItem } from "./kline-config-show-item";
+import { useTranslation } from "react-i18next";
 
 interface BacktestModeShowProps {
 	handleColor: string;
@@ -13,6 +14,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 	handleColor,
 	backtestConfig,
 }) => {
+	const { t } = useTranslation();
 	const selectedAccount = backtestConfig?.exchangeModeConfig?.selectedAccount;
 	const selectedSymbols =
 		backtestConfig?.exchangeModeConfig?.selectedSymbols || [];
@@ -25,19 +27,19 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 				{selectedSymbols.length === 0 ? (
 					<div className="flex items-center justify-between gap-2 rounded-md">
 						<Label className="text-xm font-bold text-muted-foreground">
-							交易对
+							{t("klineNode.symbol")}
 						</Label>
-						<span className="text-sm text-red-500">未配置</span>
+						<span className="text-sm text-red-500">{t("klineNode.noSymbol")}</span>
 					</div>
 				) : (
 					<div>
 						<div className="flex items-center gap-2">
 							<Label className="text-xm font-bold text-muted-foreground">
-								交易对
+								{t("klineNode.symbol")}
 							</Label>
-							<Badge className="h-4 min-w-4 rounded-full px-1 font-mono tabular-nums text-xs bg-gray-200 text-gray-500">
+							{/* <Badge className="h-4 min-w-4 rounded-full px-1 font-mono tabular-nums text-xs bg-gray-200 text-gray-500">
 								{selectedSymbols.length}
-							</Badge>
+							</Badge> */}
 						</div>
 						<div className="flex flex-col gap-2 mt-2">
 							{selectedSymbols.map((symbol, index) => (
@@ -57,14 +59,14 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 				{!selectedAccount || !selectedAccount.accountName ? (
 					<div className="flex items-center justify-between gap-2 rounded-md">
 						<Label className="text-xm font-bold text-muted-foreground">
-							数据源
+							{t("klineNode.dataSource")}
 						</Label>
-						<span className="text-sm text-red-500">未配置</span>
+						<span className="text-sm text-red-500">{t("klineNode.noDataSource")}</span>
 					</div>
 				) : (
 					<div>
 						<Label className="text-xm font-bold text-muted-foreground">
-							数据源
+							{t("klineNode.dataSource")}
 						</Label>
 						<div className="flex items-center gap-2 bg-gray-100 p-2 rounded-md mt-1">
 							<span className="text-xs">
@@ -79,22 +81,22 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 				{!localTimeRange?.startDate || !localTimeRange?.endDate ? (
 					<div className="flex items-center justify-between gap-2 rounded-md">
 						<Label className="text-xm font-bold text-muted-foreground">
-							回测时间范围
+							{t("klineNode.timeRange")}
 						</Label>
-						<span className="text-sm text-red-500">未配置</span>
+						<span className="text-sm text-red-500">{t("klineNode.noTimeRange")}</span>
 					</div>
 				) : (
 					<div>
 						<Label className="text-xm font-bold text-muted-foreground">
-							回测时间范围
+							{t("klineNode.timeRange")}
 						</Label>
 						<div className="flex flex-col gap-1 text-sm bg-gray-100 p-2 rounded-md mt-2">
 							<div className="flex items-center gap-2">
-								<span className="text-gray-600">开始时间:</span>
+								<span className="text-gray-600">{t("klineNode.startTime")}:</span>
 								<span className="font-medium">{localTimeRange.startDate}</span>
 							</div>
 							<div className="flex items-center gap-2">
-								<span className="text-gray-600">结束时间:</span>
+								<span className="text-gray-600">{t("klineNode.endTime")}:</span>
 								<span className="font-medium">{localTimeRange.endDate}</span>
 							</div>
 						</div>

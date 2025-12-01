@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import {
 	Dialog,
 	DialogContent,
-	DialogDescription,
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
@@ -21,7 +20,8 @@ import {
 import { IndicatorType, MAType, PriceSource } from "@/types/indicator";
 import { getIndicatorConfig } from "@/types/indicator/indicator-config";
 import type { SelectedIndicator } from "@/types/node/indicator-node";
-import IndicatorViewerDialog from "./indicator-viewer-dialog";
+import IndicatorViewerDialog from "./indicator-viewer";
+import { useTranslation } from "react-i18next";
 
 interface EditDialogProps {
 	isOpen: boolean;
@@ -86,7 +86,7 @@ const EditDialog: React.FC<EditDialogProps> = ({
 	);
 	const [formData, setFormData] = useState<Partial<FormData>>({});
 	const [showIndicatorViewer, setShowIndicatorViewer] = useState(false);
-
+	const { t } = useTranslation();
 	// 获取当前指标的配置实例
 	const getCurrentConfigInstance = useCallback(() => {
 		return getIndicatorConfig(indicatorType);
@@ -282,6 +282,7 @@ const EditDialog: React.FC<EditDialogProps> = ({
 		key: string,
 		param: { label: string; defaultValue: unknown; required: boolean },
 	) => {
+		console.log(param);
 		const { label, defaultValue, required } = param;
 		const value = (
 			formData[key] !== undefined ? formData[key] : defaultValue || ""
@@ -292,7 +293,7 @@ const EditDialog: React.FC<EditDialogProps> = ({
 			return (
 				<div key={key} className="grid gap-2">
 					<Label htmlFor={key} className="text-left">
-						{label}
+						{t(label)}
 						{required && <span className="text-red-500">*</span>}
 					</Label>
 					<Input
@@ -324,7 +325,7 @@ const EditDialog: React.FC<EditDialogProps> = ({
 			return (
 				<div key={key} className="grid gap-2">
 					<Label htmlFor={key} className="text-left">
-						{label}
+						{t(label)}
 						{required && <span className="text-red-500">*</span>}
 					</Label>
 					<Select
@@ -371,7 +372,7 @@ const EditDialog: React.FC<EditDialogProps> = ({
 				>
 					<DialogHeader>
 						<DialogTitle>
-							配置{configInstance?.displayName || indicatorType}
+							{configInstance?.displayName || indicatorType}
 						</DialogTitle>
 					</DialogHeader>
 					<div className="grid gap-4 py-4">
@@ -383,22 +384,22 @@ const EditDialog: React.FC<EditDialogProps> = ({
 							)
 						) : (
 							/* 无参数时显示提示信息 */
-							<div className="text-gray-500">无需配置参数</div>
+							<div className="text-gray-500">{t("indicatorNode.editDialog.noParams")}</div>
 						)}
 					</div>
 					<DialogFooter>
 						<Button variant="outline" onClick={onClose}>
-							取消
+							{t("common.cancel")}
 						</Button>
 						<Button
 							onClick={handleSave}
 							disabled={isIndicatorConfigExists(editingIndex || undefined)}
 						>
 							{isIndicatorConfigExists(editingIndex || undefined)
-								? "配置已存在"
+								? t("indicatorNode.editDialog.configExists")
 								: hasConfigurableParams
-									? "保存"
-									: "确定"}
+									? t("common.save")
+									: t("common.confirm")}
 						</Button>
 					</DialogFooter>
 				</DialogContent>

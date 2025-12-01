@@ -23,6 +23,17 @@ const translation = {
         upper: "上轨",
         middle: "中轨",
     },
+    category: {
+        all: "全部",
+        overlap: "叠加指标",
+        momentum: "动量指标",
+        volatility: "波动率指标",
+        volume: "成交量指标",
+        priceTransform: "价格变换",
+        cycle: "周期指标",
+        patternRecognition: "形态识别",
+        custom: "自定义",
+    },
 }
 
 export default translation;

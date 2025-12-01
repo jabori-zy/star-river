@@ -30,7 +30,7 @@ export const ADXConfig: IndicatorConfig<ADXConfigType> = {
 	description: "Average Directional Index",
 	params: {
 		timePeriod: {
-			label: "周期",
+			label: "indicator.configField.timePeriod",
 			description: "选择移动平均线的时间周期",
 			defaultValue: 14,
 			required: true,

@@ -9,6 +9,8 @@ interface PercentInputProps {
 	id?: string;
 	value: string | number;
 	onChange: (value: string) => void;
+	onBlur?: () => void;
+	onFocus?: () => void;
 	placeholder?: string;
 	className?: string;
 	disabled?: boolean;
@@ -18,7 +20,9 @@ export const PercentInput = ({
 	id,
 	value,
 	onChange,
-	placeholder = "如: 5",
+	onBlur,
+	onFocus,
+	placeholder,
 	className,
 	disabled = false,
 }: PercentInputProps) => {
@@ -28,6 +32,8 @@ export const PercentInput = ({
 				id={id}
 				value={value}
 				onChange={(e) => onChange(e.target.value)}
+				onBlur={onBlur}
+				onFocus={onFocus}
 				placeholder={placeholder}
 				type="number"
 				disabled={disabled}

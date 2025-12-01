@@ -30,7 +30,7 @@ export const CDLDARKCLOUDCOVERConfig: IndicatorConfig<CDLDARKCLOUDCOVERConfigTyp
 		description: "Dark Cloud Cover",
 		params: {
 			penetration: {
-				label: "穿透度",
+				label: "indicator.configField.penetration",
 				description: "穿透度参数",
 				defaultValue: 0.5,
 				required: true,

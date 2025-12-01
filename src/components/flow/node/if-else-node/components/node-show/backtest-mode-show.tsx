@@ -22,7 +22,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ id, data, handleCol
 	) {
 		return (
 			<div className="text-sm text-muted-foreground p-2 text-center">
-				暂无条件配置
+				{t("ifElseNode.noBranches")}
 			</div>
 		);
 	}

@@ -14,7 +14,7 @@ const OBVConfigSchema = z.object({
 
 export type OBVConfigType = z.infer<typeof OBVConfigSchema>;
 
-function buildOBVConfig(params: Map<string, string>): unknown {
+function buildOBVConfig(_params: Map<string, string>): unknown {
 	return {
 		// OBV 不需要任何参数
 	};
@@ -47,10 +47,7 @@ export const OBVConfig: IndicatorConfig<OBVConfigType> = {
 
 	getDefaultConfig(): OBVConfigType {
 		const config = Object.fromEntries(
-			Object.entries(this.params).map(([key, param]) => [
-				key,
-				param.defaultValue,
-			]),
+			Object.entries(this.params).map(([_key, _param]) => []),
 		);
 
 		const validatedConfig = OBVConfigSchema.parse(config);

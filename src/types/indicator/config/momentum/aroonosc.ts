@@ -30,7 +30,7 @@ export const AROONOSCConfig: IndicatorConfig<AROONOSCConfigType> = {
 	description: "Aroon Oscillator",
 	params: {
 		timePeriod: {
-			label: "周期",
+			label: "indicator.configField.timePeriod",
 			description: "选择AROON振荡器的时间周期",
 			defaultValue: 14,
 			required: true,

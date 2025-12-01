@@ -7,7 +7,7 @@ import type { ConditionTrigger } from "@/types/condition-trigger";
 export enum PositionOperation {
 	CloseAllPositions = "CloseAllPositions", // 全部平仓
 	CLOSE_POSITION = "ClosePosition", // 平仓
-	PARTIALLY_CLOSE_POSITION = "PartiallyClosePosition", // 部分平仓
+	// PARTIALLY_CLOSE_POSITION = "PartiallyClosePosition", // 部分平仓
 }
 
 // 获取仓位操作类型标签
@@ -18,7 +18,7 @@ export const getPositionOperationLabel = (
 	const labels: Record<PositionOperation, string> = {
 		[PositionOperation.CloseAllPositions]: t("positionNode.operation.closeAllPositions"),
 		[PositionOperation.CLOSE_POSITION]: t("positionNode.operation.closePosition"),
-		[PositionOperation.PARTIALLY_CLOSE_POSITION]: t("positionNode.operation.partiallyClosePosition"),
+		// [PositionOperation.PARTIALLY_CLOSE_POSITION]: t("positionNode.operation.partiallyClosePosition"),
 	};
 	return labels[operation];
 };
@@ -42,11 +42,11 @@ export const getPositionOperationMetadataMap = (t: TFunction): Record<PositionOp
 		description: t("positionNode.operation.closePositionDescription"),
 		shouldSelectSymbol: true,
 	},
-	[PositionOperation.PARTIALLY_CLOSE_POSITION]: {
-		label: getPositionOperationLabel(PositionOperation.PARTIALLY_CLOSE_POSITION, t),
-		description: t("positionNode.operation.partiallyClosePositionDescription"),
-		shouldSelectSymbol: true,
-	},
+	// [PositionOperation.PARTIALLY_CLOSE_POSITION]: {
+	// 	label: getPositionOperationLabel(PositionOperation.PARTIALLY_CLOSE_POSITION, t),
+	// 	description: t("positionNode.operation.partiallyClosePositionDescription"),
+	// 	shouldSelectSymbol: true,
+	// },
 });
 
 export const shouldSelectSymbol = (operation: PositionOperation, t: TFunction): boolean => {
@@ -71,6 +71,7 @@ export const shouldSelectSymbol = (operation: PositionOperation, t: TFunction): 
 export type PositionOperationConfig = {
 	configId: number; // 配置ID
 	inputHandleId: string; // 输入handleId
+	outputHandleIds: string[]; // 输出handleIds
 	symbol: string | null; // 交易对(可以不配置)
 	positionOperation: PositionOperation; // 操作类型
 	operationName: string; // 操作名称

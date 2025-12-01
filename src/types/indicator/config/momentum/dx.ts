@@ -30,7 +30,7 @@ export const DXConfig: IndicatorConfig<DXConfigType> = {
 	description: "Directional Movement Index",
 	params: {
 		timePeriod: {
-			label: "周期",
+			label: "indicator.configField.timePeriod",
 			description: "选择DX指标的时间周期",
 			defaultValue: 14,
 			required: true,

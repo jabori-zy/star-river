@@ -43,21 +43,21 @@ export const MAConfig: IndicatorConfig<MAConfigType> = {
 	description: "计算指定周期的移动平均线",
 	params: {
 		maType: {
-			label: "MA类型",
+			label: "indicator.configField.maType",
 			description: "选择移动平均线的计算方式",
 			defaultValue: MAType.SMA,
 			required: true,
 			legendShowName: "ma type",
 		},
 		timePeriod: {
-			label: "周期",
+			label: "indicator.configField.timePeriod",
 			description: "选择移动平均线的时间周期",
 			defaultValue: 14,
 			required: true,
 			legendShowName: "period",
 		},
 		priceSource: {
-			label: "价格源",
+			label: "indicator.configField.dataSource",
 			description: "选择指标计算价格源",
 			defaultValue: PriceSource.CLOSE,
 			required: true,

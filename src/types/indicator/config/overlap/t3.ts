@@ -38,21 +38,21 @@ export const T3Config: IndicatorConfig<T3ConfigType> = {
 	description: "Triple Exponential Moving Average (T3)",
 	params: {
 		timePeriod: {
-			label: "周期",
+			label: "indicator.configField.timePeriod",
 			description: "计算周期",
 			defaultValue: 5,
 			required: true,
 			legendShowName: "period",
 		},
 		vFactor: {
-			label: "V因子",
+			label: "indicator.configField.vFactor",
 			description: "体积因子",
 			defaultValue: 0.7,
 			required: true,
 			legendShowName: "vfactor",
 		},
 		priceSource: {
-			label: "价格源",
+			label: "indicator.configField.dataSource",
 			description: "选择指标计算价格源",
 			defaultValue: PriceSource.CLOSE,
 			required: true,

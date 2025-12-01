@@ -1,8 +1,10 @@
 import { PlusIcon } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useReactFlow } from "@xyflow/react";
 import { useTranslation } from "react-i18next";
 import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
 import AccountSelector from "@/components/flow/account-selector";
+import { NodeOpConfirmDialog } from "@/components/flow/node-op-confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useBacktestConfig } from "@/hooks/node-config/position-node";
@@ -14,15 +16,18 @@ import {
 } from "@/types/node/position-node";
 import type { SelectedAccount } from "@/types/strategy";
 import PositionOpItem from "../components/position-op-item";
+import { getOutputHandleIds } from "../utils";
 
 const PositionNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	id,
 }) => {
 	const { t } = useTranslation();
 	// 获取开始节点数据
-	const { getStartNodeData } = useStrategyWorkflow();
+	const { getStartNodeData, getTargetNodeIds } = useStrategyWorkflow();
 	const startNodeData = getStartNodeData();
 	const accountList = startNodeData?.backtestConfig?.exchangeModeConfig?.selectedAccounts || [];
+
+	const { getNode, getEdges, setEdges } = useReactFlow();
 
 	const {
 		backtestConfig,
@@ -36,6 +41,15 @@ const PositionNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 
 	const [selectedAccount, setSelectedAccount] =
 		useState<SelectedAccount | null>(backtestConfig?.selectedAccount || null);
+
+	// 确认删除对话框状态
+	const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+	const [pendingDeleteConfig, setPendingDeleteConfig] =
+		useState<PositionOperationConfig | null>(null);
+	const [pendingDeleteData, setPendingDeleteData] = useState<{
+		targetNodeCount: number;
+		targetNodeNames: string[];
+	} | null>(null);
 
 	const { data: symbolList = [] } = useSymbolList(selectedAccount?.id ?? 0);
 
@@ -58,7 +72,69 @@ const PositionNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	};
 
 	const handleDeleteOperation = (index: number) => {
-		removePositionOperation(index);
+		const configToDelete = operationConfigs[index];
+		const targetNodeIds = getTargetNodeIds(id);
+
+		const targetNodeNames = targetNodeIds
+			.map((nodeId) => getNode(nodeId)?.data.nodeName as string)
+			.filter(Boolean);
+
+		if (targetNodeIds.length > 0) {
+			setPendingDeleteConfig(configToDelete);
+			setPendingDeleteData({
+				targetNodeCount: targetNodeIds.length,
+				targetNodeNames: targetNodeNames,
+			});
+			setIsConfirmDialogOpen(true);
+			return;
+		}
+
+		performDelete(index);
+	};
+
+	// 执行删除
+	const performDelete = (index?: number) => {
+		const targetIndex =
+			index !== undefined
+				? index
+				: operationConfigs.findIndex(
+						(config) =>
+							pendingDeleteConfig &&
+							config.configId === pendingDeleteConfig.configId,
+					);
+
+		if (targetIndex === -1) return;
+
+		const configToDelete = operationConfigs[targetIndex];
+
+		// 删除边：inputHandleId + 所有 outputHandleIds
+		const inputHandleId = configToDelete.inputHandleId;
+		const outputHandleIds = configToDelete.outputHandleIds || [];
+		const edges = getEdges();
+		const remainingEdges = edges.filter(
+			(edge) =>
+				edge.targetHandle !== inputHandleId &&
+				!outputHandleIds.includes(edge.sourceHandle || ""),
+		);
+		setEdges(remainingEdges);
+
+		// 删除配置
+		removePositionOperation(targetIndex);
+
+		// 清理状态
+		setPendingDeleteConfig(null);
+		setIsConfirmDialogOpen(false);
+		setPendingDeleteData(null);
+	};
+
+	const handleConfirmDelete = () => {
+		performDelete();
+	};
+
+	const handleCancelDelete = () => {
+		setIsConfirmDialogOpen(false);
+		setPendingDeleteConfig(null);
+		setPendingDeleteData(null);
 	};
 
 	const handleAddOperation = () => {
@@ -66,9 +142,11 @@ const PositionNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 		const newConfig: PositionOperationConfig = {
 			configId: newConfigId,
 			inputHandleId: `${id}_input_${newConfigId}`,
+			outputHandleIds: getOutputHandleIds(id, newConfigId),
 			symbol: null,
 			positionOperation: PositionOperation.CLOSE_POSITION,
 			operationName: "Close Position",
+			triggerConfig: null,
 		};
 		addPositionOperation(newConfig);
 	};
@@ -118,6 +196,17 @@ const PositionNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 					))
 				)}
 			</div>
+
+			{/* 确认删除对话框 */}
+			<NodeOpConfirmDialog
+				isOpen={isConfirmDialogOpen}
+				onOpenChange={setIsConfirmDialogOpen}
+				affectedNodeCount={pendingDeleteData?.targetNodeCount || 0}
+				affectedNodeNames={pendingDeleteData?.targetNodeNames || []}
+				onConfirm={handleConfirmDelete}
+				onCancel={handleCancelDelete}
+				operationType="delete"
+			/>
 		</div>
 	);
 };

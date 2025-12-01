@@ -78,13 +78,13 @@ const PositionOpItem: React.FC<PositionOpItemProps> = ({
 				value: PositionOperation.CLOSE_POSITION,
 				label: getPositionOperationLabel(PositionOperation.CLOSE_POSITION, t),
 			},
-			{
-				value: PositionOperation.PARTIALLY_CLOSE_POSITION,
-				label: getPositionOperationLabel(
-					PositionOperation.PARTIALLY_CLOSE_POSITION,
-					t,
-				),
-			},
+			// {
+			// 	value: PositionOperation.PARTIALLY_CLOSE_POSITION,
+			// 	label: getPositionOperationLabel(
+			// 		PositionOperation.PARTIALLY_CLOSE_POSITION,
+			// 		t,
+			// 	),
+			// },
 		],
 		[t],
 	);

@@ -37,21 +37,21 @@ export const STOCHFConfig: IndicatorConfig<STOCHFConfigType> = {
 	description: "快速随机指标",
 	params: {
 		fastKPeriod: {
-			label: "快速K周期",
+			label: "indicator.configField.fastKPeriod",
 			description: "选择快速K线的计算周期",
 			defaultValue: 5,
 			required: true,
 			legendShowName: "fast_k",
 		},
 		fastDPeriod: {
-			label: "快速D周期",
+			label: "indicator.configField.fastDPeriod",
 			description: "选择快速D线的计算周期",
 			defaultValue: 3,
 			required: true,
 			legendShowName: "fast_d",
 		},
 		fastDMaType: {
-			label: "快速D MA类型",
+			label: "indicator.configField.fastDMaType",
 			description: "选择快速D线的移动平均线类型",
 			defaultValue: MAType.SMA,
 			required: true,

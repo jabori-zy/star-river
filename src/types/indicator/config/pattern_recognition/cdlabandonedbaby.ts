@@ -30,7 +30,7 @@ export const CDLABANDONEDBABYConfig: IndicatorConfig<CDLABANDONEDBABYConfigType>
 		description: "Abandoned Baby",
 		params: {
 			penetration: {
-				label: "穿透度",
+				label: "indicator.configField.penetration",
 				description: "穿透度参数",
 				defaultValue: 0.3,
 				required: true,

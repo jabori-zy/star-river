@@ -19,6 +19,10 @@ const translation = {
 	allSymbols: "All Syms",
 	nested: "Nested",
 	nestedDescription: "When the upper case is true, this node will execute",
+	noBranches: "No Branches",
+	case: "Case",
+	noVariables: "No variables",
+	kline: "Kline",
 	comparisonSymbols: {
 		equal: "=",
 		notEqual: "!=",

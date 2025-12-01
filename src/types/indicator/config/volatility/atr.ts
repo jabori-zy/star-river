@@ -30,7 +30,7 @@ export const ATRConfig: IndicatorConfig<ATRConfigType> = {
 	description: "Average True Range",
 	params: {
 		timePeriod: {
-			label: "时间周期",
+			label: "indicator.configField.timePeriod",
 			description: "选择ATR的计算周期",
 			defaultValue: 14,
 			required: true,

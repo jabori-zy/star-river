@@ -41,6 +41,7 @@ import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 import useTradingModeStore from "@/store/use-trading-mode-store";
 import type { TradeMode } from "@/types/strategy";
 import type { CaseItemInfo } from "@/components/flow/case-selector";
+import { getOutputHandleIds } from "@/components/flow/node/futures-order-node/utils";
 
 
 interface OrderConfigFormProps {
@@ -148,7 +149,7 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 			connection => (connection.targetHandle === `${id}_default_input` || connection.targetHandle === config.inputHandleId)
 		);
 		const cases = getIfElseNodeCases(conn, tradingMode as TradeMode);
-		console.log("cases", cases);
+
 		setCaseItemList(cases);
 	}, [connections, getIfElseNodeCases, id, tradingMode, config.inputHandleId]);
 
@@ -188,6 +189,7 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 			const newConfig: FuturesOrderConfig = {
 				orderConfigId,
 				inputHandleId: `${nodeId}_input_${orderConfigId}`,
+				outputHandleIds: getOutputHandleIds(nodeId, orderConfigId, orderType),
 				symbol: updates.symbol ?? symbol,
 				orderType: updates.orderType ?? orderType,
 				orderSide: updates.orderSide ?? orderSide,
@@ -459,7 +461,7 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 								<Coins className="h-3.5 w-3.5 text-purple-500" />
 								{t("futuresOrderNode.orderConfig.quantity")}
 							</Label>
-							<InputWithDropdown
+							{/* <InputWithDropdown
 								type="text"
 								value={quantityStr}
 								onChange={handleQuantityInputChange}
@@ -471,6 +473,15 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 								dropdownOptions={[{ value: "USDT", label: "USDT" }]}
 								onDropdownChange={() => {}}
 
+							/> */}
+							<Input
+								type="number"
+								value={quantityStr}
+								onChange={(e) => handleQuantityInputChange(e.target.value)}
+								onBlur={handleQuantityBlur}
+								min={0}
+								step={0.01}
+								placeholder={t("futuresOrderNode.orderConfig.quantityPlaceholder")}
 							/>
 							{!quantityStr && (
 								<p className="text-xs text-red-500 mt-1">

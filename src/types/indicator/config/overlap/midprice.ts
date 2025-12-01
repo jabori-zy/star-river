@@ -27,7 +27,7 @@ export const MIDPRICEConfig: IndicatorConfig<MIDPRICEConfigType> = {
 	description: "Midpoint Price over period",
 	params: {
 		timePeriod: {
-			label: "周期",
+			label: "indicator.configField.timePeriod",
 			description: "计算周期",
 			defaultValue: 14,
 			required: true,

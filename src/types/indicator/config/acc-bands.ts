@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { SeriesType } from "@/types/chart";
-import { IndicatorType } from "@/types/indicator";
+import { IndicatorCategory, IndicatorType } from "@/types/indicator";
 import {
 	createParseIndicatorConfigFromKeyStr,
 	getIndicatorValues,
@@ -25,6 +25,7 @@ function buildAccBandsConfig(params: Map<string, string>): unknown {
 
 // Acceleration Bands指标配置实现
 export const AccBandsConfig: IndicatorConfig<AccBandsConfigType> = {
+	category: IndicatorCategory.MOMENTUM,
 	type: IndicatorType.ACCBANDS,
 	displayName: "ACC BANDS",
 	description: "Acceleration Bands",

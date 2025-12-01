@@ -137,14 +137,14 @@ export function PositionHandleItem({
 			{/* Output handles */}
 			<div className="flex flex-row gap-1">
 				<BaseHandle
-					id={`${id}_${operationConfig.positionOperation}_success_output_${operationConfig.configId}`}
+					id={`${id}_success_output_${operationConfig.configId}`}
 					type="source"
 					position={Position.Right}
 					handleColor="#65a30d"
 					className="translate-x-2 translate-y-4"
 				/>
 				<BaseHandle
-					id={`${id}_${operationConfig.positionOperation}_failed_output_${operationConfig.configId}`}
+					id={`${id}_failed_output_${operationConfig.configId}`}
 					type="source"
 					position={Position.Right}
 					handleColor="#dc2626"

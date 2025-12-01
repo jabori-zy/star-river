@@ -9,7 +9,6 @@ import DataSourceSelector from "../components/data-source-selector";
 import TimeRangeSelector from "../components/time-range-selector";
 import VariableEditor from "../components/variable-editor";
 import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
-import { useTranslation } from "react-i18next";
 
 // 新开始节点回测模式设置面板
 export const StartNodeBacktestSettingPanel: React.FC<SettingProps> = ({
@@ -18,7 +17,6 @@ export const StartNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	// ✅ 使用 useNodesData 订阅节点数据变化，确保 UI 实时更新
 	const { getNodeData } = useStrategyWorkflow();
 	const startNodeData = getNodeData(id) as StartNodeData;
-	const { t } = useTranslation();
 	// 使用自定义 hook 管理回测配置
 	const {
 		updateInitialBalance,

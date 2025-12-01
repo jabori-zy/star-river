@@ -1,4 +1,4 @@
-import { File } from "lucide-react";
+import { Construction, File } from "lucide-react";
 import type React from "react";
 import {
 	Select,
@@ -44,7 +44,10 @@ const DataSourceSelector: React.FC<DataSourceSelectorProps> = ({
 						<SelectValue />
 					</SelectTrigger>
 					<SelectContent>
-						<SelectItem value={BacktestDataSource.FILE}>{t("startNode.file")}</SelectItem>
+						<SelectItem value={BacktestDataSource.FILE} disabled>
+							<Construction className="w-3.5 h-3.5 mr-1.5 text-yellow-500 inline" />
+							{t("startNode.file")}
+						</SelectItem>
 						<SelectItem value={BacktestDataSource.EXCHANGE}>{t("startNode.exchange")}</SelectItem>
 					</SelectContent>
 				</Select>

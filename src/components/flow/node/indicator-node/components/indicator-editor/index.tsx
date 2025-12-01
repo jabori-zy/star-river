@@ -9,7 +9,8 @@ import type { IndicatorType } from "@/types/indicator";
 import { getIndicatorConfig } from "@/types/indicator/indicator-config";
 import type { SelectedIndicator } from "@/types/node/indicator-node";
 import EditDialog from "./edit-dialog";
-import IndicatorViewerDialog from "./indicator-viewer-dialog";
+import IndicatorViewerDialog from "./indicator-viewer";
+import { useTranslation } from "react-i18next";
 
 interface IndicatorEditorProps {
 	id: string; // 节点ID，用于生成handleId
@@ -22,6 +23,7 @@ const IndicatorEditor: React.FC<IndicatorEditorProps> = ({
 	selectedIndicators,
 	onSelectedIndicatorsChange,
 }) => {
+	const { t } = useTranslation();
 	// 本地状态管理
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
 	const [isEditing, setIsEditing] = useState(false);
@@ -183,7 +185,7 @@ const IndicatorEditor: React.FC<IndicatorEditorProps> = ({
 		Object.entries(indicatorConfigInstance.params).forEach(([key, param]) => {
 			const value = config[key];
 			if (value !== undefined) {
-				parts.push(`${param.label}: ${value}`);
+				parts.push(`${t(param.label)}: ${value}`);
 			}
 		});
 
@@ -193,7 +195,7 @@ const IndicatorEditor: React.FC<IndicatorEditorProps> = ({
 	return (
 		<div className="flex flex-col gap-2">
 			<div className="flex items-center justify-between">
-				<span className="text-sm font-bold text-gray-700">技术指标</span>
+				<span className="text-sm font-bold text-gray-700">{t("indicatorNode.technicalIndicators")}</span>
 				<Button variant="ghost" size="icon" onClick={handleAddIndicator}>
 					<PlusIcon className="w-4 h-4" />
 				</Button>
