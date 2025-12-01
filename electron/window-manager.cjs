@@ -7,8 +7,12 @@ const createWindow = () => {
 	const mainWindow = new BrowserWindow({
 		width: 1600,
 		height: 1080,
+		minWidth: 800,
+		minHeight: 600,
 		frame: false,
 		titleBarStyle: "hidden",
+		// macOS: vertically center the traffic light buttons in the 40px header
+		trafficLightPosition: { x: 12, y: 8 },
 		webPreferences: {
 			nodeIntegration: true,
 			contextIsolation: false,
@@ -28,13 +32,16 @@ const createWindow = () => {
 	return mainWindow;
 };
 
-const createBacktestWindow = (strategyId) => {
+const createBacktestWindow = (strategyId, strategyName) => {
 	const backtestWindow = new BrowserWindow({
 		width: 1200,
 		height: 800,
-		title: "回测结果",
+		minWidth: 600,
+		minHeight: 400,
 		frame: false,
 		titleBarStyle: "hidden",
+		// macOS: vertically center the traffic light buttons in the 40px header
+		trafficLightPosition: { x: 12, y: 8 },
 		webPreferences: {
 			nodeIntegration: true,
 			contextIsolation: false,
@@ -43,20 +50,26 @@ const createBacktestWindow = (strategyId) => {
 		},
 	});
 
-	const backtestUrl = strategyId
+	let backtestUrl = strategyId
 		? `http://localhost:5173/backtest/${strategyId}`
 		: "http://localhost:5173/backtest";
+	
+	// Add strategyName as query parameter if provided
+	if (strategyName) {
+		backtestUrl += `?strategyName=${encodeURIComponent(strategyName)}`;
+	}
+	
 	backtestWindow.loadURL(backtestUrl);
 
-	// 如果有strategyId，将窗口添加到映射中
+	// Add window to the map if strategyId is provided
 	if (strategyId) {
 		strategyWindows.set(strategyId, backtestWindow);
-		console.log(`回测窗口已创建并记录: strategyId=${strategyId}`);
+		console.log(`Backtest window created and registered: strategyId=${strategyId}`);
 
-		// 窗口关闭时从映射中移除
+		// Remove from map when window is closed
 		backtestWindow.on("closed", () => {
 			strategyWindows.delete(strategyId);
-			console.log(`回测窗口已关闭并清理: strategyId=${strategyId}`);
+			console.log(`Backtest window closed and cleaned up: strategyId=${strategyId}`);
 		});
 	}
 
@@ -68,49 +81,49 @@ const createBacktestWindow = (strategyId) => {
 	return backtestWindow;
 };
 
-// 关闭指定策略的回测窗口
+// Close backtest window for specific strategy
 const closeBacktestWindow = (strategyId) => {
 	const window = strategyWindows.get(strategyId);
 	if (window && !window.isDestroyed()) {
-		console.log(`正在关闭回测窗口: strategyId=${strategyId}`);
+		console.log(`Closing backtest window: strategyId=${strategyId}`);
 		window.close();
 		strategyWindows.delete(strategyId);
 		return true;
 	} else {
-		console.log(`未找到或窗口已销毁: strategyId=${strategyId}`);
+		console.log(`Window not found or already destroyed: strategyId=${strategyId}`);
 		return false;
 	}
 };
 
 // 检查指定策略的回测窗口是否存在并处理（打开或移动到前台）
-const checkOrOpenBacktestWindow = (strategyId) => {
+const checkOrOpenBacktestWindow = (strategyId, strategyName) => {
 	const existingWindow = strategyWindows.get(strategyId);
 
 	if (existingWindow && !existingWindow.isDestroyed()) {
-		// 窗口存在，移动到前台
-		console.log(`回测窗口已存在，移动到前台: strategyId=${strategyId}`);
+		// Window exists, bring it to front
+		console.log(`Backtest window already exists, bringing to front: strategyId=${strategyId}`);
 		existingWindow.show();
 		existingWindow.focus();
 		return { created: false, focused: true };
 	} else {
-		// 窗口不存在，创建新窗口
-		console.log(`回测窗口不存在，创建新窗口: strategyId=${strategyId}`);
-		createBacktestWindow(strategyId);
+		// Window does not exist, create a new one
+		console.log(`Backtest window does not exist, creating new window: strategyId=${strategyId}`);
+		createBacktestWindow(strategyId, strategyName);
 		return { created: true, focused: false };
 	}
 };
 
-// 刷新所有回测窗口
+// Refresh all backtest windows
 const refreshAllBacktestWindows = () => {
 	let refreshedCount = 0;
 	for (const [strategyId, window] of strategyWindows.entries()) {
 		if (window && !window.isDestroyed()) {
-			console.log(`刷新回测窗口: strategyId=${strategyId}`);
+			console.log(`Refreshing backtest window: strategyId=${strategyId}`);
 			window.webContents.reload();
 			refreshedCount++;
 		}
 	}
-	console.log(`已刷新 ${refreshedCount} 个回测窗口`);
+	console.log(`Refreshed ${refreshedCount} backtest window(s)`);
 	return refreshedCount;
 };
 

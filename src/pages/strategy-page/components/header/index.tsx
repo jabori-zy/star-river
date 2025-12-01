@@ -262,6 +262,7 @@ export default function StrategyPageHeader({
 
 				<StrategyControl
 					strategyId={strategy.id}
+					strategyName={strategy.name}
 					tradeMode={tradeMode}
 					strategyRunState={strategyRunState}
 					onOperationSuccess={onOperationSuccess}

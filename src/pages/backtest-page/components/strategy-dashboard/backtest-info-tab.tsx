@@ -128,68 +128,68 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 					className={`grid grid-cols-3 items-center p-2 bg-white ${isDashboardExpanded ? "border-b" : ""}`}
 				>
 					{/* 左侧：Tab组件和收起按钮 */}
-					<div className="flex items-center gap-2 justify-self-start min-w-0">
+					<div className="flex items-center gap-1 justify-self-start min-w-0">
                         <TabsList className="grid grid-cols-7 gap-1">
 							<TabsTrigger
 								value="profit"
-								className="flex items-center gap-1 px-1 xl:px-2 py-1 min-w-[32px]"
+								className="flex items-center gap-1 px-1 xl:px-2 py-1 min-w-[32px] overflow-hidden"
 							>
 								<TrendingUp className="h-4 w-4 flex-shrink-0" />
-								<span className="hidden xl:inline text-xs whitespace-nowrap">
+								<span className="hidden xl:block text-xs truncate">
 									策略表现
 								</span>
 							</TabsTrigger>
 							<TabsTrigger
 								value="positions"
-								className="flex items-center gap-1 px-1 xl:px-2 py-1 min-w-[32px]"
+								className="flex items-center gap-1 px-1 xl:px-2 py-1 min-w-[32px] overflow-hidden"
 							>
 								<Package className="h-4 w-4 flex-shrink-0" />
-								<span className="hidden xl:inline text-xs whitespace-nowrap">
+								<span className="hidden xl:block text-xs truncate">
 									仓位
 								</span>
 							</TabsTrigger>
 							<TabsTrigger
 								value="orders"
-								className="flex items-center gap-1 px-1 xl:px-2 py-1 min-w-[32px]"
+								className="flex items-center gap-1 px-1 xl:px-2 py-1 min-w-[32px] overflow-hidden"
 							>
 								<FileText className="h-4 w-4 flex-shrink-0" />
-								<span className="hidden xl:inline text-xs whitespace-nowrap">
+								<span className="hidden xl:block text-xs truncate">
 									订单记录
 								</span>
 							</TabsTrigger>
 							<TabsTrigger
 								value="trades"
-								className="flex items-center gap-1 px-1 xl:px-2 py-1 min-w-[32px]"
+								className="flex items-center gap-1 px-1 xl:px-2 py-1 min-w-[32px] overflow-hidden"
 							>
 								<CheckCircle className="h-4 w-4 flex-shrink-0" />
-								<span className="hidden xl:inline text-xs whitespace-nowrap">
+								<span className="hidden xl:block text-xs truncate">
 									成交记录
 								</span>
 							</TabsTrigger>
 							<TabsTrigger
 								value="logs"
-								className="flex items-center gap-1 px-1 xl:px-2 py-1 min-w-[32px]"
+								className="flex items-center gap-1 px-1 xl:px-2 py-1 min-w-[32px] overflow-hidden"
 							>
 								<FileCode className="h-4 w-4 flex-shrink-0" />
-								<span className="hidden xl:inline text-xs whitespace-nowrap">
+								<span className="hidden xl:block text-xs truncate">
 									运行日志
 								</span>
 							</TabsTrigger>
                             <TabsTrigger
                                 value="variables"
-                                className="flex items-center gap-1 px-1 xl:px-2 py-1 min-w-[32px]"
+                                className="flex items-center gap-1 px-1 xl:px-2 py-1 min-w-[32px] overflow-hidden"
                             >
                                 <VariableIcon className="h-4 w-4 flex-shrink-0" />
-                                <span className="hidden xl:inline text-xs whitespace-nowrap">
+                                <span className="hidden xl:block text-xs truncate">
                                     策略变量
                                 </span>
                             </TabsTrigger>
                             <TabsTrigger
                                 value="benchmark"
-                                className="flex items-center gap-1 px-1 xl:px-2 py-1 min-w-[32px]"
+                                className="flex items-center gap-1 px-1 xl:px-2 py-1 min-w-[32px] overflow-hidden"
                             >
                                 <Cpu className="h-4 w-4 flex-shrink-0" />
-                                <span className="hidden xl:inline text-xs whitespace-nowrap">
+                                <span className="hidden xl:block text-xs truncate">
                                     性能监控
                                 </span>
                             </TabsTrigger>

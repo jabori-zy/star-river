@@ -1,9 +1,10 @@
-import { StrategyRunState, TradeMode } from "@/types/strategy"
+import type { StrategyRunState, TradeMode } from "@/types/strategy"
 
 export type OperationType = 'init' | 'stop'
 
 export interface StrategyControlProps {
     strategyId: number,
+    strategyName: string,
     tradeMode: TradeMode,
     strategyRunState: StrategyRunState,
     onOperationSuccess?: (operationType: OperationType) => void,

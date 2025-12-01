@@ -9,7 +9,7 @@ import { toast } from "sonner";
  *
  * @param strategyId 策略 ID
  */
-export async function openBacktestWindow(strategyId: number): Promise<void> {
+export async function openBacktestWindow(strategyId: number, strategyName: string): Promise<void> {
 	try {
 		// 检查是否在 Electron 环境中
 		if (window.require) {
@@ -19,11 +19,12 @@ export async function openBacktestWindow(strategyId: number): Promise<void> {
 				await electronModule.ipcRenderer.invoke(
 					"open-backtest-window",
 					strategyId,
+					strategyName,
 				);
 			}
 		} else {
 			// 浏览器环境：打开新标签页
-			const backtestUrl = `/backtest/${strategyId}`;
+			const backtestUrl = `/backtest/${strategyId}?strategyName=${encodeURIComponent(strategyName)}`;
 			window.open(backtestUrl, "_blank", "width=1200,height=800");
 		}
 	} catch (error) {

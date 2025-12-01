@@ -1,10 +1,7 @@
 import {
-	BookOpen,
 	Bot,
-	Eye,
-	Play,
 	Settings2,
-	SquareTerminal,
+	User,
 } from "lucide-react";
 
 export const sideBarMenu = {
@@ -21,9 +18,9 @@ export const sideBarMenu = {
 			isActive: true,
 		},
 		{
-			title: "desktop.accountManagement",
+			title: "desktop.tradeAccount",
 			url: "/account",
-			icon: Bot,
+			icon: User,
 		},
 		{
 			title: "desktop.setting",

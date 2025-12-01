@@ -4,19 +4,20 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Spinner } from "@/components/ui/spinner";
 import { createBacktestStrategyStateLogStream } from "@/hooks/obs/backtest-strategy-state-log-obs";
 import { useRef } from "react";
-import { Subscription } from "rxjs";
-import { StrategyRunState, TradeMode } from "@/types/strategy"
+import type { Subscription } from "rxjs";
+import type { StrategyRunState, TradeMode } from "@/types/strategy"
 import { BacktestStrategyRunState } from "@/types/strategy/backtest-strategy";
-import { BacktestNodeRunState } from "@/types/strategy/backtest-strategy";
+import type { BacktestNodeRunState } from "@/types/strategy/backtest-strategy";
 import {
 	isStrategyStateInfoLog,
 	isNodeStateInfoLog,
 	isNodeStateErrorLog,
-	StrategyStateLogEvent,
-	NodeStateLogEvent,
+	type StrategyStateLogEvent,
+	type NodeStateLogEvent,
 	isStrategyStateErrorLog,
 } from "@/types/strategy-event/strategy-state-log-event";
-import { getNodeDefaultColor, NodeId, NodeType, getNodeIconName, getNodeTypeName } from "@/types/node";
+import type { NodeId, NodeType } from "@/types/node";
+import { getNodeDefaultColor, getNodeIconName, getNodeTypeName } from "@/types/node";
 import { getStrategyRunStateBadge } from "./utils";
 import {DynamicIcon} from "lucide-react/dynamic";
 import { useTranslation } from "react-i18next";
@@ -28,9 +29,10 @@ interface StrategyLoadingDialogProps {
     open: boolean;
 	tradeMode?: TradeMode;
 	strategyId: number;
+	strategyName: string;
     onOpenChange: (open: boolean) => void;
 	onStrategyStateChange: (state: StrategyRunState) => void;
-	onOpenBacktestWindow: (strategyId: number) => void;
+	onOpenBacktestWindow: (strategyId: number, strategyName: string) => void;
 }
 
 
@@ -39,6 +41,7 @@ export const StrategyLoadingDialog: React.FC<StrategyLoadingDialogProps> = ({
     title,
     open,
 	strategyId,
+	strategyName,
     onOpenChange,
 	onStrategyStateChange,
 	onOpenBacktestWindow,
@@ -72,7 +75,6 @@ export const StrategyLoadingDialog: React.FC<StrategyLoadingDialogProps> = ({
 		const logStream = createBacktestStrategyStateLogStream(true);
 		logStreamSubscriptionRef.current = logStream.subscribe({
 			next: (logEvent) => {
-				console.log('logEvent', logEvent);
 				setLogEvents(prevLogEvents => [...prevLogEvents, logEvent]);
 
 				if (isStrategyStateInfoLog(logEvent)) {
@@ -119,7 +121,7 @@ export const StrategyLoadingDialog: React.FC<StrategyLoadingDialogProps> = ({
 			logStreamSubscriptionRef.current?.unsubscribe();
 			logStreamSubscriptionRef.current = null;
 		};
-	}, []);
+	}, [onStrategyStateChange, processingNode, strategyRunState]);
 
 
     return (
@@ -141,7 +143,6 @@ export const StrategyLoadingDialog: React.FC<StrategyLoadingDialogProps> = ({
 				</DialogHeader>
 				
 					{processingNode && (
-						<>
 						<div className="flex flex-row items-center justify-between gap-2 p-2 rounded-md border border-dashed border-gray-200 shadow-xs">
 							<div className="flex flex-row items-center gap-2 flex-1">
 								<div
@@ -162,7 +163,7 @@ export const StrategyLoadingDialog: React.FC<StrategyLoadingDialogProps> = ({
 								<span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500" />
 							</span>
 						</div>
-						</>
+
 					)}
 
 				{/* Log display component */}
@@ -180,21 +181,20 @@ export const StrategyLoadingDialog: React.FC<StrategyLoadingDialogProps> = ({
 							</Button>
 							<Button onClick={() => {
 								handleClearLogEvents(); // clear log events
-								onOpenBacktestWindow(strategyId); // open backtest window
+								onOpenBacktestWindow(strategyId, strategyName); // open backtest window
 							}}>
 								{t("desktop.strategyWorkflowPage.letGo")}
 							</Button>
 						</>
 					)}
 					{strategyRunState===BacktestStrategyRunState.Stopped && (
-						<>
-							<Button variant="outline" onClick={() => {
-								handleClearLogEvents(); // clear log events
-								onOpenChange(false); // close dialog
-							}}>
-								{t("common.close")}
-							</Button>
-						</>
+						<Button variant="outline" onClick={() => {
+							handleClearLogEvents(); // clear log events
+							onOpenChange(false); // close dialog
+						}}>
+							{t("common.close")}
+						</Button>
+
 					)}
 				</DialogFooter>
 			</DialogContent>

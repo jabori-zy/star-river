@@ -2,7 +2,7 @@ import { AlertCircle, ArrowLeft, Loader2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ImperativePanelHandle } from "react-resizable-panels";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate, useParams, useSearchParams } from "react-router";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 // import { stopStrategy } from "@/service/strategy"; // 注释�?- 不再停止策略
@@ -20,6 +20,9 @@ import { calculateDashboardSize, getDashboardPanelConfig } from "./utils";
 export default function BacktestPage() {
 	const navigate = useNavigate();
 	const params = useParams<{ strategyId: string }>();
+	const [searchParams] = useSearchParams();
+	const strategyName = searchParams.get("strategyName") || "";
+	console.log("params", params, "strategyName", strategyName);
 
 	// 使用zustand stores
 	const {
@@ -187,7 +190,7 @@ export default function BacktestPage() {
 		return (
 			<div className="h-screen flex flex-col overflow-hidden bg-gray-100">
 				<BacktestWindowHeader
-					strategyName={`策略 ${strategyId} 回测`}
+					strategyName={strategyName || `策略 ${strategyId}`}
 					onQuit={handleQuit}
 				/>
 				<div className="flex items-center justify-center h-full">
@@ -264,7 +267,7 @@ export default function BacktestPage() {
 		<div className="h-screen flex flex-col overflow-hidden bg-gray-100">
 			<div className="flex-shrink-0 border-b ">
 				<BacktestWindowHeader
-					strategyName={`策略 ${strategyId} 回测`}
+					strategyName={strategyName || `策略 ${strategyId}`}
 					onQuit={handleQuit}
 				/>
 			</div>

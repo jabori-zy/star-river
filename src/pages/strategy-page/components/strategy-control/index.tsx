@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next"
 
 const StrategyControl: React.FC<StrategyControlProps> = ({
     strategyId,
+    strategyName,
     tradeMode,
     strategyRunState,
     onOperationSuccess,
@@ -57,8 +58,8 @@ const StrategyControl: React.FC<StrategyControlProps> = ({
         if (!strategyId) return
 
         // Open backtest window
-        openBacktestWindow(strategyId)
-    }, [strategyId])
+        openBacktestWindow(strategyId, strategyName)
+    }, [strategyId, strategyName])
 
     const handleReopenDialog = useCallback((operationType: OperationType) => {
         onOperationSuccess?.(operationType)

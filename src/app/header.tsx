@@ -10,8 +10,10 @@ import { useNavigate } from "react-router";
 import ConfirmBox from "@/components/confirm-box";
 import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/components/ui/sidebar";
+import { cn } from "@/lib/utils";
+import { usePlatform } from "@/store/use-platform";
 import useSidebarToggleStore from "@/store/use-sidebar-toggle-store";
-import { useHeaderStore } from "@/store/use-header-store";
+// import type { useHeaderStore } from "@/store/use-header-store";
 
 // 声明electron的require
 const { ipcRenderer } = window.require
@@ -38,6 +40,7 @@ function SidebarTrigger() {
 				setOpen(!isSidebarOpen);
 				setIsSidebarOpen(!isSidebarOpen);
 			}}
+			className="w-6 h-6 cursor-pointer"
 		>
 			<SidebarIcon />
 		</Button>
@@ -56,6 +59,7 @@ function RouteArrow() {
 				onClick={() => {
 					navigate(-1);
 				}}
+				className="w-6 h-6 cursor-pointer"
 			>
 				<ChevronLeft />
 			</Button>
@@ -66,6 +70,7 @@ function RouteArrow() {
 				onClick={() => {
 					navigate(1);
 				}}
+				className="w-6 h-6 cursor-pointer"
 			>
 				<ChevronRight />
 			</Button>
@@ -136,28 +141,17 @@ function WindowControl() {
 }
 
 export function AppHeader() {
+	const { isMac } = usePlatform();
+
 	return (
-		// sticky: 固定在顶部
-		// z-50: 确保在其他元素之上
-		// w-full: 占据整个宽度
-		// items-center: 垂直居中
-		// border-b: 底部边框
-		// bg-background的具体含义是：背景颜色为背景色
-		// h-10: 高度为10 这里固定设置为10
-		<header className="flex sticky h-10 w-full items-center bg-background border-b border-gray-200">
-			{/* 
-    h-[--header-height]: 的意思是，div的高度等于头部的高度
-    w-full: 占据整个宽度
-    items-center: 垂直居中
-    border-b: 底部边框
-    bg-background: 背景颜色
-    */}
+		<header className="flex sticky h-8 w-full items-center bg-background border-b border-gray-200">
 			<div
 				className="flex w-full items-center justify-between gap-2 pl-4"
 				style={{ WebkitAppRegion: "drag" }}
 			>
+				{/* macOS: add left padding to avoid system traffic light buttons */}
 				<div
-					className="flex items-center gap-2"
+					className={cn("flex items-center gap-2", isMac && "pl-[70px]")}
 					style={{ WebkitAppRegion: "no-drag" }}
 				>
 					<SidebarTrigger />
@@ -166,12 +160,15 @@ export function AppHeader() {
 				<div style={{ WebkitAppRegion: "no-drag" }}>
 					<AppTitle />
 				</div>
-				<div
-					className="flex items-center gap-2"
-					style={{ WebkitAppRegion: "no-drag" }}
-				>
-					<WindowControl />
-				</div>
+				{/* Windows only: render custom window controls */}
+				{!isMac && (
+					<div
+						className="flex items-center gap-2"
+						style={{ WebkitAppRegion: "no-drag" }}
+					>
+						<WindowControl />
+					</div>
+				)}
 			</div>
 		</header>
 	);

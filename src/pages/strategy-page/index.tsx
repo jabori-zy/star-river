@@ -99,9 +99,9 @@ export default function StrategyPage() {
 	}, []);
 
 	const handleOperationSuccess = useCallback((operationType: OperationType) => {
-		setDialogTitle(operationType === 'init' ? t("desktop.strategyWorkflowPage.loadingStrategy") : t("desktop.strategyWorkflowPage.stoppingStrategy"));
+		setDialogTitle(operationType === 'init' ? t("desktop.strategyWorkflowPage.loadingStrategy", { strategyName: strategy?.name || '' }) : t("desktop.strategyWorkflowPage.stoppingStrategy", { strategyName: strategy?.name || '' }));
 		setShowLoadingDialog(true);
-	}, [t]);
+	}, [t, strategy?.name]);
 
 	const handleCloseLoadingDialog = useCallback(() => {
 		setShowLoadingDialog(false);
@@ -122,9 +122,9 @@ export default function StrategyPage() {
 		}
 	}, [queryClient, strategyId]);
 
-	const handleOpenBacktestWindow = useCallback(async (strategyId: number) => {
+	const handleOpenBacktestWindow = useCallback(async (strategyId: number, strategyName: string) => {
 		try {
-			await openBacktestWindow(strategyId);
+			await openBacktestWindow(strategyId, strategyName);
 			// 成功后关闭对话框
 			setShowLoadingDialog(false);
 		} catch (error) {
@@ -181,6 +181,7 @@ export default function StrategyPage() {
 					title={dialogTitle}
 					open={showLoadingDialog}
 					strategyId={strategyId || 0}
+					strategyName={strategy?.name || ''}
 					onOpenChange={handleCloseLoadingDialog}
 					onStrategyStateChange={handleStrategyStateChange}
 					onOpenBacktestWindow={handleOpenBacktestWindow}

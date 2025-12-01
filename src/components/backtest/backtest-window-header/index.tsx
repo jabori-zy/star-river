@@ -2,6 +2,8 @@ import { Minus, Square, X } from "lucide-react";
 import type React from "react";
 import ConfirmBox from "@/components/confirm-box";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { usePlatform } from "@/store/use-platform";
 
 // 声明electron的require
 const { ipcRenderer } = window.require
@@ -81,21 +83,30 @@ const BacktestWindowHeader: React.FC<BacktestWindowHeaderProps> = ({
 	strategyName,
 	onQuit,
 }) => {
+	const { isMac } = usePlatform();
+
 	return (
-		<header className="flex sticky h-10 w-full items-center bg-background">
+		<header className="flex sticky h-8 w-full items-center bg-background">
 			<div
 				className="flex w-full items-center justify-between gap-2 pl-4"
 				style={{ WebkitAppRegion: "drag" }}
 			>
-				<div style={{ WebkitAppRegion: "no-drag" }}>
-					<h1 className="text-lg font-bold">{strategyName}</h1>
-				</div>
+				{/* macOS: add left padding to avoid system traffic light buttons */}
 				<div
-					className="flex items-center gap-2"
+					className={cn(isMac && "pl-[70px]")}
 					style={{ WebkitAppRegion: "no-drag" }}
 				>
-					<WindowControl onQuit={onQuit} />
+					<h1 className="text-lg font-bold">{strategyName}</h1>
 				</div>
+				{/* Windows only: render custom window controls */}
+				{!isMac && (
+					<div
+						className="flex items-center gap-2"
+						style={{ WebkitAppRegion: "no-drag" }}
+					>
+						<WindowControl onQuit={onQuit} />
+					</div>
+				)}
 			</div>
 		</header>
 	);
