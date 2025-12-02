@@ -3,7 +3,7 @@ import type {
 	CustomVariableUpdateEvent,
 	SystemVariableUpdateEvent,
 } from "@/types/strategy-event/backtest-strategy-event";
-import { variableColumns } from "./columns";
+import { useVariableColumns } from "./columns";
 
 type VariableEvent = CustomVariableUpdateEvent | SystemVariableUpdateEvent;
 
@@ -12,9 +12,11 @@ interface VariableTableProps {
 }
 
 export function VariableTable({ data }: VariableTableProps) {
+	const columns = useVariableColumns();
+
 	return (
 		<DataTable
-			columns={variableColumns}
+			columns={columns}
 			data={data}
 			enableSorting
 			enableFiltering

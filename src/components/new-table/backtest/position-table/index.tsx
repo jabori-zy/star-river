@@ -1,15 +1,17 @@
 import { DataTable } from "@/components/common-table";
 import type { VirtualPosition } from "@/types/position/virtual-position";
-import { positionColumns } from "./columns";
+import { usePositionColumns } from "./columns";
 
 interface PositionTableProps {
 	data: VirtualPosition[];
 }
 
 export function PositionTable({ data }: PositionTableProps) {
+	const columns = usePositionColumns();
+
 	return (
 		<DataTable
-			columns={positionColumns}
+			columns={columns}
 			data={data}
 			enableSorting
 			enableFiltering

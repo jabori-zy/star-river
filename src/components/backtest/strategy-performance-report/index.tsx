@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import type { StrategyPerformanceReport } from "@/types/strategy/strategy-benchmark";
 import { formatDuration } from "@/types/strategy/strategy-benchmark";
 import MetricCard from "./metric-card";
@@ -11,6 +12,7 @@ interface StrategyPerformanceReportProps {
 export default function StrategyPerformanceReportComponent({
 	data,
 }: StrategyPerformanceReportProps) {
+	const { t } = useTranslation();
 	const hasData = data !== null && data.totalCycles > 0;
 
 	return (
@@ -18,19 +20,19 @@ export default function StrategyPerformanceReportComponent({
 			{/* Key Metrics Cards */}
 			<div className="grid grid-cols-1 md:grid-cols-4 gap-2">
 				<MetricCard
-					label="Total Cycles"
+					label={t("desktop.backtestPage.benchmark.totalCycles")}
 					value={data?.totalCycles.toLocaleString() ?? "0"}
 				/>
 				<MetricCard
-					label="Avg Duration"
+					label={t("desktop.backtestPage.benchmark.avgDuration")}
 					value={hasData ? formatDuration(data.avgDuration) : "N/A"}
 				/>
 				<MetricCard
-					label="Min"
+					label={t("desktop.backtestPage.benchmark.minDuration")}
 					value={hasData ? formatDuration(data.minDuration) : "N/A"}
 				/>
 				<MetricCard
-					label="Max"
+					label={t("desktop.backtestPage.benchmark.maxDuration")}
 					value={hasData ? formatDuration(data.maxDuration) : "N/A"}
 				/>
 			</div>

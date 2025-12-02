@@ -1,6 +1,7 @@
 import { FunnelPlus } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
 	Popover,
@@ -18,7 +19,7 @@ const PositionFilter: React.FC<PositionFilterProps> = ({
 	onShowHistoryPositions,
 }) => {
 	const [open, setOpen] = useState(false);
-
+	const { t } = useTranslation();
 	const handleHistoryPositionsToggle = () => {
 		onShowHistoryPositions(!isShowHistoryPositions);
 	};
@@ -44,7 +45,7 @@ const PositionFilter: React.FC<PositionFilterProps> = ({
 							htmlFor="historyPositions"
 							className="text-sm font-normal leading-none"
 						>
-							显示历史仓位
+							{t("desktop.backtestPage.showHistoryPositions")}
 						</label>
 					</div>
 				</div>

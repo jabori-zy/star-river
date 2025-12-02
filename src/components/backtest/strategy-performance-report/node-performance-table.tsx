@@ -1,5 +1,6 @@
 import { ChevronDown, ChevronRight, ChevronUp } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -27,7 +28,7 @@ export default function NodePerformanceTable({
 }: NodePerformanceTableProps) {
 	const [isOpen, setIsOpen] = useState(true);
 	const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
-
+	const { t } = useTranslation();
 	const toggleRow = (nodeId: string) => {
 		setExpandedRows((prev) => {
 			const newSet = new Set(prev);
@@ -49,7 +50,9 @@ export default function NodePerformanceTable({
 							type="button"
 							className="flex items-center justify-between w-full hover:opacity-80 transition-opacity"
 						>
-							<CardTitle className="text-sm">Node Performance</CardTitle>
+							<CardTitle className="text-sm">
+								{t("desktop.backtestPage.benchmark.nodePerformance")}
+							</CardTitle>
 							{isOpen ? (
 								<ChevronUp className="h-4 w-4" />
 							) : (
@@ -61,50 +64,51 @@ export default function NodePerformanceTable({
 
 				<CollapsibleContent>
 					<CardContent className="px-3">
-						{nodeReports.length > 0 ? (
+						{nodeReports.length > 0 &&
+						nodeReports.some((node) => node.totalCycles > 0) ? (
 							<div className="overflow-x-auto">
 								<Table>
 									<TableHeader>
 										<TableRow>
 											<TableHead className="text-xs py-1.5 w-8"></TableHead>
 											<TableHead className="text-xs py-1.5 w-[120px]">
-												Node Name
+												{t("desktop.backtestPage.benchmark.nodeName")}
 											</TableHead>
 											<TableHead className="text-right text-xs py-1.5 w-[65px]">
-												Cycles
+												{t("desktop.backtestPage.benchmark.cycles")}
 											</TableHead>
 											<TableHead className="text-right text-xs py-1.5 w-[75px]">
-												Avg
+												{t("desktop.backtestPage.benchmark.average")}
 											</TableHead>
 											<TableHead className="text-right text-xs py-1.5 w-[55px]">
-												%(strategy)
+												{t("desktop.backtestPage.benchmark.strategyPercentage")}
 											</TableHead>
 											<TableHead className="text-right text-xs py-1.5 w-[75px]">
-												Min
+												{t("desktop.backtestPage.benchmark.min")}
 											</TableHead>
 											<TableHead className="text-right text-xs py-1.5 w-[75px]">
-												Max
+												{t("desktop.backtestPage.benchmark.max")}
 											</TableHead>
 											<TableHead className="text-right text-xs py-1.5 w-[75px]">
-												P25
+												{t("desktop.backtestPage.benchmark.p25")}
 											</TableHead>
 											<TableHead className="text-right text-xs py-1.5 w-[75px]">
-												P50
+												{t("desktop.backtestPage.benchmark.p50")}
 											</TableHead>
 											<TableHead className="text-right text-xs py-1.5 w-[75px]">
-												P75
+												{t("desktop.backtestPage.benchmark.p75")}
 											</TableHead>
 											<TableHead className="text-right text-xs py-1.5 w-[75px]">
-												Std Dev
+												{t("desktop.backtestPage.benchmark.p95")}
 											</TableHead>
 											<TableHead className="text-right text-xs py-1.5 w-[75px]">
-												P95
+												{t("desktop.backtestPage.benchmark.p99")}
 											</TableHead>
 											<TableHead className="text-right text-xs py-1.5 w-[75px]">
-												P99
+												{t("desktop.backtestPage.benchmark.stdDeviation")}
 											</TableHead>
 											<TableHead className="text-right text-xs py-1.5 w-[85px]">
-												Recent(100)
+												{t("desktop.backtestPage.benchmark.recentAvg100")}
 											</TableHead>
 										</TableRow>
 									</TableHeader>
@@ -178,11 +182,7 @@ export default function NodePerformanceTable({
 																? formatDuration(node.p75)
 																: "N/A"}
 														</TableCell>
-														<TableCell className="text-right text-xs py-1.5">
-															{node.totalCycles > 0
-																? formatDuration(node.stdDeviation)
-																: "N/A"}
-														</TableCell>
+
 														<TableCell className="text-right text-xs py-1.5">
 															{node.totalCycles > 0
 																? formatDuration(node.p95)
@@ -191,6 +191,11 @@ export default function NodePerformanceTable({
 														<TableCell className="text-right text-xs py-1.5">
 															{node.totalCycles > 0
 																? formatDuration(node.p99)
+																: "N/A"}
+														</TableCell>
+														<TableCell className="text-right text-xs py-1.5">
+															{node.totalCycles > 0
+																? formatDuration(node.stdDeviation)
 																: "N/A"}
 														</TableCell>
 														<TableCell className="text-right text-xs py-1.5">
@@ -212,40 +217,64 @@ export default function NodePerformanceTable({
 																		<TableHeader>
 																			<TableRow>
 																				<TableHead className="text-xs py-1 w-[140px]">
-																					Phase Name
+																					{t(
+																						"desktop.backtestPage.benchmark.phaseName",
+																					)}
 																				</TableHead>
 																				<TableHead className="text-right text-xs py-1 w-[70px]">
-																					Cycles
+																					{t(
+																						"desktop.backtestPage.benchmark.cycles",
+																					)}
 																				</TableHead>
 																				<TableHead className="text-right text-xs py-1 w-[75px]">
-																					Avg
+																					{t(
+																						"desktop.backtestPage.benchmark.average",
+																					)}
 																				</TableHead>
 																				<TableHead className="text-right text-xs py-1 w-[60px]">
-																					%(node)
+																					{t(
+																						"desktop.backtestPage.benchmark.nodePercentage",
+																					)}
 																				</TableHead>
 																				<TableHead className="text-right text-xs py-1 w-[75px]">
-																					Min
+																					{t(
+																						"desktop.backtestPage.benchmark.min",
+																					)}
 																				</TableHead>
 																				<TableHead className="text-right text-xs py-1 w-[75px]">
-																					Max
+																					{t(
+																						"desktop.backtestPage.benchmark.max",
+																					)}
 																				</TableHead>
 																				<TableHead className="text-right text-xs py-1 w-[75px]">
-																					P25
+																					{t(
+																						"desktop.backtestPage.benchmark.p25",
+																					)}
 																				</TableHead>
 																				<TableHead className="text-right text-xs py-1 w-[75px]">
-																					P50
+																					{t(
+																						"desktop.backtestPage.benchmark.p50",
+																					)}
 																				</TableHead>
 																				<TableHead className="text-right text-xs py-1 w-[75px]">
-																					P75
+																					{t(
+																						"desktop.backtestPage.benchmark.p75",
+																					)}
 																				</TableHead>
 																				<TableHead className="text-right text-xs py-1 w-[75px]">
-																					P95
+																					{t(
+																						"desktop.backtestPage.benchmark.p95",
+																					)}
 																				</TableHead>
 																				<TableHead className="text-right text-xs py-1 w-[75px]">
-																					P99
+																					{t(
+																						"desktop.backtestPage.benchmark.p99",
+																					)}
 																				</TableHead>
 																				<TableHead className="text-right text-xs py-1 w-[75px]">
-																					Total
+																					{t(
+																						"desktop.backtestPage.benchmark.total",
+																					)}
 																				</TableHead>
 																			</TableRow>
 																		</TableHeader>
@@ -311,7 +340,7 @@ export default function NodePerformanceTable({
 							</div>
 						) : (
 							<p className="text-muted-foreground text-center text-xs py-3">
-								No node data available
+								{t("desktop.backtestPage.benchmark.noDataDescription")}
 							</p>
 						)}
 					</CardContent>

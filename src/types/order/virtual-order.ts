@@ -1,6 +1,5 @@
 import type { Exchange } from "@/types/market";
-import type { OrderStatus, OrderType } from "./index";
-import { FuturesOrderSide } from "./index";
+import { FuturesOrderSide, OrderStatus, OrderType } from "./index";
 
 export type VirtualOrder = {
 	orderId: number; // 订单ID
@@ -36,7 +35,6 @@ export type VirtualOrder = {
 
 // 订单方向样式
 export const getOrderSideStyle = (futuresOrderSide: FuturesOrderSide) => {
-	console.log(futuresOrderSide);
 	switch (futuresOrderSide) {
 		case FuturesOrderSide.LONG:
 			return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
@@ -48,20 +46,15 @@ export const getOrderSideStyle = (futuresOrderSide: FuturesOrderSide) => {
 };
 
 // 订单方向文本
-export const getOrderSideText = (side: string) => {
+export const getOrderSideText = (
+	side: FuturesOrderSide,
+	t: (key: string) => string,
+) => {
 	switch (side) {
-		case "BUY":
-			return "买入";
-		case "SELL":
-			return "卖出";
-		case "CLOSE_LONG":
-			return "平多";
-		case "CLOSE_SHORT":
-			return "平空";
-		case "OPEN_LONG":
-			return "开多";
-		case "OPEN_SHORT":
-			return "开空";
+		case FuturesOrderSide.LONG:
+			return t("market.futuresOrderSide.long");
+		case FuturesOrderSide.SHORT:
+			return t("market.futuresOrderSide.short");
 		default:
 			return side;
 	}
@@ -88,42 +81,50 @@ export const getOrderStatusStyle = (status: string) => {
 };
 
 // 订单状态文本
-export const getOrderStatusText = (status: string) => {
+export const getOrderStatusText = (
+	status: OrderStatus,
+	t: (key: string) => string,
+) => {
 	switch (status) {
-		case "FILLED":
-		case "filled":
-			return "已成交";
-		case "PENDING":
-		case "pending":
-			return "待成交";
-		case "CANCELED":
-		case "canceled":
-			return "已取消";
-		case "FAILED":
-		case "failed":
-			return "失败";
+		case OrderStatus.FILLED:
+			return t("market.orderStatus.filled");
+		case OrderStatus.PLACED:
+			return t("market.orderStatus.placed");
+		case OrderStatus.PARTIAL:
+			return t("market.orderStatus.partial");
+		case OrderStatus.CANCELED:
+			return t("market.orderStatus.canceled");
+		case OrderStatus.CREATED:
+			return t("market.orderStatus.created");
+		case OrderStatus.EXPIRED:
+			return t("market.orderStatus.expired");
+		case OrderStatus.REJECTED:
+			return t("market.orderStatus.rejected");
+		case OrderStatus.ERROR:
+			return t("market.orderStatus.error");
 		default:
 			return status;
 	}
 };
 
 // 订单类型文本
-export const getOrderTypeText = (type: string) => {
+export const getOrderTypeText = (
+	type: OrderType,
+	t: (key: string) => string,
+) => {
 	switch (type) {
-		case "MARKET":
-		case "market":
-			return "市价单";
-		case "LIMIT":
-		case "limit":
-			return "限价单";
-		case "STOP_MARKET":
-			return "止损单";
-		case "STOP_LIMIT":
-			return "止损限价单";
-		case "TAKE_PROFIT_MARKET":
-			return "止盈单";
-		case "TAKE_PROFIT_LIMIT":
-			return "止盈限价单";
+		case OrderType.MARKET:
+			return t("market.orderType.market");
+		case OrderType.LIMIT:
+			return t("market.orderType.limit");
+		case OrderType.STOP_MARKET:
+			return t("market.orderType.stopMarket");
+		case OrderType.STOP_LIMIT:
+			return t("market.orderType.stopLimit");
+		case OrderType.TAKE_PROFIT_MARKET:
+			return t("market.orderType.takeProfitMarket");
+		case OrderType.TAKE_PROFIT_LIMIT:
+			return t("market.orderType.takeProfitLimit");
 		default:
 			return type;
 	}

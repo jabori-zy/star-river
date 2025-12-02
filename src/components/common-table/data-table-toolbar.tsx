@@ -1,8 +1,9 @@
 import { X } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { InputWithDropdown } from "@/components/input-components/input-with-dropdown";
 import { Button } from "@/components/ui/button";
-import { DataTableViewOptions } from "./data-table-view-options";
+import { CustomizeColumnOptions } from "./customize-column-options";
 import type { DataTableToolbarProps } from "./types";
 
 export function DataTableToolbar<TData>({
@@ -10,6 +11,7 @@ export function DataTableToolbar<TData>({
 	searchKeys,
 	children,
 }: DataTableToolbarProps<TData>) {
+	const { t } = useTranslation();
 	const isFiltered = table.getState().columnFilters.length > 0;
 
 	// 如果有 searchKeys，默认选择第一个
@@ -75,7 +77,7 @@ export function DataTableToolbar<TData>({
 						type="text"
 						value={searchValue}
 						onChange={handleSearchValueChange}
-						placeholder={`搜索 ${selectedColumnLabel}`}
+						placeholder={`${t("component.table.search")}${selectedColumnLabel}`}
 						dropdownValue={selectedSearchKey}
 						dropdownOptions={searchOptions}
 						onDropdownChange={handleSearchKeyChange}
@@ -92,12 +94,12 @@ export function DataTableToolbar<TData>({
 						}}
 						className="h-8 px-2 lg:px-3"
 					>
-						重置
+						{t("component.table.reset")}
 						<X className="ml-2 size-4" />
 					</Button>
 				)}
 			</div>
-			<DataTableViewOptions table={table} />
+			<CustomizeColumnOptions table={table} />
 		</div>
 	);
 }

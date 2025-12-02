@@ -1,5 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { AlertCircle, AlertTriangle, Bug, Info, X } from "lucide-react";
+import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
+// import { AlertCircle, AlertTriangle, Bug, Info, X } from "lucide-react";
 import { DataTableColumnHeader } from "@/components/common-table/data-table-column-header";
 import { TimeDisplay } from "@/components/time-display";
 import { Badge } from "@/components/ui/badge";
@@ -45,101 +47,113 @@ const getLogLevelStyle = (logLevel: LogLevel) => {
 	}
 };
 
-// Log 表格列定义
-export const logColumns: ColumnDef<
+// Log 表格列定义 Hook
+export const useLogColumns = (): ColumnDef<
 	StrategyRunningLogEvent | NodeRunningLogEvent
->[] = [
-	{
-		accessorKey: "logLevel",
-		header: "级别",
-		cell: ({ row }) => {
-			const logLevel = row.getValue("logLevel") as LogLevel;
-			return (
-				<div className="flex justify-start items-center gap-2">
-					{/* {getLogLevelIcon(logLevel)} */}
-					<Badge className={`${getLogLevelStyle(logLevel)} text-xs px-2 py-1`}>
-						{logLevel.toUpperCase()}
-					</Badge>
-				</div>
-			);
-		},
-		size: 120,
-		enableSorting: false,
-		filterFn: "equals",
-	},
-	{
-		accessorKey: "datetime",
-		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="时间" />
-		),
-		cell: ({ row }) => {
-			const datetime = row.getValue("datetime") as string;
-			return (
-				<TimeDisplay
-					date={datetime}
-					displayOptions={{
-						dateFormat: "full",
-						showTimezone: false,
-						timezoneFormat: "offset",
-					}}
-					tooltipOptions={{
-						dateFormat: "full",
-						showTimezone: true,
-						timezoneFormat: "short",
-					}}
-					className="text-sm font-mono"
-				/>
-			);
-		},
-		size: 180,
-		enableSorting: true,
-	},
-	{
-		accessorKey: "type",
-		header: "类型",
-		cell: ({ row }) => {
-			const type = row.getValue("type") as string;
-			return (
-				<Badge
-					variant="outline"
-					className="text-xs justify-start font-mono overflow-hidden text-ellipsis whitespace-nowrap max-w-full"
-					title={type}
-				>
-					{type}
-				</Badge>
-			);
-		},
-		size: 100,
-		enableSorting: false,
-		filterFn: "equals",
-	},
-	{
-		accessorKey: "nodeName",
-		header: "节点名称",
-		cell: ({ row }) => (
-			<div
-				className="truncate font-medium text-sm"
-				title={row.getValue("nodeName")}
-			>
-				{row.getValue("nodeName") || "-"}
-			</div>
-		),
-		size: 140,
-		enableSorting: false,
-		filterFn: "equals",
-	},
-	{
-		accessorKey: "message",
-		header: "消息",
-		cell: ({ row }) => (
-			<div
-				className="text-sm leading-relaxed break-all"
-				title={row.getValue("message")}
-			>
-				{row.getValue("message")}
-			</div>
-		),
-		size: 600,
-		enableSorting: false,
-	},
-];
+>[] => {
+	const { t } = useTranslation();
+
+	return useMemo(
+		() => [
+			{
+				accessorKey: "logLevel",
+				header: t("desktop.backtestPage.log.logLevel"),
+				cell: ({ row }) => {
+					const logLevel = row.getValue("logLevel") as LogLevel;
+					return (
+						<div className="flex justify-start items-center gap-2">
+							{/* {getLogLevelIcon(logLevel)} */}
+							<Badge
+								className={`${getLogLevelStyle(logLevel)} text-xs px-2 py-1`}
+							>
+								{logLevel.toUpperCase()}
+							</Badge>
+						</div>
+					);
+				},
+				size: 120,
+				enableSorting: false,
+				filterFn: "equals",
+			},
+			{
+				accessorKey: "datetime",
+				header: ({ column }) => (
+					<DataTableColumnHeader
+						column={column}
+						title={t("desktop.backtestPage.log.datetime")}
+					/>
+				),
+				cell: ({ row }) => {
+					const datetime = row.getValue("datetime") as string;
+					return (
+						<TimeDisplay
+							date={datetime}
+							displayOptions={{
+								dateFormat: "full",
+								showTimezone: false,
+								timezoneFormat: "offset",
+							}}
+							tooltipOptions={{
+								dateFormat: "full",
+								showTimezone: true,
+								timezoneFormat: "short",
+							}}
+							className="text-sm"
+						/>
+					);
+				},
+				size: 180,
+				enableSorting: true,
+			},
+			{
+				accessorKey: "type",
+				header: t("desktop.backtestPage.log.type"),
+				cell: ({ row }) => {
+					const type = row.getValue("type") as string;
+					return (
+						<Badge
+							variant="outline"
+							className="text-xs justify-start overflow-hidden text-ellipsis whitespace-nowrap max-w-full"
+							title={type}
+						>
+							{type}
+						</Badge>
+					);
+				},
+				size: 100,
+				enableSorting: false,
+				filterFn: "equals",
+			},
+			{
+				accessorKey: "nodeName",
+				header: t("desktop.backtestPage.log.nodeName"),
+				cell: ({ row }) => (
+					<div
+						className="truncate font-medium text-sm"
+						title={row.getValue("nodeName")}
+					>
+						{row.getValue("nodeName") || "-"}
+					</div>
+				),
+				size: 140,
+				enableSorting: false,
+				filterFn: "equals",
+			},
+			{
+				accessorKey: "message",
+				header: t("desktop.backtestPage.log.message"),
+				cell: ({ row }) => (
+					<div
+						className="text-sm leading-relaxed break-all"
+						title={row.getValue("message")}
+					>
+						{row.getValue("message")}
+					</div>
+				),
+				size: 600,
+				enableSorting: false,
+			},
+		],
+		[t],
+	);
+};

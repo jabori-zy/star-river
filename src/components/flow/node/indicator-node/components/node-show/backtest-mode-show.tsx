@@ -1,6 +1,6 @@
 import type React from "react";
 import { useTranslation } from "react-i18next";
-import { Badge } from "@/components/ui/badge";
+// import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { getKlineIntervalLabel } from "@/types/kline";
 import type { IndicatorNodeData } from "@/types/node/indicator-node";
@@ -39,9 +39,9 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 							<Label className="text-sm font-bold text-muted-foreground">
 								{t("indicatorNode.technicalIndicators")}
 							</Label>
-							<Badge className="h-4 min-w-4 rounded-full px-1 font-mono tabular-nums text-xs bg-gray-200 text-gray-500">
+							{/* <Badge className="h-4 min-w-4 rounded-full px-1 font-mono tabular-nums text-xs bg-gray-200 text-gray-500">
 								{exchangeModeConfig.selectedIndicators.length}
-							</Badge>
+							</Badge> */}
 						</div>
 						<div className="flex flex-col gap-2 mt-2">
 							{exchangeModeConfig.selectedIndicators.map((indicator) => (

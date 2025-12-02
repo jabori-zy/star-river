@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import type { Duration } from "@/types/strategy/strategy-benchmark";
@@ -30,10 +31,13 @@ export default function StrategyPerformanceTable({
 	recentAvg100,
 	stdDeviation,
 }: StrategyPerformanceTableProps) {
+	const { t } = useTranslation();
 	return (
 		<Card className="shadow-none">
 			<CardHeader className="px-3">
-				<CardTitle className="text-sm">Strategy Performance</CardTitle>
+				<CardTitle className="text-sm">
+					{t("desktop.backtestPage.benchmark.strategyPerformance")}
+				</CardTitle>
 			</CardHeader>
 			<CardContent className="px-3">
 				{hasData && avgDuration ? (
@@ -41,31 +45,41 @@ export default function StrategyPerformanceTable({
 						<Table>
 							<TableBody>
 								<TableRow>
-									<TableCell className="font-medium text-xs">Average</TableCell>
+									<TableCell className="font-medium text-xs">
+										{t("desktop.backtestPage.benchmark.average")}
+									</TableCell>
 									<TableCell className="text-right text-xs">
 										{formatDuration(avgDuration)}
 									</TableCell>
 								</TableRow>
 								<TableRow>
-									<TableCell className="font-medium text-xs">Min</TableCell>
+									<TableCell className="font-medium text-xs">
+										{t("desktop.backtestPage.benchmark.min")}
+									</TableCell>
 									<TableCell className="text-right text-xs py-1.5">
 										{minDuration ? formatDuration(minDuration) : "N/A"}
 									</TableCell>
 								</TableRow>
 								<TableRow>
-									<TableCell className="font-medium text-xs">Max</TableCell>
+									<TableCell className="font-medium text-xs">
+										{t("desktop.backtestPage.benchmark.max")}
+									</TableCell>
 									<TableCell className="text-right text-xs py-1.5">
 										{maxDuration ? formatDuration(maxDuration) : "N/A"}
 									</TableCell>
 								</TableRow>
 								<TableRow>
-									<TableCell className="font-medium text-xs">P25</TableCell>
+									<TableCell className="font-medium text-xs">
+										{t("desktop.backtestPage.benchmark.p25")}
+									</TableCell>
 									<TableCell className="text-right text-xs py-1.5">
 										{p25 ? formatDuration(p25) : "N/A"}
 									</TableCell>
 								</TableRow>
 								<TableRow>
-									<TableCell className="font-medium text-xs">P50</TableCell>
+									<TableCell className="font-medium text-xs">
+										{t("desktop.backtestPage.benchmark.p50")}
+									</TableCell>
 									<TableCell className="text-right text-xs py-1.5">
 										{p50 ? formatDuration(p50) : "N/A"}
 									</TableCell>
@@ -76,33 +90,41 @@ export default function StrategyPerformanceTable({
 						<Table>
 							<TableBody>
 								<TableRow>
-									<TableCell className="font-medium text-xs">P75</TableCell>
+									<TableCell className="font-medium text-xs">
+										{t("desktop.backtestPage.benchmark.p75")}
+									</TableCell>
 									<TableCell className="text-right text-xs py-1.5">
 										{p75 ? formatDuration(p75) : "N/A"}
 									</TableCell>
 								</TableRow>
 								<TableRow>
-									<TableCell className="font-medium text-xs">P95</TableCell>
+									<TableCell className="font-medium text-xs">
+										{t("desktop.backtestPage.benchmark.p95")}
+									</TableCell>
 									<TableCell className="text-right text-xs py-1.5">
 										{p95 ? formatDuration(p95) : "N/A"}
 									</TableCell>
 								</TableRow>
 								<TableRow>
-									<TableCell className="font-medium text-xs">P99</TableCell>
+									<TableCell className="font-medium text-xs">
+										{t("desktop.backtestPage.benchmark.p99")}
+									</TableCell>
 									<TableCell className="text-right text-xs py-1.5">
 										{p99 ? formatDuration(p99) : "N/A"}
 									</TableCell>
 								</TableRow>
 								<TableRow>
 									<TableCell className="font-medium text-xs">
-										Recent(100)
+										{t("desktop.backtestPage.benchmark.recentAvg100")}
 									</TableCell>
 									<TableCell className="text-right text-xs py-1.5">
 										{recentAvg100 ? formatDuration(recentAvg100) : "N/A"}
 									</TableCell>
 								</TableRow>
 								<TableRow>
-									<TableCell className="font-medium text-xs">Std Dev</TableCell>
+									<TableCell className="font-medium text-xs">
+										{t("desktop.backtestPage.benchmark.stdDeviation")}
+									</TableCell>
 									<TableCell className="text-right text-xs py-1.5">
 										{stdDeviation ? formatDuration(stdDeviation) : "N/A"}
 									</TableCell>
@@ -112,8 +134,7 @@ export default function StrategyPerformanceTable({
 					</div>
 				) : (
 					<p className="text-muted-foreground text-center text-xs py-3">
-						No data available yet. Start the strategy to collect performance
-						metrics.
+						{t("desktop.backtestPage.benchmark.noDataDescription")}
 					</p>
 				)}
 			</CardContent>

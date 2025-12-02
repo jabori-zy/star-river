@@ -15,7 +15,7 @@ import {
 import { ChevronDown, ChevronRight } from "lucide-react";
 import * as React from "react";
 import { Fragment } from "react";
-
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
 	Table,
@@ -73,6 +73,7 @@ export function DataTable<TData, TValue>({
 	defaultExpanded = false,
 	onRowClick,
 }: DataTableProps<TData, TValue>) {
+	const { t } = useTranslation();
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
 		[],
@@ -84,6 +85,10 @@ export function DataTable<TData, TValue>({
 		defaultExpanded ? true : {},
 	);
 	const [isCompact, setIsCompact] = React.useState(false);
+	const [pagination, setPagination] = React.useState({
+		pageIndex: 0,
+		pageSize,
+	});
 
 	const containerRef = React.useRef<HTMLDivElement>(null);
 
@@ -152,18 +157,14 @@ export function DataTable<TData, TValue>({
 		onColumnVisibilityChange: setColumnVisibility,
 		onRowSelectionChange: enableRowSelection ? setRowSelection : undefined,
 		onExpandedChange: enableRowExpansion ? setExpanded : undefined,
+		onPaginationChange: enablePagination ? setPagination : undefined,
 		state: {
 			sorting,
 			columnFilters,
 			columnVisibility,
 			rowSelection,
 			expanded,
-			pagination: enablePagination
-				? {
-						pageIndex: 0,
-						pageSize,
-					}
-				: undefined,
+			pagination: enablePagination ? pagination : undefined,
 		},
 	});
 
@@ -252,7 +253,7 @@ export function DataTable<TData, TValue>({
 									colSpan={enhancedColumns.length}
 									className="h-24 text-center"
 								>
-									暂无数据
+									{t("component.table.noData")}
 								</TableCell>
 							</TableRow>
 						)}

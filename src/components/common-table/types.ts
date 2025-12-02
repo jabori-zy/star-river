@@ -16,7 +16,7 @@ export interface DataTableColumnHeaderProps<TData, TValue> {
 	title: string;
 }
 
-export interface DataTableViewOptionsProps<TData> {
+export interface CustomizeColumnOptionsProps<TData> {
 	table: Table<TData>;
 }
 

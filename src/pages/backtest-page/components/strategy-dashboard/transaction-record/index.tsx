@@ -7,11 +7,11 @@ import {
 	useState,
 } from "react";
 import type { Subscription } from "rxjs";
+import { TransactionTable } from "@/components/new-table/backtest/transaction-table";
 import BacktestTransactionTable from "@/components/table/backtest-transaction-table";
 import { createTransactionStream } from "@/hooks/obs/backtest-strategy-event-obs";
 import { getVirtualTransaction } from "@/service/backtest-strategy";
 import type { VirtualTransaction } from "@/types/transaction/virtual-transaction";
-import { TransactionTable } from "@/components/new-table/backtest/transaction-table";
 
 interface TransactionRecordProps {
 	strategyId: number;
@@ -85,9 +85,7 @@ const TransactionRecord = forwardRef<
 
 	return (
 		<div>
-			<TransactionTable
-				data={transactionData}
-			/>
+			<TransactionTable data={transactionData} />
 		</div>
 	);
 });

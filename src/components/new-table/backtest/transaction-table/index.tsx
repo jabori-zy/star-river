@@ -1,15 +1,17 @@
 import { DataTable } from "@/components/common-table";
 import type { VirtualTransaction } from "@/types/transaction/virtual-transaction";
-import { transactionColumns } from "./columns";
+import { useTransactionColumns } from "./columns";
 
 interface TransactionTableProps {
 	data: VirtualTransaction[];
 }
 
 export function TransactionTable({ data }: TransactionTableProps) {
+	const columns = useTransactionColumns();
+
 	return (
 		<DataTable
-			columns={transactionColumns}
+			columns={columns}
 			data={data}
 			enableSorting
 			enableFiltering

@@ -3,16 +3,18 @@ import type {
 	NodeRunningLogEvent,
 	StrategyRunningLogEvent,
 } from "@/types/strategy-event/running-log-event";
-import { logColumns } from "./columns";
+import { useLogColumns } from "./columns";
 
 interface LogTableProps {
 	data: (StrategyRunningLogEvent | NodeRunningLogEvent)[];
 }
 
 export function LogTable({ data }: LogTableProps) {
+	const columns = useLogColumns();
+
 	return (
 		<DataTable
-			columns={logColumns}
+			columns={columns}
 			data={data}
 			enableSorting
 			enableFiltering

@@ -1,19 +1,18 @@
 import { Settings2 } from "lucide-react";
-
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
 	DropdownMenuCheckboxItem,
 	DropdownMenuContent,
-	DropdownMenuLabel,
-	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { DataTableViewOptionsProps } from "./types";
+import type { CustomizeColumnOptionsProps } from "./types";
 
-export function DataTableViewOptions<TData>({
+export function CustomizeColumnOptions<TData>({
 	table,
-}: DataTableViewOptionsProps<TData>) {
+}: CustomizeColumnOptionsProps<TData>) {
+	const { t } = useTranslation();
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
@@ -23,12 +22,12 @@ export function DataTableViewOptions<TData>({
 					className="ml-auto hidden h-8 lg:flex"
 				>
 					<Settings2 className="mr-2 size-4" />
-					视图
+					{t("component.table.customizeColumns")}
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end" className="w-[150px]">
-				<DropdownMenuLabel>切换列</DropdownMenuLabel>
-				<DropdownMenuSeparator />
+				{/* <DropdownMenuLabel>切换列</DropdownMenuLabel> */}
+				{/* <DropdownMenuSeparator /> */}
 				{table
 					.getAllColumns()
 					.filter(
@@ -36,6 +35,19 @@ export function DataTableViewOptions<TData>({
 							typeof column.accessorFn !== "undefined" && column.getCanHide(),
 					)
 					.map((column) => {
+						const header = column.columnDef.header;
+						let label = column.id;
+						// If header is a string, use it directly
+						if (typeof header === "string") {
+							label = header;
+						}
+						// If meta.headerName exists, use it
+						else if (
+							column.columnDef.meta &&
+							"headerName" in column.columnDef.meta
+						) {
+							label = column.columnDef.meta.headerName as string;
+						}
 						return (
 							<DropdownMenuCheckboxItem
 								key={column.id}
@@ -43,7 +55,7 @@ export function DataTableViewOptions<TData>({
 								checked={column.getIsVisible()}
 								onCheckedChange={(value) => column.toggleVisibility(!!value)}
 							>
-								{column.id}
+								{label}
 							</DropdownMenuCheckboxItem>
 						);
 					})}

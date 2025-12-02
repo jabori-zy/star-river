@@ -37,6 +37,9 @@ const translation = {
 		contains: "包含",
 		notContains: "不包含",
 	},
+	noBranches: "",
+	noVariables: "",
+	kline: "",
 };
 
 export default translation;

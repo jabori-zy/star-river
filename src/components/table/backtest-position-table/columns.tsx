@@ -7,9 +7,9 @@ import type { VirtualPosition } from "@/types/position/virtual-position";
 // 仓位方向样式
 export const getPositionSideStyle = (side: PositionSide) => {
 	switch (side) {
-		case PositionSide.LONG:
+		case PositionSide.Long:
 			return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
-		case PositionSide.SHORT:
+		case PositionSide.Short:
 			return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
 		default:
 			return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300";
@@ -19,9 +19,9 @@ export const getPositionSideStyle = (side: PositionSide) => {
 // 仓位方向文本
 export const getPositionSideText = (side: PositionSide) => {
 	switch (side) {
-		case PositionSide.LONG:
+		case PositionSide.Long:
 			return "多头";
-		case PositionSide.SHORT:
+		case PositionSide.Short:
 			return "空头";
 		default:
 			return side;
@@ -31,13 +31,13 @@ export const getPositionSideText = (side: PositionSide) => {
 // 仓位状态样式
 export const getPositionStateStyle = (state: PositionState) => {
 	switch (state) {
-		case PositionState.OPEN:
+		case PositionState.Open:
 			return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300";
-		case PositionState.CLOSE:
+		case PositionState.Close:
 			return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300";
-		case PositionState.PARTIALLY_CLOSED:
+		case PositionState.PartiallyClosed:
 			return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300";
-		case PositionState.FORCED_CLOSED:
+		case PositionState.ForceClosed:
 			return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
 		default:
 			return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300";
@@ -47,13 +47,13 @@ export const getPositionStateStyle = (state: PositionState) => {
 // 仓位状态文本
 export const getPositionStateText = (state: PositionState) => {
 	switch (state) {
-		case PositionState.OPEN:
+		case PositionState.Open:
 			return "开仓";
-		case PositionState.CLOSE:
+		case PositionState.Close:
 			return "平仓";
-		case PositionState.PARTIALLY_CLOSED:
+		case PositionState.PartiallyClosed:
 			return "部分平仓";
-		case PositionState.FORCED_CLOSED:
+		case PositionState.ForceClosed:
 			return "强制平仓";
 		default:
 			return state;

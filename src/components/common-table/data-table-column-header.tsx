@@ -1,4 +1,5 @@
 import { ArrowDown, ArrowUp, ArrowUpDown, EyeOff } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -17,6 +18,7 @@ export function DataTableColumnHeader<TData, TValue>({
 }: DataTableColumnHeaderProps<TData, TValue> & {
 	className?: string;
 }) {
+	const { t } = useTranslation();
 	if (!column.getCanSort()) {
 		return <div className={cn(className)}>{title}</div>;
 	}
@@ -43,16 +45,16 @@ export function DataTableColumnHeader<TData, TValue>({
 				<DropdownMenuContent align="start">
 					<DropdownMenuItem onClick={() => column.toggleSorting(false)}>
 						<ArrowUp className="mr-2 size-3.5 text-muted-foreground/70" />
-						升序
+						{t("component.table.asc")}
 					</DropdownMenuItem>
 					<DropdownMenuItem onClick={() => column.toggleSorting(true)}>
 						<ArrowDown className="mr-2 size-3.5 text-muted-foreground/70" />
-						降序
+						{t("component.table.desc")}
 					</DropdownMenuItem>
 					<DropdownMenuSeparator />
 					<DropdownMenuItem onClick={() => column.toggleVisibility(false)}>
 						<EyeOff className="mr-2 size-3.5 text-muted-foreground/70" />
-						隐藏
+						{t("component.table.hide")}
 					</DropdownMenuItem>
 				</DropdownMenuContent>
 			</DropdownMenu>

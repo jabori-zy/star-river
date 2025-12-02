@@ -5,6 +5,7 @@ import { SupportLanguage } from "@/types/system";
 import enUSApiMessage from "./en-US/api-message";
 // 静态导入 en-US 资源作为默认
 import enUSCommon from "./en-US/common";
+import enUSComponent from "./en-US/component";
 import enUSDektop from "./en-US/desktop";
 import enUSFuturesOrderNode from "./en-US/futures-order-node";
 import enUSIfElseNode from "./en-US/if-else-node";
@@ -36,6 +37,7 @@ const NAMESPACES = [
 	"position-node",
 	"kline-node",
 	"indicator-node",
+	"component",
 ];
 
 // 动态导入语言资源,带容错机制
@@ -85,6 +87,7 @@ const getInitialTranslations = () => {
 				positionNode: enUSPositionNode,
 				klineNode: enUSKlineNode,
 				indicatorNode: enUSIndicatorNode,
+				component: enUSComponent,
 			},
 		},
 	};
