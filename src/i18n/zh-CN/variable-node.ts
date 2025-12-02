@@ -11,7 +11,8 @@ const translation = {
 	dataflow: "数据流",
 	variableConfig: "变量配置",
 	clickAddVariable: "添加变量配置",
-	duplicateOperationError: "该变量已配置{{operation}}操作,同一变量只能配置一种操作",
+	duplicateOperationError:
+		"该变量已配置{{operation}}操作,同一变量只能配置一种操作",
 	variableRequired: "请选择变量",
 	symbolRequired: "请选择交易对",
 	triggerConditionRequired: "请选择触发条件",

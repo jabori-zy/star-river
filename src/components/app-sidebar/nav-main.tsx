@@ -1,6 +1,7 @@
 "use client";
 
 import type { LucideIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import {
 	SidebarGroup,
 	SidebarGroupLabel,
@@ -8,7 +9,6 @@ import {
 	SidebarMenuButton,
 	SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { useTranslation } from "react-i18next";
 export function NavMain({
 	items,
 }: {

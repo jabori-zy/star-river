@@ -1,6 +1,7 @@
 import { useReactFlow } from "@xyflow/react";
 import { Clock, PlusIcon, Settings, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { NodeOpConfirmDialog } from "@/components/flow/node-op-confirm-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,6 @@ import type { Instrument } from "@/types/market";
 import type { SelectedSymbol } from "@/types/node/kline-node";
 import type { SelectedAccount } from "@/types/strategy";
 import { SymbolSelectDialog } from "./symbol-select-dialog";
-import { useTranslation } from "react-i18next";
 
 interface SymbolSelectorProps {
 	nodeId: string; // node id
@@ -346,7 +346,9 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 	return (
 		<div className="flex flex-col p-2">
 			<div className="flex items-center justify-between">
-				<Label className="text-sm font-bold text-gray-700">{t("klineNode.symbol")}</Label>
+				<Label className="text-sm font-bold text-gray-700">
+					{t("klineNode.symbol")}
+				</Label>
 				<Button
 					variant="ghost"
 					size="icon"
@@ -361,7 +363,9 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 			<div className="space-y-2">
 				{localSymbols.length === 0 ? (
 					<div className="flex items-center justify-center p-4 border border-dashed rounded-md text-muted-foreground text-sm">
-						{hasDataSource ? t("klineNode.addSymbol") : t("klineNode.selectDataSource")}
+						{hasDataSource
+							? t("klineNode.addSymbol")
+							: t("klineNode.selectDataSource")}
 					</div>
 				) : (
 					localSymbols.map((symbol, index) => (

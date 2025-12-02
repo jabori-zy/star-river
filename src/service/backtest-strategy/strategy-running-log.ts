@@ -31,9 +31,7 @@ export async function getStrategyRunningLog(
 
 		// Validate that we received an array
 		if (!Array.isArray(rawData)) {
-			throw new Error(
-				`Expected array of logs, received: ${typeof rawData}`,
-			);
+			throw new Error(`Expected array of logs, received: ${typeof rawData}`);
 		}
 
 		// Validate each log entry with Zod
@@ -57,16 +55,12 @@ export async function getStrategyRunningLog(
 
 		// If all logs failed validation, throw error
 		if (validatedLogs.length === 0 && rawData.length > 0) {
-			throw new Error(
-				`所有日志数据验证失败 (${errors.length} errors)`,
-			);
+			throw new Error(`所有日志数据验证失败 (${errors.length} errors)`);
 		}
 
 		// If some logs failed, log warning but return valid ones
 		if (errors.length > 0) {
-			console.warn(
-				`部分日志数据验证失败: ${errors.length}/${rawData.length}`,
-			);
+			console.warn(`部分日志数据验证失败: ${errors.length}/${rawData.length}`);
 		}
 
 		return validatedLogs;

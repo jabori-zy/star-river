@@ -12,9 +12,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { IndicatorCategory, IndicatorType } from "@/types/indicator";
+import {
+	getIndicatorCategoryDisplayName,
+	IndicatorCategory,
+	IndicatorType,
+} from "@/types/indicator";
 import { INDICATOR_CONFIG_MAP } from "@/types/indicator/indicator-config-map";
-import { getIndicatorCategoryDisplayName } from "@/types/indicator";
 import CategoryTabs from "./category-tabs";
 import IndicatorListItem from "./indicator-list-item";
 import { ALL_CATEGORY, type IndicatorInfo, type MenuType } from "./utils";
@@ -146,7 +149,9 @@ const IndicatorViewerDialog: React.FC<IndicatorViewerDialogProps> = ({
 						<div className="relative">
 							<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
 							<Input
-								placeholder={t("indicatorNode.indicatorViewer.searchPlaceholder")}
+								placeholder={t(
+									"indicatorNode.indicatorViewer.searchPlaceholder",
+								)}
 								value={searchQuery}
 								onChange={(e) => setSearchQuery(e.target.value)}
 								className="pl-10"
@@ -196,7 +201,9 @@ const IndicatorViewerDialog: React.FC<IndicatorViewerDialogProps> = ({
 													<IndicatorListItem
 														key={indicator.type}
 														indicator={indicator}
-														showCategoryBadge={selectedCategory === ALL_CATEGORY}
+														showCategoryBadge={
+															selectedCategory === ALL_CATEGORY
+														}
 														getCategoryDisplayName={getCategoryDisplayName}
 														onSelect={handleSelectIndicator}
 													/>

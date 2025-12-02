@@ -1,5 +1,5 @@
-import { create } from "zustand";
 import type { StoreApi, UseBoundStore } from "zustand";
+import { create } from "zustand";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import { createDataInitializationSlice } from "./data-initialization-slice";
 import { createDataSlice } from "./data-slice";

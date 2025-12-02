@@ -1,6 +1,6 @@
+import type { TFunction } from "i18next";
 import { type IndicatorType, MAType } from "@/types/indicator";
 import { getIndicatorConfig } from "@/types/indicator/indicator-config";
-import type { TFunction } from "i18next";
 
 export interface IndicatorOption {
 	key: string;
@@ -40,7 +40,7 @@ export const getIndicatorConfigDisplay = (
 		const value = indicatorConfig[key];
 		if (value !== undefined && key !== "priceSource") {
 			if (key === "maType") {
-				const maTypeLabel = value as MAType || value;
+				const maTypeLabel = (value as MAType) || value;
 				paramParts.push(`${t(param.label)}:${maTypeLabel}`);
 			} else {
 				paramParts.push(`${t(param.label)}:${value}`);

@@ -9,6 +9,7 @@ import {
 	X,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import ConfirmBox from "@/components/confirm-box";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -33,7 +34,6 @@ import type { Account } from "@/types/account";
 import type { Exchange } from "@/types/market";
 import { ExchangeStatus } from "@/types/market";
 import type { SelectedAccount } from "@/types/strategy";
-import { useTranslation } from "react-i18next";
 
 interface AccountSelectorProps {
 	selectedAccounts: SelectedAccount[]; // 已选择账户，可以多选

@@ -1,6 +1,7 @@
 import { useReactFlow } from "@xyflow/react";
 import { PlusIcon, Settings, X } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { NodeOpConfirmDialog } from "@/components/flow/node-op-confirm-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,6 @@ import { getIndicatorConfig } from "@/types/indicator/indicator-config";
 import type { SelectedIndicator } from "@/types/node/indicator-node";
 import EditDialog from "./edit-dialog";
 import IndicatorViewerDialog from "./indicator-viewer";
-import { useTranslation } from "react-i18next";
 
 interface IndicatorEditorProps {
 	id: string; // 节点ID，用于生成handleId
@@ -195,7 +195,9 @@ const IndicatorEditor: React.FC<IndicatorEditorProps> = ({
 	return (
 		<div className="flex flex-col gap-2">
 			<div className="flex items-center justify-between">
-				<span className="text-sm font-bold text-gray-700">{t("indicatorNode.technicalIndicators")}</span>
+				<span className="text-sm font-bold text-gray-700">
+					{t("indicatorNode.technicalIndicators")}
+				</span>
 				<Button variant="ghost" size="icon" onClick={handleAddIndicator}>
 					<PlusIcon className="w-4 h-4" />
 				</Button>

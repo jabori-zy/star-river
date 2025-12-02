@@ -11,8 +11,8 @@ import type { VirtualPosition } from "@/types/position";
 import type { KeyStr } from "@/types/symbol-key";
 import {
 	getChartAlignedUtcTimestamp,
-	TpOrderToTakeProfitPriceLine,
 	SlOrderToStopLossPriceLine,
+	TpOrderToTakeProfitPriceLine,
 	virtualOrderToLimitOrderPriceLine,
 	virtualOrderToMarker,
 	virtualPositionToOpenPositionPriceLine,
@@ -61,9 +61,7 @@ export const createEventHandlerSlice =
 			indicatorKeyStr: KeyStr,
 			indicator: Record<keyof IndicatorValueConfig, SingleValueData[]>,
 		) => {
-
 			Object.entries(indicator).forEach(([indicatorValueKey, newDataArray]) => {
-
 				// 处理新数据数组中的每个数据点
 				newDataArray.forEach((newDataPoint, _) => {
 					// // 获取该指标值字段的最后一个数据点
@@ -121,7 +119,8 @@ export const createEventHandlerSlice =
 			// 限价单, 状态为挂单和已创建时，创建限价单价格线
 			else if (
 				newOrder.orderType === OrderType.LIMIT &&
-				(newOrder.orderStatus === OrderStatus.PLACED || newOrder.orderStatus === OrderStatus.CREATED)
+				(newOrder.orderStatus === OrderStatus.PLACED ||
+					newOrder.orderStatus === OrderStatus.CREATED)
 			) {
 				// 创建限价单价格线
 				const limitOrderPriceLine = virtualOrderToLimitOrderPriceLine(newOrder);
@@ -137,7 +136,11 @@ export const createEventHandlerSlice =
 				}
 			}
 			// tp order or stop order
-			else if (newOrder.orderStatus === OrderStatus.CREATED && (newOrder.orderType === OrderType.TAKE_PROFIT_MARKET || newOrder.orderType===OrderType.STOP_MARKET)) {
+			else if (
+				newOrder.orderStatus === OrderStatus.CREATED &&
+				(newOrder.orderType === OrderType.TAKE_PROFIT_MARKET ||
+					newOrder.orderType === OrderType.STOP_MARKET)
+			) {
 				if (newOrder.orderType === OrderType.TAKE_PROFIT_MARKET) {
 					const takeProfitPriceLine = TpOrderToTakeProfitPriceLine(newOrder);
 					if (takeProfitPriceLine) {
@@ -150,8 +153,7 @@ export const createEventHandlerSlice =
 					if (candleSeriesRef) {
 						candleSeriesRef.createPriceLine(takeProfitPriceLine);
 					}
-				}
-				else if (newOrder.orderType === OrderType.STOP_MARKET) {
+				} else if (newOrder.orderType === OrderType.STOP_MARKET) {
 					const stopLossPriceLine = SlOrderToStopLossPriceLine(newOrder);
 					if (stopLossPriceLine) {
 						get().setOrderPriceLine([
@@ -164,7 +166,6 @@ export const createEventHandlerSlice =
 						candleSeriesRef.createPriceLine(stopLossPriceLine);
 					}
 				}
-
 			}
 		},
 
@@ -172,19 +173,14 @@ export const createEventHandlerSlice =
 			if (order.orderStatus !== OrderStatus.FILLED) {
 				return;
 			}
-			// limit order filled, remove price line and create a marker 
+			// limit order filled, remove price line and create a marker
 			if (order.orderType === OrderType.LIMIT) {
 				this.onLimitOrderFilled(order);
-			}
-			
-			else if (order.orderType === OrderType.TAKE_PROFIT_MARKET) {
+			} else if (order.orderType === OrderType.TAKE_PROFIT_MARKET) {
 				this.onTpOrderFilled(order);
-			}
-
-			else if (order.orderType === OrderType.STOP_MARKET) {
+			} else if (order.orderType === OrderType.STOP_MARKET) {
 				this.onSlOrderFilled(order);
-			}
-			else {
+			} else {
 				const markers = virtualOrderToMarker(order);
 				get().setOrderMarkers([...get().orderMarkers, ...markers]);
 				// console.log("orderMarkers", get().getOrderMarkers());
@@ -193,8 +189,6 @@ export const createEventHandlerSlice =
 					orderMarkerSeriesRef.setMarkers(get().getOrderMarkers());
 				}
 			}
-
-			
 		},
 
 		onOrderCreated: (order: VirtualOrder) => {
@@ -214,23 +208,16 @@ export const createEventHandlerSlice =
 				if (candleSeriesRef) {
 					candleSeriesRef.createPriceLine(takeProfitPriceLine);
 				}
-			}
-			else if (order.orderType === OrderType.STOP_MARKET) {
+			} else if (order.orderType === OrderType.STOP_MARKET) {
 				const stopLossPriceLine = SlOrderToStopLossPriceLine(order);
 				if (stopLossPriceLine) {
-					get().setOrderPriceLine([
-						...get().orderPriceLine,
-						stopLossPriceLine,
-					]);
+					get().setOrderPriceLine([...get().orderPriceLine, stopLossPriceLine]);
 				}
 				const candleSeriesRef = get().getKlineSeriesRef();
 				if (candleSeriesRef) {
 					candleSeriesRef.createPriceLine(stopLossPriceLine);
 				}
-			}
-			else if (
-				order.orderType === OrderType.LIMIT
-			) {
+			} else if (order.orderType === OrderType.LIMIT) {
 				// 创建限价单价格线
 				const limitOrderPriceLine = virtualOrderToLimitOrderPriceLine(order);
 				if (limitOrderPriceLine) {
@@ -244,8 +231,6 @@ export const createEventHandlerSlice =
 					}
 				}
 			}
-			
-			
 		},
 
 		onOrderCanceled(order) {
@@ -268,8 +253,7 @@ export const createEventHandlerSlice =
 						get().deleteOrderPriceLine(pricelineId);
 					});
 				}
-			}
-			else if (order.orderType === OrderType.STOP_MARKET) {
+			} else if (order.orderType === OrderType.STOP_MARKET) {
 				const candleSeriesRef = get().getKlineSeriesRef();
 				if (candleSeriesRef) {
 					const readyToRemovePriceLines = candleSeriesRef
@@ -286,8 +270,6 @@ export const createEventHandlerSlice =
 					});
 				}
 			}
-
-			
 		},
 
 		onLimitOrderFilled: (limitOrder: VirtualOrder) => {
@@ -345,7 +327,6 @@ export const createEventHandlerSlice =
 					orderMarkerSeriesRef.setMarkers(get().getOrderMarkers());
 				}
 			}
-
 		},
 
 		onSlOrderFilled: (slOrder: VirtualOrder) => {
@@ -374,7 +355,6 @@ export const createEventHandlerSlice =
 					orderMarkerSeriesRef.setMarkers(get().getOrderMarkers());
 				}
 			}
-
 		},
 
 		onNewPosition: (position: VirtualPosition) => {

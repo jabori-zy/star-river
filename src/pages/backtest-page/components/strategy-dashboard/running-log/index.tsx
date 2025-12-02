@@ -8,10 +8,14 @@ import {
 	useState,
 } from "react";
 import type { Subscription } from "rxjs";
+import { LogTable } from "@/components/new-table/backtest/log-table";
 import BacktestRunningLogTable from "@/components/table/backtest-running-log-table";
 import { createBacktestStrategyRunningLogStream } from "@/hooks/obs/backtest-strategy-running-log-obs";
 import { getStrategyRunningLog } from "@/service/backtest-strategy";
-import type { NodeRunningLogEvent, StrategyRunningLogEvent } from "@/types/strategy-event/running-log-event";
+import type {
+	NodeRunningLogEvent,
+	StrategyRunningLogEvent,
+} from "@/types/strategy-event/running-log-event";
 
 interface RunningLogProps {
 	strategyId: number;
@@ -23,7 +27,9 @@ export interface RunningLogRef {
 
 const RunningLog = forwardRef<RunningLogRef, RunningLogProps>(
 	({ strategyId }, ref) => {
-		const [logData, setLogData] = useState<(StrategyRunningLogEvent | NodeRunningLogEvent)[]>([]);
+		const [logData, setLogData] = useState<
+			(StrategyRunningLogEvent | NodeRunningLogEvent)[]
+		>([]);
 		const logStreamSubscriptionRef = useRef<Subscription | null>(null);
 
 		// 暴露清空日志的方法
@@ -42,7 +48,7 @@ const RunningLog = forwardRef<RunningLogRef, RunningLogProps>(
 			try {
 				// 尝试从API获取数据
 				const logData = await getStrategyRunningLog(strategyId);
-				
+
 				setLogData(
 					logData.sort(
 						(a, b) =>
@@ -101,11 +107,7 @@ const RunningLog = forwardRef<RunningLogRef, RunningLogProps>(
 		return (
 			<div className="flex flex-col h-full">
 				<div className="h-full w-full">
-					<BacktestRunningLogTable
-						title="运行日志"
-						showTitle={false}
-						data={logData}
-					/>
+					<LogTable data={logData} />
 				</div>
 			</div>
 		);

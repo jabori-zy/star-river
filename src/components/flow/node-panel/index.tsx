@@ -5,8 +5,6 @@ import BasePanel from "@/components/flow/base/BasePanel";
 import type { NodeData, NodeType } from "@/types/node/index";
 import { PanelComponentMap } from "./constants";
 
-
-
 interface NodePanelProps {
 	selectedNodeId: string;
 	setSelectedNodeId: (id: string | undefined) => void;
@@ -16,33 +14,36 @@ interface NodePanelProps {
  * 所有节点的面板。根据选择的节点，在同一个面板中，切换不同节点的面板
  * 参考dify框架的实现方式，使用映射表来管理不同节点的设置面板
  */
-const NodePanel: React.FC<NodePanelProps> = ({ selectedNodeId, setSelectedNodeId }) => {
-
+const NodePanel: React.FC<NodePanelProps> = ({
+	selectedNodeId,
+	setSelectedNodeId,
+}) => {
 	// 获取节点实例
 	const { getNodes } = useReactFlow();
 	// 当前选中的节点类型
-	const [selectedNodeType, setSelectedNodeType] = useState<string | undefined>(undefined);
+	const [selectedNodeType, setSelectedNodeType] = useState<string | undefined>(
+		undefined,
+	);
 	// 当前选中的节点数据
-
 
 	// 监听节点选择状态变化
 	useEffect(() => {
 		// const checkSelectedNodes = () => {
-			const nodes = getNodes();
-			
-			const selectedNode = nodes.find((node) => node.id === selectedNodeId);
-			// console.log("selectedNode", selectedNode?.id);
+		const nodes = getNodes();
 
-			// 如果选中的节点存在，则设置节点id和类型，并显示面板
-			if (selectedNode) {
-				// setSelectedNodeId(selectedNodeId);
-				setSelectedNodeType(selectedNode.type || undefined);
-				// setIsShow(true);
-			} else {
-				// setSelectedNodeId(undefined);
-				setSelectedNodeType(undefined);
-				// setIsShow(false);
-			}
+		const selectedNode = nodes.find((node) => node.id === selectedNodeId);
+		// console.log("selectedNode", selectedNode?.id);
+
+		// 如果选中的节点存在，则设置节点id和类型，并显示面板
+		if (selectedNode) {
+			// setSelectedNodeId(selectedNodeId);
+			setSelectedNodeType(selectedNode.type || undefined);
+			// setIsShow(true);
+		} else {
+			// setSelectedNodeId(undefined);
+			setSelectedNodeType(undefined);
+			// setIsShow(false);
+		}
 		// };
 
 		// 立即检查一次

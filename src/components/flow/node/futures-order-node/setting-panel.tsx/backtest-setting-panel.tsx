@@ -1,27 +1,23 @@
-import { useState } from "react";
 import { useReactFlow } from "@xyflow/react";
+import { PlusIcon } from "lucide-react";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import AccountSelector from "@/components/flow/account-selector";
 import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
+import { getOutputHandleIds } from "@/components/flow/node/futures-order-node/utils";
+import { NodeOpConfirmDialog } from "@/components/flow/node-op-confirm-dialog";
+import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 import { useBacktestConfig } from "@/hooks/node-config/futures-order-node";
-import { type FuturesOrderConfig, FuturesOrderSide, OrderType } from "@/types/order";
+import { useSymbolList } from "@/service/market/symbol-list";
+import {
+	type FuturesOrderConfig,
+	FuturesOrderSide,
+	OrderType,
+} from "@/types/order";
 import type { SelectedAccount } from "@/types/strategy";
 import OrderConfigForm from "../components/order-config-item";
-import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
-import AccountSelector from "@/components/flow/account-selector";
-import { Button } from "@/components/ui/button";
-import { PlusIcon } from "lucide-react";
-import { useSymbolList } from "@/service/market/symbol-list";
-import { useTranslation } from "react-i18next";
-import { NodeOpConfirmDialog } from "@/components/flow/node-op-confirm-dialog";
-import { getOutputHandleIds } from "@/components/flow/node/futures-order-node/utils";
-
-
-
-
-
-
-
-
 
 const FuturesOrderNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	id,
@@ -30,7 +26,8 @@ const FuturesOrderNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	// 获取开始节点数据
 	const { getStartNodeData, getTargetNodeIds } = useStrategyWorkflow();
 	const startNodeData = getStartNodeData();
-	const accountList = startNodeData?.backtestConfig?.exchangeModeConfig?.selectedAccounts || [];
+	const accountList =
+		startNodeData?.backtestConfig?.exchangeModeConfig?.selectedAccounts || [];
 
 	const { getNode, getEdges, setEdges } = useReactFlow();
 
@@ -79,7 +76,10 @@ const FuturesOrderNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	};
 
 	// 处理单个订单配置变更
-	const handleOrderConfigChange = (index: number, config: FuturesOrderConfig) => {
+	const handleOrderConfigChange = (
+		index: number,
+		config: FuturesOrderConfig,
+	) => {
 		updateFuturesOrderConfig(index, config);
 	};
 
@@ -190,7 +190,9 @@ const FuturesOrderNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 			</div>
 
 			<div className="flex items-center justify-between px-2">
-				<Label className="text-sm font-bold text-gray-700">{t("futuresOrderNode.orderConfig.orderConfigLabel")}</Label>
+				<Label className="text-sm font-bold text-gray-700">
+					{t("futuresOrderNode.orderConfig.orderConfigLabel")}
+				</Label>
 				<Button
 					variant="ghost"
 					size="icon"
@@ -217,7 +219,9 @@ const FuturesOrderNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 								config={config}
 								orderConfigId={config.orderConfigId}
 								symbolList={symbolList}
-								onChange={(updatedConfig) => handleOrderConfigChange(index, updatedConfig)}
+								onChange={(updatedConfig) =>
+									handleOrderConfigChange(index, updatedConfig)
+								}
 								onDelete={() => handleDeleteOrder(index)}
 							/>
 						))}

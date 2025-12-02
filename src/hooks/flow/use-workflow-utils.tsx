@@ -1,8 +1,9 @@
-import { useReactFlow, useNodesData, useNodeConnections } from "@xyflow/react";
+import { useNodeConnections, useNodesData, useReactFlow } from "@xyflow/react";
 import { useCallback } from "react";
 import { useStartNodeDataStore } from "@/store/node/use-start-node-data-store";
 import type { StrategyFlowNode } from "@/types/node";
 import type { StartNode } from "@/types/node/start-node";
+
 /**
  * 工具函数相关的hook
  */
@@ -79,29 +80,26 @@ const useWorkflowUtils = () => {
 		[getEdges, setEdges],
 	);
 
-
 	const getStartNodeData = useCallback(() => {
 		const startNode = useNodesData<StrategyFlowNode>("start_node") as StartNode;
 		return startNode?.data;
 	}, []);
-
 
 	const getNodeData = useCallback((nodeId: string) => {
 		const node = useNodesData<StrategyFlowNode>(nodeId);
 		return node?.data;
 	}, []);
 
-
 	const getSourceNodes = useCallback((currentNodeId: string) => {
 		const connections = useNodeConnections({
 			id: currentNodeId,
 			handleType: "target",
 		});
-		const nodes = useNodesData<StrategyFlowNode>(connections.map((connection) => connection.source));
-		return nodes
+		const nodes = useNodesData<StrategyFlowNode>(
+			connections.map((connection) => connection.source),
+		);
+		return nodes;
 	}, []);
-
-
 
 	return {
 		getBacktestTimeRange,

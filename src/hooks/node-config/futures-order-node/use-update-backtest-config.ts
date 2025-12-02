@@ -1,7 +1,8 @@
-import { useCallback } from "react";
 import { useReactFlow } from "@xyflow/react";
 import { produce } from "immer";
+import { useCallback } from "react";
 import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
+import type { ConditionTrigger } from "@/types/condition-trigger";
 import type {
 	FuturesOrderNodeBacktestConfig,
 	FuturesOrderNodeBacktestExchangeModeConfig,
@@ -9,7 +10,6 @@ import type {
 } from "@/types/node/futures-order-node";
 import type { FuturesOrderConfig } from "@/types/order";
 import { BacktestDataSource, type TimeRange } from "@/types/strategy";
-import type { ConditionTrigger } from "@/types/condition-trigger";
 
 /**
  * Create default futures order node backtest config

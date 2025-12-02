@@ -1,12 +1,12 @@
 import { Plus } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import CreateStrategyDialog from "@/components/create-strategy-dialog";
 import {
 	SidebarMenu,
 	SidebarMenuButton,
 	SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { useTranslation } from "react-i18next";
-import CreateStrategyDialog from "@/components/create-strategy-dialog";
 
 const CreateStrategyButton = () => {
 	const { t } = useTranslation();

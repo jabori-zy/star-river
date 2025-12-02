@@ -35,20 +35,20 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { createStrategyVariableColumns } from "./columns";
 import type {
-    CustomVariableUpdateEvent,
-    SystemVariableUpdateEvent,
+	CustomVariableUpdateEvent,
+	SystemVariableUpdateEvent,
 } from "@/types/strategy-event/backtest-strategy-event";
+import { createStrategyVariableColumns } from "./columns";
 
 // 类型由事件联合体定义，不再导出行类型
 
 type VariableEvent = CustomVariableUpdateEvent | SystemVariableUpdateEvent;
 
 interface BacktestVariableTableProps {
-    data?: VariableEvent[];
-    title?: string;
-    showTitle?: boolean;
+	data?: VariableEvent[];
+	title?: string;
+	showTitle?: boolean;
 }
 
 // 策略变量表
@@ -58,9 +58,9 @@ export function BacktestVariableTable({
 	showTitle = true,
 }: BacktestVariableTableProps) {
 	const { t } = useTranslation();
-    const [sorting, setSorting] = React.useState<SortingState>([
-        { id: "varName", desc: false },
-    ]);
+	const [sorting, setSorting] = React.useState<SortingState>([
+		{ id: "varName", desc: false },
+	]);
 	const [rowSelection, setRowSelection] = React.useState({});
 	const [pagination, setPagination] = React.useState({
 		pageIndex: 0,
@@ -85,29 +85,29 @@ export function BacktestVariableTable({
 		return () => observer.disconnect();
 	}, []);
 
-    const columns = React.useMemo(
-        () => createStrategyVariableColumns(isCompactMode, t),
-        [isCompactMode, t],
-    );
+	const columns = React.useMemo(
+		() => createStrategyVariableColumns(isCompactMode, t),
+		[isCompactMode, t],
+	);
 
-    const table = useReactTable<VariableEvent>({
-        data: data || [],
-        columns,
-        state: {
-            sorting,
-            rowSelection,
-            pagination,
-        },
-        enableRowSelection: true,
-        onRowSelectionChange: setRowSelection,
-        onSortingChange: setSorting,
-        onPaginationChange: setPagination,
-        getCoreRowModel: getCoreRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        getSortedRowModel: getSortedRowModel(),
-        columnResizeMode,
-        enableColumnResizing: true,
-    });
+	const table = useReactTable<VariableEvent>({
+		data: data || [],
+		columns,
+		state: {
+			sorting,
+			rowSelection,
+			pagination,
+		},
+		enableRowSelection: true,
+		onRowSelectionChange: setRowSelection,
+		onSortingChange: setSorting,
+		onPaginationChange: setPagination,
+		getCoreRowModel: getCoreRowModel(),
+		getPaginationRowModel: getPaginationRowModel(),
+		getSortedRowModel: getSortedRowModel(),
+		columnResizeMode,
+		enableColumnResizing: true,
+	});
 
 	// 计算总页数
 	const pageCount = table.getPageCount();

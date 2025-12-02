@@ -2,23 +2,23 @@ import i18n from "i18next";
 import { camelCase } from "lodash-es";
 import { initReactI18next } from "react-i18next";
 import { SupportLanguage } from "@/types/system";
-
+import enUSApiMessage from "./en-US/api-message";
 // 静态导入 en-US 资源作为默认
 import enUSCommon from "./en-US/common";
-import enUSStrategy from "./en-US/strategy";
-import enUSNode from "./en-US/node";
-import enUSIfElseNode from "./en-US/if-else-node";
-import enUSVariableNode from "./en-US/variable-node";
-import enUSIndicator from "./en-US/indicator";
-import enUSMarket from "./en-US/market";
-import enUSSetting from "./en-US/setting";
 import enUSDektop from "./en-US/desktop";
-import enUSApiMessage from "./en-US/api-message";
-import enUSStartNode from "./en-US/start-node";
 import enUSFuturesOrderNode from "./en-US/futures-order-node";
-import enUSPositionNode from "./en-US/position-node";
-import enUSKlineNode from "./en-US/kline-node";
+import enUSIfElseNode from "./en-US/if-else-node";
+import enUSIndicator from "./en-US/indicator";
 import enUSIndicatorNode from "./en-US/indicator-node";
+import enUSKlineNode from "./en-US/kline-node";
+import enUSMarket from "./en-US/market";
+import enUSNode from "./en-US/node";
+import enUSPositionNode from "./en-US/position-node";
+import enUSSetting from "./en-US/setting";
+import enUSStartNode from "./en-US/start-node";
+import enUSStrategy from "./en-US/strategy";
+import enUSVariableNode from "./en-US/variable-node";
+
 // 定义所有命名空间(模块名)
 const NAMESPACES = [
 	"common",
@@ -55,10 +55,13 @@ export const loadLangResources = async (lang: string) => {
 	const modules = await Promise.all(
 		NAMESPACES.map((ns) => requireSilent(lang, ns)),
 	);
-	const resources = modules.reduce((acc, mod, index) => {
-		acc[camelCase(NAMESPACES[index])] = mod;
-		return acc;
-	}, {} as Record<string, any>);
+	const resources = modules.reduce(
+		(acc, mod, index) => {
+			acc[camelCase(NAMESPACES[index])] = mod;
+			return acc;
+		},
+		{} as Record<string, any>,
+	);
 	return resources;
 };
 

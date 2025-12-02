@@ -13,6 +13,7 @@ import { useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { usePlatform } from "@/store/use-platform";
 import useSidebarToggleStore from "@/store/use-sidebar-toggle-store";
+
 // import type { useHeaderStore } from "@/store/use-header-store";
 
 // 声明electron的require
@@ -86,9 +87,9 @@ function AppTitle() {
 			{/* {centerContent ? (
 				<div className="flex items-center">{centerContent}</div>
 			) : ( */}
-				<h1 className="text-lg font-bold select-none cursor-default">
-					Star River
-				</h1>
+			<h1 className="text-lg font-bold select-none cursor-default">
+				Star River
+			</h1>
 			{/* )} */}
 		</div>
 	);

@@ -7,7 +7,11 @@ interface SimulateModeShowProps {
 	handleColor: string;
 }
 
-const SimulateModeShow: React.FC<SimulateModeShowProps> = ({ id,data, handleColor }) => {
+const SimulateModeShow: React.FC<SimulateModeShowProps> = ({
+	id,
+	data,
+	handleColor,
+}) => {
 	// 获取模拟模式配置
 	const simulateConfig = data.simulateConfig;
 

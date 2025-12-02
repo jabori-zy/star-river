@@ -6,8 +6,8 @@ import type {
 	SelectedAccount,
 	TimeRange,
 } from "@/types/strategy";
-import type { SelectedSymbol } from "./kline-node";
 import type { NodeDataBase } from ".";
+import type { SelectedSymbol } from "./kline-node";
 
 // 选中的指标, 用于连接到其他节点, 使用新的指标配置结构
 export type SelectedIndicator = {
@@ -49,7 +49,7 @@ export type IndicatorNodeBacktestExchangeModeConfig = {
 // 指标节点回测模式配置
 export type IndicatorNodeBacktestConfig = {
 	dataSource: BacktestDataSource; // 数据来源
-	fileModeConfig: IndicatorNodeBacktestFileConfig | null;  // 文件数据源配置
+	fileModeConfig: IndicatorNodeBacktestFileConfig | null; // 文件数据源配置
 	exchangeModeConfig: IndicatorNodeBacktestExchangeModeConfig | null; // 交易所数据源配置
 };
 

@@ -1,5 +1,7 @@
 import { Plus } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import CreateStrategyDialog from "@/components/create-strategy-dialog";
 import { Button } from "@/components/ui/button";
 import {
 	Pagination,
@@ -11,9 +13,7 @@ import {
 	PaginationPrevious,
 } from "@/components/ui/pagination";
 import { useStrategyList } from "@/service/strategy-management/get-strategy-list";
-import CreateStrategyDialog from "@/components/create-strategy-dialog";
 import { StrategyItem } from "./component/strategy-list-item";
-import { useTranslation } from "react-i18next";
 
 function StrategyListPage() {
 	const [open, setOpen] = useState(false);
@@ -36,7 +36,9 @@ function StrategyListPage() {
 	return (
 		<div className="p-6">
 			<div className="flex items-center justify-between mb-6">
-				<h2 className="text-2xl font-semibold tracking-tight">{t("desktop.strategyList")}</h2>
+				<h2 className="text-2xl font-semibold tracking-tight">
+					{t("desktop.strategyList")}
+				</h2>
 				<Button
 					onClick={() => setOpen(true)}
 					className="flex items-center gap-2"
@@ -128,7 +130,9 @@ function StrategyListPage() {
 									<PaginationItem>
 										<PaginationNext
 											onClick={() =>
-												setCurrentPage((prev) => Math.min(data.totalPages, prev + 1))
+												setCurrentPage((prev) =>
+													Math.min(data.totalPages, prev + 1),
+												)
 											}
 										/>
 									</PaginationItem>

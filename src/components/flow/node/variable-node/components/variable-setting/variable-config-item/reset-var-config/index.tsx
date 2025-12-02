@@ -1,27 +1,31 @@
-import { TbRefresh } from "react-icons/tb";
+import { useNodeConnections } from "@xyflow/react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
-import { getTriggerTypeInfo } from "@/components/flow/node/variable-node/variable-node-utils";
-import { formatVariableValue } from "@/components/flow/node/start-node/components/utils";
-import { Badge } from "@/components/ui/badge";
-import { Label } from "@/components/ui/label";
+import { useTranslation } from "react-i18next";
+import { TbRefresh } from "react-icons/tb";
 import { SelectInDialog } from "@/components/dialog-components/select-in-dialog";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
+import type { CaseItemInfo } from "@/components/flow/case-selector";
+import { formatVariableValue } from "@/components/flow/node/start-node/components/utils";
+import { getTriggerTypeInfo } from "@/components/flow/node/variable-node/variable-node-utils";
+import { Badge } from "@/components/ui/badge";
 import {
 	Collapsible,
 	CollapsibleContent,
 	CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import DeleteConfigButton from "../../components/delete-config-button";
+import { Label } from "@/components/ui/label";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
+import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
+import useTradingModeStore from "@/store/use-trading-mode-store";
 import type {
+	ConditionTrigger,
 	ResetVariableConfig,
 	TimerTrigger,
-	ConditionTrigger,
 	TriggerType,
 } from "@/types/node/variable-node";
 import {
@@ -29,28 +33,24 @@ import {
 	getEffectiveTriggerType,
 	getTimerTriggerConfig,
 } from "@/types/node/variable-node";
+import type { TradeMode } from "@/types/strategy";
 import {
 	type CustomVariable,
 	getVariableValueTypeIcon,
 	getVariableValueTypeIconColor,
 	VariableValueType,
 } from "@/types/variable";
-import { useTranslation } from "react-i18next";
 import {
 	generateBooleanHint,
 	generateEnumHint,
 	generateNumberHint,
+	generatePercentageHint,
 	generateStringHint,
 	generateTimeHint,
-	generatePercentageHint,
 } from "../../../../hint-generators";
-import type { CaseItemInfo } from "@/components/flow/case-selector";
+import DeleteConfigButton from "../../components/delete-config-button";
 import TriggerTypeSwitcher from "../../components/trigger-type-switcher";
 import { useValidateResetConfig } from "../validate";
-import { useNodeConnections } from "@xyflow/react";
-import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
-import type { TradeMode } from "@/types/strategy";
-import useTradingModeStore from "@/store/use-trading-mode-store";
 
 interface ResetVarConfigItemProps {
 	id: string;
@@ -76,15 +76,14 @@ const ResetVarConfigItem: React.FC<ResetVarConfigItemProps> = ({
 	const { getIfElseNodeCases } = useStrategyWorkflow();
 	const { tradingMode } = useTradingModeStore();
 
-	const effectiveTriggerType =
-		getEffectiveTriggerType(config) ?? "condition";
+	const effectiveTriggerType = getEffectiveTriggerType(config) ?? "condition";
 
 	const triggerCase = getConditionTriggerConfig(config) ?? null;
 	const timerConfig = getTimerTriggerConfig(config);
 
 	// 使用 ref 缓存 timer 和 condition 配置，防止切换触发类型时丢失
 	const cachedTimerConfig = useRef<TimerTrigger>(
-		timerConfig || { mode: "interval", interval: 1, unit: "hour" }
+		timerConfig || { mode: "interval", interval: 1, unit: "hour" },
 	);
 	const cachedConditionConfig = useRef<ConditionTrigger | null>(triggerCase);
 
@@ -99,7 +98,9 @@ const ResetVarConfigItem: React.FC<ResetVarConfigItemProps> = ({
 	useEffect(() => {
 		// filter default input handle connection
 		const conn = connections.filter(
-			connection => (connection.targetHandle === `${id}_default_input` || connection.targetHandle === config.inputHandleId)
+			(connection) =>
+				connection.targetHandle === `${id}_default_input` ||
+				connection.targetHandle === config.inputHandleId,
 		);
 		const cases = getIfElseNodeCases(conn, tradingMode as TradeMode);
 		setCaseItemList(cases);
@@ -134,7 +135,11 @@ const ResetVarConfigItem: React.FC<ResetVarConfigItemProps> = ({
 	};
 
 	// 使用验证 Hook
-	const { variable, triggerCase: triggerCaseError, hasError } = useValidateResetConfig(config, {
+	const {
+		variable,
+		triggerCase: triggerCaseError,
+		hasError,
+	} = useValidateResetConfig(config, {
 		t,
 		duplicateOperation,
 	});
@@ -149,9 +154,9 @@ const ResetVarConfigItem: React.FC<ResetVarConfigItemProps> = ({
 				...config,
 				triggerConfig: cachedConditionConfig.current
 					? {
-						type: "condition",
-						config: cachedConditionConfig.current,
-					}
+							type: "condition",
+							config: cachedConditionConfig.current,
+						}
 					: null,
 			});
 		} else if (triggerType === "timer") {
@@ -295,7 +300,9 @@ const ResetVarConfigItem: React.FC<ResetVarConfigItemProps> = ({
 	})();
 
 	return (
-		<div className={`group flex-1 space-y-2 p-3 rounded-md border bg-background ${hasError ? "border-red-500" : "border-border"}`}>
+		<div
+			className={`group flex-1 space-y-2 p-3 rounded-md border bg-background ${hasError ? "border-red-500" : "border-border"}`}
+		>
 			<Collapsible open={isOpen} onOpenChange={setIsOpen}>
 				<div className="flex items-start justify-between gap-2">
 					<CollapsibleTrigger asChild>
@@ -310,7 +317,9 @@ const ResetVarConfigItem: React.FC<ResetVarConfigItemProps> = ({
 									{/* 第一行：图标 + 操作标题 + 触发方式 */}
 									<div className="flex items-center gap-2">
 										<TbRefresh className="h-4 w-4 text-orange-600 flex-shrink-0" />
-										<span className="text-sm font-medium">{t("variableNode.resetVariable")}</span>
+										<span className="text-sm font-medium">
+											{t("variableNode.resetVariable")}
+										</span>
 										<Badge className={`h-5 text-[10px] ${typeInfo.badgeColor}`}>
 											<TriggerIcon className="h-3 w-3" />
 											{typeInfo.label}
@@ -346,16 +355,16 @@ const ResetVarConfigItem: React.FC<ResetVarConfigItemProps> = ({
 								value={config.varName}
 								onValueChange={handleVariableChange}
 								placeholder={
-									customVariables.length === 0 ? "无自定义变量" : "选择要重置的变量"
+									customVariables.length === 0
+										? "无自定义变量"
+										: "选择要重置的变量"
 								}
 								options={customVariableOptions}
 								disabled={customVariables.length === 0}
 								emptyMessage="未配置自定义变量，请在策略起点配置"
 							/>
 							{errors.variable && (
-								<p className="text-xs text-red-600 mt-1">
-									{errors.variable}
-								</p>
+								<p className="text-xs text-red-600 mt-1">{errors.variable}</p>
 							)}
 						</div>
 
@@ -368,19 +377,21 @@ const ResetVarConfigItem: React.FC<ResetVarConfigItemProps> = ({
 							caseItemList={caseItemList}
 							selectedTriggerCase={triggerCase ?? null}
 							onTriggerCaseChange={handleTriggerCaseChange}
-							timerConfig={timerConfig || { mode: "interval", interval: 1, unit: "hour" }}
+							timerConfig={
+								timerConfig || { mode: "interval", interval: 1, unit: "hour" }
+							}
 							onTimerConfigChange={handleTimerConfigChange}
 						/>
 
 						{errors.triggerCase && (
-							<p className="text-xs text-red-600 mt-1">
-								{errors.triggerCase}
-							</p>
+							<p className="text-xs text-red-600 mt-1">{errors.triggerCase}</p>
 						)}
 
 						{/* 展开状态下显示描述文案 */}
 						{effectiveTriggerType === "condition" && conditionHint && (
-							<p className="text-xs text-muted-foreground mt-2">{conditionHint}</p>
+							<p className="text-xs text-muted-foreground mt-2">
+								{conditionHint}
+							</p>
 						)}
 
 						{effectiveTriggerType === "timer" && timerHint && (

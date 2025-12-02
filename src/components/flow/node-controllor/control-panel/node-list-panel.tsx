@@ -8,9 +8,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { nodeList } from "@/constants/node-list";
 import { useDndNodeStore } from "@/store/use-dnd-node-store";
-import type { NodeItemProps } from "@/types/nodeCategory";
 import { getNodeTypeName, type NodeType } from "@/types/node";
-
+import type { NodeItemProps } from "@/types/nodeCategory";
 
 function NodeItem(props: NodeItemProps) {
 	const { setDragNodeItem } = useDndNodeStore();
@@ -77,7 +76,9 @@ const NodeListPanel: React.FC = () => {
 					.includes(lowercasedFilter);
 
 				const filteredItems = item.items.filter((item) =>
-					getNodeTypeName(item.nodeType as NodeType, t).toLowerCase().includes(lowercasedFilter),
+					getNodeTypeName(item.nodeType as NodeType, t)
+						.toLowerCase()
+						.includes(lowercasedFilter),
 				);
 
 				if (categoryTitleMatches) {

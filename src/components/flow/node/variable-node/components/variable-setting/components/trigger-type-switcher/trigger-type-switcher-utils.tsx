@@ -11,4 +11,3 @@ export const getTimeUnitOptions = (t: TFunction) => [
 	{ value: "hour", label: t("common.timeUnit.hour") },
 	{ value: "day", label: t("common.timeUnit.day") },
 ];
-

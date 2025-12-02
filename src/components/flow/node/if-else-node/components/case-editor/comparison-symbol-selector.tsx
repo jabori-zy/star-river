@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import Selector from "@/components/flow/node/if-else-node/components/selector";
 import { SelectItem } from "@/components/ui/select";
 import {
@@ -7,7 +8,6 @@ import {
 	getComparisonSymbolLabel,
 } from "@/types/node/if-else-node";
 import type { VariableValueType } from "@/types/variable";
-import { useTranslation } from "react-i18next";
 
 interface ComparisonSymbolSelectorProps {
 	className?: string;

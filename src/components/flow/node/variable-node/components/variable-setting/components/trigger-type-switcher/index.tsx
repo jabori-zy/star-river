@@ -1,3 +1,8 @@
+import { useTranslation } from "react-i18next";
+import CaseSelector, {
+	type CaseItemInfo,
+} from "@/components/flow/case-selector";
+import { getTriggerTypeInfo } from "@/components/flow/node/variable-node/variable-node-utils";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import {
@@ -6,23 +11,20 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { getTriggerTypeInfo } from "@/components/flow/node/variable-node/variable-node-utils";
-import type { 
-	TriggerType, 
-	ConditionTrigger, 
-	TimerTrigger, 
-	TimerUnit,
-	DataflowErrorType,
+import useTradingModeStore from "@/store/use-trading-mode-store";
+import type {
+	ConditionTrigger,
 	DataflowErrorPolicy,
+	DataflowErrorType,
+	TimerTrigger,
+	TimerUnit,
+	TriggerType,
 	UpdateVarValueOperation,
 } from "@/types/node/variable-node";
-import type { VariableValueType } from "@/types/variable";
 import { TradeMode } from "@/types/strategy";
-import { useTranslation } from "react-i18next";
-import useTradingModeStore from "@/store/use-trading-mode-store";
-import CaseSelector, { type CaseItemInfo } from "@/components/flow/case-selector";
-import TimerConfigComponent from "./timer-config";
+import type { VariableValueType } from "@/types/variable";
 import DataflowConfig from "./dataflow-config";
+import TimerConfigComponent from "./timer-config";
 
 interface TriggerTypeSwitcherProps {
 	triggerType: TriggerType;
@@ -41,8 +43,14 @@ interface TriggerTypeSwitcherProps {
 	errorPolicy?: Partial<Record<DataflowErrorType, DataflowErrorPolicy>>;
 	replaceValueType?: VariableValueType;
 	updateOperationType?: UpdateVarValueOperation;
-	onExpireDurationChange?: (config: { unit: TimerUnit; duration: number }) => void;
-	onErrorPolicyChange?: (errorType: DataflowErrorType, policy: DataflowErrorPolicy) => void;
+	onExpireDurationChange?: (config: {
+		unit: TimerUnit;
+		duration: number;
+	}) => void;
+	onErrorPolicyChange?: (
+		errorType: DataflowErrorType,
+		policy: DataflowErrorPolicy,
+	) => void;
 	onDataflowValidationChange?: (isValid: boolean) => void;
 }
 
@@ -70,7 +78,7 @@ const TriggerTypeSwitcher: React.FC<TriggerTypeSwitcherProps> = ({
 	const displayTypes = availableTriggers || TRIGGER_TYPES;
 	const { t } = useTranslation();
 	const { tradingMode } = useTradingModeStore();
-	
+
 	// 判断是否在 backtest 模式下
 	const isBacktestMode = tradingMode === TradeMode.BACKTEST;
 
@@ -78,14 +86,16 @@ const TriggerTypeSwitcher: React.FC<TriggerTypeSwitcherProps> = ({
 		<div className="space-y-3">
 			{/* 触发类型选择器 */}
 			<div className="space-y-1">
-				<Label className="text-sm font-medium">{t("variableNode.triggerType")}</Label>
+				<Label className="text-sm font-medium">
+					{t("variableNode.triggerType")}
+				</Label>
 				<div className="flex flex-row items-center justify-between pt-1 px-2">
 					<TooltipProvider>
 						{displayTypes.map((type) => {
 							const typeInfo = getTriggerTypeInfo(type, t);
 							const IconComponent = typeInfo.icon;
 							const triggerId = `${idPrefix}-${type}-trigger`;
-							
+
 							// 判断 Timer 触发器是否应该被禁用
 							const isTimerDisabled = type === "timer" && isBacktestMode;
 
@@ -104,10 +114,14 @@ const TriggerTypeSwitcher: React.FC<TriggerTypeSwitcherProps> = ({
 									<Label
 										htmlFor={triggerId}
 										className={`text-sm flex items-center gap-1 ${
-											isTimerDisabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+											isTimerDisabled
+												? "cursor-not-allowed opacity-50"
+												: "cursor-pointer"
 										}`}
 									>
-										<IconComponent className={`h-3.5 w-3.5 ${typeInfo.color}`} />
+										<IconComponent
+											className={`h-3.5 w-3.5 ${typeInfo.color}`}
+										/>
 										{typeInfo.label}
 									</Label>
 								</div>
@@ -117,11 +131,13 @@ const TriggerTypeSwitcher: React.FC<TriggerTypeSwitcherProps> = ({
 							if (isTimerDisabled) {
 								return (
 									<Tooltip key={type}>
-										<TooltipTrigger asChild>
-											{checkboxContent}
-										</TooltipTrigger>
+										<TooltipTrigger asChild>{checkboxContent}</TooltipTrigger>
 										<TooltipContent>
-											<p>{t("variableNode.timerConfig.unavailableInBacktestMode")}</p>
+											<p>
+												{t(
+													"variableNode.timerConfig.unavailableInBacktestMode",
+												)}
+											</p>
 										</TooltipContent>
 									</Tooltip>
 								);
@@ -157,24 +173,26 @@ const TriggerTypeSwitcher: React.FC<TriggerTypeSwitcherProps> = ({
 				</div>
 			)}
 
-		{/* Dataflow 触发配置 */}
-		{triggerType === "dataflow" && expireDuration && errorPolicy && 
-			onExpireDurationChange && onErrorPolicyChange && (
-			<div className="">
-				<DataflowConfig
-					expireDuration={expireDuration}
-					errorPolicy={errorPolicy}
-					replaceValueType={replaceValueType}
-					updateOperationType={updateOperationType}
-					onExpireDurationChange={onExpireDurationChange}
-					onErrorPolicyChange={onErrorPolicyChange}
-					onValidationChange={onDataflowValidationChange}
-				/>
-			</div>
-		)}
+			{/* Dataflow 触发配置 */}
+			{triggerType === "dataflow" &&
+				expireDuration &&
+				errorPolicy &&
+				onExpireDurationChange &&
+				onErrorPolicyChange && (
+					<div className="">
+						<DataflowConfig
+							expireDuration={expireDuration}
+							errorPolicy={errorPolicy}
+							replaceValueType={replaceValueType}
+							updateOperationType={updateOperationType}
+							onExpireDurationChange={onExpireDurationChange}
+							onErrorPolicyChange={onErrorPolicyChange}
+							onValidationChange={onDataflowValidationChange}
+						/>
+					</div>
+				)}
 		</div>
 	);
 };
 
 export default TriggerTypeSwitcher;
-

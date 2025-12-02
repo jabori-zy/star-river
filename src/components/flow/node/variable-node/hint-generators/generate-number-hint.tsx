@@ -1,10 +1,10 @@
 import type { HintGeneratorParams } from "./types";
 import {
-	generateTriggerPrefix,
-	generateVariableHighlight,
-	generateValueHighlight,
-	generateSymbolHighlight,
 	generateDataflowPath,
+	generateSymbolHighlight,
+	generateTriggerPrefix,
+	generateValueHighlight,
+	generateVariableHighlight,
 } from "./utils";
 
 /**
@@ -66,8 +66,8 @@ function generateGetOperation(params: HintGeneratorParams): React.ReactNode {
 	if (symbol) {
 		return (
 			<>
-				{triggerPrefix}{" "}
-				{t("variableNode.hint.get")} {generateSymbolHighlight(symbol)}{" "}
+				{triggerPrefix} {t("variableNode.hint.get")}{" "}
+				{generateSymbolHighlight(symbol)}{" "}
 				{generateVariableHighlight(variableDisplayName)}
 			</>
 		);
@@ -77,9 +77,8 @@ function generateGetOperation(params: HintGeneratorParams): React.ReactNode {
 	if (value) {
 		return (
 			<>
-				{triggerPrefix}{" "}
-				{generateVariableHighlight(variableDisplayName)} {t("variableNode.hint.currentValue")} {" "}
-				{generateValueHighlight(value)}
+				{triggerPrefix} {generateVariableHighlight(variableDisplayName)}{" "}
+				{t("variableNode.hint.currentValue")} {generateValueHighlight(value)}
 			</>
 		);
 	}
@@ -87,8 +86,7 @@ function generateGetOperation(params: HintGeneratorParams): React.ReactNode {
 	// 场景3: 默认 - 将会获取值
 	return (
 		<>
-			{triggerPrefix}{" "}
-			{t("variableNode.hint.get")} {" "}
+			{triggerPrefix} {t("variableNode.hint.get")}{" "}
 			{generateVariableHighlight(variableDisplayName)}
 		</>
 	);
@@ -255,8 +253,8 @@ function generateNormalUpdateHint(
 		return (
 			<>
 				{triggerPrefix}
-				{generateVariableHighlight(variableDisplayName)} {t("variableNode.hint.set")} {" "}
-				{generateValueHighlight(value)}
+				{generateVariableHighlight(variableDisplayName)}{" "}
+				{t("variableNode.hint.set")} {generateValueHighlight(value)}
 			</>
 		);
 	}
@@ -266,8 +264,8 @@ function generateNormalUpdateHint(
 		return (
 			<>
 				{triggerPrefix}
-				{generateVariableHighlight(variableDisplayName)} {t("variableNode.hint.add")} {" "}
-				{generateValueHighlight(value)}
+				{generateVariableHighlight(variableDisplayName)}{" "}
+				{t("variableNode.hint.add")} {generateValueHighlight(value)}
 			</>
 		);
 	}
@@ -277,8 +275,8 @@ function generateNormalUpdateHint(
 		return (
 			<>
 				{triggerPrefix}
-				{generateVariableHighlight(variableDisplayName)} {t("variableNode.hint.subtract")} {" "}
-				{generateValueHighlight(value)}
+				{generateVariableHighlight(variableDisplayName)}{" "}
+				{t("variableNode.hint.subtract")} {generateValueHighlight(value)}
 			</>
 		);
 	}
@@ -288,8 +286,8 @@ function generateNormalUpdateHint(
 		return (
 			<>
 				{triggerPrefix}
-				{generateVariableHighlight(variableDisplayName)} {t("variableNode.hint.multiply")} {" "}
-				{generateValueHighlight(value)}
+				{generateVariableHighlight(variableDisplayName)}{" "}
+				{t("variableNode.hint.multiply")} {generateValueHighlight(value)}
 			</>
 		);
 	}
@@ -299,8 +297,8 @@ function generateNormalUpdateHint(
 		return (
 			<>
 				{triggerPrefix}
-				{generateVariableHighlight(variableDisplayName)} {t("variableNode.hint.divide")} {" "}
-				{generateValueHighlight(value)}
+				{generateVariableHighlight(variableDisplayName)}{" "}
+				{t("variableNode.hint.divide")} {generateValueHighlight(value)}
 			</>
 		);
 	}

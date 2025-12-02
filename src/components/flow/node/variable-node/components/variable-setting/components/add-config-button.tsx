@@ -1,5 +1,6 @@
 import { PlusIcon } from "lucide-react";
 import type React from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -8,12 +9,11 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
+	getVariableOperationDisplayName,
 	getVariableOperationIcon,
 	getVariableOperationIconColor,
-	getVariableOperationDisplayName,
 	type VariableOperation,
 } from "@/types/node/variable-node";
-import { useTranslation } from "react-i18next";
 
 interface AddConfigButtonProps {
 	onAddVariable: (operation: VariableOperation) => void;

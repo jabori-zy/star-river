@@ -1,3 +1,4 @@
+import type { TFunction } from "i18next";
 import {
 	TbAbc,
 	TbClock,
@@ -6,7 +7,6 @@ import {
 	TbPercentage,
 	TbToggleLeft,
 } from "react-icons/tb";
-import type { TFunction } from "i18next";
 
 export enum VariableValueType {
 	NUMBER = "number", // 数字
@@ -38,7 +38,9 @@ export const getVariableValueTypeIcon = (type: VariableValueType) => {
 };
 
 // 获取变量类型对应的图标颜色类名
-export const getVariableValueTypeIconColor = (type: VariableValueType): string => {
+export const getVariableValueTypeIconColor = (
+	type: VariableValueType,
+): string => {
 	switch (type) {
 		case VariableValueType.NUMBER:
 			return "text-blue-500";
@@ -57,18 +59,19 @@ export const getVariableValueTypeIconColor = (type: VariableValueType): string =
 	}
 };
 
-
 export type StrategyVariable = CustomVariable | SystemVariable;
 
-
-export function isCustomVariable(variable: StrategyVariable): variable is CustomVariable {
+export function isCustomVariable(
+	variable: StrategyVariable,
+): variable is CustomVariable {
 	return variable.varType === "custom";
 }
 
-export function isSystemVariable(variable: StrategyVariable): variable is SystemVariable {
+export function isSystemVariable(
+	variable: StrategyVariable,
+): variable is SystemVariable {
 	return variable.varType === "system";
 }
-
 
 export interface SystemVariable {
 	varType: "system";
@@ -77,12 +80,7 @@ export interface SystemVariable {
 	varValueType: VariableValueType;
 	symbol?: string | null;
 	varValue: string | number | boolean | string[] | null;
-
 }
-
-
-
-
 
 export interface CustomVariable {
 	varType: "custom";
@@ -155,14 +153,20 @@ export const getSystemVariableMetadata = (
 	},
 	[SystemVariableType.TOTAL_CURRENT_POSITION_AMOUNT]: {
 		varName: "total_current_position_amount",
-		varDisplayName: t("variableNode.systemVariableName.totalCurrentPositionAmount"),
+		varDisplayName: t(
+			"variableNode.systemVariableName.totalCurrentPositionAmount",
+		),
 		varValueType: VariableValueType.NUMBER,
 		shouldSelectSymbol: false,
-		description: t("variableNode.systemVariableName.totalCurrentPositionAmount"),
+		description: t(
+			"variableNode.systemVariableName.totalCurrentPositionAmount",
+		),
 	},
 	[SystemVariableType.TOTAL_UNFILLED_ORDER_AMOUNT]: {
 		varName: "total_unfilled_order_amount",
-		varDisplayName: t("variableNode.systemVariableName.totalUnfilledOrderAmount"),
+		varDisplayName: t(
+			"variableNode.systemVariableName.totalUnfilledOrderAmount",
+		),
 		varValueType: VariableValueType.NUMBER,
 		shouldSelectSymbol: false,
 		description: t("variableNode.systemVariableName.totalUnfilledOrderAmount"),
@@ -183,10 +187,14 @@ export const getSystemVariableMetadata = (
 	},
 	[SystemVariableType.TOTAL_HISTORY_POSITION_AMOUNT]: {
 		varName: "total_history_position_amount",
-		varDisplayName: t("variableNode.systemVariableName.totalHistoryPositionAmount"),
+		varDisplayName: t(
+			"variableNode.systemVariableName.totalHistoryPositionAmount",
+		),
 		varValueType: VariableValueType.NUMBER,
 		shouldSelectSymbol: false,
-		description: t("variableNode.systemVariableName.totalHistoryPositionAmount"),
+		description: t(
+			"variableNode.systemVariableName.totalHistoryPositionAmount",
+		),
 	},
 	[SystemVariableType.HISTORY_POSITION_AMOUNT]: {
 		varName: "history_position_amount",
@@ -197,7 +205,9 @@ export const getSystemVariableMetadata = (
 	},
 	[SystemVariableType.TOTAL_HISTORY_ORDER_AMOUNT]: {
 		varName: "total_history_order_amount",
-		varDisplayName: t("variableNode.systemVariableName.totalHistoryOrderAmount"),
+		varDisplayName: t(
+			"variableNode.systemVariableName.totalHistoryOrderAmount",
+		),
 		varValueType: VariableValueType.NUMBER,
 		shouldSelectSymbol: false,
 		description: t("variableNode.systemVariableName.totalHistoryOrderAmount"),

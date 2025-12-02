@@ -3,8 +3,8 @@ import { useCallback } from "react";
 import { useBacktestChartStore } from "@/components/chart/backtest-chart/backtest-chart-store";
 import { getChartAlignedUtcTimestamp } from "@/components/chart/backtest-chart/utls";
 import { getStrategyDataApi } from "@/service/backtest-strategy/get-strategy-data";
-import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
+import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 interface SeriesConfig {
 	indicatorValueKey: string;
@@ -101,8 +101,7 @@ export const useIndicatorDataLoader = ({
 						seriesConfig.indicatorValueKey,
 					);
 					if (indicatorSeriesRef) {
-						const originalData =
-							indicatorSeriesRef.data() as SingleValueData[];
+						const originalData = indicatorSeriesRef.data() as SingleValueData[];
 						const partialData =
 							partialIndicatorData[
 								seriesConfig.indicatorValueKey as keyof IndicatorValueConfig
@@ -114,10 +113,7 @@ export const useIndicatorDataLoader = ({
 					}
 				});
 			} catch (error) {
-				console.error(
-					`加载指标 ${indicatorKeyStr} 历史数据时出错:`,
-					error,
-				);
+				console.error(`加载指标 ${indicatorKeyStr} 历史数据时出错:`, error);
 			}
 		},
 		[strategyId, getIndicatorSeriesRef],

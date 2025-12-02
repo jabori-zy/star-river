@@ -61,17 +61,16 @@ export const createSubscriptionSlice: SliceCreator<SubscriptionSlice> = (
 								virtualOrderEvent.event === "stop-loss-order-filled-event"
 							) {
 								state.onOrderFilled(virtualOrderEvent.futuresOrder);
-							} 
-							else if (
+							} else if (
 								virtualOrderEvent.event === "futures-order-created-event" ||
 								virtualOrderEvent.event === "take-profit-order-created-event" ||
 								virtualOrderEvent.event === "stop-loss-order-created-event"
 							) {
 								state.onOrderCreated(virtualOrderEvent.futuresOrder);
-							}
-							else if (
+							} else if (
 								virtualOrderEvent.event === "futures-order-canceled-event" ||
-								virtualOrderEvent.event === "take-profit-order-canceled-event" ||
+								virtualOrderEvent.event ===
+									"take-profit-order-canceled-event" ||
 								virtualOrderEvent.event === "stop-loss-order-canceled-event"
 							) {
 								state.onOrderCanceled(virtualOrderEvent.futuresOrder);

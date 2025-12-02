@@ -1,4 +1,6 @@
+import { useTranslation } from "react-i18next";
 import { SelectInDialog } from "@/components/dialog-components/select-in-dialog";
+import { generateBooleanHint } from "@/components/flow/node/variable-node/hint-generators";
 import { ButtonGroup } from "@/components/ui/button-group";
 import type {
 	TriggerConfig,
@@ -9,8 +11,6 @@ import {
 	getEffectiveTriggerType,
 	getTimerTriggerConfig,
 } from "@/types/node/variable-node";
-import { generateBooleanHint } from "@/components/flow/node/variable-node/hint-generators";
-import { useTranslation } from "react-i18next";
 
 interface BoolTypeOpEditorProps {
 	updateOperationType: UpdateVarValueOperation;
@@ -42,7 +42,7 @@ const BoolTypeOpEditor: React.FC<BoolTypeOpEditorProps> = ({
 	const { t } = useTranslation();
 	const effectiveTriggerType =
 		triggerType ?? getEffectiveTriggerType({ triggerConfig }) ?? "condition";
-	const conditionTrigger = getConditionTriggerConfig({ triggerConfig});
+	const conditionTrigger = getConditionTriggerConfig({ triggerConfig });
 	const timerTrigger = getTimerTriggerConfig({ triggerConfig });
 
 	// 判断是否应该显示提示文案

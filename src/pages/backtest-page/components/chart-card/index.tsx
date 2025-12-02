@@ -1,6 +1,7 @@
 // import RealtimeTickingStockCharts from "@/components/chart/SciChart";
 import { ChartSpline, Ellipsis, Search, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import BacktestChart from "@/components/chart/backtest-chart";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,6 +22,7 @@ interface ChartCardProps {
 }
 
 const ChartCard: React.FC<ChartCardProps> = ({ chartConfig, strategyId }) => {
+	const { t } = useTranslation();
 	// 使用store中的方法
 	const { deleteChart, addIndicator, changeKline } =
 		useBacktestChartConfigStore();
@@ -58,7 +60,7 @@ const ChartCard: React.FC<ChartCardProps> = ({ chartConfig, strategyId }) => {
 						onClick={() => setIsIndicatorDialogOpen(true)}
 					>
 						<ChartSpline className="w-4 h-4 text-gray-500" />
-						指标
+						{t("desktop.backtestPage.indicator")}
 					</Button>
 				</div>
 
@@ -69,7 +71,9 @@ const ChartCard: React.FC<ChartCardProps> = ({ chartConfig, strategyId }) => {
 					<DropdownMenuContent>
 						<DropdownMenuItem onClick={() => deleteChart(chartConfig.id)}>
 							<Trash2 className="w-4 h-4 text-red-500" />
-							<div className="text-red-500">删除图表</div>
+							<div className="text-red-500">
+								{t("desktop.backtestPage.deleteChart")}
+							</div>
 						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>

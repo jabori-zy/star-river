@@ -1,3 +1,4 @@
+import { useNodeConnections } from "@xyflow/react";
 import {
 	ArrowUpCircle,
 	ChevronDown,
@@ -10,8 +11,10 @@ import {
 	TrendingUp,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useNodeConnections } from "@xyflow/react";
 import { useTranslation } from "react-i18next";
+import type { CaseItemInfo } from "@/components/flow/case-selector";
+import CaseSelector from "@/components/flow/case-selector";
+import { getOutputHandleIds } from "@/components/flow/node/futures-order-node/utils";
 import { InputWithDropdown } from "@/components/input-components/input-with-dropdown";
 import { Selector } from "@/components/select-components/select";
 import { SelectWithSearch } from "@/components/select-components/select-with-search";
@@ -24,25 +27,22 @@ import {
 } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
+import { cn } from "@/lib/utils";
 import { getSymbolInfo } from "@/service/market";
+import useTradingModeStore from "@/store/use-trading-mode-store";
+import type { ConditionTrigger } from "@/types/condition-trigger";
 import type { Instrument } from "@/types/market";
 import {
 	type FuturesOrderConfig,
 	FuturesOrderSide,
-	OrderType,
 	getFuturesOrderSideColor,
 	getFuturesOrderSideLabel,
 	getOrderTypeLabel,
 	getTpSlTypeLabel,
+	OrderType,
 } from "@/types/order";
-import type { ConditionTrigger } from "@/types/condition-trigger";
-import CaseSelector from "@/components/flow/case-selector";
-import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
-import useTradingModeStore from "@/store/use-trading-mode-store";
 import type { TradeMode } from "@/types/strategy";
-import type { CaseItemInfo } from "@/components/flow/case-selector";
-import { getOutputHandleIds } from "@/components/flow/node/futures-order-node/utils";
-
 
 interface OrderConfigFormProps {
 	id: string;
@@ -74,7 +74,10 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 	const ORDER_TYPE_OPTIONS = useMemo(
 		() => [
 			{ value: OrderType.LIMIT, label: getOrderTypeLabel(OrderType.LIMIT, t) },
-			{ value: OrderType.MARKET, label: getOrderTypeLabel(OrderType.MARKET, t) },
+			{
+				value: OrderType.MARKET,
+				label: getOrderTypeLabel(OrderType.MARKET, t),
+			},
 			{
 				value: OrderType.STOP_MARKET,
 				label: getOrderTypeLabel(OrderType.STOP_MARKET, t),
@@ -104,7 +107,10 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 	const TP_SL_TYPE_OPTIONS = useMemo(
 		() => [
 			{ value: "price" as const, label: getTpSlTypeLabel("price", t) },
-			{ value: "percentage" as const, label: getTpSlTypeLabel("percentage", t) },
+			{
+				value: "percentage" as const,
+				label: getTpSlTypeLabel("percentage", t),
+			},
 			{ value: "point" as const, label: getTpSlTypeLabel("point", t) },
 		],
 		[t],
@@ -136,7 +142,9 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 	const [slType, setSlType] = useState<"price" | "percentage" | "point">(
 		config?.slType || "price",
 	);
-	const [triggerConfig, setTriggerConfig] = useState<ConditionTrigger | null>(config?.triggerConfig ?? null);
+	const [triggerConfig, setTriggerConfig] = useState<ConditionTrigger | null>(
+		config?.triggerConfig ?? null,
+	);
 
 	// 存储上游节点的case列表
 	const [caseItemList, setCaseItemList] = useState<CaseItemInfo[]>([]);
@@ -146,7 +154,9 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 	useEffect(() => {
 		// filter default input handle connection
 		const conn = connections.filter(
-			connection => (connection.targetHandle === `${id}_default_input` || connection.targetHandle === config.inputHandleId)
+			(connection) =>
+				connection.targetHandle === `${id}_default_input` ||
+				connection.targetHandle === config.inputHandleId,
 		);
 		const cases = getIfElseNodeCases(conn, tradingMode as TradeMode);
 
@@ -309,7 +319,8 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 									<div className="flex items-center gap-2 text-sm font-medium text-slate-700">
 										<Settings2 className="h-4 w-4 text-blue-500" />
 										<span>
-											{t("futuresOrderNode.create")} {getOrderTypeLabel(orderType, t)}
+											{t("futuresOrderNode.create")}{" "}
+											{getOrderTypeLabel(orderType, t)}
 										</span>
 									</div>
 								) : (
@@ -319,11 +330,10 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 										</span>
 										<Badge
 											variant="outline"
-											className="shrink-0 border-opacity-50"
-											style={{
-												color: getFuturesOrderSideColor(orderSide),
-												borderColor: getFuturesOrderSideColor(orderSide),
-											}}
+											className={cn(
+												"shrink-0 border-opacity-50",
+												getFuturesOrderSideColor(orderSide),
+											)}
 										>
 											{getFuturesOrderSideLabel(orderSide, t)}
 										</Badge>
@@ -350,7 +360,6 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 				{/* 表单内容 */}
 				<CollapsibleContent>
 					<div className="px-4 pb-4 pt-1 grid gap-4">
-
 						{/* 触发条件 */}
 						<div className="grid gap-2">
 							<Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
@@ -377,7 +386,9 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 							</Label>
 							<Selector
 								value={orderType}
-								onValueChange={(value) => handleOrderTypeChange(value as OrderType)}
+								onValueChange={(value) =>
+									handleOrderTypeChange(value as OrderType)
+								}
 								placeholder={t("market.orderType.placeholder")}
 								options={ORDER_TYPE_OPTIONS}
 								className="w-full hover:bg-slate-100 cursor-pointer"
@@ -397,7 +408,9 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 								}))}
 								value={symbol}
 								onValueChange={handleSymbolChange}
-								placeholder={t("futuresOrderNode.orderConfig.symbolPlaceholder")}
+								placeholder={t(
+									"futuresOrderNode.orderConfig.symbolPlaceholder",
+								)}
 								searchPlaceholder={t(
 									"futuresOrderNode.orderConfig.symbolSearchPlaceholder",
 								)}
@@ -445,7 +458,9 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 									value={priceStr}
 									onChange={(e) => handlePriceInputChange(e.target.value)}
 									onBlur={handlePriceBlur}
-									placeholder={t("futuresOrderNode.orderConfig.pricePlaceholder")}
+									placeholder={t(
+										"futuresOrderNode.orderConfig.pricePlaceholder",
+									)}
 								/>
 								{!priceStr && (
 									<p className="text-xs text-red-500 mt-1">
@@ -481,7 +496,9 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 								onBlur={handleQuantityBlur}
 								min={0}
 								step={0.01}
-								placeholder={t("futuresOrderNode.orderConfig.quantityPlaceholder")}
+								placeholder={t(
+									"futuresOrderNode.orderConfig.quantityPlaceholder",
+								)}
 							/>
 							{!quantityStr && (
 								<p className="text-xs text-red-500 mt-1">
@@ -504,7 +521,9 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 								step={0.01}
 								placeholder={
 									tpType === "price"
-										? t("futuresOrderNode.orderConfig.takeProfitPricePlaceholder")
+										? t(
+												"futuresOrderNode.orderConfig.takeProfitPricePlaceholder",
+											)
 										: tpType === "percentage"
 											? t(
 													"futuresOrderNode.orderConfig.takeProfitPercentagePlaceholder",

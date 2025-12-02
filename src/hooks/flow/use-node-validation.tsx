@@ -1,9 +1,9 @@
 import {
 	type Connection,
 	type Edge,
+	getOutgoers,
 	type IsValidConnection,
 	type Node,
-	getOutgoers,
 	useReactFlow,
 } from "@xyflow/react";
 import { useCallback } from "react";
@@ -11,26 +11,25 @@ import { NodeType } from "@/types/node/index";
 
 // 节点连接支持映射表 - 定义每种节点类型可以连接到哪些节点类型
 const NodeSupportConnectionMap: Record<NodeType, NodeType[]> = {
-	[NodeType.StartNode]: [
-		NodeType.KlineNode,
-		NodeType.VariableNode,
-	],
+	[NodeType.StartNode]: [NodeType.KlineNode, NodeType.VariableNode],
 	[NodeType.KlineNode]: [
 		NodeType.IndicatorNode,
 		NodeType.IfElseNode,
 		NodeType.VariableNode,
 	],
 	[NodeType.IndicatorNode]: [NodeType.IfElseNode, NodeType.VariableNode],
-	[NodeType.IfElseNode]: [NodeType.FuturesOrderNode, NodeType.VariableNode, NodeType.PositionNode, NodeType.IfElseNode],
+	[NodeType.IfElseNode]: [
+		NodeType.FuturesOrderNode,
+		NodeType.VariableNode,
+		NodeType.PositionNode,
+		NodeType.IfElseNode,
+	],
 	[NodeType.FuturesOrderNode]: [
 		NodeType.IfElseNode,
 		NodeType.PositionNode,
 		NodeType.VariableNode,
 	],
-	[NodeType.PositionNode]: [
-		NodeType.IfElseNode,
-		NodeType.VariableNode,
-	],
+	[NodeType.PositionNode]: [NodeType.IfElseNode, NodeType.VariableNode],
 	[NodeType.VariableNode]: [NodeType.IfElseNode, NodeType.VariableNode],
 };
 
@@ -123,12 +122,14 @@ const useNodeValidation = () => {
 				nodeId: targetNodeId,
 				type: "target",
 			});
-			const targetNodeSupportConnectionLimit = NodeSupportConnectionLimit[targetNode.type as NodeType];
+			const targetNodeSupportConnectionLimit =
+				NodeSupportConnectionLimit[targetNode.type as NodeType];
 
 			// -1表示无限制，需要继续检查循环
 			if (targetNodeSupportConnectionLimit !== -1) {
 				// 检查是否超过连接数量限制
-				const isOverLimit = targetNodeSupportConnectionLimit > targetNodeConnections.length;
+				const isOverLimit =
+					targetNodeSupportConnectionLimit > targetNodeConnections.length;
 				if (!isOverLimit) {
 					return false;
 				}

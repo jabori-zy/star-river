@@ -1,9 +1,9 @@
 import { Clock } from "lucide-react";
 import type React from "react";
+import { useTranslation } from "react-i18next";
 import { DateTimePicker24h } from "@/components/datetime-picker";
 import { formatDate } from "@/components/flow/node/node-utils";
 import type { TimeRange } from "@/types/strategy";
-import { useTranslation } from "react-i18next";
 
 interface TimeRangeSelectorProps {
 	timeRange: TimeRange;
@@ -33,7 +33,9 @@ const TimeRangeSelector: React.FC<TimeRangeSelectorProps> = ({
 			<div className="space-y-1">
 				<div className="flex items-center gap-2">
 					<Clock className="h-4 w-4 text-muted-foreground" />
-					<span className="font-medium text-sm">{t("startNode.startTime")}</span>
+					<span className="font-medium text-sm">
+						{t("startNode.startTime")}
+					</span>
 				</div>
 				<DateTimePicker24h
 					value={parseDatetime(timeRange.startDate)}

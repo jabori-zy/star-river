@@ -31,12 +31,15 @@ const StrategyRunningInfoLogSchema = StrategyRunningLogCommonSchema.extend({
 const StrategyRunningWarnLogSchema = StrategyRunningLogCommonSchema.extend({
 	logLevel: z
 		.string()
-		.refine((val) => {
-			const lower = val.toLowerCase();
-			return lower === "warn";
-		}, {
-			message: "logLevel must be 'warn' or 'warning'",
-		})
+		.refine(
+			(val) => {
+				const lower = val.toLowerCase();
+				return lower === "warn";
+			},
+			{
+				message: "logLevel must be 'warn' or 'warning'",
+			},
+		)
 		.transform(() => LogLevel.WARN),
 	errorCode: z.string().nullable(),
 	errorCodeChain: z.array(z.string()).nullable(),
@@ -84,12 +87,15 @@ const NodeRunningInfoLogSchema = NodeRunningLogCommonSchema.extend({
 const NodeRunningWarnLogSchema = NodeRunningLogCommonSchema.extend({
 	logLevel: z
 		.string()
-		.refine((val) => {
-			const lower = val.toLowerCase();
-			return lower === "warn" || lower === "warning";
-		}, {
-			message: "logLevel must be 'warn' or 'warning'",
-		})
+		.refine(
+			(val) => {
+				const lower = val.toLowerCase();
+				return lower === "warn" || lower === "warning";
+			},
+			{
+				message: "logLevel must be 'warn' or 'warning'",
+			},
+		)
 		.transform(() => LogLevel.WARN),
 	errorCode: z.string().nullable(),
 	errorCodeChain: z.array(z.string()).nullable(),
@@ -132,9 +138,15 @@ export const RunningLogEventSchema = z.union([
 // ============ Type Definitions (inferred from Zod schemas) ============
 
 // Infer types directly from Zod schemas to ensure type safety
-export type StrategyRunningInfoLog = z.infer<typeof StrategyRunningInfoLogSchema>;
-export type StrategyRunningWarnLog = z.infer<typeof StrategyRunningWarnLogSchema>;
-export type StrategyRunningErrorLog = z.infer<typeof StrategyRunningErrorLogSchema>;
+export type StrategyRunningInfoLog = z.infer<
+	typeof StrategyRunningInfoLogSchema
+>;
+export type StrategyRunningWarnLog = z.infer<
+	typeof StrategyRunningWarnLogSchema
+>;
+export type StrategyRunningErrorLog = z.infer<
+	typeof StrategyRunningErrorLogSchema
+>;
 
 export type NodeRunningInfoLog = z.infer<typeof NodeRunningInfoLogSchema>;
 export type NodeRunningWarnLog = z.infer<typeof NodeRunningWarnLogSchema>;

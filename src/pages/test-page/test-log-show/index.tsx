@@ -1,5 +1,11 @@
 import type React from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
 import { LogDisplay } from "../../strategy-page/components/strategy-loading-dialog/log";
 
 const TestLogShowPage: React.FC = () => {
@@ -8,11 +14,17 @@ const TestLogShowPage: React.FC = () => {
 			<Card>
 				<CardHeader>
 					<CardTitle>Log Component UI Test</CardTitle>
-					<CardDescription>Display static UI for strategy and node logs (fully matches reference implementation)</CardDescription>
+					<CardDescription>
+						Display static UI for strategy and node logs (fully matches
+						reference implementation)
+					</CardDescription>
 				</CardHeader>
 				<CardContent>
 					<div className="text-sm text-muted-foreground space-y-1">
-						<p>• UI structure fully matches src/components/strategy-loading-dialog/log-section.tsx</p>
+						<p>
+							• UI structure fully matches
+							src/components/strategy-loading-dialog/log-section.tsx
+						</p>
 						<p>• Contains strategy state log and node state log examples</p>
 						<p>• Time format: formatFullTime (YYYY-MM-DD HH:mm + timezone)</p>
 						<p>• Static data display only, no business logic</p>

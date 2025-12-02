@@ -15,8 +15,10 @@ export type UpdateVarValueOperation =
 	| "remove"
 	| "clear";
 
-	
-export const getUpdateOperationLabel = (type: UpdateVarValueOperation, t: TFunction): string => {
+export const getUpdateOperationLabel = (
+	type: UpdateVarValueOperation,
+	t: TFunction,
+): string => {
 	const labels: Record<UpdateVarValueOperation, string> = {
 		set: "=",
 		add: "+",
@@ -32,7 +34,6 @@ export const getUpdateOperationLabel = (type: UpdateVarValueOperation, t: TFunct
 	};
 	return labels[type];
 };
-
 
 export type VariableOperation = "get" | "update" | "reset";
 
@@ -68,7 +69,7 @@ export const getVariableOperationIconColor = (
 
 export const getVariableOperationDisplayName = (
 	operation: VariableOperation,
-	t:(key: string) => string,
+	t: (key: string) => string,
 ): string => {
 	switch (operation) {
 		case "get":
@@ -84,7 +85,7 @@ export const getVariableOperationDisplayName = (
 
 export const getVariableOperationDescription = (
 	operation: VariableOperation,
-	t:(key: string) => string,
+	t: (key: string) => string,
 ): string => {
 	switch (operation) {
 		case "get":

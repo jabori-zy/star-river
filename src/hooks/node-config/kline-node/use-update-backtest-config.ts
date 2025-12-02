@@ -1,7 +1,9 @@
-import { useCallback } from "react";
 import { useReactFlow } from "@xyflow/react";
+import dayjs from "dayjs";
 import { produce } from "immer";
+import { useCallback } from "react";
 import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
+import { Exchange } from "@/types/market";
 import type {
 	KlineNodeBacktestConfig,
 	KlineNodeBacktestExchangeModeConfig,
@@ -11,35 +13,30 @@ import type {
 } from "@/types/node/kline-node";
 import type { SelectedAccount, TimeRange } from "@/types/strategy";
 import { BacktestDataSource } from "@/types/strategy";
-import { Exchange } from "@/types/market";
-import dayjs from "dayjs";
 
 /**
  * 创建默认的 K线节点回测配置
  */
-export const createDefaultKlineBacktestConfig =
-	(): KlineNodeBacktestConfig => {
-		return {
-			dataSource: BacktestDataSource.EXCHANGE,
-			exchangeModeConfig: {
-				selectedAccount: null,
-				selectedSymbols: [],
-				timeRange: {
-					startDate: dayjs().subtract(2, "day").format("YYYY-MM-DD"),
-					endDate: dayjs().subtract(1, "day").format("YYYY-MM-DD"),
-				},
+export const createDefaultKlineBacktestConfig = (): KlineNodeBacktestConfig => {
+	return {
+		dataSource: BacktestDataSource.EXCHANGE,
+		exchangeModeConfig: {
+			selectedAccount: null,
+			selectedSymbols: [],
+			timeRange: {
+				startDate: dayjs().subtract(2, "day").format("YYYY-MM-DD"),
+				endDate: dayjs().subtract(1, "day").format("YYYY-MM-DD"),
 			},
-			fileModeConfig: null,
-		};
+		},
+		fileModeConfig: null,
 	};
+};
 
 interface UseBacktestConfigProps {
 	id: string; // 节点ID
 }
 
-export const useBacktestConfig = ({
-	id,
-}: UseBacktestConfigProps) => {
+export const useBacktestConfig = ({ id }: UseBacktestConfigProps) => {
 	const { updateNodeData } = useReactFlow();
 	const { getNodeData } = useStrategyWorkflow();
 
@@ -51,7 +48,8 @@ export const useBacktestConfig = ({
 	 */
 	const updateConfig = useCallback(
 		(updater: (draft: KlineNodeBacktestConfig) => void) => {
-			const currentConfig = backtestConfig ?? createDefaultKlineBacktestConfig();
+			const currentConfig =
+				backtestConfig ?? createDefaultKlineBacktestConfig();
 			const newConfig = produce(currentConfig, updater);
 
 			updateNodeData(id, { backtestConfig: newConfig });

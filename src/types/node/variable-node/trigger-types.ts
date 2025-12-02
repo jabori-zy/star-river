@@ -121,62 +121,71 @@ export function createDefaultScheduledConfig(
 
 // ==================== 条件与数据流触发 ====================
 
-export const VALUE_TYPE_SUPPORT_POLICY: Record<VariableValueType, DataflowErrorType[]> = {
+export const VALUE_TYPE_SUPPORT_POLICY: Record<
+	VariableValueType,
+	DataflowErrorType[]
+> = {
 	[VariableValueType.NUMBER]: ["nullValue", "expired", "zeroValue"],
 	[VariableValueType.STRING]: ["nullValue", "expired"],
 	[VariableValueType.BOOLEAN]: ["nullValue", "expired"],
 	[VariableValueType.TIME]: ["nullValue", "expired"],
 	[VariableValueType.ENUM]: ["nullValue", "expired"],
 	[VariableValueType.PERCENTAGE]: ["nullValue", "expired", "zeroValue"],
-}
+};
 
+export const ERROR_TYPE_SUPPORT_POLICY: Record<
+	DataflowErrorType,
+	DataflowErrorPolicyStrategy[]
+> = {
+	nullValue: ["skip", "valueReplace", "usePreviousValue"],
+	expired: ["stillUpdate", "skip", "valueReplace", "usePreviousValue"],
+	zeroValue: ["stillUpdate", "skip", "valueReplace", "usePreviousValue"],
+};
 
-export const ERROR_TYPE_SUPPORT_POLICY: Record<DataflowErrorType, DataflowErrorPolicyStrategy[]> = {
-	"nullValue": ["skip", "valueReplace", "usePreviousValue"],
-	"expired": ["stillUpdate", "skip", "valueReplace", "usePreviousValue"],
-	"zeroValue": ["stillUpdate", "skip", "valueReplace", "usePreviousValue"],
-}
-
-
-export type ErrorLog = { notify: false } | { notify: true; level: "warn" | "error" };
+export type ErrorLog =
+	| { notify: false }
+	| { notify: true; level: "warn" | "error" };
 
 export type DataflowErrorType =
-    | "nullValue" // 空值错误
-    | "expired" // 过期错误
-	| "zeroValue" // 零值错误
+	| "nullValue" // 空值错误
+	| "expired" // 过期错误
+	| "zeroValue"; // 零值错误
 
-
-export type DataflowErrorPolicyStrategy = "skip" | "valueReplace" | "usePreviousValue" | "stillUpdate";
-
+export type DataflowErrorPolicyStrategy =
+	| "skip"
+	| "valueReplace"
+	| "usePreviousValue"
+	| "stillUpdate";
 
 export type BaseDataflowErrorPolicy = {
 	strategy: DataflowErrorPolicyStrategy;
 	errorLog: ErrorLog;
-}
+};
 
-
-export type DataflowErrorPolicy = StillUpdatePolicy | SkipPolicy | ValueReplacePolicy | UsePreviousValuePolicy;
+export type DataflowErrorPolicy =
+	| StillUpdatePolicy
+	| SkipPolicy
+	| ValueReplacePolicy
+	| UsePreviousValuePolicy;
 
 /**
  * 仍然更新策略
  */
 export type StillUpdatePolicy = BaseDataflowErrorPolicy & {
 	strategy: "stillUpdate";
-}
-
+};
 
 export type SkipPolicy = BaseDataflowErrorPolicy & {
 	strategy: "skip";
-}
+};
 export type ValueReplacePolicy = BaseDataflowErrorPolicy & {
 	strategy: "valueReplace";
 	replaceValue: VariableValue;
-}
+};
 export type UsePreviousValuePolicy = BaseDataflowErrorPolicy & {
 	strategy: "usePreviousValue";
 	maxUseTimes?: number;
-}
-
+};
 
 export type DataFlowTrigger = {
 	fromNodeType: NodeType;
@@ -190,7 +199,7 @@ export type DataFlowTrigger = {
 	expireDuration: {
 		unit: TimerUnit;
 		duration: number;
-	},
+	};
 	errorPolicy: Partial<Record<DataflowErrorType, DataflowErrorPolicy>>;
 };
 
@@ -222,7 +231,7 @@ export type ConditionTriggerConfig = {
 };
 export type DataFlowTriggerConfig = {
 	type: "dataflow";
-	config: DataFlowTrigger;	
+	config: DataFlowTrigger;
 };
 
 export type TriggerConfig =
@@ -252,10 +261,10 @@ export function isDataFlowTriggerConfig(
 export const getTriggerDetails = (
 	triggerConfig?: TriggerConfig,
 ): {
-		triggerType?: TriggerType;
-		timerConfig?: TimerTrigger;
-		conditionConfig?: ConditionTrigger;
-		dataflowConfig?: DataFlowTrigger;
+	triggerType?: TriggerType;
+	timerConfig?: TimerTrigger;
+	conditionConfig?: ConditionTrigger;
+	dataflowConfig?: DataFlowTrigger;
 } => {
 	if (!triggerConfig) return {};
 
@@ -283,32 +292,30 @@ export const getTriggerDetails = (
 	return {};
 };
 
-
-
-export const getEffectiveTriggerType = (
-	config: { triggerConfig?: TriggerConfig },
-): TriggerType | null => {
+export const getEffectiveTriggerType = (config: {
+	triggerConfig?: TriggerConfig;
+}): TriggerType | null => {
 	const trigger = config.triggerConfig;
 	return trigger ? trigger.type : null;
 };
 
-export const getTimerTriggerConfig = (
-	config: { triggerConfig?: TriggerConfig },
-): TimerTrigger | undefined => {
+export const getTimerTriggerConfig = (config: {
+	triggerConfig?: TriggerConfig;
+}): TimerTrigger | undefined => {
 	const trigger = config.triggerConfig;
 	return trigger?.type === "timer" ? trigger.config : undefined;
 };
 
-export const getConditionTriggerConfig = (
-	config: { triggerConfig?: TriggerConfig },
-): ConditionTrigger | undefined => {
+export const getConditionTriggerConfig = (config: {
+	triggerConfig?: TriggerConfig;
+}): ConditionTrigger | undefined => {
 	const trigger = config.triggerConfig;
 	return trigger?.type === "condition" ? trigger.config : undefined;
 };
 
-export const getDataFlowTriggerConfig = (
-	config: { triggerConfig?: TriggerConfig },
-): DataFlowTrigger | undefined => {
+export const getDataFlowTriggerConfig = (config: {
+	triggerConfig?: TriggerConfig;
+}): DataFlowTrigger | undefined => {
 	const trigger = config.triggerConfig;
 	return trigger?.type === "dataflow" ? trigger.config : undefined;
 };

@@ -37,7 +37,10 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import type { StrategyRunningLogEvent, NodeRunningLogEvent } from "@/types/strategy-event/running-log-event";
+import type {
+	NodeRunningLogEvent,
+	StrategyRunningLogEvent,
+} from "@/types/strategy-event/running-log-event";
 import { createStrategyRunningLogColumns } from "./columns";
 import { LogTableFilters } from "./filters";
 

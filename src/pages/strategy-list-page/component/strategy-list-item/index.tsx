@@ -1,15 +1,13 @@
 import { ArrowUpRight, Eye } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
+import { TimeDisplay } from "@/components/time-display";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useSidebar } from "@/components/ui/sidebar";
 import useSidebarToggleStore from "@/store/use-sidebar-toggle-store";
-import { TimeDisplay } from "@/components/time-display";
 import { StrategyItemDropdownMenu } from "./dropdown-menu";
-import { useTranslation } from "react-i18next";
-
-
 
 // 策略列表项组件的属性
 export interface StrategyItemProps {
@@ -30,7 +28,6 @@ export interface StrategyItemProps {
 	nodeCount: number;
 	onDelete: () => void;
 }
-
 
 export function StrategyItem({
 	strategyId,
@@ -78,20 +75,21 @@ export function StrategyItem({
 	const { label, className } = statusInfo;
 
 	// Trade mode configuration
-	const tradeModeConfig: Record<string, { label: string; className: string }> = {
-		backtest: {
-			label: "回测",
-			className: "bg-blue-500/10 text-blue-500 hover:bg-blue-500/20",
-		},
-		simulate: {
-			label: "模拟",
-			className: "bg-purple-500/10 text-purple-500 hover:bg-purple-500/20",
-		},
-		live: {
-			label: "实盘",
-			className: "bg-orange-500/10 text-orange-500 hover:bg-orange-500/20",
-		},
-	};
+	const tradeModeConfig: Record<string, { label: string; className: string }> =
+		{
+			backtest: {
+				label: "回测",
+				className: "bg-blue-500/10 text-blue-500 hover:bg-blue-500/20",
+			},
+			simulate: {
+				label: "模拟",
+				className: "bg-purple-500/10 text-purple-500 hover:bg-purple-500/20",
+			},
+			live: {
+				label: "实盘",
+				className: "bg-orange-500/10 text-orange-500 hover:bg-orange-500/20",
+			},
+		};
 
 	const tradeModeInfo = tradeModeConfig[tradeMode] || {
 		label: tradeMode,
@@ -134,7 +132,6 @@ export function StrategyItem({
 						<span className="flex items-center gap-2">
 							{t("common.createTime")}: <TimeDisplay date={createTime} />
 						</span>
-						
 					</div>
 				</div>
 

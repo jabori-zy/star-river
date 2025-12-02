@@ -6,7 +6,9 @@ interface DeleteConfigButtonProps {
 	onDelete: () => void;
 }
 
-const DeleteConfigButton: React.FC<DeleteConfigButtonProps> = ({ onDelete }) => {
+const DeleteConfigButton: React.FC<DeleteConfigButtonProps> = ({
+	onDelete,
+}) => {
 	return (
 		<Button
 			variant="ghost"

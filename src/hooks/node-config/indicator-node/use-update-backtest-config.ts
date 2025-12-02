@@ -1,19 +1,19 @@
-import { useCallback } from "react";
 import { useReactFlow } from "@xyflow/react";
+import dayjs from "dayjs";
 import { produce } from "immer";
+import { useCallback } from "react";
 import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
+import { Exchange } from "@/types/market";
 import type {
 	IndicatorNodeBacktestConfig,
 	IndicatorNodeBacktestExchangeModeConfig,
-    IndicatorNodeBacktestFileConfig,
+	IndicatorNodeBacktestFileConfig,
 	IndicatorNodeData,
 	SelectedIndicator,
 } from "@/types/node/indicator-node";
 import type { SelectedSymbol } from "@/types/node/kline-node";
 import type { SelectedAccount, TimeRange } from "@/types/strategy";
 import { BacktestDataSource } from "@/types/strategy";
-import { Exchange } from "@/types/market";
-import dayjs from "dayjs";
 
 /**
  * Create default indicator node backtest config

@@ -1,8 +1,8 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface MetricCardProps {
-	label: string
-	value: string | number
+	label: string;
+	value: string | number;
 }
 
 export default function MetricCard({ label, value }: MetricCardProps) {
@@ -17,5 +17,5 @@ export default function MetricCard({ label, value }: MetricCardProps) {
 				<p className="text-lg font-bold">{value}</p>
 			</CardContent>
 		</Card>
-	)
+	);
 }

@@ -1,5 +1,6 @@
 import type React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,7 +14,6 @@ import { Spinner } from "@/components/ui/spinner";
 import { connectExchange, getExchangeStatus } from "@/service/exchange";
 import type { ExchangeStatus } from "@/types/market";
 import type { SelectedAccount, TradeMode } from "@/types/strategy";
-import { useTranslation } from "react-i18next";
 
 interface AccountSelectorProps {
 	label: string;
@@ -38,7 +38,9 @@ const AccountSelector: React.FC<AccountSelectorProps> = ({
 	const [localSelectedAccount, setLocalSelectedAccount] =
 		useState<SelectedAccount | null>(selectedAccount);
 	const hasAccounts = useMemo(() => accountList.length > 0, [accountList]);
-	const [exchangeStatus, setExchangeStatus] = useState<ExchangeStatus | null>(null);
+	const [exchangeStatus, setExchangeStatus] = useState<ExchangeStatus | null>(
+		null,
+	);
 	const [isConnecting, setIsConnecting] = useState(false);
 	const pollingTimer = useRef<NodeJS.Timeout | null>(null);
 	const { t } = useTranslation();
@@ -125,7 +127,8 @@ const AccountSelector: React.FC<AccountSelectorProps> = ({
 				exchangeStatus &&
 				exchangeStatus !== "Connected" && (
 					<p className="text-sm text-gray-700">
-						{localSelectedAccount.accountName} {t("strategy.account.notConnected")}.{" "}
+						{localSelectedAccount.accountName}{" "}
+						{t("strategy.account.notConnected")}.{" "}
 						<Button
 							variant="link"
 							className="h-auto p-0 text-sm text-yellow-600 hover:underline"
@@ -151,7 +154,11 @@ const AccountSelector: React.FC<AccountSelectorProps> = ({
 			>
 				<SelectTrigger className="w-full h-8 px-2 bg-gray-100 border-1 rounded-md">
 					<SelectValue
-						placeholder={hasAccounts ? t("strategy.account.pleaseSelectAccount") : t("strategy.account.noAccount")}
+						placeholder={
+							hasAccounts
+								? t("strategy.account.pleaseSelectAccount")
+								: t("strategy.account.noAccount")
+						}
 					/>
 				</SelectTrigger>
 				{hasAccounts && (
@@ -173,7 +180,9 @@ const AccountSelector: React.FC<AccountSelectorProps> = ({
 				)}
 			</Select>
 			{!hasAccounts && (
-				<p className="text-xs text-gray-500 mt-1">{t("strategy.account.pleaseConfigureAtStartNode")}</p>
+				<p className="text-xs text-gray-500 mt-1">
+					{t("strategy.account.pleaseConfigureAtStartNode")}
+				</p>
 			)}
 		</div>
 	);

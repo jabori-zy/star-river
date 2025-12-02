@@ -1,6 +1,7 @@
 import { AlertCircle } from "lucide-react";
-import { formatDate } from "@/components/flow/node/node-utils";
+import { useTranslation } from "react-i18next";
 import { SelectInDialog } from "@/components/dialog-components/select-in-dialog";
+import { formatDate } from "@/components/flow/node/node-utils";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -11,7 +12,6 @@ import {
 	type ScheduledTimerConfig,
 } from "@/types/node/variable-node";
 import { calculateNextExecutionTime, generateCronExpression } from "./utils";
-import { useTranslation } from "react-i18next";
 
 // 星期选项定义（翻译键）
 const WEEKDAY_I18N_KEYS = [
@@ -50,7 +50,11 @@ const ScheduleConfiger: React.FC<ScheduleConfigerProps> = ({
 					<SelectInDialog
 						value={config.repeatMode}
 						onValueChange={(value) => {
-							const newMode = value as "hourly" | "daily" | "weekly" | "monthly";
+							const newMode = value as
+								| "hourly"
+								| "daily"
+								| "weekly"
+								| "monthly";
 							// 使用工厂函数创建默认配置
 							const newConfig = createDefaultScheduledConfig(newMode);
 							handleConfigChange(newConfig);
@@ -60,7 +64,10 @@ const ScheduleConfiger: React.FC<ScheduleConfigerProps> = ({
 							{ value: "hourly", label: t("variableNode.timerConfig.hourly") },
 							{ value: "daily", label: t("variableNode.timerConfig.daily") },
 							{ value: "weekly", label: t("variableNode.timerConfig.weekly") },
-							{ value: "monthly", label: t("variableNode.timerConfig.monthly") },
+							{
+								value: "monthly",
+								label: t("variableNode.timerConfig.monthly"),
+							},
 						]}
 						className="h-8 w-auto min-w-20"
 					/>
@@ -386,7 +393,8 @@ const ScheduleConfiger: React.FC<ScheduleConfigerProps> = ({
 
 			{/* 下次执行时间预览 */}
 			<div className="text-xs text-muted-foreground">
-				{t("variableNode.timerConfig.nextExecutionTime")}: {formatDate(calculateNextExecutionTime(config))}
+				{t("variableNode.timerConfig.nextExecutionTime")}:{" "}
+				{formatDate(calculateNextExecutionTime(config))}
 			</div>
 		</>
 	);

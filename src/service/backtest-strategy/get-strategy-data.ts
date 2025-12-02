@@ -1,6 +1,6 @@
-import axios, { type AxiosError } from "axios";
 import { useQuery } from "@tanstack/react-query";
-import { API_BASE_URL, type ApiResponse, ApiError } from "@/service/index";
+import axios, { type AxiosError } from "axios";
+import { API_BASE_URL, ApiError, type ApiResponse } from "@/service/index";
 
 const API_VERSION = "api/v1";
 const ROUTER = "strategy/backtest";

@@ -1,26 +1,29 @@
 import { useReactFlow } from "@xyflow/react";
 import React, { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { NodeOpConfirmDialog } from "@/components/flow/node-op-confirm-dialog";
 import { Label } from "@/components/ui/label";
 import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 import { getSymbolList } from "@/service/market";
 import type { Instrument } from "@/types/market";
-import type { VariableConfig, GetCustomVariableConfig, UpdateVariableConfig, ResetVariableConfig } from "@/types/node/variable-node";
 import type {
-	VariableOperation,
+	GetCustomVariableConfig,
+	ResetVariableConfig,
+	UpdateVariableConfig,
 	UpdateVarValueOperation,
+	VariableConfig,
+	VariableOperation,
 } from "@/types/node/variable-node";
 import { getUpdateOperationLabel } from "@/types/node/variable-node/variable-operation-types";
 import { TradeMode } from "@/types/strategy";
-import VariableConfigItem from "./variable-config-item";
-import AddConfigButton from "./components/add-config-button";
-import { useTranslation } from "react-i18next";
 import {
-	VariableValueType,
+	type CustomVariable,
 	getVariableValueTypeIcon,
 	getVariableValueTypeIconColor,
-	type CustomVariable,
+	VariableValueType,
 } from "@/types/variable";
+import AddConfigButton from "./components/add-config-button";
+import VariableConfigItem from "./variable-config-item";
 
 interface VariableSettingProps {
 	id: string;
@@ -36,7 +39,7 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 	onVariableConfigsChange,
 }) => {
 	const { t } = useTranslation();
-	
+
 	const { getStartNodeData } = useStrategyWorkflow();
 	const startNodeData = getStartNodeData();
 	const customVariables = startNodeData?.backtestConfig?.customVariables || [];
@@ -186,7 +189,9 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 	);
 
 	// 创建默认的变量配置
-	const createDefaultVariableConfig = (operation: VariableOperation): VariableConfig => {
+	const createDefaultVariableConfig = (
+		operation: VariableOperation,
+	): VariableConfig => {
 		const newConfigId = variableConfigs.length + 1;
 		const baseConfig = {
 			configId: newConfigId,
@@ -298,8 +303,9 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 		);
 		setEdges(remainingEdges);
 
-		const updatedVariables = variableConfigs
-			.filter((_, i) => i !== targetIndex)
+		const updatedVariables = variableConfigs.filter(
+			(_, i) => i !== targetIndex,
+		);
 		onVariableConfigsChange(updatedVariables);
 
 		// 清理删除相关状态
@@ -321,7 +327,9 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 
 	return (
 		<div className="flex flex-col gap-2">
-			<Label className="text-sm font-bold">{t("variableNode.variableConfig")}</Label>
+			<Label className="text-sm font-bold">
+				{t("variableNode.variableConfig")}
+			</Label>
 
 			<div className="space-y-2">
 				{variableConfigs.map((config, index) => (
@@ -349,15 +357,15 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 			<AddConfigButton onAddVariable={handleAddVariable} />
 
 			{/* 确认删除对话框 */}
-		<NodeOpConfirmDialog
-			isOpen={isConfirmDialogOpen}
-			onOpenChange={setIsConfirmDialogOpen}
-			affectedNodeCount={pendingVariableData?.targetNodeCount || 0}
-			affectedNodeNames={pendingVariableData?.targetNodeNames || []}
-			onConfirm={handleConfirmDelete}
-			onCancel={handleCancelDelete}
-			operationType="delete"
-		/>
+			<NodeOpConfirmDialog
+				isOpen={isConfirmDialogOpen}
+				onOpenChange={setIsConfirmDialogOpen}
+				affectedNodeCount={pendingVariableData?.targetNodeCount || 0}
+				affectedNodeNames={pendingVariableData?.targetNodeNames || []}
+				onConfirm={handleConfirmDelete}
+				onCancel={handleCancelDelete}
+				operationType="delete"
+			/>
 		</div>
 	);
 };

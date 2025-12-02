@@ -7,8 +7,6 @@ import type {
 } from "@/types/strategy";
 import type { NodeDataBase } from ".";
 
-
-
 export type FuturesOrderNodeLiveConfig = {
 	futuresOrderConfigs: FuturesOrderConfig[];
 	selectedAccount?: SelectedAccount;

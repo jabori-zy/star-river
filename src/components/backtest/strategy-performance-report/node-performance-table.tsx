@@ -1,17 +1,12 @@
-import { ChevronDown, ChevronRight, ChevronUp } from "lucide-react"
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import {
-	Card,
-	CardContent,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card"
+import { ChevronDown, ChevronRight, ChevronUp } from "lucide-react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
 	Collapsible,
 	CollapsibleContent,
 	CollapsibleTrigger,
-} from "@/components/ui/collapsible"
+} from "@/components/ui/collapsible";
 import {
 	Table,
 	TableBody,
@@ -19,29 +14,31 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
-} from "@/components/ui/table"
-import type { NodePerformanceReport } from "@/types/strategy/strategy-benchmark"
-import { formatDuration } from "@/types/strategy/strategy-benchmark"
+} from "@/components/ui/table";
+import type { NodePerformanceReport } from "@/types/strategy/strategy-benchmark";
+import { formatDuration } from "@/types/strategy/strategy-benchmark";
 
 interface NodePerformanceTableProps {
-	nodeReports: NodePerformanceReport[]
+	nodeReports: NodePerformanceReport[];
 }
 
-export default function NodePerformanceTable({ nodeReports }: NodePerformanceTableProps) {
-	const [isOpen, setIsOpen] = useState(true)
-	const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set())
+export default function NodePerformanceTable({
+	nodeReports,
+}: NodePerformanceTableProps) {
+	const [isOpen, setIsOpen] = useState(true);
+	const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
 
 	const toggleRow = (nodeId: string) => {
 		setExpandedRows((prev) => {
-			const newSet = new Set(prev)
+			const newSet = new Set(prev);
 			if (newSet.has(nodeId)) {
-				newSet.delete(nodeId)
+				newSet.delete(nodeId);
 			} else {
-				newSet.add(nodeId)
+				newSet.add(nodeId);
 			}
-			return newSet
-		})
-	}
+			return newSet;
+		});
+	};
 
 	return (
 		<Collapsible open={isOpen} onOpenChange={setIsOpen}>
@@ -52,9 +49,7 @@ export default function NodePerformanceTable({ nodeReports }: NodePerformanceTab
 							type="button"
 							className="flex items-center justify-between w-full hover:opacity-80 transition-opacity"
 						>
-							<CardTitle className="text-sm">
-								Node Performance
-							</CardTitle>
+							<CardTitle className="text-sm">Node Performance</CardTitle>
 							{isOpen ? (
 								<ChevronUp className="h-4 w-4" />
 							) : (
@@ -72,30 +67,60 @@ export default function NodePerformanceTable({ nodeReports }: NodePerformanceTab
 									<TableHeader>
 										<TableRow>
 											<TableHead className="text-xs py-1.5 w-8"></TableHead>
-											<TableHead className="text-xs py-1.5 w-[120px]">Node Name</TableHead>
-											<TableHead className="text-right text-xs py-1.5 w-[65px]">Cycles</TableHead>
-											<TableHead className="text-right text-xs py-1.5 w-[75px]">Avg</TableHead>
-											<TableHead className="text-right text-xs py-1.5 w-[55px]">%(strategy)</TableHead>
-											<TableHead className="text-right text-xs py-1.5 w-[75px]">Min</TableHead>
-											<TableHead className="text-right text-xs py-1.5 w-[75px]">Max</TableHead>
-											<TableHead className="text-right text-xs py-1.5 w-[75px]">P25</TableHead>
-											<TableHead className="text-right text-xs py-1.5 w-[75px]">P50</TableHead>
-											<TableHead className="text-right text-xs py-1.5 w-[75px]">P75</TableHead>
-											<TableHead className="text-right text-xs py-1.5 w-[75px]">Std Dev</TableHead>
-											<TableHead className="text-right text-xs py-1.5 w-[75px]">P95</TableHead>
-											<TableHead className="text-right text-xs py-1.5 w-[75px]">P99</TableHead>
-											<TableHead className="text-right text-xs py-1.5 w-[85px]">Recent(100)</TableHead>
+											<TableHead className="text-xs py-1.5 w-[120px]">
+												Node Name
+											</TableHead>
+											<TableHead className="text-right text-xs py-1.5 w-[65px]">
+												Cycles
+											</TableHead>
+											<TableHead className="text-right text-xs py-1.5 w-[75px]">
+												Avg
+											</TableHead>
+											<TableHead className="text-right text-xs py-1.5 w-[55px]">
+												%(strategy)
+											</TableHead>
+											<TableHead className="text-right text-xs py-1.5 w-[75px]">
+												Min
+											</TableHead>
+											<TableHead className="text-right text-xs py-1.5 w-[75px]">
+												Max
+											</TableHead>
+											<TableHead className="text-right text-xs py-1.5 w-[75px]">
+												P25
+											</TableHead>
+											<TableHead className="text-right text-xs py-1.5 w-[75px]">
+												P50
+											</TableHead>
+											<TableHead className="text-right text-xs py-1.5 w-[75px]">
+												P75
+											</TableHead>
+											<TableHead className="text-right text-xs py-1.5 w-[75px]">
+												Std Dev
+											</TableHead>
+											<TableHead className="text-right text-xs py-1.5 w-[75px]">
+												P95
+											</TableHead>
+											<TableHead className="text-right text-xs py-1.5 w-[75px]">
+												P99
+											</TableHead>
+											<TableHead className="text-right text-xs py-1.5 w-[85px]">
+												Recent(100)
+											</TableHead>
 										</TableRow>
 									</TableHeader>
 									<TableBody>
 										{nodeReports.map((node) => {
-											const isExpanded = expandedRows.has(node.nodeId)
-											const hasPhaseReports = node.phaseReports && node.phaseReports.length > 0
+											const isExpanded = expandedRows.has(node.nodeId);
+											const hasPhaseReports =
+												node.phaseReports && node.phaseReports.length > 0;
 
 											return (
 												<>
 													{/* Main Row */}
-													<TableRow key={node.nodeId} className="hover:bg-muted/50">
+													<TableRow
+														key={node.nodeId}
+														className="hover:bg-muted/50"
+													>
 														<TableCell className="py-1.5">
 															{hasPhaseReports && (
 																<Button
@@ -178,28 +203,57 @@ export default function NodePerformanceTable({ nodeReports }: NodePerformanceTab
 													{/* Expanded Phase Reports Row */}
 													{isExpanded && hasPhaseReports && (
 														<TableRow key={`${node.nodeId}-phases`}>
-															<TableCell colSpan={14} className="bg-muted/30 py-2 px-2">
+															<TableCell
+																colSpan={14}
+																className="bg-muted/30 py-2 px-2"
+															>
 																<div className="pl-6">
 																	<Table>
 																		<TableHeader>
 																			<TableRow>
-																				<TableHead className="text-xs py-1 w-[140px]">Phase Name</TableHead>
-																				<TableHead className="text-right text-xs py-1 w-[70px]">Cycles</TableHead>
-																				<TableHead className="text-right text-xs py-1 w-[75px]">Avg</TableHead>
-																				<TableHead className="text-right text-xs py-1 w-[60px]">%(node)</TableHead>
-																				<TableHead className="text-right text-xs py-1 w-[75px]">Min</TableHead>
-																				<TableHead className="text-right text-xs py-1 w-[75px]">Max</TableHead>
-																				<TableHead className="text-right text-xs py-1 w-[75px]">P25</TableHead>
-																				<TableHead className="text-right text-xs py-1 w-[75px]">P50</TableHead>
-																				<TableHead className="text-right text-xs py-1 w-[75px]">P75</TableHead>
-																				<TableHead className="text-right text-xs py-1 w-[75px]">P95</TableHead>
-																				<TableHead className="text-right text-xs py-1 w-[75px]">P99</TableHead>
-																				<TableHead className="text-right text-xs py-1 w-[75px]">Total</TableHead>
+																				<TableHead className="text-xs py-1 w-[140px]">
+																					Phase Name
+																				</TableHead>
+																				<TableHead className="text-right text-xs py-1 w-[70px]">
+																					Cycles
+																				</TableHead>
+																				<TableHead className="text-right text-xs py-1 w-[75px]">
+																					Avg
+																				</TableHead>
+																				<TableHead className="text-right text-xs py-1 w-[60px]">
+																					%(node)
+																				</TableHead>
+																				<TableHead className="text-right text-xs py-1 w-[75px]">
+																					Min
+																				</TableHead>
+																				<TableHead className="text-right text-xs py-1 w-[75px]">
+																					Max
+																				</TableHead>
+																				<TableHead className="text-right text-xs py-1 w-[75px]">
+																					P25
+																				</TableHead>
+																				<TableHead className="text-right text-xs py-1 w-[75px]">
+																					P50
+																				</TableHead>
+																				<TableHead className="text-right text-xs py-1 w-[75px]">
+																					P75
+																				</TableHead>
+																				<TableHead className="text-right text-xs py-1 w-[75px]">
+																					P95
+																				</TableHead>
+																				<TableHead className="text-right text-xs py-1 w-[75px]">
+																					P99
+																				</TableHead>
+																				<TableHead className="text-right text-xs py-1 w-[75px]">
+																					Total
+																				</TableHead>
 																			</TableRow>
 																		</TableHeader>
 																		<TableBody>
 																			{node.phaseReports.map((phase, index) => (
-																				<TableRow key={`${node.nodeId}-phase-${index}`}>
+																				<TableRow
+																					key={`${node.nodeId}-phase-${index}`}
+																				>
 																					<TableCell className="text-xs py-1">
 																						{phase.phaseName}
 																					</TableCell>
@@ -210,7 +264,10 @@ export default function NodePerformanceTable({ nodeReports }: NodePerformanceTab
 																						{formatDuration(phase.avgDuration)}
 																					</TableCell>
 																					<TableCell className="text-right text-xs py-1">
-																						{phase.avgDurationPercentage.toFixed(1)}%
+																						{phase.avgDurationPercentage.toFixed(
+																							1,
+																						)}
+																						%
 																					</TableCell>
 																					<TableCell className="text-right text-xs py-1">
 																						{formatDuration(phase.minDuration)}
@@ -234,7 +291,9 @@ export default function NodePerformanceTable({ nodeReports }: NodePerformanceTab
 																						{formatDuration(phase.p99)}
 																					</TableCell>
 																					<TableCell className="text-right text-xs py-1">
-																						{formatDuration(phase.totalDuration)}
+																						{formatDuration(
+																							phase.totalDuration,
+																						)}
 																					</TableCell>
 																				</TableRow>
 																			))}
@@ -245,7 +304,7 @@ export default function NodePerformanceTable({ nodeReports }: NodePerformanceTab
 														</TableRow>
 													)}
 												</>
-											)
+											);
 										})}
 									</TableBody>
 								</Table>
@@ -259,5 +318,5 @@ export default function NodePerformanceTable({ nodeReports }: NodePerformanceTab
 				</CollapsibleContent>
 			</Card>
 		</Collapsible>
-	)
+	);
 }

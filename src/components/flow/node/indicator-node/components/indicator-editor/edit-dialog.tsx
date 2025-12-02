@@ -1,5 +1,6 @@
 import type React from "react";
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -21,7 +22,6 @@ import { IndicatorType, MAType, PriceSource } from "@/types/indicator";
 import { getIndicatorConfig } from "@/types/indicator/indicator-config";
 import type { SelectedIndicator } from "@/types/node/indicator-node";
 import IndicatorViewerDialog from "./indicator-viewer";
-import { useTranslation } from "react-i18next";
 
 interface EditDialogProps {
 	isOpen: boolean;
@@ -384,7 +384,9 @@ const EditDialog: React.FC<EditDialogProps> = ({
 							)
 						) : (
 							/* 无参数时显示提示信息 */
-							<div className="text-gray-500">{t("indicatorNode.editDialog.noParams")}</div>
+							<div className="text-gray-500">
+								{t("indicatorNode.editDialog.noParams")}
+							</div>
 						)}
 					</div>
 					<DialogFooter>

@@ -1,11 +1,6 @@
-import { useTranslation } from "react-i18next";
-import { useEffect } from "react";
 import { CircleAlert } from "lucide-react";
-import {
-	Tooltip,
-	TooltipTrigger,
-	TooltipContent,
-} from "@/components/ui/tooltip";
+import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
 	Accordion,
 	AccordionContent,
@@ -13,12 +8,20 @@ import {
 	AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Label } from "@/components/ui/label";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 import type { DataflowErrorType } from "@/types/node/variable-node";
 import { VALUE_TYPE_SUPPORT_POLICY } from "@/types/node/variable-node";
-import type { DataflowConfigProps } from "./types";
-import { validateReplaceValue, getErrorTypeValidationError } from "./validation";
-import { ExpireDurationSection } from "./expire-duration-section";
 import { ErrorPolicyConfig } from "./error-policy-config";
+import { ExpireDurationSection } from "./expire-duration-section";
+import type { DataflowConfigProps } from "./types";
+import {
+	getErrorTypeValidationError,
+	validateReplaceValue,
+} from "./validation";
 
 const DataflowConfig: React.FC<DataflowConfigProps> = ({
 	expireDuration,
@@ -59,7 +62,12 @@ const DataflowConfig: React.FC<DataflowConfigProps> = ({
 		}
 
 		onValidationChange(isValid);
-	}, [errorPolicy, updateOperationType, supportedErrorTypes, onValidationChange]);
+	}, [
+		errorPolicy,
+		updateOperationType,
+		supportedErrorTypes,
+		onValidationChange,
+	]);
 
 	// 获取异常类型的显示名称
 	const getErrorTypeName = (errorType: DataflowErrorType): string => {

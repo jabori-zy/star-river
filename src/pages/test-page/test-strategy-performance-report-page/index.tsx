@@ -1,40 +1,42 @@
-import { useEffect, useState } from "react"
-import StrategyPerformanceReportComponent from "@/components/backtest/strategy-performance-report"
-import { Button } from "@/components/ui/button"
-import { getStrategyPerformanceReport } from "@/service/backtest-strategy/benchmark"
-import type { StrategyPerformanceReport } from "@/types/strategy/strategy-benchmark"
+import { useEffect, useState } from "react";
+import StrategyPerformanceReportComponent from "@/components/backtest/strategy-performance-report";
+import { Button } from "@/components/ui/button";
+import { getStrategyPerformanceReport } from "@/service/backtest-strategy/benchmark";
+import type { StrategyPerformanceReport } from "@/types/strategy/strategy-benchmark";
 
 export default function TestStrategyPerformanceReportPage() {
-	const [data, setData] = useState<StrategyPerformanceReport | null>(null)
-	const [isLoading, setIsLoading] = useState(false)
-	const [error, setError] = useState<string | null>(null)
+	const [data, setData] = useState<StrategyPerformanceReport | null>(null);
+	const [isLoading, setIsLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
 
-	const strategyId = 2 // K�(�Ve ID
+	const strategyId = 2; // K�(�Ve ID
 
 	const fetchData = async () => {
-		setIsLoading(true)
-		setError(null)
+		setIsLoading(true);
+		setError(null);
 		try {
-			const result = await getStrategyPerformanceReport(strategyId)
-            console.log("result", result)
-			setData(result)
+			const result = await getStrategyPerformanceReport(strategyId);
+			console.log("result", result);
+			setData(result);
 		} catch (err) {
-			setError(err instanceof Error ? err.message : "Failed to fetch data")
-			console.error("Error fetching performance report:", err)
+			setError(err instanceof Error ? err.message : "Failed to fetch data");
+			console.error("Error fetching performance report:", err);
 		} finally {
-			setIsLoading(false)
+			setIsLoading(false);
 		}
-	}
+	};
 
 	useEffect(() => {
-		fetchData()
-	}, [])
+		fetchData();
+	}, []);
 
 	return (
 		<div className="container mx-auto p-6 space-y-6">
 			<div className="flex items-center justify-between">
 				<div>
-					<h1 className="text-3xl font-bold">Strategy Performance Report Test</h1>
+					<h1 className="text-3xl font-bold">
+						Strategy Performance Report Test
+					</h1>
 					<p className="text-muted-foreground mt-2">
 						Testing performance report component with Strategy ID: {strategyId}
 					</p>
@@ -67,5 +69,5 @@ export default function TestStrategyPerformanceReportPage() {
 				</div>
 			)}
 		</div>
-	)
+	);
 }

@@ -1,16 +1,16 @@
-import { useState, useEffect, useRef } from "react";
 import {
-	Save,
+	Blend,
 	Check,
+	Cloud,
+	Construction,
 	MoreVertical,
 	Pencil,
-	Cloud,
-	Blend,
-	Construction
+	Save,
 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -20,11 +20,11 @@ import {
 	DropdownMenuSubTrigger,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { StrategyRunState, TradeMode, type Strategy } from "@/types/strategy";
+import { Input } from "@/components/ui/input";
+import type { Strategy, StrategyRunState, TradeMode } from "@/types/strategy";
 import { formatTimeWithTimezone } from "@/utils/date-format";
 import StrategyControl from "../strategy-control";
 import type { OperationType } from "../strategy-control/type";
-import { useTranslation } from "react-i18next";
 
 interface StrategyPageHeaderProps {
 	strategy: Strategy;
@@ -66,17 +66,21 @@ export default function StrategyPageHeader({
 		const updateTimer = () => {
 			if (strategy.updateTime) {
 				setTimeDisplay(
-					formatTimeWithTimezone(strategy.updateTime, {
-						dateFormat: "smart",
-						showTimezone: false,
-					}, t),
+					formatTimeWithTimezone(
+						strategy.updateTime,
+						{
+							dateFormat: "smart",
+							showTimezone: false,
+						},
+						t,
+					),
 				);
 			}
 		};
 		updateTimer();
 		const interval = setInterval(updateTimer, 5000); // 每5秒更新
 		return () => clearInterval(interval);
-	}, [strategy.updateTime,t]);
+	}, [strategy.updateTime, t]);
 
 	// 自动聚焦输入框
 	useEffect(() => {
@@ -228,7 +232,8 @@ export default function StrategyPageHeader({
 											: "text-slate-500 hover:text-slate-800"
 									}`}
 								>
-									{descInput || t("desktop.strategyWorkflowPage.addStrategyDescription")}
+									{descInput ||
+										t("desktop.strategyWorkflowPage.addStrategyDescription")}
 								</p>
 								<Pencil className="w-3 h-3 text-slate-400 opacity-0 group-hover:opacity-100 transition-all" />
 							</div>
@@ -270,7 +275,11 @@ export default function StrategyPageHeader({
 
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
-						<Button variant="ghost" size="sm" className="text-slate-500 h-9 w-9 p-0">
+						<Button
+							variant="ghost"
+							size="sm"
+							className="text-slate-500 h-9 w-9 p-0"
+						>
 							<MoreVertical className="w-4 h-4" />
 						</Button>
 					</DropdownMenuTrigger>
@@ -285,7 +294,6 @@ export default function StrategyPageHeader({
 									<div className="flex items-center justify-center gap-4 ">
 										{t("desktop.strategyWorkflowPage.live")}
 										<Construction className="w-4 h-4 text-yellow-500" />
-										
 									</div>
 								</DropdownMenuItem>
 								<DropdownMenuItem>

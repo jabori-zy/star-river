@@ -1,14 +1,14 @@
 import { Position } from "@xyflow/react";
+import { GitBranch, Hash, Settings2, Tag } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import BaseHandle from "@/components/flow/base/BaseHandle";
-import {
-	type PositionOperationConfig,
-	getPositionOperationLabel,
-	shouldSelectSymbol,
-} from "@/types/node/position-node";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { GitBranch, Hash, Settings2, Tag } from "lucide-react";
+import {
+	getPositionOperationLabel,
+	type PositionOperationConfig,
+	shouldSelectSymbol,
+} from "@/types/node/position-node";
 
 interface PositionHandleItemProps {
 	id: string;
@@ -75,7 +75,7 @@ export function PositionHandleItem({
 									"text-[10px] px-1.5 py-0 h-5 font-normal max-w-[120px] break-words text-right",
 									operationConfig.triggerConfig
 										? "bg-white text-slate-600"
-										: "bg-red-50 text-red-500 border-red-200"
+										: "bg-red-50 text-red-500 border-red-200",
 								)}
 							>
 								{operationConfig.triggerConfig
@@ -113,11 +113,10 @@ export function PositionHandleItem({
 										"text-[10px] px-1.5 py-0 h-5 font-normal whitespace-nowrap",
 										operationConfig.symbol
 											? "bg-white text-slate-600"
-											: "bg-red-50 text-red-500 border-red-200"
+											: "bg-red-50 text-red-500 border-red-200",
 									)}
 								>
-									{operationConfig.symbol ||
-										t("positionNode.notConfigured")}
+									{operationConfig.symbol || t("positionNode.notConfigured")}
 								</Badge>
 							</div>
 						)}

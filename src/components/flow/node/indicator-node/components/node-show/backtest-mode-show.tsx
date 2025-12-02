@@ -1,10 +1,10 @@
 import type React from "react";
+import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
+import { getKlineIntervalLabel } from "@/types/kline";
 import type { IndicatorNodeData } from "@/types/node/indicator-node";
 import { IndicatorConfigShowItem } from "./indicator-config-show-item";
-import { getKlineIntervalLabel } from "@/types/kline";
-import { useTranslation } from "react-i18next";
 
 interface BacktestModeShowProps {
 	id: string;
@@ -12,7 +12,10 @@ interface BacktestModeShowProps {
 	handleColor: string;
 }
 
-const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ data, handleColor }) => {
+const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
+	data,
+	handleColor,
+}) => {
 	const { t } = useTranslation();
 	const exchangeModeConfig = data?.backtestConfig?.exchangeModeConfig;
 
@@ -26,7 +29,9 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ data, handleColor }
 						<Label className="text-sm font-bold text-muted-foreground">
 							{t("indicatorNode.technicalIndicators")}
 						</Label>
-						<span className="text-sm text-red-500">{t("indicatorNode.noIndicatorConfig")}</span>
+						<span className="text-sm text-red-500">
+							{t("indicatorNode.noIndicatorConfig")}
+						</span>
 					</div>
 				) : (
 					<div>
@@ -60,7 +65,9 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ data, handleColor }
 						<Label className="text-sm font-bold text-muted-foreground">
 							{t("indicatorNode.dataSource")}
 						</Label>
-						<span className="text-sm text-red-500">{t("indicatorNode.noConfig")}</span>
+						<span className="text-sm text-red-500">
+							{t("indicatorNode.noConfig")}
+						</span>
 					</div>
 				) : (
 					<div>
@@ -69,19 +76,27 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ data, handleColor }
 						</Label>
 						<div className="flex flex-col gap-2 bg-gray-100 p-2 rounded-md mt-1">
 							<div className="flex flex-row items-center justify-between gap-2 pr-2">
-								<span className="text-xs font-bold">{t("indicatorNode.symbol")}:</span>
+								<span className="text-xs font-bold">
+									{t("indicatorNode.symbol")}:
+								</span>
 								<span className="text-xs">
 									{exchangeModeConfig.selectedSymbol.symbol}
 								</span>
 							</div>
 							<div className="flex flex-row items-center justify-between gap-2 pr-2">
-								<span className="text-xs font-bold">{t("indicatorNode.interval")}:</span>
+								<span className="text-xs font-bold">
+									{t("indicatorNode.interval")}:
+								</span>
 								<span className="text-xs">
-									{getKlineIntervalLabel(exchangeModeConfig.selectedSymbol.interval)}
+									{getKlineIntervalLabel(
+										exchangeModeConfig.selectedSymbol.interval,
+									)}
 								</span>
 							</div>
 							<div className="flex flex-row items-center justify-between gap-2 pr-2">
-								<span className="text-xs font-bold">{t("indicatorNode.exchange")}:</span>
+								<span className="text-xs font-bold">
+									{t("indicatorNode.exchange")}:
+								</span>
 								<span className="text-xs">
 									{exchangeModeConfig.selectedAccount.exchange}
 								</span>

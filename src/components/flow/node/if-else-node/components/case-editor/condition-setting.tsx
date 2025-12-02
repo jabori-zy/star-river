@@ -13,7 +13,7 @@ import {
 	type Variable,
 	VarType,
 } from "@/types/node/if-else-node";
-import { NodeType } from "@/types/node/index";
+import type { NodeType } from "@/types/node/index";
 import { VariableValueType } from "@/types/variable";
 import ComparisonSymbolSelector from "./comparison-symbol-selector";
 import ConstantInput from "./constant-input";
@@ -139,7 +139,8 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 			varConfigId: null,
 			varName: null,
 			varDisplayName: null,
-			varValueType: currentLeftVariable?.varValueType ?? VariableValueType.NUMBER,
+			varValueType:
+				currentLeftVariable?.varValueType ?? VariableValueType.NUMBER,
 		};
 
 		// 创建新 condition - 保留右变量和比较符号
@@ -180,8 +181,7 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 		}
 
 		// 检查左变量类型是否发生变化（与右变量对比）
-		const hasTypeChanged =
-			currentLeftVariable?.varValueType !== varValueType;
+		const hasTypeChanged = currentLeftVariable?.varValueType !== varValueType;
 
 		const newLeftVariable: Variable = {
 			varType: VarType.variable,
@@ -353,9 +353,12 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 		const right = localCondition.right;
 		const newRightVariable: Variable = {
 			varType: VarType.variable,
-			nodeId: (right?.varType === VarType.variable ? right.nodeId : null) ?? null,
-			nodeType: (right?.varType === VarType.variable ? right.nodeType : null) ?? null,
-			nodeName: (right?.varType === VarType.variable ? right.nodeName : null) ?? null,
+			nodeId:
+				(right?.varType === VarType.variable ? right.nodeId : null) ?? null,
+			nodeType:
+				(right?.varType === VarType.variable ? right.nodeType : null) ?? null,
+			nodeName:
+				(right?.varType === VarType.variable ? right.nodeName : null) ?? null,
 			outputHandleId: handleId,
 			varConfigId: variableId,
 			varName: variable,
@@ -441,7 +444,10 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 				};
 			}
 			// 情况3: 切换到 isIn/isNotIn，但当前 varValueType 不是 ENUM
-			else if (isNewSymbolArrayType && currentConst.varValueType !== VariableValueType.ENUM) {
+			else if (
+				isNewSymbolArrayType &&
+				currentConst.varValueType !== VariableValueType.ENUM
+			) {
 				// 切换到 isIn/isNotIn 时，清空右变量值，使用空数组
 				newRightVariable = {
 					varType: VarType.constant,
@@ -567,15 +573,18 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 		if (isArrayMode || rightVarValueType === VariableValueType.ENUM) {
 			// ENUM 类型或 isIn/isNotIn 模式：value 应该是 JSON 字符串
 			try {
-				const parsed = typeof value === 'string' ? JSON.parse(value) : value;
+				const parsed = typeof value === "string" ? JSON.parse(value) : value;
 				typedValue = Array.isArray(parsed) ? parsed : [];
 			} catch {
 				typedValue = [];
 			}
-		} else if (rightVarValueType === VariableValueType.NUMBER || rightVarValueType === VariableValueType.PERCENTAGE) {
-			typedValue = typeof value === 'number' ? value : Number(value) || 0;
+		} else if (
+			rightVarValueType === VariableValueType.NUMBER ||
+			rightVarValueType === VariableValueType.PERCENTAGE
+		) {
+			typedValue = typeof value === "number" ? value : Number(value) || 0;
 		} else if (rightVarValueType === VariableValueType.BOOLEAN) {
-			typedValue = typeof value === 'boolean' ? value : value === 'true';
+			typedValue = typeof value === "boolean" ? value : value === "true";
 		} else {
 			// STRING, TIME 等其他类型
 			typedValue = value.toString();
@@ -612,8 +621,7 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 		localCondition.comparisonSymbol !== ComparisonSymbol.isEmpty &&
 		localCondition.comparisonSymbol !== ComparisonSymbol.isNotEmpty;
 
-	const leftVarValueType =
-		localCondition.left?.varValueType || null;
+	const leftVarValueType = localCondition.left?.varValueType || null;
 	const rightVarType = localCondition.right?.varType || null;
 
 	// 获取右侧常量值
@@ -685,7 +693,7 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 	};
 
 	return (
-			<div className="flex flex-row justify-between px-2 py-2 rounded-md bg-gray-100 w-full">
+		<div className="flex flex-row justify-between px-2 py-2 rounded-md bg-gray-100 w-full">
 			<div className="flex flex-col flex-1">
 				<div className="flex flex-col gap-1 p-2 min-h-16">
 					<div className="flex flex-row justify-between">
@@ -709,7 +717,7 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 						onVariableChange={handleUpdateLeftVariable}
 					/>
 				</div>
-						<div className="flex flex-col gap-1 p-2 min-h-16">
+				<div className="flex flex-col gap-1 p-2 min-h-16">
 					<div className="text-sm font-bold text-muted-foreground text-left">
 						{t("ifElseNode.operator")}
 					</div>

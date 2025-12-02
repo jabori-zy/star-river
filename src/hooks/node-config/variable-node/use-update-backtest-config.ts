@@ -1,6 +1,6 @@
-import { useCallback } from "react";
 import { useReactFlow } from "@xyflow/react";
 import { produce } from "immer";
+import { useCallback } from "react";
 import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 import type {
 	VariableConfig,
@@ -66,7 +66,9 @@ export const useBacktestConfig = ({ id }: UseBacktestConfigProps) => {
 	// ==================== Exchange Mode Config Updates ====================
 
 	const updateExchangeModeConfig = useCallback(
-		(exchangeModeConfig: VariableNodeBacktestExchangeModeConfig | undefined) => {
+		(
+			exchangeModeConfig: VariableNodeBacktestExchangeModeConfig | undefined,
+		) => {
 			updateConfig((draft) => {
 				draft.exchangeModeConfig = exchangeModeConfig;
 			});
@@ -102,11 +104,15 @@ export const useBacktestConfig = ({ id }: UseBacktestConfigProps) => {
 				// Calculate new ID based on max existing ID
 				const newId =
 					draft.variableConfigs.length > 0
-						? Math.max(...draft.variableConfigs.map((config) => config.configId)) +
-						  1
+						? Math.max(
+								...draft.variableConfigs.map((config) => config.configId),
+							) + 1
 						: 1;
 
-				const newConfig = { ...variableConfig, configId: newId } as VariableConfig;
+				const newConfig = {
+					...variableConfig,
+					configId: newId,
+				} as VariableConfig;
 				draft.variableConfigs.push(newConfig);
 			});
 		},

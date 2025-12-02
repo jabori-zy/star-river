@@ -1,4 +1,5 @@
 import { Clock } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { SelectInDialog } from "@/components/dialog-components/select-in-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -6,8 +7,8 @@ import type {
 	IntervalTimerConfig,
 	TimerUnit,
 } from "@/types/node/variable-node";
-import { useTranslation } from "react-i18next";
 import { getTimeUnitOptions } from "../trigger-type-switcher-utils";
+
 interface IntervalConfigerProps {
 	config: IntervalTimerConfig;
 	onChange: (config: IntervalTimerConfig) => void;
@@ -43,13 +44,13 @@ const IntervalConfiger: React.FC<IntervalConfigerProps> = ({
 					onChange={(e) => handleIntervalChange(parseInt(e.target.value) || 1)}
 					className="h-8 w-20"
 				/>
-			<SelectInDialog
-				value={config.unit}
-				onValueChange={(value) => handleUnitChange(value as TimerUnit)}
-				placeholder="选择时间单位"
-				options={getTimeUnitOptions(t)}
-				className="h-8 flex-1"
-			/>
+				<SelectInDialog
+					value={config.unit}
+					onValueChange={(value) => handleUnitChange(value as TimerUnit)}
+					placeholder="选择时间单位"
+					options={getTimeUnitOptions(t)}
+					className="h-8 flex-1"
+				/>
 			</div>
 			<div className="flex flex-wrap gap-2">
 				<Badge

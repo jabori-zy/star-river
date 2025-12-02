@@ -1,14 +1,14 @@
 import type React from "react";
 import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
+import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
+import { useBacktestConfig } from "@/hooks/node-config/start-node/use-update-backtest-config";
 import type { StartNodeData } from "@/types/node/start-node";
 import { BacktestDataSource } from "@/types/strategy";
-import { useBacktestConfig } from "@/hooks/node-config/start-node/use-update-backtest-config";
 import AccountSelector from "../components/account-selector";
 import BacktestStrategySetting from "../components/backtest-strategy-setting";
 import DataSourceSelector from "../components/data-source-selector";
 import TimeRangeSelector from "../components/time-range-selector";
 import VariableEditor from "../components/variable-editor";
-import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 
 // 新开始节点回测模式设置面板
 export const StartNodeBacktestSettingPanel: React.FC<SettingProps> = ({
@@ -31,8 +31,7 @@ export const StartNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 
 	// 从节点数据读取所有需要的配置（实时响应更新）
 	const backtestConfig = startNodeData?.backtestConfig;
-	const dataSource =
-		backtestConfig?.dataSource || BacktestDataSource.EXCHANGE;
+	const dataSource = backtestConfig?.dataSource || BacktestDataSource.EXCHANGE;
 	const selectedAccounts =
 		backtestConfig?.exchangeModeConfig?.selectedAccounts || [];
 	const timeRange = backtestConfig?.exchangeModeConfig?.timeRange || {
@@ -51,35 +50,35 @@ export const StartNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 					dataSource={dataSource}
 					setDataSource={() => {}} // 不再需要本地状态设置
 					updateDataSource={updateDataSource}
-			/>
-			{/* 根据数据源切换不同的组件 */}
-			{dataSource === BacktestDataSource.EXCHANGE && (
-				<div className="space-y-4">
-					<AccountSelector
-						selectedAccounts={selectedAccounts}
-						setSelectedAccounts={() => {}} // 不再需要本地状态设置
-						updateSelectedAccounts={updateBacktestAccounts}
-					/>
-					<TimeRangeSelector
-						timeRange={timeRange}
-						setTimeRange={updateTimeRange}
-					/>
-				</div>
-			)}
-			<BacktestStrategySetting
-				initialBalance={initialBalance}
-				setInitialBalance={() => {}} // 不再需要本地状态设置
-				updateInitialBalance={updateInitialBalance}
-				leverage={leverage}
-				setLeverage={() => {}} // 不再需要本地状态设置
-				updateLeverage={updateLeverage}
-				feeRate={feeRate}
-				setFeeRate={() => {}} // 不再需要本地状态设置
-				updateFeeRate={updateFeeRate}
-				playSpeed={playSpeed}
-				setPlaySpeed={() => {}} // 不再需要本地状态设置
-				updatePlaySpeed={updatePlaySpeed}
-			/>
+				/>
+				{/* 根据数据源切换不同的组件 */}
+				{dataSource === BacktestDataSource.EXCHANGE && (
+					<div className="space-y-4">
+						<AccountSelector
+							selectedAccounts={selectedAccounts}
+							setSelectedAccounts={() => {}} // 不再需要本地状态设置
+							updateSelectedAccounts={updateBacktestAccounts}
+						/>
+						<TimeRangeSelector
+							timeRange={timeRange}
+							setTimeRange={updateTimeRange}
+						/>
+					</div>
+				)}
+				<BacktestStrategySetting
+					initialBalance={initialBalance}
+					setInitialBalance={() => {}} // 不再需要本地状态设置
+					updateInitialBalance={updateInitialBalance}
+					leverage={leverage}
+					setLeverage={() => {}} // 不再需要本地状态设置
+					updateLeverage={updateLeverage}
+					feeRate={feeRate}
+					setFeeRate={() => {}} // 不再需要本地状态设置
+					updateFeeRate={updateFeeRate}
+					playSpeed={playSpeed}
+					setPlaySpeed={() => {}} // 不再需要本地状态设置
+					updatePlaySpeed={updatePlaySpeed}
+				/>
 
 				<VariableEditor
 					variables={backtestConfig?.customVariables || []}

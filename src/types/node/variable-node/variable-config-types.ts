@@ -1,11 +1,9 @@
 import type { Node } from "@xyflow/react";
 import type { BacktestDataSource, SelectedAccount } from "@/types/strategy";
 import type { VariableValueType } from "@/types/variable";
-import type {
-	TriggerConfig,
-} from "./trigger-types";
-import type { UpdateVarValueOperation } from "./variable-operation-types";
 import type { NodeDataBase } from "..";
+import type { TriggerConfig } from "./trigger-types";
+import type { UpdateVarValueOperation } from "./variable-operation-types";
 
 type BaseVariableConfig = {
 	configId: number;
@@ -17,7 +15,6 @@ type BaseVariableConfig = {
 	varValueType: VariableValueType;
 	triggerConfig: TriggerConfig;
 };
-
 
 export type VariableValue = string | number | boolean | string[] | null;
 
@@ -36,7 +33,9 @@ export type GetCustomVariableConfig = BaseVariableConfig & {
 	varValue: VariableValue;
 };
 
-export type GetVariableConfig = GetSystemVariableConfig | GetCustomVariableConfig;
+export type GetVariableConfig =
+	| GetSystemVariableConfig
+	| GetCustomVariableConfig;
 
 export function isGetSystemVariableConfig(
 	config: GetVariableConfig,

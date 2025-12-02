@@ -10,7 +10,6 @@ const API_VERSION = "api/v1";
 
 const API_URL = `${API_BASE_URL}/${API_VERSION}/${ROUTER}`;
 
-
 interface UpdateOptions {
 	onSuccess?: () => void;
 	onError?: (error: Error) => void;

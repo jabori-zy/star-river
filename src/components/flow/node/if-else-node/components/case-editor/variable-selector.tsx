@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
-	isVariableConfig,
 	isSelectedIndicator,
 	isSelectedSymbol,
+	isVariableConfig,
 	renderVariableOptions as renderVariableOptionsUtil,
 } from "@/components/flow/node/node-utils";
 import { ButtonGroup } from "@/components/ui/button-group";
@@ -54,8 +54,6 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 	blacklistValueType,
 	excludeVariable,
 }) => {
-	
-
 	const [selectedNodeId, setSelectedNodeId] = useState<string>(
 		variable?.nodeId || "",
 	);

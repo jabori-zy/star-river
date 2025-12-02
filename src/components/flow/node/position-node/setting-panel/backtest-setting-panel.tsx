@@ -1,14 +1,14 @@
+import { useReactFlow } from "@xyflow/react";
 import { PlusIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useReactFlow } from "@xyflow/react";
 import { useTranslation } from "react-i18next";
-import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
 import AccountSelector from "@/components/flow/account-selector";
+import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
 import { NodeOpConfirmDialog } from "@/components/flow/node-op-confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { useBacktestConfig } from "@/hooks/node-config/position-node";
 import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
+import { useBacktestConfig } from "@/hooks/node-config/position-node";
 import { useSymbolList } from "@/service/market/symbol-list";
 import {
 	PositionOperation,
@@ -18,14 +18,13 @@ import type { SelectedAccount } from "@/types/strategy";
 import PositionOpItem from "../components/position-op-item";
 import { getOutputHandleIds } from "../utils";
 
-const PositionNodeBacktestSettingPanel: React.FC<SettingProps> = ({
-	id,
-}) => {
+const PositionNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id }) => {
 	const { t } = useTranslation();
 	// 获取开始节点数据
 	const { getStartNodeData, getTargetNodeIds } = useStrategyWorkflow();
 	const startNodeData = getStartNodeData();
-	const accountList = startNodeData?.backtestConfig?.exchangeModeConfig?.selectedAccounts || [];
+	const accountList =
+		startNodeData?.backtestConfig?.exchangeModeConfig?.selectedAccounts || [];
 
 	const { getNode, getEdges, setEdges } = useReactFlow();
 

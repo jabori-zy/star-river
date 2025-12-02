@@ -1,17 +1,24 @@
-
 import { Construction } from "lucide-react";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 import useTradingModeStore from "@/store/use-trading-mode-store";
 import { TradeMode } from "@/types/strategy";
 import type { SettingProps } from "./setting-panel";
-import { useTranslation } from "react-i18next";
 
 export interface SettingPanelProps {
 	liveModeSettingPanel?: React.ComponentType<SettingProps> | React.ReactNode; // 实时模式设置面板
-	backtestModeSettingPanel?: React.ComponentType<SettingProps> | React.ReactNode; // 回测模式设置面板
-	simulationModeSettingPanel?: React.ComponentType<SettingProps> |React.ReactNode; // 模拟模式设置面板
+	backtestModeSettingPanel?:
+		| React.ComponentType<SettingProps>
+		| React.ReactNode; // 回测模式设置面板
+	simulationModeSettingPanel?:
+		| React.ComponentType<SettingProps>
+		| React.ReactNode; // 模拟模式设置面板
 }
 
 interface TradeModeSwitcherProps {
@@ -58,7 +65,11 @@ const TradeModeSwitcher: React.FC<TradeModeSwitcherProps> = ({
 				<Tooltip>
 					<TooltipTrigger asChild>
 						<span className="flex-1">
-							<TabsTrigger value={TradeMode.LIVE} disabled={true} className="w-full">
+							<TabsTrigger
+								value={TradeMode.LIVE}
+								disabled={true}
+								className="w-full"
+							>
 								<Construction className="w-3.5 h-3.5 mr-1.5 text-yellow-500" />
 								{t("strategy.workflow.liveSetting")}
 							</TabsTrigger>
@@ -68,11 +79,17 @@ const TradeModeSwitcher: React.FC<TradeModeSwitcherProps> = ({
 						<p>In Developing...</p>
 					</TooltipContent>
 				</Tooltip>
-				<TabsTrigger value={TradeMode.BACKTEST} className="flex-1">{t("strategy.workflow.backtestSetting")}</TabsTrigger>
+				<TabsTrigger value={TradeMode.BACKTEST} className="flex-1">
+					{t("strategy.workflow.backtestSetting")}
+				</TabsTrigger>
 				<Tooltip>
 					<TooltipTrigger asChild>
 						<span className="flex-1">
-							<TabsTrigger value={TradeMode.SIMULATE} disabled={true} className="w-full">
+							<TabsTrigger
+								value={TradeMode.SIMULATE}
+								disabled={true}
+								className="w-full"
+							>
 								<Construction className="w-3.5 h-3.5 mr-1.5 text-yellow-500" />
 								{t("strategy.workflow.simulateSetting")}
 							</TabsTrigger>
@@ -84,7 +101,7 @@ const TradeModeSwitcher: React.FC<TradeModeSwitcherProps> = ({
 				</Tooltip>
 			</TabsList>
 			<TabsContent className="w-full flex-1 min-h-0" value="live">
-					{renderSettingPanel(settingPanel.liveModeSettingPanel)}
+				{renderSettingPanel(settingPanel.liveModeSettingPanel)}
 			</TabsContent>
 			<TabsContent className="w-full flex-1 min-h-0" value="backtest">
 				{renderSettingPanel(settingPanel.backtestModeSettingPanel)}

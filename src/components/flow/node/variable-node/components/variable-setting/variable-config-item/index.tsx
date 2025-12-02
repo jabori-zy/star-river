@@ -1,11 +1,14 @@
+import type { TFunction } from "i18next";
 import type React from "react";
-import type { VariableConfig, UpdateVarValueOperation } from "@/types/node/variable-node";
+import type {
+	UpdateVarValueOperation,
+	VariableConfig,
+} from "@/types/node/variable-node";
 import type { CustomVariable, VariableValueType } from "@/types/variable";
 import type { SymbolSelectorOption } from "../components/symbol-selector";
 import GetVarConfigItem from "./get-var-config";
 import ResetVarConfigItem from "./reset-var-config";
 import UpdateVarConfigItem from "./update-var-config";
-import type { TFunction } from "i18next";
 
 interface VariableConfigItemProps {
 	id: string;
@@ -23,7 +26,10 @@ interface VariableConfigItemProps {
 		varValueType: VariableValueType,
 		isDataflowMode?: boolean,
 	) => UpdateVarValueOperation[];
-	getUpdateOperationLabel: (type: UpdateVarValueOperation, t: TFunction) => string;
+	getUpdateOperationLabel: (
+		type: UpdateVarValueOperation,
+		t: TFunction,
+	) => string;
 	allConfigs: VariableConfig[];
 }
 
@@ -47,7 +53,7 @@ const VariableConfigItem: React.FC<VariableConfigItemProps> = ({
 	const checkDuplicateVariableOperation = (varName: string): string | null => {
 		// 检查是否是自定义变量
 		const isCustomVariable = customVariables.some(
-			(customVar: CustomVariable) => customVar.varName === varName
+			(customVar: CustomVariable) => customVar.varName === varName,
 		);
 
 		// 只对自定义变量进行检测
@@ -85,7 +91,9 @@ const VariableConfigItem: React.FC<VariableConfigItemProps> = ({
 					<GetVarConfigItem
 						id={id}
 						config={config}
-						onConfigChange={(updatedConfig) => onConfigChange(index, updatedConfig)}
+						onConfigChange={(updatedConfig) =>
+							onConfigChange(index, updatedConfig)
+						}
 						onDelete={() => onDelete(index)}
 						customVariables={customVariables}
 						symbolOptions={symbolOptions}
@@ -100,7 +108,9 @@ const VariableConfigItem: React.FC<VariableConfigItemProps> = ({
 					<UpdateVarConfigItem
 						id={id}
 						config={config}
-						onConfigChange={(updatedConfig) => onConfigChange(index, updatedConfig)}
+						onConfigChange={(updatedConfig) =>
+							onConfigChange(index, updatedConfig)
+						}
 						onDelete={() => onDelete(index)}
 						customVariables={customVariables}
 						customVariableOptions={customVariableOptions}
@@ -114,7 +124,9 @@ const VariableConfigItem: React.FC<VariableConfigItemProps> = ({
 					<ResetVarConfigItem
 						id={id}
 						config={config}
-						onConfigChange={(updatedConfig) => onConfigChange(index, updatedConfig)}
+						onConfigChange={(updatedConfig) =>
+							onConfigChange(index, updatedConfig)
+						}
 						onDelete={() => onDelete(index)}
 						customVariables={customVariables}
 						customVariableOptions={customVariableOptions}

@@ -1,3 +1,4 @@
+import { useNodeConnections } from "@xyflow/react";
 import {
 	ChevronDown,
 	ChevronRight,
@@ -8,13 +9,10 @@ import {
 	Trash2,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { useNodeConnections } from "@xyflow/react";
 import { useTranslation } from "react-i18next";
-import CaseSelector, { type CaseItemInfo } from "@/components/flow/case-selector";
-import type { ConditionTrigger } from "@/types/condition-trigger";
-import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
-import useTradingModeStore from "@/store/use-trading-mode-store";
-import type { TradeMode } from "@/types/strategy";
+import CaseSelector, {
+	type CaseItemInfo,
+} from "@/components/flow/case-selector";
 import { Selector } from "@/components/select-components/select";
 import { SelectWithSearch } from "@/components/select-components/select-with-search";
 import { Badge } from "@/components/ui/badge";
@@ -26,13 +24,17 @@ import {
 } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
+import useTradingModeStore from "@/store/use-trading-mode-store";
+import type { ConditionTrigger } from "@/types/condition-trigger";
 import type { Instrument } from "@/types/market";
 import {
+	getPositionOperationLabel,
 	PositionOperation,
 	type PositionOperationConfig,
-	getPositionOperationLabel,
 	shouldSelectSymbol,
 } from "@/types/node/position-node";
+import type { TradeMode } from "@/types/strategy";
 
 interface PositionOpItemProps {
 	id: string;
@@ -72,7 +74,10 @@ const PositionOpItem: React.FC<PositionOpItemProps> = ({
 		() => [
 			{
 				value: PositionOperation.CloseAllPositions,
-				label: getPositionOperationLabel(PositionOperation.CloseAllPositions, t),
+				label: getPositionOperationLabel(
+					PositionOperation.CloseAllPositions,
+					t,
+				),
 			},
 			{
 				value: PositionOperation.CLOSE_POSITION,
@@ -194,7 +199,6 @@ const PositionOpItem: React.FC<PositionOpItemProps> = ({
 
 				<CollapsibleContent>
 					<div className="px-4 pb-4 pt-1 grid gap-4">
-
 						{/* 触发条件 */}
 						<div className="grid gap-2">
 							<Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">

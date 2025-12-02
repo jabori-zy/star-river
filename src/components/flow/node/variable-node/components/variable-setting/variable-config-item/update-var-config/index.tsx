@@ -1,33 +1,38 @@
-import { TbEdit } from "react-icons/tb";
+import { useNodeConnections } from "@xyflow/react";
+import type { TFunction } from "i18next";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { TbEdit } from "react-icons/tb";
+import { SelectInDialog } from "@/components/dialog-components/select-in-dialog";
+import type { CaseItemInfo } from "@/components/flow/case-selector";
 import { getTriggerTypeInfo } from "@/components/flow/node/variable-node/variable-node-utils";
 import { Badge } from "@/components/ui/badge";
-import { Label } from "@/components/ui/label";
-import { SelectInDialog } from "@/components/dialog-components/select-in-dialog";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
 import {
 	Collapsible,
 	CollapsibleContent,
 	CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import DeleteConfigButton from "../../components/delete-config-button";
+import { Label } from "@/components/ui/label";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 import type { VariableItem } from "@/hooks/flow/use-strategy-workflow";
+import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
+import useTradingModeStore from "@/store/use-trading-mode-store";
 import { NodeType } from "@/types/node/index";
 import type {
-	UpdateVariableConfig,
-	TimerTrigger,
 	ConditionTrigger,
-	TriggerConfig,
-	UpdateVarValueOperation,
 	DataFlowTrigger,
-	DataflowErrorType,
 	DataflowErrorPolicy,
+	DataflowErrorType,
+	TimerTrigger,
 	TimerUnit,
+	TriggerConfig,
+	UpdateVariableConfig,
+	UpdateVarValueOperation,
 } from "@/types/node/variable-node";
 import {
 	getConditionTriggerConfig,
@@ -35,37 +40,32 @@ import {
 	getEffectiveTriggerType,
 	getTimerTriggerConfig,
 } from "@/types/node/variable-node";
+import type { TradeMode } from "@/types/strategy";
 import {
 	type CustomVariable,
 	getVariableValueTypeIcon,
 	getVariableValueTypeIconColor,
 	VariableValueType,
 } from "@/types/variable";
-import { useTranslation } from "react-i18next";
-import type { TFunction } from "i18next";
+import {
+	generateBooleanHint,
+	generateEnumHint,
+	generateNumberHint,
+	generatePercentageHint,
+	generateStringHint,
+	generateTimeHint,
+} from "../../../../hint-generators";
 import { getUpdateOperationPlaceholder } from "../../../../variable-node-utils";
-import type { CaseItemInfo } from "@/components/flow/case-selector";
 import DataFlowSelector from "../../components/dataflow-selector";
+import DeleteConfigButton from "../../components/delete-config-button";
 import TriggerTypeSwitcher from "../../components/trigger-type-switcher";
 import BoolTypeOpEditor from "../../components/variable-op-editor/bool-type-op-editor";
 import EnumTypeOpEditor from "../../components/variable-op-editor/enum-type-op-editor";
 import NumberTypeOpEditor from "../../components/variable-op-editor/number-type-op-editor";
-import StringTypeOpEditor from "../../components/variable-op-editor/string-type-op-editor";
 import PercentTypeOpEditor from "../../components/variable-op-editor/percent-type-op-editor";
+import StringTypeOpEditor from "../../components/variable-op-editor/string-type-op-editor";
 import TimeTypeOpEditor from "../../components/variable-op-editor/time-type-op-editor";
 import { useValidateUpdateConfig } from "../validate";
-import { useNodeConnections } from "@xyflow/react";
-import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
-import type { TradeMode } from "@/types/strategy";
-import useTradingModeStore from "@/store/use-trading-mode-store";
-import {
-	generateNumberHint,
-	generateStringHint,
-	generateBooleanHint,
-	generateEnumHint,
-	generateTimeHint,
-	generatePercentageHint,
-} from "../../../../hint-generators";
 
 interface UpdateVarConfigItemProps {
 	id: string;
@@ -78,7 +78,10 @@ interface UpdateVarConfigItemProps {
 		varValueType: VariableValueType,
 		isDataflowMode?: boolean,
 	) => UpdateVarValueOperation[];
-	getUpdateOperationLabel: (type: UpdateVarValueOperation, t: TFunction) => string;
+	getUpdateOperationLabel: (
+		type: UpdateVarValueOperation,
+		t: TFunction,
+	) => string;
 	duplicateOperation?: string | null;
 }
 
@@ -114,7 +117,10 @@ const renderOperationEditor = (
 		varValueType: VariableValueType,
 		isDataflowMode?: boolean,
 	) => UpdateVarValueOperation[],
-	getUpdateOperationLabel: (type: UpdateVarValueOperation, t: TFunction) => string,
+	getUpdateOperationLabel: (
+		type: UpdateVarValueOperation,
+		t: TFunction,
+	) => string,
 	triggerCase: ConditionTrigger | null,
 	timerConfig: TimerTrigger | undefined,
 	t: TFunction,
@@ -137,7 +143,11 @@ const renderOperationEditor = (
 	const varValueType = selectedVar?.varValueType || VariableValueType.NUMBER;
 
 	// 构建 triggerConfig
-	const triggerConfig = buildTriggerConfig(updateTriggerType, triggerCase, timerConfig);
+	const triggerConfig = buildTriggerConfig(
+		updateTriggerType,
+		triggerCase,
+		timerConfig,
+	);
 
 	// 根据变量类型返回对应的编辑器组件
 	switch (varValueType) {
@@ -269,37 +279,38 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 }) => {
 	const { t } = useTranslation();
 	const [isOpen, setIsOpen] = useState(false);
-	const { getIfElseNodeCases, getConnectedNodeVariables } = useStrategyWorkflow();
+	const { getIfElseNodeCases, getConnectedNodeVariables } =
+		useStrategyWorkflow();
 	const { tradingMode } = useTradingModeStore();
 
 	const effectiveTriggerType = React.useMemo(
 		() => getEffectiveTriggerType(config) ?? "condition",
-		[config]
+		[config],
 	);
 
 	const triggerCase = React.useMemo(
 		() => getConditionTriggerConfig(config) ?? null,
-		[config]
+		[config],
 	);
 
 	const timerConfig = React.useMemo(
 		() => getTimerTriggerConfig(config),
-		[config]
+		[config],
 	);
 
 	const dataflowConfig = React.useMemo(
 		() => getDataFlowTriggerConfig(config),
-		[config]
+		[config],
 	);
 	const dataflowValidationRef = React.useRef(true);
 
 	// 使用 ref 缓存 timer、condition 和 dataflow 配置，防止切换触发类型时丢失
 	const cachedTimerConfig = useRef<TimerTrigger>(
-		timerConfig || { mode: "interval", interval: 1, unit: "hour" }
+		timerConfig || { mode: "interval", interval: 1, unit: "hour" },
 	);
 	const cachedConditionConfig = useRef<ConditionTrigger | null>(triggerCase);
 	const cachedDataflowConfig = useRef<DataFlowTrigger>(
-		dataflowConfig || createEmptyDataflowTrigger()
+		dataflowConfig || createEmptyDataflowTrigger(),
 	);
 
 	// 获取当前节点的连接信息
@@ -314,15 +325,27 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 	useEffect(() => {
 		// filter default input handle connection
 		const conn = connections.filter(
-			connection => (connection.targetHandle === `${id}_default_input` || connection.targetHandle === config.inputHandleId)
+			(connection) =>
+				connection.targetHandle === `${id}_default_input` ||
+				connection.targetHandle === config.inputHandleId,
 		);
 		const cases = getIfElseNodeCases(conn, tradingMode as TradeMode);
 		setCaseItemList(cases);
 
 		// 获取连接节点的变量并更新状态
-		const variables = getConnectedNodeVariables(connections, tradingMode as TradeMode);
+		const variables = getConnectedNodeVariables(
+			connections,
+			tradingMode as TradeMode,
+		);
 		setVariableItemList(variables);
-	}, [connections, getIfElseNodeCases, getConnectedNodeVariables, id, tradingMode, config.inputHandleId]);
+	}, [
+		connections,
+		getIfElseNodeCases,
+		getConnectedNodeVariables,
+		id,
+		tradingMode,
+		config.inputHandleId,
+	]);
 
 	// 当从 props 接收到新的配置时，更新缓存
 	useEffect(() => {
@@ -347,7 +370,8 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 	const updateDataflowConfig = (
 		updater: (prev: DataFlowTrigger) => DataFlowTrigger,
 	) => {
-		const prevConfig = getDataFlowTriggerConfig(config) ?? createEmptyDataflowTrigger();
+		const prevConfig =
+			getDataFlowTriggerConfig(config) ?? createEmptyDataflowTrigger();
 		const newConfig = updater(prevConfig);
 		// 更新缓存
 		cachedDataflowConfig.current = newConfig;
@@ -362,7 +386,12 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 	};
 
 	// 使用验证 Hook
-	const { variable, triggerCase: triggerCaseError, dataflow, hasError } = useValidateUpdateConfig(config, {
+	const {
+		variable,
+		triggerCase: triggerCaseError,
+		dataflow,
+		hasError,
+	} = useValidateUpdateConfig(config, {
 		t,
 		duplicateOperation,
 		effectiveTriggerType,
@@ -385,7 +414,9 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 	};
 
 	// 处理触发类型变化
-	const handleTriggerTypeChange = (triggerType: "condition" | "timer" | "dataflow") => {
+	const handleTriggerTypeChange = (
+		triggerType: "condition" | "timer" | "dataflow",
+	) => {
 		if (triggerType === "condition") {
 			onConfigChange({
 				...config,
@@ -456,7 +487,10 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 	);
 
 	// 处理过期时长变化
-	const handleExpireDurationChange = (expireDuration: { unit: TimerUnit; duration: number }) => {
+	const handleExpireDurationChange = (expireDuration: {
+		unit: TimerUnit;
+		duration: number;
+	}) => {
 		updateDataflowConfig((prev) => ({
 			...prev,
 			expireDuration,
@@ -478,7 +512,11 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 	};
 
 	// 处理数据流节点变化
-	const handleNodeChange = (nodeId: string, nodeType: NodeType | null, nodeName: string) => {
+	const handleNodeChange = (
+		nodeId: string,
+		nodeType: NodeType | null,
+		nodeName: string,
+	) => {
 		updateDataflowConfig((prev) => {
 			const isSameNode = prev.fromNodeId === nodeId;
 			return {
@@ -518,7 +556,9 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 	};
 
 	// 处理数据流操作类型变化
-	const handleOperationTypeChangeDataflow = (operation: UpdateVarValueOperation) => {
+	const handleOperationTypeChangeDataflow = (
+		operation: UpdateVarValueOperation,
+	) => {
 		onConfigChange({
 			...config,
 			updateVarValueOperation: operation,
@@ -526,7 +566,9 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 	};
 
 	// 处理更新操作类型变化（条件/定时模式）
-	const handleUpdateOperationTypeChange = (operation: UpdateVarValueOperation) => {
+	const handleUpdateOperationTypeChange = (
+		operation: UpdateVarValueOperation,
+	) => {
 		onConfigChange({
 			...config,
 			updateVarValueOperation: operation,
@@ -609,7 +651,9 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 
 	// 数据流触发的提示文案
 	const dataflowHint =
-		effectiveTriggerType === "dataflow" && config.varDisplayName && dataflowConfig
+		effectiveTriggerType === "dataflow" &&
+		config.varDisplayName &&
+		dataflowConfig
 			? getHintGenerator(config.varValueType)({
 					t,
 					varOperation: "update",
@@ -623,7 +667,9 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 			: null;
 
 	return (
-		<div className={`group flex-1 space-y-2 p-3 rounded-md border bg-background ${hasError ? "border-red-500" : "border-border"}`}>
+		<div
+			className={`group flex-1 space-y-2 p-3 rounded-md border bg-background ${hasError ? "border-red-500" : "border-border"}`}
+		>
 			<Collapsible open={isOpen} onOpenChange={setIsOpen}>
 				<div className="flex items-start justify-between gap-2">
 					<CollapsibleTrigger asChild>
@@ -638,7 +684,9 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 									{/* 第一行：图标 + 操作标题 + 触发方式 + 操作类型 */}
 									<div className="flex items-center gap-2">
 										<TbEdit className="h-4 w-4 text-green-600 flex-shrink-0" />
-										<span className="text-sm font-medium">{t("variableNode.updateVariable")}</span>
+										<span className="text-sm font-medium">
+											{t("variableNode.updateVariable")}
+										</span>
 										<Badge className={`h-5 text-[10px] ${typeInfo.badgeColor}`}>
 											<TriggerIcon className="h-3 w-3" />
 											{typeInfo.label}
@@ -674,7 +722,9 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 								value={config.varName}
 								onValueChange={handleVariableChange}
 								placeholder={
-									customVariables.length === 0 ? "无自定义变量" : "选择要更新的变量"
+									customVariables.length === 0
+										? "无自定义变量"
+										: "选择要更新的变量"
 								}
 								options={customVariableOptions}
 								disabled={customVariables.length === 0}
@@ -682,9 +732,7 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 								className="w-full"
 							/>
 							{errors.variable && (
-								<p className="text-xs text-red-600 mt-1">
-									{errors.variable}
-								</p>
+								<p className="text-xs text-red-600 mt-1">{errors.variable}</p>
 							)}
 						</div>
 
@@ -696,19 +744,36 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 							caseItemList={caseItemList}
 							selectedTriggerCase={triggerCase ?? null}
 							onTriggerCaseChange={handleTriggerCaseChange}
-							timerConfig={timerConfig || { mode: "interval", interval: 1, unit: "hour" }}
+							timerConfig={
+								timerConfig || { mode: "interval", interval: 1, unit: "hour" }
+							}
 							onTimerConfigChange={handleTimerConfigChange}
 							expireDuration={
-								dataflowConfig?.expireDuration || { unit: "hour" as const, duration: 1 }
+								dataflowConfig?.expireDuration || {
+									unit: "hour" as const,
+									duration: 1,
+								}
 							}
 							errorPolicy={
 								dataflowConfig?.errorPolicy || {
-									nullValue: { strategy: "skip" as const, errorLog: { notify: false as const } },
-									expired: { strategy: "skip" as const, errorLog: { notify: false as const } },
-									zeroValue: { strategy: "skip" as const, errorLog: { notify: false as const } },
+									nullValue: {
+										strategy: "skip" as const,
+										errorLog: { notify: false as const },
+									},
+									expired: {
+										strategy: "skip" as const,
+										errorLog: { notify: false as const },
+									},
+									zeroValue: {
+										strategy: "skip" as const,
+										errorLog: { notify: false as const },
+									},
 								}
 							}
-							replaceValueType={customVariables.find((v) => v.varName === config.varName)?.varValueType}
+							replaceValueType={
+								customVariables.find((v) => v.varName === config.varName)
+									?.varValueType
+							}
 							updateOperationType={config.updateVarValueOperation}
 							onDataflowValidationChange={handleDataflowValidationChange}
 							onExpireDurationChange={handleExpireDurationChange}
@@ -716,9 +781,7 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 						/>
 
 						{errors.triggerCase && (
-							<p className="text-xs text-red-600 mt-1">
-								{errors.triggerCase}
-							</p>
+							<p className="text-xs text-red-600 mt-1">{errors.triggerCase}</p>
 						)}
 
 						{/* 数据流模式：操作符 + 上游节点变量选择器 */}
@@ -752,7 +815,9 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 											selectedNodeId={dataflowConfig?.fromNodeId || null}
 											selectedHandleId={dataflowConfig?.fromHandleId || null}
 											selectedVariable={dataflowConfig?.fromVar || null}
-											selectedVariableName={dataflowConfig?.fromVarDisplayName || null}
+											selectedVariableName={
+												dataflowConfig?.fromVarDisplayName || null
+											}
 											updateOperationType={config.updateVarValueOperation}
 											availableOperations={availableOps}
 											targetVariableType={selectedVar?.varValueType}
@@ -764,9 +829,7 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 									);
 								})()}
 								{errors.dataflow && (
-									<p className="text-xs text-red-600 mt-1">
-										{errors.dataflow}
-									</p>
+									<p className="text-xs text-red-600 mt-1">{errors.dataflow}</p>
 								)}
 							</div>
 						)}

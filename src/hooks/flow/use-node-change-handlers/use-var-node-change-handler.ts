@@ -1,6 +1,7 @@
 import type { Edge, Node } from "@xyflow/react";
 import { getOutgoers } from "@xyflow/react";
 import { useCallback } from "react";
+import { useCustomSysVariableName } from "@/store/use-custom-sys-variable-name";
 import { NodeType } from "@/types/node";
 import type {
 	Constant,
@@ -12,7 +13,6 @@ import type {
 	VariableNodeData,
 } from "@/types/node/variable-node";
 import { createEmptyRightVariable } from "./utils";
-import { useCustomSysVariableName } from "@/store/use-custom-sys-variable-name";
 
 export const useVarNodeChangeHandler = () => {
 	const { getCustomName } = useCustomSysVariableName();
@@ -57,13 +57,13 @@ export const useVarNodeChangeHandler = () => {
 		(varNodeId: string, nodes: Node[], edges: Edge[]): Node[] => {
 			const varNode = nodes.find((node) => node.id === varNodeId);
 			if (!varNode) return nodes;
-			
+
 			const varNodeData = varNode.data as VariableNodeData;
 			const connectedNodes = getOutgoers(varNode, nodes, edges);
 			const connectedIfElseNodes = connectedNodes.filter(
 				(node) => node.type === NodeType.IfElseNode,
 			);
-			
+
 			if (connectedIfElseNodes.length === 0) return nodes;
 
 			const varNodeVariableConfigs =
@@ -92,9 +92,13 @@ export const useVarNodeChangeHandler = () => {
 
 	// 同步系统变量自定义名称
 	const syncSystemVariableNames = useCallback(
-		(nodes: Node[], changedVarNodeId: string, edges: Edge[]): { 
-			updatedNodes: Node[]; 
-			affectedNodeIds: string[] 
+		(
+			nodes: Node[],
+			changedVarNodeId: string,
+			edges: Edge[],
+		): {
+			updatedNodes: Node[];
+			affectedNodeIds: string[];
 		} => {
 			const changedNode = nodes.find((n) => n.id === changedVarNodeId);
 			if (!changedNode || changedNode.type !== NodeType.VariableNode) {
@@ -203,7 +207,11 @@ export const useVarNodeChangeHandler = () => {
 			// 对于所有被更新的 VariableNode，同步更新其连接的 If/Else 节点
 			let finalNodes = syncedNodes;
 			for (const affectedNodeId of affectedNodeIds) {
-				finalNodes = updateDownstreamIfElseNodes(affectedNodeId, finalNodes, edges);
+				finalNodes = updateDownstreamIfElseNodes(
+					affectedNodeId,
+					finalNodes,
+					edges,
+				);
 			}
 
 			return { updatedNodes: finalNodes, affectedNodeIds };
@@ -232,11 +240,8 @@ export const useVarNodeChangeHandler = () => {
 			}
 
 			// 同步系统变量自定义名称到其他节点，并更新它们的下游 If/Else 节点
-			const { updatedNodes: syncedNodes, affectedNodeIds } = syncSystemVariableNames(
-				updatedNodes, 
-				varNodeId, 
-				edges
-			);
+			const { updatedNodes: syncedNodes, affectedNodeIds } =
+				syncSystemVariableNames(updatedNodes, varNodeId, edges);
 			if (syncedNodes !== updatedNodes || affectedNodeIds.length > 0) {
 				hasChanged = true;
 				updatedNodes = syncedNodes;
@@ -269,7 +274,9 @@ const updateIfElseNode = (
 	for (const caseItem of cases) {
 		for (const condition of caseItem.conditions) {
 			const leftVariable = condition.left;
-			const rightVariable = isVariable(condition.right) ? condition.right : null;
+			const rightVariable = isVariable(condition.right)
+				? condition.right
+				: null;
 			// 左变量是否需要清空或更新
 			if (
 				shouldClearVariable(
@@ -312,28 +319,18 @@ const updateIfElseNode = (
 
 				const shouldClearLeft =
 					leftVariable?.nodeId === varNodeId &&
-					!varNodeVariableConfigsIds.includes(
-						leftVariable?.varConfigId || 0,
-					);
+					!varNodeVariableConfigsIds.includes(leftVariable?.varConfigId || 0);
 				const shouldClearRight =
 					rightVariable?.nodeId === varNodeId &&
-					!varNodeVariableConfigsIds.includes(
-						rightVariable?.varConfigId || 0,
-					);
+					!varNodeVariableConfigsIds.includes(rightVariable?.varConfigId || 0);
 
 				const nextLeft = shouldClearLeft
 					? null
-					: updateVariable(
-							leftVariable,
-							varNodeId,
-							varNodeVariableConfigs,
-						);
+					: updateVariable(leftVariable, varNodeId, varNodeVariableConfigs);
 
 				const nextRight = (() => {
 					if (shouldClearRight) {
-						return createEmptyRightVariable(
-							rightVariable?.varType || null,
-						);
+						return createEmptyRightVariable(rightVariable?.varType || null);
 					}
 					if (rightVariable) {
 						return updateVariable(

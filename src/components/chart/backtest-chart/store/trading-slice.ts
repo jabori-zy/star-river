@@ -1,6 +1,6 @@
 import type {
-	OrderPriceLine,
 	OrderMarker,
+	OrderPriceLine,
 	PositionPriceLine,
 } from "@/types/chart";
 import type { SliceCreator, TradingSlice } from "./types";

@@ -1,21 +1,17 @@
-import { useCallback } from "react";
 import { useReactFlow } from "@xyflow/react";
 import { produce } from "immer";
+import { DateTime } from "luxon";
+import { useCallback } from "react";
+import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
+import type { StartNodeData } from "@/types/node/start-node";
 import type {
-	StrategyBacktestConfig,
 	BacktestDataSource,
 	SelectedAccount,
+	StrategyBacktestConfig,
 	TimeRange,
 } from "@/types/strategy";
 import { BacktestDataSource as BacktestDataSourceEnum } from "@/types/strategy";
 import type { CustomVariable } from "@/types/variable";
-import { DateTime } from "luxon";
-import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
-import type { StartNodeData } from "@/types/node/start-node";
-
-
-
-
 
 /**
  * 创建默认的回测配置
@@ -26,8 +22,14 @@ export const createDefaultBacktestConfig = (): StrategyBacktestConfig => {
 		exchangeModeConfig: {
 			selectedAccounts: [],
 			timeRange: {
-				startDate: DateTime.now().minus({ days: 2 }).startOf("day").toFormat("yyyy-MM-dd HH:mm:ss ZZ"),
-				endDate: DateTime.now().minus({ days: 1 }).startOf("day").toFormat("yyyy-MM-dd HH:mm:ss ZZ"),
+				startDate: DateTime.now()
+					.minus({ days: 2 })
+					.startOf("day")
+					.toFormat("yyyy-MM-dd HH:mm:ss ZZ"),
+				endDate: DateTime.now()
+					.minus({ days: 1 })
+					.startOf("day")
+					.toFormat("yyyy-MM-dd HH:mm:ss ZZ"),
 			},
 		},
 		fileModeConfig: null,
@@ -39,18 +41,15 @@ export const createDefaultBacktestConfig = (): StrategyBacktestConfig => {
 	};
 };
 
-
 interface UseBacktestConfigProps {
 	id: string; // 节点ID
 }
 
-export const useBacktestConfig = ({
-	id,
-}: UseBacktestConfigProps) => {
+export const useBacktestConfig = ({ id }: UseBacktestConfigProps) => {
 	const { updateNodeData } = useReactFlow();
 	const { getNodeData } = useStrategyWorkflow();
 
-    const nodeData = getNodeData(id) as StartNodeData;
+	const nodeData = getNodeData(id) as StartNodeData;
 	const backtestConfig = nodeData?.backtestConfig ?? null;
 
 	/**
@@ -162,7 +161,7 @@ export const useBacktestConfig = ({
 	);
 
 	return {
-        backtestConfig,
+		backtestConfig,
 		updateInitialBalance,
 		updateLeverage,
 		updateFeeRate,

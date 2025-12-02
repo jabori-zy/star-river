@@ -1,8 +1,10 @@
-import {createDefaultBacktestConfig} from "./use-update-backtest-config";
+import { createDefaultBacktestConfig } from "./use-update-backtest-config";
+
 export { useBacktestConfig } from "./use-update-backtest-config";
-import type { StartNodeData } from "@/types/node/start-node";
-import { getNodeIconName, getNodeDefaultColor, NodeType } from "@/types/node";
+
 import type { TFunction } from "i18next";
+import { getNodeDefaultColor, getNodeIconName, NodeType } from "@/types/node";
+import type { StartNodeData } from "@/types/node/start-node";
 /**
  * 创建默认的开始节点配置
  */

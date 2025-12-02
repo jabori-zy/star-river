@@ -7,8 +7,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import type { DataflowErrorPolicy } from "@/types/node/variable-node";
 import { ERROR_TYPE_SUPPORT_POLICY } from "@/types/node/variable-node";
 import type { VariableValue } from "@/types/node/variable-node/variable-config-types";
-import type { ErrorPolicyConfigProps } from "./types";
 import { ReplaceValueInput } from "./replace-value-input";
+import type { ErrorPolicyConfigProps } from "./types";
 
 export const ErrorPolicyConfig: React.FC<ErrorPolicyConfigProps> = ({
 	errorType,
@@ -25,9 +25,9 @@ export const ErrorPolicyConfig: React.FC<ErrorPolicyConfigProps> = ({
 
 	// 获取当前错误类型支持的策略列表
 	const availableStrategies = ERROR_TYPE_SUPPORT_POLICY[errorType] || [];
-	
+
 	// 对于除法操作的 zeroValue，过滤掉 stillUpdate
-	const supportedStrategies = availableStrategies.filter(strategy => {
+	const supportedStrategies = availableStrategies.filter((strategy) => {
 		if (errorType === "zeroValue" && updateOperationType === "divide") {
 			return strategy !== "stillUpdate";
 		}
@@ -56,10 +56,9 @@ export const ErrorPolicyConfig: React.FC<ErrorPolicyConfigProps> = ({
 		} else if (newStrategy === "valueReplace") {
 			updatedPolicy = {
 				strategy: "valueReplace",
-				replaceValue:
-					(policy?.strategy === "valueReplace"
-						? policy.replaceValue
-						: 0) as VariableValue,
+				replaceValue: (policy?.strategy === "valueReplace"
+					? policy.replaceValue
+					: 0) as VariableValue,
 				errorLog,
 			};
 		} else {
@@ -87,8 +86,8 @@ export const ErrorPolicyConfig: React.FC<ErrorPolicyConfigProps> = ({
 
 	const handleLogToggle = (checked: boolean) => {
 		const updatedErrorLog = checked
-			? ({ notify: true as const, level: "warn" as const })
-			: ({ notify: false as const });
+			? { notify: true as const, level: "warn" as const }
+			: { notify: false as const };
 
 		if (strategy === "skip") {
 			onErrorPolicyChange(errorType, {
@@ -103,10 +102,9 @@ export const ErrorPolicyConfig: React.FC<ErrorPolicyConfigProps> = ({
 		} else if (strategy === "valueReplace") {
 			onErrorPolicyChange(errorType, {
 				strategy: "valueReplace",
-				replaceValue:
-					(policy?.strategy === "valueReplace"
-						? policy.replaceValue
-						: 0) as VariableValue,
+				replaceValue: (policy?.strategy === "valueReplace"
+					? policy.replaceValue
+					: 0) as VariableValue,
 				errorLog: updatedErrorLog,
 			});
 		} else {
@@ -141,10 +139,9 @@ export const ErrorPolicyConfig: React.FC<ErrorPolicyConfigProps> = ({
 			} else if (strategy === "valueReplace") {
 				onErrorPolicyChange(errorType, {
 					strategy: "valueReplace",
-					replaceValue:
-						(policy?.strategy === "valueReplace"
-							? policy.replaceValue
-							: 0) as VariableValue,
+					replaceValue: (policy?.strategy === "valueReplace"
+						? policy.replaceValue
+						: 0) as VariableValue,
 					errorLog: updatedErrorLog,
 				});
 			} else {
@@ -178,7 +175,10 @@ export const ErrorPolicyConfig: React.FC<ErrorPolicyConfigProps> = ({
 					)}
 					{supportedStrategies.includes("stillUpdate") && (
 						<div className="flex items-center space-x-2">
-							<RadioGroupItem value="stillUpdate" id={`${errorType}-stillUpdate`} />
+							<RadioGroupItem
+								value="stillUpdate"
+								id={`${errorType}-stillUpdate`}
+							/>
 							<Label
 								htmlFor={`${errorType}-stillUpdate`}
 								className="font-normal cursor-pointer"
@@ -292,4 +292,3 @@ export const ErrorPolicyConfig: React.FC<ErrorPolicyConfigProps> = ({
 		</div>
 	);
 };
-

@@ -1,9 +1,9 @@
 import type {
 	ConditionTrigger,
-	TimerTrigger,
 	DataFlowTrigger,
-	VariableOperation,
+	TimerTrigger,
 	UpdateVarValueOperation,
+	VariableOperation,
 } from "@/types/node/variable-node";
 
 /**

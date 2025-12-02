@@ -1,7 +1,7 @@
 import type React from "react";
 import { Badge } from "@/components/ui/badge";
 import type { IndicatorCategory } from "@/types/indicator";
-import { ALL_CATEGORY } from "./utils";
+import type { ALL_CATEGORY } from "./utils";
 
 interface CategoryTabsProps {
 	categories: (IndicatorCategory | typeof ALL_CATEGORY)[];

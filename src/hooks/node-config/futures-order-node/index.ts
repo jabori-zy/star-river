@@ -1,8 +1,10 @@
 import { createDefaultFuturesOrderBacktestConfig } from "./use-update-backtest-config";
+
 export { useBacktestConfig } from "./use-update-backtest-config";
-import type { FuturesOrderNodeData } from "@/types/node/futures-order-node";
-import { getNodeIconName, getNodeDefaultColor, NodeType } from "@/types/node";
+
 import type { TFunction } from "i18next";
+import { getNodeDefaultColor, getNodeIconName, NodeType } from "@/types/node";
+import type { FuturesOrderNodeData } from "@/types/node/futures-order-node";
 /**
  * Create default futures order node data
  */

@@ -46,4 +46,3 @@ export const ExpireDurationSection: React.FC<ExpireDurationSectionProps> = ({
 		</div>
 	);
 };
-

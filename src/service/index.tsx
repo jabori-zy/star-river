@@ -1,8 +1,6 @@
 export const API_BASE_URL: string =
 	import.meta.env.VITE_API_URL || "http://localhost:3100";
 
-
-
 // ============================================
 // API Response Type Definitions (corresponds to Rust backend's ApiResponseEnum)
 // ============================================
@@ -73,9 +71,9 @@ export class ApiError extends Error {
 
 	constructor(message: string, errorCode?: string, errorCodeChain?: string[]) {
 		super(message);
-		this.name = 'ApiError';
-		this.errorCode = errorCode ?? 'UNKNOWN';
-		this.errorCodeChain = errorCodeChain ?? ['UNKNOWN'];
+		this.name = "ApiError";
+		this.errorCode = errorCode ?? "UNKNOWN";
+		this.errorCodeChain = errorCodeChain ?? ["UNKNOWN"];
 
 		// Maintain prototype chain (TypeScript/Babel transpilation compatibility)
 		Object.setPrototypeOf(this, ApiError.prototype);
@@ -85,7 +83,11 @@ export class ApiError extends Error {
 	 * Create ApiError instance from ApiErrorResponse
 	 */
 	static fromApiErrorResponse(response: ApiErrorResponse): ApiError {
-		return new ApiError(response.message, response.errorCode, response.errorCodeChain);
+		return new ApiError(
+			response.message,
+			response.errorCode,
+			response.errorCodeChain,
+		);
 	}
 
 	/**

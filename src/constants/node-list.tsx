@@ -1,12 +1,13 @@
-import { Hexagon} from "lucide-react";
+import { Hexagon } from "lucide-react";
+import { getNodeDefaultColor, getNodeIconName, NodeType } from "@/types/node";
 import type { NodeItemProps } from "@/types/nodeCategory";
-import { getNodeDefaultColor, getNodeIconName ,NodeType } from "@/types/node";
 
 export const nodeList = [
 	{
 		title: "node.node",
 		icon: Hexagon,
-		color:"from-[#4776E6]/20 to-[#8E54E9]/20 hover:from-[#4776E6]/30 hover:to-[#8E54E9]/30",
+		color:
+			"from-[#4776E6]/20 to-[#8E54E9]/20 hover:from-[#4776E6]/30 hover:to-[#8E54E9]/30",
 		items: [
 			{
 				nodeId: "kline_node",

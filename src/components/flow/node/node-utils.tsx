@@ -8,6 +8,7 @@ import {
 } from "@/components/dialog-components/select-in-dialog";
 import { Badge } from "@/components/ui/badge";
 import type { VariableItem } from "@/hooks/flow/use-strategy-workflow";
+import { NodeType } from "@/types/node/index";
 import type { SelectedIndicator } from "@/types/node/indicator-node";
 import type { SelectedSymbol } from "@/types/node/kline-node";
 import type {
@@ -19,7 +20,6 @@ import {
 	getVariableValueTypeIconColor,
 	VariableValueType,
 } from "@/types/variable";
-import { NodeType } from "@/types/node/index";
 
 // 类型守卫
 export const isSelectedIndicator = (
@@ -41,7 +41,10 @@ export const isSelectedSymbol = (
 export const isVariableConfig = (
 	variable: SelectedIndicator | SelectedSymbol | VariableConfig,
 ): variable is VariableConfig => {
-	return "varOperation" in variable && ["get", "update", "reset"].includes(variable.varOperation);
+	return (
+		"varOperation" in variable &&
+		["get", "update", "reset"].includes(variable.varOperation)
+	);
 };
 
 interface RenderVariableOptionsParams {
@@ -138,7 +141,6 @@ export const renderVariableOptions = ({
 		});
 	}
 
-
 	const indicators = filteredVariables.filter((v) =>
 		isSelectedIndicator(v),
 	) as SelectedIndicator[];
@@ -154,8 +156,12 @@ export const renderVariableOptions = ({
 	// 渲染指标选项
 	if (indicators.length > 0) {
 		// 指标变量都是NUMBER类型
-		const TypeIconComponent = getVariableValueTypeIcon(VariableValueType.NUMBER);
-		const typeIconColor = getVariableValueTypeIconColor(VariableValueType.NUMBER);
+		const TypeIconComponent = getVariableValueTypeIcon(
+			VariableValueType.NUMBER,
+		);
+		const typeIconColor = getVariableValueTypeIconColor(
+			VariableValueType.NUMBER,
+		);
 
 		const groupedByIndicatorId = indicators.reduce(
 			(groups, variable) => {
@@ -241,8 +247,12 @@ export const renderVariableOptions = ({
 	// 渲染K线选项
 	if (klineNodes.length > 0) {
 		// K线变量都是NUMBER类型
-		const TypeIconComponent = getVariableValueTypeIcon(VariableValueType.NUMBER);
-		const typeIconColor = getVariableValueTypeIconColor(VariableValueType.NUMBER);
+		const TypeIconComponent = getVariableValueTypeIcon(
+			VariableValueType.NUMBER,
+		);
+		const typeIconColor = getVariableValueTypeIconColor(
+			VariableValueType.NUMBER,
+		);
 
 		const groupedByConfigId = klineNodes.reduce(
 			(groups, variable) => {
@@ -333,7 +343,9 @@ export const renderVariableOptions = ({
 		variableConfigs.forEach((variable) => {
 			// 获取变量类型图标和颜色
 			const TypeIconComponent = getVariableValueTypeIcon(variable.varValueType);
-			const typeIconColor = getVariableValueTypeIconColor(variable.varValueType);
+			const typeIconColor = getVariableValueTypeIconColor(
+				variable.varValueType,
+			);
 
 			variableItems.push(
 				<SelectItem
@@ -383,7 +395,9 @@ export const renderNodeOptions = (variableItemList: VariableItem[]) => {
 		value: item.nodeId,
 		label: (
 			<div className="flex items-center gap-1">
-				<span className="font-medium text-gray-900 truncate">{item.nodeName}</span>
+				<span className="font-medium text-gray-900 truncate">
+					{item.nodeName}
+				</span>
 			</div>
 		),
 	}));
@@ -394,11 +408,10 @@ export const formatDate = (date: Date | undefined): string => {
 	return DateTime.fromJSDate(date).toFormat("yyyy-MM-dd HH:mm:ss ZZ") || "";
 };
 
-
-
-
-
-export const getNodeTypeLabel = (nodeType: NodeType | null, t: (key: string) => string) => {
+export const getNodeTypeLabel = (
+	nodeType: NodeType | null,
+	t: (key: string) => string,
+) => {
 	switch (nodeType) {
 		case NodeType.KlineNode:
 			return t("node.kline");

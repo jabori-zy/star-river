@@ -1,8 +1,9 @@
-import axios, { type AxiosError } from "axios";
 import { useQuery } from "@tanstack/react-query";
+import axios, { type AxiosError } from "axios";
+import { API_BASE_URL, ApiError, type ApiResponse } from "@/service/index";
 import type { StrategyInfo } from "@/types/strategy/strategy-list";
-import { API_BASE_URL, type ApiResponse, ApiError } from "@/service/index";
 import { strategyKeys } from "./query-keys";
+
 const API_VERSION = "api/v1";
 const ROUTER = "strategy";
 const API_URL = `${API_BASE_URL}/${API_VERSION}/${ROUTER}`;
@@ -152,8 +153,8 @@ export async function getStrategyListApi(
 
 			// Check if it's a standard error response from backend
 			let message = axiosError.message || "network request failed";
-			let errorCode: string | undefined = undefined;
-			let errorCodeChain: string[] | undefined = undefined;
+			let errorCode: string | undefined;
+			let errorCodeChain: string[] | undefined;
 
 			if (responseData && !responseData.success) {
 				// Use error info from backend

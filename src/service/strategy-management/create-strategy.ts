@@ -1,8 +1,14 @@
-import axios, { type AxiosError } from "axios";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import axios, { type AxiosError } from "axios";
+import {
+	API_BASE_URL,
+	ApiError,
+	type ApiResponse,
+	type MutationMeta,
+} from "@/service/index";
 import type { Strategy } from "@/types/strategy";
-import { API_BASE_URL, type ApiResponse, ApiError, type MutationMeta } from "@/service/index";
 import { strategyKeys } from "./query-keys";
+
 const API_VERSION = "api/v1";
 const ROUTER = "strategy";
 const API_URL = `${API_BASE_URL}/${API_VERSION}/${ROUTER}`;
@@ -114,18 +120,17 @@ export async function createStrategyApi(
 		if (axios.isAxiosError(error)) {
 			const axiosError = error as AxiosError<ApiResponse<unknown>>;
 			const responseData = axiosError.response?.data;
-            
 
 			// 检查是否是后端返回的标准错误响应
 			let message = axiosError.message || "network request failed";
-			let errorCode: string | undefined = undefined;
-            let errorCodeChain: string[] | undefined = undefined;
+			let errorCode: string | undefined;
+			let errorCodeChain: string[] | undefined;
 
 			if (responseData && !responseData.success) {
 				// 使用后端返回的错误信息
 				message = responseData.message;
 				errorCode = responseData.errorCode;
-                errorCodeChain = responseData.errorCodeChain;
+				errorCodeChain = responseData.errorCodeChain;
 			}
 
 			throw new ApiError(message, errorCode, errorCodeChain);
@@ -163,7 +168,6 @@ export interface UseCreateStrategyOptions {
 	 */
 	onSettled?: () => void;
 }
-
 
 export function useCreateStrategy(options?: UseCreateStrategyOptions) {
 	const queryClient = useQueryClient();
@@ -218,4 +222,3 @@ export function useCreateStrategy(options?: UseCreateStrategyOptions) {
 		},
 	});
 }
-

@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { SelectInDialog } from "@/components/dialog-components/select-in-dialog";
 import { ButtonGroup } from "@/components/ui/button-group";
 import type { CaseItem } from "@/types/node/if-else-node";
 import { NodeType } from "@/types/node/index";
 import type { ConditionTrigger } from "@/types/node/variable-node";
-import { useTranslation } from "react-i18next";
 // Case 数据结构，与 getIfElseNodeCases 返回值匹配
 export interface CaseItemInfo {
 	nodeId: string;
@@ -164,7 +164,9 @@ const CaseSelector: React.FC<CaseSelectorProps> = ({
 	const caseOptions = getSelectedNodeCases().map((caseItem) => {
 		// 处理 else 分支
 		if (typeof caseItem === "string" && caseItem === "else") {
-			const elseOutputHandleId = localNodeId ? `${localNodeId}_output_else` : "";
+			const elseOutputHandleId = localNodeId
+				? `${localNodeId}_output_else`
+				: "";
 			return {
 				value: generateCaseOptionValue("else", undefined, elseOutputHandleId),
 				label: getCaseLabel(caseItem),
@@ -188,7 +190,11 @@ const CaseSelector: React.FC<CaseSelectorProps> = ({
 			<SelectInDialog
 				value={localNodeId}
 				onValueChange={handleNodeChange}
-				placeholder={hasNoNodes ? t("variableNode.caseSelector.noNodes") : t("variableNode.caseSelector.chooseNode")}
+				placeholder={
+					hasNoNodes
+						? t("variableNode.caseSelector.noNodes")
+						: t("variableNode.caseSelector.chooseNode")
+				}
 				options={nodeOptions}
 				disabled={hasNoNodes}
 				className="h-8 text-xs font-normal min-w-20 flex-1"
@@ -198,7 +204,11 @@ const CaseSelector: React.FC<CaseSelectorProps> = ({
 			<SelectInDialog
 				value={caseString}
 				onValueChange={handleCaseChange}
-				placeholder={hasNoNodes ? t("variableNode.caseSelector.noCases") : t("variableNode.caseSelector.chooseCase")}
+				placeholder={
+					hasNoNodes
+						? t("variableNode.caseSelector.noCases")
+						: t("variableNode.caseSelector.chooseCase")
+				}
 				options={caseOptions}
 				disabled={!localNodeId || hasNoNodes}
 				className="h-8 text-xs font-normal min-w-20 flex-1"

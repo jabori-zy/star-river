@@ -1,12 +1,10 @@
-import { useCallback } from "react";
 import { useReactFlow } from "@xyflow/react";
-import type { Strategy } from "@/types/strategy";
-import type { TradeMode } from "@/types/strategy";
+import { useCallback } from "react";
 import type { UpdateStrategyRequest } from "@/service/strategy-management/update-strategy";
+import type { Strategy, StrategyRunState, TradeMode } from "@/types/strategy";
 import StrategyPageHeader from "../header";
-import StrategyFlow from "./strategy-flow";
-import { StrategyRunState } from "@/types/strategy";
 import type { OperationType } from "../strategy-control/type";
+import StrategyFlow from "./strategy-flow";
 
 interface WorkFlowProps {
 	strategy: Strategy;
@@ -43,7 +41,6 @@ export function WorkFlow({
 			nodes,
 			edges,
 		});
-		
 	}, [getNodes, getEdges, updateStrategy, strategy, tradeMode]);
 
 	return (
@@ -60,10 +57,12 @@ export function WorkFlow({
 
 			<div className="flex flex-col h-full w-full">
 				<div className="flex-1 h-full w-full overflow-hidden">
-					<StrategyFlow strategy={strategy} onSaveStatusChange={handleSaveStatusChange} />
+					<StrategyFlow
+						strategy={strategy}
+						onSaveStatusChange={handleSaveStatusChange}
+					/>
 				</div>
 			</div>
 		</>
 	);
 }
-

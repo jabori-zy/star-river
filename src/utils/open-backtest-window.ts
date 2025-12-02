@@ -9,7 +9,10 @@ import { toast } from "sonner";
  *
  * @param strategyId 策略 ID
  */
-export async function openBacktestWindow(strategyId: number, strategyName: string): Promise<void> {
+export async function openBacktestWindow(
+	strategyId: number,
+	strategyName: string,
+): Promise<void> {
 	try {
 		// 检查是否在 Electron 环境中
 		if (window.require) {

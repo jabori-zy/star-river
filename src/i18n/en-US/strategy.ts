@@ -34,7 +34,7 @@ const translation = {
 		pleaseSelectAccount: "Please select an account.",
 		pleaseConfigureAtStartNode: "Please configure at start node.",
 		noAccount: "No account configured.",
-	}
+	},
 };
 
 export default translation;

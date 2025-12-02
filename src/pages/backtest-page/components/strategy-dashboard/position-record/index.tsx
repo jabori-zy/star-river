@@ -7,6 +7,7 @@ import {
 	useState,
 } from "react";
 import type { Subscription } from "rxjs";
+import { PositionTable } from "@/components/new-table/backtest/position-table";
 import BacktestPositionTable from "@/components/table/backtest-position-table";
 import { createPositionStream } from "@/hooks/obs/backtest-strategy-event-obs";
 import {
@@ -128,11 +129,7 @@ const PositionRecord = forwardRef<PositionRecordRef, PositionRecordProps>(
 					/>
 				</div>
 				<div className="h-full w-full">
-					<BacktestPositionTable
-						title="持仓记录"
-						showTitle={false}
-						data={positionData}
-					/>
+					<PositionTable data={positionData} />
 				</div>
 			</div>
 		);

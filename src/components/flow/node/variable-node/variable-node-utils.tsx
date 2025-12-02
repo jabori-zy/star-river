@@ -1,8 +1,9 @@
-import { Clock, Filter, Workflow } from "lucide-react";
+import type { TFunction } from "i18next";
 import type { LucideIcon } from "lucide-react";
+import { Clock, Filter, Workflow } from "lucide-react";
 import type {
-	TimerTrigger,
 	ConditionTrigger,
+	TimerTrigger,
 	TriggerType,
 	UpdateVarValueOperation,
 	VariableConfig,
@@ -12,7 +13,6 @@ import {
 	getSystemVariableMetadata,
 	SystemVariableType,
 } from "@/types/variable";
-import type { TFunction } from "i18next";
 /**
  * 获取变量类型的中文名称（仅用于系统变量）
  * 对于自定义变量，应该直接返回变量名
@@ -39,7 +39,11 @@ export const generateVariableName = (
 	let typeLabel: string;
 
 	// 检查是否是系统变量
-	if (Object.values(SystemVariableType).includes(variableType as SystemVariableType)) {
+	if (
+		Object.values(SystemVariableType).includes(
+			variableType as SystemVariableType,
+		)
+	) {
 		typeLabel = getVariableLabel(variableType, t);
 	} else if (customVariables) {
 		// 自定义变量：从列表中查找 varDisplayName
@@ -233,11 +237,7 @@ export const generateValueHighlight = (value: string): React.ReactNode => {
 
 export const generateSymbolHighlight = (symbol?: string): React.ReactNode => {
 	if (!symbol) return null;
-	return (
-		<span className="text-indigo-600 font-medium">
-			{symbol}
-		</span>
-	);
+	return <span className="text-indigo-600 font-medium">{symbol}</span>;
 };
 
 /**
@@ -256,13 +256,21 @@ export const generateTimerIntervalPrefix = (
 	const { interval, unit } = timerConfig;
 	switch (unit) {
 		case "second":
-			return t("variableNode.hint.intervalSecond", { interval: interval.toString() });
+			return t("variableNode.hint.intervalSecond", {
+				interval: interval.toString(),
+			});
 		case "minute":
-			return t("variableNode.hint.intervalMinute", { interval: interval.toString() });
+			return t("variableNode.hint.intervalMinute", {
+				interval: interval.toString(),
+			});
 		case "hour":
-			return t("variableNode.hint.intervalHour", { interval: interval.toString() });
+			return t("variableNode.hint.intervalHour", {
+				interval: interval.toString(),
+			});
 		case "day":
-			return t("variableNode.hint.intervalDay", { interval: interval.toString() });
+			return t("variableNode.hint.intervalDay", {
+				interval: interval.toString(),
+			});
 	}
 	return null;
 };
@@ -286,9 +294,14 @@ export const generateSchedulePrefix = (
 		// 每小时: 每{}小时的第{}分钟，
 		const { hourlyInterval, minuteOfHour } = timerConfig;
 		if (hourlyInterval === 1) {
-			return t("variableNode.hint.scheduleHourlyOne", { minute: minuteOfHour.toString() });
+			return t("variableNode.hint.scheduleHourlyOne", {
+				minute: minuteOfHour.toString(),
+			});
 		}
-		return t("variableNode.hint.scheduleHourly", { hourlyInterval: hourlyInterval.toString(), minute: minuteOfHour.toString() });
+		return t("variableNode.hint.scheduleHourly", {
+			hourlyInterval: hourlyInterval.toString(),
+			minute: minuteOfHour.toString(),
+		});
 	}
 
 	if (repeatMode === "daily") {
@@ -328,7 +341,10 @@ export const generateSchedulePrefix = (
 			7: t("common.weekday.sunday"),
 		};
 		const weekdayName = weekdayMap[dayOfWeek] || "";
-		return t("variableNode.hint.scheduleWeekly", { weekday: weekdayName, time: time });
+		return t("variableNode.hint.scheduleWeekly", {
+			weekday: weekdayName,
+			time: time,
+		});
 	}
 
 	if (repeatMode === "monthly") {
@@ -336,7 +352,10 @@ export const generateSchedulePrefix = (
 		const { time, dayOfMonth } = timerConfig;
 
 		if (typeof dayOfMonth === "number") {
-			return t("variableNode.hint.scheduleMonthly", { dayOfMonth: dayOfMonth.toString(), time: time });
+			return t("variableNode.hint.scheduleMonthly", {
+				dayOfMonth: dayOfMonth.toString(),
+				time: time,
+			});
 		}
 
 		if (dayOfMonth === "first") {
@@ -357,13 +376,15 @@ export const generateSchedulePrefix = (
  * 获取更新操作类型的显示文本
  * 对于某些操作（如增加、减少等），不需要显示文本，因为会在值中体现
  */
-export const getUpdateOperationLabel = (operationType: UpdateVarValueOperation): string => {
+export const getUpdateOperationLabel = (
+	operationType: UpdateVarValueOperation,
+): string => {
 	const operationLabels: Record<UpdateVarValueOperation, string> = {
 		set: "设置为",
-		add: "",  // 通过 +5 的格式体现
-		subtract: "",  // 通过 -5 的格式体现
-		multiply: "",  // 通过 ×5 的格式体现
-		divide: "",  // 通过 ÷5 的格式体现
+		add: "", // 通过 +5 的格式体现
+		subtract: "", // 通过 -5 的格式体现
+		multiply: "", // 通过 ×5 的格式体现
+		divide: "", // 通过 ÷5 的格式体现
 		max: "取最大值",
 		min: "取最小值",
 		toggle: "切换",
@@ -424,5 +445,3 @@ export const formatUpdateOperationValue = (
 
 	return stringValue;
 };
-
-

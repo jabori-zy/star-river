@@ -13,7 +13,8 @@ const translation = {
 		closePosition: "Close Position",
 		closePositionDescription: "Close position for a specific symbol",
 		partiallyClosePosition: "Partially Close Position",
-		partiallyClosePositionDescription: "Partially close position for a specific symbol",
+		partiallyClosePositionDescription:
+			"Partially close position for a specific symbol",
 	},
 	symbol: {
 		label: "Symbol",

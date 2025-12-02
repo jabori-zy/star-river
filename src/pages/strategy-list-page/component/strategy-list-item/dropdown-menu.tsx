@@ -1,5 +1,6 @@
 import { MoreVertical, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -19,7 +20,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useDeleteStrategy } from "@/service/strategy-management/delete-strategy";
-import { useTranslation } from "react-i18next";
+
 interface StrategyItemDropdownMenuProps {
 	strategyId: number;
 	strategyName: string;
@@ -66,10 +67,7 @@ export function StrategyItemDropdownMenu({
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end">
-				<AlertDialog
-					open={showDeleteDialog}
-					onOpenChange={setShowDeleteDialog}
-				>
+				<AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
 					<AlertDialogTrigger asChild>
 						<DropdownMenuItem
 							className="text-red-500 focus:text-red-500 focus:bg-red-50"
@@ -84,9 +82,13 @@ export function StrategyItemDropdownMenu({
 					</AlertDialogTrigger>
 					<AlertDialogContent>
 						<AlertDialogHeader>
-							<AlertDialogTitle>{t("desktop.strategyListPage.confirmDeleteStrategy")}</AlertDialogTitle>
+							<AlertDialogTitle>
+								{t("desktop.strategyListPage.confirmDeleteStrategy")}
+							</AlertDialogTitle>
 							<AlertDialogDescription>
-								{t("desktop.strategyListPage.confirmDeleteStrategyMessage", { strategyName: `"${strategyName}"` })}
+								{t("desktop.strategyListPage.confirmDeleteStrategyMessage", {
+									strategyName: `"${strategyName}"`,
+								})}
 							</AlertDialogDescription>
 						</AlertDialogHeader>
 						<AlertDialogFooter>

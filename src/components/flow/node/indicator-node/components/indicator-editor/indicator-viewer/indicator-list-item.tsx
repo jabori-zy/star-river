@@ -32,9 +32,7 @@ const IndicatorListItem: React.FC<IndicatorListItemProps> = ({
 			<div className="flex items-center gap-2 flex-1">
 				<div className="flex-1">
 					<div className="flex items-center gap-2">
-						<span className="text-sm font-medium">
-							{indicator.displayName}
-						</span>
+						<span className="text-sm font-medium">{indicator.displayName}</span>
 						{showCategoryBadge && (
 							<Badge variant="secondary" className="text-xs text-gray-500">
 								{getCategoryDisplayName(indicator.category)}

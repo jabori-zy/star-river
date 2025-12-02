@@ -1,8 +1,10 @@
 import { createDefaultKlineBacktestConfig } from "./use-update-backtest-config";
+
 export { useBacktestConfig } from "./use-update-backtest-config";
-import type { KlineNodeData } from "@/types/node/kline-node";
-import { getNodeIconName, getNodeDefaultColor, NodeType } from "@/types/node";
+
 import type { TFunction } from "i18next";
+import { getNodeDefaultColor, getNodeIconName, NodeType } from "@/types/node";
+import type { KlineNodeData } from "@/types/node/kline-node";
 /**
  * 创建默认的 K线节点数据
  */

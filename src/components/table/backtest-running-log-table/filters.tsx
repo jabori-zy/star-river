@@ -10,7 +10,10 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { LogLevel } from "@/types/strategy-event";
-import type { NodeRunningLogEvent, StrategyRunningLogEvent } from "@/types/strategy-event/running-log-event";
+import type {
+	NodeRunningLogEvent,
+	StrategyRunningLogEvent,
+} from "@/types/strategy-event/running-log-event";
 
 interface LogTableFiltersProps {
 	table: Table<StrategyRunningLogEvent | NodeRunningLogEvent>;

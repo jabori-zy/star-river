@@ -1,8 +1,10 @@
 import { createDefaultVariableBacktestConfig } from "./use-update-backtest-config";
+
 export { useBacktestConfig } from "./use-update-backtest-config";
-import type { VariableNodeData } from "@/types/node/variable-node";
-import { getNodeIconName, getNodeDefaultColor, NodeType } from "@/types/node";
+
 import type { TFunction } from "i18next";
+import { getNodeDefaultColor, getNodeIconName, NodeType } from "@/types/node";
+import type { VariableNodeData } from "@/types/node/variable-node";
 /**
  * Create default variable node data
  */

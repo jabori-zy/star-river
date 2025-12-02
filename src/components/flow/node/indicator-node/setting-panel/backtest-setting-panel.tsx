@@ -12,11 +12,7 @@ import {
 import type { KlineNodeData, SelectedSymbol } from "@/types/node/kline-node";
 import SymbolSelector from "../components/symbol-selector";
 
-
-const IndicatorNodeBacktestSettingPanel: React.FC<SettingProps> = ({
-	id,
-}) => {
-
+const IndicatorNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id }) => {
 	const connections = useNodeConnections({
 		id,
 		handleType: "target",

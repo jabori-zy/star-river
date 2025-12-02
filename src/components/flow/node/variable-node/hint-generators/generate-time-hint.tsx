@@ -1,9 +1,9 @@
 import type { HintGeneratorParams } from "./types";
 import {
-	generateTriggerPrefix,
-	generateVariableHighlight,
-	generateValueHighlight,
 	generateSymbolHighlight,
+	generateTriggerPrefix,
+	generateValueHighlight,
+	generateVariableHighlight,
 } from "./utils";
 
 /**
@@ -78,9 +78,8 @@ function generateGetOperation(params: HintGeneratorParams): React.ReactNode {
 	if (value) {
 		return (
 			<>
-				{triggerPrefix}{" "}
-				{generateVariableHighlight(variableDisplayName)} 当前值为{" "}
-				{generateValueHighlight(value)}
+				{triggerPrefix} {generateVariableHighlight(variableDisplayName)}{" "}
+				当前值为 {generateValueHighlight(value)}
 			</>
 		);
 	}

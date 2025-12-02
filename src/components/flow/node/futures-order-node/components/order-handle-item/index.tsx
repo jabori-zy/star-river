@@ -1,22 +1,22 @@
 import { Position } from "@xyflow/react";
 import type React from "react";
+import { useTranslation } from "react-i18next";
 import BaseHandle from "@/components/flow/base/BaseHandle";
-import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import {
 	type FuturesOrderConfig,
 	FuturesOrderSide,
+	getFuturesOrderSideColor,
+	getFuturesOrderSideLabel,
+	getOrderStatusLabel,
+	getOrderTypeLabel,
 	OrderStatus,
 	OrderType,
-	getFuturesOrderSideLabel,
-	getFuturesOrderSideColor,
-	getOrderTypeLabel,
-	getOrderStatusLabel,
 } from "@/types/order";
 import {
 	getLimitOrderHandleGroup,
 	getMarketOrderHandleGroup,
 } from "./handle-group";
-import { useTranslation } from "react-i18next";
 
 interface OrderHandleItemProps {
 	id: string;
@@ -63,10 +63,13 @@ const OrderHandleItem: React.FC<OrderHandleItemProps> = ({
 			<div className="flex flex-row flex-1 gap-1 justify-between">
 				{/* 订单配置 */}
 				<div className="flex flex-1 flex-col gap-2 p-3 text-xs bg-gray-50 rounded min-w-[160px]">
-
 					<div className="flex justify-between gap-4">
-						<span className="text-gray-500 whitespace-nowrap">{t("futuresOrderNode.orderConfig.triggerCondition")}</span>
-						<span className={`font-medium text-right break-words ${!orderConfig.triggerConfig ? "text-red-500" : ""}`}>
+						<span className="text-gray-500 whitespace-nowrap">
+							{t("futuresOrderNode.orderConfig.triggerCondition")}
+						</span>
+						<span
+							className={`font-medium text-right break-words ${!orderConfig.triggerConfig ? "text-red-500" : ""}`}
+						>
 							{orderConfig.triggerConfig
 								? orderConfig.triggerConfig.triggerType === "case"
 									? `${orderConfig.triggerConfig.fromNodeName}/${t("futuresOrderNode.case")}${orderConfig.triggerConfig.caseId}`
@@ -76,46 +79,69 @@ const OrderHandleItem: React.FC<OrderHandleItemProps> = ({
 					</div>
 
 					<div className="flex justify-between gap-4">
-						<span className="text-gray-500 whitespace-nowrap">{t("futuresOrderNode.orderConfig.symbol")}</span>
-						<span className={`font-semibold text-right ${!orderConfig.symbol ? "text-red-500" : ""}`}>
-							{orderConfig.symbol || t("futuresOrderNode.validation.notConfigured")}
+						<span className="text-gray-500 whitespace-nowrap">
+							{t("futuresOrderNode.orderConfig.symbol")}
+						</span>
+						<span
+							className={`font-semibold text-right ${!orderConfig.symbol ? "text-red-500" : ""}`}
+						>
+							{orderConfig.symbol ||
+								t("futuresOrderNode.validation.notConfigured")}
 						</span>
 					</div>
 
 					<div className="flex justify-between gap-4">
-						<span className="text-gray-500 whitespace-nowrap">{t("futuresOrderNode.orderConfig.orderType")}</span>
+						<span className="text-gray-500 whitespace-nowrap">
+							{t("futuresOrderNode.orderConfig.orderType")}
+						</span>
 						<span className="font-medium text-right">
 							{getOrderTypeLabel(orderConfig.orderType, t)}
 						</span>
 					</div>
 					<div className="flex justify-between gap-4">
-						<span className="text-gray-500 whitespace-nowrap">{t("futuresOrderNode.orderConfig.orderSide")}</span>
+						<span className="text-gray-500 whitespace-nowrap">
+							{t("futuresOrderNode.orderConfig.orderSide")}
+						</span>
 						<span
-							className="font-medium text-right"
-							style={{ color: getFuturesOrderSideColor(orderConfig.orderSide) }}
+							className={cn(
+								"font-medium text-right",
+								getFuturesOrderSideColor(orderConfig.orderSide),
+							)}
 						>
 							{getFuturesOrderSideLabel(orderConfig.orderSide, t)}
 						</span>
 					</div>
 
 					<div className="flex justify-between gap-4">
-						<span className="text-gray-500 whitespace-nowrap">{t("futuresOrderNode.orderConfig.quantity")}</span>
-						<span className={`font-medium text-right ${!orderConfig.quantity ? "text-red-500" : ""}`}>
-							{orderConfig.quantity || t("futuresOrderNode.validation.notConfigured")}
+						<span className="text-gray-500 whitespace-nowrap">
+							{t("futuresOrderNode.orderConfig.quantity")}
+						</span>
+						<span
+							className={`font-medium text-right ${!orderConfig.quantity ? "text-red-500" : ""}`}
+						>
+							{orderConfig.quantity ||
+								t("futuresOrderNode.validation.notConfigured")}
 						</span>
 					</div>
 
 					{!isMarketOrder && (
 						<div className="flex justify-between gap-4">
-							<span className="text-gray-500 whitespace-nowrap">{t("futuresOrderNode.orderConfig.price")}</span>
-							<span className={`font-medium text-right ${!orderConfig.price ? "text-red-500" : ""}`}>
-								{orderConfig.price || t("futuresOrderNode.validation.notConfigured")}
+							<span className="text-gray-500 whitespace-nowrap">
+								{t("futuresOrderNode.orderConfig.price")}
+							</span>
+							<span
+								className={`font-medium text-right ${!orderConfig.price ? "text-red-500" : ""}`}
+							>
+								{orderConfig.price ||
+									t("futuresOrderNode.validation.notConfigured")}
 							</span>
 						</div>
 					)}
 
 					<div className="flex justify-between gap-4">
-						<span className="text-gray-500 whitespace-nowrap">{t("futuresOrderNode.orderConfig.takeProfit")}</span>
+						<span className="text-gray-500 whitespace-nowrap">
+							{t("futuresOrderNode.orderConfig.takeProfit")}
+						</span>
 						<span className="font-medium text-right">
 							{orderConfig.tp != null
 								? `${orderConfig.tp}${orderConfig.tpType === "percentage" ? "%" : orderConfig.tpType === "point" ? " Point" : ""}`
@@ -124,7 +150,9 @@ const OrderHandleItem: React.FC<OrderHandleItemProps> = ({
 					</div>
 
 					<div className="flex justify-between gap-4">
-						<span className="text-gray-500 whitespace-nowrap">{t("futuresOrderNode.orderConfig.stopLoss")}</span>
+						<span className="text-gray-500 whitespace-nowrap">
+							{t("futuresOrderNode.orderConfig.stopLoss")}
+						</span>
 						<span className="font-medium text-right">
 							{orderConfig.sl != null
 								? `${orderConfig.sl}${orderConfig.slType === "percentage" ? "%" : orderConfig.slType === "point" ? " Point" : ""}`
@@ -134,7 +162,9 @@ const OrderHandleItem: React.FC<OrderHandleItemProps> = ({
 				</div>
 				{/* 订单状态 */}
 				<div className="flex flex-col gap-2 items-end">
-					<div className="text-xs text-muted-foreground">{t("futuresOrderNode.allStatus")}</div>
+					<div className="text-xs text-muted-foreground">
+						{t("futuresOrderNode.allStatus")}
+					</div>
 					<div className="text-xs text-muted-foreground">
 						{getOrderStatusLabel(OrderStatus.CREATED, t)}
 					</div>

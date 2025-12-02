@@ -1,8 +1,10 @@
 import { createDefaultPositionBacktestConfig } from "./use-update-backtest-config";
+
 export { useBacktestConfig } from "./use-update-backtest-config";
-import type { PositionNodeData } from "@/types/node/position-node";
-import { getNodeIconName, getNodeDefaultColor, NodeType } from "@/types/node";
+
 import type { TFunction } from "i18next";
+import { getNodeDefaultColor, getNodeIconName, NodeType } from "@/types/node";
+import type { PositionNodeData } from "@/types/node/position-node";
 /**
  * Create default position management node data
  */

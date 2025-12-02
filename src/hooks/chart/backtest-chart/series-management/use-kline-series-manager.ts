@@ -1,10 +1,10 @@
+import type { DataChangedScope } from "lightweight-charts";
 import { createSeriesMarkers } from "lightweight-charts";
 import { useCallback } from "react";
 import { useBacktestChartStore } from "@/components/chart/backtest-chart/backtest-chart-store";
 import { get_play_index } from "@/service/backtest-strategy/backtest-strategy-control";
 import { getStrategyDatetimeApi } from "@/service/backtest-strategy/strategy-datetime";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
-import type { DataChangedScope } from "lightweight-charts";
 import { addKlineSeries } from "../utils/add-chart-series";
 
 interface UseKlineSeriesManagerProps {

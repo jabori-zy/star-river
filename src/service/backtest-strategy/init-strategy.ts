@@ -1,6 +1,11 @@
-import axios, { type AxiosError } from "axios";
 import { useMutation } from "@tanstack/react-query";
-import { API_BASE_URL, type ApiResponse, ApiError, type MutationMeta } from "@/service/index";
+import axios, { type AxiosError } from "axios";
+import {
+	API_BASE_URL,
+	ApiError,
+	type ApiResponse,
+	type MutationMeta,
+} from "@/service/index";
 
 const API_VERSION = "api/v1";
 const ROUTER = "strategy";
@@ -49,7 +54,9 @@ export async function initBacktestStrategyApi(
 
 	try {
 		// Step 3: Send POST request
-		const response = await axios.post<ApiResponse<InitBacktestStrategyResponse>>(
+		const response = await axios.post<
+			ApiResponse<InitBacktestStrategyResponse>
+		>(
 			`${API_URL}/${params.strategyId}/init`,
 			{},
 			{
@@ -89,8 +96,8 @@ export async function initBacktestStrategyApi(
 
 			// Check if it's a standard error response from backend
 			let message = axiosError.message || "network request failed";
-			let errorCode: string | undefined = undefined;
-			let errorCodeChain: string[] | undefined = undefined;
+			let errorCode: string | undefined;
+			let errorCodeChain: string[] | undefined;
 
 			if (responseData && !responseData.success) {
 				// Use error message from backend
@@ -137,13 +144,15 @@ export interface UseInitBacktestStrategyOptions {
 /**
  * React Query Hook for initializing backtest strategy
  */
-export function useInitBacktestStrategy(options?: UseInitBacktestStrategyOptions) {
-
+export function useInitBacktestStrategy(
+	options?: UseInitBacktestStrategyOptions,
+) {
 	const { meta, onSuccess, onError, onSettled } = options || {};
 
 	return useMutation({
 		// Mutation function
-		mutationFn: (params: InitBacktestStrategyRequest) => initBacktestStrategyApi(params),
+		mutationFn: (params: InitBacktestStrategyRequest) =>
+			initBacktestStrategyApi(params),
 
 		// Pass toast configuration to global MutationCache via meta
 		meta: {

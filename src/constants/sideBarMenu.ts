@@ -1,8 +1,4 @@
-import {
-	Bot,
-	Settings2,
-	User,
-} from "lucide-react";
+import { Bot, Settings2, User } from "lucide-react";
 
 export const sideBarMenu = {
 	user: {

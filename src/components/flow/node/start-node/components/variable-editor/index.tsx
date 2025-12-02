@@ -1,10 +1,10 @@
 import { Plus, Variable } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { type CustomVariable } from "@/types/variable";
+import type { CustomVariable } from "@/types/variable";
 import { VariableItem } from "./variable-config-item";
 import { VariableDialog } from "./variable-dialog";
-import { useTranslation } from "react-i18next";
 
 interface VariableEditorProps {
 	variables: CustomVariable[];
@@ -60,7 +60,9 @@ const VariableEditor = ({
 			<div className="flex items-center justify-between">
 				<div className="flex items-center gap-2">
 					<Variable className="h-4 w-4 text-muted-foreground" />
-					<span className="font-medium text-sm">{t("startNode.customVariables")}</span>
+					<span className="font-medium text-sm">
+						{t("startNode.customVariables")}
+					</span>
 				</div>
 				<Button
 					variant="outline"

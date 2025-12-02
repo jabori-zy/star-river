@@ -1,6 +1,6 @@
+import { useTranslation } from "react-i18next";
 import type { PositionNodeData } from "@/types/node/position-node";
 import { PositionHandleItem } from "../position-handle-item";
-import { useTranslation } from "react-i18next";
 
 interface BacktestModeShowProps {
 	id: string;
@@ -8,7 +8,11 @@ interface BacktestModeShowProps {
 	handleColor: string;
 }
 
-const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ id, data, handleColor }) => {
+const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
+	id,
+	data,
+	handleColor,
+}) => {
 	// 获取回测模式配置
 	const backtestConfig = data.backtestConfig;
 	const { t } = useTranslation();

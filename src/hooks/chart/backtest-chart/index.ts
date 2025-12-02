@@ -1,30 +1,4 @@
 // 主 Hook
-export { useBacktestChart } from "./use-backtest-chart";
-
-// Legend Hooks
-export { useKlineLegend } from "./use-kline-legend";
-export { useIndicatorLegend } from "./use-indicator-legend";
-
-// Core Hooks
-export {
-	useChartInitialization,
-	useChartLifecycle,
-	useChartResize,
-} from "./core";
-
-// Series Management Hooks
-export {
-	useKlineSeriesManager,
-	useIndicatorSeriesManager,
-	useSeriesConfigManager,
-} from "./series-management";
-
-// Data Loading Hooks
-export {
-	useVisibleRangeHandler,
-	useKlineDataLoader,
-	useIndicatorDataLoader,
-} from "./data-loading";
 
 // Types - Core
 export type {
@@ -33,22 +7,42 @@ export type {
 	UseChartLifecycleProps,
 	UseChartResizeProps,
 } from "./core";
-
+// Core Hooks
+export {
+	useChartInitialization,
+	useChartLifecycle,
+	useChartResize,
+} from "./core";
+// Types - Data Loading
+export type {
+	UseIndicatorDataLoaderProps,
+	UseIndicatorDataLoaderReturn,
+	UseKlineDataLoaderProps,
+	UseKlineDataLoaderReturn,
+	UseVisibleRangeHandlerProps,
+} from "./data-loading";
+// Data Loading Hooks
+export {
+	useIndicatorDataLoader,
+	useKlineDataLoader,
+	useVisibleRangeHandler,
+} from "./data-loading";
 // Types - Series Management
 export type {
-	UseKlineSeriesManagerProps,
-	UseKlineSeriesManagerReturn,
 	UseIndicatorSeriesManagerProps,
 	UseIndicatorSeriesManagerReturn,
+	UseKlineSeriesManagerProps,
+	UseKlineSeriesManagerReturn,
 	UseSeriesConfigManagerProps,
 	UseSeriesConfigManagerReturn,
 } from "./series-management";
-
-// Types - Data Loading
-export type {
-	UseVisibleRangeHandlerProps,
-	UseKlineDataLoaderProps,
-	UseKlineDataLoaderReturn,
-	UseIndicatorDataLoaderProps,
-	UseIndicatorDataLoaderReturn,
-} from "./data-loading";
+// Series Management Hooks
+export {
+	useIndicatorSeriesManager,
+	useKlineSeriesManager,
+	useSeriesConfigManager,
+} from "./series-management";
+export { useBacktestChart } from "./use-backtest-chart";
+export { useIndicatorLegend } from "./use-indicator-legend";
+// Legend Hooks
+export { useKlineLegend } from "./use-kline-legend";

@@ -1,9 +1,9 @@
+import type { NodeType } from "@/types/node";
 import type {
 	ConditionTrigger,
 	TimerTrigger,
 } from "@/types/node/variable-node";
 import { getNodeTypeLabel } from "../../node-utils";
-import type { NodeType } from "@/types/node";
 
 /**
  * 触发条件前缀生成工具函数
@@ -218,7 +218,8 @@ export const generateTriggerPrefix = ({
 			<span className="text-blue-600 font-medium">
 				{triggerNodeName}/{triggerCaseLabel}
 			</span>{" "}
-			{t("variableNode.hint.isTrue")}{", "}
+			{t("variableNode.hint.isTrue")}
+			{", "}
 		</>
 	);
 };

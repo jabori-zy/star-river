@@ -1,12 +1,18 @@
 import { Position } from "@xyflow/react";
 import { Clock } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import BaseHandle from "@/components/flow/base/BaseHandle";
 import { Badge } from "@/components/ui/badge";
-import type { SelectedSymbol } from "@/types/node/kline-node";
-import { useTranslation } from "react-i18next";
 import { INTERVAL_LABEL_MAP } from "@/types/kline";
+import type { SelectedSymbol } from "@/types/node/kline-node";
 
-export function SymbolItem({ symbol, handleColor }: { symbol: SelectedSymbol, handleColor: string }) {
+export function SymbolItem({
+	symbol,
+	handleColor,
+}: {
+	symbol: SelectedSymbol;
+	handleColor: string;
+}) {
 	const { t } = useTranslation();
 	return (
 		<div className="flex items-center justify-between px-2 py-2 bg-gray-100 rounded-md relative">

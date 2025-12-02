@@ -1,4 +1,6 @@
+import { useTranslation } from "react-i18next";
 import { SelectInDialog } from "@/components/dialog-components/select-in-dialog";
+import { generatePercentageHint } from "@/components/flow/node/variable-node/hint-generators";
 import { ButtonGroup } from "@/components/ui/button-group";
 import {
 	InputGroup,
@@ -15,8 +17,6 @@ import {
 	getEffectiveTriggerType,
 	getTimerTriggerConfig,
 } from "@/types/node/variable-node";
-import { generatePercentageHint } from "@/components/flow/node/variable-node/hint-generators";
-import { useTranslation } from "react-i18next";
 
 interface PercentTypeOpEditorProps {
 	updateOperationType: UpdateVarValueOperation;
@@ -83,22 +83,22 @@ const PercentTypeOpEditor: React.FC<PercentTypeOpEditorProps> = ({
 					<InputGroupAddon align="inline-end">
 						<InputGroupText>%</InputGroupText>
 					</InputGroupAddon>
-			</InputGroup>
-		</ButtonGroup>
-		{shouldShowHint() && (
-			<p className="text-xs text-muted-foreground">
-				{generatePercentageHint({
-					t,
-					varOperation: "update",
-					operationType: updateOperationType,
-					variableDisplayName,
-					value: updateValue,
-					conditionTrigger,
-					timerTrigger,
-				})}
-			</p>
-		)}
-	</div>
+				</InputGroup>
+			</ButtonGroup>
+			{shouldShowHint() && (
+				<p className="text-xs text-muted-foreground">
+					{generatePercentageHint({
+						t,
+						varOperation: "update",
+						operationType: updateOperationType,
+						variableDisplayName,
+						value: updateValue,
+						conditionTrigger,
+						timerTrigger,
+					})}
+				</p>
+			)}
+		</div>
 	);
 };
 

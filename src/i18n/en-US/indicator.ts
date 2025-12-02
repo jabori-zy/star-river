@@ -1,7 +1,5 @@
 const translation = {
-	indicator: {
-
-	},
+	indicator: {},
 	configField: {
 		timePeriod: "Time Period",
 		devUp: "Dev Up",

@@ -7,9 +7,7 @@ const API_VERSION = "api/v1";
 
 const API_URL = `${API_BASE_URL}/${API_VERSION}/${ROUTER}`;
 
-export async function getSymbolList(
-	accountId: number,
-): Promise<Instrument[]> {
+export async function getSymbolList(accountId: number): Promise<Instrument[]> {
 	try {
 		const response = await axios.get(`${API_URL}/symbol_list/${accountId}`);
 		return response.data.data as Instrument[];

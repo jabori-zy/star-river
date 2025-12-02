@@ -99,7 +99,9 @@ class BacktestStrategyStateLogObservableService {
 	 */
 	private handleMessage(event: MessageEvent): void {
 		try {
-			const logEvent = JSON.parse(event.data) as StrategyStateLogEvent | NodeStateLogEvent;
+			const logEvent = JSON.parse(event.data) as
+				| StrategyStateLogEvent
+				| NodeStateLogEvent;
 			this.logDataSubject.next(logEvent);
 		} catch (error) {
 			console.error("Parse strategy state log sse message failed:", error);

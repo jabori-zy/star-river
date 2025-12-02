@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { SelectInDialog } from "@/components/dialog-components/select-in-dialog";
 import { SelectWithSearch } from "@/components/select-components/select-with-search";
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,6 @@ import { getExchangeStatus } from "@/service/exchange";
 import { INTERVAL_LABEL_MAP } from "@/types/kline";
 import type { ExchangeStatus, Instrument } from "@/types/market";
 import type { SelectedSymbol } from "@/types/node/kline-node";
-import { useTranslation } from "react-i18next";
 
 interface SymbolSelectDialogProps {
 	accountId: number | undefined;
@@ -98,25 +98,29 @@ export const SymbolSelectDialog: React.FC<SymbolSelectDialogProps> = ({
 			<DialogContent className="sm:max-w-[425px]">
 				<DialogHeader>
 					<DialogTitle>
-						{editingSymbol ? t("klineNode.symbolDialog.editTitle") : t("klineNode.symbolDialog.addTitle")}
+						{editingSymbol
+							? t("klineNode.symbolDialog.editTitle")
+							: t("klineNode.symbolDialog.addTitle")}
 					</DialogTitle>
 					<DialogDescription>
-						{editingSymbol ? t("klineNode.symbolDialog.editDescription") : t("klineNode.symbolDialog.addDescription")}
+						{editingSymbol
+							? t("klineNode.symbolDialog.editDescription")
+							: t("klineNode.symbolDialog.addDescription")}
 					</DialogDescription>
 				</DialogHeader>
 
 				{/* 交易所未连接警告 */}
 				{exchangeStatus && exchangeStatus !== "Connected" && (
 					<div className="">
-						<p className="text-sm text-yellow-700">{accountName} {t("klineNode.symbolDialog.notConnected")}.</p>
+						<p className="text-sm text-yellow-700">
+							{accountName} {t("klineNode.symbolDialog.notConnected")}.
+						</p>
 					</div>
 				)}
 
 				<div className="grid gap-4">
 					<div className="space-y-2">
-						<Label>
-							{t("klineNode.symbolDialog.symbol")}
-						</Label>
+						<Label>{t("klineNode.symbolDialog.symbol")}</Label>
 						<SelectWithSearch
 							id="symbol-name"
 							options={symbolList.map((symbol) => ({
@@ -125,7 +129,9 @@ export const SymbolSelectDialog: React.FC<SymbolSelectDialogProps> = ({
 							}))}
 							value={symbolName}
 							onValueChange={onSymbolNameChange}
-							placeholder={isConnected ? t("klineNode.symbolDialog.placeholder") : null}
+							placeholder={
+								isConnected ? t("klineNode.symbolDialog.placeholder") : null
+							}
 							searchPlaceholder={t("klineNode.symbolDialog.searchPlaceholder")}
 							emptyMessage={t("klineNode.symbolDialog.emptyMessage")}
 							error={!!nameError}
@@ -134,9 +140,7 @@ export const SymbolSelectDialog: React.FC<SymbolSelectDialogProps> = ({
 						{nameError && <p className="text-xs text-red-500">{nameError}</p>}
 					</div>
 					<div className="space-y-2">
-						<Label>
-							{t("klineNode.symbolDialog.interval")}
-						</Label>
+						<Label>{t("klineNode.symbolDialog.interval")}</Label>
 						<SelectInDialog
 							id="symbol-interval"
 							value={symbolInterval}

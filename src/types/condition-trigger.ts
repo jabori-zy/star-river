@@ -1,6 +1,5 @@
 import type { NodeType } from "./node";
 
-
 export type CaseBranchTrigger = {
 	triggerType: "case";
 	fromNodeType: NodeType;

@@ -1,5 +1,7 @@
 import type {
+	DataFlowTrigger,
 	TimerTrigger,
+	TriggerType,
 	UpdateVarValueOperation,
 	VariableConfig,
 } from "@/types/node/variable-node";
@@ -7,16 +9,27 @@ import {
 	getEffectiveTriggerType,
 	getTimerTriggerConfig,
 } from "@/types/node/variable-node";
-import { SystemVariableType, getSystemVariableMetadata } from "@/types/variable";
-import { generateVariableHighlight, generateValueHighlight, formatUpdateOperationValue } from "../../variable-node-utils";
-import type { TriggerType, DataFlowTrigger } from "@/types/node/variable-node";
-
+import {
+	getSystemVariableMetadata,
+	SystemVariableType,
+} from "@/types/variable";
+import {
+	formatUpdateOperationValue,
+	generateValueHighlight,
+	generateVariableHighlight,
+} from "../../variable-node-utils";
 
 // 获取变量类型的中文标签
-export const getVariableLabel = (variable: string, t: (key: string) => string): string => {
+export const getVariableLabel = (
+	variable: string,
+	t: (key: string) => string,
+): string => {
 	// 检查是否是系统变量
-	if (Object.values(SystemVariableType).includes(variable as SystemVariableType)) {
-		const metadata = getSystemVariableMetadata(t)[variable as SystemVariableType];
+	if (
+		Object.values(SystemVariableType).includes(variable as SystemVariableType)
+	) {
+		const metadata =
+			getSystemVariableMetadata(t)[variable as SystemVariableType];
 		return metadata.varDisplayName;
 	}
 	// 自定义变量直接返回变量名
@@ -124,7 +137,10 @@ export const getTimerConfigDisplay = (timerConfig: TimerTrigger): string => {
 };
 
 // 获取更新操作类型的显示文本
-export const getUpdateOperationLabel = (type: UpdateVarValueOperation, t: (key: string) => string): string => {
+export const getUpdateOperationLabel = (
+	type: UpdateVarValueOperation,
+	t: (key: string) => string,
+): string => {
 	const labels: Record<UpdateVarValueOperation, string> = {
 		set: "=",
 		add: "+=",
@@ -151,7 +167,9 @@ export const getVariableConfigDescription = (
 	const timerConfig = getTimerTriggerConfig(config);
 
 	if (config.varOperation === "get") {
-		const symbolText = formatSymbolDisplay(("symbol" in config ? config.symbol : null) || null);
+		const symbolText = formatSymbolDisplay(
+			("symbol" in config ? config.symbol : null) || null,
+		);
 		const typeText = getVariableTypeLabel(
 			effectiveTriggerType === "timer" || effectiveTriggerType === "condition"
 				? effectiveTriggerType
@@ -197,16 +215,18 @@ export const generateTriggerConditionText = (
 
 	if (effectiveTriggerType === "condition") {
 		// 条件触发模式
-		const conditionTrigger = config.triggerConfig?.type === "condition"
-			? config.triggerConfig.config
-			: null;
+		const conditionTrigger =
+			config.triggerConfig?.type === "condition"
+				? config.triggerConfig.config
+				: null;
 
 		if (!conditionTrigger) return null;
 
 		const nodeName = conditionTrigger.fromNodeName;
-		const caseLabel = conditionTrigger.triggerType === "case"
-			? `Case ${conditionTrigger.caseId}`
-			: "Else";
+		const caseLabel =
+			conditionTrigger.triggerType === "case"
+				? `Case ${conditionTrigger.caseId}`
+				: "Else";
 
 		if (!nodeName) return null;
 
@@ -247,8 +267,13 @@ export const generateTriggerConditionText = (
 
 				if (daysOfWeek && daysOfWeek.length > 0 && daysOfWeek.length < 7) {
 					const weekdayMap: Record<number, string> = {
-						1: "周一", 2: "周二", 3: "周三", 4: "周四",
-						5: "周五", 6: "周六", 7: "周日",
+						1: "周一",
+						2: "周二",
+						3: "周三",
+						4: "周四",
+						5: "周五",
+						6: "周六",
+						7: "周日",
 					};
 					const weekdayNames = daysOfWeek.map((d) => weekdayMap[d]).join("、");
 					text += ` (${weekdayNames})`;
@@ -260,8 +285,13 @@ export const generateTriggerConditionText = (
 			if (repeatMode === "weekly") {
 				const { time, dayOfWeek } = timerConfig;
 				const weekdayMap: Record<number, string> = {
-					1: "周一", 2: "周二", 3: "周三", 4: "周四",
-					5: "周五", 6: "周六", 7: "周日",
+					1: "周一",
+					2: "周二",
+					3: "周三",
+					4: "周四",
+					5: "周五",
+					6: "周六",
+					7: "周日",
 				};
 				return `定时执行: 每周${weekdayMap[dayOfWeek]} ${time}`;
 			}
@@ -286,16 +316,18 @@ export const generateTriggerConditionText = (
 
 	if (effectiveTriggerType === "dataflow") {
 		// 数据流触发模式
-		const dataflowConfig = config.triggerConfig?.type === "dataflow"
-			? config.triggerConfig.config
-			: null;
+		const dataflowConfig =
+			config.triggerConfig?.type === "dataflow"
+				? config.triggerConfig.config
+				: null;
 
 		if (!dataflowConfig) return null;
 
 		const fromNodeName = dataflowConfig.fromNodeName;
 		const fromNodeType = dataflowConfig.fromNodeType;
 		const fromVarConfigId = dataflowConfig.fromVarConfigId;
-		const fromVarDisplayName = dataflowConfig.fromVarDisplayName || dataflowConfig.fromVar;
+		const fromVarDisplayName =
+			dataflowConfig.fromVarDisplayName || dataflowConfig.fromVar;
 
 		if (!fromNodeName || !fromVarDisplayName) return null;
 
@@ -318,8 +350,6 @@ export const generateTriggerConditionText = (
 	return null;
 };
 
-
-
 /**
  * 生成更新操作的文本（用于节点卡片显示）
  * 支持数据流模式下的特殊显示
@@ -341,7 +371,8 @@ export const generateUpdateOperationNodeText = (
 			return (
 				<>
 					取 {generateVariableHighlight(varDisplayName)} 与{" "}
-					{generateValueHighlight(dataflowTrigger.fromVarDisplayName)} 中的{operationTypeLabel}
+					{generateValueHighlight(dataflowTrigger.fromVarDisplayName)} 中的
+					{operationTypeLabel}
 				</>
 			);
 		}
@@ -386,16 +417,17 @@ export const generateUpdateOperationNodeText = (
 		// set 操作
 		if (operationType === "set") {
 			return (
-				<>
-					设置为 {generateValueHighlight(dataflowTrigger.fromVarDisplayName)}
-				</>
+				<>设置为 {generateValueHighlight(dataflowTrigger.fromVarDisplayName)}</>
 			);
 		}
 	}
 
 	// 其他情况，使用标准格式
 	const operationLabel = getUpdateOperationLabel(operationType, t);
-	const formattedValue = formatUpdateOperationValue(operationValue, operationType);
+	const formattedValue = formatUpdateOperationValue(
+		operationValue,
+		operationType,
+	);
 
 	// 组合操作标签和值，对值添加样式
 	if (operationLabel && formattedValue) {

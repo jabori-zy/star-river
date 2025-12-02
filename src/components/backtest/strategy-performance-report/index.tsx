@@ -1,17 +1,17 @@
-import type { StrategyPerformanceReport } from "@/types/strategy/strategy-benchmark"
-import { formatDuration } from "@/types/strategy/strategy-benchmark"
-import MetricCard from "./metric-card"
-import StrategyPerformanceTable from "./strategy-performance-table"
-import NodePerformanceTable from "./node-performance-table"
+import type { StrategyPerformanceReport } from "@/types/strategy/strategy-benchmark";
+import { formatDuration } from "@/types/strategy/strategy-benchmark";
+import MetricCard from "./metric-card";
+import NodePerformanceTable from "./node-performance-table";
+import StrategyPerformanceTable from "./strategy-performance-table";
 
 interface StrategyPerformanceReportProps {
-	data: StrategyPerformanceReport | null
+	data: StrategyPerformanceReport | null;
 }
 
 export default function StrategyPerformanceReportComponent({
 	data,
 }: StrategyPerformanceReportProps) {
-	const hasData = data !== null && data.totalCycles > 0
+	const hasData = data !== null && data.totalCycles > 0;
 
 	return (
 		<div className="w-full space-y-4">
@@ -53,5 +53,5 @@ export default function StrategyPerformanceReportComponent({
 			{/* Node Performance Table */}
 			<NodePerformanceTable nodeReports={data?.nodeReports ?? []} />
 		</div>
-	)
+	);
 }

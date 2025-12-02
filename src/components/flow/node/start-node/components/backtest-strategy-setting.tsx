@@ -1,5 +1,6 @@
 import { PercentSquare, Play, TrendingUp, Wallet } from "lucide-react";
 import type React from "react";
+import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -9,7 +10,6 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { useTranslation } from "react-i18next";
 
 interface BacktestStrategySettingProps {
 	initialBalance: number;

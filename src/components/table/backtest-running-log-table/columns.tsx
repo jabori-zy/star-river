@@ -12,7 +12,10 @@ import { DateTime } from "luxon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { LogLevel } from "@/types/strategy-event";
-import type { NodeRunningLogEvent, StrategyRunningLogEvent } from "@/types/strategy-event/running-log-event";
+import type {
+	NodeRunningLogEvent,
+	StrategyRunningLogEvent,
+} from "@/types/strategy-event/running-log-event";
 
 // 日志级别图标映射
 const getLogLevelIcon = (logLevel: LogLevel) => {

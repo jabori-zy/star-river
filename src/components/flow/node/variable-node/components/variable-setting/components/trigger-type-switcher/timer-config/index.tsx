@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
@@ -9,7 +10,7 @@ import {
 } from "@/types/node/variable-node";
 import IntervalConfiger from "./interval-configer";
 import ScheduleConfiger from "./schedule-configer";
-import { useTranslation } from "react-i18next";
+
 interface TimerConfigComponentProps {
 	timerConfig: TimerTrigger;
 	onTimerConfigChange: (config: TimerTrigger) => void;

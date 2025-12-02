@@ -1,33 +1,39 @@
-import { TbFileImport } from "react-icons/tb";
-import { Settings, User, ChevronDown, ChevronRight } from "lucide-react";
+import { useNodeConnections } from "@xyflow/react";
+import { ChevronDown, ChevronRight, Settings, User } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { TbFileImport } from "react-icons/tb";
+import type { CaseItemInfo } from "@/components/flow/case-selector";
 import { getTriggerTypeInfo } from "@/components/flow/node/variable-node/variable-node-utils";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { SelectWithSearch } from "@/components/select-components/select-with-search";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Badge } from "@/components/ui/badge";
 import {
 	Collapsible,
 	CollapsibleContent,
 	CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import DeleteConfigButton from "../../components/delete-config-button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
+import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
+import { useCustomSysVariableName } from "@/store/use-custom-sys-variable-name";
+import useTradingModeStore from "@/store/use-trading-mode-store";
 import {
 	type ConditionTrigger,
 	type GetVariableConfig,
-	type TimerTrigger,
-	type TriggerType,
 	getConditionTriggerConfig,
 	// getDataFlowTriggerConfig,
 	getEffectiveTriggerType,
 	getTimerTriggerConfig,
+	type TimerTrigger,
+	type TriggerType,
 } from "@/types/node/variable-node";
+import type { TradeMode } from "@/types/strategy";
 import {
 	type CustomVariable,
 	getSystemVariableMetadata,
@@ -36,26 +42,19 @@ import {
 	SystemVariableType,
 	VariableValueType,
 } from "@/types/variable";
-import { useTranslation } from "react-i18next";
-import { useCustomSysVariableName } from "@/store/use-custom-sys-variable-name";
 import {
 	generateBooleanHint,
 	generateEnumHint,
 	generateNumberHint,
+	generatePercentageHint,
 	generateStringHint,
 	generateTimeHint,
-	generatePercentageHint,
 } from "../../../../hint-generators";
+import DeleteConfigButton from "../../components/delete-config-button";
+import type { SymbolSelectorOption } from "../../components/symbol-selector";
 import SymbolSelector from "../../components/symbol-selector";
 import TriggerTypeSwitcher from "../../components/trigger-type-switcher";
-import type { SymbolSelectorOption } from "../../components/symbol-selector";
-import type { CaseItemInfo } from "@/components/flow/case-selector";
 import { useValidateGetConfig } from "../validate";
-import { useNodeConnections } from "@xyflow/react";
-import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
-import type { TradeMode } from "@/types/strategy";
-import useTradingModeStore from "@/store/use-trading-mode-store";
-
 
 interface GetVarConfigItemProps {
 	id: string;
@@ -89,18 +88,19 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 	const { tradingMode } = useTradingModeStore();
 
 	// 本地状态管理显示名称输入框，避免光标跳转问题
-	const [localDisplayName, setLocalDisplayName] = useState(config.varDisplayName);
+	const [localDisplayName, setLocalDisplayName] = useState(
+		config.varDisplayName,
+	);
 	const isLocalEditingRef = useRef(false);
 
-	const effectiveTriggerType =
-		getEffectiveTriggerType(config) ?? "condition";
+	const effectiveTriggerType = getEffectiveTriggerType(config) ?? "condition";
 	const triggerCase = getConditionTriggerConfig(config) ?? null;
 	const timerConfig = getTimerTriggerConfig(config);
 	// const dataflowConfig = getDataFlowTriggerConfig(config);
 
 	// 使用 ref 缓存 timer 和 condition 配置，防止切换触发类型时丢失
 	const cachedTimerConfig = useRef<TimerTrigger>(
-		timerConfig || { mode: "interval", interval: 1, unit: "hour" }
+		timerConfig || { mode: "interval", interval: 1, unit: "hour" },
 	);
 	const cachedConditionConfig = useRef<ConditionTrigger | null>(triggerCase);
 
@@ -116,7 +116,9 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 	useEffect(() => {
 		// filter default input handle connection
 		const conn = connections.filter(
-			connection => (connection.targetHandle === `${id}_default_input` || connection.targetHandle === config.inputHandleId)
+			(connection) =>
+				connection.targetHandle === `${id}_default_input` ||
+				connection.targetHandle === config.inputHandleId,
 		);
 		const cases = getIfElseNodeCases(conn, tradingMode as TradeMode);
 		setCaseItemList(cases);
@@ -137,12 +139,17 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 
 	// 判断当前选中的变量是否是系统变量
 	const isSystemVariable = config.varName
-		? Object.values(SystemVariableType).includes(config.varName as SystemVariableType)
+		? Object.values(SystemVariableType).includes(
+				config.varName as SystemVariableType,
+			)
 		: false;
 
 	// 当外部 config.varDisplayName 变化时同步到本地状态（非本地编辑触发时）
 	useEffect(() => {
-		if (!isLocalEditingRef.current && config.varDisplayName !== localDisplayName) {
+		if (
+			!isLocalEditingRef.current &&
+			config.varDisplayName !== localDisplayName
+		) {
 			setLocalDisplayName(config.varDisplayName);
 		}
 	}, [config.varDisplayName, localDisplayName]);
@@ -165,12 +172,20 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 	const shouldShowSymbolSelector =
 		!!config.varName &&
 		isSystemVariable &&
-		(Object.values(SystemVariableType).includes(config.varName as SystemVariableType)
-			? getSystemVariableMetadata(t)[config.varName as SystemVariableType]?.shouldSelectSymbol ?? false
+		(Object.values(SystemVariableType).includes(
+			config.varName as SystemVariableType,
+		)
+			? (getSystemVariableMetadata(t)[config.varName as SystemVariableType]
+					?.shouldSelectSymbol ?? false)
 			: false);
 
 	// 使用验证 Hook
-	const { variable, symbol, triggerCase: triggerCaseError, hasError } = useValidateGetConfig(config, {
+	const {
+		variable,
+		symbol,
+		triggerCase: triggerCaseError,
+		hasError,
+	} = useValidateGetConfig(config, {
 		t,
 		duplicateOperation,
 		shouldShowSymbolSelector,
@@ -184,7 +199,9 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 	const handleVariableChange = (varName: string) => {
 		// 判断是自定义变量还是系统变量
 		const isCustomVar = customVariables.some((v) => v.varName === varName);
-		const isSystemVar = Object.values(SystemVariableType).includes(varName as SystemVariableType);
+		const isSystemVar = Object.values(SystemVariableType).includes(
+			varName as SystemVariableType,
+		);
 
 		if (isCustomVar) {
 			// 自定义变量
@@ -207,7 +224,8 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 			}
 		} else if (isSystemVar) {
 			// 系统变量
-			const metadata = getSystemVariableMetadata(t)[varName as SystemVariableType];
+			const metadata =
+				getSystemVariableMetadata(t)[varName as SystemVariableType];
 			// 从 store 加载自定义名称
 			const customName = getCustomName(varName);
 
@@ -360,8 +378,12 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 	const mixedVariableOptions = [
 		// 自定义变量选项
 		...customVariables.map((customVar) => {
-			const TypeIconComponent = getVariableValueTypeIcon(customVar.varValueType);
-			const typeIconColor = getVariableValueTypeIconColor(customVar.varValueType);
+			const TypeIconComponent = getVariableValueTypeIcon(
+				customVar.varValueType,
+			);
+			const typeIconColor = getVariableValueTypeIconColor(
+				customVar.varValueType,
+			);
 
 			return {
 				value: customVar.varName,
@@ -384,7 +406,9 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 		...Object.values(SystemVariableType).map((sysVar) => {
 			const metadata = getSystemVariableMetadata(t)[sysVar];
 			const TypeIconComponent = getVariableValueTypeIcon(metadata.varValueType);
-			const typeIconColor = getVariableValueTypeIconColor(metadata.varValueType);
+			const typeIconColor = getVariableValueTypeIconColor(
+				metadata.varValueType,
+			);
 
 			return {
 				value: sysVar,
@@ -417,7 +441,10 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 			return false;
 		}
 		// 如果需要交易对，必须选择了交易对
-		if (shouldShowSymbolSelector && !("symbol" in config ? config.symbol : null)) {
+		if (
+			shouldShowSymbolSelector &&
+			!("symbol" in config ? config.symbol : null)
+		) {
 			return false;
 		}
 		return true;
@@ -426,14 +453,19 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 	// 定时触发的提示文案
 	const shouldShowTimerHint = () => {
 		// 如果需要交易对，必须选择了交易对
-		if (shouldShowSymbolSelector && !("symbol" in config ? config.symbol : null)) {
+		if (
+			shouldShowSymbolSelector &&
+			!("symbol" in config ? config.symbol : null)
+		) {
 			return false;
 		}
 		return true;
 	};
 
 	const conditionHint =
-		effectiveTriggerType === "condition" && config.varDisplayName && shouldShowConditionHint()
+		effectiveTriggerType === "condition" &&
+		config.varDisplayName &&
+		shouldShowConditionHint()
 			? getHintGenerator(config.varValueType)({
 					t,
 					varOperation: "get",
@@ -446,7 +478,9 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 			: null;
 
 	const timerHint =
-		effectiveTriggerType === "timer" && config.varDisplayName && shouldShowTimerHint()
+		effectiveTriggerType === "timer" &&
+		config.varDisplayName &&
+		shouldShowTimerHint()
 			? getHintGenerator(config.varValueType)({
 					t,
 					varOperation: "get",
@@ -459,7 +493,9 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 			: null;
 
 	return (
-		<div className={`group flex-1 space-y-2 p-3 rounded-md border bg-background ${hasError ? "border-red-500" : "border-border"}`}>
+		<div
+			className={`group flex-1 space-y-2 p-3 rounded-md border bg-background ${hasError ? "border-red-500" : "border-border"}`}
+		>
 			<Collapsible open={isOpen} onOpenChange={setIsOpen}>
 				<div className="flex items-start justify-between gap-2">
 					<CollapsibleTrigger asChild>
@@ -474,7 +510,9 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 									{/* 第一行：图标 + 操作标题 + 触发方式 */}
 									<div className="flex items-center gap-2">
 										<TbFileImport className="h-4 w-4 text-blue-600 flex-shrink-0" />
-										<span className="text-sm font-medium">{t("variableNode.getVariable")}</span>
+										<span className="text-sm font-medium">
+											{t("variableNode.getVariable")}
+										</span>
 										<Badge className={`h-5 text-[10px] ${typeInfo.badgeColor}`}>
 											<TriggerIcon className="h-3 w-3" />
 											{typeInfo.label}
@@ -516,9 +554,7 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 								className="shadow-none"
 							/>
 							{errors.variable && (
-								<p className="text-xs text-red-600 mt-1">
-									{errors.variable}
-								</p>
+								<p className="text-xs text-red-600 mt-1">{errors.variable}</p>
 							)}
 						</div>
 
@@ -541,9 +577,7 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 									/>
 								</div>
 								{errors.symbol && (
-									<p className="text-xs text-red-600 mt-1">
-										{errors.symbol}
-									</p>
+									<p className="text-xs text-red-600 mt-1">{errors.symbol}</p>
 								)}
 							</div>
 						)}
@@ -576,19 +610,21 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 							caseItemList={caseItemList}
 							selectedTriggerCase={triggerCase ?? null}
 							onTriggerCaseChange={handleTriggerCaseChange}
-							timerConfig={timerConfig || { mode: "interval", interval: 1, unit: "hour" }}
+							timerConfig={
+								timerConfig || { mode: "interval", interval: 1, unit: "hour" }
+							}
 							onTimerConfigChange={handleTimerConfigChange}
 						/>
 
 						{errors.triggerCase && (
-							<p className="text-xs text-red-600 mt-1">
-								{errors.triggerCase}
-							</p>
+							<p className="text-xs text-red-600 mt-1">{errors.triggerCase}</p>
 						)}
 
 						{/* 展开状态下显示描述文案 */}
 						{effectiveTriggerType === "condition" && conditionHint && (
-							<p className="text-xs text-muted-foreground mt-2">{conditionHint}</p>
+							<p className="text-xs text-muted-foreground mt-2">
+								{conditionHint}
+							</p>
 						)}
 
 						{effectiveTriggerType === "timer" && timerHint && (

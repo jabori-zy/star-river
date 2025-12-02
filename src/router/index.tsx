@@ -1,13 +1,14 @@
 import { createBrowserRouter } from "react-router";
-import StrategyListPage from "../pages/strategy-list-page";
 import AccountPage from "../pages/account-page";
 import BacktestPage from "../pages/backtest-page";
 import Dashboard from "../pages/dashboard";
 import Login from "../pages/login";
 import SettingPage from "../pages/setting-page";
+import StrategyListPage from "../pages/strategy-list-page";
 import StrategyPage from "../pages/strategy-page";
-import TestStrategyPerformanceReportPage from "../pages/test-page/test-strategy-performance-report-page";
 import TestLogShowPage from "../pages/test-page/test-log-show";
+import TestStrategyPerformanceReportPage from "../pages/test-page/test-strategy-performance-report-page";
+import TestTablePage from "../pages/test-page/test-table";
 
 const router = createBrowserRouter([
 	{
@@ -41,6 +42,10 @@ const router = createBrowserRouter([
 			{
 				path: "test-log-show",
 				element: <TestLogShowPage />,
+			},
+			{
+				path: "test-table",
+				element: <TestTablePage />,
 			},
 		],
 	},

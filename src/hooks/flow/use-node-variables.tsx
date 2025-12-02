@@ -1,5 +1,6 @@
 import { type Connection, useReactFlow } from "@xyflow/react";
 import { useCallback } from "react";
+import type { CaseItem, IfElseNodeData } from "@/types/node/if-else-node";
 import { isDefaultOutputHandleId, NodeType } from "@/types/node/index";
 import type {
 	IndicatorNodeData,
@@ -11,7 +12,6 @@ import type {
 	VariableNodeData,
 } from "@/types/node/variable-node";
 import { TradeMode } from "@/types/strategy";
-import type { IfElseNodeData, CaseItem } from "@/types/node/if-else-node";
 
 // 定义变量项类型，用于存储节点变量信息
 export interface VariableItem {
@@ -245,10 +245,8 @@ const useNodeVariables = () => {
 
 				// 只处理 if-else 节点
 				if (nodeType === NodeType.IfElseNode) {
-
 					// 动态导入类型以避免循环依赖
 					const ifElseNodeData = node.data as IfElseNodeData; // 使用 any 避免直接导入 IfElseNodeData
-
 
 					// if_else_node_1762999781229_v36t5s0_else_output split by "_"
 					const sourceHandleIdParts = sourceHandleId.split("_");

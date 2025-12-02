@@ -1,5 +1,6 @@
 import type { TFunction } from "i18next";
 import type { ConditionTrigger } from "@/types/condition-trigger";
+
 export type { VirtualOrder } from "./virtual-order";
 
 export type OrderId = number;
@@ -13,7 +14,6 @@ export enum OrderType {
 	TAKE_PROFIT_LIMIT = "TAKE_PROFIT_LIMIT", // 止盈限价单
 }
 
-
 export const getOrderTypeLabel = (type: OrderType, t: TFunction): string => {
 	const labels: Record<OrderType, string> = {
 		[OrderType.LIMIT]: t("market.orderType.limit"),
@@ -26,8 +26,10 @@ export const getOrderTypeLabel = (type: OrderType, t: TFunction): string => {
 	return labels[type];
 };
 
-
-export const getTpSlTypeLabel = (type: "price" | "percentage" | "point", t: TFunction): string => {
+export const getTpSlTypeLabel = (
+	type: "price" | "percentage" | "point",
+	t: TFunction,
+): string => {
 	const labels: Record<"price" | "percentage" | "point", string> = {
 		price: t("futuresOrderNode.tpSlType.price"),
 		percentage: t("futuresOrderNode.tpSlType.percentage"),
@@ -35,9 +37,6 @@ export const getTpSlTypeLabel = (type: "price" | "percentage" | "point", t: TFun
 	};
 	return labels[type];
 };
-
-
-
 
 export enum SpotOrderSide {
 	BUY = "BUY", // 买入
@@ -49,8 +48,10 @@ export enum FuturesOrderSide {
 	SHORT = "SHORT", // 做空
 }
 
-
-export const getFuturesOrderSideLabel = (side: FuturesOrderSide, t: TFunction): string => {
+export const getFuturesOrderSideLabel = (
+	side: FuturesOrderSide,
+	t: TFunction,
+): string => {
 	const labels: Record<FuturesOrderSide, string> = {
 		[FuturesOrderSide.LONG]: t("market.futuresOrderSide.long"),
 		[FuturesOrderSide.SHORT]: t("market.futuresOrderSide.short"),
@@ -60,14 +61,11 @@ export const getFuturesOrderSideLabel = (side: FuturesOrderSide, t: TFunction): 
 
 export const getFuturesOrderSideColor = (side: FuturesOrderSide): string => {
 	const colors: Record<FuturesOrderSide, string> = {
-		[FuturesOrderSide.LONG]: "#65a30d",
-		[FuturesOrderSide.SHORT]: "#dc2626",
+		[FuturesOrderSide.LONG]: "text-green-600 dark:text-green-400",
+		[FuturesOrderSide.SHORT]: "text-red-600 dark:text-red-400",
 	};
 	return colors[side];
 };
-
-
-
 
 export enum OrderStatus {
 	CREATED = "CREATED", // 已创建
@@ -80,8 +78,10 @@ export enum OrderStatus {
 	ERROR = "ERROR", // 错误
 }
 
-
-export const getOrderStatusLabel = (status: OrderStatus, t: TFunction): string => {
+export const getOrderStatusLabel = (
+	status: OrderStatus,
+	t: TFunction,
+): string => {
 	const labels: Record<OrderStatus, string> = {
 		[OrderStatus.CREATED]: t("market.orderStatus.created"),
 		[OrderStatus.PLACED]: t("market.orderStatus.placed"),
@@ -94,9 +94,6 @@ export const getOrderStatusLabel = (status: OrderStatus, t: TFunction): string =
 	};
 	return labels[status];
 };
-
-
-
 
 export type FuturesOrderConfig = {
 	orderConfigId: number;

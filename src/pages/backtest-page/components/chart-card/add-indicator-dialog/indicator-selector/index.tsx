@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import {
 	Select,
@@ -11,7 +12,6 @@ import { getStrategyCacheKeys } from "@/service/strategy";
 import type { IndicatorKey, Key, KlineKey } from "@/types/symbol-key";
 import { parseKey } from "@/utils/parse-key";
 import { getIndicatorConfigDisplay, type IndicatorOption } from "./utils";
-import { useTranslation } from "react-i18next";
 
 interface IndicatorSelectorProps {
 	klineKeyStr: string; // K线指标的缓存键
@@ -118,7 +118,9 @@ export default function IndicatorSelector({
 		);
 		return (
 			<div className="flex items-center gap-2">
-				<Badge variant="outline" className="shrink-0 min-w-16">{option.indicatorType.toUpperCase()}</Badge>
+				<Badge variant="outline" className="shrink-0 min-w-16">
+					{option.indicatorType.toUpperCase()}
+				</Badge>
 				<span className="font-medium flex-1">{configDisplay}</span>
 			</div>
 		);

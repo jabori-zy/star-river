@@ -1,13 +1,13 @@
-import { useCallback } from "react";
 import { useReactFlow } from "@xyflow/react";
 import { produce } from "immer";
+import { useCallback } from "react";
 import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
+import type { ConditionTrigger } from "@/types/condition-trigger";
 import type {
 	PositionBacktestConfig,
 	PositionNodeData,
 	PositionOperationConfig,
 } from "@/types/node/position-node";
-import type { ConditionTrigger } from "@/types/condition-trigger";
 import type { SelectedAccount } from "@/types/strategy";
 
 /**
@@ -79,11 +79,7 @@ export const useBacktestConfig = ({ id }: UseBacktestConfigProps) => {
 				// Calculate new ID based on max existing ID
 				const newId =
 					draft.positionOperations.length > 0
-						? Math.max(
-								...draft.positionOperations.map(
-									(op) => op.configId,
-								),
-						  ) + 1
+						? Math.max(...draft.positionOperations.map((op) => op.configId)) + 1
 						: 1;
 
 				const newOperation = { ...operationConfig, positionOperationId: newId };

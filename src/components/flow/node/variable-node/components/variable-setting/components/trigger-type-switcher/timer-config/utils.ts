@@ -46,7 +46,8 @@ export const calculateNextExecutionTime = (config: TimerTrigger): Date => {
 
 			// 确保是间隔的倍数
 			const currentHour = nextTime.getHours();
-			const targetHour = Math.ceil(currentHour / hourlyInterval) * hourlyInterval;
+			const targetHour =
+				Math.ceil(currentHour / hourlyInterval) * hourlyInterval;
 			nextTime.setHours(targetHour);
 			nextTime.setMinutes(minuteOfHour, 0, 0);
 

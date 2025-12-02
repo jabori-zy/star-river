@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { DateTimePicker24h } from "@/components/datetime-picker";
+import { SelectInDialog } from "@/components/dialog-components/select-in-dialog";
 import { formatDate } from "@/components/flow/node/node-utils";
 import { PercentInput } from "@/components/input-components/percent-input";
 import MultipleSelector, {
 	type Option,
 } from "@/components/select-components/multi-select";
-import { SelectInDialog } from "@/components/dialog-components/select-in-dialog";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -20,7 +21,6 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { type CustomVariable, VariableValueType } from "@/types/variable";
 import { getVariableTypeOptions } from "./constant";
-import { useTranslation } from "react-i18next";
 
 interface VariableDialogProps {
 	isOpen: boolean;
@@ -147,7 +147,11 @@ export const VariableDialog = ({
 		<Dialog open={isOpen} onOpenChange={onOpenChange}>
 			<DialogContent className="sm:max-w-[425px]">
 				<DialogHeader>
-					<DialogTitle>{editingVariable ? t("startNode.editVariable") : t("startNode.addVariable")}</DialogTitle>
+					<DialogTitle>
+						{editingVariable
+							? t("startNode.editVariable")
+							: t("startNode.addVariable")}
+					</DialogTitle>
 					<DialogDescription>
 						{t("startNode.addVariableDescription")}
 					</DialogDescription>
@@ -176,7 +180,9 @@ export const VariableDialog = ({
 						/>
 					</div>
 					<div className="space-y-2">
-						<Label htmlFor="variable-name">{t("strategy.variable.variableName")}</Label>
+						<Label htmlFor="variable-name">
+							{t("strategy.variable.variableName")}
+						</Label>
 						<Input
 							id="variable-name"
 							value={variableName}
@@ -191,7 +197,9 @@ export const VariableDialog = ({
 						{nameError && <p className="text-xs text-red-500">{nameError}</p>}
 					</div>
 					<div className="space-y-2">
-						<Label htmlFor="variable-display-name">{t("startNode.showName")}</Label>
+						<Label htmlFor="variable-display-name">
+							{t("startNode.showName")}
+						</Label>
 						<Input
 							id="variable-display-name"
 							value={variableDisplayName}
@@ -200,7 +208,9 @@ export const VariableDialog = ({
 						/>
 					</div>
 					<div className="space-y-2">
-						<Label htmlFor="variable-value">{t("startNode.initialValue")}</Label>
+						<Label htmlFor="variable-value">
+							{t("startNode.initialValue")}
+						</Label>
 						{variableType === VariableValueType.BOOLEAN ? (
 							<RadioGroup
 								value={variableValue || "true"}
@@ -294,4 +304,3 @@ export const VariableDialog = ({
 		</Dialog>
 	);
 };
-

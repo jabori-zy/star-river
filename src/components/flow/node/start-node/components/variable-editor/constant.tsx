@@ -1,9 +1,9 @@
+import type { TFunction } from "i18next";
 import {
 	getVariableValueTypeIcon,
 	getVariableValueTypeIconColor,
 	VariableValueType,
 } from "@/types/variable";
-import type { TFunction } from "i18next";
 
 // 变量类型显示名称映射（存储多语言 key）
 const VARIABLE_TYPE_LABELS: Record<VariableValueType, string> = {

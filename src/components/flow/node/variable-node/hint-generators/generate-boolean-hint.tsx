@@ -1,9 +1,9 @@
 import type { HintGeneratorParams } from "./types";
 import {
-	generateTriggerPrefix,
-	generateVariableHighlight,
-	generateValueHighlight,
 	generateSymbolHighlight,
+	generateTriggerPrefix,
+	generateValueHighlight,
+	generateVariableHighlight,
 } from "./utils";
 
 /**
@@ -66,8 +66,8 @@ function generateGetOperation(params: HintGeneratorParams): React.ReactNode {
 	if (symbol) {
 		return (
 			<>
-				{triggerPrefix}{" "}
-				{t("variableNode.hint.get")} {generateSymbolHighlight(symbol)}{" "}
+				{triggerPrefix} {t("variableNode.hint.get")}{" "}
+				{generateSymbolHighlight(symbol)}{" "}
 				{generateVariableHighlight(variableDisplayName)}
 			</>
 		);
@@ -77,8 +77,8 @@ function generateGetOperation(params: HintGeneratorParams): React.ReactNode {
 	if (value) {
 		return (
 			<>
-				{triggerPrefix}{" "}
-				{generateVariableHighlight(variableDisplayName)} {t("variableNode.hint.currentValue")} {" "}
+				{triggerPrefix} {generateVariableHighlight(variableDisplayName)}{" "}
+				{t("variableNode.hint.currentValue")}{" "}
 				{generateValueHighlight(valueLabel)}
 			</>
 		);
@@ -87,8 +87,8 @@ function generateGetOperation(params: HintGeneratorParams): React.ReactNode {
 	// 场景3: 默认 - 将会获取值
 	return (
 		<>
-			{triggerPrefix}{" "}
-			{t("variableNode.hint.get")} {generateVariableHighlight(variableDisplayName)}
+			{triggerPrefix} {t("variableNode.hint.get")}{" "}
+			{generateVariableHighlight(variableDisplayName)}
 		</>
 	);
 }
@@ -135,8 +135,8 @@ function generateToggleHint(params: HintGeneratorParams): React.ReactNode {
 
 	return (
 		<>
-			{triggerPrefix}{" "}
-			{generateVariableHighlight(variableDisplayName)} {t("variableNode.hint.toggle")}
+			{triggerPrefix} {generateVariableHighlight(variableDisplayName)}{" "}
+			{t("variableNode.hint.toggle")}
 		</>
 	);
 }
@@ -145,11 +145,12 @@ function generateToggleHint(params: HintGeneratorParams): React.ReactNode {
  * 数据流触发的 Set 操作 - 设置为来源变量的值
  */
 function generateDataflowSetHint(params: HintGeneratorParams): React.ReactNode {
-	const { variableDisplayName, dataflowTrigger,t } = params;
+	const { variableDisplayName, dataflowTrigger, t } = params;
 
 	return (
 		<>
-			{generateVariableHighlight(variableDisplayName)} {t("variableNode.hint.set")} {" "}
+			{generateVariableHighlight(variableDisplayName)}{" "}
+			{t("variableNode.hint.set")}{" "}
 			{generateValueHighlight(dataflowTrigger?.fromVarDisplayName || "")}
 		</>
 	);
@@ -173,9 +174,8 @@ function generateNormalSetHint(params: HintGeneratorParams): React.ReactNode {
 
 	return (
 		<>
-			{triggerPrefix}{" "}
-			{generateVariableHighlight(variableDisplayName)} {t("variableNode.hint.set")} {" "}
-			{generateValueHighlight(valueLabel)}
+			{triggerPrefix} {generateVariableHighlight(variableDisplayName)}{" "}
+			{t("variableNode.hint.set")} {generateValueHighlight(valueLabel)}
 		</>
 	);
 }
@@ -201,8 +201,8 @@ function generateResetOperation(params: HintGeneratorParams): React.ReactNode {
 	return (
 		<>
 			{triggerPrefix}
-			{generateVariableHighlight(variableDisplayName)} {t("variableNode.hint.reset")} {" "}
-			{generateValueHighlight(valueLabel)}
+			{generateVariableHighlight(variableDisplayName)}{" "}
+			{t("variableNode.hint.reset")} {generateValueHighlight(valueLabel)}
 		</>
 	);
 }

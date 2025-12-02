@@ -1,19 +1,19 @@
-import type { DeepPartial, ChartOptions, IChartApi } from "lightweight-charts";
+import type { ChartOptions, DeepPartial, IChartApi } from "lightweight-charts";
 import { useEffect, useRef, useState } from "react";
 import { useBacktestChartStore } from "@/components/chart/backtest-chart/backtest-chart-store";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
-import { type KlineLegendData, useKlineLegend } from "./use-kline-legend";
 import {
 	useChartInitialization,
 	useChartLifecycle,
 	useChartResize,
 } from "./core";
+import { useVisibleRangeHandler } from "./data-loading";
 import {
-	useKlineSeriesManager,
 	useIndicatorSeriesManager,
+	useKlineSeriesManager,
 	useSeriesConfigManager,
 } from "./series-management";
-import { useVisibleRangeHandler } from "./data-loading";
+import { type KlineLegendData, useKlineLegend } from "./use-kline-legend";
 
 interface UseBacktestChartProps {
 	strategyId: number;

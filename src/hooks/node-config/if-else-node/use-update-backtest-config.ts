@@ -1,6 +1,6 @@
-import { useCallback } from "react";
 import { useReactFlow } from "@xyflow/react";
 import { produce } from "immer";
+import { useCallback } from "react";
 import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 import type {
 	CaseItem,
@@ -108,39 +108,37 @@ export const useBacktestConfig = ({ id }: UseBacktestConfigProps) => {
 		[updateConfig],
 	);
 
-
-	const resetCases = useCallback(
-		() => {
-			let emptyCase: CaseItem = {
-				caseId: 1,
-				outputHandleId: `${id}_output_1`,
-				logicalSymbol: LogicalSymbol.AND,
-				conditions: [],
-			};
-			updateConfig((draft) => {
-				draft.cases = [emptyCase];
-			});
-		},
-		[updateConfig],
-	);
+	const resetCases = useCallback(() => {
+		const emptyCase: CaseItem = {
+			caseId: 1,
+			outputHandleId: `${id}_output_1`,
+			logicalSymbol: LogicalSymbol.AND,
+			conditions: [],
+		};
+		updateConfig((draft) => {
+			draft.cases = [emptyCase];
+		});
+	}, [updateConfig]);
 
 	/**
 	 * Reset a variable (left or right) in a specific condition
 	 * Used when upstream node's config is deleted
 	 */
 	const resetConditionVariable = useCallback(
-		(caseId: number, conditionId: number, side: 'left' | 'right') => {
+		(caseId: number, conditionId: number, side: "left" | "right") => {
 			updateConfig((draft) => {
 				// Find target case
-				const targetCase = draft.cases.find(c => c.caseId === caseId);
+				const targetCase = draft.cases.find((c) => c.caseId === caseId);
 				if (!targetCase) return;
 
 				// Find target condition
-				const targetCondition = targetCase.conditions.find(c => c.conditionId === conditionId);
+				const targetCondition = targetCase.conditions.find(
+					(c) => c.conditionId === conditionId,
+				);
 				if (!targetCondition) return;
 
 				// Reset the variable
-				if (side === 'left') {
+				if (side === "left") {
 					// Reset left variable and comparison symbol (symbol depends on left variable type)
 					targetCondition.left = null;
 					targetCondition.comparisonSymbol = null;
@@ -161,23 +159,26 @@ export const useBacktestConfig = ({ id }: UseBacktestConfigProps) => {
 		(
 			caseId: number,
 			conditionId: number,
-			side: 'left' | 'right',
+			side: "left" | "right",
 			varName: string,
 			varDisplayName: string,
-			varValueType: import('@/types/variable').VariableValueType
+			varValueType: import("@/types/variable").VariableValueType,
 		) => {
 			updateConfig((draft) => {
 				// Find target case
-				const targetCase = draft.cases.find(c => c.caseId === caseId);
+				const targetCase = draft.cases.find((c) => c.caseId === caseId);
 				if (!targetCase) return;
 
 				// Find target condition
-				const targetCondition = targetCase.conditions.find(c => c.conditionId === conditionId);
+				const targetCondition = targetCase.conditions.find(
+					(c) => c.conditionId === conditionId,
+				);
 				if (!targetCondition) return;
 
 				// Update the variable metadata
-				const targetVariable = side === 'left' ? targetCondition.left : targetCondition.right;
-				if (targetVariable && 'nodeId' in targetVariable) {
+				const targetVariable =
+					side === "left" ? targetCondition.left : targetCondition.right;
+				if (targetVariable && "nodeId" in targetVariable) {
 					targetVariable.varName = varName;
 					targetVariable.varDisplayName = varDisplayName;
 					targetVariable.varValueType = varValueType;

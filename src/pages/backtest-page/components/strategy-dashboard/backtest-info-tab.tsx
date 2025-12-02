@@ -1,14 +1,15 @@
 import {
-    CheckCircle,
-    ChevronDown,
-    Cpu,
-    FileCode,
-    FileText,
-    Package,
-    TrendingUp,
-    Variable as VariableIcon,
+	CheckCircle,
+	ChevronDown,
+	Cpu,
+	FileCode,
+	FileText,
+	Package,
+	TrendingUp,
+	Variable as VariableIcon,
 } from "lucide-react";
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { cleanupBacktestStatsChartStore } from "@/components/chart/backtest-stats-chart/backtest-stats-chart-store";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -18,13 +19,17 @@ import ChartManageButton from "./chart-manage-button";
 import OrderRecord, { type OrderRecordRef } from "./order-record";
 import PositionRecord, { type PositionRecordRef } from "./position-record";
 import RunningLog, { type RunningLogRef } from "./running-log";
+import StrategyBenchmark, {
+	type StrategyBenchmarkRef,
+} from "./strategy-benchmark";
 import StrategyControl from "./strategy-control";
 import StrategyStats from "./strategy-stats";
+import StrategyVariable, {
+	type StrategyVariableRef,
+} from "./strategy-variable";
 import TransactionRecord, {
 	type TransactionRecordRef,
 } from "./transaction-record";
-import StrategyVariable, { type StrategyVariableRef } from "./strategy-variable";
-import StrategyBenchmark, { type StrategyBenchmarkRef } from "./strategy-benchmark";
 
 interface BacktestInfoTabsProps {
 	strategyId: number;
@@ -66,6 +71,7 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 		},
 		ref,
 	) => {
+		const { t } = useTranslation();
 		const orderRecordRef = useRef<OrderRecordRef>(null);
 		const positionRecordRef = useRef<PositionRecordRef>(null);
 		const runningLogRef = useRef<RunningLogRef>(null);
@@ -128,71 +134,71 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 					className={`grid grid-cols-3 items-center p-2 bg-white ${isDashboardExpanded ? "border-b" : ""}`}
 				>
 					{/* 左侧：Tab组件和收起按钮 */}
-					<div className="flex items-center gap-1 justify-self-start min-w-0">
-                        <TabsList className="grid grid-cols-7 gap-1">
+					<div className="flex items-center gap-2 justify-self-start min-w-0">
+						<TabsList className="grid grid-cols-7 gap-1">
 							<TabsTrigger
 								value="profit"
 								className="flex items-center gap-1 px-1 xl:px-2 py-1 min-w-[32px] overflow-hidden"
 							>
-								<TrendingUp className="h-4 w-4 flex-shrink-0" />
+								<TrendingUp className="h-4 w-4 flex-shrink-0 xl:hidden" />
 								<span className="hidden xl:block text-xs truncate">
-									策略表现
+									{t("desktop.backtestPage.dashboardTab.performance")}
 								</span>
 							</TabsTrigger>
 							<TabsTrigger
 								value="positions"
 								className="flex items-center gap-1 px-1 xl:px-2 py-1 min-w-[32px] overflow-hidden"
 							>
-								<Package className="h-4 w-4 flex-shrink-0" />
+								<Package className="h-4 w-4 flex-shrink-0 xl:hidden" />
 								<span className="hidden xl:block text-xs truncate">
-									仓位
+									{t("desktop.backtestPage.dashboardTab.positions")}
 								</span>
 							</TabsTrigger>
 							<TabsTrigger
 								value="orders"
 								className="flex items-center gap-1 px-1 xl:px-2 py-1 min-w-[32px] overflow-hidden"
 							>
-								<FileText className="h-4 w-4 flex-shrink-0" />
+								<FileText className="h-4 w-4 flex-shrink-0 xl:hidden" />
 								<span className="hidden xl:block text-xs truncate">
-									订单记录
+									{t("desktop.backtestPage.dashboardTab.orders")}
 								</span>
 							</TabsTrigger>
 							<TabsTrigger
 								value="trades"
 								className="flex items-center gap-1 px-1 xl:px-2 py-1 min-w-[32px] overflow-hidden"
 							>
-								<CheckCircle className="h-4 w-4 flex-shrink-0" />
+								<CheckCircle className="h-4 w-4 flex-shrink-0 xl:hidden" />
 								<span className="hidden xl:block text-xs truncate">
-									成交记录
+									{t("desktop.backtestPage.dashboardTab.transaction")}
 								</span>
 							</TabsTrigger>
 							<TabsTrigger
 								value="logs"
 								className="flex items-center gap-1 px-1 xl:px-2 py-1 min-w-[32px] overflow-hidden"
 							>
-								<FileCode className="h-4 w-4 flex-shrink-0" />
+								<FileCode className="h-4 w-4 flex-shrink-0 xl:hidden" />
 								<span className="hidden xl:block text-xs truncate">
-									运行日志
+									{t("desktop.backtestPage.dashboardTab.logs")}
 								</span>
 							</TabsTrigger>
-                            <TabsTrigger
-                                value="variables"
-                                className="flex items-center gap-1 px-1 xl:px-2 py-1 min-w-[32px] overflow-hidden"
-                            >
-                                <VariableIcon className="h-4 w-4 flex-shrink-0" />
-                                <span className="hidden xl:block text-xs truncate">
-                                    策略变量
-                                </span>
-                            </TabsTrigger>
-                            <TabsTrigger
-                                value="benchmark"
-                                className="flex items-center gap-1 px-1 xl:px-2 py-1 min-w-[32px] overflow-hidden"
-                            >
-                                <Cpu className="h-4 w-4 flex-shrink-0" />
-                                <span className="hidden xl:block text-xs truncate">
-                                    性能监控
-                                </span>
-                            </TabsTrigger>
+							<TabsTrigger
+								value="variables"
+								className="flex items-center gap-1 px-1 xl:px-2 py-1 min-w-[32px] overflow-hidden"
+							>
+								<VariableIcon className="h-4 w-4 flex-shrink-0 xl:hidden" />
+								<span className="hidden xl:block text-xs truncate">
+									{t("desktop.backtestPage.dashboardTab.variables")}
+								</span>
+							</TabsTrigger>
+							<TabsTrigger
+								value="benchmark"
+								className="flex items-center gap-1 px-1 xl:px-2 py-1 min-w-[32px] overflow-hidden"
+							>
+								<Cpu className="h-4 w-4 flex-shrink-0 xl:hidden" />
+								<span className="hidden xl:block text-xs truncate">
+									{t("desktop.backtestPage.dashboardTab.benchmark")}
+								</span>
+							</TabsTrigger>
 						</TabsList>
 
 						{/* 收起按钮 */}
@@ -267,16 +273,16 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 								/>
 							</div>
 						</TabsContent>
-                        <TabsContent value="variables" className="w-full overflow-hidden">
-                            <div className="flex flex-col h-full pl-2">
-                                <StrategyVariable ref={variableRef} strategyId={strategyId} />
-                            </div>
-                        </TabsContent>
-                        <TabsContent value="benchmark" className="w-full overflow-hidden">
-                            <div className="flex flex-col h-full pl-2">
-                                <StrategyBenchmark ref={benchmarkRef} strategyId={strategyId} />
-                            </div>
-                        </TabsContent>
+						<TabsContent value="variables" className="w-full overflow-hidden">
+							<div className="flex flex-col h-full pl-2">
+								<StrategyVariable ref={variableRef} strategyId={strategyId} />
+							</div>
+						</TabsContent>
+						<TabsContent value="benchmark" className="w-full overflow-hidden">
+							<div className="flex flex-col h-full pl-2">
+								<StrategyBenchmark ref={benchmarkRef} strategyId={strategyId} />
+							</div>
+						</TabsContent>
 					</div>
 				)}
 			</Tabs>

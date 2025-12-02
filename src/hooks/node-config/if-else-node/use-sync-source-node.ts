@@ -1,12 +1,15 @@
 import { useEffect } from "react";
-import type { IfElseNodeBacktestConfig, CaseItem } from "@/types/node/if-else-node";
 import type { StrategyFlowNode } from "@/types/node";
+import type {
+	CaseItem,
+	IfElseNodeBacktestConfig,
+} from "@/types/node/if-else-node";
 import { NodeType } from "@/types/node/index";
 import type { IndicatorNodeData } from "@/types/node/indicator-node";
 import type { KlineNodeData } from "@/types/node/kline-node";
 import type { VariableNodeData } from "@/types/node/variable-node/variable-config-types";
-import { useBacktestConfig } from "./use-update-backtest-config";
 import { useUpdateIsNested } from "./index";
+import { useBacktestConfig } from "./use-update-backtest-config";
 
 /**
  * Sync indicator node conditions
@@ -22,7 +25,11 @@ function syncIndicatorNodeConditions(
 	nodeId: string,
 	nodeData: IndicatorNodeData,
 	caseConfig: CaseItem[],
-	resetConditionVariable: (caseId: number, conditionId: number, side: 'left' | 'right') => void
+	resetConditionVariable: (
+		caseId: number,
+		conditionId: number,
+		side: "left" | "right",
+	) => void,
 ) {
 	const snBacktestConfig = nodeData.backtestConfig?.exchangeModeConfig;
 	const selectedIndicators = snBacktestConfig?.selectedIndicators ?? [];
@@ -32,32 +39,40 @@ function syncIndicatorNodeConditions(
 		cc.conditions.forEach((condition) => {
 			// Check left variable
 			// Only check if varConfigId is not null (null means user is still configuring)
-			if (condition.left?.nodeId === nodeId && condition.left?.varConfigId !== null) {
+			if (
+				condition.left?.nodeId === nodeId &&
+				condition.left?.varConfigId !== null
+			) {
 				const configExists = selectedIndicators.some(
-					si => si.configId === condition.left?.varConfigId
+					(si) => si.configId === condition.left?.varConfigId,
 				);
 				if (!configExists) {
 					// Config has been deleted, reset left variable
 					console.warn(
-						`Indicator config ${condition.left?.varConfigId} not found, resetting condition ${condition.conditionId} left variable`
+						`Indicator config ${condition.left?.varConfigId} not found, resetting condition ${condition.conditionId} left variable`,
 					);
-					resetConditionVariable(cc.caseId, condition.conditionId, 'left');
+					resetConditionVariable(cc.caseId, condition.conditionId, "left");
 				}
 			}
 
 			// Check right variable (skip if it's a constant)
 			// Only check if varConfigId is not null (null means user is still configuring)
-			if (condition.right && 'nodeId' in condition.right && condition.right.nodeId === nodeId && condition.right.varConfigId !== null) {
+			if (
+				condition.right &&
+				"nodeId" in condition.right &&
+				condition.right.nodeId === nodeId &&
+				condition.right.varConfigId !== null
+			) {
 				const rightVarConfigId = condition.right.varConfigId;
 				const configExists = selectedIndicators.some(
-					si => si.configId === rightVarConfigId
+					(si) => si.configId === rightVarConfigId,
 				);
 				if (!configExists) {
 					// Config has been deleted, reset right variable
 					console.warn(
-						`Indicator config ${rightVarConfigId} not found, resetting condition ${condition.conditionId} right variable`
+						`Indicator config ${rightVarConfigId} not found, resetting condition ${condition.conditionId} right variable`,
 					);
-					resetConditionVariable(cc.caseId, condition.conditionId, 'right');
+					resetConditionVariable(cc.caseId, condition.conditionId, "right");
 				}
 			}
 		});
@@ -78,7 +93,11 @@ function syncKlineNodeConditions(
 	nodeId: string,
 	nodeData: KlineNodeData,
 	caseConfig: CaseItem[],
-	resetConditionVariable: (caseId: number, conditionId: number, side: 'left' | 'right') => void
+	resetConditionVariable: (
+		caseId: number,
+		conditionId: number,
+		side: "left" | "right",
+	) => void,
 ) {
 	const klineBacktestConfig = nodeData.backtestConfig?.exchangeModeConfig;
 	const selectedSymbols = klineBacktestConfig?.selectedSymbols ?? [];
@@ -88,32 +107,40 @@ function syncKlineNodeConditions(
 		cc.conditions.forEach((condition) => {
 			// Check left variable
 			// Only check if varConfigId is not null (null means user is still configuring)
-			if (condition.left?.nodeId === nodeId && condition.left?.varConfigId !== null) {
+			if (
+				condition.left?.nodeId === nodeId &&
+				condition.left?.varConfigId !== null
+			) {
 				const configExists = selectedSymbols.some(
-					ss => ss.configId === condition.left?.varConfigId
+					(ss) => ss.configId === condition.left?.varConfigId,
 				);
 				if (!configExists) {
 					// Config has been deleted, reset left variable
 					console.warn(
-						`Kline config ${condition.left?.varConfigId} not found, resetting condition ${condition.conditionId} left variable`
+						`Kline config ${condition.left?.varConfigId} not found, resetting condition ${condition.conditionId} left variable`,
 					);
-					resetConditionVariable(cc.caseId, condition.conditionId, 'left');
+					resetConditionVariable(cc.caseId, condition.conditionId, "left");
 				}
 			}
 
 			// Check right variable (skip if it's a constant)
 			// Only check if varConfigId is not null (null means user is still configuring)
-			if (condition.right && 'nodeId' in condition.right && condition.right.nodeId === nodeId && condition.right.varConfigId !== null) {
+			if (
+				condition.right &&
+				"nodeId" in condition.right &&
+				condition.right.nodeId === nodeId &&
+				condition.right.varConfigId !== null
+			) {
 				const rightVarConfigId = condition.right.varConfigId;
 				const configExists = selectedSymbols.some(
-					ss => ss.configId === rightVarConfigId
+					(ss) => ss.configId === rightVarConfigId,
 				);
 				if (!configExists) {
 					// Config has been deleted, reset right variable
 					console.warn(
-						`Kline config ${rightVarConfigId} not found, resetting condition ${condition.conditionId} right variable`
+						`Kline config ${rightVarConfigId} not found, resetting condition ${condition.conditionId} right variable`,
 					);
-					resetConditionVariable(cc.caseId, condition.conditionId, 'right');
+					resetConditionVariable(cc.caseId, condition.conditionId, "right");
 				}
 			}
 		});
@@ -136,15 +163,19 @@ function syncVariableNodeConditions(
 	nodeId: string,
 	nodeData: VariableNodeData,
 	caseConfig: CaseItem[],
-	resetConditionVariable: (caseId: number, conditionId: number, side: 'left' | 'right') => void,
+	resetConditionVariable: (
+		caseId: number,
+		conditionId: number,
+		side: "left" | "right",
+	) => void,
 	updateConditionVariableMetadata: (
 		caseId: number,
 		conditionId: number,
-		side: 'left' | 'right',
+		side: "left" | "right",
 		varName: string,
 		varDisplayName: string,
-		varValueType: import('@/types/variable').VariableValueType
-	) => void
+		varValueType: import("@/types/variable").VariableValueType,
+	) => void,
 ) {
 	const variableConfigs = nodeData.backtestConfig?.variableConfigs ?? [];
 
@@ -153,17 +184,20 @@ function syncVariableNodeConditions(
 		cc.conditions.forEach((condition) => {
 			// Check left variable
 			// Only check if varConfigId is not null (null means user is still configuring)
-			if (condition.left?.nodeId === nodeId && condition.left?.varConfigId !== null) {
+			if (
+				condition.left?.nodeId === nodeId &&
+				condition.left?.varConfigId !== null
+			) {
 				const matchedConfig = variableConfigs.find(
-					vc => vc.configId === condition.left?.varConfigId
+					(vc) => vc.configId === condition.left?.varConfigId,
 				);
 
 				if (!matchedConfig) {
 					// Config has been deleted, reset left variable
 					console.warn(
-						`Variable config ${condition.left?.varConfigId} not found, resetting condition ${condition.conditionId} left variable`
+						`Variable config ${condition.left?.varConfigId} not found, resetting condition ${condition.conditionId} left variable`,
 					);
-					resetConditionVariable(cc.caseId, condition.conditionId, 'left');
+					resetConditionVariable(cc.caseId, condition.conditionId, "left");
 				} else {
 					// Config exists, check if metadata changed
 					const needsUpdate =
@@ -173,15 +207,15 @@ function syncVariableNodeConditions(
 
 					if (needsUpdate) {
 						console.warn(
-							`Variable config ${condition.left?.varConfigId} metadata changed, updating condition ${condition.conditionId} left variable`
+							`Variable config ${condition.left?.varConfigId} metadata changed, updating condition ${condition.conditionId} left variable`,
 						);
 						updateConditionVariableMetadata(
 							cc.caseId,
 							condition.conditionId,
-							'left',
+							"left",
 							matchedConfig.varName,
 							matchedConfig.varDisplayName,
-							matchedConfig.varValueType
+							matchedConfig.varValueType,
 						);
 					}
 				}
@@ -189,18 +223,23 @@ function syncVariableNodeConditions(
 
 			// Check right variable (skip if it's a constant)
 			// Only check if varConfigId is not null (null means user is still configuring)
-			if (condition.right && 'nodeId' in condition.right && condition.right.nodeId === nodeId && condition.right.varConfigId !== null) {
+			if (
+				condition.right &&
+				"nodeId" in condition.right &&
+				condition.right.nodeId === nodeId &&
+				condition.right.varConfigId !== null
+			) {
 				const rightVarConfigId = condition.right.varConfigId;
 				const matchedConfig = variableConfigs.find(
-					vc => vc.configId === rightVarConfigId
+					(vc) => vc.configId === rightVarConfigId,
 				);
 
 				if (!matchedConfig) {
 					// Config has been deleted, reset right variable
 					console.warn(
-						`Variable config ${rightVarConfigId} not found, resetting condition ${condition.conditionId} right variable`
+						`Variable config ${rightVarConfigId} not found, resetting condition ${condition.conditionId} right variable`,
 					);
-					resetConditionVariable(cc.caseId, condition.conditionId, 'right');
+					resetConditionVariable(cc.caseId, condition.conditionId, "right");
 				} else {
 					// Config exists, check if metadata changed
 					const needsUpdate =
@@ -210,15 +249,15 @@ function syncVariableNodeConditions(
 
 					if (needsUpdate) {
 						console.warn(
-							`Variable config ${rightVarConfigId} metadata changed, updating condition ${condition.conditionId} right variable`
+							`Variable config ${rightVarConfigId} metadata changed, updating condition ${condition.conditionId} right variable`,
 						);
 						updateConditionVariableMetadata(
 							cc.caseId,
 							condition.conditionId,
-							'right',
+							"right",
 							matchedConfig.varName,
 							matchedConfig.varDisplayName,
-							matchedConfig.varValueType
+							matchedConfig.varValueType,
 						);
 					}
 				}
@@ -238,26 +277,35 @@ function syncVariableNodeConditions(
 function cleanupOrphanConditions(
 	sourceNodes: Pick<StrategyFlowNode, "id" | "data" | "type">[],
 	backtestConfig: IfElseNodeBacktestConfig,
-	resetConditionVariable: (caseId: number, conditionId: number, side: 'left' | 'right') => void
+	resetConditionVariable: (
+		caseId: number,
+		conditionId: number,
+		side: "left" | "right",
+	) => void,
 ) {
-	const sourceNodeIds = new Set(sourceNodes.map(sn => sn.id));
+	const sourceNodeIds = new Set(sourceNodes.map((sn) => sn.id));
 
 	backtestConfig.cases.forEach((cc) => {
 		cc.conditions.forEach((condition) => {
 			// Check left variable references a disconnected node
 			if (condition.left?.nodeId && !sourceNodeIds.has(condition.left.nodeId)) {
 				console.warn(
-					`Node ${condition.left.nodeId} is disconnected, resetting condition ${condition.conditionId} left variable`
+					`Node ${condition.left.nodeId} is disconnected, resetting condition ${condition.conditionId} left variable`,
 				);
-				resetConditionVariable(cc.caseId, condition.conditionId, 'left');
+				resetConditionVariable(cc.caseId, condition.conditionId, "left");
 			}
 
 			// Check right variable references a disconnected node (skip constants)
-			if (condition.right && 'nodeId' in condition.right && condition.right.nodeId && !sourceNodeIds.has(condition.right.nodeId)) {
+			if (
+				condition.right &&
+				"nodeId" in condition.right &&
+				condition.right.nodeId &&
+				!sourceNodeIds.has(condition.right.nodeId)
+			) {
 				console.warn(
-					`Node ${condition.right.nodeId} is disconnected, resetting condition ${condition.conditionId} right variable`
+					`Node ${condition.right.nodeId} is disconnected, resetting condition ${condition.conditionId} right variable`,
 				);
-				resetConditionVariable(cc.caseId, condition.conditionId, 'right');
+				resetConditionVariable(cc.caseId, condition.conditionId, "right");
 			}
 		});
 	});
@@ -287,7 +335,11 @@ export const useSyncSourceNode = ({
 	sourceNodes: Pick<StrategyFlowNode, "id" | "data" | "type">[];
 	backtestConfig: IfElseNodeBacktestConfig | null;
 }) => {
-	const { resetCases: resetBacktestCases, resetConditionVariable, updateConditionVariableMetadata } = useBacktestConfig({ id });
+	const {
+		resetCases: resetBacktestCases,
+		resetConditionVariable,
+		updateConditionVariableMetadata,
+	} = useBacktestConfig({ id });
 	const { updateIsNested } = useUpdateIsNested({ id });
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: backtestConfig is intentionally omitted to prevent infinite loops. This effect should only run when sourceNodes change.
@@ -298,9 +350,15 @@ export const useSyncSourceNode = ({
 			updateIsNested(false);
 		}
 		// Has source nodes: check if nested and sync configurations
-		else if (backtestConfig?.cases && sourceNodes.length > 0 && backtestConfig?.cases?.length > 0) {
+		else if (
+			backtestConfig?.cases &&
+			sourceNodes.length > 0 &&
+			backtestConfig?.cases?.length > 0
+		) {
 			// Check if any source node is IfElseNode type
-			const hasIfElseSource = sourceNodes.some(sn => sn.type === NodeType.IfElseNode);
+			const hasIfElseSource = sourceNodes.some(
+				(sn) => sn.type === NodeType.IfElseNode,
+			);
 			updateIsNested(hasIfElseSource);
 
 			// Sync configurations for all non-IfElseNode source nodes
@@ -312,11 +370,16 @@ export const useSyncSourceNode = ({
 
 				const nodeId = sn.id;
 				// Filter caseConfig related to the source node
-				const caseConfig = backtestConfig?.cases?.filter((c) => c.conditions.some((condition) => {
-					const leftMatches = condition.left?.nodeId === nodeId;
-					const rightMatches = condition.right && 'nodeId' in condition.right && condition.right.nodeId === nodeId;
-					return leftMatches || rightMatches;
-				}));
+				const caseConfig = backtestConfig?.cases?.filter((c) =>
+					c.conditions.some((condition) => {
+						const leftMatches = condition.left?.nodeId === nodeId;
+						const rightMatches =
+							condition.right &&
+							"nodeId" in condition.right &&
+							condition.right.nodeId === nodeId;
+						return leftMatches || rightMatches;
+					}),
+				);
 
 				// If no case references this node, skip
 				if (caseConfig.length === 0) {
@@ -326,21 +389,41 @@ export const useSyncSourceNode = ({
 				// Sync conditions based on node type
 				switch (sn.type) {
 					case NodeType.IndicatorNode:
-						syncIndicatorNodeConditions(nodeId, sn.data as IndicatorNodeData, caseConfig, resetConditionVariable);
+						syncIndicatorNodeConditions(
+							nodeId,
+							sn.data as IndicatorNodeData,
+							caseConfig,
+							resetConditionVariable,
+						);
 						break;
 
 					case NodeType.KlineNode:
-						syncKlineNodeConditions(nodeId, sn.data as KlineNodeData, caseConfig, resetConditionVariable);
+						syncKlineNodeConditions(
+							nodeId,
+							sn.data as KlineNodeData,
+							caseConfig,
+							resetConditionVariable,
+						);
 						break;
 
 					case NodeType.VariableNode:
-						syncVariableNodeConditions(nodeId, sn.data as VariableNodeData, caseConfig, resetConditionVariable, updateConditionVariableMetadata);
+						syncVariableNodeConditions(
+							nodeId,
+							sn.data as VariableNodeData,
+							caseConfig,
+							resetConditionVariable,
+							updateConditionVariableMetadata,
+						);
 						break;
 				}
 			});
 
-		// Cleanup orphan conditions that reference disconnected nodes
-		cleanupOrphanConditions(sourceNodes, backtestConfig, resetConditionVariable);
-	}
-}, [id, sourceNodes]);
+			// Cleanup orphan conditions that reference disconnected nodes
+			cleanupOrphanConditions(
+				sourceNodes,
+				backtestConfig,
+				resetConditionVariable,
+			);
+		}
+	}, [id, sourceNodes]);
 };

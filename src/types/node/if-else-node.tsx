@@ -1,7 +1,7 @@
 import type { Node } from "@xyflow/react";
+import type { TFunction } from "i18next";
 import type { NodeType } from "@/types/node/index";
 import { VariableValueType } from "@/types/variable";
-import { TFunction } from "i18next";
 import type { NodeDataBase } from ".";
 
 // 条件判断节点回测模式配置
@@ -141,14 +141,23 @@ export const getAvailableComparisonSymbols = (
 /**
  * 获取比较运算符的显示文本
  */
-export const getComparisonSymbolLabel = (symbol: ComparisonSymbol, t: TFunction): string => {
+export const getComparisonSymbolLabel = (
+	symbol: ComparisonSymbol,
+	t: TFunction,
+): string => {
 	const labels: Record<ComparisonSymbol, string> = {
 		[ComparisonSymbol.equal]: t("ifElseNode.comparisonSymbols.equal"),
 		[ComparisonSymbol.notEqual]: t("ifElseNode.comparisonSymbols.notEqual"),
-		[ComparisonSymbol.greaterThan]: t("ifElseNode.comparisonSymbols.greaterThan"),
+		[ComparisonSymbol.greaterThan]: t(
+			"ifElseNode.comparisonSymbols.greaterThan",
+		),
 		[ComparisonSymbol.lessThan]: t("ifElseNode.comparisonSymbols.lessThan"),
-		[ComparisonSymbol.greaterThanOrEqual]: t("ifElseNode.comparisonSymbols.greaterThanOrEqual"),
-		[ComparisonSymbol.lessThanOrEqual]: t("ifElseNode.comparisonSymbols.lessThanOrEqual"),
+		[ComparisonSymbol.greaterThanOrEqual]: t(
+			"ifElseNode.comparisonSymbols.greaterThanOrEqual",
+		),
+		[ComparisonSymbol.lessThanOrEqual]: t(
+			"ifElseNode.comparisonSymbols.lessThanOrEqual",
+		),
 		[ComparisonSymbol.is]: t("ifElseNode.comparisonSymbols.is"),
 		[ComparisonSymbol.isNot]: t("ifElseNode.comparisonSymbols.isNot"),
 		[ComparisonSymbol.like]: t("ifElseNode.comparisonSymbols.like"),
@@ -158,7 +167,9 @@ export const getComparisonSymbolLabel = (symbol: ComparisonSymbol, t: TFunction)
 		[ComparisonSymbol.isEmpty]: t("ifElseNode.comparisonSymbols.isEmpty"),
 		[ComparisonSymbol.isNotEmpty]: "不为空",
 		[ComparisonSymbol.contains]: t("ifElseNode.comparisonSymbols.contains"),
-		[ComparisonSymbol.notContains]: t("ifElseNode.comparisonSymbols.notContains"),
+		[ComparisonSymbol.notContains]: t(
+			"ifElseNode.comparisonSymbols.notContains",
+		),
 	};
 	return labels[symbol];
 };
@@ -189,14 +200,10 @@ export type Variable = {
 	extraInfo?: Record<string, string | number | boolean | null> | null; // 额外信息
 };
 
-
 export type Constant = {
 	varType: VarType.constant;
 	varValueType: VariableValueType;
 	varValue: number | string | boolean | string[];
-
-}
-
-
+};
 
 export type IfElseNode = Node<IfElseNodeData, "ifElseNode">;

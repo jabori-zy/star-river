@@ -1,15 +1,15 @@
 import type { DateTime } from "luxon";
+import { useTranslation } from "react-i18next";
 import {
 	Tooltip,
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
-	formatTimeWithTimezone,
 	formatFullTimeWithSeconds,
+	formatTimeWithTimezone,
 	type TimeFormatOptions,
 } from "@/utils/date-format";
-import { useTranslation } from "react-i18next";
 // ============================================
 // TimeDisplay Component Props
 // ============================================
@@ -67,15 +67,16 @@ export interface TimeDisplayProps {
  */
 export function TimeDisplay({
 	date,
-	displayOptions = { dateFormat: 'smart', timezoneFormat: 'short' },
+	displayOptions = { dateFormat: "smart", timezoneFormat: "short" },
 	tooltipOptions,
 	className = "",
 	showTooltip = true,
 }: TimeDisplayProps) {
+	const { t } = useTranslation();
+
 	if (!date) {
 		return null;
 	}
-	const { t } = useTranslation();
 	// Format display time using provided options or defaults
 	const displayTime = formatTimeWithTimezone(date, displayOptions, t);
 

@@ -1,11 +1,10 @@
-import { useEffect } from "react";
 import { useNodeConnections, useNodesData } from "@xyflow/react";
+import { useEffect } from "react";
 import { toast } from "sonner";
+import type { StrategyFlowNode } from "@/types/node";
 import { isKlineNode } from "@/types/node/index";
 import type { IndicatorNodeData } from "@/types/node/indicator-node";
-import type { KlineNodeData } from "@/types/node/kline-node";
-import type { SelectedSymbol } from "@/types/node/kline-node";
-import type { StrategyFlowNode } from "@/types/node";
+import type { KlineNodeData, SelectedSymbol } from "@/types/node/kline-node";
 import { useBacktestConfig } from "./use-update-backtest-config";
 
 /**
@@ -21,7 +20,7 @@ import { useBacktestConfig } from "./use-update-backtest-config";
  */
 export const useSyncSourceNode = ({
 	id,
-	currentNodeData
+	currentNodeData,
 }: {
 	id: string;
 	currentNodeData: IndicatorNodeData;
@@ -35,7 +34,6 @@ export const useSyncSourceNode = ({
 	);
 
 	useEffect(() => {
-
 		// 规则1: 指标节点只能有一个源节点
 		if (sourceNodes.length > 1) {
 			toast.error("indicator node only has one source node");

@@ -1,5 +1,5 @@
-import { DateTime } from "luxon";
 import type { TFunction } from "i18next";
+import { DateTime } from "luxon";
 
 // ============================================
 // Time Format Options
@@ -19,7 +19,7 @@ export interface TimeFormatOptions {
 	 * - 'offset': +08:00
 	 * @default 'short'
 	 */
-	timezoneFormat?: 'short' | 'long' | 'offset';
+	timezoneFormat?: "short" | "long" | "offset";
 
 	/**
 	 * Date format style
@@ -28,7 +28,7 @@ export interface TimeFormatOptions {
 	 * - 'full': YYYY-MM-DD HH:mm
 	 * @default 'smart'
 	 */
-	dateFormat?: 'smart' | 'compact' | 'full';
+	dateFormat?: "smart" | "compact" | "full";
 }
 
 // ============================================
@@ -52,22 +52,21 @@ export interface TimeFormatOptions {
 export function formatTimeWithTimezone(
 	date: Date | string | DateTime | undefined,
 	options: TimeFormatOptions = {},
-	t: TFunction
+	t: TFunction,
 ): string {
 	if (!date) return "";
 
 	const {
 		showTimezone = true,
-		timezoneFormat = 'short',
-		dateFormat = 'smart',
+		timezoneFormat = "short",
+		dateFormat = "smart",
 	} = options;
 
 	// Convert to DateTime
 	let targetDate: DateTime;
 	if (date instanceof DateTime) {
 		targetDate = date;
-	} else if (typeof date === 'string') {
-        
+	} else if (typeof date === "string") {
 		// Try ISO format first (e.g., "2025-11-18T16:29:10+08:00")
 		targetDate = DateTime.fromISO(date);
 
@@ -85,7 +84,7 @@ export function formatTimeWithTimezone(
 	}
 
 	if (!targetDate.isValid) {
-		console.error('[formatTimeWithTimezone] Invalid date:', date);
+		console.error("[formatTimeWithTimezone] Invalid date:", date);
 		return "";
 	}
 
@@ -98,38 +97,42 @@ export function formatTimeWithTimezone(
 	const totalHours = Math.floor(totalMinutes / 60);
 	const totalDays = Math.floor(totalHours / 24);
 
-	let timeStr = '';
+	let timeStr = "";
 
-	if (dateFormat === 'smart') {
+	if (dateFormat === "smart") {
 		// Smart relative time
 		if (totalSeconds < 60) {
 			// Less than 1 minute
-			timeStr = t('common.timeFormat.justNow');
+			timeStr = t("common.timeFormat.justNow");
 		} else if (totalMinutes < 60) {
 			// Less than 1 hour
-			timeStr = t('common.timeFormat.minuteAgo', { minutes: totalMinutes });
-		} else if (totalHours < 24 && targetDate.hasSame(now, 'day')) {
+			timeStr = t("common.timeFormat.minuteAgo", { minutes: totalMinutes });
+		} else if (totalHours < 24 && targetDate.hasSame(now, "day")) {
 			// Today (within same day)
-			timeStr = t('common.timeFormat.today', { time: targetDate.toFormat('HH:mm') });
-		} else if (targetDate.hasSame(now.minus({ days: 1 }), 'day')) {
+			timeStr = t("common.timeFormat.today", {
+				time: targetDate.toFormat("HH:mm"),
+			});
+		} else if (targetDate.hasSame(now.minus({ days: 1 }), "day")) {
 			// Yesterday
-			timeStr = t('common.timeFormat.yesterday', { time: targetDate.toFormat('HH:mm') });
+			timeStr = t("common.timeFormat.yesterday", {
+				time: targetDate.toFormat("HH:mm"),
+			});
 		} else if (totalDays < 7) {
 			// Within 7 days
-			timeStr = t('common.timeFormat.daysAgo', { days: totalDays });
-		} else if (targetDate.hasSame(now, 'year')) {
+			timeStr = t("common.timeFormat.daysAgo", { days: totalDays });
+		} else if (targetDate.hasSame(now, "year")) {
 			// Same year
-			timeStr = targetDate.toFormat('MM-dd HH:mm:ss');
+			timeStr = targetDate.toFormat("MM-dd HH:mm:ss");
 		} else {
 			// Different year
-			timeStr = targetDate.toFormat('yyyy-MM-dd HH:mm:ss');
+			timeStr = targetDate.toFormat("yyyy-MM-dd HH:mm:ss");
 		}
-	} else if (dateFormat === 'compact') {
+	} else if (dateFormat === "compact") {
 		// Compact format: MM-DD HH:mm
-		timeStr = targetDate.toFormat('MM-dd HH:mm:ss');
+		timeStr = targetDate.toFormat("MM-dd HH:mm:ss");
 	} else {
 		// Full format: YYYY-MM-DD HH:mm
-		timeStr = targetDate.toFormat('yyyy-MM-dd HH:mm:ss');
+		timeStr = targetDate.toFormat("yyyy-MM-dd HH:mm:ss");
 	}
 
 	if (!showTimezone) {
@@ -140,19 +143,19 @@ export function formatTimeWithTimezone(
 	const offsetHours = targetDate.offset / 60;
 
 	switch (timezoneFormat) {
-		case 'short': {
+		case "short": {
 			// UTC+8 format
-			const sign = offsetHours >= 0 ? '+' : '';
+			const sign = offsetHours >= 0 ? "+" : "";
 			return `${timeStr} (UTC${sign}${offsetHours})`;
 		}
-		case 'long': {
+		case "long": {
 			// Timezone name (e.g., Asia/Shanghai or custom)
 			const zoneName = targetDate.zoneName;
 			return `${timeStr} (${zoneName})`;
 		}
-		case 'offset': {
+		case "offset": {
 			// +08:00 format
-			const offset = targetDate.toFormat('ZZ');
+			const offset = targetDate.toFormat("ZZ");
 			return `${timeStr} ${offset}`;
 		}
 		default:
@@ -181,11 +184,18 @@ export const formatDate = (date: Date | undefined): string => {
  * formatSmartTime(new Date())
  * // => "刚刚 (UTC+8)"
  */
-export function formatSmartTime(date: Date | string | DateTime | undefined, t: TFunction): string {
-		return formatTimeWithTimezone(date, {
-		dateFormat: 'smart',
-		timezoneFormat: 'short',
-	}, t);
+export function formatSmartTime(
+	date: Date | string | DateTime | undefined,
+	t: TFunction,
+): string {
+	return formatTimeWithTimezone(
+		date,
+		{
+			dateFormat: "smart",
+			timezoneFormat: "short",
+		},
+		t,
+	);
 }
 
 /**
@@ -195,11 +205,18 @@ export function formatSmartTime(date: Date | string | DateTime | undefined, t: T
  * formatCompactTime(new Date())
  * // => "11-18 17:06 (UTC+8)"
  */
-export function formatCompactTime(date: Date | string | DateTime | undefined, t: TFunction): string {
-	return formatTimeWithTimezone(date, {
-		dateFormat: 'compact',
-		timezoneFormat: 'short',
-	}, t);
+export function formatCompactTime(
+	date: Date | string | DateTime | undefined,
+	t: TFunction,
+): string {
+	return formatTimeWithTimezone(
+		date,
+		{
+			dateFormat: "compact",
+			timezoneFormat: "short",
+		},
+		t,
+	);
 }
 
 /**
@@ -209,11 +226,18 @@ export function formatCompactTime(date: Date | string | DateTime | undefined, t:
  * formatFullTime(new Date())
  * // => "2025-11-18 17:06 (UTC+8)"
  */
-export function formatFullTime(date: Date | string | DateTime | undefined, t: TFunction): string {
-	return formatTimeWithTimezone(date, {
-		dateFormat: 'full',
-		timezoneFormat: 'short',
-	}, t);
+export function formatFullTime(
+	date: Date | string | DateTime | undefined,
+	t: TFunction,
+): string {
+	return formatTimeWithTimezone(
+		date,
+		{
+			dateFormat: "full",
+			timezoneFormat: "short",
+		},
+		t,
+	);
 }
 
 /**
@@ -223,11 +247,18 @@ export function formatFullTime(date: Date | string | DateTime | undefined, t: TF
  * formatTimeOnly(new Date())
  * // => "刚刚"
  */
-export function formatTimeOnly(date: Date | string | DateTime | undefined, t: TFunction): string {
-	return formatTimeWithTimezone(date, {
-		dateFormat: 'smart',
-		showTimezone: false,
-	}, t);
+export function formatTimeOnly(
+	date: Date | string | DateTime | undefined,
+	t: TFunction,
+): string {
+	return formatTimeWithTimezone(
+		date,
+		{
+			dateFormat: "smart",
+			showTimezone: false,
+		},
+		t,
+	);
 }
 
 /**
@@ -237,14 +268,16 @@ export function formatTimeOnly(date: Date | string | DateTime | undefined, t: TF
  * formatFullTimeWithSeconds(new Date())
  * // => "2025-11-18 17:06:52 +08:00"
  */
-export function formatFullTimeWithSeconds(date: Date | string | DateTime | undefined): string {
+export function formatFullTimeWithSeconds(
+	date: Date | string | DateTime | undefined,
+): string {
 	if (!date) return "";
 
 	// Convert to DateTime
 	let targetDate: DateTime;
 	if (date instanceof DateTime) {
 		targetDate = date;
-	} else if (typeof date === 'string') {
+	} else if (typeof date === "string") {
 		// Try ISO format first (e.g., "2025-11-18T16:29:10+08:00")
 		targetDate = DateTime.fromISO(date);
 
@@ -262,10 +295,10 @@ export function formatFullTimeWithSeconds(date: Date | string | DateTime | undef
 	}
 
 	if (!targetDate.isValid) {
-		console.error('[formatTimeWithTimezone] Invalid date:', date);
+		console.error("[formatTimeWithTimezone] Invalid date:", date);
 		return "";
 	}
 
 	// Format: YYYY-MM-DD HH:mm:ss +08:00
-	return targetDate.toFormat('yyyy-MM-dd HH:mm:ss ZZ');
+	return targetDate.toFormat("yyyy-MM-dd HH:mm:ss ZZ");
 }

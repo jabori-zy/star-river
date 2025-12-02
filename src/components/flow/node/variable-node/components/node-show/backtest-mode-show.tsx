@@ -8,7 +8,11 @@ interface BacktestModeShowProps {
 	handleColor: string;
 }
 
-const BacktestModeShow: React.FC<BacktestModeShowProps> = ({ id, data, handleColor }) => {
+const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
+	id,
+	data,
+	handleColor,
+}) => {
 	// 获取回测模式配置
 	const backtestConfig = data.backtestConfig;
 

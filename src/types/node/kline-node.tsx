@@ -7,7 +7,6 @@ import type {
 } from "@/types/strategy";
 import type { NodeDataBase } from ".";
 
-
 export type SelectedSymbol = {
 	configId: number; // 配置id
 	outputHandleId: string; // 出口id, 用于连接到其他节点

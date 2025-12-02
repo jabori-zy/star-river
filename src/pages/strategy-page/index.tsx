@@ -1,21 +1,20 @@
+import { useQueryClient } from "@tanstack/react-query";
+import { ReactFlowProvider } from "@xyflow/react";
 import { Loader2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import { useLocation } from "react-router";
-import { useQueryClient } from "@tanstack/react-query";
-import { useGetStrategyById } from "@/service/strategy-management/get-strategy-by-id";
-import { useUpdateStrategy } from "@/service/strategy-management/update-strategy";
-import { strategyKeys } from "@/service/strategy-management/query-keys";
-import { useGetStrategyRunState } from "@/service/backtest-strategy/strategy-run-state";
-import type { Strategy } from "@/types/strategy";
-import { ReactFlowProvider } from "@xyflow/react";
-import useTradingModeStore from "@/store/use-trading-mode-store";
-import { WorkFlow } from "./components/flow";
-import { StrategyLoadingDialog } from "./components/strategy-loading-dialog";
-import type { StrategyRunState } from "@/types/strategy";
-import { BacktestStrategyRunState } from "@/types/strategy/backtest-strategy";
-import type { OperationType } from "./components/strategy-control/type";
-import { openBacktestWindow } from "@/utils/open-backtest-window";
 import { useTranslation } from "react-i18next";
+import { useLocation } from "react-router";
+import { useGetStrategyRunState } from "@/service/backtest-strategy/strategy-run-state";
+import { useGetStrategyById } from "@/service/strategy-management/get-strategy-by-id";
+import { strategyKeys } from "@/service/strategy-management/query-keys";
+import { useUpdateStrategy } from "@/service/strategy-management/update-strategy";
+import useTradingModeStore from "@/store/use-trading-mode-store";
+import type { Strategy, StrategyRunState } from "@/types/strategy";
+import { BacktestStrategyRunState } from "@/types/strategy/backtest-strategy";
+import { openBacktestWindow } from "@/utils/open-backtest-window";
+import { WorkFlow } from "./components/flow";
+import type { OperationType } from "./components/strategy-control/type";
+import { StrategyLoadingDialog } from "./components/strategy-loading-dialog";
 
 export default function StrategyPage() {
 	const location = useLocation();
@@ -27,14 +26,24 @@ export default function StrategyPage() {
 	// ✅ 使用本地 state 管理策略数据
 	const [strategy, setStrategy] = useState<Strategy | null>(null);
 	// 初始状态为 saved，当策略加载完成后保持 saved，只有用户编辑时才变为 unsaved
-	const [saveStatus, setSaveStatus] = useState<"saved" | "unsaved" | "saving">("saved");
+	const [saveStatus, setSaveStatus] = useState<"saved" | "unsaved" | "saving">(
+		"saved",
+	);
 	const { tradingMode, setTradingMode } = useTradingModeStore();
 	const [showLoadingDialog, setShowLoadingDialog] = useState(false);
-	const [dialogTitle, setDialogTitle] = useState(t("desktop.strategyWorkflowPage.loadingStrategy"));
-	const [strategyRunState, setStrategyRunState] = useState<StrategyRunState>(BacktestStrategyRunState.Stopped);
+	const [dialogTitle, setDialogTitle] = useState(
+		t("desktop.strategyWorkflowPage.loadingStrategy"),
+	);
+	const [strategyRunState, setStrategyRunState] = useState<StrategyRunState>(
+		BacktestStrategyRunState.Stopped,
+	);
 
 	// ✅ 使用 React Query Hook 获取策略（重命名为 queryStrategy 避免冲突）
-	const { data: queryStrategy, isLoading, error } = useGetStrategyById(strategyId, {
+	const {
+		data: queryStrategy,
+		isLoading,
+		error,
+	} = useGetStrategyById(strategyId, {
 		enabled: !!strategyId && strategyId >= 0,
 	});
 
@@ -87,51 +96,70 @@ export default function StrategyPage() {
 		}
 	}, [apiRunState]);
 
-
 	const handleStrategyChange = useCallback((updates: Partial<Strategy>) => {
-		setStrategy(prev => prev ? { ...prev, ...updates } : null);
+		setStrategy((prev) => (prev ? { ...prev, ...updates } : null));
 		setSaveStatus("unsaved");
 	}, []);
 
+	const handleSaveStatusChange = useCallback(
+		(saveStatus: "saved" | "unsaved" | "saving") => {
+			setSaveStatus(saveStatus);
+		},
+		[],
+	);
 
-	const handleSaveStatusChange = useCallback((saveStatus: "saved" | "unsaved" | "saving") => {
-		setSaveStatus(saveStatus);
-	}, []);
-
-	const handleOperationSuccess = useCallback((operationType: OperationType) => {
-		setDialogTitle(operationType === 'init' ? t("desktop.strategyWorkflowPage.loadingStrategy", { strategyName: strategy?.name || '' }) : t("desktop.strategyWorkflowPage.stoppingStrategy", { strategyName: strategy?.name || '' }));
-		setShowLoadingDialog(true);
-	}, [t, strategy?.name]);
+	const handleOperationSuccess = useCallback(
+		(operationType: OperationType) => {
+			setDialogTitle(
+				operationType === "init"
+					? t("desktop.strategyWorkflowPage.loadingStrategy", {
+							strategyName: strategy?.name || "",
+						})
+					: t("desktop.strategyWorkflowPage.stoppingStrategy", {
+							strategyName: strategy?.name || "",
+						}),
+			);
+			setShowLoadingDialog(true);
+		},
+		[t, strategy?.name],
+	);
 
 	const handleCloseLoadingDialog = useCallback(() => {
 		setShowLoadingDialog(false);
 	}, []);
 
-	const handleStrategyStateChange = useCallback((state: StrategyRunState) => {
-		setStrategyRunState(state);
+	const handleStrategyStateChange = useCallback(
+		(state: StrategyRunState) => {
+			setStrategyRunState(state);
 
-		// 只在终态时刷新缓存
-		if ([
-			BacktestStrategyRunState.Ready,
-			BacktestStrategyRunState.Stopped,
-			BacktestStrategyRunState.Error
-		].includes(state as BacktestStrategyRunState)) {
-			queryClient.invalidateQueries({
-				queryKey: strategyKeys.detail(strategyId)
-			});
-		}
-	}, [queryClient, strategyId]);
+			// 只在终态时刷新缓存
+			if (
+				[
+					BacktestStrategyRunState.Ready,
+					BacktestStrategyRunState.Stopped,
+					BacktestStrategyRunState.Error,
+				].includes(state as BacktestStrategyRunState)
+			) {
+				queryClient.invalidateQueries({
+					queryKey: strategyKeys.detail(strategyId),
+				});
+			}
+		},
+		[queryClient, strategyId],
+	);
 
-	const handleOpenBacktestWindow = useCallback(async (strategyId: number, strategyName: string) => {
-		try {
-			await openBacktestWindow(strategyId, strategyName);
-			// 成功后关闭对话框
-			setShowLoadingDialog(false);
-		} catch (error) {
-			// 错误已在工具函数中处理
-		}
-	}, []);
-
+	const handleOpenBacktestWindow = useCallback(
+		async (strategyId: number, strategyName: string) => {
+			try {
+				await openBacktestWindow(strategyId, strategyName);
+				// 成功后关闭对话框
+				setShowLoadingDialog(false);
+			} catch (error) {
+				// 错误已在工具函数中处理
+			}
+		},
+		[],
+	);
 
 	// 处理加载状态
 	if (isLoading) {
@@ -181,7 +209,7 @@ export default function StrategyPage() {
 					title={dialogTitle}
 					open={showLoadingDialog}
 					strategyId={strategyId || 0}
-					strategyName={strategy?.name || ''}
+					strategyName={strategy?.name || ""}
 					onOpenChange={handleCloseLoadingDialog}
 					onStrategyStateChange={handleStrategyStateChange}
 					onOpenBacktestWindow={handleOpenBacktestWindow}

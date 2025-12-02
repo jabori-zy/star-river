@@ -1,13 +1,13 @@
 import { BehaviorSubject, Observable, Subject } from "rxjs";
 import { share, takeUntil } from "rxjs/operators";
+import { ZodError } from "zod";
 import type {
-	StrategyRunningLogEvent,
 	NodeRunningLogEvent,
+	StrategyRunningLogEvent,
 } from "@/types/strategy-event/running-log-event";
 import { RunningLogEventSchema } from "@/types/strategy-event/running-log-event";
 import { BACKTEST_STRATEGY_RUNNING_LOG_URL } from ".";
 import { SSEConnectionState } from "./backtest-strategy-event-obs";
-import { ZodError } from "zod";
 
 /**
  * 回测策略运行日志Observable服务
@@ -19,7 +19,9 @@ class BacktestStrategyRunningLogObservableService {
 		SSEConnectionState.DISCONNECTED,
 	);
 	private destroy$ = new Subject<void>();
-	private logDataSubject = new Subject<StrategyRunningLogEvent | NodeRunningLogEvent>();
+	private logDataSubject = new Subject<
+		StrategyRunningLogEvent | NodeRunningLogEvent
+	>();
 
 	/**
 	 * 获取连接状态Observable

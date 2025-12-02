@@ -24,9 +24,7 @@ export const AVGPRICEConfig: IndicatorConfig<AVGPRICEConfigType> = {
 	type: IndicatorType.AVGPRICE,
 	displayName: "AVGPRICE",
 	description: "计算平均价格 (High + Low + Close) / 3",
-	params: {
-		
-	},
+	params: {},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },
 		avgprice: { label: "avgprice", value: 0, legendShowName: "avgprice" },

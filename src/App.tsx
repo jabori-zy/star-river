@@ -1,25 +1,25 @@
 import { RouterProvider } from "react-router";
 import router from "./router";
 import "./i18n";
-import { Settings } from "luxon";
-import { useEffect, useState } from "react";
-import { Toaster } from "@/components/ui/sonner";
-import useSystemConfigStore from "./store/use-system-config-store";
 import {
+	MutationCache,
 	QueryClient,
 	QueryClientProvider,
-	MutationCache,
 } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { toast } from "sonner";
 import {
 	CircleCheckIcon,
 	InfoIcon,
-	TriangleAlertIcon,
-	OctagonXIcon,
 	Loader2Icon,
+	OctagonXIcon,
+	TriangleAlertIcon,
 } from "lucide-react";
+import { Settings } from "luxon";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 import type { ApiError } from "./service";
+import useSystemConfigStore from "./store/use-system-config-store";
 
 // 创建 QueryClient 实例，配置全局默认选项
 const queryClient = new QueryClient({
@@ -54,9 +54,9 @@ const queryClient = new QueryClient({
 			const apiError = error as ApiError;
 			const meta = mutation.options.meta as
 				| {
-					errorMessage?: string; 
-					showErrorToast?: boolean;
-				}
+						errorMessage?: string;
+						showErrorToast?: boolean;
+				  }
 				| undefined;
 
 			// 默认显示错误 toast，除非明确禁用
@@ -68,7 +68,7 @@ const queryClient = new QueryClient({
 				toast.error(apiError.message, {
 					description: `error code: ${apiError.errorCode}. error code chain: ${apiError.errorCodeChain.join(", ")}`,
 					action: {
-						label:"复制",
+						label: "复制",
 						onClick: async (event) => {
 							event.preventDefault();
 							event.stopPropagation();
@@ -94,7 +94,6 @@ const queryClient = new QueryClient({
 		},
 	}),
 });
-
 
 function App() {
 	const { loadSystemConfig, systemConfig } = useSystemConfigStore();

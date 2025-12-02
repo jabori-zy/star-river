@@ -1,5 +1,6 @@
 import type { Exchange } from "@/types/market";
-import type { FuturesOrderSide, OrderStatus, OrderType } from "./index";
+import type { OrderStatus, OrderType } from "./index";
+import { FuturesOrderSide } from "./index";
 
 export type VirtualOrder = {
 	orderId: number; // 订单ID
@@ -34,13 +35,12 @@ export type VirtualOrder = {
 };
 
 // 订单方向样式
-export const getOrderSideStyle = (side: string) => {
-	switch (side) {
-		case "buy":
-		case "BUY":
+export const getOrderSideStyle = (futuresOrderSide: FuturesOrderSide) => {
+	console.log(futuresOrderSide);
+	switch (futuresOrderSide) {
+		case FuturesOrderSide.LONG:
 			return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
-		case "sell":
-		case "SELL":
+		case FuturesOrderSide.SHORT:
 			return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
 		default:
 			return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300";

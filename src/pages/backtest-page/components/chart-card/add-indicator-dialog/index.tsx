@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import IndicatorSelector from "@/pages/backtest-page/components/chart-card/add-indicator-dialog/indicator-selector";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -10,6 +10,7 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import IndicatorSelector from "@/pages/backtest-page/components/chart-card/add-indicator-dialog/indicator-selector";
 import type { IndicatorChartConfig } from "@/types/chart";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import { getIndciatorChartBaseConfigFromKeyStr } from "@/types/indicator/indicator-config";
@@ -29,6 +30,7 @@ export default function AddIndicatorDialog({
 	strategyId,
 	onIndicatorAdd,
 }: IndicatorListDialogProps) {
+	const { t } = useTranslation();
 	// 选中的指标缓存键
 	const [selectedIndicatorKey, setSelectedIndicatorKey] = useState<
 		string | undefined
@@ -73,23 +75,23 @@ export default function AddIndicatorDialog({
 		<Dialog open={open} onOpenChange={onOpenChange} modal={false}>
 			<DialogContent className="sm:max-w-[425px]">
 				<DialogHeader>
-					<DialogTitle>添加指标</DialogTitle>
+					<DialogTitle>{t("desktop.backtestPage.addIndicator")}</DialogTitle>
 					<DialogDescription>
-						选择要添加到图表的技术指标。指标可以添加到主图或副图中。
+						{t("desktop.backtestPage.addIndicatorDescription")}
 					</DialogDescription>
 				</DialogHeader>
 				<div className="grid gap-4 py-4">
 					{chartConfig.klineChartConfig.klineKeyStr ? (
 						<div className="grid gap-2">
 							<Label htmlFor="indicator-selector" className="text-left">
-								选择指标
+								{t("desktop.backtestPage.indicator")}
 							</Label>
 							<IndicatorSelector
 								klineKeyStr={chartConfig.klineChartConfig.klineKeyStr}
 								selectedIndicatorKey={selectedIndicatorKey}
 								onIndicatorSelect={setSelectedIndicatorKey}
 								strategyId={strategyId}
-								placeholder="选择要添加的指标"
+								placeholder={t("desktop.backtestPage.addIndicatorPlaceholder")}
 							/>
 						</div>
 					) : (
@@ -100,10 +102,10 @@ export default function AddIndicatorDialog({
 				</div>
 				<DialogFooter>
 					<Button variant="outline" onClick={handleCancel}>
-						取消
+						{t("common.cancel")}
 					</Button>
 					<Button onClick={handleAddIndicator} disabled={!selectedIndicatorKey}>
-						添加指标
+						{t("common.save")}
 					</Button>
 				</DialogFooter>
 			</DialogContent>

@@ -1,7 +1,9 @@
+import { useTranslation } from "react-i18next";
+import { SelectInDialog } from "@/components/dialog-components/select-in-dialog";
+import { generateEnumHint } from "@/components/flow/node/variable-node/hint-generators";
 import MultipleSelector, {
 	type Option,
 } from "@/components/select-components/multi-select";
-import { SelectInDialog } from "@/components/dialog-components/select-in-dialog";
 import type {
 	TriggerConfig,
 	UpdateVarValueOperation,
@@ -11,8 +13,6 @@ import {
 	getEffectiveTriggerType,
 	getTimerTriggerConfig,
 } from "@/types/node/variable-node";
-import { generateEnumHint } from "@/components/flow/node/variable-node/hint-generators";
-import { useTranslation } from "react-i18next";
 
 interface EnumTypeOpEditorProps {
 	updateOperationType: UpdateVarValueOperation;
@@ -157,19 +157,19 @@ const EnumTypeOpEditor: React.FC<EnumTypeOpEditorProps> = ({
 					/>
 				</div>
 			</div>
-		{shouldShowHint(hasValues) && (
-			<p className="text-xs text-muted-foreground">
-				{generateEnumHint({
-					t,
-					varOperation: "update",
-					operationType: updateOperationType,
-					variableDisplayName,
-					selectedValues,
-					conditionTrigger,
-					timerTrigger,
-				})}
-			</p>
-		)}
+			{shouldShowHint(hasValues) && (
+				<p className="text-xs text-muted-foreground">
+					{generateEnumHint({
+						t,
+						varOperation: "update",
+						operationType: updateOperationType,
+						variableDisplayName,
+						selectedValues,
+						conditionTrigger,
+						timerTrigger,
+					})}
+				</p>
+			)}
 		</div>
 	);
 };

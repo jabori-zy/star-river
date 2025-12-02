@@ -1,17 +1,11 @@
-import type { IfElseNodeData } from "./if-else-node";
-import type { IndicatorNodeData } from "./indicator-node";
-import type { KlineNodeData } from "./kline-node";
-import type { PositionNodeData } from "./position-node";
-import type { StartNodeData } from "./start-node";
-import type { StartNode } from "./start-node";
-import type { KlineNode } from "./kline-node";
-import type { IndicatorNode } from "./indicator-node";
-import type { IfElseNode } from "./if-else-node";
-import type { PositionNode } from "./position-node";
-import type { VariableNode } from "./variable-node";
-import type { VariableNodeData } from "./variable-node";
-import type { IconName } from "lucide-react/dynamic";
 import type { TFunction } from "i18next";
+import type { IconName } from "lucide-react/dynamic";
+import type { IfElseNode, IfElseNodeData } from "./if-else-node";
+import type { IndicatorNode, IndicatorNodeData } from "./indicator-node";
+import type { KlineNode, KlineNodeData } from "./kline-node";
+import type { PositionNode, PositionNodeData } from "./position-node";
+import type { StartNode, StartNodeData } from "./start-node";
+import type { VariableNode, VariableNodeData } from "./variable-node";
 
 export type NodeId = string;
 export type NodeName = string;
@@ -25,7 +19,6 @@ export enum NodeType {
 	PositionNode = "positionNode",
 	VariableNode = "variableNode",
 }
-
 
 export const getNodeTypeName = (nodeType: NodeType, t: TFunction): string => {
 	switch (nodeType) {
@@ -64,9 +57,6 @@ export const getNodeDefaultColor = (nodeType: NodeType): string => {
 	return NodeDefaultColorsMap[nodeType];
 };
 
-
-
-
 export const NodeIconsMap: Record<NodeType, IconName> = {
 	[NodeType.StartNode]: "play",
 	[NodeType.KlineNode]: "chart-candlestick",
@@ -80,8 +70,6 @@ export const NodeIconsMap: Record<NodeType, IconName> = {
 export const getNodeIconName = (nodeType: NodeType): IconName => {
 	return NodeIconsMap[nodeType];
 };
-
-
 
 export const getNodeDefaultInputHandleId = (id: NodeId, nodeType: NodeType) => {
 	switch (nodeType) {
@@ -134,8 +122,6 @@ export const isDefaultOutputHandleId = (handleId: string) => {
 	return handleId.endsWith("_default_output");
 };
 
-
-
 export type NodeDataBase = {
 	strategyId: number;
 	strategyName: string;
@@ -146,12 +132,8 @@ export type NodeDataBase = {
 		iconBackgroundColor: string;
 		handleColor: string;
 		isHovered?: boolean; // is hovered
-	}
-}
-
-
-
-
+	};
+};
 
 // 所有节点的数据类型的联合类型
 export type NodeData =
@@ -162,23 +144,33 @@ export type NodeData =
 	| PositionNodeData
 	| VariableNodeData;
 
-
-export type StrategyFlowNode = StartNode | KlineNode | IndicatorNode | IfElseNode | PositionNode | VariableNode;
-
+export type StrategyFlowNode =
+	| StartNode
+	| KlineNode
+	| IndicatorNode
+	| IfElseNode
+	| PositionNode
+	| VariableNode;
 
 // 节点类型守卫
 export const isStartNode = (node: StrategyFlowNode): node is StartNode => {
 	return node.type === NodeType.StartNode;
 };
-export const isKlineNode = (node: StrategyFlowNode | Pick<StrategyFlowNode, "type">): node is KlineNode => {
+export const isKlineNode = (
+	node: StrategyFlowNode | Pick<StrategyFlowNode, "type">,
+): node is KlineNode => {
 	return node.type === NodeType.KlineNode;
 };
-export const isIndicatorNode = (node: StrategyFlowNode): node is IndicatorNode => {
+export const isIndicatorNode = (
+	node: StrategyFlowNode,
+): node is IndicatorNode => {
 	return node.type === NodeType.IndicatorNode;
 };
 export const isIfElseNode = (node: StrategyFlowNode): node is IfElseNode => {
 	return node.type === NodeType.IfElseNode;
 };
-export const isPositionNode = (node: StrategyFlowNode): node is PositionNode => {
+export const isPositionNode = (
+	node: StrategyFlowNode,
+): node is PositionNode => {
 	return node.type === NodeType.PositionNode;
 };

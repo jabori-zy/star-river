@@ -1,19 +1,24 @@
 import { type PanelProps, useReactFlow } from "@xyflow/react";
 import { GripVertical } from "lucide-react";
 import {
-	type ReactElement,
 	memo,
+	type ReactElement,
 	useCallback,
 	useEffect,
 	useRef,
 	useState,
 } from "react";
+import {
+	getNodeDefaultColor,
+	getNodeIconName,
+	type NodeData,
+	type NodeType,
+} from "@/types/node";
 import BasePanelHeader from "./header";
 import TradeModeSwitcher, {
 	type SettingPanelProps,
 } from "./trade-mode-switcher";
-import { getNodeIconName, getNodeDefaultColor, NodeType } from "@/types/node";
-import { NodeData } from "@/types/node";
+
 interface BasePanelProps extends PanelProps {
 	id: string; // 节点id
 	setSelectedNodeId: (id: string | undefined) => void;
@@ -35,14 +40,15 @@ const BasePanel: React.FC<BasePanelProps> = ({
 	const nodeType = node?.type;
 	const nodeConfig = nodeData?.nodeConfig;
 	// 面板标题
-	const [panelTitle, setPanelTitle] = useState(nodeData?.nodeName || "未命名节点");
+	const [panelTitle, setPanelTitle] = useState(
+		nodeData?.nodeName || "未命名节点",
+	);
 
 	// 是否显示面板
 	const [isShow, setIsShow] = useState(true);
 
 	// 是否在编辑标题
 	const [isEditingTitle, setIsEditingTitle] = useState(false);
-
 
 	// 监听data.nodeName变化，更新面板标题
 	useEffect(() => {
@@ -66,17 +72,16 @@ const BasePanel: React.FC<BasePanelProps> = ({
 	);
 
 	// 关闭面板处理函数
-	const handleClosePanel = useCallback(
-		() => {
-			setNodes((nodes) => nodes.map((node) => ({
+	const handleClosePanel = useCallback(() => {
+		setNodes((nodes) =>
+			nodes.map((node) => ({
 				...node,
 				selected: node.id === id ? false : node.selected,
-			})));
-			setIsShow(false);
-			setSelectedNodeId(undefined);
-		},
-		[id, setNodes, setSelectedNodeId],
-	);
+			})),
+		);
+		setIsShow(false);
+		setSelectedNodeId(undefined);
+	}, [id, setNodes, setSelectedNodeId]);
 
 	// 面板宽度状态
 	const panelWidthRef = useRef(400);
@@ -150,7 +155,8 @@ const BasePanel: React.FC<BasePanelProps> = ({
 
 	return (
 		// 是否显示面板
-		id && isShow && (
+		id &&
+		isShow && (
 			// 面板容器
 			<div
 				ref={panelRef}
@@ -194,17 +200,20 @@ const BasePanel: React.FC<BasePanelProps> = ({
 							isEditingTitle={isEditingTitle}
 							setIsEditingTitle={setIsEditingTitle}
 							onClosePanel={handleClosePanel}
-							icon={nodeConfig.iconName || getNodeIconName(nodeType as NodeType)} 
-							iconBackgroundColor={nodeConfig.iconBackgroundColor || getNodeDefaultColor(nodeType as NodeType)}
-							/>
+							icon={
+								nodeConfig.iconName || getNodeIconName(nodeType as NodeType)
+							}
+							iconBackgroundColor={
+								nodeConfig.iconBackgroundColor ||
+								getNodeDefaultColor(nodeType as NodeType)
+							}
+						/>
 					)}
 				</div>
 
 				{/* 交易模式切换器 - 弹性高度 */}
 				<div className="flex-1 min-h-0 p-2 pt-4">
-					<TradeModeSwitcher
-						id={id}
-						settingPanel={settingPanel} />
+					<TradeModeSwitcher id={id} settingPanel={settingPanel} />
 				</div>
 				{/* <div className="w-full mt-2">
                     <BasePanelFooter 

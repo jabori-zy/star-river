@@ -1,15 +1,19 @@
 import { Position } from "@xyflow/react";
+import type { TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
 import BaseHandle from "@/components/flow/base/BaseHandle";
 import { Badge } from "@/components/ui/badge";
-import { type IndicatorType, MAType, PriceSource } from "@/types/indicator";
+import {
+	getPriceSourceDisplayName,
+	type IndicatorType,
+	MAType,
+	type PriceSource,
+} from "@/types/indicator";
 import {
 	getIndicatorConfig,
 	getIndicatorDisplayName,
 } from "@/types/indicator/indicator-config";
 import type { SelectedIndicator } from "@/types/node/indicator-node";
-import { useTranslation } from "react-i18next";
-import type { TFunction } from "i18next";
-import { getPriceSourceDisplayName } from "@/types/indicator";
 
 // MA类型选项映射
 const MA_TYPE_LABELS: Record<MAType, string> = {
@@ -30,7 +34,10 @@ const getIndicatorLabel = (type: IndicatorType): string => {
 };
 
 // 获取价格源的中文标签
-const getPriceSourceLabel = (priceSource: PriceSource, t: TFunction): string => {
+const getPriceSourceLabel = (
+	priceSource: PriceSource,
+	t: TFunction,
+): string => {
 	return getPriceSourceDisplayName(priceSource, t);
 };
 
@@ -38,7 +45,7 @@ const getPriceSourceLabel = (priceSource: PriceSource, t: TFunction): string => 
 const getIndicatorParams = (
 	indicatorType: IndicatorType,
 	indicatorConfig: Record<string, unknown>,
-	t: TFunction
+	t: TFunction,
 ): string => {
 	const configInstance = getIndicatorConfig(indicatorType);
 	if (!configInstance) return "";

@@ -1,7 +1,7 @@
-import { type NodeProps } from "@xyflow/react";
-import { DynamicIcon, IconName } from "lucide-react/dynamic";
+import type { NodeProps } from "@xyflow/react";
+import { DynamicIcon, type IconName } from "lucide-react/dynamic";
 import type React from "react";
-import { type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import BaseHandle, { type BaseHandleProps } from "../BaseHandle";
 
@@ -50,8 +50,8 @@ const BaseNode: React.FC<BaseNodeProps> = ({
 }) => {
 	// 根据selected状态决定边框样式和边框颜色
 	const borderStyle = selected
-		? { borderColor: borderColor, borderWidth: '2px' }
-		: { borderColor: 'transparent', borderWidth: '2px' };
+		? { borderColor: borderColor, borderWidth: "2px" }
+		: { borderColor: "transparent", borderWidth: "2px" };
 
 	// 根据悬停状态决定阴影效果 - 移除transform，只用shadow
 	const shadowClass = isHovered
@@ -66,7 +66,7 @@ const BaseNode: React.FC<BaseNodeProps> = ({
 				"bg-white rounded-lg transition-all duration-200 relative cursor-pointer",
 				"min-w-[200px] max-w-[400px] w-fit",
 				shadowClass,
-				className
+				className,
 			)}
 			style={borderStyle}
 			{...props}
@@ -80,7 +80,10 @@ const BaseNode: React.FC<BaseNodeProps> = ({
 							className="p-1 rounded-sm flex-shrink-0"
 							style={{ backgroundColor: iconBackgroundColor }}
 						>
-							<DynamicIcon name={iconName} className="w-3 h-3 text-white flex-shrink-0" />
+							<DynamicIcon
+								name={iconName}
+								className="w-3 h-3 text-white flex-shrink-0"
+							/>
 						</div>
 					)}
 

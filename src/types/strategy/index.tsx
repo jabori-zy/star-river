@@ -1,8 +1,8 @@
 import type { Edge, Node } from "@xyflow/react";
 import type { BacktestStrategyChartConfig } from "@/types/chart";
 import type { Exchange } from "@/types/market";
-import type { CustomVariable } from "@/types/variable";
 import type { BacktestStrategyRunState } from "@/types/strategy/backtest-strategy";
+import type { CustomVariable } from "@/types/variable";
 
 export type StrategyId = number;
 
@@ -76,7 +76,6 @@ export interface StrategyBacktestConfig {
 
 export type StrategyRunState = BacktestStrategyRunState;
 
-
 export interface Strategy {
 	id: number; // strategy id
 	name: string; // strategy name
@@ -90,4 +89,3 @@ export interface Strategy {
 	createTime: string; // create time
 	updateTime: string; // update time
 }
-

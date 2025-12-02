@@ -198,7 +198,7 @@ class BacktestStrategyDataObservableService {
 	): Observable<VirtualOrderEvent> {
 		return this.createOrderStream(enabled).pipe(
 			filter(
-				(event) => 
+				(event) =>
 					event.futuresOrder.exchange === exchange &&
 					event.futuresOrder.symbol === symbol,
 			),
@@ -256,14 +256,13 @@ class BacktestStrategyDataObservableService {
 		symbol: string,
 		enabled: boolean = true,
 	): Observable<VirtualPositionEvent> {
-
 		return this.createPositionStream(enabled).pipe(
-			filter(
-				(event) =>{
-					return event.virtualPosition.exchange === exchange &&
-					event.virtualPosition.symbol === symbol;
-				}
-			),
+			filter((event) => {
+				return (
+					event.virtualPosition.exchange === exchange &&
+					event.virtualPosition.symbol === symbol
+				);
+			}),
 			share(),
 		);
 	}
@@ -313,7 +312,6 @@ class BacktestStrategyDataObservableService {
 			.asObservable()
 			.pipe(takeUntil(this.destroy$), share());
 	}
-
 
 	createCustomVariableStream(
 		enabled: boolean = true,

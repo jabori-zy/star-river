@@ -1,19 +1,22 @@
 import type {
 	DataflowErrorPolicy,
 	DataflowErrorType,
-	TimerUnit,
 	ErrorLog,
+	TimerUnit,
 	UpdateVarValueOperation,
 } from "@/types/node/variable-node";
 import type { VariableValue } from "@/types/node/variable-node/variable-config-types";
-import { VariableValueType } from "@/types/variable";
+import type { VariableValueType } from "@/types/variable";
 
 export interface DataflowConfigProps {
 	expireDuration: { unit: TimerUnit; duration: number };
 	errorPolicy: Partial<Record<DataflowErrorType, DataflowErrorPolicy>>;
 	replaceValueType?: VariableValueType;
 	updateOperationType?: UpdateVarValueOperation;
-	onExpireDurationChange: (config: { unit: TimerUnit; duration: number }) => void;
+	onExpireDurationChange: (config: {
+		unit: TimerUnit;
+		duration: number;
+	}) => void;
 	onErrorPolicyChange: (
 		errorType: DataflowErrorType,
 		policy: DataflowErrorPolicy,
@@ -46,6 +49,8 @@ export interface ErrorPolicyConfigProps {
 
 export interface ExpireDurationSectionProps {
 	expireDuration: { unit: TimerUnit; duration: number };
-	onExpireDurationChange: (config: { unit: TimerUnit; duration: number }) => void;
+	onExpireDurationChange: (config: {
+		unit: TimerUnit;
+		duration: number;
+	}) => void;
 }
-

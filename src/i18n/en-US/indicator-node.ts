@@ -17,7 +17,7 @@ const translation = {
 		maType: "MA Type",
 		period: "Period",
 		dataSource: "Data Source",
-	}
+	},
 };
 
 export default translation;

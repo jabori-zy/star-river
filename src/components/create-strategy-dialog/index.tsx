@@ -2,6 +2,7 @@
 
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useCreateStrategy } from "@/service/strategy-management/create-strategy";
-import { useTranslation } from "react-i18next";
+
 interface CreateStrategyDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
@@ -102,7 +103,9 @@ const CreateStrategyDialog = ({
 					<div className="space-y-2">
 						<Label htmlFor="description">
 							{t("desktop.strategyDescription")}
-							<span className="text-sm text-muted-foreground">({t("desktop.optional")})</span>
+							<span className="text-sm text-muted-foreground">
+								({t("desktop.optional")})
+							</span>
 						</Label>
 						<Textarea
 							id="description"
@@ -118,21 +121,21 @@ const CreateStrategyDialog = ({
 						/>
 					</div>
 				</div>
-			<DialogFooter>
-				<Button variant="outline" onClick={handleCancel} disabled={isPending}>
-					{t("common.cancel")}
-				</Button>
-				<Button onClick={handleCreate} disabled={isPending}>
-					{isPending ? (
-						<>
-							<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-							{t("common.saving")}
-						</>
-					) : (
-						t("desktop.build")
-					)}
-				</Button>
-			</DialogFooter>
+				<DialogFooter>
+					<Button variant="outline" onClick={handleCancel} disabled={isPending}>
+						{t("common.cancel")}
+					</Button>
+					<Button onClick={handleCreate} disabled={isPending}>
+						{isPending ? (
+							<>
+								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+								{t("common.saving")}
+							</>
+						) : (
+							t("desktop.build")
+						)}
+					</Button>
+				</DialogFooter>
 			</DialogContent>
 		</Dialog>
 	);

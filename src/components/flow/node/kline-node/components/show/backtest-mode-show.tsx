@@ -1,9 +1,9 @@
 import type React from "react";
+import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import type { KlineNodeBacktestConfig } from "@/types/node/kline-node";
 import { SymbolItem } from "./kline-config-show-item";
-import { useTranslation } from "react-i18next";
 
 interface BacktestModeShowProps {
 	handleColor: string;
@@ -29,7 +29,9 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 						<Label className="text-xm font-bold text-muted-foreground">
 							{t("klineNode.symbol")}
 						</Label>
-						<span className="text-sm text-red-500">{t("klineNode.noSymbol")}</span>
+						<span className="text-sm text-red-500">
+							{t("klineNode.noSymbol")}
+						</span>
 					</div>
 				) : (
 					<div>
@@ -61,7 +63,9 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 						<Label className="text-xm font-bold text-muted-foreground">
 							{t("klineNode.dataSource")}
 						</Label>
-						<span className="text-sm text-red-500">{t("klineNode.noDataSource")}</span>
+						<span className="text-sm text-red-500">
+							{t("klineNode.noDataSource")}
+						</span>
 					</div>
 				) : (
 					<div>
@@ -83,7 +87,9 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 						<Label className="text-xm font-bold text-muted-foreground">
 							{t("klineNode.timeRange")}
 						</Label>
-						<span className="text-sm text-red-500">{t("klineNode.noTimeRange")}</span>
+						<span className="text-sm text-red-500">
+							{t("klineNode.noTimeRange")}
+						</span>
 					</div>
 				) : (
 					<div>
@@ -92,7 +98,9 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 						</Label>
 						<div className="flex flex-col gap-1 text-sm bg-gray-100 p-2 rounded-md mt-2">
 							<div className="flex items-center gap-2">
-								<span className="text-gray-600">{t("klineNode.startTime")}:</span>
+								<span className="text-gray-600">
+									{t("klineNode.startTime")}:
+								</span>
 								<span className="font-medium">{localTimeRange.startDate}</span>
 							</div>
 							<div className="flex items-center gap-2">

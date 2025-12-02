@@ -10,7 +10,6 @@ export enum LogLevel {
 	TRACE = "Trace",
 }
 
-
 export type BaseEventProps = {
 	channel: string;
 	event: string;

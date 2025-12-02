@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { SelectInDialog } from "@/components/dialog-components/select-in-dialog";
+import { generateStringHint } from "@/components/flow/node/variable-node/hint-generators";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Input } from "@/components/ui/input";
 import type {
@@ -11,7 +12,6 @@ import {
 	getEffectiveTriggerType,
 	getTimerTriggerConfig,
 } from "@/types/node/variable-node";
-import { generateStringHint } from "@/components/flow/node/variable-node/hint-generators";
 
 interface StringTypeOpEditorProps {
 	updateOperationType: UpdateVarValueOperation;

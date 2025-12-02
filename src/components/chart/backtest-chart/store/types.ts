@@ -12,8 +12,8 @@ import type { Subscription } from "rxjs";
 import type { StateCreator } from "zustand";
 import type {
 	ChartId,
-	OrderPriceLine,
 	OrderMarker,
+	OrderPriceLine,
 	PositionPriceLine,
 } from "@/types/chart";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
@@ -186,8 +186,16 @@ export interface EventHandlerSlice {
 
 // ==================== Data Initialization Slice Types ====================
 export interface DataInitializationSlice {
-	initChartData: (datetime: string, circleId: number, strategyId: number) => Promise<void>;
-	initKlineData: (datetime: string, circleId: number, strategyId: number) => Promise<void>;
+	initChartData: (
+		datetime: string,
+		circleId: number,
+		strategyId: number,
+	) => Promise<void>;
+	initKlineData: (
+		datetime: string,
+		circleId: number,
+		strategyId: number,
+	) => Promise<void>;
 	initIndicatorData: (
 		strategyId: number,
 		indicatorKeyStr: IndicatorKeyStr,

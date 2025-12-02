@@ -11,21 +11,25 @@ export enum IndicatorCategory {
 	CUSTOM = "Custom",
 }
 
-export const IndicatorCategoryDisplayNames: Record<IndicatorCategory, string> = {
-	[IndicatorCategory.OVERLAP]: "indicator.category.overlap",
-	[IndicatorCategory.MOMENTUM]: "indicator.category.momentum",
-	[IndicatorCategory.VOLATILITY]: "indicator.category.volatility",
-	[IndicatorCategory.VOLUME]: "indicator.category.volume",
-	[IndicatorCategory.PRICE_TRANSFORM]: "indicator.category.priceTransform",
-	[IndicatorCategory.CYCLE]: "indicator.category.cycle",
-	[IndicatorCategory.PATTERN_RECOGNITION]: "indicator.category.patternRecognition",
-	[IndicatorCategory.CUSTOM]: "indicator.category.custom",
-};
+export const IndicatorCategoryDisplayNames: Record<IndicatorCategory, string> =
+	{
+		[IndicatorCategory.OVERLAP]: "indicator.category.overlap",
+		[IndicatorCategory.MOMENTUM]: "indicator.category.momentum",
+		[IndicatorCategory.VOLATILITY]: "indicator.category.volatility",
+		[IndicatorCategory.VOLUME]: "indicator.category.volume",
+		[IndicatorCategory.PRICE_TRANSFORM]: "indicator.category.priceTransform",
+		[IndicatorCategory.CYCLE]: "indicator.category.cycle",
+		[IndicatorCategory.PATTERN_RECOGNITION]:
+			"indicator.category.patternRecognition",
+		[IndicatorCategory.CUSTOM]: "indicator.category.custom",
+	};
 
-export const getIndicatorCategoryDisplayName = (category: IndicatorCategory, t: TFunction) => {
+export const getIndicatorCategoryDisplayName = (
+	category: IndicatorCategory,
+	t: TFunction,
+) => {
 	return t(IndicatorCategoryDisplayNames[category]);
 };
-
 
 export enum MAType {
 	SMA = "SMA",
@@ -190,7 +194,10 @@ export enum PriceSource {
 	LOW = "LOW",
 }
 
-export const getPriceSourceDisplayName = (priceSource: PriceSource, t: TFunction) => {
+export const getPriceSourceDisplayName = (
+	priceSource: PriceSource,
+	t: TFunction,
+) => {
 	const priceSourceLabel = {
 		[PriceSource.CLOSE]: "market.klineValueField.close",
 		[PriceSource.OPEN]: "market.klineValueField.open",

@@ -10,8 +10,8 @@ import {
 } from "@/service/backtest-strategy";
 import { getStrategyDataApi } from "@/service/backtest-strategy/get-strategy-data";
 import type {
-	OrderPriceLine,
 	OrderMarker,
+	OrderPriceLine,
 	PositionPriceLine,
 } from "@/types/chart";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
@@ -25,7 +25,7 @@ import {
 	getChartAlignedUtcTimestamp,
 	virtualOrderToLimitOrderPriceLine,
 	virtualOrderToMarker,
-	virtualPositionToOpenPositionPriceLine
+	virtualPositionToOpenPositionPriceLine,
 } from "../utls";
 import type { DataInitializationSlice, SliceCreator } from "./types";
 
@@ -155,33 +155,34 @@ export const createDataInitializationSlice =
 			}
 		},
 
-		initChartData: async (datetime: string, circleId: number, strategyId: number) => {
+		initChartData: async (
+			datetime: string,
+			circleId: number,
+			strategyId: number,
+		) => {
 			const state = get();
 			if (circleId === 0) {
 				return;
-
 			}
 			// 使用 Promise.all 等待所有异步操作完成
-			const promises = state
-				.getKeyStr()
-				.map(async (keyStr: KeyStr) => {
-					try {
-						const key = parseKey(keyStr);
+			const promises = state.getKeyStr().map(async (keyStr: KeyStr) => {
+				try {
+					const key = parseKey(keyStr);
 
-						if (key.type === "kline") {
-							await state._processKlineData(strategyId, keyStr, datetime);
-						} else if (key.type === "indicator") {
-							return await state._processIndicatorData(
-								strategyId,
-								keyStr,
-								datetime,
-							);
-						}
-					} catch (error) {
-						console.error(`Error loading data for keyStr: ${keyStr}`, error);
-						return null;
+					if (key.type === "kline") {
+						await state._processKlineData(strategyId, keyStr, datetime);
+					} else if (key.type === "indicator") {
+						return await state._processIndicatorData(
+							strategyId,
+							keyStr,
+							datetime,
+						);
 					}
-				});
+				} catch (error) {
+					console.error(`Error loading data for keyStr: ${keyStr}`, error);
+					return null;
+				}
+			});
 
 			await state.initVirtualOrderData(strategyId);
 			await state.initVirtualPositionData(strategyId);
@@ -189,10 +190,13 @@ export const createDataInitializationSlice =
 			await Promise.all(promises);
 			// 标记数据已初始化
 			state.setIsDataInitialized(true);
-
 		},
 
-		initKlineData: async (datetime: string, circleId: number, strategyId: number) => {
+		initKlineData: async (
+			datetime: string,
+			circleId: number,
+			strategyId: number,
+		) => {
 			if (circleId === 0) {
 				return;
 			}
@@ -213,7 +217,7 @@ export const createDataInitializationSlice =
 				return;
 			}
 			const state = get();
-			
+
 			try {
 				const key = parseKey(indicatorKeyStr);
 
@@ -233,7 +237,6 @@ export const createDataInitializationSlice =
 					error,
 				);
 			}
-			
 		},
 
 		initVirtualOrderData: async (strategyId: number) => {

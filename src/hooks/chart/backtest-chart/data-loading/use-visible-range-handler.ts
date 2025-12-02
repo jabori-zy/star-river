@@ -3,8 +3,8 @@ import { useEffect } from "react";
 import { useBacktestChartStore } from "@/components/chart/backtest-chart/backtest-chart-store";
 import { getDateTimeFromChartTimestamp } from "@/components/chart/backtest-chart/utls";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
-import { useKlineDataLoader } from "./use-kline-data-loader";
 import { useIndicatorDataLoader } from "./use-indicator-data-loader";
+import { useKlineDataLoader } from "./use-kline-data-loader";
 
 interface UseVisibleRangeHandlerProps {
 	strategyId: number;

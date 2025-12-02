@@ -1,21 +1,24 @@
 import { type NodeProps, Position } from "@xyflow/react";
+import { memo } from "react";
 import type { BaseHandleProps } from "@/components/flow/base/BaseHandle";
 import BaseNode from "@/components/flow/base/BaseNode";
+import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 import useTradingModeStore from "@/store/use-trading-mode-store";
 import {
+	getNodeDefaultColor,
 	getNodeDefaultInputHandleId,
 	getNodeDefaultOutputHandleId,
 	getNodeIconName,
-	getNodeDefaultColor,
 	NodeType,
 } from "@/types/node/index";
-import type { VariableNode as VariableNodeType, VariableNodeData } from "@/types/node/variable-node";
+import type {
+	VariableNodeData,
+	VariableNode as VariableNodeType,
+} from "@/types/node/variable-node";
 import { TradeMode } from "@/types/strategy";
 import BacktestModeShow from "./components/node-show/backtest-mode-show";
 import LiveModeShow from "./components/node-show/live-mode-show";
 import SimulateModeShow from "./components/node-show/simulate-mode-show";
-import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
-import { memo } from "react";
 
 const VariableNode: React.FC<NodeProps<VariableNodeType>> = ({
 	id,
@@ -24,10 +27,18 @@ const VariableNode: React.FC<NodeProps<VariableNodeType>> = ({
 	const { getNodeData } = useStrategyWorkflow();
 	const variableNodeData = getNodeData(id) as VariableNodeData;
 	const nodeName = variableNodeData.nodeName || "变量节点";
-	const handleColor = variableNodeData?.nodeConfig?.handleColor || getNodeDefaultColor(NodeType.VariableNode);
-	const iconName = variableNodeData?.nodeConfig?.iconName || getNodeIconName(NodeType.VariableNode);
-	const iconBackgroundColor = variableNodeData?.nodeConfig?.iconBackgroundColor || getNodeDefaultColor(NodeType.VariableNode);
-	const borderColor = variableNodeData?.nodeConfig?.borderColor || getNodeDefaultColor(NodeType.VariableNode);
+	const handleColor =
+		variableNodeData?.nodeConfig?.handleColor ||
+		getNodeDefaultColor(NodeType.VariableNode);
+	const iconName =
+		variableNodeData?.nodeConfig?.iconName ||
+		getNodeIconName(NodeType.VariableNode);
+	const iconBackgroundColor =
+		variableNodeData?.nodeConfig?.iconBackgroundColor ||
+		getNodeDefaultColor(NodeType.VariableNode);
+	const borderColor =
+		variableNodeData?.nodeConfig?.borderColor ||
+		getNodeDefaultColor(NodeType.VariableNode);
 	// 获取当前的交易模式
 	const { tradingMode } = useTradingModeStore();
 
@@ -39,7 +50,13 @@ const VariableNode: React.FC<NodeProps<VariableNodeType>> = ({
 			case TradeMode.SIMULATE:
 				return <SimulateModeShow id={id} data={variableNodeData} />;
 			case TradeMode.BACKTEST:
-				return <BacktestModeShow id={id} data={variableNodeData} handleColor={handleColor} />;
+				return (
+					<BacktestModeShow
+						id={id}
+						data={variableNodeData}
+						handleColor={handleColor}
+					/>
+				);
 		}
 	};
 

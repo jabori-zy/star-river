@@ -1,17 +1,17 @@
 import type { Node } from "@xyflow/react";
+import type { TFunction } from "i18next";
+import { getNodeTypeLabel } from "@/components/flow/node/node-utils";
 import {
 	type ComparisonSymbol,
+	type Constant,
+	getComparisonSymbolLabel,
 	LogicalSymbol,
 	type Variable,
-	type Constant,
 	VarType,
-	getComparisonSymbolLabel,
 } from "@/types/node/if-else-node";
 import { NodeType } from "@/types/node/index";
 import type { IndicatorNodeData } from "@/types/node/indicator-node";
 import type { KlineNodeData } from "@/types/node/kline-node";
-import { getNodeTypeLabel } from "@/components/flow/node/node-utils";
-import type { TFunction } from "i18next";
 import { VariableValueType } from "@/types/variable";
 
 // 获取条件类型的中文标签
@@ -20,7 +20,10 @@ export const getCaseTypeLabel = (caseId: number) => {
 };
 
 // 获取比较符号 - 直接返回符号
-export const getComparisonLabel = (symbol: ComparisonSymbol | null, t: TFunction) => {
+export const getComparisonLabel = (
+	symbol: ComparisonSymbol | null,
+	t: TFunction,
+) => {
 	if (!symbol) return "";
 	return getComparisonSymbolLabel(symbol, t);
 };
@@ -39,7 +42,10 @@ export const getLogicalLabel = (symbol: LogicalSymbol | null) => {
 const formatConstantValue = (constant: Constant): string => {
 	const { varValue } = constant;
 
-	if (constant.varValueType === VariableValueType.ENUM && Array.isArray(varValue)) {
+	if (
+		constant.varValueType === VariableValueType.ENUM &&
+		Array.isArray(varValue)
+	) {
 		if (varValue.length === 0) {
 			return "[]";
 		}
@@ -49,11 +55,9 @@ const formatConstantValue = (constant: Constant): string => {
 			return `${displayValues.join(", ")}...`;
 		}
 		return varValue.join(", ");
-	}
-	else if (constant.varValueType === VariableValueType.PERCENTAGE) {
+	} else if (constant.varValueType === VariableValueType.PERCENTAGE) {
 		return `${varValue}%`;
-	}
-	else {
+	} else {
 		return String(varValue);
 	}
 };
@@ -109,7 +113,8 @@ export const getIndicatorNodeVariableLabel = (
 ) => {
 	const indicatorNode = nodes.find((node) => node.id === variable.nodeId);
 	const indicatorNodeData = indicatorNode?.data as IndicatorNodeData;
-	const selectedIndicators = indicatorNodeData.backtestConfig?.exchangeModeConfig?.selectedIndicators;
+	const selectedIndicators =
+		indicatorNodeData.backtestConfig?.exchangeModeConfig?.selectedIndicators;
 	const selectedIndicator = selectedIndicators?.find(
 		(indicator) => indicator.configId === variable.varConfigId,
 	);
@@ -126,23 +131,22 @@ export const getVariableNodeVariableLable = (
 	return `${variable.varDisplayName}`;
 };
 
-
 // 获取变量的 Tooltip 文本
 export const getVariableTooltipLabel = (
 	variable: Variable | Constant | null,
 	t: (key: string) => string,
 ) => {
 	if (!variable) return t("ifElseNode.notSet");
-	
+
 	if (variable.varType === VarType.constant) {
 		const formattedValue = formatConstantValue(variable as Constant);
 		return formattedValue === "" ? t("ifElseNode.notSet") : formattedValue;
 	}
-	
+
 	if (variable.nodeName && variable.varConfigId) {
 		const typeLabel = getNodeTypeLabel(variable.nodeType, t);
 		return `${variable.nodeName}-${typeLabel}${variable.varConfigId}`;
 	}
-	
+
 	return t("ifElseNode.notSet");
 };

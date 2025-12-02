@@ -1,4 +1,5 @@
 import { AlertCircle, Loader2, PlusCircle, Save } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import type { LayoutMode } from "@/types/chart";
@@ -24,6 +25,7 @@ const ChartManageButton = ({
 	strategyChartConfig,
 	updateLayout,
 }: ChartManageButtonProps) => {
+	const { t } = useTranslation();
 	// 处理添加图表
 	const handleAddChart = () => {
 		if (strategyChartConfig.charts.length === 0) {
@@ -60,7 +62,9 @@ const ChartManageButton = ({
 				onClick={handleAddChart}
 			>
 				<PlusCircle className="h-4 w-4 flex-shrink-0" />
-				<span className="hidden lg:inline">添加图表</span>
+				<span className="hidden lg:inline">
+					{t("desktop.backtestPage.addChart")}
+				</span>
 			</Button>
 			<Button variant="default" onClick={saveChartConfig} disabled={isSaving}>
 				{isSaving ? (
@@ -69,7 +73,7 @@ const ChartManageButton = ({
 					<Save className="w-4 h-4 flex-shrink-0" />
 				)}
 				<span className="hidden lg:inline">
-					{isSaving ? "保存中..." : "保存图表"}
+					{isSaving ? t("common.saving") : t("desktop.backtestPage.saveChart")}
 				</span>
 			</Button>
 		</div>

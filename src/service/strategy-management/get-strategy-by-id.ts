@@ -1,8 +1,9 @@
-import axios, { type AxiosError } from "axios";
 import { useQuery } from "@tanstack/react-query";
+import axios, { type AxiosError } from "axios";
+import { API_BASE_URL, ApiError, type ApiResponse } from "@/service/index";
 import type { Strategy } from "@/types/strategy";
-import { API_BASE_URL, type ApiResponse, ApiError } from "@/service/index";
 import { strategyKeys } from "./query-keys";
+
 const API_VERSION = "api/v1";
 const ROUTER = "strategy";
 const API_URL = `${API_BASE_URL}/${API_VERSION}/${ROUTER}`;
@@ -56,7 +57,6 @@ function transformToStrategy(data: Record<string, unknown>): Strategy {
 export async function getStrategyByIdApi(
 	strategyId: number,
 ): Promise<Strategy> {
-
 	try {
 		// Step 2: Send GET request
 		const response = await axios.get<ApiResponse<Record<string, unknown>>>(
@@ -180,4 +180,3 @@ export function useGetStrategyById(
 		gcTime,
 	});
 }
-

@@ -1,6 +1,7 @@
 import React from "react";
 import AccountSelector from "@/components/flow/account-selector";
 import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
+import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 import { useBacktestConfig } from "@/hooks/node-config/variable-node";
 import type { VariableConfig } from "@/types/node/variable-node";
 import {
@@ -9,11 +10,8 @@ import {
 	TradeMode,
 } from "@/types/strategy";
 import VariableSetting from "../components/variable-setting";
-import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 
-const VariableNodeBacktestSettingPanel: React.FC<SettingProps> = ({
-	id,
-}) => {
+const VariableNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id }) => {
 	// ✅ 使用新版本 hook 管理回测配置
 	const {
 		backtestConfig,
@@ -25,7 +23,8 @@ const VariableNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	// 获取开始节点数据
 	const { getStartNodeData } = useStrategyWorkflow();
 	const startNodeData = getStartNodeData();
-	const accountList = startNodeData?.backtestConfig?.exchangeModeConfig?.selectedAccounts || [];
+	const accountList =
+		startNodeData?.backtestConfig?.exchangeModeConfig?.selectedAccounts || [];
 
 	// 初始化默认配置
 	React.useEffect(() => {

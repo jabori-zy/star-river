@@ -1,8 +1,14 @@
-import axios, { type AxiosError } from "axios";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import axios, { type AxiosError } from "axios";
+import {
+	API_BASE_URL,
+	ApiError,
+	type ApiResponse,
+	type MutationMeta,
+} from "@/service/index";
 import type { Strategy } from "@/types/strategy";
-import { API_BASE_URL, type ApiResponse, ApiError, type MutationMeta } from "@/service/index";
 import { strategyKeys } from "./query-keys";
+
 const API_VERSION = "api/v1";
 const ROUTER = "strategy";
 const API_URL = `${API_BASE_URL}/${API_VERSION}/${ROUTER}`;
@@ -50,15 +56,18 @@ function transformToStrategy(data: Record<string, unknown>): Strategy {
 /**
  * Transform camelCase to snake_case (to match backend API format)
  */
-function transformRequestBody(params: Omit<UpdateStrategyRequest, "strategyId">): Record<string, unknown> {
+function transformRequestBody(
+	params: Omit<UpdateStrategyRequest, "strategyId">,
+): Record<string, unknown> {
 	const body: Record<string, unknown> = {};
-	
+
 	if (params.name !== undefined) body.name = params.name.trim();
-	if (params.description !== undefined) body.description = params.description.trim();
+	if (params.description !== undefined)
+		body.description = params.description.trim();
 	if (params.tradeMode !== undefined) body.trade_mode = params.tradeMode;
 	if (params.nodes !== undefined) body.nodes = params.nodes;
 	if (params.edges !== undefined) body.edges = params.edges;
-	
+
 	return body;
 }
 
@@ -137,8 +146,8 @@ export async function updateStrategyApi(
 
 			// Check if it's a standard error response from backend
 			let message = axiosError.message || "network request failed";
-			let errorCode: string | undefined = undefined;
-			let errorCodeChain: string[] | undefined = undefined;
+			let errorCode: string | undefined;
+			let errorCodeChain: string[] | undefined;
 
 			if (responseData && !responseData.success) {
 				// Use error message from backend

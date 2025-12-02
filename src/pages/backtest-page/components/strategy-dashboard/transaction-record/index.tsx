@@ -11,6 +11,7 @@ import BacktestTransactionTable from "@/components/table/backtest-transaction-ta
 import { createTransactionStream } from "@/hooks/obs/backtest-strategy-event-obs";
 import { getVirtualTransaction } from "@/service/backtest-strategy";
 import type { VirtualTransaction } from "@/types/transaction/virtual-transaction";
+import { TransactionTable } from "@/components/new-table/backtest/transaction-table";
 
 interface TransactionRecordProps {
 	strategyId: number;
@@ -84,9 +85,7 @@ const TransactionRecord = forwardRef<
 
 	return (
 		<div>
-			<BacktestTransactionTable
-				title="交易明细"
-				showTitle={false}
+			<TransactionTable
 				data={transactionData}
 			/>
 		</div>

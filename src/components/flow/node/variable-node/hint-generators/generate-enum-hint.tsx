@@ -1,9 +1,9 @@
 import type { HintGeneratorParams } from "./types";
 import {
-	generateTriggerPrefix,
-	generateVariableHighlight,
-	generateValueHighlight,
 	generateSymbolHighlight,
+	generateTriggerPrefix,
+	generateValueHighlight,
+	generateVariableHighlight,
 } from "./utils";
 
 /**
@@ -160,11 +160,12 @@ function generateClearHint(params: HintGeneratorParams): React.ReactNode {
  * 数据流触发的 Set 操作 - 设置为来源变量的值
  */
 function generateDataflowSetHint(params: HintGeneratorParams): React.ReactNode {
-	const { variableDisplayName, dataflowTrigger,t } = params;
+	const { variableDisplayName, dataflowTrigger, t } = params;
 
 	return (
 		<>
-			{generateVariableHighlight(variableDisplayName)} {t("variableNode.hint.set")} {" "}
+			{generateVariableHighlight(variableDisplayName)}{" "}
+			{t("variableNode.hint.set")}{" "}
 			{generateValueHighlight(dataflowTrigger?.fromVarDisplayName || "")}
 		</>
 	);
@@ -206,8 +207,8 @@ function generateNormalUpdateHint(
 		return (
 			<>
 				{triggerPrefix}
-				{generateVariableHighlight(variableDisplayName)} {t("variableNode.hint.set")} {" "}
-				{generateValueHighlight(displayValue)}
+				{generateVariableHighlight(variableDisplayName)}{" "}
+				{t("variableNode.hint.set")} {generateValueHighlight(displayValue)}
 			</>
 		);
 	}
@@ -217,8 +218,8 @@ function generateNormalUpdateHint(
 		return (
 			<>
 				{triggerPrefix}
-				{generateVariableHighlight(variableDisplayName)} {t("variableNode.hint.append")} {" "}
-				{generateValueHighlight(displayValue)}
+				{generateVariableHighlight(variableDisplayName)}{" "}
+				{t("variableNode.hint.append")} {generateValueHighlight(displayValue)}
 			</>
 		);
 	}
@@ -228,8 +229,8 @@ function generateNormalUpdateHint(
 		return (
 			<>
 				{triggerPrefix}
-				{generateVariableHighlight(variableDisplayName)} {t("variableNode.hint.remove")} {" "}
-				{generateValueHighlight(displayValue)}
+				{generateVariableHighlight(variableDisplayName)}{" "}
+				{t("variableNode.hint.remove")} {generateValueHighlight(displayValue)}
 			</>
 		);
 	}
@@ -270,8 +271,8 @@ function generateResetOperation(params: HintGeneratorParams): React.ReactNode {
 	return (
 		<>
 			{triggerPrefix}
-			{generateVariableHighlight(variableDisplayName)} {t("variableNode.hint.reset")} {" "}
-			{generateValueHighlight(displayValue)}
+			{generateVariableHighlight(variableDisplayName)}{" "}
+			{t("variableNode.hint.reset")} {generateValueHighlight(displayValue)}
 		</>
 	);
 }

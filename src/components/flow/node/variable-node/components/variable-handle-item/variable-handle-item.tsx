@@ -17,11 +17,29 @@ export const VariableHandleItem: React.FC<VariableHandleItemProps> = ({
 }) => {
 	switch (variableConfig.varOperation) {
 		case "get":
-			return <GetVarHandleItem id={id} variableConfig={variableConfig} handleColor={handleColor} 	/>;
+			return (
+				<GetVarHandleItem
+					id={id}
+					variableConfig={variableConfig}
+					handleColor={handleColor}
+				/>
+			);
 		case "reset":
-			return <ResetVarHandleItem id={id} variableConfig={variableConfig} handleColor={handleColor} />;
+			return (
+				<ResetVarHandleItem
+					id={id}
+					variableConfig={variableConfig}
+					handleColor={handleColor}
+				/>
+			);
 		case "update":
-			return <UpdateVarHandleItem id={id} variableConfig={variableConfig} handleColor={handleColor} />;
+			return (
+				<UpdateVarHandleItem
+					id={id}
+					variableConfig={variableConfig}
+					handleColor={handleColor}
+				/>
+			);
 		default:
 			return null;
 	}

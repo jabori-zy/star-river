@@ -1,22 +1,22 @@
+import { Check, Copy, Terminal } from "lucide-react";
 import type React from "react";
-import { useRef, useEffect, useState } from "react";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { formatFullTime } from "@/utils/date-format";
-import { getLogLevelStyle } from "./utils";
-import {
-	isStrategyStateErrorLog,
-	isNodeStateErrorLog,
-	type StrategyStateLogEvent,
-	type NodeStateLogEvent
-} from "@/types/strategy-event/strategy-state-log-event";
-import { Terminal, Check, Copy } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import {
 	Tooltip,
 	TooltipContent,
 	TooltipProvider,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+	isNodeStateErrorLog,
+	isStrategyStateErrorLog,
+	type NodeStateLogEvent,
+	type StrategyStateLogEvent,
+} from "@/types/strategy-event/strategy-state-log-event";
+import { formatFullTime } from "@/utils/date-format";
+import { getLogLevelStyle } from "./utils";
 
 interface LogDisplayProps {
 	logs: (StrategyStateLogEvent | NodeStateLogEvent)[];
@@ -24,14 +24,16 @@ interface LogDisplayProps {
 
 export const LogDisplay: React.FC<LogDisplayProps> = ({ logs }) => {
 	const lastLogRef = useRef<HTMLDivElement>(null);
-	const [copiedStates, setCopiedStates] = useState<{ [key: string]: boolean }>({});
+	const [copiedStates, setCopiedStates] = useState<{ [key: string]: boolean }>(
+		{},
+	);
 
 	// Auto-scroll to latest log
 	useEffect(() => {
 		if (lastLogRef.current) {
 			lastLogRef.current.scrollIntoView({
 				behavior: "smooth",
-				block: "end"
+				block: "end",
 			});
 		}
 	}, [logs]);
@@ -39,7 +41,7 @@ export const LogDisplay: React.FC<LogDisplayProps> = ({ logs }) => {
 	// Copy error details to clipboard
 	const handleCopyError = (
 		log: StrategyStateLogEvent | NodeStateLogEvent,
-		index: number
+		index: number,
 	) => {
 		const logKey = `${log.datetime}-${index}`;
 
@@ -86,7 +88,8 @@ export const LogDisplay: React.FC<LogDisplayProps> = ({ logs }) => {
 								const isLastLog = index === logs.length - 1;
 
 								// Use type guards to check if error log
-								const isErrorLog = isStrategyStateErrorLog(log) || isNodeStateErrorLog(log);
+								const isErrorLog =
+									isStrategyStateErrorLog(log) || isNodeStateErrorLog(log);
 								const errorCode = "errorCode" in log ? log.errorCode : null;
 
 								return (
@@ -134,7 +137,11 @@ export const LogDisplay: React.FC<LogDisplayProps> = ({ logs }) => {
 																</Button>
 															</TooltipTrigger>
 															<TooltipContent>
-																<p>{copiedStates[logKey] ? "Copied" : "Copy Details"}</p>
+																<p>
+																	{copiedStates[logKey]
+																		? "Copied"
+																		: "Copy Details"}
+																</p>
 															</TooltipContent>
 														</Tooltip>
 													</TooltipProvider>

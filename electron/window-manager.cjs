@@ -53,23 +53,27 @@ const createBacktestWindow = (strategyId, strategyName) => {
 	let backtestUrl = strategyId
 		? `http://localhost:5173/backtest/${strategyId}`
 		: "http://localhost:5173/backtest";
-	
+
 	// Add strategyName as query parameter if provided
 	if (strategyName) {
 		backtestUrl += `?strategyName=${encodeURIComponent(strategyName)}`;
 	}
-	
+
 	backtestWindow.loadURL(backtestUrl);
 
 	// Add window to the map if strategyId is provided
 	if (strategyId) {
 		strategyWindows.set(strategyId, backtestWindow);
-		console.log(`Backtest window created and registered: strategyId=${strategyId}`);
+		console.log(
+			`Backtest window created and registered: strategyId=${strategyId}`,
+		);
 
 		// Remove from map when window is closed
 		backtestWindow.on("closed", () => {
 			strategyWindows.delete(strategyId);
-			console.log(`Backtest window closed and cleaned up: strategyId=${strategyId}`);
+			console.log(
+				`Backtest window closed and cleaned up: strategyId=${strategyId}`,
+			);
 		});
 	}
 
@@ -90,7 +94,9 @@ const closeBacktestWindow = (strategyId) => {
 		strategyWindows.delete(strategyId);
 		return true;
 	} else {
-		console.log(`Window not found or already destroyed: strategyId=${strategyId}`);
+		console.log(
+			`Window not found or already destroyed: strategyId=${strategyId}`,
+		);
 		return false;
 	}
 };
@@ -101,13 +107,17 @@ const checkOrOpenBacktestWindow = (strategyId, strategyName) => {
 
 	if (existingWindow && !existingWindow.isDestroyed()) {
 		// Window exists, bring it to front
-		console.log(`Backtest window already exists, bringing to front: strategyId=${strategyId}`);
+		console.log(
+			`Backtest window already exists, bringing to front: strategyId=${strategyId}`,
+		);
 		existingWindow.show();
 		existingWindow.focus();
 		return { created: false, focused: true };
 	} else {
 		// Window does not exist, create a new one
-		console.log(`Backtest window does not exist, creating new window: strategyId=${strategyId}`);
+		console.log(
+			`Backtest window does not exist, creating new window: strategyId=${strategyId}`,
+		);
 		createBacktestWindow(strategyId, strategyName);
 		return { created: true, focused: false };
 	}

@@ -1,7 +1,9 @@
 import { Position } from "@xyflow/react";
-import { TbFileImport } from "react-icons/tb";
 import type React from "react";
+import { useTranslation } from "react-i18next";
+import { TbFileImport } from "react-icons/tb";
 import BaseHandle from "@/components/flow/base/BaseHandle";
+import { getNodeTypeLabel } from "@/components/flow/node/node-utils";
 import { getTriggerTypeInfo } from "@/components/flow/node/variable-node/variable-node-utils";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -9,20 +11,14 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { NodeType } from "@/types/node/index";
+import { getEffectiveTriggerType } from "@/types/node/variable-node";
 import type { GetVariableConfig } from "@/types/node/variable-node/variable-config-types";
-import {
-	getEffectiveTriggerType,
-} from "@/types/node/variable-node";
 import {
 	getVariableValueTypeIcon,
 	getVariableValueTypeIconColor,
 } from "@/types/variable";
-import {
-	generateTriggerConditionText,
-} from "./utils";
-import { getNodeTypeLabel } from "@/components/flow/node/node-utils";
-import { NodeType } from "@/types/node/index";
-import { useTranslation } from "react-i18next";
+import { generateTriggerConditionText } from "./utils";
 
 interface GetVarHandleItemProps {
 	id: string;
@@ -36,7 +32,8 @@ export const GetVarHandleItem: React.FC<GetVarHandleItemProps> = ({
 	handleColor,
 }) => {
 	const { t } = useTranslation();
-	const effectiveTriggerType = getEffectiveTriggerType(variableConfig) ?? "condition";
+	const effectiveTriggerType =
+		getEffectiveTriggerType(variableConfig) ?? "condition";
 
 	const typeInfo = getTriggerTypeInfo(effectiveTriggerType, t);
 	const TriggerIcon = typeInfo.icon;
@@ -44,7 +41,9 @@ export const GetVarHandleItem: React.FC<GetVarHandleItemProps> = ({
 	const triggerConditionText = generateTriggerConditionText(variableConfig, t);
 
 	const VarTypeIcon = getVariableValueTypeIcon(variableConfig.varValueType);
-	const varTypeIconColor = getVariableValueTypeIconColor(variableConfig.varValueType);
+	const varTypeIconColor = getVariableValueTypeIconColor(
+		variableConfig.varValueType,
+	);
 
 	return (
 		<div className="relative">
@@ -64,40 +63,43 @@ export const GetVarHandleItem: React.FC<GetVarHandleItemProps> = ({
 				/>
 			</div>
 
-	<div className="flex items-center justify-between px-2 py-2 bg-gray-100 rounded-md relative">
-		<Tooltip>
-			<TooltipTrigger asChild>
-				<div className="flex flex-col gap-1 flex-1">
-					<div className="flex items-start gap-2 pb-1">
-						<span className="text-sm font-medium break-words">
-							{variableConfig.varDisplayName}
-						</span>
-						<Badge className={`h-5 text-[10px] ${typeInfo.badgeColor} flex-shrink-0`}>
-							<TriggerIcon className="h-3 w-3" />
-							{typeInfo.label}
-						</Badge>
-					</div>
+			<div className="flex items-center justify-between px-2 py-2 bg-gray-100 rounded-md relative">
+				<Tooltip>
+					<TooltipTrigger asChild>
+						<div className="flex flex-col gap-1 flex-1">
+							<div className="flex items-start gap-2 pb-1">
+								<span className="text-sm font-medium break-words">
+									{variableConfig.varDisplayName}
+								</span>
+								<Badge
+									className={`h-5 text-[10px] ${typeInfo.badgeColor} flex-shrink-0`}
+								>
+									<TriggerIcon className="h-3 w-3" />
+									{typeInfo.label}
+								</Badge>
+							</div>
 
-					{triggerConditionText && (
-						<div className="text-xs text-muted-foreground">
-							{triggerConditionText}
+							{triggerConditionText && (
+								<div className="text-xs text-muted-foreground">
+									{triggerConditionText}
+								</div>
+							)}
 						</div>
-					)}
+					</TooltipTrigger>
+					<TooltipContent side="top">
+						<div className="flex items-center gap-1">
+							<VarTypeIcon className={`text-sm ${varTypeIconColor}`} />
+							<p>{variableConfig.varName}</p>
+						</div>
+					</TooltipContent>
+				</Tooltip>
+				<div className="text-xs text-muted-foreground font-bold pl-2">
+					<Badge variant="outline" className="border-gray-400">
+						{getNodeTypeLabel(NodeType.VariableNode, t)}{" "}
+						{variableConfig.configId}
+					</Badge>
 				</div>
-		</TooltipTrigger>
-		<TooltipContent side="top">
-			<div className="flex items-center gap-1">
-				<VarTypeIcon className={`text-sm ${varTypeIconColor}`} />
-				<p>{variableConfig.varName}</p>
 			</div>
-		</TooltipContent>
-	</Tooltip>
-		<div className="text-xs text-muted-foreground font-bold pl-2">
-			<Badge variant="outline" className="border-gray-400">
-				{getNodeTypeLabel(NodeType.VariableNode, t)} {variableConfig.configId}
-			</Badge>
-		</div>
-	</div>
 			<BaseHandle
 				id={`${id}_output_${variableConfig.configId}`}
 				type="source"

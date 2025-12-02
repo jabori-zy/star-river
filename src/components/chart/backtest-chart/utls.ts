@@ -2,9 +2,9 @@ import type { UTCTimestamp } from "lightweight-charts";
 import { LineStyle } from "lightweight-charts";
 import { DateTime } from "luxon";
 import type {
-	OrderPriceLine,
 	OpenPositionPriceLine,
 	OrderMarker,
+	OrderPriceLine,
 	StopLossPriceLine,
 	TakeProfitPriceLine,
 } from "@/types/chart";
@@ -27,19 +27,13 @@ export function virtualOrderToMarker(
 			: `S(${virtualOrder.orderId}) # ${virtualOrder.quantity} @ ${virtualOrder.openPrice}`;
 
 	const color =
-		virtualOrder.orderSide === FuturesOrderSide.LONG
-			? "#14E031"
-			: "#FF0000";
+		virtualOrder.orderSide === FuturesOrderSide.LONG ? "#14E031" : "#FF0000";
 
 	const position =
-		virtualOrder.orderSide === FuturesOrderSide.LONG
-			? "belowBar"
-			: "aboveBar";
+		virtualOrder.orderSide === FuturesOrderSide.LONG ? "belowBar" : "aboveBar";
 
 	const shape =
-		virtualOrder.orderSide === FuturesOrderSide.LONG
-			? "arrowUp"
-			: "arrowDown";
+		virtualOrder.orderSide === FuturesOrderSide.LONG ? "arrowUp" : "arrowDown";
 
 	// 第一行，用于显示操作+量
 	const marker1: OrderMarker = {
@@ -163,9 +157,7 @@ export function virtualOrderToLimitOrderPriceLine(
 		id: `${virtualOrder.orderId.toString()}-limit`,
 		price: virtualOrder.openPrice,
 		color:
-			virtualOrder.orderSide === FuturesOrderSide.LONG
-				? "#00FF00"
-				: "#FF0000",
+			virtualOrder.orderSide === FuturesOrderSide.LONG ? "#00FF00" : "#FF0000",
 		lineWidth: 1,
 		lineStyle: LineStyle.Dashed,
 		axisLabelVisible: true,

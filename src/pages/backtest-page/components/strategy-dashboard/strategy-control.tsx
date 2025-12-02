@@ -1,5 +1,6 @@
 import { ArrowRightToLine, Pause, Play, Square } from "lucide-react";
 import type React from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
 	Tooltip,
@@ -14,6 +15,7 @@ interface StrategyControlProps {
 }
 
 const StrategyControl: React.FC<StrategyControlProps> = ({ onStop }) => {
+	const { t } = useTranslation();
 	// 分别订阅状态，确保组件正确响应变化
 	const isRunning = useBacktestStrategyControlStore((state) => state.isRunning);
 	const isPlayFinished = useBacktestStrategyControlStore(
@@ -39,7 +41,7 @@ const StrategyControl: React.FC<StrategyControlProps> = ({ onStop }) => {
 						</Button>
 					</TooltipTrigger>
 					<TooltipContent>
-						<p>重置回测</p>
+						<p>{t("desktop.backtestPage.reset")}</p>
 					</TooltipContent>
 				</Tooltip>
 				<Tooltip>
@@ -65,7 +67,11 @@ const StrategyControl: React.FC<StrategyControlProps> = ({ onStop }) => {
 						</Button>
 					</TooltipTrigger>
 					<TooltipContent>
-						<p>{isRunning ? "暂停" : "播放"}</p>
+						<p>
+							{isRunning
+								? t("desktop.backtestPage.pause")
+								: t("desktop.backtestPage.play")}
+						</p>
 					</TooltipContent>
 				</Tooltip>
 				<Tooltip>
@@ -79,7 +85,7 @@ const StrategyControl: React.FC<StrategyControlProps> = ({ onStop }) => {
 						</Button>
 					</TooltipTrigger>
 					<TooltipContent>
-						<p>下一根K线</p>
+						<p>{t("desktop.backtestPage.next")}</p>
 					</TooltipContent>
 				</Tooltip>
 			</div>

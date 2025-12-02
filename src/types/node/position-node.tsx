@@ -1,8 +1,8 @@
 import type { Node } from "@xyflow/react";
 import type { TFunction } from "i18next";
+import type { ConditionTrigger } from "@/types/condition-trigger";
 import type { SelectedAccount } from "@/types/strategy";
 import type { NodeDataBase } from ".";
-import type { ConditionTrigger } from "@/types/condition-trigger";
 // 仓位操作类型
 export enum PositionOperation {
 	CloseAllPositions = "CloseAllPositions", // 全部平仓
@@ -16,22 +16,26 @@ export const getPositionOperationLabel = (
 	t: TFunction,
 ): string => {
 	const labels: Record<PositionOperation, string> = {
-		[PositionOperation.CloseAllPositions]: t("positionNode.operation.closeAllPositions"),
-		[PositionOperation.CLOSE_POSITION]: t("positionNode.operation.closePosition"),
+		[PositionOperation.CloseAllPositions]: t(
+			"positionNode.operation.closeAllPositions",
+		),
+		[PositionOperation.CLOSE_POSITION]: t(
+			"positionNode.operation.closePosition",
+		),
 		// [PositionOperation.PARTIALLY_CLOSE_POSITION]: t("positionNode.operation.partiallyClosePosition"),
 	};
 	return labels[operation];
 };
 
-
 export interface PositionOperationMetadata {
 	label: string;
 	description: string;
 	shouldSelectSymbol: boolean;
-
 }
 
-export const getPositionOperationMetadataMap = (t: TFunction): Record<PositionOperation, PositionOperationMetadata> => ({
+export const getPositionOperationMetadataMap = (
+	t: TFunction,
+): Record<PositionOperation, PositionOperationMetadata> => ({
 	[PositionOperation.CloseAllPositions]: {
 		label: getPositionOperationLabel(PositionOperation.CloseAllPositions, t),
 		description: t("positionNode.operation.closeAllPositionsDescription"),
@@ -49,23 +53,12 @@ export const getPositionOperationMetadataMap = (t: TFunction): Record<PositionOp
 	// },
 });
 
-export const shouldSelectSymbol = (operation: PositionOperation, t: TFunction): boolean => {
+export const shouldSelectSymbol = (
+	operation: PositionOperation,
+	t: TFunction,
+): boolean => {
 	return getPositionOperationMetadataMap(t)[operation].shouldSelectSymbol;
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // 仓位操作配置
 export type PositionOperationConfig = {
@@ -102,7 +95,4 @@ export type PositionNodeData = NodeDataBase & {
 	backtestConfig?: PositionBacktestConfig;
 };
 
-export type PositionNode = Node<
-	PositionNodeData,
-	"positionNode"
->;
+export type PositionNode = Node<PositionNodeData, "positionNode">;

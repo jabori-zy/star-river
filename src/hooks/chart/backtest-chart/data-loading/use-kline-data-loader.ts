@@ -3,7 +3,7 @@ import { useCallback } from "react";
 import { useBacktestChartStore } from "@/components/chart/backtest-chart/backtest-chart-store";
 import { getChartAlignedUtcTimestamp } from "@/components/chart/backtest-chart/utls";
 import { getStrategyDataApi } from "@/service/backtest-strategy/get-strategy-data";
-import { Kline } from "@/types/kline";
+import type { Kline } from "@/types/kline";
 
 interface UseKlineDataLoaderProps {
 	strategyId: number;
@@ -52,9 +52,7 @@ export const useKlineDataLoader = ({
 
 				const partialKlineData: CandlestickData[] = trimmedData.map(
 					(kline) => ({
-						time: getChartAlignedUtcTimestamp(
-							kline.datetime,
-						) as UTCTimestamp,
+						time: getChartAlignedUtcTimestamp(kline.datetime) as UTCTimestamp,
 						open: kline.open,
 						high: kline.high,
 						low: kline.low,

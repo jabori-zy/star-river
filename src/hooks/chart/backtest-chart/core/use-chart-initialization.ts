@@ -9,8 +9,8 @@ import type {
 import { createChart, createSeriesMarkers } from "lightweight-charts";
 import { useCallback } from "react";
 import { useBacktestChartStore } from "@/components/chart/backtest-chart/backtest-chart-store";
-import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import type { IndicatorChartConfig } from "@/types/chart";
+import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import { addIndicatorSeries, addKlineSeries } from "../utils/add-chart-series";
 
 interface UseChartInitializationProps {

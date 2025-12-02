@@ -1,10 +1,10 @@
 import type { HintGeneratorParams } from "./types";
 import {
-	generateTriggerPrefix,
-	generateVariableHighlight,
-	generateValueHighlight,
-	generateSymbolHighlight,
 	generateDataflowPath,
+	generateSymbolHighlight,
+	generateTriggerPrefix,
+	generateValueHighlight,
+	generateVariableHighlight,
 } from "./utils";
 
 /**
@@ -99,9 +99,8 @@ function generateGetOperation(params: HintGeneratorParams): React.ReactNode {
 	if (formattedValue) {
 		return (
 			<>
-				{triggerPrefix}{" "}
-				{generateVariableHighlight(variableDisplayName)} 当前值为{" "}
-				{generateValueHighlight(formattedValue)}
+				{triggerPrefix} {generateVariableHighlight(variableDisplayName)}{" "}
+				当前值为 {generateValueHighlight(formattedValue)}
 			</>
 		);
 	}
@@ -279,8 +278,8 @@ function generateNormalUpdateHint(
 		return (
 			<>
 				{triggerPrefix}
-				{generateVariableHighlight(variableDisplayName)} {t("variableNode.hint.set")} {" "}
-				{generateValueHighlight(formattedValue)}
+				{generateVariableHighlight(variableDisplayName)}{" "}
+				{t("variableNode.hint.set")} {generateValueHighlight(formattedValue)}
 			</>
 		);
 	}
@@ -290,8 +289,8 @@ function generateNormalUpdateHint(
 		return (
 			<>
 				{triggerPrefix}
-				{generateVariableHighlight(variableDisplayName)} {t("variableNode.hint.add")} {" "}
-				{generateValueHighlight(formattedValue)}
+				{generateVariableHighlight(variableDisplayName)}{" "}
+				{t("variableNode.hint.add")} {generateValueHighlight(formattedValue)}
 			</>
 		);
 	}
@@ -301,7 +300,8 @@ function generateNormalUpdateHint(
 		return (
 			<>
 				{triggerPrefix}
-				{generateVariableHighlight(variableDisplayName)} {t("variableNode.hint.subtract")} {" "}
+				{generateVariableHighlight(variableDisplayName)}{" "}
+				{t("variableNode.hint.subtract")}{" "}
 				{generateValueHighlight(formattedValue)}
 			</>
 		);
@@ -312,7 +312,8 @@ function generateNormalUpdateHint(
 		return (
 			<>
 				{triggerPrefix}
-				{generateVariableHighlight(variableDisplayName)} {t("variableNode.hint.multiply")} {" "}
+				{generateVariableHighlight(variableDisplayName)}{" "}
+				{t("variableNode.hint.multiply")}{" "}
 				{generateValueHighlight(formattedValue)}
 			</>
 		);
@@ -323,8 +324,8 @@ function generateNormalUpdateHint(
 		return (
 			<>
 				{triggerPrefix}
-				{generateVariableHighlight(variableDisplayName)} {t("variableNode.hint.divide")} {" "}
-				{generateValueHighlight(formattedValue)}
+				{generateVariableHighlight(variableDisplayName)}{" "}
+				{t("variableNode.hint.divide")} {generateValueHighlight(formattedValue)}
 			</>
 		);
 	}

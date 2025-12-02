@@ -1,30 +1,20 @@
-import {
-	Card,
-	CardContent,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card"
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableRow,
-} from "@/components/ui/table"
-import type { Duration } from "@/types/strategy/strategy-benchmark"
-import { formatDuration } from "@/types/strategy/strategy-benchmark"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
+import type { Duration } from "@/types/strategy/strategy-benchmark";
+import { formatDuration } from "@/types/strategy/strategy-benchmark";
 
 interface StrategyPerformanceTableProps {
-	hasData: boolean
-	avgDuration?: Duration
-	p25?: Duration
-	p75?: Duration
-	p50?: Duration
-	p95?: Duration
-	p99?: Duration
-	recentAvg100?: Duration
-	stdDeviation?: Duration
-	minDuration?: Duration
-	maxDuration?: Duration
+	hasData: boolean;
+	avgDuration?: Duration;
+	p25?: Duration;
+	p75?: Duration;
+	p50?: Duration;
+	p95?: Duration;
+	p99?: Duration;
+	recentAvg100?: Duration;
+	stdDeviation?: Duration;
+	minDuration?: Duration;
+	maxDuration?: Duration;
 }
 
 export default function StrategyPerformanceTable({
@@ -104,7 +94,9 @@ export default function StrategyPerformanceTable({
 									</TableCell>
 								</TableRow>
 								<TableRow>
-									<TableCell className="font-medium text-xs">Recent(100)</TableCell>
+									<TableCell className="font-medium text-xs">
+										Recent(100)
+									</TableCell>
 									<TableCell className="text-right text-xs py-1.5">
 										{recentAvg100 ? formatDuration(recentAvg100) : "N/A"}
 									</TableCell>
@@ -120,10 +112,11 @@ export default function StrategyPerformanceTable({
 					</div>
 				) : (
 					<p className="text-muted-foreground text-center text-xs py-3">
-						No data available yet. Start the strategy to collect performance metrics.
+						No data available yet. Start the strategy to collect performance
+						metrics.
 					</p>
 				)}
 			</CardContent>
 		</Card>
-	)
+	);
 }

@@ -13,9 +13,9 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 import { ComparisonSymbol } from "@/types/node/if-else-node";
 import { VariableValueType } from "@/types/variable";
-import { cn } from "@/lib/utils";
 
 interface ConstantInputProps {
 	className?: string;
@@ -194,12 +194,12 @@ const ConstantInput: React.FC<ConstantInputProps> = ({
 		case VariableValueType.BOOLEAN:
 			return (
 				<Select
-					value={
-						typeof value === "boolean" ? value.toString() : "true"
-					}
+					value={typeof value === "boolean" ? value.toString() : "true"}
 					onValueChange={(val) => onValueChange(val === "true")}
 				>
-					<SelectTrigger className={`${className} h-8 text-xs font-normal hover:bg-gray-200`}>
+					<SelectTrigger
+						className={`${className} h-8 text-xs font-normal hover:bg-gray-200`}
+					>
 						<SelectValue placeholder="选择布尔值" />
 					</SelectTrigger>
 					<SelectContent>
@@ -209,13 +209,13 @@ const ConstantInput: React.FC<ConstantInputProps> = ({
 				</Select>
 			);
 
-	case VariableValueType.TIME: {
-		const dateValue =
-			typeof value === "string" ? parseDatetime(value) : undefined;
+		case VariableValueType.TIME: {
+			const dateValue =
+				typeof value === "string" ? parseDatetime(value) : undefined;
 
-		return (
-			<div className={className}>
-				<style>{`
+			return (
+				<div className={className}>
+					<style>{`
 					/* 覆盖时间选择器按钮样式 */
 					.time-picker-override button {
 						background-color: transparent !important;
@@ -228,16 +228,16 @@ const ConstantInput: React.FC<ConstantInputProps> = ({
 						background-color: rgb(229 231 235) !important;
 					}
 				`}</style>
-				<div className="time-picker-override">
-					<DateTimePicker24h
-						value={dateValue}
-						onChange={handleTimeChange}
-						showSeconds={true}
-					/>
+					<div className="time-picker-override">
+						<DateTimePicker24h
+							value={dateValue}
+							onChange={handleTimeChange}
+							showSeconds={true}
+						/>
+					</div>
 				</div>
-			</div>
-		);
-	}
+			);
+		}
 
 		case VariableValueType.ENUM:
 			return (

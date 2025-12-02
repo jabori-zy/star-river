@@ -1,9 +1,9 @@
-import { useMemo } from "react";
 import type { TFunction } from "i18next";
+import { useMemo } from "react";
 import type {
 	GetVariableConfig,
-	UpdateVariableConfig,
 	ResetVariableConfig,
+	UpdateVariableConfig,
 } from "@/types/node/variable-node";
 import {
 	getConditionTriggerConfig,
@@ -43,7 +43,8 @@ export const validateBaseConfig = (
 
 	// 1. 检查变量是否必填
 	if (!config.varName) {
-		errors.variable = options.t("variableNode.variableRequired") || "请选择变量";
+		errors.variable =
+			options.t("variableNode.variableRequired") || "请选择变量";
 		return errors; // 早期返回，避免后续检查
 	}
 
@@ -134,11 +135,7 @@ export const useValidateGetConfig = (
 ): ValidationErrors & { hasError: boolean } => {
 	return useMemo(() => {
 		const errors = validateGetConfig(config, options);
-		const hasError = !!(
-			errors.variable ||
-			errors.symbol ||
-			errors.triggerCase
-		);
+		const hasError = !!(errors.variable || errors.symbol || errors.triggerCase);
 		return { ...errors, hasError };
 	}, [
 		config.varName,

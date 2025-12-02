@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import ConfirmBox from "@/components/confirm-box";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,7 @@ export default function SymbolListDialog({
 	selectedKlineCacheKeyStr,
 	onKlineSelect,
 }: SymbolListDialogProps) {
+	const { t } = useTranslation();
 	const [klineOptions, setKlineOptions] = useState<
 		{ key: string; data: KlineKey }[]
 	>([]);
@@ -91,7 +93,7 @@ export default function SymbolListDialog({
 		<Dialog open={open} onOpenChange={onOpenChange} modal={false}>
 			<DialogContent className="sm:max-w-[500px]">
 				<DialogHeader>
-					<DialogTitle>选择K线</DialogTitle>
+					<DialogTitle>{t("desktop.backtestPage.selectKline")}</DialogTitle>
 				</DialogHeader>
 				<DialogDescription />
 				<div className="grid gap-4 py-4">

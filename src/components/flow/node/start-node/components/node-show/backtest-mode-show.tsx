@@ -7,6 +7,7 @@ import {
 	Wallet,
 } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import {
 	Collapsible,
@@ -27,7 +28,6 @@ import {
 	getVariableValueTypeIconColor,
 } from "@/types/variable";
 import { formatVariableValue } from "../utils";
-import { useTranslation } from "react-i18next";
 
 interface BacktestModeShowProps {
 	backtestConfig: StrategyBacktestConfig;
@@ -86,7 +86,9 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 							<div className="flex items-center justify-between gap-2 rounded-md ">
 								<div className="flex items-center gap-2">
 									<Wallet className="w-4 h-4 text-blue-500" />
-									<span className="text-sm">{t("startNode.initialBalance")}: </span>
+									<span className="text-sm">
+										{t("startNode.initialBalance")}:{" "}
+									</span>
 								</div>
 								<span className="text-sm  font-bold">
 									{backtestConfig.initialBalance}
@@ -141,13 +143,17 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 							<div className="flex flex-col gap-2 bg-gray-100 rounded-md p-2">
 								<div className="flex flex-col gap-1 text-sm">
 									<div className="flex items-center gap-2">
-										<span className="text-gray-600">{t("startNode.startTime")}:</span>
+										<span className="text-gray-600">
+											{t("startNode.startTime")}:
+										</span>
 										<span className="font-medium">
 											{backtestConfig.exchangeModeConfig.timeRange.startDate}
 										</span>
 									</div>
 									<div className="flex items-center gap-2">
-										<span className="text-gray-600">{t("startNode.endTime")}:</span>
+										<span className="text-gray-600">
+											{t("startNode.endTime")}:
+										</span>
 										<span className="font-medium">
 											{backtestConfig.exchangeModeConfig.timeRange.endDate}
 										</span>
@@ -167,7 +173,10 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 						<Label className="text-xm font-bold text-muted-foreground">
 							{t("startNode.customVariables")}
 						</Label>
-						<span className="text-sm text-red-500"> {t("startNode.noVariable")} </span>
+						<span className="text-sm text-red-500">
+							{" "}
+							{t("startNode.noVariable")}{" "}
+						</span>
 					</div>
 				) : (
 					<Collapsible open={isVariablesOpen} onOpenChange={setIsVariablesOpen}>
@@ -188,7 +197,9 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 							<div className="space-y-2">
 								{backtestConfig.customVariables.map(
 									(variable: CustomVariable, index: number) => {
-										const Icon = getVariableValueTypeIcon(variable.varValueType);
+										const Icon = getVariableValueTypeIcon(
+											variable.varValueType,
+										);
 										const iconColor = getVariableValueTypeIconColor(
 											variable.varValueType,
 										);
@@ -225,13 +236,17 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 													<div className="w-4 shrink-0" />
 													<div className="flex flex-wrap items-start gap-x-4 gap-y-1 min-w-0 flex-1">
 														<div className="flex items-start gap-1">
-															<span className="shrink-0">{t("startNode.initialValue")}:</span>
+															<span className="shrink-0">
+																{t("startNode.initialValue")}:
+															</span>
 															<span className="font-medium break-all">
 																{formattedInitialValue}
 															</span>
 														</div>
 														<div className="flex items-start gap-1">
-															<span className="shrink-0">{t("startNode.currentValue")}:</span>
+															<span className="shrink-0">
+																{t("startNode.currentValue")}:
+															</span>
 															<span className="font-medium break-all">
 																{formattedCurrentValue}
 															</span>

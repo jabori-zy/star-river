@@ -1,8 +1,8 @@
 import { X } from "lucide-react";
-import { DynamicIcon, IconName } from "lucide-react/dynamic";
+import { DynamicIcon, type IconName } from "lucide-react/dynamic";
+import { memo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { memo } from "react";
 
 interface BasePanelHeaderProps {
 	id: string;
@@ -54,7 +54,10 @@ const BasePanelHeader: React.FC<BasePanelHeaderProps> = ({
 						className="p-1 mr-2 rounded-sm flex-shrink-0"
 						style={{ backgroundColor: iconBackgroundColor }}
 					>
-						<DynamicIcon name={icon} className="w-4 h-4 text-white flex-shrink-0" />
+						<DynamicIcon
+							name={icon}
+							className="w-4 h-4 text-white flex-shrink-0"
+						/>
 					</div>
 				)}
 				{/* 标题 */}

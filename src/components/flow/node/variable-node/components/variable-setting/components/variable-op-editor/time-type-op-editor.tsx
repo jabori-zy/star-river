@@ -1,6 +1,8 @@
+import { useTranslation } from "react-i18next";
 import { DateTimePicker24h } from "@/components/datetime-picker";
-import { formatDate } from "@/components/flow/node/node-utils";
 import { SelectInDialog } from "@/components/dialog-components/select-in-dialog";
+import { formatDate } from "@/components/flow/node/node-utils";
+import { generateTimeHint } from "@/components/flow/node/variable-node/hint-generators";
 import type {
 	TriggerConfig,
 	UpdateVarValueOperation,
@@ -10,8 +12,6 @@ import {
 	getEffectiveTriggerType,
 	getTimerTriggerConfig,
 } from "@/types/node/variable-node";
-import { generateTimeHint } from "@/components/flow/node/variable-node/hint-generators";
-import { useTranslation } from "react-i18next";
 
 interface TimeTypeOpEditorProps {
 	updateOperationType: UpdateVarValueOperation;
@@ -91,20 +91,20 @@ const TimeTypeOpEditor: React.FC<TimeTypeOpEditorProps> = ({
 					/>
 				</div>
 			</div>
-		{shouldShowHint() && (
-			<p className="text-xs text-muted-foreground">
-				{generateTimeHint({
-					t,
-					varOperation: "update",
-					operationType: updateOperationType,
-					variableDisplayName,
-					value: updateValue,
-					conditionTrigger,
-					timerTrigger,
-				})}
-			</p>
-		)}
-	</div>
+			{shouldShowHint() && (
+				<p className="text-xs text-muted-foreground">
+					{generateTimeHint({
+						t,
+						varOperation: "update",
+						operationType: updateOperationType,
+						variableDisplayName,
+						value: updateValue,
+						conditionTrigger,
+						timerTrigger,
+					})}
+				</p>
+			)}
+		</div>
 	);
 };
 

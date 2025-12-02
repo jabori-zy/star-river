@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { SelectInDialog } from "@/components/dialog-components/select-in-dialog";
 import {
 	renderNodeOptions,
 	renderVariableOptions,
 } from "@/components/flow/node/node-utils";
-import { SelectInDialog } from "@/components/dialog-components/select-in-dialog";
 import { ButtonGroup } from "@/components/ui/button-group";
 import type { VariableItem } from "@/hooks/flow/use-strategy-workflow";
 import type { NodeType } from "@/types/node/index";
@@ -14,16 +14,16 @@ import type {
 	UpdateVarValueOperation,
 	VariableConfig,
 } from "@/types/node/variable-node";
+import { getUpdateOperationLabel } from "@/types/node/variable-node/variable-operation-types";
 import { VariableValueType } from "@/types/variable";
 import {
 	generateBooleanHint,
 	generateEnumHint,
 	generateNumberHint,
+	generatePercentageHint,
 	generateStringHint,
 	generateTimeHint,
-	generatePercentageHint,
 } from "../../../hint-generators";
-import { getUpdateOperationLabel } from "@/types/node/variable-node/variable-operation-types";
 
 interface DataFlowSelectorProps {
 	variableItemList: VariableItem[];
@@ -203,7 +203,6 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 		}
 
 		return variableItemList.filter((item) => {
-			
 			// 检查该节点是否有任何变量匹配目标类型
 			const hasValidVariable = item.variables.some((v) => {
 				// 指标节点和K线节点都是 NUMBER 类型
@@ -250,7 +249,12 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 
 	// 生成提示文案
 	const generateHintText = (): React.ReactNode => {
-		if (!selectedNodeId || !selectedHandleId || !selectedVariable || !selectedVariableName) {
+		if (
+			!selectedNodeId ||
+			!selectedHandleId ||
+			!selectedVariable ||
+			!selectedVariableName
+		) {
 			return null;
 		}
 
@@ -329,7 +333,11 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 				<SelectInDialog
 					value={nodeSelectValue}
 					onValueChange={handleNodeChange}
-					placeholder={hasNoNodes ? t("variableNode.dataflowSelector.noNodes") : t("variableNode.dataflowSelector.chooseNode")}
+					placeholder={
+						hasNoNodes
+							? t("variableNode.dataflowSelector.noNodes")
+							: t("variableNode.dataflowSelector.chooseNode")
+					}
 					options={renderNodeOptions(filteredNodeList)}
 					disabled={hasNoNodes}
 					className="h-8 text-xs font-normal min-w-20 flex-1"
@@ -339,7 +347,11 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 				<SelectInDialog
 					value={variableString}
 					onValueChange={handleVariableChange}
-					placeholder={hasNoNodes ? t("variableNode.dataflowSelector.noVariables") : t("variableNode.dataflowSelector.chooseVariable")}
+					placeholder={
+						hasNoNodes
+							? t("variableNode.dataflowSelector.noVariables")
+							: t("variableNode.dataflowSelector.chooseVariable")
+					}
 					disabled={!localNodeId || hasNoNodes}
 					className="h-8 text-xs font-normal min-w-20 flex-1"
 				>

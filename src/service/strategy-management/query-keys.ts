@@ -58,4 +58,3 @@ export const strategyKeys = {
 	backtestChartConfig: (id: number) =>
 		[...strategyKeys.all, "backtestChartConfig", id] as const,
 } as const;
-
