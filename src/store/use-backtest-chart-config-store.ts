@@ -200,7 +200,6 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 			try {
 				set({ isLoading: true, strategyId });
 				const chartConfig = await getBacktestStrategyChartConfig(strategyId);
-				console.log("后端返回的图表配置:", chartConfig);
 
 				const keys = await get().getKeys();
 				// console.log("获取的缓存键:", keys);

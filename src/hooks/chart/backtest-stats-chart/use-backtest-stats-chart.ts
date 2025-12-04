@@ -6,6 +6,7 @@ import { useBacktestStatsChartStore } from "@/components/chart/backtest-stats-ch
 import { get_play_index } from "@/service/backtest-strategy/backtest-strategy-control";
 import type { BacktestStrategyStatsChartConfig } from "@/types/chart/backtest-strategy-stats-chart";
 import { addStatsSeries } from "./utils";
+import { getStrategyDatetimeApi } from "@/service/backtest-strategy/strategy-datetime";
 
 interface UseBacktestStatsChartParams {
 	strategyId: number;
@@ -22,8 +23,6 @@ export const useBacktestStatsChart = ({
 }: UseBacktestStatsChartParams) => {
 	const [isInitialized, setIsInitialized] = useState(false);
 	const resizeObserver = useRef<ResizeObserver>(null);
-	// 获取播放索引并初始化数据
-	const playIndex = useRef(0);
 	// 数据是否已在图表中设置
 	const [isChartDataSet, setIsChartDataSet] = useState(false);
 
@@ -80,7 +79,6 @@ export const useBacktestStatsChart = ({
 					const series = addStatsSeries(
 						mainPane,
 						statsChartConfig,
-						statsChartConfig.seriesConfigs,
 					);
 					if (series) {
 						setStatsSeriesRef(statsName, series);
@@ -105,7 +103,6 @@ export const useBacktestStatsChart = ({
 					const series = addStatsSeries(
 						pane,
 						statsChartConfig,
-						statsChartConfig.seriesConfigs,
 					);
 					if (series) {
 						setStatsSeriesRef(statsName, series);
@@ -194,7 +191,6 @@ export const useBacktestStatsChart = ({
 					const series = addStatsSeries(
 						pane,
 						statsChartConfig,
-						statsChartConfig.seriesConfigs,
 					);
 					if (series) {
 						setStatsSeriesRef(statsName, series);
@@ -296,13 +292,17 @@ export const useBacktestStatsChart = ({
 
 	// 图表系列初始化
 	useEffect(() => {
+
+
+		const initialize = async () => {
+			const playIndexValue = await get_play_index(strategyId);
+			const datetime = await (await getStrategyDatetimeApi(strategyId)).strategyDatetime;
+			await initChartData(datetime, playIndexValue, strategyId);
+			initializeBacktestStatsChart();
+		};
+
 		if (!isInitialized) {
-			get_play_index(strategyId).then((index) => {
-				playIndex.current = index;
-				initChartData(playIndex.current, strategyId).then(() => {
-					initializeBacktestStatsChart();
-				});
-			});
+			initialize();
 		}
 	}, [strategyId, initChartData, initializeBacktestStatsChart, isInitialized]);
 

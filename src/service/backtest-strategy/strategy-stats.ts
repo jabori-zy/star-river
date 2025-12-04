@@ -9,17 +9,22 @@ const API_URL = `${API_BASE_URL}/${API_VERSION}/${ROUTER}`;
 
 export async function getStrategyStatsHistory(
 	strategyId: number,
-	playIndex: number,
+	datetime: string,
 ): Promise<StrategyStats[]> {
 	try {
+		console.log("getStrategyStatsHistory params", strategyId, datetime);
+
+		// 使用 URLSearchParams 正确编码 datetime 参数
+		const queryParams = new URLSearchParams();
+		queryParams.append("datetime", datetime);
+
 		const response = await axios.get(
-			`${API_URL}/${strategyId}/stats-history?play_index=${playIndex}`,
+			`${API_URL}/${strategyId}/stats-history?${queryParams.toString()}`,
 		);
 		if (response.status !== 200) {
 			throw new Error(`获取策略统计历史失败: ${response.status}`);
 		}
 
-		// 转换datetime字符串为Date对象
 		return response.data.data as StrategyStats[];
 	} catch (error) {
 		console.error("getStrategyStatsHistory error", error);

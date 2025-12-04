@@ -22,7 +22,6 @@ export default function BacktestPage() {
 	const params = useParams<{ strategyId: string }>();
 	const [searchParams] = useSearchParams();
 	const strategyName = searchParams.get("strategyName") || "";
-	console.log("params", params, "strategyName", strategyName);
 
 	// 使用zustand stores
 	const {

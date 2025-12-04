@@ -1,24 +1,28 @@
-import type { IChartApi, IPaneApi, ISeriesApi, Time } from "lightweight-charts";
+import type { IPaneApi, ISeriesApi, Time } from "lightweight-charts";
 import {
 	AreaSeries,
 	HistogramSeries,
 	LineSeries,
+	BaselineSeries,
 	type LineStyle,
 	type LineWidth,
 } from "lightweight-charts";
-import type { StatsSeriesConfig } from "@/types/chart";
 import { SeriesType } from "@/types/chart";
 import type { StrategyStatsChartConfig } from "@/types/chart/backtest-strategy-stats-chart";
 
 export const addStatsSeries = (
 	pane: IPaneApi<Time>,
 	config: StrategyStatsChartConfig,
-	seriesConfig: StatsSeriesConfig,
 ) => {
+
+	console.log("addStatsSeries config", config);
+
+	const seriesConfig = config.seriesConfigs;
 	let statsSeries:
 		| ISeriesApi<"Line">
 		| ISeriesApi<"Area">
 		| ISeriesApi<"Histogram">
+		| ISeriesApi<"Baseline">
 		| null = null;
 
 	const lineSeriesConfig = {
@@ -27,6 +31,14 @@ export const addStatsSeries = (
 		priceLineVisible: false,
 		lineWidth: 1 as LineWidth,
 		color: seriesConfig.color,
+	};
+
+	const baselineSeriesConfig = {
+		visible: config.visible ?? true,
+		lastValueVisible: true,
+		priceLineVisible: false,
+		color: seriesConfig.color,
+		lineWidth: 1 as LineWidth,
 	};
 
 	const histogramSeriesConfig = {
@@ -59,6 +71,9 @@ export const addStatsSeries = (
 			break;
 		case SeriesType.DASH:
 			statsSeries = pane.addSeries(LineSeries, dashSeriesConfig);
+			break;
+		case SeriesType.BASELINE:
+			statsSeries = pane.addSeries(BaselineSeries, baselineSeriesConfig);
 
 			break;
 	}

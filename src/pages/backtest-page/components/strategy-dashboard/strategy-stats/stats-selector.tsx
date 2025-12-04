@@ -1,6 +1,7 @@
 import { FunnelPlus } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -11,16 +12,18 @@ import {
 import { useBacktestStatsChartConfigStore } from "@/store/use-backtest-stats-chart-config-store";
 import type { StrategyStatsName } from "@/types/statistics";
 
-const statsOptions: { value: StrategyStatsName; label: string }[] = [
-	{ value: "balance", label: "账户余额" },
-	{ value: "unrealizedPnl", label: "未实现盈亏" },
-	{ value: "equity", label: "净值" },
-	{ value: "cumulativeReturn", label: "累计收益率" },
-	{ value: "realizedPnl", label: "已实现盈亏" },
-	{ value: "positionCount", label: "持仓数量" },
+// 统计选项配置（不包含 label，label 将通过 i18n 动态获取）
+const statsOptions: { value: StrategyStatsName }[] = [
+	{ value: "balance" },
+	{ value: "unrealizedPnl" },
+	{ value: "equity" },
+	{ value: "cumulativeReturn" },
+	{ value: "realizedPnl" },
+	{ value: "availableBalance" },
 ];
 
 const StatsSelector: React.FC = () => {
+	const { t } = useTranslation();
 	const [open, setOpen] = useState(false);
 	const { addStats, removeStats, chartConfig } =
 		useBacktestStatsChartConfigStore();
@@ -60,7 +63,7 @@ const StatsSelector: React.FC = () => {
 					<FunnelPlus size={12} />
 				</Button>
 			</PopoverTrigger>
-			<PopoverContent className="w-40" align="start">
+			<PopoverContent className="w-full" align="start">
 				<div className="space-y-2">
 					{statsOptions.map((option) => (
 						<div key={option.value} className="flex items-center space-x-2">
@@ -80,7 +83,7 @@ const StatsSelector: React.FC = () => {
 										: "peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
 								}`}
 							>
-								{option.label}
+								{t(`desktop.backtestPage.performance.${option.value}`)}
 							</label>
 						</div>
 					))}

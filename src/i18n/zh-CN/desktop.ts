@@ -104,6 +104,14 @@ const translation = {
 			total: "总计",
 		},
 		showHistoryPositions: "显示历史仓位",
+		performance: {
+			balance: "账户余额",
+			equity: "净值",
+			unrealizedPnl: "未实现盈亏",
+			realizedPnl: "已实现盈亏",
+			cumulativeReturn: "累计收益率",
+			availableBalance: "可用余额",
+		},
 	},
 };
 

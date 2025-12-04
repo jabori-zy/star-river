@@ -254,7 +254,7 @@ export function formatTimeOnly(
 	return formatTimeWithTimezone(
 		date,
 		{
-			dateFormat: "smart",
+			dateFormat: "compact",
 			showTimezone: false,
 		},
 		t,

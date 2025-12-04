@@ -4,6 +4,7 @@ import type {
 	Time,
 } from "lightweight-charts";
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useBacktestStatsChartStore } from "@/components/chart/backtest-stats-chart/backtest-stats-chart-store";
 import { useBacktestStatsChartConfigStore } from "@/store/use-backtest-stats-chart-config-store";
 import type { StrategyStatsChartConfig } from "@/types/chart/backtest-strategy-stats-chart";
@@ -51,19 +52,23 @@ const mapStatsDataToLegendData = (
 	config: StrategyStatsChartConfig,
 	statsData: Record<string, SingleValueData[]>,
 	time: Time | null,
+	t: ReturnType<typeof useTranslation>["t"],
 ): StatsLegendData | null => {
 	const statsName = config.seriesConfigs.statsName;
 	const data = statsData[statsName];
 
-	// 从配置store获取实时颜色，如果没有则使用原始配置
-	const currentColor =
-		getStatsChartConfig(statsName as StrategyStatsName)?.seriesConfigs.color ||
-		config.seriesConfigs.color;
+	// 从配置store获取实时颜色和翻译后的名称
+	const currentConfig = getStatsChartConfig(
+		statsName as StrategyStatsName,
+		t,
+	);
+	const currentColor = currentConfig?.seriesConfigs.color || config.seriesConfigs.color;
+	const displayName = currentConfig?.seriesConfigs.name || config.seriesConfigs.name;
 
 	if (!data || data.length === 0) {
 		return {
 			statsName,
-			displayName: config.seriesConfigs.name,
+			displayName,
 			value: "--",
 			color: currentColor,
 			time: time || (Math.floor(Date.now() / 1000) as Time),
@@ -91,7 +96,7 @@ const mapStatsDataToLegendData = (
 
 	return {
 		statsName,
-		displayName: config.seriesConfigs.name,
+		displayName,
 		value: formattedValue,
 		color: currentColor,
 		time: targetData.time,
@@ -108,6 +113,7 @@ export const useStatsLegend = ({
 	strategyId,
 	statsChartConfig,
 }: UseStatsLegendProps) => {
+	const { t } = useTranslation();
 	const { statsData } = useBacktestStatsChartStore(strategyId, {
 		statsChartConfigs: [statsChartConfig],
 	});
@@ -117,7 +123,7 @@ export const useStatsLegend = ({
 
 	const [legendData, setLegendData] = useState<StatsLegendData | null>(() => {
 		// 初始化时使用最新数据
-		return mapStatsDataToLegendData(statsChartConfig, statsData, null);
+		return mapStatsDataToLegendData(statsChartConfig, statsData, null, t);
 	});
 
 	// 监听数据变化和配置变化，自动更新图例数据
@@ -126,16 +132,18 @@ export const useStatsLegend = ({
 			statsChartConfig,
 			statsData,
 			null,
+			t,
 		);
 		setLegendData((prev) => {
-			// 只有在时间、值或颜色不同时才更新，避免不必要的渲染
+			// 只有在时间、值、颜色或显示名称不同时才更新，避免不必要的渲染
 			const shouldUpdate =
 				prev?.time !== newLegendData?.time ||
 				prev?.value !== newLegendData?.value ||
-				prev?.color !== newLegendData?.color;
+				prev?.color !== newLegendData?.color ||
+				prev?.displayName !== newLegendData?.displayName;
 			return shouldUpdate ? newLegendData : prev;
 		});
-	}, [statsData, statsChartConfig]);
+	}, [statsData, statsChartConfig, t]);
 
 	const onCrosshairMove = useCallback(
 		(param: MouseEventParams) => {
@@ -145,6 +153,7 @@ export const useStatsLegend = ({
 				statsChartConfig,
 				statsData,
 				time,
+				t,
 			);
 
 			setLegendData((prev) => {
@@ -152,7 +161,7 @@ export const useStatsLegend = ({
 				return shouldUpdate ? newLegendData : prev;
 			});
 		},
-		[statsChartConfig, statsData],
+		[statsChartConfig, statsData, t],
 	);
 
 	return {

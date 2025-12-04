@@ -1,3 +1,4 @@
+import type { TFunction } from "i18next";
 import type { StrategyStatsName } from "../statistics";
 import type { StatsSeriesConfig } from ".";
 import { SeriesType } from ".";
@@ -54,9 +55,9 @@ export const defaultBacktestStrategyStatsChartConfig: BacktestStrategyStatsChart
 				seriesConfigs: {
 					name: "未实现盈亏",
 					statsName: "unrealizedPnl",
-					type: SeriesType.LINE,
+					type: SeriesType.BASELINE,
 					color: "#000000",
-					lineWidth: 2,
+					lineWidth: 1,
 				},
 			},
 			{
@@ -85,11 +86,31 @@ export const defaultBacktestStrategyStatsChartConfig: BacktestStrategyStatsChart
 					lineWidth: 2,
 				},
 			},
+			{
+				chartName: "可用余额",
+				visible: true,
+				isDelete: false,
+				valueType: "number",
+				seriesConfigs: {
+					name: "可用余额",
+					statsName: "availableBalance",
+					type: SeriesType.LINE,
+					color: "#000000",
+					lineWidth: 2,
+				},
+			},
 		],
 	};
 
+/**
+ * 获取统计图表配置（支持多语言）
+ * @param statsName 统计指标名称
+ * @param t 国际化翻译函数
+ * @returns 图表配置（包含翻译后的名称）
+ */
 export function getStatsChartConfig(
 	statsName: StrategyStatsName,
+	t: TFunction,
 ): StrategyStatsChartConfig {
 	const config = defaultBacktestStrategyStatsChartConfig.statsChartConfigs.find(
 		(config) => config.seriesConfigs.statsName === statsName,
@@ -99,5 +120,17 @@ export function getStatsChartConfig(
 			`Stats chart config not found for stats name: ${statsName}`,
 		);
 	}
-	return config;
+
+	// 获取多语言版本的图表名称
+	const chartName = t(`desktop.backtestPage.performance.${statsName}`);
+
+	// 返回包含翻译名称的配置
+	return {
+		...config,
+		chartName,
+		seriesConfigs: {
+			...config.seriesConfigs,
+			name: chartName,
+		},
+	};
 }

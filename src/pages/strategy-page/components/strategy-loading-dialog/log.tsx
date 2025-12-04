@@ -15,20 +15,23 @@ import {
 	type NodeStateLogEvent,
 	type StrategyStateLogEvent,
 } from "@/types/strategy-event/strategy-state-log-event";
-import { formatFullTime } from "@/utils/date-format";
+import { formatTimeOnly } from "@/utils/date-format";
 import { getLogLevelStyle } from "./utils";
+import { useTranslation } from "react-i18next";
 
 interface LogDisplayProps {
 	logs: (StrategyStateLogEvent | NodeStateLogEvent)[];
 }
 
 export const LogDisplay: React.FC<LogDisplayProps> = ({ logs }) => {
+	const { t } = useTranslation();
 	const lastLogRef = useRef<HTMLDivElement>(null);
 	const [copiedStates, setCopiedStates] = useState<{ [key: string]: boolean }>(
 		{},
 	);
 
 	// Auto-scroll to latest log
+	// biome-ignore lint/correctness/useExhaustiveDependencies: logs is need
 	useEffect(() => {
 		if (lastLogRef.current) {
 			lastLogRef.current.scrollIntoView({
@@ -52,6 +55,7 @@ export const LogDisplay: React.FC<LogDisplayProps> = ({ logs }) => {
 			"errorCodeChain" in log && log.errorCodeChain
 				? `Error Chain: ${log.errorCodeChain.join(" → ")}`
 				: null,
+			"report" in log && log.report ? `Report: ${log.report}` : null,
 		]
 			.filter(Boolean)
 			.join("\n");
@@ -101,7 +105,7 @@ export const LogDisplay: React.FC<LogDisplayProps> = ({ logs }) => {
 										<div className="flex items-center space-x-2 text-xs">
 											{style.icon}
 											<span className="text-gray-400">
-												[{formatFullTime(log.datetime)}]
+												{formatTimeOnly(log.datetime, t)}
 											</span>
 										</div>
 										<div className="text-gray-900 pl-6 text-sm">

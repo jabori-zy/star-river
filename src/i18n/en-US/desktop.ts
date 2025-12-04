@@ -106,6 +106,14 @@ const translation = {
 			nodePercentage: "%(node)",
 			total: "Total",
 		},
+		performance: {
+			balance: "Balance",
+			equity: "Equity",
+			unrealizedPnl: "Unrealized Pnl",
+			realizedPnl: "Realized Pnl",
+			cumulativeReturn: "Cumulative Return",
+			availableBalance: "Available Balance",
+		},
 	},
 };
 

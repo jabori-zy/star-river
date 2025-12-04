@@ -29,7 +29,7 @@ const StrategyStats = ({ strategyId }: StrategyStatsProps) => {
 			<div className="flex justify-start mb-2">
 				<StatsSelector />
 			</div>
-			<div className="h-full w-full bg-gray-100 py-2 rounded-lg">
+			<div className="h-full w-full bg-gray-100 py-2 rounded-lg border border-gray-200">
 				{chartConfig && (
 					<BacktestStatsChart
 						strategyId={strategyId}

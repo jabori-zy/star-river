@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ColorPicker } from "@/components/color-picker";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { useBacktestStatsChartConfigStore } from "@/store/use-backtest-stats-chart-config-store";
+import { getStatsChartConfig } from "@/types/chart/backtest-strategy-stats-chart";
 import type { StrategyStatsName } from "@/types/statistics";
 
 // 统计图表专用预设颜色
@@ -38,7 +40,8 @@ export function StatsLegendEditDialog({
 	onOpenChange,
 	statsName,
 }: StatsLegendEditDialogProps) {
-	const { getStatsChartConfig, updateStatsColor } =
+	const { t } = useTranslation();
+	const { getStatsChartConfig: getStatsChartConfigFromStore, updateStatsColor } =
 		useBacktestStatsChartConfigStore();
 	const [tempColor, setTempColor] = useState<string>("#000000");
 	const [originalColor, setOriginalColor] = useState<string>("#000000");
@@ -46,12 +49,12 @@ export function StatsLegendEditDialog({
 	// 获取当前统计配置的颜色
 	useEffect(() => {
 		if (open) {
-			const config = getStatsChartConfig(statsName);
+			const config = getStatsChartConfigFromStore(statsName);
 			const currentColor = config?.seriesConfigs.color || "#000000";
 			setOriginalColor(currentColor);
 			setTempColor(currentColor);
 		}
-	}, [open, statsName, getStatsChartConfig]);
+	}, [open, statsName, getStatsChartConfigFromStore]);
 
 	// 确认修改 - 保存新颜色
 	const handleConfirm = () => {
@@ -65,9 +68,8 @@ export function StatsLegendEditDialog({
 		onOpenChange(false);
 	};
 
-	// 获取统计配置信息用于显示
-	const statsConfig = getStatsChartConfig(statsName);
-	const displayName = statsConfig?.seriesConfigs.name || statsName;
+	// 获取多语言版本的显示名称
+	const displayName = getStatsChartConfig(statsName, t).seriesConfigs.name;
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange} modal={false}>

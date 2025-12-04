@@ -37,7 +37,7 @@ interface BacktestStatsChartStore {
 	paneVersion: number;
 
 	//数据初始化方法
-	initChartData: (playIndex: number, strategyId: number) => Promise<void>;
+	initChartData: (datetime: string, cycleId: number, strategyId: number) => Promise<void>;
 
 	// === 数据管理方法 ===
 	setStatsData: (statsName: StrategyStatsName, data: SingleValueData[]) => void;
@@ -110,62 +110,64 @@ const createBacktestStatsChartStore = (
 		paneVersion: 0,
 
 		// 数据初始化方法
-		initChartData: async (playIndex: number, strategyId: number) => {
+		initChartData: async (datetime: string, cycleId: number, strategyId: number) => {
+			if (cycleId === 0) {
+				return;
+			}
 			// 初始化前，清除所有数据
 			const state = get();
-			if (playIndex > -1) {
-				const initialStatsData = await getStrategyStatsHistory(
-					strategyId,
-					playIndex,
-				);
-				if (initialStatsData) {
-					const balanceStatsData: SingleValueData[] = [];
-					const unrealizedPnlStatsData: SingleValueData[] = [];
-					const equityStatsData: SingleValueData[] = [];
-					const positionStatsData: SingleValueData[] = [];
-					const realizedPnlStatsData: SingleValueData[] = [];
-					const cumulativeReturnStatsData: SingleValueData[] = [];
+			const initialStatsData = await getStrategyStatsHistory(
+				strategyId,
+				datetime,
+			);
+			if (initialStatsData) {
+				const balanceStatsData: SingleValueData[] = [];
+				const unrealizedPnlStatsData: SingleValueData[] = [];
+				const equityStatsData: SingleValueData[] = [];
+				const availableBalanceStatsData: SingleValueData[] = [];
+				const realizedPnlStatsData: SingleValueData[] = [];
+				const cumulativeReturnStatsData: SingleValueData[] = [];
 
-					initialStatsData.forEach((statsData) => {
-						const timestamp = getChartAlignedUtcTimestamp(
-							statsData.datetime,
-						) as UTCTimestamp;
-						balanceStatsData.push({
-							time: timestamp,
-							value: statsData.balance,
-						});
-						unrealizedPnlStatsData.push({
-							time: timestamp,
-							value: statsData.unrealizedPnl,
-						});
-						equityStatsData.push({
-							time: timestamp,
-							value: statsData.equity,
-						});
-						positionStatsData.push({
-							time: timestamp,
-							value: statsData.positionCount,
-						});
-						realizedPnlStatsData.push({
-							time: timestamp,
-							value: statsData.realizedPnl,
-						});
-						cumulativeReturnStatsData.push({
-							time: timestamp,
-							value: statsData.cumulativeReturn,
-						});
+				initialStatsData.forEach((statsData) => {
+					const timestamp = getChartAlignedUtcTimestamp(
+						statsData.datetime,
+					) as UTCTimestamp;
+					balanceStatsData.push({
+						time: timestamp,
+						value: statsData.balance,
 					});
+					unrealizedPnlStatsData.push({
+						time: timestamp,
+						value: statsData.unrealizedPnl,
+					});
+					equityStatsData.push({
+						time: timestamp,
+						value: statsData.equity,
+					});
+					availableBalanceStatsData.push({
+						time: timestamp,
+						value: statsData.availableBalance,
+					});
+					realizedPnlStatsData.push({
+						time: timestamp,
+						value: statsData.realizedPnl,
+					});
+					cumulativeReturnStatsData.push({
+						time: timestamp,
+						value: statsData.cumulativeReturn,
+					});
+				});
 
-					state.setStatsData("balance", balanceStatsData);
-					state.setStatsData("unrealizedPnl", unrealizedPnlStatsData);
-					state.setStatsData("equity", equityStatsData);
-					state.setStatsData("positionCount", positionStatsData);
-					state.setStatsData("realizedPnl", realizedPnlStatsData);
-					state.setStatsData("cumulativeReturn", cumulativeReturnStatsData);
+				state.setStatsData("balance", balanceStatsData);
+				state.setStatsData("unrealizedPnl", unrealizedPnlStatsData);
+				state.setStatsData("equity", equityStatsData);
+				state.setStatsData("availableBalance", availableBalanceStatsData);
+				state.setStatsData("realizedPnl", realizedPnlStatsData);
+				state.setStatsData("cumulativeReturn", cumulativeReturnStatsData);
 
-					state.setIsDataInitialized(true);
-				}
+				state.setIsDataInitialized(true);
 			}
+			
 		},
 
 		// === 数据管理方法 ===

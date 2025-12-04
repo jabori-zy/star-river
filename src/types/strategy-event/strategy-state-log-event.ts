@@ -44,6 +44,7 @@ export type StrategyStateErrorLog = {
 	strategyStateAction: string | null;
 	errorCode: string | null;
 	errorCodeChain: string[] | null;
+	report: string | null;
 	message: string;
 	datetime: string;
 };
@@ -62,7 +63,7 @@ export function isStrategyStateWarnLog(
 ): event is StrategyStateWarnLog {
 	return (
 		event.event === "strategy-state-log-update-event" &&
-		event.logLevel === LogLevel.WARNING
+		event.logLevel === LogLevel.WARN
 	);
 }
 
@@ -124,6 +125,7 @@ export type NodeStateErrorLog = {
 	message: string;
 	errorCode: string | null;
 	errorCodeChain: string[] | null;
+	report: string | null;
 	datetime: string;
 };
 
@@ -141,7 +143,7 @@ export function isNodeStateWarnLog(
 ): event is NodeStateWarnLog {
 	return (
 		event.event === "node-state-log-update-event" &&
-		event.logLevel === LogLevel.WARNING
+		event.logLevel === LogLevel.WARN
 	);
 }
 

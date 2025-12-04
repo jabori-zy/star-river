@@ -76,7 +76,7 @@ const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id }) => {
 							symbolList={symbolList}
 							supportKlineInterval={supportKlineInterval}
 						/>
-						<div className="flex items-center justify-between gap-2 bg-gray-100 p-2 rounded-md">
+						{/* <div className="flex items-center justify-between gap-2 bg-gray-100 p-2 rounded-md">
 							<Label className="text-sm font-bold whitespace-nowrap">
 								{" "}
 								{t("klineNode.timeRange")}:{" "}
@@ -85,7 +85,7 @@ const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id }) => {
 								{" "}
 								{timeRange?.startDate} ~ {timeRange?.endDate}{" "}
 							</Label>
-						</div>
+						</div> */}
 					</>
 				) : (
 					<div className="space-y-4">

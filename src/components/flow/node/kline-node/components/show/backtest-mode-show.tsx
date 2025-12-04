@@ -1,9 +1,10 @@
 import type React from "react";
 import { useTranslation } from "react-i18next";
-import { Badge } from "@/components/ui/badge";
+// import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import type { KlineNodeBacktestConfig } from "@/types/node/kline-node";
 import { SymbolItem } from "./kline-config-show-item";
+import { TimeDisplay } from "@/components/time-display";
 
 interface BacktestModeShowProps {
 	handleColor: string;
@@ -19,6 +20,8 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 	const selectedSymbols =
 		backtestConfig?.exchangeModeConfig?.selectedSymbols || [];
 	const localTimeRange = backtestConfig?.exchangeModeConfig?.timeRange || null;
+	const startDate = localTimeRange?.startDate;
+	const endDate = localTimeRange?.endDate;
 
 	return (
 		<div className="space-y-2">
@@ -81,7 +84,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 				)}
 			</div>
 			{/* 回测时间范围展示 */}
-			<div className="space-y-2">
+			{/* <div className="space-y-2">
 				{!localTimeRange?.startDate || !localTimeRange?.endDate ? (
 					<div className="flex items-center justify-between gap-2 rounded-md">
 						<Label className="text-xm font-bold text-muted-foreground">
@@ -101,16 +104,42 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 								<span className="text-gray-600">
 									{t("klineNode.startTime")}:
 								</span>
-								<span className="font-medium">{localTimeRange.startDate}</span>
+								<TimeDisplay
+									date={startDate}
+									displayOptions={{
+										dateFormat: "full",
+										showTimezone: false,
+										timezoneFormat: "offset",
+									}}
+									tooltipOptions={{
+										dateFormat: "full",
+										showTimezone: true,
+										timezoneFormat: "short",
+									}}
+									className="text-sm truncate"
+								/>
 							</div>
 							<div className="flex items-center gap-2">
 								<span className="text-gray-600">{t("klineNode.endTime")}:</span>
-								<span className="font-medium">{localTimeRange.endDate}</span>
+								<TimeDisplay
+									date={endDate}
+									displayOptions={{
+										dateFormat: "full",
+										showTimezone: false,
+										timezoneFormat: "offset",
+									}}
+									tooltipOptions={{
+									dateFormat: "full",
+									showTimezone: true,
+									timezoneFormat: "short",
+								}}
+								className="text-sm truncate"
+								/>
 							</div>
 						</div>
 					</div>
 				)}
-			</div>
+			</div> */}
 		</div>
 	);
 };

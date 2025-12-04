@@ -21,6 +21,7 @@ export enum SeriesType {
 	COLUMN = "column",
 	MOUNTAIN = "mountain",
 	DASH = "dash",
+	BASELINE = "baseline",
 }
 
 export type SeriesBaseConfig = {

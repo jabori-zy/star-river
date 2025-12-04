@@ -137,7 +137,7 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 					<div className="flex items-center gap-2 justify-self-start min-w-0">
 						<TabsList className="grid grid-cols-7 gap-1">
 							<TabsTrigger
-								value="profit"
+								value="performance"
 								className="flex items-center gap-1 px-1 xl:px-2 py-1 min-w-[32px] overflow-hidden"
 							>
 								<TrendingUp className="h-4 w-4 flex-shrink-0 xl:hidden" />
@@ -237,7 +237,7 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 						className="flex-1 overflow-y-auto"
 						style={{ scrollbarGutter: "stable" }} // 这里会造成右侧边距放大，造成左右边距不一致
 					>
-						<TabsContent value="profit" className="mt-2 mx-6 h-124">
+						<TabsContent value="performance" className=" mx-2 h-200">
 							<StrategyStats strategyId={strategyId} />
 						</TabsContent>
 
@@ -264,7 +264,7 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 
 						<TabsContent
 							value="positions"
-							className="w-full overflow-hidden mt-2"
+							className="w-full overflow-hidden"
 						>
 							<div className="flex flex-col h-full pl-2">
 								<PositionRecord

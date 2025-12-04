@@ -4,15 +4,15 @@ export type StrategyStatsName =
 	| "equity"
 	| "cumulativeReturn"
 	| "realizedPnl"
-	| "positionCount";
+	| "availableBalance";
 
+	
 export type StrategyStats = {
 	datetime: string;
-	playIndex: number;
+	availableBalance: number;
 	balance: number;
 	unrealizedPnl: number;
 	equity: number;
 	cumulativeReturn: number;
 	realizedPnl: number;
-	positionCount: number;
 };

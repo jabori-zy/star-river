@@ -28,6 +28,7 @@ import {
 	getVariableValueTypeIconColor,
 } from "@/types/variable";
 import { formatVariableValue } from "../utils";
+import { TimeDisplay } from "@/components/time-display";
 
 interface BacktestModeShowProps {
 	backtestConfig: StrategyBacktestConfig;
@@ -39,6 +40,10 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 	const [isSettingsOpen, setIsSettingsOpen] = useState(true);
 	const [isVariablesOpen, setIsVariablesOpen] = useState(true);
 	const { t } = useTranslation();
+
+	const startDate = backtestConfig.exchangeModeConfig?.timeRange?.startDate;
+	const endDate = backtestConfig.exchangeModeConfig?.timeRange?.endDate;
+
 	return (
 		<div className="space-y-2">
 			{/* 数据源展示 */}
@@ -51,9 +56,9 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 							</Label>
 							<div className="flex flex-col gap-2 mt-2">
 								{backtestConfig.exchangeModeConfig.selectedAccounts.map(
-									(account, index) => (
+									(account) => (
 										<div
-											key={index}
+											key={account.id}
 											className="flex items-center gap-2 bg-gray-100 p-2 rounded-md"
 										>
 											<span className="text-sm">
@@ -146,17 +151,39 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 										<span className="text-gray-600">
 											{t("startNode.startTime")}:
 										</span>
-										<span className="font-medium">
-											{backtestConfig.exchangeModeConfig.timeRange.startDate}
-										</span>
+										<TimeDisplay
+											date={startDate}
+											displayOptions={{
+												dateFormat: "full",
+												showTimezone: false,
+												timezoneFormat: "offset",
+											}}
+											tooltipOptions={{
+												dateFormat: "full",
+												showTimezone: true,
+												timezoneFormat: "short",
+											}}
+											className="text-sm truncate"
+										/>
 									</div>
 									<div className="flex items-center gap-2">
 										<span className="text-gray-600">
 											{t("startNode.endTime")}:
 										</span>
-										<span className="font-medium">
-											{backtestConfig.exchangeModeConfig.timeRange.endDate}
-										</span>
+										<TimeDisplay
+											date={endDate}
+											displayOptions={{
+												dateFormat: "full",
+												showTimezone: false,
+												timezoneFormat: "offset",
+											}}
+											tooltipOptions={{
+												dateFormat: "full",
+												showTimezone: true,
+												timezoneFormat: "short",
+											}}
+											className="text-sm truncate"
+										/>
 									</div>
 								</div>
 							</div>
@@ -196,7 +223,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 						<CollapsibleContent className="mt-2">
 							<div className="space-y-2">
 								{backtestConfig.customVariables.map(
-									(variable: CustomVariable, index: number) => {
+									(variable: CustomVariable) => {
 										const Icon = getVariableValueTypeIcon(
 											variable.varValueType,
 										);
@@ -214,7 +241,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 
 										return (
 											<div
-												key={index}
+												key={variable.varName}
 												className="flex flex-col bg-gray-100 p-2 rounded-md gap-1"
 											>
 												<TooltipProvider delayDuration={300}>
