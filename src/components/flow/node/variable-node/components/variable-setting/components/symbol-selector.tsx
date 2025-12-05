@@ -1,7 +1,7 @@
 import type React from "react";
 import { useMemo } from "react";
 import { SelectWithSearch } from "@/components/select-components/select-with-search";
-
+import { useTranslation } from "react-i18next";
 export interface SymbolSelectorOption {
 	value: string;
 	label: string;
@@ -24,6 +24,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 	placeholder,
 	emptyMessage,
 }) => {
+	const { t } = useTranslation();
 	const computedOptions = useMemo(() => {
 		const baseOptions = [...options];
 
@@ -44,9 +45,9 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 			value={value}
 			onValueChange={onChange}
 			options={computedOptions}
-			placeholder={placeholder ?? "选择交易对"}
-			searchPlaceholder="搜索交易对"
-			emptyMessage={emptyMessage ?? "未找到交易对"}
+			placeholder={placeholder ?? t("variableNode.selectSymbol")}
+			searchPlaceholder={t("variableNode.searchSymbol")}
+			emptyMessage={emptyMessage ?? t("variableNode.emptySymbolMessage")}
 			disabled={disabled}
 		/>
 	);

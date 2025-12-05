@@ -132,6 +132,12 @@ const translation = {
 			cumulativeReturn: "Cumulative Return",
 			availableBalance: "Available Balance",
 		},
+		layout: {
+			vertical: "Vertical",
+			horizontal: "Horizontal",
+			grid: "Grid",
+			grid2: "Grid2",
+		},
 	},
 
 	settingPage: {

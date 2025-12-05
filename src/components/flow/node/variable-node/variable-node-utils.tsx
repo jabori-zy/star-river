@@ -372,28 +372,28 @@ export const generateSchedulePrefix = (
 
 // ==================== 更新操作文本生成器（用于节点显示）====================
 
-/**
- * 获取更新操作类型的显示文本
- * 对于某些操作（如增加、减少等），不需要显示文本，因为会在值中体现
- */
-export const getUpdateOperationLabel = (
-	operationType: UpdateVarValueOperation,
-): string => {
-	const operationLabels: Record<UpdateVarValueOperation, string> = {
-		set: "设置为",
-		add: "", // 通过 +5 的格式体现
-		subtract: "", // 通过 -5 的格式体现
-		multiply: "", // 通过 ×5 的格式体现
-		divide: "", // 通过 ÷5 的格式体现
-		max: "取最大值",
-		min: "取最小值",
-		toggle: "切换",
-		append: "添加",
-		remove: "删除",
-		clear: "清空",
-	};
-	return operationLabels[operationType] || operationType;
-};
+// /**
+//  * 获取更新操作类型的显示文本
+//  * 对于某些操作（如增加、减少等），不需要显示文本，因为会在值中体现
+//  */
+// export const getUpdateOperationLabel = (
+// 	operationType: UpdateVarValueOperation,
+// ): string => {
+// 	const operationLabels: Record<UpdateVarValueOperation, string> = {
+// 		set: "设置为",
+// 		add: "", // 通过 +5 的格式体现
+// 		subtract: "", // 通过 -5 的格式体现
+// 		multiply: "", // 通过 ×5 的格式体现
+// 		divide: "", // 通过 ÷5 的格式体现
+// 		max: "取最大值",
+// 		min: "取最小值",
+// 		toggle: "切换",
+// 		append: "添加",
+// 		remove: "删除",
+// 		clear: "清空",
+// 	};
+// 	return operationLabels[operationType] || operationType;
+// };
 
 /**
  * 格式化更新操作的值显示

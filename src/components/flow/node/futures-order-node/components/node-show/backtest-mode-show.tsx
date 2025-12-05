@@ -28,7 +28,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 	) {
 		return (
 			<div className="text-sm text-muted-foreground p-2 text-center">
-				暂无订单配置
+				{t("futuresOrderNode.noOrderConfig")}
 			</div>
 		);
 	}

@@ -2,7 +2,6 @@ import { useNodeConnections, useReactFlow } from "@xyflow/react";
 import { useEffect, useState } from "react";
 import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
 import IndicatorEditor from "@/components/flow/node/indicator-node/components/indicator-editor";
-
 import { useBacktestConfig } from "@/hooks/node-config/indicator-node";
 import {
 	getNodeDefaultInputHandleId,
@@ -11,6 +10,7 @@ import {
 } from "@/types/node/index";
 import type { KlineNodeData, SelectedSymbol } from "@/types/node/kline-node";
 import SymbolSelector from "../components/symbol-selector";
+
 
 const IndicatorNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id }) => {
 	const connections = useNodeConnections({

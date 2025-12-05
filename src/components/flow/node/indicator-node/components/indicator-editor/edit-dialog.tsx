@@ -52,23 +52,23 @@ interface SelectOption {
 
 // 价格源选项
 const PRICE_SOURCE_OPTIONS: SelectOption[] = [
-	{ value: PriceSource.CLOSE, label: "收盘价" },
-	{ value: PriceSource.OPEN, label: "开盘价" },
-	{ value: PriceSource.HIGH, label: "最高价" },
-	{ value: PriceSource.LOW, label: "最低价" },
+	{ value: PriceSource.CLOSE, label: "market.klineValueField.close" },
+	{ value: PriceSource.OPEN, label: "market.klineValueField.open" },
+	{ value: PriceSource.HIGH, label: "market.klineValueField.high" },
+	{ value: PriceSource.LOW, label: "market.klineValueField.low" },
 ];
 
 // MA类型选项
 const MA_TYPE_OPTIONS: SelectOption[] = [
-	{ value: MAType.SMA, label: "SMA (简单移动平均)" },
-	{ value: MAType.EMA, label: "EMA (指数移动平均)" },
-	{ value: MAType.WMA, label: "WMA (加权移动平均)" },
-	{ value: MAType.DEMA, label: "DEMA (双重指数移动平均)" },
-	{ value: MAType.TEMA, label: "TEMA (三重指数移动平均)" },
-	{ value: MAType.TRIMA, label: "TRIMA (三角移动平均)" },
-	{ value: MAType.KAMA, label: "KAMA (自适应移动平均)" },
-	{ value: MAType.MANA, label: "MANA (修正移动平均)" },
-	{ value: MAType.T3, label: "T3 (T3移动平均)" },
+	{ value: MAType.SMA, label: "indicator.maType.sma" },
+	{ value: MAType.EMA, label: "indicator.maType.ema" },
+	{ value: MAType.WMA, label: "indicator.maType.wma" },
+	{ value: MAType.DEMA, label: "indicator.maType.dema" },
+	{ value: MAType.TEMA, label: "indicator.maType.tema" },
+	{ value: MAType.TRIMA, label: "indicator.maType.trima" },
+	{ value: MAType.KAMA, label: "indicator.maType.kama" },
+	{ value: MAType.MANA, label: "indicator.maType.mana" },
+	{ value: MAType.T3, label: "indicator.maType.t3" },
 ];
 
 const EditDialog: React.FC<EditDialogProps> = ({
@@ -309,7 +309,6 @@ const EditDialog: React.FC<EditDialogProps> = ({
 							}
 						}}
 						step={1}
-						placeholder={`输入${label}`}
 					/>
 				</div>
 			);
@@ -335,7 +334,7 @@ const EditDialog: React.FC<EditDialogProps> = ({
 						}
 					>
 						<SelectTrigger id={key}>
-							<SelectValue placeholder={`选择${label}`} />
+							<SelectValue />
 						</SelectTrigger>
 						<SelectContent>
 							{options.map((option) => (
@@ -343,7 +342,7 @@ const EditDialog: React.FC<EditDialogProps> = ({
 									key={String(option.value)}
 									value={String(option.value)}
 								>
-									{option.label}
+									{t(option.label)}
 								</SelectItem>
 							))}
 						</SelectContent>

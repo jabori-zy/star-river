@@ -23,8 +23,8 @@ const IndicatorEditor: React.FC<IndicatorEditorProps> = ({
 	selectedIndicators,
 	onSelectedIndicatorsChange,
 }) => {
-	const { t } = useTranslation();
 	// 本地状态管理
+	const { t } = useTranslation();
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
 	const [isEditing, setIsEditing] = useState(false);
 	const [editingIndex, setEditingIndex] = useState<number | null>(null);
@@ -206,7 +206,7 @@ const IndicatorEditor: React.FC<IndicatorEditorProps> = ({
 			<div className="space-y-2">
 				{selectedIndicators.length === 0 ? (
 					<div className="flex items-center justify-center p-4 border border-dashed rounded-md text-muted-foreground text-sm">
-						点击+号添加技术指标
+						{t("indicatorNode.addIndicatorHint")}
 					</div>
 				) : (
 					selectedIndicators.map((config, index) => (

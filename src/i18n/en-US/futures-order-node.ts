@@ -5,6 +5,8 @@ const translation = {
 	order: "Order",
 	allStatus: "All Status",
 	orderSendDescription: "The order will be sent to  ",
+	addOrderConfigHint: "Click + to add order config",
+	noOrderConfig: "No order config",
 	orderConfig: {
 		orderConfigLabel: "Order Config",
 		orderType: "Order Type",

@@ -25,9 +25,9 @@ const NodeSupportConnectionMap: Record<NodeType, NodeType[]> = {
 		NodeType.IfElseNode,
 	],
 	[NodeType.FuturesOrderNode]: [
-		NodeType.IfElseNode,
-		NodeType.PositionNode,
-		NodeType.VariableNode,
+		// NodeType.IfElseNode,
+		// NodeType.PositionNode,
+		// NodeType.VariableNode,
 	],
 	[NodeType.PositionNode]: [NodeType.IfElseNode, NodeType.VariableNode],
 	[NodeType.VariableNode]: [NodeType.IfElseNode, NodeType.VariableNode],

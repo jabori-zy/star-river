@@ -356,12 +356,12 @@ const ResetVarConfigItem: React.FC<ResetVarConfigItemProps> = ({
 								onValueChange={handleVariableChange}
 								placeholder={
 									customVariables.length === 0
-										? "无自定义变量"
-										: "选择要重置的变量"
+										? t("variableNode.noCustomVariable")
+										: t("variableNode.selectVariableToReset")
 								}
 								options={customVariableOptions}
 								disabled={customVariables.length === 0}
-								emptyMessage="未配置自定义变量，请在策略起点配置"
+								emptyMessage={t("variableNode.noCustomVariableHint")}
 							/>
 							{errors.variable && (
 								<p className="text-xs text-red-600 mt-1">{errors.variable}</p>

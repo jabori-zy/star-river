@@ -1,6 +1,7 @@
 import type React from "react";
 import type { VariableNodeData } from "@/types/node/variable-node";
 import { VariableHandleItem } from "../variable-handle-item/index";
+import { useTranslation } from "react-i18next";
 
 interface BacktestModeShowProps {
 	id: string;
@@ -13,6 +14,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 	data,
 	handleColor,
 }) => {
+	const { t } = useTranslation();
 	// 获取回测模式配置
 	const backtestConfig = data.backtestConfig;
 
@@ -24,7 +26,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 	) {
 		return (
 			<div className="text-sm text-muted-foreground p-2 text-center">
-				暂无变量配置
+				{t("variableNode.noVariableConfig")}
 			</div>
 		);
 	}

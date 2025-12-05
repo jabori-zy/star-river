@@ -7,6 +7,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import type { LayoutMode } from "@/types/chart";
+import { useTranslation } from "react-i18next";
 
 interface LayoutControlProps {
 	value: LayoutMode;
@@ -17,27 +18,23 @@ interface LayoutControlProps {
 const layoutOptions = [
 	{
 		value: "vertical" as LayoutMode,
-		label: "纵向布局",
+		label: "desktop.backtestPage.layout.vertical",
 		icon: Columns3,
-		description: "图表垂直排列",
 	},
 	{
 		value: "horizontal" as LayoutMode,
-		label: "横向布局",
+		label: "desktop.backtestPage.layout.horizontal",
 		icon: Rows3,
-		description: "图表水平排列",
 	},
 	{
 		value: "grid" as LayoutMode,
-		label: "网格布局",
+		label: "desktop.backtestPage.layout.grid",
 		icon: Grid2x2,
-		description: "偶数列，奇数行",
 	},
 	{
 		value: "grid-alt" as LayoutMode,
-		label: "网格布局2",
+		label: "desktop.backtestPage.layout.grid2",
 		icon: LayoutGrid,
-		description: "奇数列，偶数行",
 	},
 ];
 
@@ -46,6 +43,7 @@ export default function LayoutControl({
 	onChange,
 	disabled = false,
 }: LayoutControlProps) {
+	const { t } = useTranslation();
 	const currentOption = layoutOptions.find((option) => option.value === value);
 
 	return (
@@ -58,7 +56,7 @@ export default function LayoutControl({
 								<>
 									<currentOption.icon className="h-4 w-4 flex-shrink-0" />
 									<span className="hidden xl:inline whitespace-nowrap">
-										{currentOption.label}
+										{t(currentOption.label)}
 									</span>
 								</>
 							)}
@@ -75,10 +73,7 @@ export default function LayoutControl({
 							<div className="flex items-center gap-2">
 								<option.icon className="h-4 w-4" />
 								<div className="flex flex-col">
-									<span>{option.label}</span>
-									<span className="text-xs text-muted-foreground">
-										{option.description}
-									</span>
+									<span>{t(option.label)}</span>
 								</div>
 							</div>
 						</SelectItem>

@@ -201,12 +201,12 @@ export const renderVariableOptions = ({
 							<div className="flex items-center w-full gap-1">
 								<div className="flex items-center gap-0.5 flex-shrink-0">
 									<TypeIconComponent className={`h-4 w-4 ${typeIconColor}`} />
-									<Badge
+									{/* <Badge
 										variant="outline"
 										className="flex items-center justify-center text-[10px] leading-none py-1 border-gray-400 rounded-sm"
 									>
 										{variable.indicatorType}
-									</Badge>
+									</Badge> */}
 								</div>
 								<span className="font-medium text-gray-900 flex-1 text-right truncate">
 									{t(`indicator.indicatorValueField.${varName}`)}
@@ -220,7 +220,15 @@ export const renderVariableOptions = ({
 			result.push(
 				<SelectGroup key={`indicator_group_${indicatorId}`}>
 					<SelectLabel className="text-xs font-semibold text-blue-600 px-2 py-1.5">
-						指标 {indicatorId}
+						<div className="flex items-center gap-2">
+							{t("indicatorNode.indicator")} {indicatorId}
+							<Badge
+								variant="outline"
+								className="flex items-center justify-center text-[10px] leading-none py-1 border-gray-400 rounded-sm"
+							>
+								{variables[0].indicatorType}
+							</Badge>
+						</div>
 					</SelectLabel>
 					{groupItems}
 				</SelectGroup>,
@@ -290,12 +298,12 @@ export const renderVariableOptions = ({
 							<div className="flex items-center w-full gap-1">
 								<div className="flex items-center gap-0.5 flex-shrink-0">
 									<TypeIconComponent className={`h-4 w-4 ${typeIconColor}`} />
-									<Badge
+									{/* <Badge
 										variant="outline"
 										className="flex items-center justify-center text-[10px] leading-none py-1 border-gray-400 rounded-sm"
 									>
 										{variable.symbol}|{variable.interval}
-									</Badge>
+									</Badge> */}
 								</div>
 								<span className="font-medium text-gray-900 flex-1 text-right truncate">
 									{t(`market.klineValueField.${field}`)}
@@ -309,7 +317,15 @@ export const renderVariableOptions = ({
 			result.push(
 				<SelectGroup key={`kline_group_${configId}`}>
 					<SelectLabel className="text-xs font-semibold text-green-600 px-2 py-1.5">
-						{t("ifElseNode.kline")} {configId}
+						<div className="flex items-center gap-2">
+							{t("klineNode.kline")} {configId}
+							<Badge
+								variant="outline"
+								className="flex items-center justify-center text-[10px] leading-none py-1 border-gray-400 rounded-sm"
+							>
+								{variables[0].symbol}|{variables[0].interval}
+							</Badge>
+						</div>
 					</SelectLabel>
 					{groupItems}
 				</SelectGroup>,

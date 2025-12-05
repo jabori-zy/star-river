@@ -1,11 +1,10 @@
 import { useReactFlow } from "@xyflow/react";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { NodeOpConfirmDialog } from "@/components/flow/node-op-confirm-dialog";
 import { Label } from "@/components/ui/label";
 import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
-import { getSymbolList } from "@/service/market";
-import type { Instrument } from "@/types/market";
+import { useSymbolList } from "@/service/market/symbol-list";
 import type {
 	GetCustomVariableConfig,
 	ResetVariableConfig,
@@ -124,45 +123,8 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 		return undefined;
 	}, [tradeMode, startNodeData]);
 
-	const [symbolList, setSymbolList] = useState<Instrument[]>([]);
-	const [isSymbolLoading, setIsSymbolLoading] = useState(false);
-
-	useEffect(() => {
-		let cancelled = false;
-
-		if (!selectedAccountId) {
-			setSymbolList((prev) => (prev.length === 0 ? prev : []));
-			setIsSymbolLoading(false);
-			return () => {
-				cancelled = true;
-			};
-		}
-
-		const fetchSymbols = async () => {
-			setIsSymbolLoading(true);
-			try {
-				const data = await getSymbolList(selectedAccountId);
-				if (!cancelled) {
-					setSymbolList(data);
-				}
-			} catch (error) {
-				console.error("获取交易对列表失败:", error);
-				if (!cancelled) {
-					setSymbolList([]);
-				}
-			} finally {
-				if (!cancelled) {
-					setIsSymbolLoading(false);
-				}
-			}
-		};
-
-		fetchSymbols();
-
-		return () => {
-			cancelled = true;
-		};
-	}, [selectedAccountId]);
+	// 使用 React Query 获取交易对列表
+	const { data: symbolList = [] } = useSymbolList(selectedAccountId ?? 0);
 
 	const symbolOptions = useMemo(
 		() =>
@@ -171,21 +133,6 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 				label: symbol.name,
 			})),
 		[symbolList],
-	);
-
-	const symbolPlaceholder = useMemo(() => {
-		if (!selectedAccountId) {
-			return "请先选择账户";
-		}
-		if (isSymbolLoading) {
-			return "加载中...";
-		}
-		return "选择交易对";
-	}, [selectedAccountId, isSymbolLoading]);
-
-	const symbolEmptyMessage = useMemo(
-		() => (selectedAccountId ? "未找到交易对" : "未选择账户"),
-		[selectedAccountId],
 	);
 
 	// 创建默认的变量配置
@@ -343,8 +290,6 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 						customVariables={customVariables}
 						customVariableOptions={customVariableOptions}
 						symbolOptions={symbolOptions}
-						symbolPlaceholder={symbolPlaceholder}
-						symbolEmptyMessage={symbolEmptyMessage}
 						isSymbolSelectorDisabled={!selectedAccountId}
 						getAvailableOperations={getAvailableOperations}
 						getUpdateOperationLabel={getUpdateOperationLabel}

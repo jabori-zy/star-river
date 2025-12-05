@@ -12,6 +12,7 @@ import {
 	getVariableValueTypeIconColor,
 } from "@/types/variable";
 import { formatVariableValue } from "../utils";
+import { useTranslation } from "react-i18next";
 
 interface VariableItemProps {
 	variable: CustomVariable;
@@ -24,6 +25,7 @@ export const VariableItem = ({
 	onEdit,
 	onDelete,
 }: VariableItemProps) => {
+	const { t } = useTranslation();
 	const IconComponent = getVariableValueTypeIcon(variable.varValueType);
 	const colorClass = getVariableValueTypeIconColor(variable.varValueType);
 	const formattedInitialValue = formatVariableValue(
@@ -56,13 +58,13 @@ export const VariableItem = ({
 				<div className="flex items-start gap-2 text-xs text-gray-600 ml-6">
 					<div className="flex flex-wrap items-start gap-x-4 gap-y-1 min-w-0 flex-1">
 						<div className="flex items-start gap-1">
-							<span className="shrink-0">初始值:</span>
+							<span className="shrink-0">{t("startNode.initialValue")}:</span>
 							<span className="font-medium break-all">
 								{formattedInitialValue}
 							</span>
 						</div>
 						<div className="flex items-start gap-1">
-							<span className="shrink-0">当前值:</span>
+							<span className="shrink-0">{t("startNode.currentValue")}:</span>
 							<span className="font-medium break-all">
 								{formattedCurrentValue}
 							</span>

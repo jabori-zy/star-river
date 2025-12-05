@@ -63,8 +63,6 @@ interface GetVarConfigItemProps {
 	onDelete: () => void;
 	customVariables: CustomVariable[];
 	symbolOptions: SymbolSelectorOption[];
-	symbolPlaceholder: string;
-	symbolEmptyMessage: string;
 	isSymbolSelectorDisabled: boolean;
 	duplicateOperation?: string | null;
 }
@@ -76,8 +74,6 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 	onDelete,
 	customVariables,
 	symbolOptions,
-	symbolPlaceholder,
-	symbolEmptyMessage,
 	isSymbolSelectorDisabled,
 	duplicateOperation,
 }) => {
@@ -547,9 +543,9 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 								id="variable"
 								value={config.varName}
 								onValueChange={handleVariableChange}
-								placeholder="选择变量"
-								searchPlaceholder="搜索变量..."
-								emptyMessage="未找到变量"
+								placeholder={t("variableNode.selectVariable")}
+								searchPlaceholder={t("variableNode.searchVariable")}
+								emptyMessage={t("variableNode.emptyMessage")}
 								options={mixedVariableOptions}
 								className="shadow-none"
 							/>
@@ -564,15 +560,13 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 									htmlFor="symbol"
 									className="text-sm font-medium pointer-events-none"
 								>
-									交易对
+									{t("variableNode.symbol")}
 								</Label>
 								<div className="w-full">
 									<SymbolSelector
 										options={symbolOptions}
 										value={("symbol" in config ? config.symbol : null) || ""}
 										onChange={handleSymbolChange}
-										placeholder={symbolPlaceholder}
-										emptyMessage={symbolEmptyMessage}
 										disabled={isSymbolSelectorDisabled}
 									/>
 								</div>
@@ -596,7 +590,7 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 									value={localDisplayName}
 									onChange={handleDisplayNameChange}
 									onBlur={handleDisplayNameBlur}
-									placeholder="输入变量名称"
+									placeholder={t("variableNode.inputVariableName")}
 									className="w-full"
 								/>
 							</div>

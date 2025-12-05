@@ -26,8 +26,8 @@ export async function openBacktestWindow(
 				);
 			}
 		} else {
-			// 浏览器环境：打开新标签页
-			const backtestUrl = `/backtest/${strategyId}?strategyName=${encodeURIComponent(strategyName)}`;
+			// 浏览器环境：打开新标签页（使用 Hash Router 格式）
+			const backtestUrl = `/#/backtest/${strategyId}?strategyName=${encodeURIComponent(strategyName)}`;
 			window.open(backtestUrl, "_blank", "width=1200,height=800");
 		}
 	} catch (error) {

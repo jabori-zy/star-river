@@ -206,7 +206,7 @@ const FuturesOrderNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 			<div className="px-2">
 				{orderConfigs.length === 0 ? (
 					<div className="flex items-center justify-center p-4 border border-dashed rounded-md text-muted-foreground text-sm">
-						点击+号添加订单配置
+						{t("futuresOrderNode.addOrderConfigHint")}
 					</div>
 				) : (
 					<div className="flex flex-col gap-2">

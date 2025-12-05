@@ -10,8 +10,10 @@ import {
 	TradeMode,
 } from "@/types/strategy";
 import VariableSetting from "../components/variable-setting";
-
+import { useTranslation } from "react-i18next";
+	
 const VariableNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id }) => {
+	const { t } = useTranslation();
 	// ✅ 使用新版本 hook 管理回测配置
 	const {
 		backtestConfig,
@@ -53,7 +55,7 @@ const VariableNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id }) => {
 		<div className="h-full overflow-y-auto bg-white">
 			<div className="flex flex-col gap-2">
 				<AccountSelector
-					label="数据来源账户"
+					label={t("variableNode.account")}
 					tradeMode={TradeMode.BACKTEST}
 					selectedAccount={selectedAccount}
 					onAccountChange={handleAccountChange}

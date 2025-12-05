@@ -5,8 +5,11 @@ const translation = {
 	dataSource: "Data Source",
 	noConfig: "No Config",
 	symbol: "Symbol",
+	selectSymbol: "Select Symbol",
+	noSymbol: "No Symbol",
 	interval: "Interval",
 	exchange: "Exchange",
+	addIndicatorHint: "Click + to add technical indicators",
 	indicatorViewer: {
 		searchPlaceholder: "Search",
 		allIndicators: "All Indicators",

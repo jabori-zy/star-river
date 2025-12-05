@@ -7,6 +7,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import type { SelectedSymbol } from "@/types/node/kline-node";
+import { useTranslation } from "react-i18next";
 
 interface SymbolSelectorProps {
 	symbolList: SelectedSymbol[];
@@ -19,6 +20,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 	selectedSymbol,
 	onSymbolChange,
 }) => {
+	const { t } = useTranslation();
 	const handleSymbolChange = (symbolId: string) => {
 		const selected = symbolList.find(
 			(symbol) => symbol.configId.toString() === symbolId,
@@ -31,14 +33,14 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 	return (
 		<div className="space-y-2">
 			<Label htmlFor="symbol-select" className="text-sm font-medium">
-				交易对选择
+				{t("indicatorNode.symbol")}
 			</Label>
 			<Select
 				value={selectedSymbol?.configId.toString() || ""}
 				onValueChange={handleSymbolChange}
 			>
 				<SelectTrigger id="symbol-select" className="w-full">
-					<SelectValue placeholder="请选择交易对" />
+					<SelectValue placeholder={t("indicatorNode.selectSymbol")} />
 				</SelectTrigger>
 				<SelectContent>
 					{symbolList.map((symbol) => (
@@ -56,7 +58,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 					))}
 					{symbolList.length === 0 && (
 						<SelectItem value="no-symbols" disabled>
-							暂无可选交易对
+							{t("indicatorNode.noSymbol")}
 						</SelectItem>
 					)}
 				</SelectContent>

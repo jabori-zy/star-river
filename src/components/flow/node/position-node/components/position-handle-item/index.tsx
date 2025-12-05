@@ -72,7 +72,7 @@ export function PositionHandleItem({
 							<Badge
 								variant="outline"
 								className={cn(
-									"text-[10px] px-1.5 py-0 h-5 font-normal max-w-[120px] break-words text-right",
+									"text-[10px] px-1.5 py-0 h-5 font-normal break-words text-left",
 									operationConfig.triggerConfig
 										? "bg-white text-slate-600"
 										: "bg-red-50 text-red-500 border-red-200",

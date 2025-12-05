@@ -67,6 +67,7 @@ import StringTypeOpEditor from "../../components/variable-op-editor/string-type-
 import TimeTypeOpEditor from "../../components/variable-op-editor/time-type-op-editor";
 import { useValidateUpdateConfig } from "../validate";
 
+
 interface UpdateVarConfigItemProps {
 	id: string;
 	config: UpdateVariableConfig;
@@ -723,12 +724,12 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 								onValueChange={handleVariableChange}
 								placeholder={
 									customVariables.length === 0
-										? "无自定义变量"
-										: "选择要更新的变量"
+										? t("variableNode.noCustomVariable")
+										: t("variableNode.selectVariableToUpdate")
 								}
 								options={customVariableOptions}
 								disabled={customVariables.length === 0}
-								emptyMessage="未配置自定义变量，请在策略起点配置"
+								emptyMessage={t("variableNode.noCustomVariableHint")}
 								className="w-full"
 							/>
 							{errors.variable && (

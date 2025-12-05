@@ -19,8 +19,6 @@ interface VariableConfigItemProps {
 	customVariables: CustomVariable[];
 	customVariableOptions: Array<{ value: string; label: React.ReactNode }>;
 	symbolOptions: SymbolSelectorOption[];
-	symbolPlaceholder: string;
-	symbolEmptyMessage: string;
 	isSymbolSelectorDisabled: boolean;
 	getAvailableOperations: (
 		varValueType: VariableValueType,
@@ -42,8 +40,6 @@ const VariableConfigItem: React.FC<VariableConfigItemProps> = ({
 	customVariables,
 	customVariableOptions,
 	symbolOptions,
-	symbolPlaceholder,
-	symbolEmptyMessage,
 	isSymbolSelectorDisabled,
 	getAvailableOperations,
 	getUpdateOperationLabel,
@@ -97,8 +93,6 @@ const VariableConfigItem: React.FC<VariableConfigItemProps> = ({
 						onDelete={() => onDelete(index)}
 						customVariables={customVariables}
 						symbolOptions={symbolOptions}
-						symbolPlaceholder={symbolPlaceholder}
-						symbolEmptyMessage={symbolEmptyMessage}
 						isSymbolSelectorDisabled={isSymbolSelectorDisabled}
 						duplicateOperation={duplicateOperation}
 					/>
