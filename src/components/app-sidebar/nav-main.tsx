@@ -2,10 +2,10 @@
 
 import type { LucideIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useLocation } from "react-router";
+import { Link, useLocation } from "react-router";
 import {
 	SidebarGroup,
-	SidebarGroupLabel,
+	// SidebarGroupLabel,
 	SidebarMenu,
 	SidebarMenuButton,
 	SidebarMenuItem,
@@ -29,10 +29,10 @@ export function NavMain({
 				{items.map((item) => (
 					<SidebarMenuItem key={item.title}>
 						<SidebarMenuButton asChild isActive={location.pathname === item.url}>
-							<a href={item.url}>
+							<Link to={item.url}>
 								<item.icon />
 								<span>{t(item.title)}</span>
-							</a>
+							</Link>
 						</SidebarMenuButton>
 					</SidebarMenuItem>
 				))}

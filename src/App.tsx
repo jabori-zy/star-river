@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import type { ApiError } from "./service";
 import useSystemConfigStore from "./store/use-system-config-store";
+import { useTranslation } from "react-i18next";
 
 // 创建 QueryClient 实例，配置全局默认选项
 const queryClient = new QueryClient({
@@ -97,6 +98,7 @@ const queryClient = new QueryClient({
 
 function App() {
 	const { loadSystemConfig, systemConfig } = useSystemConfigStore();
+	const { t } = useTranslation();
 	const [isAppReady, setIsAppReady] = useState(false);
 	const [lastSystemConfig, setLastSystemConfig] =
 		useState<typeof systemConfig>(null);
@@ -139,10 +141,6 @@ function App() {
 			(lastSystemConfig.localization !== systemConfig.localization ||
 				lastSystemConfig.timezone !== systemConfig.timezone)
 		) {
-			console.log("系统配置发生变化，刷新页面...", {
-				old: lastSystemConfig,
-				new: systemConfig,
-			});
 
 			// 如果在 Electron 环境中，通知所有回测窗口刷新
 			if (window.require) {
@@ -152,14 +150,14 @@ function App() {
 						electronModule.ipcRenderer.invoke("refresh-all-backtest-windows");
 					}
 				} catch (error) {
-					console.error("通知回测窗口刷新失败:", error);
+					console.error("failed to alert all backtest windows:", error);
 				}
 			}
 
-			// 延迟一点时间让用户看到保存成功的提示
-			setTimeout(() => {
-				window.location.reload();
-			}, 500);
+			// // 延迟一点时间让用户看到保存成功的提示
+			// setTimeout(() => {
+			// 	window.location.reload();
+			// }, 10);
 		}
 	}, [systemConfig, lastSystemConfig]);
 
@@ -167,7 +165,7 @@ function App() {
 	if (!isAppReady) {
 		return (
 			<div className="flex items-center justify-center min-h-screen">
-				<div className="text-lg">正在加载系统配置...</div>
+				<div className="text-lg">{t("desktop.system.loading")}</div>
 			</div>
 		);
 	}

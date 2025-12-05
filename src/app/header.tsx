@@ -2,14 +2,21 @@ import {
 	ChevronLeft,
 	ChevronRight,
 	Minus,
+	Settings,
 	SidebarIcon,
 	Square,
 	X,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
 import ConfirmBox from "@/components/confirm-box";
 import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/components/ui/sidebar";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { usePlatform } from "@/store/use-platform";
 import useSidebarToggleStore from "@/store/use-sidebar-toggle-store";
@@ -28,53 +35,75 @@ declare module "react" {
 	}
 }
 
-// 整个应用的头部
-// 侧边栏触发器
+// Sidebar trigger button
 function SidebarTrigger() {
+	const { t } = useTranslation();
 	const { setOpen } = useSidebar();
 	const { isSidebarOpen, setIsSidebarOpen } = useSidebarToggleStore();
 	return (
-		<Button
-			variant="ghost"
-			size="icon"
-			onClick={() => {
-				setOpen(!isSidebarOpen);
-				setIsSidebarOpen(!isSidebarOpen);
-			}}
-			className="w-6 h-6 cursor-pointer"
-		>
-			<SidebarIcon />
-		</Button>
+		<Tooltip>
+			<TooltipTrigger asChild>
+				<Button
+					variant="ghost"
+					size="icon"
+					onClick={() => {
+						setOpen(!isSidebarOpen);
+						setIsSidebarOpen(!isSidebarOpen);
+					}}
+					className="w-6 h-6 cursor-pointer"
+				>
+					<SidebarIcon />
+				</Button>
+			</TooltipTrigger>
+			<TooltipContent side="bottom">
+				{t("desktop.header.toggleSidebar")}
+			</TooltipContent>
+		</Tooltip>
 	);
 }
 
-// 路由箭头
+// Navigation arrows
 function RouteArrow() {
+	const { t } = useTranslation();
 	const navigate = useNavigate();
 	return (
 		<div className="flex items-center gap-0.5">
-			{/* 返回 */}
-			<Button
-				variant="ghost"
-				size="icon"
-				onClick={() => {
-					navigate(-1);
-				}}
-				className="w-6 h-6 cursor-pointer"
-			>
-				<ChevronLeft />
-			</Button>
-			{/* 前进 */}
-			<Button
-				variant="ghost"
-				size="icon"
-				onClick={() => {
-					navigate(1);
-				}}
-				className="w-6 h-6 cursor-pointer"
-			>
-				<ChevronRight />
-			</Button>
+			{/* Go back */}
+			<Tooltip>
+				<TooltipTrigger asChild>
+					<Button
+						variant="ghost"
+						size="icon"
+						onClick={() => {
+							navigate(-1);
+						}}
+						className="w-6 h-6 cursor-pointer"
+					>
+						<ChevronLeft />
+					</Button>
+				</TooltipTrigger>
+				<TooltipContent side="bottom">
+					{t("desktop.header.goBack")}
+				</TooltipContent>
+			</Tooltip>
+			{/* Go forward */}
+			<Tooltip>
+				<TooltipTrigger asChild>
+					<Button
+						variant="ghost"
+						size="icon"
+						onClick={() => {
+							navigate(1);
+						}}
+						className="w-6 h-6 cursor-pointer"
+					>
+						<ChevronRight />
+					</Button>
+				</TooltipTrigger>
+				<TooltipContent side="bottom">
+					{t("desktop.header.goForward")}
+				</TooltipContent>
+			</Tooltip>
 		</div>
 	);
 }
@@ -87,7 +116,7 @@ function AppTitle() {
 			{/* {centerContent ? (
 				<div className="flex items-center">{centerContent}</div>
 			) : ( */}
-			<h1 className="text-lg font-bold select-none cursor-default">
+			<h1 className="text-md font-bold select-none cursor-default">
 				Star River
 			</h1>
 			{/* )} */}
@@ -95,8 +124,10 @@ function AppTitle() {
 	);
 }
 
-// 窗口控制
+// Window controls (Windows only)
 function WindowControl() {
+	const { t } = useTranslation();
+
 	const handleMinimize = () => {
 		if (ipcRenderer) {
 			ipcRenderer.invoke("minimize-window");
@@ -117,59 +148,112 @@ function WindowControl() {
 
 	return (
 		<div className="flex items-center gap-0.5">
-			{/* 最小化 */}
-			<Button variant="ghost" size="icon" onClick={handleMinimize}>
-				<Minus className="w-3 h-3" />
-			</Button>
-			{/* 最大化 */}
-			<Button variant="ghost" size="icon" onClick={handleMaximize}>
-				<Square className="w-3 h-3" />
-			</Button>
-			{/* 关闭 - 使用确认框包装 */}
+			{/* Minimize */}
+			<Tooltip>
+				<TooltipTrigger asChild>
+					<Button variant="ghost" size="icon" onClick={handleMinimize}>
+						<Minus className="w-3 h-3" />
+					</Button>
+				</TooltipTrigger>
+				<TooltipContent side="bottom">
+					{t("desktop.header.minimize")}
+				</TooltipContent>
+			</Tooltip>
+			{/* Maximize */}
+			<Tooltip>
+				<TooltipTrigger asChild>
+					<Button variant="ghost" size="icon" onClick={handleMaximize}>
+						<Square className="w-3 h-3" />
+					</Button>
+				</TooltipTrigger>
+				<TooltipContent side="bottom">
+					{t("desktop.header.maximize")}
+				</TooltipContent>
+			</Tooltip>
+			{/* Close - wrapped with confirm dialog */}
 			<ConfirmBox
-				title="确认退出"
-				description="确认退出应用吗？所有未保存的更改可能会丢失。"
-				confirmText="确认"
-				cancelText="取消"
+				title={t("desktop.header.confirmQuit")}
+				description={t("desktop.header.confirmQuitDescription")}
+				confirmText={t("desktop.header.confirm")}
+				cancelText={t("desktop.header.cancel")}
 				onConfirm={handleConfirmQuit}
 			>
-				<Button variant="ghost" size="icon" className="hover:text-red-400">
-					<X className="w-3 h-3" />
-				</Button>
+				<Tooltip>
+					<TooltipTrigger asChild>
+						<Button variant="ghost" size="icon" className="hover:text-red-400">
+							<X className="w-3 h-3" />
+						</Button>
+					</TooltipTrigger>
+					<TooltipContent side="bottom">
+						{t("desktop.header.close")}
+					</TooltipContent>
+				</Tooltip>
 			</ConfirmBox>
 		</div>
 	);
 }
 
+// Settings button
+function SettingsButton() {
+	const { t } = useTranslation();
+	const navigate = useNavigate();
+	return (
+		<Tooltip>
+			<TooltipTrigger asChild>
+				<Button
+					variant="ghost"
+					size="icon"
+					onClick={() => navigate("/setting")}
+					className="w-6 h-6 cursor-pointer"
+				>
+					<Settings className="w-4 h-4" />
+				</Button>
+			</TooltipTrigger>
+			<TooltipContent side="bottom">
+				{t("desktop.header.settings")}
+			</TooltipContent>
+		</Tooltip>
+	);
+}
+
 export function AppHeader() {
-	const { isMac } = usePlatform();
+	const { isMac, isFullScreen } = usePlatform();
+	// macOS 非全屏时需要左边距避开红绿灯按钮
+	const needsTrafficLightPadding = isMac && !isFullScreen;
 
 	return (
-		<header className="flex sticky h-8 w-full items-center bg-background border-b border-gray-200">
+		<header
+			className="flex sticky h-8 w-full items-center bg-background border-b border-gray-200"
+			style={{ WebkitAppRegion: "drag" }}
+		>
 			<div
-				className="flex w-full items-center justify-between gap-2 pl-4"
-				style={{ WebkitAppRegion: "drag" }}
+				className="grid w-full items-center gap-2 pl-4"
+				style={{
+					WebkitAppRegion: "drag",
+					gridTemplateColumns: "1fr auto 1fr",
+				}}
 			>
-				{/* macOS: add left padding to avoid system traffic light buttons */}
-				<div
-					className={cn("flex items-center gap-2", isMac && "pl-[70px]")}
-					style={{ WebkitAppRegion: "no-drag" }}
-				>
-					<SidebarTrigger />
-					<RouteArrow />
-				</div>
-				<div style={{ WebkitAppRegion: "no-drag" }}>
-					<AppTitle />
-				</div>
-				{/* Windows only: render custom window controls */}
-				{!isMac && (
-					<div
-						className="flex items-center gap-2"
-						style={{ WebkitAppRegion: "no-drag" }}
-					>
-						<WindowControl />
+				{/* macOS: add left padding to avoid system traffic light buttons (except in fullscreen) */}
+				<div className={cn("flex items-center gap-2", needsTrafficLightPadding && "pl-[70px]")}>
+					<div style={{ WebkitAppRegion: "no-drag" }}>
+						<SidebarTrigger />
 					</div>
-				)}
+					<div style={{ WebkitAppRegion: "no-drag" }}>
+						<RouteArrow />
+					</div>
+				</div>
+				<AppTitle />
+				{/* Right side: Settings button + Windows window controls */}
+				<div className="flex items-center gap-2 justify-end">
+					<div style={{ WebkitAppRegion: "no-drag" }}>
+						<SettingsButton />
+					</div>
+					{!isMac && (
+						<div style={{ WebkitAppRegion: "no-drag" }}>
+							<WindowControl />
+						</div>
+					)}
+				</div>
 			</div>
 		</header>
 	);

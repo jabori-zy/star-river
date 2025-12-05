@@ -12,7 +12,6 @@ const useSidebarToggleStore = create<SidebarToggleState>((set) => ({
 	isSidebarOpen: true,
 	setIsSidebarOpen: (isSidebarOpen) => {
 		set({ isSidebarOpen });
-		console.log("isSidebarOpen", isSidebarOpen);
 	},
 }));
 

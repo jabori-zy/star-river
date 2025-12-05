@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router";
+import { createHashRouter } from "react-router";
 import AccountPage from "../pages/account-page";
 import BacktestPage from "../pages/backtest-page";
 import Dashboard from "../pages/dashboard";
@@ -10,7 +10,7 @@ import TestLogShowPage from "../pages/test-page/test-log-show";
 import TestStrategyPerformanceReportPage from "../pages/test-page/test-strategy-performance-report-page";
 import TestTablePage from "../pages/test-page/test-table";
 
-const router = createBrowserRouter([
+const router = createHashRouter([
 	{
 		path: "/",
 		element: <Dashboard />,

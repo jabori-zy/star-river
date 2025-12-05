@@ -29,6 +29,19 @@ const translation = {
 	variableNameAlreadyExists: "Variable name already exists",
 	addElementHint: "input value and press Enter to add",
 	backtestSettings: "Backtest Settings",
+	accountSelector: {
+		noAccount: "No account",
+		allAccountsSelected: "All available accounts have been selected",
+		addAccount: "Add Account",
+		connected: "Connected",
+		connecting: "Connecting...",
+		clickToConnect: "Click to connect",
+		selectAccount: "Select Account",
+		loadingAccounts: "Loading accounts...",
+		deleteAccount: "Delete Account",
+		confirmDeleteAccount: "Confirm Delete Account",
+		confirmDeleteAccountDescription: "Are you sure you want to delete the account {{accountName}}? This action cannot be undone.",
+	}
 };
 
 export default translation;

@@ -142,7 +142,7 @@ function StrategyListPage() {
 					</>
 				) : (
 					<div className="text-center py-8 text-muted-foreground">
-						暂无策略，点击右上角添加
+						{t("desktop.strategyListPage.noStrategy")}
 					</div>
 				)}
 			</div>

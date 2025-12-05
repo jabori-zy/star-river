@@ -1,7 +1,22 @@
-const { BrowserWindow, Menu, MenuItem } = require("electron");
+const { BrowserWindow, Menu, MenuItem, app } = require("electron");
+const path = require("node:path");
 
 // 用于跟踪策略ID到窗口的映射
 const strategyWindows = new Map();
+
+// 判断是否为开发环境
+const isDev = process.env.NODE_ENV === "development" || !app.isPackaged;
+
+// 获取页面 URL（使用 HashRouter，路由通过 # 传递）
+const getURL = (route = "") => {
+	if (isDev) {
+		const base = "http://localhost:5173";
+		return route ? `${base}/#${route}` : base;
+	}
+	// 生产环境加载本地文件
+	const base = `file://${path.join(__dirname, "../dist/index.html")}`;
+	return route ? `${base}#${route}` : base;
+};
 
 const createWindow = () => {
 	const mainWindow = new BrowserWindow({
@@ -11,6 +26,7 @@ const createWindow = () => {
 		minHeight: 600,
 		frame: false,
 		titleBarStyle: "hidden",
+		icon: path.join(__dirname, "../build/icons/icon.icns"),
 		// macOS: vertically center the traffic light buttons in the 40px header
 		trafficLightPosition: { x: 12, y: 8 },
 		webPreferences: {
@@ -21,10 +37,18 @@ const createWindow = () => {
 		},
 	});
 
-	mainWindow.loadURL("http://localhost:5173/");
+	mainWindow.loadURL(getURL());
+
+	// 监听全屏状态变化，通知渲染进程
+	mainWindow.on("enter-full-screen", () => {
+		mainWindow.webContents.send("fullscreen-change", true);
+	});
+	mainWindow.on("leave-full-screen", () => {
+		mainWindow.webContents.send("fullscreen-change", false);
+	});
 
 	// 开发环境自动打开控制台
-	if (process.env.NODE_ENV !== "production") {
+	if (isDev) {
 		mainWindow.webContents.openDevTools();
 		setupDevContextMenu(mainWindow);
 	}
@@ -40,6 +64,7 @@ const createBacktestWindow = (strategyId, strategyName) => {
 		minHeight: 400,
 		frame: false,
 		titleBarStyle: "hidden",
+		icon: path.join(__dirname, "../build/icons/icon.icns"),
 		// macOS: vertically center the traffic light buttons in the 40px header
 		trafficLightPosition: { x: 12, y: 8 },
 		webPreferences: {
@@ -50,13 +75,13 @@ const createBacktestWindow = (strategyId, strategyName) => {
 		},
 	});
 
-	let backtestUrl = strategyId
-		? `http://localhost:5173/backtest/${strategyId}`
-		: "http://localhost:5173/backtest";
+	const route = strategyId ? `/backtest/${strategyId}` : "/backtest";
+	let backtestUrl = getURL(route);
 
 	// Add strategyName as query parameter if provided
 	if (strategyName) {
-		backtestUrl += `?strategyName=${encodeURIComponent(strategyName)}`;
+		const separator = isDev ? "?" : (backtestUrl.includes("?") ? "&" : "?");
+		backtestUrl += `${separator}strategyName=${encodeURIComponent(strategyName)}`;
 	}
 
 	backtestWindow.loadURL(backtestUrl);
@@ -77,7 +102,7 @@ const createBacktestWindow = (strategyId, strategyName) => {
 		});
 	}
 
-	if (process.env.NODE_ENV !== "production") {
+	if (isDev) {
 		backtestWindow.webContents.openDevTools();
 		setupDevContextMenu(backtestWindow);
 	}

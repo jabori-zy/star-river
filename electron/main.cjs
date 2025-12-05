@@ -1,4 +1,5 @@
 const { app, BrowserWindow, globalShortcut } = require("electron");
+const path = require("node:path");
 const { createWindow } = require("./window-manager.cjs");
 const {
 	createRustBackend,
@@ -6,18 +7,35 @@ const {
 } = require("./backend-manager.cjs");
 const { setupIpcHandlers } = require("./ipc-handlers.cjs");
 
-app.whenReady().then(() => {
+// 判断是否为开发环境
+const isDev = process.env.NODE_ENV === "development" || !app.isPackaged;
+
+// 设置应用名称，影响用户数据目录 (~/Library/Application Support/Star River/)
+app.setName("Star River");
+
+app.whenReady().then(async () => {
+	// 开发环境下设置 Dock 图标 (macOS)
+	if (isDev && process.platform === "darwin") {
+		const iconPath = path.join(__dirname, "../build/icons/icon.png");
+		app.dock.setIcon(iconPath);
+	}
+
+	// 生产模式启动后端服务（需要在创建窗口前启动，以便获取端口）
+	if (!isDev) {
+		await createRustBackend();
+	}
+
 	createWindow();
 	setupIpcHandlers();
 
 	// 开发环境注册全局快捷键
-	if (process.env.NODE_ENV !== "production") {
+	if (isDev) {
 		setupDevShortcuts();
 	}
 
-	// 生产模式启动后端服务
-	if (process.env.NODE_ENV === "production") {
-		createRustBackend();
+	// 生产环境隐藏调试快捷键
+	if (!isDev) {
+		setupHiddenDevShortcuts();
 	}
 });
 
@@ -38,7 +56,17 @@ const setupDevShortcuts = () => {
 		}
 	});
 
-	console.log("开发环境快捷键已注册：F12 或 Ctrl+Shift+I 打开开发者工具");
+	console.log("dev environment shortcuts registered: F12 or Ctrl+Shift+I open developer tools");
+};
+
+// 生产环境隐藏调试快捷键 (Cmd+Shift+Option+I)
+const setupHiddenDevShortcuts = () => {
+	globalShortcut.register("CommandOrControl+Shift+Alt+I", () => {
+		const focusedWindow = BrowserWindow.getFocusedWindow();
+		if (focusedWindow) {
+			focusedWindow.webContents.toggleDevTools();
+		}
+	});
 };
 
 app.on("window-all-closed", () => {
@@ -46,6 +74,13 @@ app.on("window-all-closed", () => {
 		globalShortcut.unregisterAll();
 		killBackendProcess();
 		app.quit();
+	}
+});
+
+// macOS: 点击 Dock 图标时重新创建窗口
+app.on("activate", () => {
+	if (BrowserWindow.getAllWindows().length === 0) {
+		createWindow();
 	}
 });
 

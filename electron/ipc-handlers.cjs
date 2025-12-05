@@ -4,6 +4,7 @@ const {
 	checkOrOpenBacktestWindow,
 	refreshAllBacktestWindows,
 } = require("./window-manager.cjs");
+const { getBackendPort } = require("./backend-manager.cjs");
 
 const setupIpcHandlers = () => {
 	// Listen for messages from renderer process - check if window exists first
@@ -54,6 +55,11 @@ const setupIpcHandlers = () => {
 		if (focusedWindow) {
 			focusedWindow.close();
 		}
+	});
+
+	// 获取后端端口
+	ipcMain.handle("get-backend-port", () => {
+		return getBackendPort();
 	});
 };
 

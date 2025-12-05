@@ -1,4 +1,21 @@
 const translation = {
+	system: {
+		loading: "Loading system configuration...",
+	},
+	header: {
+		toggleSidebar: "Toggle Sidebar",
+		goBack: "Go Back",
+		goForward: "Go Forward",
+		settings: "Settings",
+		minimize: "Minimize",
+		maximize: "Maximize",
+		close: "Close",
+		confirmQuit: "Confirm Quit",
+		confirmQuitDescription:
+			"Are you sure you want to quit? Any unsaved changes may be lost.",
+		confirm: "Confirm",
+		cancel: "Cancel",
+	},
 	strategyList: "Strategy List",
 	createStrategy: "Create Strategy",
 	tradeAccount: "Trade Account",
@@ -16,6 +33,7 @@ const translation = {
 		confirmDeleteStrategy: "Confirm delete strategy",
 		confirmDeleteStrategyMessage:
 			"Are you sure you want to delete the strategy {{strategyName}}? This action cannot be undone.",
+		noStrategy: "No strategy",
 	},
 	strategyWorkflowPage: {
 		addStrategyDescription: "add strategy description...",
@@ -114,6 +132,15 @@ const translation = {
 			cumulativeReturn: "Cumulative Return",
 			availableBalance: "Available Balance",
 		},
+	},
+
+	settingPage: {
+		title: "System Settings",
+		language: "Language",
+		timezone: "Timezone",
+		noTimezoneFound: "No timezone found",
+		loadingTimezone: "Loading timezone list...",
+		searchTimezone: "Search timezone",
 	},
 };
 

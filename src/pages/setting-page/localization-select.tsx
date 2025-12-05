@@ -32,7 +32,7 @@ export function LocalizationSelect({
 	return (
 		<div className="flex flex-col gap-2">
 			<div className="text-sm font-medium">
-				{t("selectLanguage") || "选择语言"}
+				{t("desktop.settingPage.language")}
 			</div>
 			<Select
 				value={localSystemConfig.localization}
@@ -40,8 +40,8 @@ export function LocalizationSelect({
 					handleLocalizationChange(value as SupportLanguage)
 				}
 			>
-				<SelectTrigger>
-					<SelectValue placeholder={t("selectLanguage") || "选择语言"} />
+				<SelectTrigger className="hover:cursor-pointer hover:bg-gray-100">
+					<SelectValue placeholder={t("desktop.settingPage.language")} />
 				</SelectTrigger>
 				<SelectContent>
 					<SelectItem value={SupportLanguage.ZH_CN}>中文</SelectItem>

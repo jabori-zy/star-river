@@ -1,4 +1,20 @@
 const translation = {
+	system: {
+		loading: "加载系统配置中...",
+	},
+	header: {
+		toggleSidebar: "切换侧边栏",
+		goBack: "后退",
+		goForward: "前进",
+		settings: "设置",
+		minimize: "最小化",
+		maximize: "最大化",
+		close: "关闭",
+		confirmQuit: "确认退出",
+		confirmQuitDescription: "确认退出应用吗？所有未保存的更改可能会丢失。",
+		confirm: "确认",
+		cancel: "取消",
+	},
 	strategyList: "策略列表",
 	createStrategy: "创建策略",
 	tradeAccount: "交易账户",
@@ -16,6 +32,7 @@ const translation = {
 		confirmDeleteStrategy: "确认删除策略",
 		confirmDeleteStrategyMessage:
 			"您确定要删除策略 {{strategyName}} 吗？此操作无法撤销。",
+		noStrategy: "暂无策略",
 	},
 	strategyWorkflowPage: {
 		addStrategyDescription: "添加策略描述...",
@@ -112,6 +129,14 @@ const translation = {
 			cumulativeReturn: "累计收益率",
 			availableBalance: "可用余额",
 		},
+	},
+	settingPage: {
+		title: "系统设置",
+		language: "语言",
+		timezone: "时区",
+		noTimezoneFound: "未找到匹配的时区",
+		loadingTimezone: "加载时区列表中...",
+		searchTimezone: "搜索时区",
 	},
 };
 

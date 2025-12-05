@@ -1,17 +1,6 @@
 import { Settings } from "luxon";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-	AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import useSystemConfigStore from "@/store/use-system-config-store";
 import type { SystemConfig } from "@/types/system";
@@ -31,25 +20,12 @@ const SaveSettingButton = ({
 	const { t } = useTranslation();
 
 	return (
-		<AlertDialog>
-			<AlertDialogTrigger asChild>
-				<Button disabled={!systemConfigIsChanged || isLoading}>
-					{isLoading ? "保存中..." : t("saveSetting") || "保存设置"}
-				</Button>
-			</AlertDialogTrigger>
-			<AlertDialogContent>
-				<AlertDialogHeader>
-					<AlertDialogTitle>确认保存设置</AlertDialogTitle>
-					<AlertDialogDescription>
-						您确定要保存系统设置吗？保存后语言将会切换。
-					</AlertDialogDescription>
-				</AlertDialogHeader>
-				<AlertDialogFooter>
-					<AlertDialogCancel>取消</AlertDialogCancel>
-					<AlertDialogAction onClick={onSave}>确定保存</AlertDialogAction>
-				</AlertDialogFooter>
-			</AlertDialogContent>
-		</AlertDialog>
+		<Button
+			disabled={!systemConfigIsChanged || isLoading}
+			onClick={onSave}
+		>
+			{isLoading ? t("common.saving") : t("common.save")}
+		</Button>
 	);
 };
 
@@ -100,7 +76,7 @@ const SettingPage = () => {
 	if (isLoading || !systemConfig || !localSystemConfig) {
 		return (
 			<div className="flex items-center justify-center p-8">
-				<div className="text-lg">正在加载设置...</div>
+				<div className="text-lg">{t("desktop.settingPage.loading")}</div>
 			</div>
 		);
 	}
@@ -108,7 +84,7 @@ const SettingPage = () => {
 	return (
 		<div className="p-6">
 			<h1 className="text-2xl font-bold mb-6">
-				{t("systemSettingPageTitle") || "系统设置"}
+				{t("desktop.settingPage.title")}
 			</h1>
 			<div className="flex flex-col gap-4 min-w-40 max-w-md">
 				<LocalizationSelect

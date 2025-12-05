@@ -50,9 +50,9 @@ export function TimezoneSelect({
 		return (
 			<div className="flex flex-col gap-2">
 				<div className="text-sm font-medium">
-					{t("selectTimezone") || "选择时区"}
+					{t("desktop.settingPage.timezone")}
 				</div>
-				<div className="text-sm text-gray-500">加载时区列表中...</div>
+				<div className="text-sm text-gray-500">{t("desktop.settingPage.loadingTimezone")}</div>
 			</div>
 		);
 	}
@@ -60,15 +60,16 @@ export function TimezoneSelect({
 	return (
 		<div className="flex flex-col gap-2">
 			<div className="text-sm font-medium">
-				{t("selectTimezone") || "选择时区"}
+				{t("desktop.settingPage.timezone")}
 			</div>
 			<SelectWithSearch
 				options={timezoneOptions}
 				value={localSystemConfig.timezone || ""}
 				onValueChange={handleTimezoneChange}
-				placeholder={t("selectTimezone") || "选择时区"}
-				searchPlaceholder={t("searchTimezone") || "搜索时区..."}
-				emptyMessage={t("noTimezoneFound") || "未找到匹配的时区"}
+				placeholder={t("desktop.settingPage.timezone")}
+				searchPlaceholder={t("desktop.settingPage.searchTimezone")}
+				emptyMessage={t("desktop.settingPage.noTimezoneFound")}
+				className="hover:cursor-pointer !hover:bg-gray-100"
 			/>
 		</div>
 	);

@@ -407,7 +407,9 @@ export default function StrategyFlow({
 				fitViewOptions={{ padding: 0.1 }}
 				style={{ backgroundColor: "#F7F9FB", height: "100%" }}
 			>
-				<DevTools />
+				{process.env.NODE_ENV === "development" && (
+					<DevTools />
+				)}
 				<MiniMap position="bottom-left" />
 				{/* 背景颜色：深灰色 */}
 				<Background />

@@ -6,6 +6,7 @@ import { viteStaticCopy } from "vite-plugin-static-copy";
 
 // https://vite.dev/config/
 export default defineConfig({
+	base: "./", // 使用相对路径，支持 file:// 协议加载
 	plugins: [
 		react(),
 		tailwindcss(),

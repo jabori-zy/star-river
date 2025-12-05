@@ -1,7 +1,7 @@
 {
-	"name": "star_river",
+	"name": "star-river",
 	"private": true,
-	"version": "0.0.0",
+	"version": "0.0.1",
 	"author": "Jabori",
 	"description": "Star River App",
 	"type": "module",
@@ -11,26 +11,43 @@
 		"start": "vite",
 		"lint": "eslint .",
 		"preview": "vite preview",
-		"build": "electron-builder",
+		"build": "vite build && electron-builder",
+		"build:mac": "vite build && electron-builder --mac",
+		"build:win": "vite build && electron-builder --win",
 		"gen-i18n": "node src/i18n/gen-i18n.cjs",
 		"check": "npx biome check --write"
 	},
 	"build": {
 		"appId": "com.jabori.starriver",
+		"productName": "Star River",
+		"directories": {
+			"output": "dist",
+			"buildResources": "build"
+		},
+		"files": [
+			"electron/**/*",
+			"dist/**/*"
+		],
+		"extraResources": [
+			{
+				"from": "resources/${platform}/",
+				"to": "service/",
+				"filter": ["**/*"]
+			}
+		],
+		"mac": {
+			"target": ["dmg", "zip"],
+			"icon": "build/icons/icon.icns",
+			"category": "public.app-category.finance"
+		},
 		"win": {
 			"target": [
 				{
 					"target": "nsis",
-					"arch": [
-						"x64"
-					]
+					"arch": ["x64"]
 				}
-			]
-		},
-		"nsis": {
-			"oneClick": false,
-			"perMachine": true,
-			"allowToChangeInstallationDirectory": true
+			],
+			"icon": "build/icons/icon.ico"
 		}
 	},
 	"dependencies": {

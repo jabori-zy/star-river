@@ -270,7 +270,7 @@ const AccountSelector = ({
 					disabled={isLockedSelect}
 				>
 					<SelectTrigger className="h-8 text-xs w-[180px]">
-						<SelectValue placeholder="选择账户">
+						<SelectValue placeholder={t("startNode.accountSelector.selectAccount")}>
 							<div className="flex items-center gap-0.5">
 								{account.accountName}
 								{account.exchange && (
@@ -282,7 +282,7 @@ const AccountSelector = ({
 					<SelectContent>
 						{isLoadingAccounts ? (
 							<div className="flex items-center justify-center p-2 text-xs text-muted-foreground">
-								加载账户中...
+								{t("startNode.accountSelector.loadingAccounts")}
 							</div>
 						) : availableOptions.length > 0 ? (
 							availableOptions.map((item) => (
@@ -296,8 +296,8 @@ const AccountSelector = ({
 						) : (
 							<div className="flex items-center justify-center p-2 text-xs text-muted-foreground">
 								{availableAccounts.length > 0
-									? "所有账户已选择"
-									: "暂无账户数据"}
+									? t("startNode.accountSelector.allAccountsSelected")
+									: t("startNode.accountSelector.noAccountData")}
 							</div>
 						)}
 					</SelectContent>
@@ -305,10 +305,12 @@ const AccountSelector = ({
 
 				{!isLockedSelect && account.id !== 0 && (
 					<ConfirmBox
-						title="确认清除账户"
-						description={`确定要清除账户 ${account.accountName} 吗？此操作无法撤销。`}
-						confirmText="确认清除"
-						cancelText="取消"
+						title={t("startNode.accountSelector.confirmDeleteAccount")}
+						description={t("startNode.accountSelector.confirmDeleteAccountDescription", {
+							accountName: account.accountName,
+						})}
+						confirmText={t("common.confirm")}
+						cancelText={t("common.cancel")}
 						onConfirm={() => {
 							updateLocalAccount(index, {
 								id: 0,
@@ -379,12 +381,12 @@ const AccountSelector = ({
 			<div className="space-y-2">
 				{localAccounts.length === 0 ? (
 					<div className="flex items-center justify-center p-4 border border-dashed rounded-md text-muted-foreground text-sm">
-						暂无账户选择
+						{t("startNode.accountSelector.noAccount")}
 					</div>
 				) : (
 					localAccounts.map((account, index) => (
 						<div
-							key={`local-account-${index}`}
+							key={account.id}
 							className="flex items-center gap-2"
 						>
 							<div className="flex items-center gap-2">
@@ -393,14 +395,16 @@ const AccountSelector = ({
 									<TooltipProvider>
 										<Tooltip>
 											<TooltipTrigger asChild>
-												<div
-													className={`flex items-center justify-center h-8 w-8 rounded-md transition-colors ${
+												<Button
+													variant="ghost"
+													size="icon"
+													className={
 														accountStatuses[account.id] ===
 															ExchangeStatus.Connected ||
 														connectingAccounts.has(account.id)
-															? "cursor-default"
-															: "cursor-pointer hover:bg-gray-100"
-													}`}
+															? "cursor-default hover:bg-transparent"
+															: ""
+													}
 													onClick={() => {
 														if (
 															accountStatuses[account.id] !==
@@ -419,16 +423,16 @@ const AccountSelector = ({
 													) : (
 														<Unlink className="h-4 w-4 text-gray-500" />
 													)}
-												</div>
+												</Button>
 											</TooltipTrigger>
 											<TooltipContent>
 												<p>
 													{accountStatuses[account.id] ===
 													ExchangeStatus.Connected
-														? "已连接"
+														? t("startNode.accountSelector.connected")
 														: connectingAccounts.has(account.id)
-															? "连接中..."
-															: "click to connect"}
+															? t("startNode.accountSelector.connecting")
+															: t("startNode.accountSelector.clickToConnect")}
 												</p>
 											</TooltipContent>
 										</Tooltip>
@@ -453,10 +457,12 @@ const AccountSelector = ({
 									<>
 										{account.id !== 0 ? (
 											<ConfirmBox
-												title="确认删除账户"
-												description={`确定要删除账户 ${account.accountName} 吗？此操作无法撤销。`}
-												confirmText="确认删除"
-												cancelText="取消"
+												title={t("startNode.accountSelector.confirmDeleteAccount")}
+												description={t("startNode.accountSelector.confirmDeleteAccountDescription", {
+													accountName: account.accountName,
+												})}
+												confirmText={t("common.confirm")}
+												cancelText={t("common.cancel")}
 												onConfirm={() => handleRemoveAccount(index)}
 											>
 												<Button variant="ghost" size="icon" className="h-8 w-8">
@@ -489,7 +495,7 @@ const AccountSelector = ({
 						onClick={handleAddAccount}
 					>
 						<Plus className="h-3.5 w-3.5 mr-2" />
-						添加账户
+						{t("startNode.accountSelector.addAccount")}
 					</Button>
 				)}
 
@@ -498,7 +504,7 @@ const AccountSelector = ({
 					localAccounts.filter((acc) => acc.id !== 0).length >=
 						availableAccounts.length && (
 						<div className="text-xs text-muted-foreground mt-1">
-							所有可用账户已选择完毕
+							{t("startNode.accountSelector.allAccountsSelected")}
 						</div>
 					)}
 			</div>
