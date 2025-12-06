@@ -5,6 +5,7 @@ import ConfirmBox from "@/components/confirm-box";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { usePlatform } from "@/store/use-platform";
+import { useTranslation } from "react-i18next";
 
 // 声明electron的require
 const { ipcRenderer } = window.require
@@ -25,6 +26,7 @@ interface BacktestWindowHeaderProps {
 
 // 窗口控制
 function WindowControl({ onQuit }: { onQuit: () => Promise<boolean> }) {
+	const { t } = useTranslation();
 	const handleMinimize = () => {
 		if (ipcRenderer) {
 			ipcRenderer.invoke("minimize-window");
@@ -66,10 +68,10 @@ function WindowControl({ onQuit }: { onQuit: () => Promise<boolean> }) {
 			</Button>
 			{/* 关闭 - 使用确认框包装 */}
 			<ConfirmBox
-				title="确认关闭"
-				description="确认关闭回测窗口吗？这将停止当前策略运行，所有未保存的更改可能会丢失。"
-				confirmText="确认"
-				cancelText="取消"
+				title={t("common.confirmQuit")}
+				description={t("desktop.backtestPage.confirmQuitDescription")}
+				confirmText={t("common.confirm")}
+				cancelText={t("common.cancel")}
 				onConfirm={handleConfirmQuit}
 			>
 				<Button variant="ghost" size="icon" className="hover:text-red-400">

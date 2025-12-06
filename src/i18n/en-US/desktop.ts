@@ -58,6 +58,7 @@ const translation = {
 		deleteChart: "Delete Chart",
 		addChart: "Add Chart",
 		saveChart: "Save Chart",
+		confirmQuitDescription: "Are you sure you want to quit? Any unsaved changes may be lost.",
 		dashboardTab: {
 			performance: "Performance",
 			positions: "Positions",

@@ -47,6 +47,7 @@ const translation = {
 	next: "Next",
 	previous: "Previous",
 	confirm: "Confirm",
+	confirmQuit: "Confirm Quit",
 	deleting: "Deleting...",
 	lastUpdated: "Last Updated",
 	createTime: "Create Time",

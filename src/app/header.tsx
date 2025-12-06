@@ -148,29 +148,15 @@ function WindowControl() {
 	};
 
 	return (
-		<div className="flex items-center gap-0.5">
+		<div className="flex items-center gap-1">
 			{/* Minimize */}
-			<Tooltip>
-				<TooltipTrigger asChild>
-					<Button variant="ghost" size="icon" onClick={handleMinimize}>
-						<Minus className="w-3 h-3" />
-					</Button>
-				</TooltipTrigger>
-				<TooltipContent side="bottom">
-					{t("desktop.header.minimize")}
-				</TooltipContent>
-			</Tooltip>
+			<Button variant="ghost" size="icon" onClick={handleMinimize} className="w-6 h-6">
+				<Minus className="w-4 h-4" />
+			</Button>
 			{/* Maximize */}
-			<Tooltip>
-				<TooltipTrigger asChild>
-					<Button variant="ghost" size="icon" onClick={handleMaximize}>
-						<Square className="w-3 h-3" />
-					</Button>
-				</TooltipTrigger>
-				<TooltipContent side="bottom">
-					{t("desktop.header.maximize")}
-				</TooltipContent>
-			</Tooltip>
+			<Button variant="ghost" size="icon" onClick={handleMaximize} className="w-6 h-6">
+				<Square className="w-4 h-4" />
+			</Button>
 			{/* Close - wrapped with confirm dialog */}
 			<ConfirmBox
 				title={t("desktop.header.confirmQuit")}
@@ -179,16 +165,9 @@ function WindowControl() {
 				cancelText={t("desktop.header.cancel")}
 				onConfirm={handleConfirmQuit}
 			>
-				<Tooltip>
-					<TooltipTrigger asChild>
-						<Button variant="ghost" size="icon" className="hover:text-red-400">
-							<X className="w-3 h-3" />
-						</Button>
-					</TooltipTrigger>
-					<TooltipContent side="bottom">
-						{t("desktop.header.close")}
-					</TooltipContent>
-				</Tooltip>
+				<Button variant="ghost" size="icon" className="w-6 h-6 hover:text-red-400">
+					<X className="w-4 h-4" />
+				</Button>
 			</ConfirmBox>
 		</div>
 	);
@@ -248,10 +227,10 @@ export function AppHeader() {
 			>
 				{/* macOS: add left padding to avoid system traffic light buttons (except in fullscreen) */}
 				<div className={cn("flex items-center gap-2", isMac && !isFullScreen && "pl-[70px]")}>
-					<div style={{ WebkitAppRegion: "no-drag" }}>
+					<div className="flex items-center" style={{ WebkitAppRegion: "no-drag" }}>
 						<SidebarTrigger />
 					</div>
-					<div style={{ WebkitAppRegion: "no-drag" }}>
+					<div className="flex items-center" style={{ WebkitAppRegion: "no-drag" }}>
 						<RouteArrow />
 					</div>
 				</div>
@@ -262,7 +241,7 @@ export function AppHeader() {
 						<SettingsButton />
 					</div>
 					{!isMac && (
-						<div style={{ WebkitAppRegion: "no-drag" }}>
+						<div className="mr-2" style={{ WebkitAppRegion: "no-drag" }}>
 							<WindowControl />
 						</div>
 					)}

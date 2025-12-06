@@ -134,6 +134,7 @@ const translation = {
             grid: "网格布局",
             grid2: "网格布局2",
         },
+        confirmQuitDescription: "确认关闭回测窗口吗？所有未保存的更改可能会丢失。",
     },
     settingPage: {
         title: "系统设置",

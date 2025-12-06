@@ -1,6 +1,9 @@
 const { app, BrowserWindow, globalShortcut } = require("electron");
 const path = require("node:path");
-const { createWindow } = require("./window-manager.cjs");
+const {
+	createWindow,
+	closeAllBacktestWindows,
+} = require("./window-manager.cjs");
 const {
 	createRustBackend,
 	killBackendProcess,
@@ -23,8 +26,14 @@ app.whenReady().then(async () => {
 	// 启动后端服务（需要在创建窗口前启动，以便获取端口）
 	await createRustBackend();
 
-	createWindow();
+	const mainWindow = createWindow();
 	setupIpcHandlers();
+
+	// 监听主窗口关闭事件，关闭所有回测窗口
+	mainWindow.on("close", () => {
+		console.log("Main window closing, closing all backtest windows...");
+		closeAllBacktestWindows();
+	});
 
 	// 开发环境注册全局快捷键
 	if (isDev) {

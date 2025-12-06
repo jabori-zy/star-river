@@ -47,7 +47,18 @@
 					"arch": ["x64"]
 				}
 			],
-			"icon": "build/icons/icon.ico"
+			"icon": "build/icons/icon.ico",
+			"sign": null,
+			"verifyUpdateCodeSignature": false
+		},
+		"nsis": {
+			"oneClick": false,
+			"allowToChangeInstallationDirectory": true,
+			"perMachine": false,
+			"createDesktopShortcut": true,
+			"createStartMenuShortcut": true,
+			"installerIcon": "build/icons/icon.ico",
+			"uninstallerIcon": "build/icons/icon.ico"
 		}
 	},
 	"dependencies": {

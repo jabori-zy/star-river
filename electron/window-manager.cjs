@@ -170,6 +170,21 @@ const refreshAllBacktestWindows = () => {
 	return refreshedCount;
 };
 
+// Close all backtest windows
+const closeAllBacktestWindows = () => {
+	let closedCount = 0;
+	for (const [strategyId, window] of strategyWindows.entries()) {
+		if (window && !window.isDestroyed()) {
+			console.log(`Closing backtest window: strategyId=${strategyId}`);
+			window.close();
+			closedCount++;
+		}
+	}
+	strategyWindows.clear();
+	console.log(`Closed ${closedCount} backtest window(s)`);
+	return closedCount;
+};
+
 const setupDevContextMenu = (window) => {
 	window.webContents.on("context-menu", (_, params) => {
 		const menu = new Menu();
@@ -214,4 +229,5 @@ module.exports = {
 	closeBacktestWindow,
 	checkOrOpenBacktestWindow,
 	refreshAllBacktestWindows,
+	closeAllBacktestWindows,
 };
