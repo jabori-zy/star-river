@@ -2,6 +2,10 @@ const { spawn } = require("node:child_process");
 const path = require("node:path");
 const fs = require("node:fs");
 const net = require("node:net");
+const { app } = require("electron");
+
+// 判断是否为开发环境
+const isDev = process.env.NODE_ENV === "development" || !app.isPackaged;
 
 let backendProcess = null;
 let backendHealthCheckInterval = null;
@@ -42,13 +46,48 @@ const findAvailablePort = (startPort = 3100) => {
 // 获取后端端口
 const getBackendPort = () => backendPort;
 
-const getBackendPath = () => {
+// 获取后端可执行文件名称（区分平台）
+const getBackendName = () => {
 	let backendName = "star-river-backend";
-
 	// Windows平台添加.exe后缀
 	if (process.platform === "win32") {
 		backendName += ".exe";
 	}
+	return backendName;
+};
+
+// 获取平台目录名称
+const getPlatformDir = () => {
+	switch (process.platform) {
+		case "darwin":
+			return "darwin";
+		case "win32":
+			return "win32";
+		case "linux":
+			return "linux";
+		default:
+			return process.platform;
+	}
+};
+
+// 开发环境：从 resources 目录加载
+const getDevBackendPath = () => {
+	const backendName = getBackendName();
+	const platformDir = getPlatformDir();
+
+	// 开发环境：项目根目录/resources/{platform}/star-river-backend
+	const backendPath = path.join(__dirname, "..", "resources", platformDir, backendName);
+	if (fs.existsSync(backendPath)) {
+		return backendPath;
+	}
+
+	console.error(`[dev] backend file not found: ${backendPath}`);
+	return null;
+};
+
+// 生产环境：从 resourcesPath 目录加载
+const getProdBackendPath = () => {
+	const backendName = getBackendName();
 
 	// 生产环境：resourcesPath/service/
 	const backendPath = path.join(process.resourcesPath, "service", backendName);
@@ -56,8 +95,13 @@ const getBackendPath = () => {
 		return backendPath;
 	}
 
-	console.error(`backend file not found: ${backendPath}`);
+	console.error(`[prod] backend file not found: ${backendPath}`);
 	return null;
+};
+
+// 根据环境获取后端路径
+const getBackendPath = () => {
+	return isDev ? getDevBackendPath() : getProdBackendPath();
 };
 
 const createRustBackend = async () => {

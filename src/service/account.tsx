@@ -5,12 +5,12 @@ import type {
 	MT5Account,
 	OKXAccount,
 } from "../types/account";
+import { getApiBaseUrl } from "./index";
 
-const API_BASE_URL = "http://localhost:3100";
 const ROUTER = "account";
 const API_VERSION = "api/v1";
 
-const API_URL = `${API_BASE_URL}/${API_VERSION}/${ROUTER}`;
+const getApiUrl = () => `${getApiBaseUrl()}/${API_VERSION}/${ROUTER}`;
 
 // MT5账户数据转换
 function transformMT5Account(item: any): MT5Account {
@@ -76,6 +76,7 @@ export async function getAccountConfigs(
 ): Promise<MT5Account[] | BinanceAccount[] | OKXAccount[] | Account[]> {
 	try {
 		// 获取接口数据 - 如果exchange为null，则获取所有配置
+		const API_URL = getApiUrl();
 		const url = exchange
 			? `${API_URL}/config?exchange=${exchange}`
 			: `${API_URL}/config`;
@@ -146,7 +147,7 @@ export async function startMt5Terminal(accountId: number) {
 	};
 	try {
 		const { data } = await axios.post(
-			`${API_URL}/start_mt5_terminal`,
+			`${getApiUrl()}/start_mt5_terminal`,
 			requestBody,
 		);
 		return data;
@@ -172,7 +173,7 @@ export async function addAccountConfig(
 			account_config: accountConfig,
 		};
 		console.log("添加账户配置请求体:", requestBody);
-		const { data } = await axios.post(`${API_URL}/config`, requestBody);
+		const { data } = await axios.post(`${getApiUrl()}/config`, requestBody);
 		// console.log("添加账户配置成功:", data)
 		return data;
 	} catch (error) {
@@ -183,7 +184,7 @@ export async function addAccountConfig(
 // 删除账户配置
 export async function deleteAccountConfig(accountId: number) {
 	try {
-		const { data } = await axios.delete(`${API_URL}/config/${accountId}`);
+		const { data } = await axios.delete(`${getApiUrl()}/config/${accountId}`);
 		return data;
 	} catch (error) {
 		console.error("删除账户配置失败:", error);

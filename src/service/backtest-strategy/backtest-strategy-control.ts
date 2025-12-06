@@ -1,16 +1,16 @@
 import axios from "axios";
-import { API_BASE_URL } from "@/service";
+import { getApiBaseUrl } from "@/service";
 
 const ROUTER = "strategy/backtest";
 const API_VERSION = "api/v1";
 
-const API_URL = `${API_BASE_URL}/${API_VERSION}/${ROUTER}`;
+const getApiUrl = () => `${getApiBaseUrl()}/${API_VERSION}/${ROUTER}`;
 
 // /api/v1/strategy/backtest/{strategy_id}/play-one
 
 export async function playOne(strategyId: number) {
 	try {
-		const response = await axios.post(`${API_URL}/${strategyId}/play-one`);
+		const response = await axios.post(`${getApiUrl()}/${strategyId}/play-one`);
 		if (response.status !== 200) {
 			throw new Error(`playOne error: ${response.status}`);
 		}
@@ -23,7 +23,7 @@ export async function playOne(strategyId: number) {
 
 export async function play(strategyId: number) {
 	try {
-		const response = await axios.post(`${API_URL}/${strategyId}/play`);
+		const response = await axios.post(`${getApiUrl()}/${strategyId}/play`);
 		if (response.status !== 200) {
 			throw new Error(`play error: ${response.status}`);
 		}
@@ -36,7 +36,7 @@ export async function play(strategyId: number) {
 
 export async function pause(strategyId: number) {
 	try {
-		const response = await axios.post(`${API_URL}/${strategyId}/pause`);
+		const response = await axios.post(`${getApiUrl()}/${strategyId}/pause`);
 		if (response.status !== 200) {
 			throw new Error(`pause error: ${response.status}`);
 		}
@@ -49,7 +49,7 @@ export async function pause(strategyId: number) {
 
 export async function stop(strategyId: number) {
 	try {
-		const response = await axios.post(`${API_URL}/${strategyId}/reset`);
+		const response = await axios.post(`${getApiUrl()}/${strategyId}/reset`);
 		if (response.status !== 200) {
 			throw new Error(`reset error: ${response.status}`);
 		}
@@ -62,7 +62,7 @@ export async function stop(strategyId: number) {
 
 export async function get_play_index(strategyId: number) {
 	try {
-		const response = await axios.get(`${API_URL}/${strategyId}/play-index`);
+		const response = await axios.get(`${getApiUrl()}/${strategyId}/play-index`);
 		if (response.status !== 200) {
 			throw new Error(`get_play_index error: ${response.status}`);
 		}

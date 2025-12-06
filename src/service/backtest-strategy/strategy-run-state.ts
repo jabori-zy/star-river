@@ -1,11 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import axios, { type AxiosError } from "axios";
-import { API_BASE_URL, ApiError, type ApiResponse } from "@/service/index";
+import { getApiBaseUrl, ApiError, type ApiResponse } from "@/service/index";
 import type { BacktestStrategyRunState } from "@/types/strategy/backtest-strategy";
 
 const API_VERSION = "api/v1";
 const ROUTER = "strategy/backtest";
-const API_URL = `${API_BASE_URL}/${API_VERSION}/${ROUTER}`;
+
+const getApiUrl = () => `${getApiBaseUrl()}/${API_VERSION}/${ROUTER}`;
 
 // ============================================
 // 1. Type Definitions
@@ -45,7 +46,7 @@ export async function getStrategyRunStateApi(
 	try {
 		// Step 3: Send GET request
 		const response = await axios.get<ApiResponse<GetStrategyRunStateResponse>>(
-			`${API_URL}/${strategyId}/run-state`,
+			`${getApiUrl()}/${strategyId}/run-state`,
 			{
 				timeout: 5000, // 5s timeout
 			},

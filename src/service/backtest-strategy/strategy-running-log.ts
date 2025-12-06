@@ -1,6 +1,6 @@
 import axios from "axios";
 import type { ZodError } from "zod";
-import { API_BASE_URL } from "@/service";
+import { getApiBaseUrl } from "@/service";
 import type {
 	NodeRunningLogEvent,
 	StrategyRunningLogEvent,
@@ -10,7 +10,7 @@ import { RunningLogEventSchema } from "@/types/strategy-event/running-log-event"
 const ROUTER = "strategy/backtest";
 const API_VERSION = "api/v1";
 
-const API_URL = `${API_BASE_URL}/${API_VERSION}/${ROUTER}`;
+const getApiUrl = () => `${getApiBaseUrl()}/${API_VERSION}/${ROUTER}`;
 
 /**
  * Get strategy running logs with runtime validation using Zod
@@ -22,7 +22,7 @@ export async function getStrategyRunningLog(
 	strategyId: number,
 ): Promise<(StrategyRunningLogEvent | NodeRunningLogEvent)[]> {
 	try {
-		const response = await axios.get(`${API_URL}/${strategyId}/running-log`);
+		const response = await axios.get(`${getApiUrl()}/${strategyId}/running-log`);
 		if (response.status !== 200) {
 			throw new Error(`获取策略运行日志失败: ${response.status}`);
 		}

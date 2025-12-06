@@ -1,14 +1,14 @@
 import axios from "axios";
 import { toast } from "sonner";
-import { useStrategyStore } from "@/store/use-strategy-store";
+// import { useStrategyStore } from "@/store/use-strategy-store";
 import type { BacktestStrategyChartConfig } from "@/types/chart/backtest-chart";
 import type { Strategy } from "@/types/strategy";
-import { API_BASE_URL } from "./index";
+import { getApiBaseUrl } from "./index";
 
 const ROUTER = "strategy";
 const API_VERSION = "api/v1";
 
-const API_URL = `${API_BASE_URL}/${API_VERSION}/${ROUTER}`;
+const getApiUrl = () => `${getApiBaseUrl()}/${API_VERSION}/${ROUTER}`;
 
 interface UpdateOptions {
 	onSuccess?: () => void;
@@ -22,7 +22,7 @@ interface UpdateOptions {
  */
 export async function getStrategyById(strategyId: number): Promise<Strategy> {
 	try {
-		const response = await axios.get(`${API_URL}/${strategyId}`);
+		const response = await axios.get(`${getApiUrl()}/${strategyId}`);
 
 		if (response.status !== 200) {
 			throw new Error(`获取策略失败: ${response.status}`);
@@ -61,7 +61,7 @@ export async function getStrategyById(strategyId: number): Promise<Strategy> {
  */
 export async function getAllStrategies(): Promise<Strategy[]> {
 	try {
-		const response = await axios.get(`${API_BASE_URL}/get_strategies`);
+		const response = await axios.get(`${getApiBaseUrl()}/get_strategies`);
 		if (response.status !== 200) {
 			throw new Error(`获取策略列表失败: ${response.status}`);
 		}
@@ -100,7 +100,7 @@ export async function createStrategy(
 	options?: UpdateOptions,
 ): Promise<Strategy> {
 	try {
-		const response = await axios.post(`${API_URL}`, {
+		const response = await axios.post(`${getApiUrl()}`, {
 			name: strategyName,
 			description: strategyDescription,
 		});
@@ -147,7 +147,7 @@ export async function getStrategyCacheKeys(
 	strategyId: number,
 ): Promise<string[]> {
 	try {
-		const response = await axios.get(`${API_URL}/${strategyId}/cache-keys`);
+		const response = await axios.get(`${getApiUrl()}/${strategyId}/cache-keys`);
 		return response.data.data;
 	} catch (error) {
 		console.error("获取策略订阅的缓存键错误:", error);
@@ -165,7 +165,7 @@ export async function updateBacktestStrategyChartConfig(
 			backtest_chart_config: chartConfig,
 		};
 		const response = await axios.post(
-			`${API_URL}/backtest/${strategyId}/chart_config`,
+			`${getApiUrl()}/backtest/${strategyId}/chart_config`,
 			requestBody,
 		);
 		return response.data;
@@ -181,7 +181,7 @@ export async function getBacktestStrategyChartConfig(
 	try {
 		// /api/v1/strategy/backtest/{strategy_id}/chart_config
 		const response = await axios.get(
-			`${API_URL}/backtest/${strategyId}/chart_config`,
+			`${getApiUrl()}/backtest/${strategyId}/chart_config`,
 		);
 		if (response.status !== 200) {
 			throw new Error(`获取策略图表配置失败: ${response.status}`);

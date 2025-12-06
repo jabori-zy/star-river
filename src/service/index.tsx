@@ -1,5 +1,41 @@
-export const API_BASE_URL: string =
-	import.meta.env.VITE_API_URL || "http://localhost:3100";
+// 动态端口管理
+let backendPort: number = 3100;
+
+// 获取 ipcRenderer
+const getIpcRenderer = () => {
+	if (typeof window !== "undefined" && window.require) {
+		try {
+			return window.require("electron").ipcRenderer;
+		} catch {
+			return null;
+		}
+	}
+	return null;
+};
+
+// 初始化时从主进程获取端口
+const initBackendPort = async () => {
+	const ipcRenderer = getIpcRenderer();
+	if (ipcRenderer) {
+		try {
+			const port = await ipcRenderer.invoke("get-backend-port");
+			if (port) {
+				backendPort = port;
+				console.log(`Backend port initialized: ${backendPort}`);
+			}
+		} catch (error) {
+			console.error("Failed to get backend port:", error);
+		}
+	}
+};
+
+// 立即初始化端口
+initBackendPort();
+
+// 动态获取 API_BASE_URL
+export const getApiBaseUrl = (): string => {
+	return import.meta.env.VITE_API_URL || `http://localhost:${backendPort}`;
+};
 
 // ============================================
 // API Response Type Definitions (corresponds to Rust backend's ApiResponseEnum)

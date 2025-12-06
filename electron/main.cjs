@@ -20,10 +20,8 @@ app.whenReady().then(async () => {
 		app.dock.setIcon(iconPath);
 	}
 
-	// 生产模式启动后端服务（需要在创建窗口前启动，以便获取端口）
-	if (!isDev) {
-		await createRustBackend();
-	}
+	// 启动后端服务（需要在创建窗口前启动，以便获取端口）
+	await createRustBackend();
 
 	createWindow();
 	setupIpcHandlers();

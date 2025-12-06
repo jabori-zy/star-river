@@ -1,15 +1,15 @@
 import axios from "axios";
-import { API_BASE_URL } from "@/service";
+import { getApiBaseUrl } from "@/service";
 import type { Instrument } from "@/types/market";
 
 const ROUTER = "market";
 const API_VERSION = "api/v1";
 
-const API_URL = `${API_BASE_URL}/${API_VERSION}/${ROUTER}`;
+const getApiUrl = () => `${getApiBaseUrl()}/${API_VERSION}/${ROUTER}`;
 
 export async function getSymbolList(accountId: number): Promise<Instrument[]> {
 	try {
-		const response = await axios.get(`${API_URL}/symbol_list/${accountId}`);
+		const response = await axios.get(`${getApiUrl()}/symbol_list/${accountId}`);
 		return response.data.data as Instrument[];
 	} catch (error) {
 		console.error("getSymbolList error:", error);
@@ -22,7 +22,7 @@ export async function getSupportKlineInterval(
 ): Promise<string[]> {
 	try {
 		const response = await axios.get(
-			`${API_URL}/support_kline_intervals/${accountId}`,
+			`${getApiUrl()}/support_kline_intervals/${accountId}`,
 		);
 		return response.data.data as string[];
 	} catch (error) {
@@ -37,7 +37,7 @@ export async function getSymbolInfo(
 ): Promise<Instrument> {
 	try {
 		const response = await axios.get(
-			`${API_URL}/symbol/${accountId}?symbol=${symbol}`,
+			`${getApiUrl()}/symbol/${accountId}?symbol=${symbol}`,
 		);
 		return response.data.data as Instrument;
 	} catch (error) {

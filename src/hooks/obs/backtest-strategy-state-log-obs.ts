@@ -4,7 +4,7 @@ import type {
 	NodeStateLogEvent,
 	StrategyStateLogEvent,
 } from "@/types/strategy-event/strategy-state-log-event";
-import { BACKTEST_STRATEGY_STATE_LOG_URL } from ".";
+import { getBacktestStrategyStateLogUrl } from ".";
 import { SSEConnectionState } from "./backtest-strategy-event-obs";
 
 /**
@@ -70,7 +70,7 @@ class BacktestStrategyStateLogObservableService {
 		this.connectionState$.next(SSEConnectionState.CONNECTING);
 
 		try {
-			this.eventSource = new EventSource(BACKTEST_STRATEGY_STATE_LOG_URL);
+			this.eventSource = new EventSource(getBacktestStrategyStateLogUrl());
 
 			// 连接成功
 			this.eventSource.onopen = () => {

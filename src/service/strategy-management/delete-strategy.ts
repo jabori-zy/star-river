@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios, { type AxiosError } from "axios";
 import {
-	API_BASE_URL,
+	getApiBaseUrl,
 	ApiError,
 	type ApiResponse,
 	type MutationMeta,
@@ -10,7 +10,8 @@ import { strategyKeys } from "./query-keys";
 
 const API_VERSION = "api/v1";
 const ROUTER = "strategy";
-const API_URL = `${API_BASE_URL}/${API_VERSION}/${ROUTER}`;
+
+const getApiUrl = () => `${getApiBaseUrl()}/${API_VERSION}/${ROUTER}`;
 
 // ============================================
 // 1. 类型定义
@@ -56,7 +57,7 @@ export async function deleteStrategyApi(
 	try {
 		// 步骤3：发送 DELETE 请求
 		const response = await axios.delete<ApiResponse<DeleteStrategyResponse>>(
-			`${API_URL}/${params.strategyId}`,
+			`${getApiUrl()}/${params.strategyId}`,
 			{
 				timeout: 10000, // 10秒超时
 			},

@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import axios, { type AxiosError } from "axios";
 import {
-	API_BASE_URL,
+	getApiBaseUrl,
 	ApiError,
 	type ApiResponse,
 	type MutationMeta,
@@ -9,7 +9,8 @@ import {
 
 const API_VERSION = "api/v1";
 const ROUTER = "strategy";
-const API_URL = `${API_BASE_URL}/${API_VERSION}/${ROUTER}/backtest`;
+
+const getApiUrl = () => `${getApiBaseUrl()}/${API_VERSION}/${ROUTER}/backtest`;
 
 // ============================================
 // 1. Type Definitions
@@ -57,7 +58,7 @@ export async function stopBacktestStrategyApi(
 		const response = await axios.post<
 			ApiResponse<StopBacktestStrategyResponse>
 		>(
-			`${API_URL}/${params.strategyId}/stop`,
+			`${getApiUrl()}/${params.strategyId}/stop`,
 			{},
 			{
 				timeout: 20000, // 5s timeout

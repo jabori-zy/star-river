@@ -1,5 +1,6 @@
 import { Minus, Square, X } from "lucide-react";
 import type React from "react";
+import { useEffect, useState } from "react";
 import ConfirmBox from "@/components/confirm-box";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -84,6 +85,20 @@ const BacktestWindowHeader: React.FC<BacktestWindowHeaderProps> = ({
 	onQuit,
 }) => {
 	const { isMac } = usePlatform();
+	const [isFullScreen, setIsFullScreen] = useState(false);
+
+	useEffect(() => {
+		if (!ipcRenderer) return;
+
+		const handleFullscreenChange = (_: unknown, fullScreen: boolean) => {
+			setIsFullScreen(fullScreen);
+		};
+
+		ipcRenderer.on("fullscreen-change", handleFullscreenChange);
+		return () => {
+			ipcRenderer.removeListener("fullscreen-change", handleFullscreenChange);
+		};
+	}, []);
 
 	return (
 		<header className="flex sticky h-8 w-full items-center bg-background">
@@ -93,7 +108,7 @@ const BacktestWindowHeader: React.FC<BacktestWindowHeaderProps> = ({
 			>
 				{/* macOS: add left padding to avoid system traffic light buttons */}
 				<div
-					className={cn(isMac && "pl-[70px]")}
+					className={cn(isMac && !isFullScreen && "pl-[70px]")}
 					style={{ WebkitAppRegion: "no-drag" }}
 				>
 					<h1 className="text-lg font-bold">{strategyName}</h1>

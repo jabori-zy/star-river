@@ -6,7 +6,7 @@ import type {
 	StrategyRunningLogEvent,
 } from "@/types/strategy-event/running-log-event";
 import { RunningLogEventSchema } from "@/types/strategy-event/running-log-event";
-import { BACKTEST_STRATEGY_RUNNING_LOG_URL } from ".";
+import { getBacktestStrategyRunningLogUrl } from ".";
 import { SSEConnectionState } from "./backtest-strategy-event-obs";
 
 /**
@@ -72,7 +72,7 @@ class BacktestStrategyRunningLogObservableService {
 		this.connectionState$.next(SSEConnectionState.CONNECTING);
 
 		try {
-			this.eventSource = new EventSource(BACKTEST_STRATEGY_RUNNING_LOG_URL);
+			this.eventSource = new EventSource(getBacktestStrategyRunningLogUrl());
 
 			// 连接成功
 			this.eventSource.onopen = () => {

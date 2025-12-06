@@ -1,10 +1,11 @@
 import axios from "axios";
 import type { Kline } from "@/types/kline";
-import { API_BASE_URL } from "../index";
+import { getApiBaseUrl } from "../index";
 
 const ROUTER = "strategy/backtest";
 const API_VERSION = "api/v1";
-const API_URL = `${API_BASE_URL}/${API_VERSION}/${ROUTER}`;
+
+const getApiUrl = () => `${getApiBaseUrl()}/${API_VERSION}/${ROUTER}`;
 
 // 获取初始化图表数据
 export async function getInitialChartData(
@@ -22,7 +23,7 @@ export async function getInitialChartData(
 		if (limit !== null) {
 			params.append("limit", limit.toString());
 		}
-		const url = `${API_URL}/${strategyId}/data?${params.toString()}`;
+		const url = `${getApiUrl()}/${strategyId}/data?${params.toString()}`;
 		// console.log("获取数据参数: ", decodeURIComponent(params.toString().replace(/\+/g, ' ')));
 		const response = await axios.get(url);
 
@@ -53,7 +54,7 @@ export async function getPartialChartData(
 		params.append("datetime", datetimeStr);
 		params.append("limit", limit.toString());
 		params.append("key", keyStr);
-		const url = `${API_URL}/${strategyId}/data-by-datetime?${params.toString()}`;
+		const url = `${getApiUrl()}/${strategyId}/data-by-datetime?${params.toString()}`;
 		const response = await axios.get(url);
 		if (response.status !== 200) {
 			throw new Error(`获取数据失败: ${response.status}`);

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { API_BASE_URL } from "@/service";
+import { getApiBaseUrl } from "@/service";
 import type { VirtualOrder } from "@/types/order/virtual-order";
 import type { VirtualPosition } from "@/types/position/virtual-position";
 import type { VirtualTransaction } from "@/types/transaction/virtual-transaction";
@@ -7,13 +7,13 @@ import type { VirtualTransaction } from "@/types/transaction/virtual-transaction
 const ROUTER = "strategy/backtest";
 const API_VERSION = "api/v1";
 
-const API_URL = `${API_BASE_URL}/${API_VERSION}/${ROUTER}`;
+const getApiUrl = () => `${getApiBaseUrl()}/${API_VERSION}/${ROUTER}`;
 
 export async function getVirtualOrder(
 	strateygId: number,
 ): Promise<VirtualOrder[]> {
 	try {
-		const response = await axios.get(`${API_URL}/${strateygId}/virtual-orders`);
+		const response = await axios.get(`${getApiUrl()}/${strateygId}/virtual-orders`);
 		if (response.status !== 200) {
 			throw new Error(`获取虚拟订单失败: ${response.status}`);
 		}
@@ -30,7 +30,7 @@ export async function getVirtualPosition(
 ): Promise<VirtualPosition[]> {
 	try {
 		const response = await axios.get(
-			`${API_URL}/${strateygId}/current-positions`,
+			`${getApiUrl()}/${strateygId}/current-positions`,
 		);
 		if (response.status !== 200) {
 			throw new Error(`获取虚拟持仓失败: ${response.status}`);
@@ -47,7 +47,7 @@ export async function getHisotryVirtualPosition(
 ): Promise<VirtualPosition[]> {
 	try {
 		const response = await axios.get(
-			`${API_URL}/${strateygId}/history-positions`,
+			`${getApiUrl()}/${strateygId}/history-positions`,
 		);
 		if (response.status !== 200) {
 			throw new Error(`获取虚拟持仓历史失败: ${response.status}`);
@@ -64,7 +64,7 @@ export async function getVirtualTransaction(
 ): Promise<VirtualTransaction[]> {
 	try {
 		const response = await axios.get(
-			`${API_URL}/${strateygId}/virtual-transactions`,
+			`${getApiUrl()}/${strateygId}/virtual-transactions`,
 		);
 		if (response.status !== 200) {
 			throw new Error(`获取虚拟交易明细失败: ${response.status}`);

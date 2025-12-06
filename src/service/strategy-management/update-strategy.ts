@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios, { type AxiosError } from "axios";
 import {
-	API_BASE_URL,
+	getApiBaseUrl,
 	ApiError,
 	type ApiResponse,
 	type MutationMeta,
@@ -11,7 +11,8 @@ import { strategyKeys } from "./query-keys";
 
 const API_VERSION = "api/v1";
 const ROUTER = "strategy";
-const API_URL = `${API_BASE_URL}/${API_VERSION}/${ROUTER}`;
+
+const getApiUrl = () => `${getApiBaseUrl()}/${API_VERSION}/${ROUTER}`;
 
 // ============================================
 // 1. Type Definitions
@@ -100,7 +101,7 @@ export async function updateStrategyApi(
 	try {
 		// Step 3: Send POST request
 		const response = await axios.post<ApiResponse<Record<string, unknown>>>(
-			`${API_URL}/${strategyId}`,
+			`${getApiUrl()}/${strategyId}`,
 			requestBody,
 			{
 				headers: {

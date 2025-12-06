@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios, { type AxiosError } from "axios";
 import {
-	API_BASE_URL,
+	getApiBaseUrl,
 	ApiError,
 	type ApiResponse,
 	type MutationMeta,
@@ -11,7 +11,8 @@ import { strategyKeys } from "./query-keys";
 
 const API_VERSION = "api/v1";
 const ROUTER = "strategy";
-const API_URL = `${API_BASE_URL}/${API_VERSION}/${ROUTER}`;
+
+const getApiUrl = () => `${getApiBaseUrl()}/${API_VERSION}/${ROUTER}`;
 
 // ============================================
 // 1. 类型定义
@@ -77,7 +78,7 @@ export async function createStrategyApi(
 	try {
 		// 步骤4：发送 POST 请求
 		const response = await axios.post<ApiResponse<Record<string, unknown>>>(
-			API_URL,
+			getApiUrl(),
 			requestBody,
 			{
 				headers: {

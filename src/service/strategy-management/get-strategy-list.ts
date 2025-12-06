@@ -1,12 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import axios, { type AxiosError } from "axios";
-import { API_BASE_URL, ApiError, type ApiResponse } from "@/service/index";
+import { getApiBaseUrl, ApiError, type ApiResponse } from "@/service/index";
 import type { StrategyInfo } from "@/types/strategy/strategy-list";
 import { strategyKeys } from "./query-keys";
 
 const API_VERSION = "api/v1";
 const ROUTER = "strategy";
-const API_URL = `${API_BASE_URL}/${API_VERSION}/${ROUTER}`;
+
+const getApiUrl = () => `${getApiBaseUrl()}/${API_VERSION}/${ROUTER}`;
 
 // ============================================
 // 1. Type Definitions
@@ -99,9 +100,10 @@ export async function getStrategyListApi(
 		queryParams.append("items_per_page", params.items_per_page.toString());
 	}
 
+	const apiUrl = getApiUrl();
 	const url = queryParams.toString()
-		? `${API_URL}?${queryParams.toString()}`
-		: API_URL;
+		? `${apiUrl}?${queryParams.toString()}`
+		: apiUrl;
 
 	// Step 2: Log request in dev environment
 	if (import.meta.env.DEV) {

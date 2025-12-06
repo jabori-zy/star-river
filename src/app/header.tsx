@@ -7,6 +7,7 @@ import {
 	Square,
 	X,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
 import ConfirmBox from "@/components/confirm-box";
@@ -217,9 +218,21 @@ function SettingsButton() {
 }
 
 export function AppHeader() {
-	const { isMac, isFullScreen } = usePlatform();
-	// macOS 非全屏时需要左边距避开红绿灯按钮
-	const needsTrafficLightPadding = isMac && !isFullScreen;
+	const { isMac } = usePlatform();
+	const [isFullScreen, setIsFullScreen] = useState(false);
+
+	useEffect(() => {
+		if (!ipcRenderer) return;
+
+		const handleFullscreenChange = (_: unknown, fullScreen: boolean) => {
+			setIsFullScreen(fullScreen);
+		};
+
+		ipcRenderer.on("fullscreen-change", handleFullscreenChange);
+		return () => {
+			ipcRenderer.removeListener("fullscreen-change", handleFullscreenChange);
+		};
+	}, []);
 
 	return (
 		<header
@@ -234,7 +247,7 @@ export function AppHeader() {
 				}}
 			>
 				{/* macOS: add left padding to avoid system traffic light buttons (except in fullscreen) */}
-				<div className={cn("flex items-center gap-2", needsTrafficLightPadding && "pl-[70px]")}>
+				<div className={cn("flex items-center gap-2", isMac && !isFullScreen && "pl-[70px]")}>
 					<div style={{ WebkitAppRegion: "no-drag" }}>
 						<SidebarTrigger />
 					</div>

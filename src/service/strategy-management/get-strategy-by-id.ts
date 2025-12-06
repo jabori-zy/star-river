@@ -1,12 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import axios, { type AxiosError } from "axios";
-import { API_BASE_URL, ApiError, type ApiResponse } from "@/service/index";
+import { getApiBaseUrl, ApiError, type ApiResponse } from "@/service/index";
 import type { Strategy } from "@/types/strategy";
 import { strategyKeys } from "./query-keys";
 
 const API_VERSION = "api/v1";
 const ROUTER = "strategy";
-const API_URL = `${API_BASE_URL}/${API_VERSION}/${ROUTER}`;
+
+const getApiUrl = () => `${getApiBaseUrl()}/${API_VERSION}/${ROUTER}`;
 
 // ============================================
 // 1. Type Definitions
@@ -60,7 +61,7 @@ export async function getStrategyByIdApi(
 	try {
 		// Step 2: Send GET request
 		const response = await axios.get<ApiResponse<Record<string, unknown>>>(
-			`${API_URL}/${strategyId}`,
+			`${getApiUrl()}/${strategyId}`,
 			{
 				timeout: 10000, // 10s timeout
 			},

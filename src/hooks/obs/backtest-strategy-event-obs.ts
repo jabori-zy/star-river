@@ -13,7 +13,7 @@ import type {
 	VirtualTransactionEvent,
 } from "@/types/strategy-event/backtest-strategy-event";
 import type { KeyStr } from "@/types/symbol-key";
-import { BACKTESET_STRATEGY_EVENT_SSE_URL } from ".";
+import { getBacktestStrategyEventSseUrl } from ".";
 
 // SSE连接状态
 export enum SSEConnectionState {
@@ -369,7 +369,7 @@ class BacktestStrategyDataObservableService {
 		this.connectionState$.next(SSEConnectionState.CONNECTING);
 
 		try {
-			this.eventSource = new EventSource(BACKTESET_STRATEGY_EVENT_SSE_URL);
+			this.eventSource = new EventSource(getBacktestStrategyEventSseUrl());
 
 			// 连接成功
 			this.eventSource.onopen = () => {

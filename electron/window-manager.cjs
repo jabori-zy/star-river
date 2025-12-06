@@ -86,6 +86,14 @@ const createBacktestWindow = (strategyId, strategyName) => {
 
 	backtestWindow.loadURL(backtestUrl);
 
+	// 监听全屏状态变化，通知渲染进程
+	backtestWindow.on("enter-full-screen", () => {
+		backtestWindow.webContents.send("fullscreen-change", true);
+	});
+	backtestWindow.on("leave-full-screen", () => {
+		backtestWindow.webContents.send("fullscreen-change", false);
+	});
+
 	// Add window to the map if strategyId is provided
 	if (strategyId) {
 		strategyWindows.set(strategyId, backtestWindow);
