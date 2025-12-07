@@ -3,6 +3,7 @@ node_modules
 .cursor
 .vscode
 .idea
+.claude
 
 dist
 backup
