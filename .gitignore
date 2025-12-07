@@ -10,8 +10,7 @@ CLAUDE.md
 .claude
 AGENTS.md
 backup
-resources/darwin/logs
-resources/win32/logs
-
+resources/darwin
+resources/win32
 # macOS metadata
 .DS_Store
