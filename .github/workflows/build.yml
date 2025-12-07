@@ -48,13 +48,34 @@ jobs:
             echo "version=${{ github.ref_name }}" >> $GITHUB_OUTPUT
           fi
 
+      - name: Validate version match
+        shell: bash
+        run: |
+          TAG_VERSION="${{ steps.tag.outputs.version }}"
+          # Extract base version from tag (v0.1.0-beta.2 -> 0.1.0)
+          TAG_BASE_VERSION=$(echo "$TAG_VERSION" | sed 's/^v//' | sed 's/-.*//')
+          # Get version from package.json and extract base version
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          PKG_BASE_VERSION=$(echo "$PKG_VERSION" | sed 's/-.*//')
+
+          echo "Tag version: $TAG_VERSION (base: $TAG_BASE_VERSION)"
+          echo "Package version: $PKG_VERSION (base: $PKG_BASE_VERSION)"
+
+          if [ "$TAG_BASE_VERSION" != "$PKG_BASE_VERSION" ]; then
+            echo "Error: Tag base version ($TAG_BASE_VERSION) does not match package.json base version ($PKG_BASE_VERSION)"
+            exit 1
+          fi
+          echo "Version validation passed!"
+
       - name: Download backend binary
         run: npm run update-backend -- --tag ${{ steps.tag.outputs.version }}
 
       - name: Build application
         run: npm run ${{ matrix.build_cmd }}
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Set to empty to prevent electron-builder from auto-publishing
+          # We use softprops/action-gh-release instead
+          GH_TOKEN: ""
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
