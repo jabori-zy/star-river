@@ -9,6 +9,7 @@ const {
 	killBackendProcess,
 } = require("./backend-manager.cjs");
 const { setupIpcHandlers } = require("./ipc-handlers.cjs");
+const { initUpdater, checkForUpdates } = require("./updater.cjs");
 
 // Check if development environment
 const isDev = process.env.NODE_ENV === "development" || !app.isPackaged;
@@ -29,7 +30,17 @@ app.whenReady().then(async () => {
 	const mainWindow = createWindow();
 	setupIpcHandlers();
 
-	// 监听主窗口关闭事件，关闭所有回测窗口
+	// Initialize updater
+	initUpdater(mainWindow);
+
+	// Check for updates after window is ready (delay 3 seconds)
+	mainWindow.once("ready-to-show", () => {
+		setTimeout(() => {
+			checkForUpdates();
+		}, 3000);
+	});
+
+	// Listen for main window close event, close all backtest windows
 	mainWindow.on("close", () => {
 		console.log("Main window closing, closing all backtest windows...");
 		closeAllBacktestWindows();

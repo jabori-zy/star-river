@@ -126,6 +126,23 @@ function App() {
 		}
 	}, [systemConfig]);
 
+	// Sync locale to main process for updater dialogs
+	useEffect(() => {
+		if (systemConfig?.localization && window.require) {
+			try {
+				const electronModule = window.require("electron");
+				if (electronModule?.ipcRenderer) {
+					electronModule.ipcRenderer.invoke(
+						"updater:setLocale",
+						systemConfig.localization,
+					);
+				}
+			} catch (error) {
+				console.error("Failed to sync locale to main process:", error);
+			}
+		}
+	}, [systemConfig?.localization]);
+
 	// Listen for system config changes, refresh page if config changes
 	useEffect(() => {
 		// If initial config load, only record without refreshing

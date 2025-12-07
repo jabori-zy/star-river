@@ -21,6 +21,11 @@
 	"build": {
 		"appId": "com.jabori.starriver",
 		"productName": "Star River",
+		"publish": {
+			"provider": "github",
+			"owner": "jabori-mao",
+			"repo": "star-river-app"
+		},
 		"directories": {
 			"output": "dist",
 			"buildResources": "build"
@@ -33,11 +38,16 @@
 			{
 				"from": "resources/${platform}/",
 				"to": "service/",
-				"filter": ["**/*"]
+				"filter": [
+					"**/*"
+				]
 			}
 		],
 		"mac": {
-			"target": ["dmg", "zip"],
+			"target": [
+				"dmg",
+				"zip"
+			],
 			"icon": "build/icons/icon.icns",
 			"category": "public.app-category.finance"
 		},
@@ -45,7 +55,9 @@
 			"target": [
 				{
 					"target": "nsis",
-					"arch": ["x64"]
+					"arch": [
+						"x64"
+					]
 				}
 			],
 			"icon": "build/icons/icon.ico",
@@ -101,7 +113,9 @@
 		"cmdk": "^1.1.1",
 		"date-fns": "^4.1.0",
 		"dayjs": "^1.11.13",
+		"electron-log": "^5.4.3",
 		"electron-squirrel-startup": "^1.0.1",
+		"electron-updater": "^6.6.2",
 		"i18next": "^25.2.1",
 		"immer": "^10.2.0",
 		"lightweight-charts": "^5.0.9",
