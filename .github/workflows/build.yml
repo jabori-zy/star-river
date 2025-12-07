@@ -64,6 +64,8 @@ jobs:
             dist/*.dmg
             dist/*.zip
             dist/*.exe
+            dist/*.yml
+            dist/*.yaml
           retention-days: 7
 
   release:
