@@ -71,11 +71,9 @@ jobs:
         run: npm run update-backend -- --tag ${{ steps.tag.outputs.version }}
 
       - name: Build application
-        run: npm run ${{ matrix.build_cmd }}
-        env:
-          # Set to empty to prevent electron-builder from auto-publishing
-          # We use softprops/action-gh-release instead
-          GH_TOKEN: ""
+        # Use --publish never to prevent electron-builder from auto-publishing
+        # We use softprops/action-gh-release instead
+        run: npx vite build && npx electron-builder --${{ matrix.platform }} --publish never
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
