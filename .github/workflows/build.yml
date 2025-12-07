@@ -83,8 +83,7 @@ jobs:
             dist/*.dmg
             dist/*.zip
             dist/*.exe
-            dist/*.yml
-            dist/*.yaml
+            dist/latest*.yml
           retention-days: 7
 
   release:
@@ -98,12 +97,18 @@ jobs:
         with:
           path: artifacts
 
+      - name: List artifacts
+        run: find artifacts -type f
+
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            artifacts/dist-mac/*
-            artifacts/dist-win/*
+            artifacts/dist-mac/*.dmg
+            artifacts/dist-mac/*.zip
+            artifacts/dist-mac/latest-mac.yml
+            artifacts/dist-win/*.exe
+            artifacts/dist-win/latest.yml
           draft: false
           prerelease: ${{ contains(github.ref_name, '-') }}
         env:
