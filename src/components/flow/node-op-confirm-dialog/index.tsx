@@ -32,7 +32,7 @@ export const NodeOpConfirmDialog: React.FC<NodeOpConfirmDialogProps> = ({
 	description,
 	operationType = "edit",
 }) => {
-	// 根据操作类型生成默认标题
+	// Generate default title based on operation type
 	const getDefaultTitle = () => {
 		switch (operationType) {
 			case "add":
@@ -46,7 +46,7 @@ export const NodeOpConfirmDialog: React.FC<NodeOpConfirmDialogProps> = ({
 	};
 
 	const finalTitle = title || getDefaultTitle();
-	// 根据操作类型生成动作描述
+	// Generate action description based on operation type
 	const getActionText = () => {
 		switch (operationType) {
 			case "add":
@@ -59,7 +59,7 @@ export const NodeOpConfirmDialog: React.FC<NodeOpConfirmDialogProps> = ({
 		}
 	};
 
-	// 生成智能的描述文案
+	// Generate smart description text
 	const generateDescriptionElement = () => {
 		const filteredNames = affectedNodeNames.filter((name) => name?.trim());
 		const count = affectedNodeCount;
@@ -75,7 +75,7 @@ export const NodeOpConfirmDialog: React.FC<NodeOpConfirmDialogProps> = ({
 		}
 
 		if (count === 1) {
-			// 只有1个节点，不需要"等"
+			// Only 1 node, no need for "etc"
 			const nodeName = filteredNames[0] || "1个节点";
 			return (
 				<span>
@@ -83,7 +83,7 @@ export const NodeOpConfirmDialog: React.FC<NodeOpConfirmDialogProps> = ({
 				</span>
 			);
 		} else if (count <= 3) {
-			// 2-3个节点，显示所有名称，不需要"等"
+			// 2-3 nodes, show all names, no need for "etc"
 			const nodeNames = filteredNames.slice(0, count);
 			return (
 				<span>
@@ -98,7 +98,7 @@ export const NodeOpConfirmDialog: React.FC<NodeOpConfirmDialogProps> = ({
 				</span>
 			);
 		} else {
-			// 超过3个节点，显示前3个 + "等"
+			// More than 3 nodes, show first 3 + "etc"
 			const nodeNames = filteredNames.slice(0, 3);
 			return (
 				<span>

@@ -12,7 +12,7 @@ import {
 } from "@/types/node/variable-node";
 
 /**
- * 通用错误对象结构
+ * Common error object structure
  */
 export interface ValidationErrors {
 	variable: string | null;
@@ -22,7 +22,7 @@ export interface ValidationErrors {
 }
 
 /**
- * 通用验证选项
+ * Common validation options
  */
 export interface BaseValidationOptions {
 	t: TFunction;
@@ -30,8 +30,8 @@ export interface BaseValidationOptions {
 }
 
 /**
- * 第一层：基础通用验证
- * 所有配置项都需要的验证逻辑
+ * First layer: Basic common validation
+ * Validation logic required by all configuration items
  */
 export const validateBaseConfig = (
 	config: { varName?: string },
@@ -41,14 +41,14 @@ export const validateBaseConfig = (
 		variable: null,
 	};
 
-	// 1. 检查变量是否必填
+	// 1. Check if variable is required
 	if (!config.varName) {
 		errors.variable =
-			options.t("variableNode.variableRequired") || "请选择变量";
-		return errors; // 早期返回，避免后续检查
+			options.t("variableNode.variableRequired") || "Please select variable";
+		return errors; // Early return to avoid subsequent checks
 	}
 
-	// 2. 检查重复操作
+	// 2. Check for duplicate operations
 	if (options.duplicateOperation) {
 		errors.variable = options.t("variableNode.duplicateOperationError", {
 			operation: options.t(`variableNode.${options.duplicateOperation}`),
@@ -59,7 +59,7 @@ export const validateBaseConfig = (
 };
 
 /**
- * 第二层：触发条件验证（适用于 Get/Update/Reset）
+ * Second layer: Trigger condition validation (applicable to Get/Update/Reset)
  */
 export const validateTriggerConfig = (
 	config: { triggerConfig?: any },
@@ -72,16 +72,16 @@ export const validateTriggerConfig = (
 	const effectiveTriggerType = getEffectiveTriggerType(config) ?? "condition";
 	const triggerCase = getConditionTriggerConfig(config) ?? null;
 
-	// 检查条件触发是否选择了触发条件
+	// Check if trigger condition is selected for condition trigger
 	if (effectiveTriggerType === "condition" && !triggerCase) {
 		errors.triggerCase =
-			options.t("variableNode.triggerConditionRequired") || "请选择触发条件";
+			options.t("variableNode.triggerConditionRequired") || "Please select trigger condition";
 	}
 
 	return errors;
 };
 
-// ==================== Get 配置验证 ====================
+// ==================== Get Configuration Validation ====================
 
 export interface GetConfigValidationOptions extends BaseValidationOptions {
 	shouldShowSymbolSelector: boolean;
@@ -89,7 +89,7 @@ export interface GetConfigValidationOptions extends BaseValidationOptions {
 }
 
 /**
- * Get 配置专属验证：交易对选择
+ * Get configuration specific validation: Trading pair selection
  */
 export const validateGetConfigSymbol = (
 	options: Pick<
@@ -102,14 +102,14 @@ export const validateGetConfigSymbol = (
 	};
 
 	if (options.shouldShowSymbolSelector && !options.hasSymbol) {
-		errors.symbol = options.t("variableNode.symbolRequired") || "请选择交易对";
+		errors.symbol = options.t("variableNode.symbolRequired") || "Please select trading pair";
 	}
 
 	return errors;
 };
 
 /**
- * Get 配置完整验证
+ * Get configuration complete validation
  */
 export const validateGetConfig = (
 	config: GetVariableConfig,
@@ -127,7 +127,7 @@ export const validateGetConfig = (
 };
 
 /**
- * React Hook 版本（带 useMemo 优化）
+ * React Hook version (with useMemo optimization)
  */
 export const useValidateGetConfig = (
 	config: GetVariableConfig,
@@ -147,14 +147,14 @@ export const useValidateGetConfig = (
 	]);
 };
 
-// ==================== Update 配置验证 ====================
+// ==================== Update Configuration Validation ====================
 
 export interface UpdateConfigValidationOptions extends BaseValidationOptions {
 	effectiveTriggerType: "condition" | "timer" | "dataflow";
 }
 
 /**
- * Update 配置专属验证：数据流配置
+ * Update configuration specific validation: Dataflow configuration
  */
 export const validateUpdateConfigDataflow = (
 	config: UpdateVariableConfig,
@@ -169,7 +169,7 @@ export const validateUpdateConfigDataflow = (
 		if (!dataflowConfig?.fromNodeId || !dataflowConfig?.fromVar) {
 			errors.dataflow =
 				options.t("variableNode.dataflowSourceRequired") ||
-				"请选择上游节点和变量";
+				"Please select upstream node and variable";
 		}
 	}
 
@@ -177,7 +177,7 @@ export const validateUpdateConfigDataflow = (
 };
 
 /**
- * Update 配置完整验证
+ * Update configuration complete validation
  */
 export const validateUpdateConfig = (
 	config: UpdateVariableConfig,
@@ -195,7 +195,7 @@ export const validateUpdateConfig = (
 };
 
 /**
- * React Hook 版本
+ * React Hook version
  */
 export const useValidateUpdateConfig = (
 	config: UpdateVariableConfig,
@@ -217,10 +217,10 @@ export const useValidateUpdateConfig = (
 	]);
 };
 
-// ==================== Reset 配置验证 ====================
+// ==================== Reset Configuration Validation ====================
 
 /**
- * Reset 配置完整验证（无专属逻辑，仅组合基础验证）
+ * Reset configuration complete validation (no specific logic, only combines basic validation)
  */
 export const validateResetConfig = (
 	config: ResetVariableConfig,
@@ -236,7 +236,7 @@ export const validateResetConfig = (
 };
 
 /**
- * React Hook 版本
+ * React Hook version
  */
 export const useValidateResetConfig = (
 	config: ResetVariableConfig,

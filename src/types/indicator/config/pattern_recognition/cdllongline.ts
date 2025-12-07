@@ -9,14 +9,14 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLLONGLINEConfigSchema = z.object({
-	// CDLLONGLINE 没有参数
+	// CDLLONGLINE has no parameters
 });
 
 export type CDLLONGLINEConfigType = z.infer<typeof CDLLONGLINEConfigSchema>;
 
 function buildCDLLONGLINEConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLLONGLINE 不需要任何参数
+		// CDLLONGLINE doesn't need any parameters
 	};
 }
 
@@ -26,7 +26,7 @@ export const CDLLONGLINEConfig: IndicatorConfig<CDLLONGLINEConfigType> = {
 	displayName: "CDLLONGLINE",
 	description: "Long Line Candle",
 	params: {
-		// CDLLONGLINE 没有参数
+		// CDLLONGLINE has no parameters
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

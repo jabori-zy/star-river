@@ -25,11 +25,11 @@ export const ReplaceValueInput: React.FC<ReplaceValueInputProps> = ({
 	updateOperationType,
 	onErrorPolicyChange,
 }) => {
-	// 为数字和百分比类型使用本地状态，避免输入负数时被清空
+	// Use local state for number and percentage types to avoid clearing when inputting negative numbers
 	const [localNumberValue, setLocalNumberValue] = useState<string>("");
 	const [isFocused, setIsFocused] = useState(false);
 
-	// 同步外部值到本地状态（仅在未聚焦时）
+	// Sync external value to local state (only when not focused)
 	useEffect(() => {
 		if (
 			!isFocused &&
@@ -83,10 +83,10 @@ export const ReplaceValueInput: React.FC<ReplaceValueInputProps> = ({
 		});
 	};
 
-	// 数字输入处理（参考 number-type-op-editor.tsx）
+	// Number input handling (reference number-type-op-editor.tsx)
 	const handleNumberInput = (inputValue: string) => {
 		setLocalNumberValue(inputValue);
-		// 如果输入不为空且是有效数字，立即通知父组件
+		// If input is not empty and is a valid number, notify parent component immediately
 		if (inputValue !== "" && !Number.isNaN(Number(inputValue))) {
 			handleValueChange(inputValue);
 		}
@@ -94,7 +94,7 @@ export const ReplaceValueInput: React.FC<ReplaceValueInputProps> = ({
 
 	const handleNumberBlur = () => {
 		setIsFocused(false);
-		// 失去焦点时处理输入值
+		// Handle input value when losing focus
 		if (localNumberValue === "") {
 			setLocalNumberValue("0");
 			handleValueChange("0");
@@ -108,7 +108,7 @@ export const ReplaceValueInput: React.FC<ReplaceValueInputProps> = ({
 		}
 	};
 
-	// 解析枚举值
+	// Parse enum value
 	const parseEnumValue = (): Option[] => {
 		if (Array.isArray(replaceValue)) {
 			return replaceValue.map((v) => ({ value: String(v), label: String(v) }));
@@ -165,14 +165,14 @@ export const ReplaceValueInput: React.FC<ReplaceValueInputProps> = ({
 			);
 
 		case VariableValueType.TIME: {
-			// 安全地解析日期值
+			// Safely parse date value
 			const getDateValue = (): Date | undefined => {
 				if (!replaceValue || String(replaceValue).trim() === "") {
 					return undefined;
 				}
 				try {
 					const date = new Date(String(replaceValue));
-					// 检查日期是否有效
+					// Check if date is valid
 					if (Number.isNaN(date.getTime())) {
 						return undefined;
 					}

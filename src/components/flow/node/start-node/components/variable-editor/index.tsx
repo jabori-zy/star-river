@@ -41,12 +41,12 @@ const VariableEditor = ({
 		let newVariables: CustomVariable[];
 
 		if (editingVariable) {
-			// 编辑现有变量
+			// Edit existing variable
 			newVariables = variables.map((v) =>
 				v.varName === editingVariable.varName ? variable : v,
 			);
 		} else {
-			// 添加新变量
+			// Add new variable
 			newVariables = [...variables, variable];
 		}
 

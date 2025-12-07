@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { PositionSide, PositionState } from "@/types/position";
 import type { VirtualPosition } from "@/types/position/virtual-position";
 
-// 仓位方向样式
+// Position side style
 export const getPositionSideStyle = (side: PositionSide) => {
 	switch (side) {
 		case PositionSide.Long:
@@ -16,7 +16,7 @@ export const getPositionSideStyle = (side: PositionSide) => {
 	}
 };
 
-// 仓位方向文本
+// Position side text
 export const getPositionSideText = (side: PositionSide) => {
 	switch (side) {
 		case PositionSide.Long:
@@ -28,7 +28,7 @@ export const getPositionSideText = (side: PositionSide) => {
 	}
 };
 
-// 仓位状态样式
+// Position state style
 export const getPositionStateStyle = (state: PositionState) => {
 	switch (state) {
 		case PositionState.Open:
@@ -44,7 +44,7 @@ export const getPositionStateStyle = (state: PositionState) => {
 	}
 };
 
-// 仓位状态文本
+// Position state text
 export const getPositionStateText = (state: PositionState) => {
 	switch (state) {
 		case PositionState.Open:
@@ -60,7 +60,7 @@ export const getPositionStateText = (state: PositionState) => {
 	}
 };
 
-// Virtual Position 表格列定义
+// Virtual Position table column definition
 export const virtualPositionColumns: ColumnDef<VirtualPosition>[] = [
 	{
 		accessorKey: "positionId",

@@ -37,14 +37,14 @@ export const MACDFIXConfig: IndicatorConfig<MACDFIXConfigType> = {
 	params: {
 		signalPeriod: {
 			label: "indicator.configField.signalPeriod",
-			description: "信号线周期",
+			description: "Signal line period",
 			defaultValue: 9,
 			required: true,
 			legendShowName: "signal",
 		},
 		priceSource: {
 			label: "indicator.configField.dataSource",
-			description: "选择指标计算价格源",
+			description: "Select the price source for indicator calculation",
 			defaultValue: PriceSource.CLOSE,
 			required: true,
 			legendShowName: "source",

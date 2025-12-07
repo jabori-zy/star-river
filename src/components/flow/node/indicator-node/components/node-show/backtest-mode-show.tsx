@@ -21,7 +21,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 
 	return (
 		<div className="space-y-3">
-			{/* 指标信息 */}
+			{/* Indicator information */}
 			<div className="space-y-2">
 				{!exchangeModeConfig?.selectedIndicators ||
 				exchangeModeConfig.selectedIndicators.length === 0 ? (
@@ -57,7 +57,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 				)}
 			</div>
 
-			{/* k线信息 */}
+			{/* K-line information */}
 			<div className="space-y-2">
 				{!exchangeModeConfig?.selectedAccount ||
 				!exchangeModeConfig?.selectedSymbol ? (

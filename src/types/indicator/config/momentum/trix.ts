@@ -15,7 +15,7 @@ import {
 	PriceSourceSchema,
 } from "@/types/indicator/schemas";
 
-// TRIX 指标配置的 Zod schema
+// Zod schema for TRIX indicator configuration
 const TRIXConfigSchema = z.object({
 	timePeriod: z.number().int().positive(),
 	priceSource: PriceSourceSchema,
@@ -23,7 +23,7 @@ const TRIXConfigSchema = z.object({
 
 export type TRIXConfigType = z.infer<typeof TRIXConfigSchema>;
 
-// TRIX指标的参数映射函数
+// Parameter mapping function for TRIX indicator
 function buildTRIXConfig(params: Map<string, string>): unknown {
 	return {
 		timePeriod: parseInt(params.get("time_period") || "0"),
@@ -31,23 +31,23 @@ function buildTRIXConfig(params: Map<string, string>): unknown {
 	};
 }
 
-// TRIX指标配置实现
+// TRIX indicator configuration implementation
 export const TRIXConfig: IndicatorConfig<TRIXConfigType> = {
 	category: IndicatorCategory.MOMENTUM,
 	type: IndicatorType.TRIX,
 	displayName: "TRIX",
-	description: "1日变化率的三重平滑EMA指标",
+	description: "Triple Exponential Average with 1-day Rate of Change",
 	params: {
 		timePeriod: {
 			label: "indicator.configField.timePeriod",
-			description: "选择TRIX指标的时间周期",
+			description: "Select time period for TRIX indicator",
 			defaultValue: 30,
 			required: true,
 			legendShowName: "period",
 		},
 		priceSource: {
 			label: "indicator.configField.dataSource",
-			description: "选择指标计算价格源",
+			description: "Select price source for indicator calculation",
 			defaultValue: PriceSource.CLOSE,
 			required: true,
 			legendShowName: "source",
@@ -78,7 +78,7 @@ export const TRIXConfig: IndicatorConfig<TRIXConfigType> = {
 			]),
 		);
 
-		// 使用 Zod 验证配置
+		// Validate configuration using Zod
 		const validatedConfig = TRIXConfigSchema.parse(config);
 		return validatedConfig;
 	},
@@ -87,7 +87,7 @@ export const TRIXConfig: IndicatorConfig<TRIXConfigType> = {
 		return getIndicatorValues(this.indicatorValueConfig);
 	},
 
-	// 使用通用解析函数
+	// Use generic parsing function
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
 		IndicatorType.TRIX,
 		TRIXConfigSchema,

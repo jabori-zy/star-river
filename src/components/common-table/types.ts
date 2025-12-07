@@ -21,8 +21,8 @@ export interface CustomizeColumnOptionsProps<TData> {
 }
 
 export interface DataTableExpandableProps<TData> {
-	// 渲染展开行的内容
+	// Render content of expanded row
 	renderExpandedRow?: (row: TData) => React.ReactNode;
-	// 默认是否展开所有行
+	// Whether to expand all rows by default
 	defaultExpanded?: boolean;
 }

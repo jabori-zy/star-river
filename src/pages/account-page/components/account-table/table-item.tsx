@@ -12,33 +12,33 @@ interface TableItemProps<TData> {
 }
 
 export function TableItem<TData>({ row }: TableItemProps<TData>) {
-	// 使用类型断言获取行中的id属性，用于拖拽识别
+	// Use type assertion to get id property from row for drag recognition
 	const id: UniqueIdentifier =
 		(row.original as { id: string | number }).id || row.id;
 
 	const { setNodeRef, transform, transition, isDragging } = useSortable({
 		id,
 		transition: {
-			duration: 200, // 略微增加时间使过渡更加平滑
-			easing: "cubic-bezier(0.2, 0, 0, 1)", // 使用自定义缓动函数
+			duration: 200, // Slightly increase time to make transition smoother
+			easing: "cubic-bezier(0.2, 0, 0, 1)", // Use custom easing function
 		},
 	});
 
-	// 计算样式并处理拖拽状态
+	// Calculate styles and handle drag state
 	const style = React.useMemo(() => {
 		return {
-			// 仅在有变换时应用变换
+			// Only apply transform when there is transformation
 			...(transform
 				? {
 						transform: CSS.Transform.toString(transform),
-						// 拖拽时不使用transition，以避免回弹效果
+						// Don't use transition when dragging to avoid bounce effect
 						transition: isDragging ? undefined : transition,
 					}
 				: {}),
-			// 设置拖拽时的视觉样式
+			// Set visual style during dragging
 			...(isDragging
 				? {
-						zIndex: 999, // 确保拖拽元素位于顶层
+						zIndex: 999, // Ensure dragged element is on top
 						boxShadow: "0 5px 15px rgba(0,0,0,0.1)",
 						background: "var(--background)",
 					}

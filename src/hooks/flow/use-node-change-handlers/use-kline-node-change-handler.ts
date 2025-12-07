@@ -7,11 +7,11 @@ import type { KlineNodeData, SelectedSymbol } from "@/types/node/kline-node";
 import { createEmptyRightVariable } from "./utils";
 
 /**
- * 检查变量是否需要清空
- * @param variable 要检查的变量
- * @param klineNodeId K线节点ID
- * @param klineNodeSymbolIds K线节点有效的symbol配置ID列表
- * @returns 是否需要清空该变量
+ * Check if variable needs to be cleared
+ * @param variable Variable to check
+ * @param klineNodeId Kline node ID
+ * @param klineNodeSymbolIds Valid symbol config ID list of kline node
+ * @returns Whether the variable needs to be cleared
  */
 const shouldClearVariable = (
 	variable: Variable | null,
@@ -25,10 +25,10 @@ const shouldClearVariable = (
 };
 
 /**
- * 检查是否需要清空指标节点的selectedSymbol
- * @param selectedSymbol 指标节点的selectedSymbol
- * @param klineNodeSelectedSymbols K线节点的symbol配置列表
- * @returns 是否需要清空
+ * Check if indicator node's selectedSymbol needs to be cleared
+ * @param selectedSymbol Indicator node's selectedSymbol
+ * @param klineNodeSelectedSymbols Kline node's symbol config list
+ * @returns Whether it needs to be cleared
  */
 const shouldClearIndicatorSymbol = (
 	selectedSymbol: SelectedSymbol | null,
@@ -37,17 +37,17 @@ const shouldClearIndicatorSymbol = (
 	if (!selectedSymbol) {
 		return false;
 	}
-	// 如果configId在K线节点的symbol配置中不存在，则需要清空
+	// If configId doesn't exist in Kline node's symbol config, it needs to be cleared
 	return !klineNodeSelectedSymbols.some(
 		(klineSymbol) => klineSymbol.configId === selectedSymbol.configId,
 	);
 };
 
 /**
- * 检查是否需要更新指标节点的selectedSymbol
- * @param selectedSymbol 指标节点的selectedSymbol
- * @param klineNodeSelectedSymbols K线节点的symbol配置列表
- * @returns 是否需要更新
+ * Check if indicator node's selectedSymbol needs to be updated
+ * @param selectedSymbol Indicator node's selectedSymbol
+ * @param klineNodeSelectedSymbols Kline node's symbol config list
+ * @returns Whether it needs to be updated
  */
 const shouldUpdateIndicatorSymbol = (
 	selectedSymbol: SelectedSymbol | null,
@@ -56,14 +56,14 @@ const shouldUpdateIndicatorSymbol = (
 	if (!selectedSymbol) {
 		return false;
 	}
-	// 查找configId相同的K线symbol配置
+	// Find Kline symbol config with the same configId
 	const matchingKlineSymbol = klineNodeSelectedSymbols.find(
 		(klineSymbol) => klineSymbol.configId === selectedSymbol.configId,
 	);
 	if (!matchingKlineSymbol) {
 		return false;
 	}
-	// 如果configId相同但symbol或interval不同，则需要更新
+	// If configId is the same but symbol or interval differs, update is needed
 	return (
 		matchingKlineSymbol.symbol !== selectedSymbol.symbol ||
 		matchingKlineSymbol.interval !== selectedSymbol.interval
@@ -71,10 +71,10 @@ const shouldUpdateIndicatorSymbol = (
 };
 
 /**
- * 更新指标节点的selectedSymbol配置
- * @param selectedSymbol 指标节点的selectedSymbol
- * @param klineNodeSelectedSymbols K线节点的symbol配置列表
- * @returns 更新后的selectedSymbol或原selectedSymbol
+ * Update indicator node's selectedSymbol configuration
+ * @param selectedSymbol Indicator node's selectedSymbol
+ * @param klineNodeSelectedSymbols Kline node's symbol config list
+ * @returns Updated selectedSymbol or original selectedSymbol
  */
 const updateIndicatorSymbol = (
 	selectedSymbol: SelectedSymbol | null,
@@ -84,7 +84,7 @@ const updateIndicatorSymbol = (
 		return selectedSymbol;
 	}
 
-	// 查找对应的K线symbol配置
+	// Find the corresponding Kline symbol config
 	const matchingKlineSymbol = klineNodeSelectedSymbols.find(
 		(klineSymbol) => klineSymbol.configId === selectedSymbol.configId,
 	);
@@ -93,7 +93,7 @@ const updateIndicatorSymbol = (
 		return selectedSymbol;
 	}
 
-	// 更新symbol和interval字段
+	// Update symbol and interval fields
 	return {
 		...selectedSymbol,
 		symbol: matchingKlineSymbol.symbol,
@@ -102,10 +102,10 @@ const updateIndicatorSymbol = (
 };
 
 /**
- * 更新指标节点的selectedSymbol配置
- * @param node 节点对象
- * @param klineNodeSelectedSymbols K线节点的symbol配置列表
- * @returns 更新后的节点或null（如果不需要更新）
+ * Update indicator node's selectedSymbol configuration
+ * @param node Node object
+ * @param klineNodeSelectedSymbols Kline node's symbol config list
+ * @returns Updated node or null (if no update needed)
  */
 const updateIndicatorNode = (
 	node: Node,
@@ -121,7 +121,7 @@ const updateIndicatorNode = (
 		indicatorNodeData.backtestConfig?.exchangeModeConfig?.selectedSymbol ??
 		null;
 
-	// 检查是否需要清空或更新
+	// Check if clearing or updating is needed
 	const needsClear = shouldClearIndicatorSymbol(
 		indicatorNodeSelectedSymbol,
 		klineNodeSelectedSymbols,
@@ -156,11 +156,11 @@ const updateIndicatorNode = (
 };
 
 /**
- * 更新IfElse节点的变量配置
- * @param node 节点对象
- * @param klineNodeId K线节点ID
- * @param klineNodeSymbolIds K线节点有效的symbol配置ID列表
- * @returns 更新后的节点或null（如果不需要更新）
+ * Update IfElse node's variable configuration
+ * @param node Node object
+ * @param klineNodeId Kline node ID
+ * @param klineNodeSymbolIds Valid symbol config ID list of kline node
+ * @returns Updated node or null (if no update needed)
  */
 const updateIfElseNode = (
 	node: Node,
@@ -176,18 +176,18 @@ const updateIfElseNode = (
 	const cases = ifElseNodeData.backtestConfig.cases;
 	let needsUpdate = false;
 
-	// 检查是否有需要清空的变量
+	// Check if there are variables that need to be cleared
 	for (const caseItem of cases) {
 		for (const condition of caseItem.conditions) {
 			const leftVariable = condition.left;
 			const rightVariable = condition.right;
 
 			if (leftVariable) {
-				// 如果左变量与k线节点id相同
+				// If left variable matches the kline node id
 				if (
 					shouldClearVariable(leftVariable, klineNodeId, klineNodeSymbolIds)
 				) {
-					// 将左边变量配置清空
+					// Clear left variable config
 					console.log("leftVariable configId", leftVariable.varConfigId);
 					needsUpdate = true;
 					break;
@@ -195,7 +195,7 @@ const updateIfElseNode = (
 			}
 
 			if (rightVariable) {
-				// 如果右变量与k线节点id相同
+				// If right variable matches the kline node id
 				if (
 					shouldClearVariable(rightVariable, klineNodeId, klineNodeSymbolIds)
 				) {
@@ -208,7 +208,7 @@ const updateIfElseNode = (
 		if (needsUpdate) break;
 	}
 
-	// 如果需要更新，则创建新的节点数据
+	// If update is needed, create new node data
 	if (needsUpdate) {
 		const updatedCases = cases.map((caseItem) => ({
 			...caseItem,
@@ -247,47 +247,47 @@ const updateIfElseNode = (
 };
 
 /**
- * K线节点变更处理相关的hook
+ * Hook for handling kline node changes
  */
 export const useKlineNodeChangeHandler = () => {
 	/**
-	 * 处理回测配置变化
+	 * Handle backtest configuration changes
 	 */
 	const handleBacktestConfigChanged = useCallback(
 		(klineNodeId: string, nodes: Node[], edges: Edge[]): Node[] => {
-			// 获取k线节点
+			// Get kline node
 			const klineNode = nodes.find((node) => node.id === klineNodeId);
 			if (!klineNode) return nodes;
 			const klineNodeData = klineNode.data as KlineNodeData;
 
-			// 找到所有连接的节点
+			// Find all connected nodes
 			const connectedNodes = getOutgoers(klineNode, nodes, edges);
-			// 获取所有连接的指标节点
+			// Get all connected indicator nodes
 			const connectedIndicatorNodes = connectedNodes.filter(
 				(node) => node.type === NodeType.IndicatorNode,
 			);
-			// 获取所有连接的ifElse节点
+			// Get all connected ifElse nodes
 			const connectedIfElseNodes = connectedNodes.filter(
 				(node) => node.type === NodeType.IfElseNode,
 			);
 
-			// 如果没有任何连接，则直接返回
+			// If there are no connections, return directly
 			if (
 				connectedIndicatorNodes.length === 0 &&
 				connectedIfElseNodes.length === 0
 			)
 				return nodes;
 
-			// 获取k线节点配置的symbol
+			// Get kline node's configured symbols
 			const klineNodeSelectedSymbols =
 				klineNodeData.backtestConfig?.exchangeModeConfig?.selectedSymbols || [];
 
-			// 预计算K线节点的symbol配置ID列表
+			// Pre-calculate Kline node's symbol config ID list
 			const klineNodeSymbolIds = klineNodeSelectedSymbols.map(
 				(klineSymbol) => klineSymbol.configId,
 			);
 
-			// 开始处理指标节点和ifElse节点
+			// Start processing indicator nodes and ifElse nodes
 			return nodes.map((node) => {
 				const isConnectedIndicatorNode = connectedIndicatorNodes.some(
 					(in_) => in_.id === node.id,
@@ -296,7 +296,7 @@ export const useKlineNodeChangeHandler = () => {
 					(ifElseNode) => ifElseNode.id === node.id,
 				);
 
-				// 如果节点是指标节点，则更新指标节点配置的selectedSymbol
+				// If node is indicator node, update indicator node's selectedSymbol config
 				if (isConnectedIndicatorNode && node.type === NodeType.IndicatorNode) {
 					const updatedNode = updateIndicatorNode(
 						node,
@@ -305,7 +305,7 @@ export const useKlineNodeChangeHandler = () => {
 					return updatedNode || node;
 				}
 
-				// 如果节点是ifElse节点，则更新ifElse节点变量
+				// If node is ifElse node, update ifElse node variables
 				else if (isConnectedIfElseNode && node.type === NodeType.IfElseNode) {
 					const updatedNode = updateIfElseNode(
 						node,
@@ -322,7 +322,7 @@ export const useKlineNodeChangeHandler = () => {
 	);
 
 	/**
-	 * 处理K线节点变化
+	 * Handle kline node changes
 	 */
 	const handleKlineNodeChange = useCallback(
 		(oldNode: Node, newNode: Node, nodes: Node[], edges: Edge[]): Node[] => {

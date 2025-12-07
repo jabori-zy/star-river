@@ -9,7 +9,7 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLKICKINGBYLENGTHConfigSchema = z.object({
-	// CDLKICKINGBYLENGTH 没有参数
+	// CDLKICKINGBYLENGTH has no parameters
 });
 
 export type CDLKICKINGBYLENGTHConfigType = z.infer<
@@ -18,7 +18,7 @@ export type CDLKICKINGBYLENGTHConfigType = z.infer<
 
 function buildCDLKICKINGBYLENGTHConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLKICKINGBYLENGTH 不需要任何参数
+		// CDLKICKINGBYLENGTH doesn't need any parameters
 	};
 }
 
@@ -29,7 +29,7 @@ export const CDLKICKINGBYLENGTHConfig: IndicatorConfig<CDLKICKINGBYLENGTHConfigT
 		displayName: "CDLKICKINGBYLENGTH",
 		description: "Kicking - bull/bear determined by the longer marubozu",
 		params: {
-			// CDLKICKINGBYLENGTH 没有参数
+			// CDLKICKINGBYLENGTH has no parameters
 		},
 		indicatorValueConfig: {
 			timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

@@ -14,13 +14,13 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 	handleColor,
 }) => {
 	const { t } = useTranslation();
-	// 获取回测模式配置
+	// Get backtest mode config
 	const backtestConfig = data.backtestConfig;
 
 	const exchangeName =
 		backtestConfig?.exchangeModeConfig?.selectedAccount?.exchange;
 
-	// 如果没有配置或者没有订单配置，显示提示信息
+	// If no config or no order configs, show hint message
 	if (
 		!backtestConfig ||
 		!backtestConfig.futuresOrderConfigs ||
@@ -41,7 +41,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 				</span>
 				<span className="text-xs font-bold">{exchangeName}</span>
 			</div>
-			{/* 渲染所有的订单配置 */}
+			{/* Render all order configs */}
 			{backtestConfig.futuresOrderConfigs.map((config) => (
 				<OrderHandleItem
 					id={id}

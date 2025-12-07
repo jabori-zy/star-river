@@ -11,8 +11,8 @@ interface ChartStatsLegendProps {
 }
 
 /**
- * 🔑 优化后的子图统计 Legend 组件
- * 使用 React Portal 而不是 createRoot，简化渲染流程
+ * Optimized subchart statistics Legend component
+ * Uses React Portal instead of createRoot for simplified rendering flow
  */
 export function ChartLegend({
 	strategyId,
@@ -27,10 +27,10 @@ export function ChartLegend({
 			statsChartConfigs: [statsChartConfig],
 		});
 
-	// 🔑 获取 pane 版本号，用于监听 pane 变化
+	// 🔑 Get pane version number to listen for pane changes
 	const paneVersion = getPaneVersion();
 
-	// 🔑 获取 legend 数据和事件处理器
+	// 🔑 Get legend data and event handlers
 	const { statsLegendData, onCrosshairMove } = useStatsLegend({
 		strategyId,
 		statsChartConfig,
@@ -38,16 +38,16 @@ export function ChartLegend({
 
 	const statsName = statsChartConfig.seriesConfigs.statsName;
 
-	// 🔑 延迟订阅图表事件，确保图表完全初始化
+	// 🔑 Delayed subscription to chart events to ensure chart is fully initialized
 	useEffect(() => {
-		// 使用 setTimeout 确保在图表完全初始化后再订阅
+		// Use setTimeout to ensure subscription happens after chart is fully initialized
 		const timer = setTimeout(() => {
 			const chart = getChartRef();
-			// 确保图表存在、回调函数存在、并且有legend数据
+			// Ensure chart exists, callback exists, and there is legend data
 			if (!chart || !onCrosshairMove || !statsLegendData) return;
-			// 直接订阅图表的鼠标移动事件
+			// Directly subscribe to chart's mouse move event
 			chart.subscribeCrosshairMove(onCrosshairMove);
-		}, 10); // 延迟10ms，确保图表初始化完成
+		}, 10); // Delay 10ms to ensure chart initialization completes
 
 		return () => {
 			clearTimeout(timer);
@@ -56,18 +56,18 @@ export function ChartLegend({
 				chart.unsubscribeCrosshairMove(onCrosshairMove);
 			}
 		};
-	}, [getChartRef, onCrosshairMove, statsLegendData]); // 添加statsLegendData作为依赖
+	}, [getChartRef, onCrosshairMove, statsLegendData]); // Add statsLegendData as dependency
 
-	// 🔑 创建 Portal 容器，响应 paneRef 的变化
+	// 🔑 Create Portal container, responding to paneRef changes
 	useEffect(() => {
-		// 当pane被删除时版本号会变化，触发重新创建容器
-		void paneVersion; // 引用paneVersion以消除ESLint警告
+		// Version number changes when pane is deleted, triggering container recreation
+		void paneVersion; // Reference paneVersion to eliminate ESLint warning
 
 		const createPortalContainer = () => {
 			const paneRef = getStatsPaneRef(statsName);
 
 			if (!paneRef) {
-				// 如果 pane 还没准备好，稍后重试
+				// If pane is not ready yet, retry later
 				setTimeout(createPortalContainer, 100);
 				return;
 			}
@@ -75,27 +75,27 @@ export function ChartLegend({
 			setTimeout(() => {
 				const htmlElement = paneRef.getHTMLElement();
 				if (!htmlElement) {
-					console.warn(`无法获取子图 HTML 元素: ${statsName}`);
+					console.warn(`Unable to get subchart HTML element: ${statsName}`);
 					return;
 				}
 
-				// 查找包含 canvas 元素的 div
+				// Find the div containing the canvas element
 				const canvasContainer = htmlElement.querySelector(
 					'div[style*="width: 100%"][style*="height: 100%"][style*="position: relative"][style*="overflow: hidden"]',
 				) as HTMLDivElement;
 
 				if (!canvasContainer) {
-					console.warn(`无法找到 canvas 容器元素: ${statsName}`);
+					console.warn(`Unable to find canvas container element: ${statsName}`);
 					return;
 				}
 
-				// 检查是否已经存在容器
+				// Check if container already exists
 				let container = canvasContainer.querySelector(
 					`[data-stats-legend-key="${statsName}"]`,
 				) as HTMLDivElement;
 
 				if (!container) {
-					// 创建 Portal 容器
+					// Create Portal container
 					container = document.createElement("div");
 					container.style.position = "absolute";
 					container.style.top = "4px";
@@ -114,9 +114,9 @@ export function ChartLegend({
 
 		createPortalContainer();
 
-		// 清理函数
+		// Cleanup function
 		return () => {
-			// 使用闭包捕获当前的 portalContainer 值
+			// Use closure to capture current portalContainer value
 			setPortalContainer((currentContainer) => {
 				if (currentContainer?.parentNode) {
 					currentContainer.parentNode.removeChild(currentContainer);
@@ -124,9 +124,9 @@ export function ChartLegend({
 				return null;
 			});
 		};
-	}, [statsName, getStatsPaneRef, paneVersion]); // 依赖 statsName，当 pane 被删除时会重新创建容器
+	}, [statsName, getStatsPaneRef, paneVersion]); // Depends on statsName, will recreate container when pane is deleted
 
-	// 🔑 使用 Portal 渲染，简单直接
+	// 🔑 Use Portal rendering, simple and direct
 	if (!portalContainer || !statsLegendData) {
 		return null;
 	}

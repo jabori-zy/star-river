@@ -21,12 +21,12 @@ const TimerConfigComponent: React.FC<TimerConfigComponentProps> = ({
 	onTimerConfigChange,
 }) => {
 	const { t } = useTranslation();
-	// 使用 ref 缓存两种模式的配置，避免切换时丢失数据
+	// Use ref to cache configurations of both modes to avoid data loss when switching
 	const intervalConfigCache = React.useRef<IntervalTimerConfig | null>(null);
 	const scheduledConfigCache = React.useRef<ScheduledTimerConfig | null>(null);
 	const pendingInternalUpdates = React.useRef(0);
 
-	// 实时同步当前模式的配置到缓存
+	// Sync current mode's configuration to cache in real-time
 	React.useEffect(() => {
 		const isInternalUpdate = pendingInternalUpdates.current > 0;
 		if (isInternalUpdate) {
@@ -64,7 +64,7 @@ const TimerConfigComponent: React.FC<TimerConfigComponentProps> = ({
 			return;
 		}
 
-		// 切换到目标模式，优先使用缓存的配置
+		// Switch to target mode, prioritize using cached configuration
 		if (mode === "interval") {
 			emitTimerConfigChange(
 				intervalConfigCache.current || {
@@ -82,7 +82,7 @@ const TimerConfigComponent: React.FC<TimerConfigComponentProps> = ({
 
 	return (
 		<div className="space-y-3">
-			{/* 模式切换 */}
+			{/* Mode toggle */}
 			<RadioGroup
 				value={timerConfig.mode}
 				onValueChange={(value) =>
@@ -110,7 +110,7 @@ const TimerConfigComponent: React.FC<TimerConfigComponentProps> = ({
 				</div>
 			</RadioGroup>
 
-			{/* 固定间隔模式 UI */}
+			{/* Fixed interval mode UI */}
 			{timerConfig.mode === "interval" && (
 				<IntervalConfiger
 					config={timerConfig}
@@ -118,7 +118,7 @@ const TimerConfigComponent: React.FC<TimerConfigComponentProps> = ({
 				/>
 			)}
 
-			{/* 定时执行模式 UI */}
+			{/* Scheduled execution mode UI */}
 			{timerConfig.mode === "scheduled" && (
 				<ScheduleConfiger
 					config={timerConfig}

@@ -9,14 +9,14 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLHAMMERConfigSchema = z.object({
-	// CDLHAMMER 没有参数
+	// CDLHAMMER has no parameters
 });
 
 export type CDLHAMMERConfigType = z.infer<typeof CDLHAMMERConfigSchema>;
 
 function buildCDLHAMMERConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLHAMMER 不需要任何参数
+		// CDLHAMMER doesn't need any parameters
 	};
 }
 
@@ -26,7 +26,7 @@ export const CDLHAMMERConfig: IndicatorConfig<CDLHAMMERConfigType> = {
 	displayName: "CDLHAMMER",
 	description: "Hammer",
 	params: {
-		// CDLHAMMER 没有参数
+		// CDLHAMMER has no parameters
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

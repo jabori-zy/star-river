@@ -9,7 +9,7 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLXSIDEGAP3METHODSConfigSchema = z.object({
-	// CDLXSIDEGAP3METHODS 没有参数
+	// CDLXSIDEGAP3METHODS has no parameters
 });
 
 export type CDLXSIDEGAP3METHODSConfigType = z.infer<
@@ -18,7 +18,7 @@ export type CDLXSIDEGAP3METHODSConfigType = z.infer<
 
 function buildCDLXSIDEGAP3METHODSConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLXSIDEGAP3METHODS 不需要任何参数
+		// CDLXSIDEGAP3METHODS doesn't need any parameters
 	};
 }
 
@@ -29,7 +29,7 @@ export const CDLXSIDEGAP3METHODSConfig: IndicatorConfig<CDLXSIDEGAP3METHODSConfi
 		displayName: "CDLXSIDEGAP3METHODS",
 		description: "Upside/Downside Gap Three Methods",
 		params: {
-			// CDLXSIDEGAP3METHODS 没有参数
+			// CDLXSIDEGAP3METHODS has no parameters
 		},
 		indicatorValueConfig: {
 			timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

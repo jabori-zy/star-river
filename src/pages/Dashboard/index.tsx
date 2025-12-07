@@ -6,13 +6,13 @@ import { AppSidebar } from "../../components/app-sidebar";
 export default function Dashboard() {
 	return (
 		<>
-			{/* 侧边栏provider */}
+			{/* Sidebar provider */}
 			<SidebarProvider className="flex flex-col">
 				<AppHeader />
-				{/* 侧边栏 */}
+				{/* Sidebar */}
 				<div className="flex flex-1">
 					<AppSidebar className="pb-12 top-10" />
-					{/* 侧边栏内容，SidebarInset 是侧边栏的容器 */}
+					{/* Sidebar content, SidebarInset is the container for the sidebar */}
 					<SidebarInset className="flex flex-1 flex-col min-w-0 overflow-auto ">
 						<div className="flex flex-1 flex-col pt-0 min-w-0 overflow-y-auto max-h-[calc(100vh-2.5rem)]">
 							<Outlet />

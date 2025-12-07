@@ -41,10 +41,10 @@ const IndicatorDebugPanel: React.FC<IndicatorDebugPanelProps> = ({
 		getKlineSeriesRef,
 	} = useBacktestChartStore(chartConfig.id);
 
-	// 使用全局配置store来删除指标
+	// Use global config store to delete indicators
 	const { removeIndicator } = useBacktestChartConfigStore();
 
-	// 指标分类方法
+	// Indicator classification methods
 	const getMainChartIndicators = () => {
 		return (chartConfig.indicatorChartConfigs || []).filter(
 			(indicatorConfig) =>
@@ -59,60 +59,60 @@ const IndicatorDebugPanel: React.FC<IndicatorDebugPanelProps> = ({
 		);
 	};
 
-	// 打印图表配置到控制台
+	// Print chart config to console
 	const printChartConfig = () => {
 		const currentConfig = chartConfig;
 		const mainIndicators = getMainChartIndicators();
 		const subIndicators = getSubChartIndicators();
 		const chartApi = getChartRef();
 
-		console.group("🔧 图表配置调试信息 (New Chart)");
-		console.log("📊 完整配置:", currentConfig);
-		console.log("🔑 图表ID:", currentConfig.id);
-		console.log("📈 K线配置:", currentConfig.klineChartConfig);
-		console.log("📊 所有指标配置:", currentConfig.indicatorChartConfigs);
-		console.log("📈 主图指标:", mainIndicators);
-		console.log("📉 子图指标:", subIndicators);
-		console.log("📋 指标数据:", indicatorData);
+		console.group("🔧 Chart Configuration Debug Info (New Chart)");
+		console.log("📊 Complete config:", currentConfig);
+		console.log("🔑 Chart ID:", currentConfig.id);
+		console.log("📈 Kline config:", currentConfig.klineChartConfig);
+		console.log("📊 All indicator configs:", currentConfig.indicatorChartConfigs);
+		console.log("📈 Main chart indicators:", mainIndicators);
+		console.log("📉 Subchart indicators:", subIndicators);
+		console.log("📋 Indicator data:", indicatorData);
 
-		// 打印指标分类详细信息
-		console.log(`📊 主图指标数量: ${mainIndicators.length}`);
+		// Print indicator classification details
+		console.log(`📊 Main chart indicator count: ${mainIndicators.length}`);
 		mainIndicators.forEach((indicator, index) => {
-			console.log(`  主图指标${index + 1}:`, indicator);
+			console.log(`  Main chart indicator ${index + 1}:`, indicator);
 		});
 
-		console.log(`📉 子图指标数量: ${subIndicators.length}`);
+		console.log(`📉 Subchart indicator count: ${subIndicators.length}`);
 		subIndicators.forEach((indicator, index) => {
-			console.log(`  子图指标${index + 1}:`, indicator);
-			// 打印子图Pane引用信息
+			console.log(`  Subchart indicator ${index + 1}:`, indicator);
+			// Print subchart Pane reference info
 			const paneRef = getSubChartPaneRef(indicator.indicatorKeyStr);
-			console.log(`    Pane引用:`, paneRef);
+			console.log(`    Pane reference:`, paneRef);
 		});
 
-		// 打印图表API信息
+		// Print chart API info
 		if (chartApi) {
-			console.log("🎯 图表API信息:");
-			console.log("  - Panes数量:", chartApi.panes().length);
-			console.log("  - 时间范围:", chartApi.timeScale().getVisibleRange());
-			console.log("  - 图表尺寸:", chartApi.options());
+			console.log("🎯 Chart API info:");
+			console.log("  - Panes count:", chartApi.panes().length);
+			console.log("  - Time range:", chartApi.timeScale().getVisibleRange());
+			console.log("  - Chart size:", chartApi.options());
 		}
 
 		console.groupEnd();
 
-		// 同时将配置复制到剪贴板（如果支持）
+		// Also copy config to clipboard (if supported)
 		if (navigator.clipboard) {
 			navigator.clipboard
 				.writeText(JSON.stringify(currentConfig, null, 2))
 				.then(() => {
-					console.log("✅ 配置已复制到剪贴板");
+					console.log("✅ Config copied to clipboard");
 				})
 				.catch(() => {
-					console.log("❌ 复制到剪贴板失败");
+					console.log("❌ Failed to copy to clipboard");
 				});
 		}
 	};
 
-	// 获取所有指标
+	// Get all indicators
 	const getAllIndicators = () => {
 		const indicators: Array<{
 			keyStr: IndicatorKeyStr;
@@ -124,20 +124,20 @@ const IndicatorDebugPanel: React.FC<IndicatorDebugPanelProps> = ({
 		const mainIndicators = getMainChartIndicators();
 		const subIndicators = getSubChartIndicators();
 
-		// 主图指标
+		// Main chart indicators
 		mainIndicators.forEach((config) => {
 			indicators.push({
 				keyStr: config.indicatorKeyStr,
-				name: config.indicatorKeyStr, // 使用keyStr作为名称，或者可以解析出更友好的名称
+				name: config.indicatorKeyStr, // Use keyStr as name, or can parse for friendlier name
 				type: "main",
 			});
 		});
 
-		// 子图指标
+		// Subchart indicators
 		subIndicators.forEach((config, index) => {
 			indicators.push({
 				keyStr: config.indicatorKeyStr,
-				name: config.indicatorKeyStr, // 使用keyStr作为名称，或者可以解析出更友好的名称
+				name: config.indicatorKeyStr, // Use keyStr as name, or can parse for friendlier name
 				type: "sub",
 				subChartIndex: index,
 			});
@@ -147,107 +147,107 @@ const IndicatorDebugPanel: React.FC<IndicatorDebugPanelProps> = ({
 	};
 
 	const handleDeleteIndicator = (indicatorKeyStr: IndicatorKeyStr) => {
-		// 只删除配置，让React自然地卸载组件和清理Pane
-		// 新图表组件会自动处理series和pane的清理
+		// Only delete config, let React naturally unmount component and clean up Pane
+		// New chart component will automatically handle series and pane cleanup
 		removeIndicator(chartConfig.id, indicatorKeyStr);
 	};
 
-	// 只删除Pane，不删除配置
+	// Only delete Pane, don't delete config
 	const handleRemovePaneOnly = (indicatorKeyStr: IndicatorKeyStr) => {
 		const subIndicators = getSubChartIndicators();
 		const targetIndicator = subIndicators.find(
 			(indicator) => indicator.indicatorKeyStr === indicatorKeyStr,
 		);
 
-		// 只处理子图指标的Pane删除
+		// Only handle Pane deletion for subchart indicators
 		if (targetIndicator) {
 			const chartApi = getChartRef();
 			if (chartApi) {
-				// 找到该指标在子图中的索引
+				// Find the indicator's index in subcharts
 				const subChartIndex = subIndicators.findIndex(
 					(indicator) => indicator.indicatorKeyStr === indicatorKeyStr,
 				);
 
 				if (subChartIndex !== -1) {
 					try {
-						// 获取所有Panes
+						// Get all Panes
 						const panes = chartApi.panes();
-						console.log("只删除Pane - panes", panes);
+						console.log("Only delete Pane - panes", panes);
 
-						// 子图的Pane索引 = 主图(0) + 子图索引 + 1
+						// Subchart Pane index = main chart(0) + subchart index + 1
 						const paneIndex = subChartIndex + 1;
 
 						if (panes[paneIndex]) {
 							chartApi.removePane(paneIndex);
-							console.log(`已删除Pane ${paneIndex}，但保留配置`);
+							console.log(`Deleted Pane ${paneIndex}, but config retained`);
 
-							// 注意：删除Pane后，React组件仍然存在但无法正常渲染
-							// 这可能会导致一些显示问题，但配置仍然保留
+							// Note: After deleting Pane, React component still exists but cannot render properly
+							// This may cause some display issues, but config is still retained
 						}
 					} catch (error) {
-						console.error("删除Pane失败:", error);
+						console.error("Failed to delete Pane:", error);
 					}
 				}
 			}
 		} else {
-			console.warn("主图指标无法单独删除Pane，只有子图指标支持此操作");
+			console.warn("Main chart indicators cannot delete Pane alone, only subchart indicators support this operation");
 		}
 	};
 
-	// 通过删除Pane内的所有Series来清空Pane（新方案）
+	// Clear Pane by deleting all Series inside Pane (new approach)
 	const handleClearPaneSeries = (indicatorKeyStr: IndicatorKeyStr) => {
 		const subIndicators = getSubChartIndicators();
 		const targetIndicator = subIndicators.find(
 			(indicator) => indicator.indicatorKeyStr === indicatorKeyStr,
 		);
 
-		// 只处理子图指标的Pane清理
+		// Only handle Pane cleanup for subchart indicators
 		if (targetIndicator) {
 			const chartApi = getChartRef();
 			if (chartApi) {
-				// 找到该指标在子图中的索引
+				// Find the indicator's index in subcharts
 				const subChartIndex = subIndicators.findIndex(
 					(indicator) => indicator.indicatorKeyStr === indicatorKeyStr,
 				);
 
 				if (subChartIndex !== -1) {
 					try {
-						// 获取所有Panes
+						// Get all Panes
 						const panes = chartApi.panes();
-						console.log("清空Pane内Series - panes", panes);
+						console.log("Clear Series in Pane - panes", panes);
 
-						// 子图的Pane索引 = 主图(0) + 子图索引 + 1
+						// Subchart Pane index = main chart(0) + subchart index + 1
 						const paneIndex = subChartIndex + 1;
 
 						if (panes[paneIndex]) {
 							const targetPane = panes[paneIndex];
 
-							// 获取该Pane内的所有Series
+							// Get all Series in this Pane
 							const seriesInPane = targetPane.getSeries();
 							console.log(
-								`Pane ${paneIndex} 内的Series数量:`,
+								`Series count in Pane ${paneIndex}:`,
 								seriesInPane.length,
 							);
 
-							// 删除该Pane内的所有Series
+							// Delete all Series in this Pane
 							seriesInPane.forEach((series, index) => {
-								console.log(`删除Pane ${paneIndex} 内的Series ${index}`);
+								console.log(`Delete Series ${index} in Pane ${paneIndex}`);
 								if (chartApi) {
 									chartApi.removeSeries(series);
 								}
 							});
 
 							console.log(
-								`已清空Pane ${paneIndex} 内的所有Series，Pane会自动消失`,
+								`Cleared all Series in Pane ${paneIndex}, Pane will disappear automatically`,
 							);
 						}
 					} catch (error) {
-						console.error("清空Pane内Series失败:", error);
+						console.error("Failed to clear Series in Pane:", error);
 					}
 				}
 			}
 		} else {
-			console.warn("主图指标无法单独清空Pane，只有子图指标支持此操作");
+			console.warn("Main chart indicators cannot clear Pane alone, only subchart indicators support this operation");
 		}
 	};
 
@@ -262,7 +262,7 @@ const IndicatorDebugPanel: React.FC<IndicatorDebugPanelProps> = ({
 				onClick={() => setIsOpen(true)}
 			>
 				<Bug size={16} />
-				调试面板 (New)
+				Debug Panel (New)
 			</Button>
 		);
 	}
@@ -271,7 +271,7 @@ const IndicatorDebugPanel: React.FC<IndicatorDebugPanelProps> = ({
 		<Card className="fixed top-4 right-4 z-50 w-80 max-h-96 overflow-auto bg-white shadow-lg">
 			<CardHeader className="pb-2">
 				<div className="flex items-center justify-between">
-					<CardTitle className="text-sm">指标调试面板 (New Chart)</CardTitle>
+					<CardTitle className="text-sm">Indicator Debug Panel (New Chart)</CardTitle>
 					<Button
 						variant="ghost"
 						size="sm"
@@ -283,21 +283,21 @@ const IndicatorDebugPanel: React.FC<IndicatorDebugPanelProps> = ({
 				</div>
 			</CardHeader>
 			<CardContent className="pt-0">
-				{/* 图表信息 */}
+				{/* Chart info */}
 				<div className="mb-3 p-2 bg-blue-50 rounded-sm">
 					<div className="flex items-center gap-2 mb-1">
 						<Info size={12} className="text-blue-600" />
-						<span className="text-xs font-medium text-blue-800">图表信息</span>
+						<span className="text-xs font-medium text-blue-800">Chart Info</span>
 					</div>
 					<div className="text-xs text-blue-700 space-y-1">
-						<div>图表ID: {chartConfig.id}</div>
-						<div>主图指标: {getMainChartIndicators().length} 个</div>
-						<div>子图指标: {getSubChartIndicators().length} 个</div>
+						<div>Chart ID: {chartConfig.id}</div>
+						<div>Main chart indicators: {getMainChartIndicators().length}</div>
+						<div>Subchart indicators: {getSubChartIndicators().length}</div>
 						<div>
-							总指标数: {chartConfig.indicatorChartConfigs?.length || 0} 个
+							Total indicators: {chartConfig.indicatorChartConfigs?.length || 0}
 						</div>
 						{getChartRef() && (
-							<div>Pane数量: {getChartRef()?.panes().length} 个</div>
+							<div>Pane count: {getChartRef()?.panes().length}</div>
 						)}
 					</div>
 					<div className="flex gap-1 mt-2">
@@ -308,7 +308,7 @@ const IndicatorDebugPanel: React.FC<IndicatorDebugPanelProps> = ({
 							onClick={printChartConfig}
 						>
 							<FileText size={10} className="mr-1" />
-							打印配置
+							Print Config
 						</Button>
 						<Button
 							variant="outline"
@@ -318,26 +318,26 @@ const IndicatorDebugPanel: React.FC<IndicatorDebugPanelProps> = ({
 								const chartApi = getChartRef();
 								if (chartApi) {
 									const panes = chartApi.panes();
-									console.group("🔍 K线系列检查");
-									console.log("Pane数量:", panes.length);
+									console.group("🔍 Kline Series Check");
+									console.log("Pane count:", panes.length);
 									if (panes[0]) {
 										const mainPaneSeries = panes[0].getSeries();
-										console.log("主图系列数量:", mainPaneSeries.length);
-										console.log("主图所有系列:", mainPaneSeries);
+										console.log("Main chart series count:", mainPaneSeries.length);
+										console.log("All main chart series:", mainPaneSeries);
 
-										// 检查K线系列引用
+										// Check kline series reference
 										const klineSeries = getKlineSeriesRef(
 											chartConfig.klineChartConfig.klineKeyStr,
 										);
-										console.log("K线系列引用:", klineSeries);
+										console.log("Kline series reference:", klineSeries);
 										if (klineSeries) {
-											// 检查K线系列是否在主图中
+											// Check if kline series is in main chart
 											const isKlineInMainPane = mainPaneSeries.some(
 												(series) => series === klineSeries,
 											);
-											console.log("K线系列是否在主图中:", isKlineInMainPane);
+											console.log("Is kline series in main chart:", isKlineInMainPane);
 										} else {
-											console.log("K线系列引用为空");
+											console.log("Kline series reference is null");
 										}
 									}
 									console.groupEnd();
@@ -345,29 +345,29 @@ const IndicatorDebugPanel: React.FC<IndicatorDebugPanelProps> = ({
 							}}
 						>
 							<RefreshCw size={10} className="mr-1" />
-							检查K线
+							Check Kline
 						</Button>
 					</div>
 				</div>
 
-				{/* 操作说明 */}
+				{/* Operation instructions */}
 				<div className="mb-3 p-2 bg-yellow-50 rounded-sm">
 					<div className="flex items-center gap-2 mb-1">
 						<Info size={12} className="text-yellow-600" />
 						<span className="text-xs font-medium text-yellow-800">
-							删除方式说明
+							Delete Methods
 						</span>
 					</div>
 					<div className="text-xs text-yellow-700 space-y-1">
-						<div>🔴 红色垃圾桶：删除配置（推荐）</div>
-						<div>🟠 橙色最小化：只删除Pane（保留配置）</div>
-						<div>🟣 紫色图层：清空Pane内Series（新方案）</div>
+						<div>🔴 Red trash: Delete config (recommended)</div>
+						<div>🟠 Orange minimize: Only delete Pane (keep config)</div>
+						<div>🟣 Purple layers: Clear Series in Pane (new approach)</div>
 					</div>
 				</div>
 
 				<div className="space-y-2">
 					{indicators.length === 0 ? (
-						<p className="text-sm text-gray-500">暂无指标</p>
+						<p className="text-sm text-gray-500">No indicators</p>
 					) : (
 						indicators.map((indicator) => {
 							const isVisible = getIndicatorVisibility(indicator.keyStr);
@@ -396,12 +396,12 @@ const IndicatorDebugPanel: React.FC<IndicatorDebugPanelProps> = ({
 												className="text-xs"
 											>
 												{indicator.type === "main"
-													? "主图"
-													: `子图${(indicator.subChartIndex || 0) + 1}`}
+													? "Main"
+													: `Sub ${(indicator.subChartIndex || 0) + 1}`}
 											</Badge>
 											{hasData && (
 												<Badge variant="outline" className="text-xs">
-													{dataCount} 条数据
+													{dataCount} data
 												</Badge>
 											)}
 										</div>
@@ -414,30 +414,30 @@ const IndicatorDebugPanel: React.FC<IndicatorDebugPanelProps> = ({
 											variant="outline"
 											size="sm"
 											className="h-6 w-6 p-0 bg-green-50 border-green-200 hover:bg-green-100"
-											title="打印指标详情"
+											title="Print indicator details"
 											onClick={() => {
-												console.group(`🔍 指标详情: ${indicator.name}`);
-												console.log("指标键:", indicator.keyStr);
-												console.log("指标类型:", indicator.type);
-												console.log("可见性:", isVisible);
+												console.group(`🔍 Indicator Details: ${indicator.name}`);
+												console.log("Indicator key:", indicator.keyStr);
+												console.log("Indicator type:", indicator.type);
+												console.log("Visibility:", isVisible);
 												if (hasData) {
 													console.log(
-														"数据详情:",
+														"Data details:",
 														indicatorData[indicator.keyStr],
 													);
-													console.log("数据点数量:", dataCount);
+													console.log("Data point count:", dataCount);
 													Object.entries(
 														indicatorData[indicator.keyStr],
 													).forEach(([field, data]) => {
-														console.log(`  ${field}:`, data.length, "个数据点");
+														console.log(`  ${field}:`, data.length, "data points");
 													});
 												} else {
-													console.log("暂无数据");
+													console.log("No data");
 												}
-												// 打印Pane引用信息（仅子图指标）
+												// Print Pane reference info (only for subchart indicators)
 												if (indicator.type === "sub") {
 													const paneRef = getSubChartPaneRef(indicator.keyStr);
-													console.log("Pane引用:", paneRef);
+													console.log("Pane reference:", paneRef);
 												}
 												console.groupEnd();
 											}}
@@ -452,7 +452,7 @@ const IndicatorDebugPanel: React.FC<IndicatorDebugPanelProps> = ({
 													? "bg-blue-50 border-blue-200"
 													: "bg-gray-100 border-gray-300"
 											}`}
-											title={isVisible ? "隐藏指标" : "显示指标"}
+											title={isVisible ? "Hide indicator" : "Show indicator"}
 											onClick={() =>
 												toggleIndicatorVisibility(indicator.keyStr)
 											}
@@ -463,25 +463,25 @@ const IndicatorDebugPanel: React.FC<IndicatorDebugPanelProps> = ({
 												<EyeOff size={10} className="text-gray-500" />
 											)}
 										</Button>
-										{/* 只删除Pane按钮 - 仅对子图指标显示 */}
+										{/* Only delete Pane button - only shown for subchart indicators */}
 										{indicator.type === "sub" && (
 											<Button
 												variant="outline"
 												size="sm"
 												className="h-6 w-6 p-0 bg-orange-50 border-orange-200 hover:bg-orange-100"
-												title="只删除Pane（保留配置）"
+												title="Only delete Pane (keep config)"
 												onClick={() => handleRemovePaneOnly(indicator.keyStr)}
 											>
 												<Minimize2 size={10} className="text-orange-600" />
 											</Button>
 										)}
-										{/* 清空Pane内Series按钮 - 仅对子图指标显示 */}
+										{/* Clear Series in Pane button - only shown for subchart indicators */}
 										{indicator.type === "sub" && (
 											<Button
 												variant="outline"
 												size="sm"
 												className="h-6 w-6 p-0 bg-purple-50 border-purple-200 hover:bg-purple-100"
-												title="清空Pane内Series（新方案）"
+												title="Clear Series in Pane (new approach)"
 												onClick={() => handleClearPaneSeries(indicator.keyStr)}
 											>
 												<Layers size={10} className="text-purple-600" />
@@ -491,7 +491,7 @@ const IndicatorDebugPanel: React.FC<IndicatorDebugPanelProps> = ({
 											variant="outline"
 											size="sm"
 											className="h-6 w-6 p-0 bg-red-50 border-red-200 hover:bg-red-100"
-											title="删除指标"
+											title="Delete indicator"
 											onClick={() => handleDeleteIndicator(indicator.keyStr)}
 										>
 											<Trash2 size={10} className="text-red-600" />
@@ -508,7 +508,7 @@ const IndicatorDebugPanel: React.FC<IndicatorDebugPanelProps> = ({
 						<Separator className="my-3" />
 						<div className="space-y-2">
 							<div className="text-xs text-gray-500">
-								总计: {indicators.length} 个指标
+								Total: {indicators.length} indicators
 							</div>
 							<div className="flex gap-2">
 								<Button
@@ -524,7 +524,7 @@ const IndicatorDebugPanel: React.FC<IndicatorDebugPanelProps> = ({
 									}}
 								>
 									<Eye size={12} className="mr-1" />
-									全部显示
+									Show All
 								</Button>
 								<Button
 									variant="outline"
@@ -539,7 +539,7 @@ const IndicatorDebugPanel: React.FC<IndicatorDebugPanelProps> = ({
 									}}
 								>
 									<EyeOff size={12} className="mr-1" />
-									全部隐藏
+									Hide All
 								</Button>
 							</div>
 							<Button
@@ -547,7 +547,7 @@ const IndicatorDebugPanel: React.FC<IndicatorDebugPanelProps> = ({
 								size="sm"
 								className="h-7 text-xs w-full text-red-600 border-red-200 hover:bg-red-50"
 								onClick={() => {
-									if (confirm("确定要删除所有指标吗？此操作不可撤销。")) {
+									if (confirm("Are you sure you want to delete all indicators? This action cannot be undone.")) {
 										indicators.forEach((indicator) => {
 											handleDeleteIndicator(indicator.keyStr);
 										});
@@ -555,7 +555,7 @@ const IndicatorDebugPanel: React.FC<IndicatorDebugPanelProps> = ({
 								}}
 							>
 								<Trash2 size={12} className="mr-1" />
-								删除全部
+								Delete All
 							</Button>
 						</div>
 					</>

@@ -8,7 +8,7 @@ function getAllTimezones(): string[] {
 	return moment.tz.names();
 }
 
-// 时区选择下拉框
+// Timezone selection dropdown
 export function TimezoneSelect({
 	localSystemConfig,
 	setLocalSystemConfig,
@@ -22,7 +22,7 @@ export function TimezoneSelect({
 	const [timezones, setTimezones] = useState<string[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 
-	// 转换时区数据为SelectWithSearch组件所需的格式
+	// Convert timezone data to format required by SelectWithSearch component
 	const timezoneOptions = useMemo(() => {
 		return timezones.map((timezone) => ({
 			value: timezone,
@@ -30,7 +30,7 @@ export function TimezoneSelect({
 		}));
 	}, [timezones]);
 
-	// 获取时区列表
+	// Get timezone list
 	useEffect(() => {
 		const timezones = getAllTimezones();
 		setTimezones(timezones);
@@ -38,7 +38,7 @@ export function TimezoneSelect({
 	}, []);
 
 	const handleTimezoneChange = (value: string) => {
-		// 如果选择的value等于当前配置，则不进行更新
+		// If selected value equals current config, don't update
 		if (value === localSystemConfig.timezone) {
 			return;
 		}

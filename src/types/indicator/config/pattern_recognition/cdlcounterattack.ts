@@ -9,7 +9,7 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLCOUNTERATTACKConfigSchema = z.object({
-	// CDLCOUNTERATTACK 没有参数
+	// CDLCOUNTERATTACK has no parameters
 });
 
 export type CDLCOUNTERATTACKConfigType = z.infer<
@@ -18,7 +18,7 @@ export type CDLCOUNTERATTACKConfigType = z.infer<
 
 function buildCDLCOUNTERATTACKConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLCOUNTERATTACK 不需要任何参数
+		// CDLCOUNTERATTACK doesn't need any parameters
 	};
 }
 
@@ -29,7 +29,7 @@ export const CDLCOUNTERATTACKConfig: IndicatorConfig<CDLCOUNTERATTACKConfigType>
 		displayName: "CDLCOUNTERATTACK",
 		description: "Counterattack",
 		params: {
-			// CDLCOUNTERATTACK 没有参数
+			// CDLCOUNTERATTACK has no parameters
 		},
 		indicatorValueConfig: {
 			timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

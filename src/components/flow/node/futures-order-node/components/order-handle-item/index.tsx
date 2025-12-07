@@ -36,7 +36,7 @@ const OrderHandleItem: React.FC<OrderHandleItemProps> = ({
 
 	return (
 		<div className="flex flex-col gap-1 relative ">
-			{/* 标题 */}
+			{/* Title */}
 			<div className="flex items-center gap-2 pr-2 relative">
 				<div className="text-xs font-bold text-muted-foreground">
 					{t("futuresOrderNode.order")}-{orderConfig.orderConfigId}
@@ -61,7 +61,7 @@ const OrderHandleItem: React.FC<OrderHandleItemProps> = ({
 			</div>
 
 			<div className="flex flex-row flex-1 gap-1 justify-between">
-				{/* 订单配置 */}
+				{/* Order configuration */}
 				<div className="flex flex-1 flex-col gap-2 p-3 text-xs bg-gray-50 rounded min-w-[160px]">
 					<div className="flex justify-between gap-4">
 						<span className="text-gray-500 whitespace-nowrap">
@@ -160,7 +160,7 @@ const OrderHandleItem: React.FC<OrderHandleItemProps> = ({
 						</span>
 					</div>
 				</div>
-				{/* 订单状态 */}
+				{/* Order status */}
 				<div className="flex flex-col gap-2 items-end">
 					<div className="text-xs text-muted-foreground">
 						{t("futuresOrderNode.allStatus")}
@@ -194,7 +194,7 @@ const OrderHandleItem: React.FC<OrderHandleItemProps> = ({
 					</div>
 				</div>
 			</div>
-			{/* handle出口 */}
+			{/* Handle output */}
 			{isMarketOrder
 				? getMarketOrderHandleGroup(id, orderConfig.orderConfigId, handleColor)
 				: getLimitOrderHandleGroup(id, orderConfig.orderConfigId, handleColor)}

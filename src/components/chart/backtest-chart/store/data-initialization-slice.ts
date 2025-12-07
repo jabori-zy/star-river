@@ -29,12 +29,12 @@ import {
 } from "../utls";
 import type { DataInitializationSlice, SliceCreator } from "./types";
 
-// 初始化k线长度
+// Initial kline length
 const INITIAL_DATA_LENGTH = 1000;
 
 export const createDataInitializationSlice =
 	(): SliceCreator<DataInitializationSlice> => (_set, get) => ({
-		// 私有方法：处理K线数据
+		// Private method: process kline data
 		_processKlineData: async (
 			strategyId: number,
 			klineKeyStr: KeyStr,
@@ -47,7 +47,7 @@ export const createDataInitializationSlice =
 				limit: INITIAL_DATA_LENGTH,
 			})) as Kline[];
 
-			// 安全检查：确保 initialKlines 存在且是数组
+			// Safety check: ensure initialKlines exists and is an array
 			if (
 				initialKlines &&
 				Array.isArray(initialKlines) &&
@@ -76,7 +76,7 @@ export const createDataInitializationSlice =
 			}
 		},
 
-		// 私有方法：处理指标数据
+		// Private method: process indicator data
 		_processIndicatorData: async (
 			strategyId: number,
 			keyStr: KeyStr,
@@ -90,7 +90,7 @@ export const createDataInitializationSlice =
 				datetime,
 				limit: INITIAL_DATA_LENGTH,
 			})) as Record<keyof IndicatorValueConfig, number | Date>[];
-			// 安全检查：确保指标数据存在
+			// Safety check: ensure indicator data exists
 			if (
 				initialIndicatorData &&
 				Array.isArray(initialIndicatorData) &&
@@ -102,7 +102,7 @@ export const createDataInitializationSlice =
 				> = {};
 				initialIndicatorData.forEach((item) => {
 					Object.entries(item).forEach(([indicatorValueField, value]) => {
-						// 跳过datetime字段，只处理指标值，并过滤value为0的数据和value为空的数据
+						// Skip datetime field, only process indicator values, and filter out zero and null values
 						if (
 							indicatorValueField !== "datetime" &&
 							value !== 0 &&
@@ -164,7 +164,7 @@ export const createDataInitializationSlice =
 			if (circleId === 0) {
 				return;
 			}
-			// 使用 Promise.all 等待所有异步操作完成
+			// Use Promise.all to wait for all async operations to complete
 			const promises = state.getKeyStr().map(async (keyStr: KeyStr) => {
 				try {
 					const key = parseKey(keyStr);
@@ -186,9 +186,9 @@ export const createDataInitializationSlice =
 
 			await state.initVirtualOrderData(strategyId);
 			await state.initVirtualPositionData(strategyId);
-			// 等待所有数据加载完成
+			// Wait for all data loading to complete
 			await Promise.all(promises);
-			// 标记数据已初始化
+			// Mark data as initialized
 			state.setIsDataInitialized(true);
 		},
 
@@ -221,7 +221,7 @@ export const createDataInitializationSlice =
 			try {
 				const key = parseKey(indicatorKeyStr);
 
-				// 只处理指标类型的key
+				// Only process indicator type keys
 				if (key.type === "indicator") {
 					await state._processIndicatorData(
 						strategyId,
@@ -241,12 +241,12 @@ export const createDataInitializationSlice =
 
 		initVirtualOrderData: async (strategyId: number) => {
 			const virtualOrderData = await getVirtualOrder(strategyId);
-			// 清除订单标记
+			// Clear order markers
 			get().setOrderMarkers([]);
-			// 清除限价单价格线
+			// Clear limit order price lines
 			get().setOrderPriceLine([]);
 
-			// 按updateTime升序排序
+			// Sort by updateTime in ascending order
 			virtualOrderData.sort(
 				(a: VirtualOrder, b: VirtualOrder) =>
 					DateTime.fromISO(a.updateTime).toMillis() -
@@ -287,7 +287,7 @@ export const createDataInitializationSlice =
 				const klineKey = parseKey(klineKeyStr);
 				const virtualPositionData = await getVirtualPosition(strategyId);
 				const orderPriceLine: PositionPriceLine[] = [];
-				// 获取当前symbol的仓位
+				// Get current symbol positions
 				const currentSymbolPosition: VirtualPosition[] =
 					virtualPositionData.filter(
 						(position: VirtualPosition) =>

@@ -7,12 +7,12 @@ import { cn } from "@/lib/utils";
 import { usePlatform } from "@/store/use-platform";
 import { useTranslation } from "react-i18next";
 
-// 声明electron的require
+// Declare electron's require
 const { ipcRenderer } = window.require
 	? window.require("electron")
 	: { ipcRenderer: null };
 
-// 扩展CSSProperties类型以支持WebKit拖拽属性
+// Extend CSSProperties type to support WebKit drag properties
 declare module "react" {
 	interface CSSProperties {
 		WebkitAppRegion?: "drag" | "no-drag";
@@ -24,7 +24,7 @@ interface BacktestWindowHeaderProps {
 	onQuit: () => Promise<boolean>;
 }
 
-// 窗口控制
+// Window control
 function WindowControl({ onQuit }: { onQuit: () => Promise<boolean> }) {
 	const { t } = useTranslation();
 	const handleMinimize = () => {
@@ -42,15 +42,15 @@ function WindowControl({ onQuit }: { onQuit: () => Promise<boolean> }) {
 	const handleConfirmQuit = async () => {
 		if (ipcRenderer) {
 			try {
-				// 调用传入的回调函数
+				// Call the passed callback function
 				const canClose = await onQuit();
 				if (canClose) {
-					// 关闭窗口
+					// Close window
 					ipcRenderer.invoke("close-window");
 				}
 			} catch (error) {
 				console.error("处理退出确认失败:", error);
-				// 发生错误时也关闭窗口
+				// Close window even if error occurs
 				ipcRenderer.invoke("close-window");
 			}
 		}
@@ -58,15 +58,15 @@ function WindowControl({ onQuit }: { onQuit: () => Promise<boolean> }) {
 
 	return (
 		<div className="flex items-center gap-0.5">
-			{/* 最小化 */}
+			{/* Minimize */}
 			<Button variant="ghost" size="icon" onClick={handleMinimize}>
 				<Minus className="w-3 h-3" />
 			</Button>
-			{/* 最大化 */}
+			{/* Maximize */}
 			<Button variant="ghost" size="icon" onClick={handleMaximize}>
 				<Square className="w-3 h-3" />
 			</Button>
-			{/* 关闭 - 使用确认框包装 */}
+			{/* Close - wrapped with confirmation box */}
 			<ConfirmBox
 				title={t("common.confirmQuit")}
 				description={t("desktop.backtestPage.confirmQuitDescription")}

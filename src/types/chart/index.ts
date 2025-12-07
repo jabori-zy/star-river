@@ -15,7 +15,7 @@ export type LayoutMode = "vertical" | "horizontal" | "grid" | "grid-alt";
 
 export type ChartId = number;
 
-// 数据系列类型
+// Data series type
 export enum SeriesType {
 	LINE = "line",
 	COLUMN = "column",
@@ -25,25 +25,25 @@ export enum SeriesType {
 }
 
 export type SeriesBaseConfig = {
-	name: string; // 数据系列名称
-	type: SeriesType; // 数据系列类型
-	color?: string; // 数据系列颜色
-	lineWidth?: number; // 数据系列线宽
+	name: string; // Data series name
+	type: SeriesType; // Data series type
+	color?: string; // Data series color
+	lineWidth?: number; // Data series line width
 };
 
-// 指标图表数据系列配置
+// Indicator chart data series configuration
 export type SeriesConfig = {
-	indicatorValueKey: keyof IndicatorValueConfig; // 指标值的键名
+	indicatorValueKey: keyof IndicatorValueConfig; // Indicator value key name
 } & SeriesBaseConfig;
 
-// 统计图表数据系列配置
+// Stats chart data series configuration
 export type StatsSeriesConfig = {
-	statsName: StrategyStatsName; // 统计名称
+	statsName: StrategyStatsName; // Stats name
 } & SeriesBaseConfig;
 
 export type IndicatorChartBaseConfig = {
 	isInMainChart: boolean; // isInMainChart
-	visible?: boolean; // 指标可见性
+	visible?: boolean; // Indicator visibility
 	seriesConfigs: SeriesConfig[];
 };
 
@@ -53,10 +53,10 @@ export type IndicatorChartConfig = IndicatorChartBaseConfig & {
 };
 
 export type KlineChartConfig = {
-	klineKeyStr: KeyStr; // 蜡烛图缓存key
-	visible?: boolean; // 蜡烛图可见性
-	upColor?: string; // 上涨颜色
-	downColor?: string; // 下跌颜色
+	klineKeyStr: KeyStr; // Candlestick chart cache key
+	visible?: boolean; // Candlestick chart visibility
+	upColor?: string; // Up color
+	downColor?: string; // Down color
 };
 
 export type OrderMarker = {
@@ -70,7 +70,7 @@ export type OrderMarker = {
 };
 
 /**
- * 止盈价格线
+ * Take profit price line
  */
 export type TakeProfitPriceLine = {
 	id: string;
@@ -83,7 +83,7 @@ export type TakeProfitPriceLine = {
 };
 
 /**
- * 止损价格线
+ * Stop loss price line
  */
 export type StopLossPriceLine = {
 	id: string;
@@ -96,7 +96,7 @@ export type StopLossPriceLine = {
 };
 
 /**
- * 开仓价格线
+ * Open position price line
  */
 export type OpenPositionPriceLine = {
 	id: string;
@@ -114,7 +114,7 @@ export type PositionPriceLine =
 	| OpenPositionPriceLine;
 
 /**
- * 限价单价格线
+ * Limit order price line
  */
 export type OrderPriceLine = {
 	id: string;
@@ -126,9 +126,9 @@ export type OrderPriceLine = {
 	title: string;
 };
 
-// // 子图配置
+// // Sub-chart configuration
 // export type SubChartConfig = {
-// 	mainChartId: ChartId; // 所属的主图id
-// 	subChartId: ChartId; // 子图id`
+// 	mainChartId: ChartId; // Main chart id this belongs to
+// 	subChartId: ChartId; // Sub-chart id
 // 	indicatorChartConfigs: Record<IndicatorKeyStr, IndicatorChartConfig>;
 // };

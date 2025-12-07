@@ -1,7 +1,7 @@
-// 动态端口管理
+// Dynamic port management
 let backendPort: number = 3100;
 
-// 获取 ipcRenderer
+// Get ipcRenderer
 const getIpcRenderer = () => {
 	if (typeof window !== "undefined" && window.require) {
 		try {
@@ -13,7 +13,7 @@ const getIpcRenderer = () => {
 	return null;
 };
 
-// 初始化时从主进程获取端口
+// Get port from main process during initialization
 const initBackendPort = async () => {
 	const ipcRenderer = getIpcRenderer();
 	if (ipcRenderer) {
@@ -29,10 +29,10 @@ const initBackendPort = async () => {
 	}
 };
 
-// 立即初始化端口
+// Initialize port immediately
 initBackendPort();
 
-// 动态获取 API_BASE_URL
+// Dynamically get API_BASE_URL
 export const getApiBaseUrl = (): string => {
 	return import.meta.env.VITE_API_URL || `http://localhost:${backendPort}`;
 };

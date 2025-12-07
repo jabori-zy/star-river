@@ -31,9 +31,9 @@ const KlineNode: React.FC<NodeProps<KlineNodeType>> = ({ id, selected }) => {
 		startNodeData?.backtestConfig?.exchangeModeConfig?.timeRange;
 	const currentNodeData = getNodeData(id) as KlineNodeData;
 
-	// 实盘配置
+	// Live mode configuration
 	const liveConfig = currentNodeData?.liveConfig || ({} as KlineNodeLiveConfig);
-	// 回测配置
+	// Backtest mode configuration
 	const backtestConfig =
 		currentNodeData?.backtestConfig || ({} as KlineNodeBacktestConfig);
 
@@ -43,14 +43,14 @@ const KlineNode: React.FC<NodeProps<KlineNodeType>> = ({ id, selected }) => {
 
 	const { updateTimeRange } = useBacktestConfig({ id });
 
-	// 监听开始节点的时间范围变化
+	// Listen to start node's time range changes
 	useEffect(() => {
 		if (startNodeTimeRange) {
 			updateTimeRange(startNodeTimeRange);
 		}
 	}, [startNodeTimeRange, updateTimeRange]);
 
-	// 默认输入
+	// Default input
 	const defaultInputHandle: BaseHandleProps = {
 		id: getNodeDefaultInputHandleId(id, NodeType.KlineNode),
 		type: "target",
@@ -60,7 +60,7 @@ const KlineNode: React.FC<NodeProps<KlineNodeType>> = ({ id, selected }) => {
 			getNodeDefaultColor(NodeType.KlineNode),
 	};
 
-	// 默认输出
+	// Default output
 	const defaultOutputHandle: BaseHandleProps = {
 		id: getNodeDefaultOutputHandleId(id, NodeType.KlineNode),
 		type: "source",
@@ -91,13 +91,13 @@ const KlineNode: React.FC<NodeProps<KlineNodeType>> = ({ id, selected }) => {
 			defaultOutputHandle={defaultOutputHandle}
 			defaultInputHandle={defaultInputHandle}
 		>
-			{/* 已选择的账户列表 */}
+			{/* Selected account list */}
 
-			{/* 实盘模式 */}
+			{/* Live mode */}
 			{tradingMode === TradeMode.LIVE && (
 				<LiveModeShow liveConfig={liveConfig} />
 			)}
-			{/* 回测模式 */}
+			{/* Backtest mode */}
 			{tradingMode === TradeMode.BACKTEST && (
 				<BacktestModeShow
 					handleColor={handleColor}

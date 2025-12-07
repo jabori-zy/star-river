@@ -15,7 +15,7 @@ import {
 	PriceSourceSchema,
 } from "@/types/indicator/schemas";
 
-// RSI 指标配置的 Zod schema
+// Zod schema for RSI indicator configuration
 const RSIConfigSchema = z.object({
 	timePeriod: z.number().int().positive(),
 	priceSource: PriceSourceSchema,
@@ -23,7 +23,7 @@ const RSIConfigSchema = z.object({
 
 export type RSIConfigType = z.infer<typeof RSIConfigSchema>;
 
-// RSI指标的参数映射函数
+// Parameter mapping function for RSI indicator
 function buildRSIConfig(params: Map<string, string>): unknown {
 	return {
 		timePeriod: parseInt(params.get("time_period") || "0"),
@@ -31,23 +31,23 @@ function buildRSIConfig(params: Map<string, string>): unknown {
 	};
 }
 
-// RSI指标配置实现
+// RSI indicator configuration implementation
 export const RSIConfig: IndicatorConfig<RSIConfigType> = {
 	category: IndicatorCategory.MOMENTUM,
-	type: IndicatorType.RSI, // 修正：应该是RSI而不是MA
+	type: IndicatorType.RSI, // Fixed: should be RSI not MA
 	displayName: "RSI",
-	description: "计算指定周期的相对强弱指数",
+	description: "Calculate Relative Strength Index for the specified period",
 	params: {
 		timePeriod: {
 			label: "indicator.configField.timePeriod",
-			description: "选择相对强弱指数的时间周期",
+			description: "Select time period for Relative Strength Index",
 			defaultValue: 14,
 			required: true,
 			legendShowName: "period",
 		},
 		priceSource: {
 			label: "indicator.configField.dataSource",
-			description: "选择指标计算价格源",
+			description: "Select price source for indicator calculation",
 			defaultValue: PriceSource.CLOSE,
 			required: true,
 			legendShowName: "source",
@@ -58,7 +58,7 @@ export const RSIConfig: IndicatorConfig<RSIConfigType> = {
 		rsi: { label: "rsi", value: 0, legendShowName: "rsi" },
 	},
 	chartConfig: {
-		isInMainChart: false, // RSI显示在副图
+		isInMainChart: false, // RSI displays in sub-chart
 		seriesConfigs: [
 			{
 				name: "RSI",
@@ -78,7 +78,7 @@ export const RSIConfig: IndicatorConfig<RSIConfigType> = {
 			]),
 		);
 
-		// 使用 Zod 验证配置
+		// Validate configuration using Zod
 		const validatedConfig = RSIConfigSchema.parse(config);
 		return validatedConfig;
 	},
@@ -87,7 +87,7 @@ export const RSIConfig: IndicatorConfig<RSIConfigType> = {
 		return getIndicatorValues(this.indicatorValueConfig);
 	},
 
-	// 使用通用解析函数
+	// Use generic parsing function
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
 		IndicatorType.RSI,
 		RSIConfigSchema,

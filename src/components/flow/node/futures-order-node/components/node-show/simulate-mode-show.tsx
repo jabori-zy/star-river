@@ -12,12 +12,12 @@ const SimulateModeShow: React.FC<SimulateModeShowProps> = ({
 	data,
 	handleColor,
 }) => {
-	// 获取模拟模式配置
+	// Get simulate mode config
 	const simulateConfig = data.simulateConfig;
 
 	const exchangeName = simulateConfig?.selectedSimulateAccount?.exchange;
 
-	// 如果没有配置或者没有订单配置，显示提示信息
+	// If no config or no order configs, show hint message
 	if (
 		!simulateConfig ||
 		!simulateConfig.futuresOrderConfigs ||
@@ -25,7 +25,7 @@ const SimulateModeShow: React.FC<SimulateModeShowProps> = ({
 	) {
 		return (
 			<div className="text-sm text-muted-foreground p-2 text-center">
-				暂无订单配置
+				No order configured
 			</div>
 		);
 	}
@@ -33,10 +33,10 @@ const SimulateModeShow: React.FC<SimulateModeShowProps> = ({
 	return (
 		<div className="flex flex-col gap-2">
 			<div className="flex items-center mb-1">
-				<span className="text-xs text-muted-foreground">订单将会发送至</span>
+				<span className="text-xs text-muted-foreground">Orders will be sent to </span>
 				<span className="text-xs font-bold ">{exchangeName}</span>
 			</div>
-			{/* 渲染所有的订单配置 */}
+			{/* Render all order configs */}
 			{simulateConfig.futuresOrderConfigs.map((config) => (
 				<OrderHandleItem
 					key={config.orderConfigId}

@@ -12,13 +12,13 @@ import { binanceColumns, okxColumns } from "./components/account-table/columns";
 import { BinanceAccountTable } from "./components/binance-account-table";
 import { MT5AccountTable } from "./components/mt5-account-table";
 
-// 定义账户类型
+// Define account type
 type AccountType = {
 	id: string;
 	name: string;
 };
 
-// 账户类型数据
+// Account type data
 const accountTypes: AccountType[] = [
 	{
 		id: "metatrader5",
@@ -35,20 +35,20 @@ const accountTypes: AccountType[] = [
 ];
 
 export default function AccountPage() {
-	// 当前选中的标签页
+	// Currently selected tab
 	const [activeTab, setActiveTab] = useState("metatrader5");
-	// 账户数据，要么存储MT5账户数据，要么存储Binance账户数据，要么存储OKX账户数据
+	// Account data - can store MT5 account data, Binance account data, or OKX account data
 	const [mt5AccountData, setMt5AccountData] = useState<MT5Account[]>([]);
 	const [binanceAccountData, setBinanceAccountData] = useState<
 		BinanceAccount[]
 	>([]);
-	// 获取SSE实时数据
+	// Get SSE real-time data
 	const accountUpdateMessage = useAccountSSE();
 
-	// 获取账户数据
+	// Get account data
 	const getAccountConfig = useCallback(async (exchange: string) => {
 		const accountData = await getAccountConfigs(exchange);
-		console.log("获取到的账户数据:", accountData);
+		console.log("Retrieved account data:", accountData);
 		if (exchange === "metatrader5") {
 			setMt5AccountData(accountData as MT5Account[]);
 		} else if (exchange === "binance") {
@@ -56,25 +56,25 @@ export default function AccountPage() {
 		}
 	}, []);
 
-	// 处理页面首次加载和Tab切换时获取数据
+	// Handle fetching data on initial page load and tab switch
 	useEffect(() => {
-		// 获取账户数据
+		// Get account data
 		getAccountConfig(activeTab);
 	}, [activeTab, getAccountConfig]);
 
-	// 处理SSE实时数据更新
+	// Handle SSE real-time data updates
 	useEffect(() => {
 		if (
 			accountUpdateMessage &&
 			accountUpdateMessage.event_name === "account-updated"
 		) {
-			// console.log("收到MT5账户实时数据:", accountUpdateMessage);
+			// console.log("Received MT5 account real-time data:", accountUpdateMessage);
 
-			// 更新MT5账户数据
+			// Update MT5 account data
 			setMt5AccountData((prevData) => {
-				// 根据terminal_id与id匹配，更新账户数据
+				// Match by terminal_id and id, update account data
 				const updatedData = prevData.map((account) => {
-					// 如果account_info为null，则将客户端设置为断开，EA设置为关闭
+					// If account_info is null, set terminal to disconnected, EA to closed
 					if (
 						!accountUpdateMessage.account_info &&
 						accountUpdateMessage.account_config.id === account.id
@@ -86,15 +86,15 @@ export default function AccountPage() {
 						};
 					}
 
-					// 如果account_info.account_id与account.id匹配，则更新账户数据
+					// If account_info.account_id matches account.id, update account data
 					if (
 						accountUpdateMessage.account_config.id === account.id &&
 						accountUpdateMessage.account_info
 					) {
-						// 更新账户数据
+						// Update account data
 						return {
 							...account,
-							// 更新指定字段
+							// Update specific fields
 							leverage: accountUpdateMessage.account_info.info.leverage,
 							balance: accountUpdateMessage.account_info.info.balance,
 							equity: accountUpdateMessage.account_info.info.equity,
@@ -107,35 +107,35 @@ export default function AccountPage() {
 								? "open"
 								: "close",
 							creatTime: accountUpdateMessage.account_info.create_time,
-							// 其他字段保持不变
+							// Keep other fields unchanged
 						};
 					}
-					// 如果不匹配，保持原有数据不变
+					// If no match, keep original data unchanged
 					return account;
 				});
 
-				// console.log("更新后的数据:", updatedData);
+				// console.log("Updated data:", updatedData);
 				return updatedData;
 			});
 		}
 	}, [accountUpdateMessage]);
 
-	// 处理标签页切换
+	// Handle tab change
 	const handleTabChange = (value: string) => {
-		// 根据选中的标签页，获取对应的账户数据
+		// Get corresponding account data based on selected tab
 		setActiveTab(value);
-		// 根据选中的标签页，获取对应的账户数据
+		// Get corresponding account data based on selected tab
 		getAccountConfigs(value);
 	};
 
-	// 处理添加账户
+	// Handle add account
 	const handleAddAccount = async (formData: any) => {
-		console.log("添加账户数据:", formData);
+		console.log("Add account data:", formData);
 		const { accountName, exchange, ...accountConfig } = formData;
 		const res = await addAccountConfig(accountName, exchange, accountConfig);
-		console.log("添加账户配置成功:", res);
+		console.log("Successfully added account configuration:", res);
 		if (res.code === 200) {
-			// 刷新页面
+			// Refresh page
 			window.location.reload();
 		}
 	};
@@ -157,7 +157,7 @@ export default function AccountPage() {
 							))}
 						</TabsList>
 
-						{/* 添加账户按钮 */}
+						{/* Add account button */}
 						<AccountsHeader
 							activeTab={activeTab}
 							onAddAccount={handleAddAccount}

@@ -9,7 +9,7 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLCONCEALBABYSWALLConfigSchema = z.object({
-	// CDLCONCEALBABYSWALL 没有参数
+	// CDLCONCEALBABYSWALL has no parameters
 });
 
 export type CDLCONCEALBABYSWALLConfigType = z.infer<
@@ -18,7 +18,7 @@ export type CDLCONCEALBABYSWALLConfigType = z.infer<
 
 function buildCDLCONCEALBABYSWALLConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLCONCEALBABYSWALL 不需要任何参数
+		// CDLCONCEALBABYSWALL doesn't need any parameters
 	};
 }
 
@@ -29,7 +29,7 @@ export const CDLCONCEALBABYSWALLConfig: IndicatorConfig<CDLCONCEALBABYSWALLConfi
 		displayName: "CDLCONCEALBABYSWALL",
 		description: "Concealing Baby Swallow",
 		params: {
-			// CDLCONCEALBABYSWALL 没有参数
+			// CDLCONCEALBABYSWALL has no parameters
 		},
 		indicatorValueConfig: {
 			timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

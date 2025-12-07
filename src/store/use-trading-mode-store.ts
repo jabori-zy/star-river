@@ -2,18 +2,18 @@ import { create } from "zustand";
 import { TradeMode } from "@/types/strategy";
 
 interface TradingModeState {
-	// 当前交易模式
+	// Current trading mode
 	tradingMode: TradeMode;
-	// 设置交易模式
+	// Set trading mode
 	setTradingMode: (mode: TradeMode) => void;
 }
 
-// 创建全局状态管理
+// Create global state management
 const useTradingModeStore = create<TradingModeState>((set) => ({
-	// 默认为模拟交易模式
+	// Default to backtest trading mode
 	tradingMode: TradeMode.BACKTEST,
 
-	// 更新交易模式
+	// Update trading mode
 	setTradingMode: (mode: TradeMode) =>
 		set({
 			tradingMode: mode,

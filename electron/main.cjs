@@ -10,20 +10,20 @@ const {
 } = require("./backend-manager.cjs");
 const { setupIpcHandlers } = require("./ipc-handlers.cjs");
 
-// 判断是否为开发环境
+// Check if development environment
 const isDev = process.env.NODE_ENV === "development" || !app.isPackaged;
 
-// 设置应用名称，影响用户数据目录 (~/Library/Application Support/Star River/)
+// Set app name, affects user data directory (~/Library/Application Support/Star River/)
 app.setName("Star River");
 
 app.whenReady().then(async () => {
-	// 开发环境下设置 Dock 图标 (macOS)
+	// Set Dock icon in development environment (macOS)
 	if (isDev && process.platform === "darwin") {
 		const iconPath = path.join(__dirname, "../build/icons/icon.png");
 		app.dock.setIcon(iconPath);
 	}
 
-	// 启动后端服务（需要在创建窗口前启动，以便获取端口）
+	// Start backend service (needs to start before creating window to get the port)
 	await createRustBackend();
 
 	const mainWindow = createWindow();
@@ -40,14 +40,14 @@ app.whenReady().then(async () => {
 		setupDevShortcuts();
 	}
 
-	// 生产环境隐藏调试快捷键
+	// Hide debug shortcuts in production environment
 	if (!isDev) {
 		setupHiddenDevShortcuts();
 	}
 });
 
 const setupDevShortcuts = () => {
-	// 注册 F12 快捷键打开开发者工具
+	// Register F12 shortcut to open developer tools
 	globalShortcut.register("F12", () => {
 		const focusedWindow = BrowserWindow.getFocusedWindow();
 		if (focusedWindow) {
@@ -55,7 +55,7 @@ const setupDevShortcuts = () => {
 		}
 	});
 
-	// 注册 Ctrl+Shift+I 快捷键打开开发者工具
+	// Register Ctrl+Shift+I shortcut to open developer tools
 	globalShortcut.register("CommandOrControl+Shift+I", () => {
 		const focusedWindow = BrowserWindow.getFocusedWindow();
 		if (focusedWindow) {
@@ -66,7 +66,7 @@ const setupDevShortcuts = () => {
 	console.log("dev environment shortcuts registered: F12 or Ctrl+Shift+I open developer tools");
 };
 
-// 生产环境隐藏调试快捷键 (Cmd+Shift+Option+I)
+// Hidden debug shortcuts in production environment (Cmd+Shift+Option+I)
 const setupHiddenDevShortcuts = () => {
 	globalShortcut.register("CommandOrControl+Shift+Alt+I", () => {
 		const focusedWindow = BrowserWindow.getFocusedWindow();
@@ -84,7 +84,7 @@ app.on("window-all-closed", () => {
 	}
 });
 
-// macOS: 点击 Dock 图标时重新创建窗口
+// macOS: Recreate window when clicking Dock icon
 app.on("activate", () => {
 	if (BrowserWindow.getAllWindows().length === 0) {
 		createWindow();

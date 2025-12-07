@@ -12,11 +12,11 @@ import type { SelectedAccount } from "@/types/strategy";
 
 interface OptAccountSelectorProps {
 	accountList: SelectedAccount[];
-	selectedAccount: SelectedAccount | null; // 当前选中的账户
-	onAccountChange: (account: SelectedAccount) => void; // 账户变更回调
+	selectedAccount: SelectedAccount | null; // Currently selected account
+	onAccountChange: (account: SelectedAccount) => void; // Account change callback
 }
 
-// 已选择的账户列表
+// Selected account list
 const OptAccountSelector: React.FC<OptAccountSelectorProps> = ({
 	accountList,
 	selectedAccount,
@@ -32,7 +32,7 @@ const OptAccountSelector: React.FC<OptAccountSelectorProps> = ({
 		if (selectedAccount) {
 			setLocalSelectedAccount(selectedAccount);
 		}
-		// 如果账户列表为空，则设置为false
+		// If account list is empty, set to false
 		if (accountList.length === 0) {
 			setHasAccounts(false);
 		} else {
@@ -40,7 +40,7 @@ const OptAccountSelector: React.FC<OptAccountSelectorProps> = ({
 		}
 	}, [selectedAccount, accountList]);
 
-	// 处理账户选择变更
+	// Handle account selection change
 	const handleAccountChange = (accountId: string) => {
 		const selectedAcc = accountList?.find(
 			(acc) => acc.id.toString() === accountId,
@@ -55,7 +55,7 @@ const OptAccountSelector: React.FC<OptAccountSelectorProps> = ({
 
 	return (
 		<div className="flex flex-col gap-2 p-2 rounded-md">
-			<div className="text-sm font-bold">操作账户</div>
+			<div className="text-sm font-bold">Operation Account</div>
 			<Select
 				disabled={!hasAccounts}
 				value={localSelectedAccount?.id?.toString() || ""}
@@ -63,7 +63,7 @@ const OptAccountSelector: React.FC<OptAccountSelectorProps> = ({
 			>
 				<SelectTrigger className="w-full h-8 px-2 bg-gray-100 border-1 rounded-md">
 					<SelectValue
-						placeholder={hasAccounts ? "请选择账户" : "未配置账户"}
+						placeholder={hasAccounts ? "Select Account" : "No Account Configured"}
 					/>
 				</SelectTrigger>
 				{hasAccounts && (
@@ -85,7 +85,7 @@ const OptAccountSelector: React.FC<OptAccountSelectorProps> = ({
 				)}
 			</Select>
 			{!hasAccounts && (
-				<p className="text-xs text-gray-500 mt-1">在策略起点配置</p>
+				<p className="text-xs text-gray-500 mt-1">Configure in strategy start node</p>
 			)}
 		</div>
 	);

@@ -48,7 +48,7 @@ const ControlButton: React.FC<ControlButtonProps> = ({
 	);
 };
 
-// 选择器函数，用于获取ReactFlow状态
+// Selector function to get ReactFlow state
 const selector = (state: {
 	nodesDraggable: boolean;
 	nodesConnectable: boolean;
@@ -73,7 +73,7 @@ enum ZoomType {
 	zoomTo200 = "zoomTo200",
 }
 
-// 视口控制组件
+// Viewport control component
 const ViewportControl: React.FC = () => {
 	const { zoomIn, zoomOut, fitView, zoomTo } = useReactFlow();
 	const { isInteractive, minZoomReached, maxZoomReached } = useStore(selector);
@@ -81,7 +81,7 @@ const ViewportControl: React.FC = () => {
 	const store = useStoreApi();
 	const [zoomPopoverOpen, setZoomPopoverOpen] = useState(false);
 
-	// 缩放选项配置
+	// Zoom options configuration
 	const ZOOM_OPTIONS = [
 		[
 			{ key: ZoomType.zoomTo200, text: "200%", value: 2 },
@@ -89,25 +89,25 @@ const ViewportControl: React.FC = () => {
 			{ key: ZoomType.zoomTo75, text: "75%", value: 0.75 },
 			{ key: ZoomType.zoomTo50, text: "50%", value: 0.5 },
 		],
-		[{ key: ZoomType.zoomToFit, text: "适应视图", value: null }],
+		[{ key: ZoomType.zoomToFit, text: "Fit View", value: null }],
 	];
 
-	// 放大
+	// Zoom in
 	const handleZoomIn = useCallback(() => {
 		zoomIn({ duration: 800 });
 	}, [zoomIn]);
 
-	// 缩小
+	// Zoom out
 	const handleZoomOut = useCallback(() => {
 		zoomOut({ duration: 800 });
 	}, [zoomOut]);
 
-	// 适应视图
+	// Fit view
 	const handleFitView = useCallback(() => {
 		fitView({ padding: 0.1, duration: 800 });
 	}, [fitView]);
 
-	// 切换交互性
+	// Toggle interactivity
 	const handleToggleInteractive = useCallback(() => {
 		store.setState({
 			nodesDraggable: !isInteractive,
@@ -116,7 +116,7 @@ const ViewportControl: React.FC = () => {
 		});
 	}, [isInteractive, store]);
 
-	// 处理缩放
+	// Handle zoom
 	const handleZoom = useCallback(
 		(type: string) => {
 			if (type === ZoomType.zoomToFit) {
@@ -137,23 +137,23 @@ const ViewportControl: React.FC = () => {
 
 	return (
 		<>
-			{/* 放大按钮 */}
+			{/* Zoom in button */}
 			<ControlButton
 				onClick={handleZoomIn}
 				disabled={maxZoomReached}
-				title="放大视图"
+				title="Zoom in"
 			>
 				<ZoomIn className="w-6 h-6" />
 			</ControlButton>
 
-			{/* 缩放百分比显示和选择器 */}
+			{/* Zoom percentage display and selector */}
 			<Popover open={zoomPopoverOpen} onOpenChange={setZoomPopoverOpen}>
 				<PopoverTrigger asChild>
 					<Button
 						variant="ghost"
 						size="icon"
 						className="w-8 h-8 p-0 bg-white text-xs"
-						title="选择缩放比例"
+						title="Select zoom level"
 					>
 						{Math.round(zoom * 100)}%
 					</Button>
@@ -186,27 +186,27 @@ const ViewportControl: React.FC = () => {
 				</PopoverContent>
 			</Popover>
 
-			{/* 缩小按钮 */}
+			{/* Zoom out button */}
 			<ControlButton
 				onClick={handleZoomOut}
 				disabled={minZoomReached}
-				title="缩小视图"
+				title="Zoom out"
 			>
 				<ZoomOut className="w-4 h-4" />
 			</ControlButton>
 
-			{/* 分割线 */}
+			{/* Separator */}
 			<Separator />
 
-			{/* 适应视图按钮 */}
-			<ControlButton onClick={handleFitView} title="适应视图">
+			{/* Fit view button */}
+			<ControlButton onClick={handleFitView} title="Fit view">
 				<Maximize2 className="w-4 h-4" />
 			</ControlButton>
 
-			{/* 交互性切换按钮 */}
+			{/* Interactivity toggle button */}
 			<ControlButton
 				onClick={handleToggleInteractive}
-				title={isInteractive ? "锁定视图" : "解锁视图"}
+				title={isInteractive ? "Lock view" : "Unlock view"}
 			>
 				{isInteractive ? (
 					<Unlock className="w-4 h-4" />

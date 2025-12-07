@@ -9,14 +9,14 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLONNECKConfigSchema = z.object({
-	// CDLONNECK 没有参数
+	// CDLONNECK has no parameters
 });
 
 export type CDLONNECKConfigType = z.infer<typeof CDLONNECKConfigSchema>;
 
 function buildCDLONNECKConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLONNECK 不需要任何参数
+		// CDLONNECK doesn't need any parameters
 	};
 }
 
@@ -26,7 +26,7 @@ export const CDLONNECKConfig: IndicatorConfig<CDLONNECKConfigType> = {
 	displayName: "CDLONNECK",
 	description: "On-Neck Pattern",
 	params: {
-		// CDLONNECK 没有参数
+		// CDLONNECK has no parameters
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

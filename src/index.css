@@ -124,7 +124,7 @@
 	}
 }
 
-/* 禁用全局文字选择 */
+/* Disable global text selection */
 * {
 	-webkit-user-select: none;
 	-moz-user-select: none;
@@ -132,7 +132,7 @@
 	user-select: none;
 }
 
-/* 保持输入框和文本区域可选择 */
+/* Keep input fields and text areas selectable */
 input,
 textarea,
 [contenteditable="true"],

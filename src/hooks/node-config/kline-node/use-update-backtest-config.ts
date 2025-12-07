@@ -15,7 +15,7 @@ import type { SelectedAccount, TimeRange } from "@/types/strategy";
 import { BacktestDataSource } from "@/types/strategy";
 
 /**
- * 创建默认的 K线节点回测配置
+ * Create default K-line node backtest configuration
  */
 export const createDefaultKlineBacktestConfig = (): KlineNodeBacktestConfig => {
 	return {
@@ -33,7 +33,7 @@ export const createDefaultKlineBacktestConfig = (): KlineNodeBacktestConfig => {
 };
 
 interface UseBacktestConfigProps {
-	id: string; // 节点ID
+	id: string; // Node ID
 }
 
 export const useBacktestConfig = ({ id }: UseBacktestConfigProps) => {
@@ -44,7 +44,7 @@ export const useBacktestConfig = ({ id }: UseBacktestConfigProps) => {
 	const backtestConfig = nodeData?.backtestConfig ?? null;
 
 	/**
-	 * 通用更新函数：使用 Immer 简化嵌套更新
+	 * Generic update function: Use Immer to simplify nested updates
 	 */
 	const updateConfig = useCallback(
 		(updater: (draft: KlineNodeBacktestConfig) => void) => {
@@ -57,7 +57,7 @@ export const useBacktestConfig = ({ id }: UseBacktestConfigProps) => {
 		[backtestConfig, id, updateNodeData],
 	);
 
-	// ==================== 基础配置更新 ====================
+	// ==================== Basic Configuration Update ====================
 
 	const setDefaultBacktestConfig = useCallback(() => {
 		const defaultConfig = createDefaultKlineBacktestConfig();
@@ -73,7 +73,7 @@ export const useBacktestConfig = ({ id }: UseBacktestConfigProps) => {
 		[updateConfig],
 	);
 
-	// ==================== 文件模式配置更新 ====================
+	// ==================== File Mode Configuration Update ====================
 
 	const updateFileModeConfig = useCallback(
 		(fileModeConfig: KlineNodeBacktestFileModeConfig) => {
@@ -95,7 +95,7 @@ export const useBacktestConfig = ({ id }: UseBacktestConfigProps) => {
 		[updateConfig],
 	);
 
-	// ==================== 交易所模式配置更新 ====================
+	// ==================== Exchange Mode Configuration Update ====================
 
 	const updateExchangeModeConfig = useCallback(
 		(exchangeModeConfig: KlineNodeBacktestExchangeModeConfig) => {
@@ -129,7 +129,7 @@ export const useBacktestConfig = ({ id }: UseBacktestConfigProps) => {
 	const updateSelectedSymbols = useCallback(
 		(selectedSymbols: SelectedSymbol[]) => {
 			updateConfig((draft) => {
-				// 添加 handleId
+				// Add handleId
 
 				if (!draft.exchangeModeConfig) {
 					draft.exchangeModeConfig = {

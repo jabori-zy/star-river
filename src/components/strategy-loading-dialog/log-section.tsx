@@ -18,43 +18,43 @@ interface LogSectionProps {
 }
 
 const LogSection: React.FC<LogSectionProps> = ({ logs }) => {
-	// 复制状态管理
+	// Copy state management
 	const [copiedStates, setCopiedStates] = useState<{ [key: string]: boolean }>(
 		{},
 	);
-	// 滚动容器引用
+	// Scroll container reference
 	const scrollAreaRef = useRef<HTMLDivElement>(null);
-	// 用户是否在底部附近（用于智能滚动）
+	// Whether user is near bottom (for smart scrolling)
 	const [isNearBottom, setIsNearBottom] = useState(true);
-	// 是否有新日志但用户不在底部
+	// Whether there are new logs but user is not at bottom
 	const [hasNewLogs, setHasNewLogs] = useState(false);
-	// 是否正在自动滚动（用于防止按钮闪烁）
+	// Whether auto-scrolling is in progress (to prevent button flickering)
 	const [isAutoScrolling, setIsAutoScrolling] = useState(false);
-	// 使用ref来跟踪自动滚动状态，避免useEffect依赖问题
+	// Use ref to track auto-scroll state, avoiding useEffect dependency issues
 	const isAutoScrollingRef = useRef(false);
 
-	// 检测用户是否在底部附近
+	// Detect if user is near bottom
 	const handleScroll = useCallback((scrollContainer: Element) => {
-		const threshold = 50; // 50px的阈值
+		const threshold = 50; // 50px threshold
 		const isAtBottom =
 			scrollContainer.scrollHeight -
 				scrollContainer.scrollTop -
 				scrollContainer.clientHeight <=
 			threshold;
 
-		// 使用防抖来避免频繁更新状态，减少防抖时间以提高响应速度
+		// Use debouncing to avoid frequent state updates, reduce debounce time to improve responsiveness
 		setTimeout(() => {
 			if (!isAutoScrollingRef.current) {
-				// 只有在非自动滚动时才更新状态
+				// Only update state when not auto-scrolling
 				setIsNearBottom(isAtBottom);
 				if (isAtBottom) {
 					setHasNewLogs(false);
 				}
 			}
-		}, 50); // 减少防抖时间以提高响应速度
+		}, 50); // Reduce debounce time to improve responsiveness
 	}, []);
 
-	// 手动滚动到底部
+	// Manually scroll to bottom
 	const scrollToBottom = () => {
 		const scrollContainer = scrollAreaRef.current?.querySelector(
 			"[data-radix-scroll-area-viewport]",
@@ -68,16 +68,16 @@ const LogSection: React.FC<LogSectionProps> = ({ logs }) => {
 				behavior: "smooth",
 			});
 
-			// 滚动完成后重置自动滚动状态
+			// Reset auto-scroll state after scrolling completes
 			setTimeout(() => {
 				isAutoScrollingRef.current = false;
 				setIsAutoScrolling(false);
 				setIsNearBottom(true);
-			}, 300); // 减少手动滚动的重置时间
+			}, 300); // Reduce reset time for manual scrolling
 		}
 	};
 
-	// 当日志更新时，自动滚动到底部（仅当用户在底部附近时）
+	// Auto-scroll to bottom when logs update (only when user is near bottom)
 	useEffect(() => {
 		if (scrollAreaRef.current && logs.length > 0) {
 			if (isNearBottom && !isAutoScrollingRef.current) {
@@ -87,21 +87,21 @@ const LogSection: React.FC<LogSectionProps> = ({ logs }) => {
 				if (scrollContainer) {
 					isAutoScrollingRef.current = true;
 					setIsAutoScrolling(true);
-					// 使用requestAnimationFrame确保DOM更新完成后立即滚动
+					// Use requestAnimationFrame to ensure scrolling after DOM update completes
 					requestAnimationFrame(() => {
-						// 检查滚动距离，如果距离很小则使用瞬时滚动，否则使用平滑滚动
+						// Check scroll distance, use instant scroll if small, otherwise use smooth scroll
 						const scrollDistance =
 							scrollContainer.scrollHeight -
 							scrollContainer.scrollTop -
 							scrollContainer.clientHeight;
-						const shouldUseInstantScroll = scrollDistance < 100; // 小于100px时瞬时滚动
+						const shouldUseInstantScroll = scrollDistance < 100; // Instant scroll when less than 100px
 
 						scrollContainer.scrollTo({
 							top: scrollContainer.scrollHeight,
 							behavior: shouldUseInstantScroll ? "auto" : "smooth",
 						});
 
-						// 根据滚动方式调整重置时间
+						// Adjust reset time based on scroll method
 						const resetTime = shouldUseInstantScroll ? 50 : 150;
 						setTimeout(() => {
 							isAutoScrollingRef.current = false;
@@ -110,13 +110,13 @@ const LogSection: React.FC<LogSectionProps> = ({ logs }) => {
 					});
 				}
 			} else if (!isNearBottom && !isAutoScrollingRef.current) {
-				// 如果用户不在底部且不在自动滚动，显示新日志提示
+				// If user is not at bottom and not auto-scrolling, show new logs notification
 				setHasNewLogs(true);
 			}
 		}
-	}, [logs, isNearBottom]); // 移除isAutoScrolling依赖，使用ref代替
+	}, [logs, isNearBottom]); // Remove isAutoScrolling dependency, use ref instead
 
-	// 设置滚动监听器
+	// Set up scroll listener
 	useEffect(() => {
 		const scrollContainer = scrollAreaRef.current?.querySelector(
 			"[data-radix-scroll-area-viewport]",
@@ -125,14 +125,14 @@ const LogSection: React.FC<LogSectionProps> = ({ logs }) => {
 			const onScroll = () => handleScroll(scrollContainer);
 			scrollContainer.addEventListener("scroll", onScroll);
 
-			// 初始检查一次
+			// Initial check
 			handleScroll(scrollContainer);
 
 			return () => {
 				scrollContainer.removeEventListener("scroll", onScroll);
 			};
 		}
-	}, [handleScroll]); // 依赖handleScroll
+	}, [handleScroll]); // Depends on handleScroll
 
 	const handleCopyError = (log: LogEvent, index: number) => {
 		const logKey = `${log.datetime}-${index}`;
@@ -146,10 +146,10 @@ const LogSection: React.FC<LogSectionProps> = ({ logs }) => {
 
 		navigator.clipboard.writeText(copyContent);
 
-		// 设置复制状态
+		// Set copy state
 		setCopiedStates((prev) => ({ ...prev, [logKey]: true }));
 
-		// 2秒后恢复
+		// Restore after 2 seconds
 		setTimeout(() => {
 			setCopiedStates((prev) => ({ ...prev, [logKey]: false }));
 		}, 2000);
@@ -238,7 +238,7 @@ const LogSection: React.FC<LogSectionProps> = ({ logs }) => {
 					<ScrollBar orientation="vertical" />
 				</ScrollArea>
 
-				{/* 新日志提示按钮 */}
+				{/* New log notification button */}
 				{hasNewLogs && !isNearBottom && !isAutoScrolling && (
 					<div className="absolute bottom-4 right-4">
 						<TooltipProvider>

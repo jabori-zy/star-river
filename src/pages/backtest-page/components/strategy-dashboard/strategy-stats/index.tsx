@@ -17,7 +17,7 @@ const StrategyStats = ({ strategyId }: StrategyStatsProps) => {
 		chartConfig ?? undefined,
 	);
 
-	// 组件卸载时清空所有状态数据
+	// Clear all state data when component unmounts
 	useEffect(() => {
 		return () => {
 			clearAllData();

@@ -14,64 +14,64 @@ const ROUTER = "strategy";
 const getApiUrl = () => `${getApiBaseUrl()}/${API_VERSION}/${ROUTER}`;
 
 // ============================================
-// 1. 类型定义
+// 1. Type Definitions
 // ============================================
 
 /**
- * 删除策略请求参数
+ * Delete strategy request parameters
  */
 export interface DeleteStrategyRequest {
 	strategyId: number;
 }
 
 /**
- * 删除策略响应
+ * Delete strategy response
  */
 export interface DeleteStrategyResponse {
 	success: boolean;
 }
 
 // ============================================
-// 3. API 调用函数（纯粹的数据交互）
+// 3. API Call Functions (Pure Data Interaction)
 // ============================================
 
 /**
- * 删除策略 API 调用（不包含 UI 逻辑）
+ * Delete strategy API call (without UI logic)
  *
- * @param params 删除参数
- * @returns 删除结果
+ * @param params Delete parameters
+ * @returns Delete result
  */
 export async function deleteStrategyApi(
 	params: DeleteStrategyRequest,
 ): Promise<DeleteStrategyResponse> {
-	// 步骤1：参数校验
+	// Step 1: Parameter validation
 	if (!params.strategyId || params.strategyId <= 0) {
 		throw new Error("Invalid strategy ID");
 	}
 
-	// 步骤2：打印请求日志（开发环境）
+	// Step 2: Log request (development environment)
 	if (import.meta.env.DEV) {
 		console.log("[delete strategy] strategyId:", params.strategyId);
 	}
 
 	try {
-		// 步骤3：发送 DELETE 请求
+		// Step 3: Send DELETE request
 		const response = await axios.delete<ApiResponse<DeleteStrategyResponse>>(
 			`${getApiUrl()}/${params.strategyId}`,
 			{
-				timeout: 10000, // 10秒超时
+				timeout: 10000, // 10 second timeout
 			},
 		);
 
-		// 步骤4：响应状态检查
+		// Step 4: Response status check
 		if (response.status !== 200) {
 			throw new Error(`HTTP Status: ${response.status}`);
 		}
 
-		// 步骤5：业务状态检查
+		// Step 5: Business status check
 		const apiResponse = response.data;
 		if (!apiResponse.success) {
-			// 错误响应
+			// Error response
 			throw new ApiError(
 				apiResponse.message,
 				apiResponse.errorCode,
@@ -79,7 +79,7 @@ export async function deleteStrategyApi(
 			);
 		}
 
-		// 步骤6：打印响应日志（开发环境）
+		// Step 6: Log response (development environment)
 		if (import.meta.env.DEV) {
 			console.log("[delete strategy] success");
 		}
@@ -88,18 +88,18 @@ export async function deleteStrategyApi(
 			success: true,
 		};
 	} catch (error) {
-		// 统一错误处理
+		// Unified error handling
 		if (axios.isAxiosError(error)) {
 			const axiosError = error as AxiosError<ApiResponse<unknown>>;
 			const responseData = axiosError.response?.data;
 
-			// 检查是否是后端返回的标准错误响应
+			// Check if it's a standard error response from backend
 			let message = axiosError.message || "network request failed";
 			let errorCode: string | undefined;
 			let errorCodeChain: string[] | undefined;
 
 			if (responseData && !responseData.success) {
-				// 使用后端返回的错误信息
+				// Use error message from backend
 				message = responseData.message;
 				errorCode = responseData.errorCode;
 				errorCodeChain = responseData.errorCodeChain;
@@ -108,7 +108,7 @@ export async function deleteStrategyApi(
 			throw new ApiError(message, errorCode, errorCodeChain);
 		}
 
-		// 参数校验错误或其他错误
+		// Parameter validation error or other errors
 		throw error;
 	}
 }
@@ -118,24 +118,24 @@ export async function deleteStrategyApi(
 // ============================================
 
 /**
- * Mutation 选项（可选配置）
+ * Mutation options (optional configuration)
  */
 export interface UseDeleteStrategyOptions {
 	/**
-	 * 元数据配置（用于控制全局 toast 行为）
-	 * 使用标准的 MutationMeta 接口
+	 * Metadata configuration (for controlling global toast behavior)
+	 * Uses standard MutationMeta interface
 	 */
 	meta?: MutationMeta;
 	/**
-	 * 成功回调
+	 * Success callback
 	 */
 	onSuccess?: () => void;
 	/**
-	 * 错误回调
+	 * Error callback
 	 */
 	onError?: (error: Error) => void;
 	/**
-	 * 完成回调（无论成功失败）
+	 * Settled callback (called regardless of success or failure)
 	 */
 	onSettled?: () => void;
 }
@@ -146,10 +146,10 @@ export function useDeleteStrategy(options?: UseDeleteStrategyOptions) {
 	const { meta, onSuccess, onError, onSettled } = options || {};
 
 	return useMutation({
-		// Mutation 函数
+		// Mutation function
 		mutationFn: (params: DeleteStrategyRequest) => deleteStrategyApi(params),
 
-		// ✅ 通过 meta 传递 toast 配置给全局 MutationCache
+		// ✅ Pass toast configuration to global MutationCache via meta
 		meta: {
 			successMessage: meta?.successMessage,
 			showSuccessToast: meta?.showSuccessToast,
@@ -157,34 +157,34 @@ export function useDeleteStrategy(options?: UseDeleteStrategyOptions) {
 			showErrorToast: meta?.showErrorToast,
 		},
 
-		// 成功回调（只处理数据和缓存，不管 toast）
+		// Success callback (only handles data and cache, not toast)
 		onSuccess: () => {
-			// 1. 使策略列表缓存失效，触发重新获取
+			// 1. Invalidate strategy list cache, trigger refetch
 			queryClient.invalidateQueries({
 				queryKey: strategyKeys.lists(),
 			});
 
-			// 2. 执行用户自定义的成功回调
+			// 2. Execute user-defined success callback
 			onSuccess?.();
 
-			// 3. 开发环境日志
+			// 3. Development environment log
 			if (import.meta.env.DEV) {
 				console.log("[delete strategy] cache invalidated");
 			}
 		},
 
-		// 错误回调（只处理业务逻辑，不管 toast）
+		// Error callback (only handles business logic, not toast)
 		onError: (error: Error) => {
-			// 执行用户自定义的错误回调
+			// Execute user-defined error callback
 			onError?.(error);
 
-			// 开发环境日志（详细错误已在全局 MutationCache 中打印）
+			// Development environment log (detailed error already logged in global MutationCache)
 			if (import.meta.env.DEV) {
 				console.error("[delete strategy] error:", error);
 			}
 		},
 
-		// 完成回调（无论成功失败都会执行）
+		// Settled callback (called regardless of success or failure)
 		onSettled: () => {
 			onSettled?.();
 		},

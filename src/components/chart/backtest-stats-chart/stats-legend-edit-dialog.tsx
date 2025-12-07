@@ -15,18 +15,18 @@ import { useBacktestStatsChartConfigStore } from "@/store/use-backtest-stats-cha
 import { getStatsChartConfig } from "@/types/chart/backtest-strategy-stats-chart";
 import type { StrategyStatsName } from "@/types/statistics";
 
-// 统计图表专用预设颜色
+// Statistics chart dedicated preset colors
 const STATS_PRESET_COLORS = [
-	"#2196F3", // 蓝色 - 主要数据线
-	"#FF6B6B", // 红色 - 亏损相关
-	"#4ECDC4", // 青色 - 盈利相关
-	"#45B7D1", // 天蓝色 - 资产相关
-	"#96CEB4", // 绿色 - 成功相关
-	"#FFEAA7", // 黄色 - 警告相关
-	"#DDA0DD", // 紫色 - 比率相关
-	"#98D8C8", // 薄荷绿 - 风险相关
-	"#F7DC6F", // 金色 - 收益相关
-	"#BB8FCE", // 淡紫色 - 其他指标
+	"#2196F3", // Blue - main data line
+	"#FF6B6B", // Red - loss related
+	"#4ECDC4", // Cyan - profit related
+	"#45B7D1", // Sky blue - asset related
+	"#96CEB4", // Green - success related
+	"#FFEAA7", // Yellow - warning related
+	"#DDA0DD", // Purple - ratio related
+	"#98D8C8", // Mint green - risk related
+	"#F7DC6F", // Gold - return related
+	"#BB8FCE", // Lilac - other indicators
 ];
 
 interface StatsLegendEditDialogProps {
@@ -46,7 +46,7 @@ export function StatsLegendEditDialog({
 	const [tempColor, setTempColor] = useState<string>("#000000");
 	const [originalColor, setOriginalColor] = useState<string>("#000000");
 
-	// 获取当前统计配置的颜色
+	// Get current statistics configuration color
 	useEffect(() => {
 		if (open) {
 			const config = getStatsChartConfigFromStore(statsName);
@@ -56,37 +56,37 @@ export function StatsLegendEditDialog({
 		}
 	}, [open, statsName, getStatsChartConfigFromStore]);
 
-	// 确认修改 - 保存新颜色
+	// Confirm modification - save new color
 	const handleConfirm = () => {
 		updateStatsColor(statsName, tempColor);
 		onOpenChange(false);
 	};
 
-	// 取消修改 - 恢复原始颜色
+	// Cancel modification - restore original color
 	const handleCancel = () => {
 		setTempColor(originalColor);
 		onOpenChange(false);
 	};
 
-	// 获取多语言版本的显示名称
+	// Get localized display name
 	const displayName = getStatsChartConfig(statsName, t).seriesConfigs.name;
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange} modal={false}>
 			<DialogContent className="sm:max-w-[350px]">
 				<DialogHeader>
-					<DialogTitle>编辑统计配置</DialogTitle>
-					<DialogDescription>修改 "{displayName}" 的颜色配置</DialogDescription>
+					<DialogTitle>Edit Stats Configuration</DialogTitle>
+					<DialogDescription>Modify color configuration for "{displayName}"</DialogDescription>
 				</DialogHeader>
 
 				<div className="space-y-4 py-4">
 					<div className="flex items-center justify-between">
-						{/* 统计名称 */}
+						{/* Stats name */}
 						<Label className="text-sm font-medium text-gray-700">
 							{displayName}
 						</Label>
 
-						{/* 颜色选择 */}
+						{/* Color picker */}
 						<div className="w-12">
 							<ColorPicker
 								value={tempColor}
@@ -100,9 +100,9 @@ export function StatsLegendEditDialog({
 						</div>
 					</div>
 
-					{/* 颜色预览 */}
+					{/* Color preview */}
 					<div className="flex items-center gap-2 p-2 bg-gray-50 rounded">
-						<span className="text-sm text-gray-600">预览:</span>
+						<span className="text-sm text-gray-600">Preview:</span>
 						<div
 							className="w-4 h-4 rounded border"
 							style={{ backgroundColor: tempColor }}
@@ -113,12 +113,12 @@ export function StatsLegendEditDialog({
 					</div>
 				</div>
 
-				{/* 确认和取消按钮 */}
+				{/* Confirm and cancel buttons */}
 				<DialogFooter>
 					<Button variant="outline" onClick={handleCancel}>
-						取消
+						Cancel
 					</Button>
-					<Button onClick={handleConfirm}>确定</Button>
+					<Button onClick={handleConfirm}>Confirm</Button>
 				</DialogFooter>
 			</DialogContent>
 		</Dialog>

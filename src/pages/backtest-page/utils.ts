@@ -1,25 +1,25 @@
 /**
- * 计算仪表板面板的尺寸
- * 根据窗口高度动态计算控制栏所需的百分比大小
+ * Calculate dashboard panel size
+ * Dynamically calculate the percentage size required for the control bar based on window height
  */
 export const calculateDashboardSize = (): number => {
-	// 页面头部高度（固定值）
+	// Page header height (fixed value)
 	const HEADER_HEIGHT = 48;
-	// 控制栏需要的固定高度（像素）
+	// Fixed height required for control bar (pixels)
 	const CONTROL_BAR_HEIGHT = 56;
 
-	// 计算可用的内容高度
+	// Calculate available content height
 	const availableHeight = window.innerHeight - HEADER_HEIGHT;
 
-	// 计算控制栏高度占可用高度的百分比
+	// Calculate percentage of available height occupied by control bar
 	const sizePercent = (CONTROL_BAR_HEIGHT / availableHeight) * 100;
 
 	return sizePercent;
 };
 
 /**
- * 计算仪表板面板的配置
- * 返回面板所需的所有尺寸配置
+ * Calculate dashboard panel configuration
+ * Returns all size configurations required for the panel
  */
 export const getDashboardPanelConfig = () => {
 	const size = calculateDashboardSize();

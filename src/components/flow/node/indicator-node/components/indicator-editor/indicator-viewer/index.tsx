@@ -43,7 +43,7 @@ const IndicatorViewerDialog: React.FC<IndicatorViewerDialogProps> = ({
 		new Set([IndicatorType.STOCHRSI, IndicatorType.RSI]),
 	);
 
-	// 获取分类显示名称
+	// Get category display name
 	const getCategoryDisplayName = (
 		category: IndicatorCategory | typeof ALL_CATEGORY,
 	) => {
@@ -53,7 +53,7 @@ const IndicatorViewerDialog: React.FC<IndicatorViewerDialogProps> = ({
 		return getIndicatorCategoryDisplayName(category, t);
 	};
 
-	// 获取所有指标信息
+	// Get all indicator information
 	const allIndicators = useMemo((): IndicatorInfo[] => {
 		return Object.entries(INDICATOR_CONFIG_MAP)
 			.filter(([_, config]) => config !== undefined)
@@ -65,7 +65,7 @@ const IndicatorViewerDialog: React.FC<IndicatorViewerDialogProps> = ({
 			}));
 	}, []);
 
-	// 根据分类获取指标
+	// Get indicators by category
 	const getIndicatorsByCategory = useMemo(() => {
 		const categoryMap = new Map<IndicatorCategory, IndicatorInfo[]>();
 
@@ -82,13 +82,13 @@ const IndicatorViewerDialog: React.FC<IndicatorViewerDialogProps> = ({
 		return categoryMap;
 	}, [allIndicators]);
 
-	// 获取可用的分类
+	// Get available categories
 	const availableCategories = useMemo(() => {
 		const categories = Array.from(getIndicatorsByCategory.keys()).sort();
 		return [ALL_CATEGORY, ...categories];
 	}, [getIndicatorsByCategory]);
 
-	// 过滤指标
+	// Filter indicators
 	const filteredIndicators = useMemo(() => {
 		let indicators: IndicatorInfo[] = [];
 
@@ -127,7 +127,7 @@ const IndicatorViewerDialog: React.FC<IndicatorViewerDialogProps> = ({
 		searchQuery,
 	]);
 
-	// 处理指标选择
+	// Handle indicator selection
 	const handleSelectIndicator = (indicatorType: IndicatorType) => {
 		onSelectIndicator(indicatorType);
 		onClose();
@@ -144,7 +144,7 @@ const IndicatorViewerDialog: React.FC<IndicatorViewerDialogProps> = ({
 						<DialogTitle>{t("indicatorNode.indicator")}</DialogTitle>
 					</DialogHeader>
 
-					{/* 搜索栏 */}
+					{/* Search bar */}
 					<div className="px-6 pb-1">
 						<div className="relative">
 							<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
@@ -160,7 +160,7 @@ const IndicatorViewerDialog: React.FC<IndicatorViewerDialogProps> = ({
 					</div>
 
 					<div className="flex flex-1 min-h-0">
-						{/* 左侧菜单 */}
+						{/* Left sidebar menu */}
 						<div className="w-46 border-r bg-muted/30 flex flex-col">
 							<ScrollArea className="flex-1">
 								<div className="p-4 space-y-2">
@@ -175,9 +175,9 @@ const IndicatorViewerDialog: React.FC<IndicatorViewerDialogProps> = ({
 							</ScrollArea>
 						</div>
 
-						{/* 右侧内容区域 */}
+						{/* Right content area */}
 						<div className="flex-1 flex flex-col min-h-0">
-							{/* 分类标签 */}
+							{/* Category tabs */}
 							{selectedMenu === "all" && (
 								<CategoryTabs
 									categories={availableCategories}
@@ -187,7 +187,7 @@ const IndicatorViewerDialog: React.FC<IndicatorViewerDialogProps> = ({
 								/>
 							)}
 
-							{/* 指标列表 */}
+							{/* Indicator list */}
 							<div className="flex-1 min-h-0">
 								<ScrollArea className="h-full">
 									<div className="p-6">

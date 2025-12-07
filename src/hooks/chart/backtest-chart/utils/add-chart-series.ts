@@ -78,7 +78,7 @@ export const addIndicatorSeries = (
 				LineSeries,
 				{
 					visible: config.visible ?? true,
-					lineStyle: 2, // 虚线样式
+					lineStyle: 2, // Dashed line style
 					lineWidth: 1,
 					priceLineVisible: false,
 					lastValueVisible: false,

@@ -17,7 +17,7 @@ import {
 	VariableValueType,
 } from "@/types/variable";
 
-// 渲染变量值
+// Render variable value
 const renderValue = (
 	v: string | number | boolean | string[] | null,
 	varValueType: VariableValueType,
@@ -41,7 +41,7 @@ const getVarTypeLabel = (e: VariableEvent, t: (key: string) => string) =>
 		? t("desktop.backtestPage.variable.custom")
 		: t("desktop.backtestPage.variable.system");
 
-// 格式化操作值（数字固定2位小数）
+// Format operation value (numbers fixed to 2 decimal places)
 const formatOperationValue = (v: unknown): string => {
 	if (v === null || v === undefined) return "";
 	if (typeof v === "number") return v.toFixed(2);
@@ -50,7 +50,7 @@ const formatOperationValue = (v: unknown): string => {
 	return String(v);
 };
 
-// 格式化操作显示
+// Format operation display
 const formatOperationDisplay = (event: VariableEvent, t: TFunction): string => {
 	if (!(event as CustomVariableUpdateEvent).customVariable) return "";
 
@@ -86,7 +86,7 @@ const formatOperationDisplay = (event: VariableEvent, t: TFunction): string => {
 	}
 };
 
-// 列定义（顺序：类型，变量类型，节点名称，显示名，变量名，symbol，初始值，操作，当前值，更新时间）
+// Column definition (in order: type, variable type, node name, display name, variable name, symbol, initial value, operation, current value, update time)
 export const useVariableColumns = (): ColumnDef<VariableEvent>[] => {
 	const { t } = useTranslation();
 

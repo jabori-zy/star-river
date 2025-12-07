@@ -17,7 +17,7 @@ import {
 	PriceSourceSchema,
 } from "@/types/indicator/schemas";
 
-// STOCHRSI 指标配置的 Zod schema
+// Zod schema for STOCHRSI indicator configuration
 const STOCHRSIConfigSchema = z.object({
 	timePeriod: z.number().int().positive(),
 	fastKPeriod: z.number().int().positive(),
@@ -28,7 +28,7 @@ const STOCHRSIConfigSchema = z.object({
 
 export type STOCHRSIConfigType = z.infer<typeof STOCHRSIConfigSchema>;
 
-// STOCHRSI指标的参数映射函数
+// Parameter mapping function for STOCHRSI indicator
 function buildSTOCHRSIConfig(params: Map<string, string>): unknown {
 	return {
 		timePeriod: parseInt(params.get("time_period") || "0"),
@@ -39,44 +39,44 @@ function buildSTOCHRSIConfig(params: Map<string, string>): unknown {
 	};
 }
 
-// STOCHRSI指标配置实现
+// STOCHRSI indicator configuration implementation
 export const STOCHRSIConfig: IndicatorConfig<STOCHRSIConfigType> = {
 	category: IndicatorCategory.MOMENTUM,
 	type: IndicatorType.STOCHRSI,
 	displayName: "STOCHRSI",
-	description: "随机相对强弱指数",
+	description: "Stochastic Relative Strength Index",
 	params: {
 		timePeriod: {
 			label: "indicator.configField.timePeriod",
-			description: "选择计算RSI的时间周期",
+			description: "Select time period for RSI calculation",
 			defaultValue: 14,
 			required: true,
 			legendShowName: "period",
 		},
 		fastKPeriod: {
 			label: "indicator.configField.fastKPeriod",
-			description: "选择快速K线的计算周期",
+			description: "Select calculation period for fast K line",
 			defaultValue: 5,
 			required: true,
 			legendShowName: "fast_k",
 		},
 		fastDPeriod: {
 			label: "indicator.configField.fastDPeriod",
-			description: "选择快速D线的计算周期",
+			description: "Select calculation period for fast D line",
 			defaultValue: 3,
 			required: true,
 			legendShowName: "fast_d",
 		},
 		fastDMaType: {
 			label: "indicator.configField.fastDMaType",
-			description: "选择快速D线的移动平均线类型",
+			description: "Select moving average type for fast D line",
 			defaultValue: MAType.SMA,
 			required: true,
 			legendShowName: "fast_d_ma",
 		},
 		priceSource: {
 			label: "indicator.configField.dataSource",
-			description: "选择指标计算价格源",
+			description: "Select price source for indicator calculation",
 			defaultValue: PriceSource.CLOSE,
 			required: true,
 			legendShowName: "source",
@@ -115,7 +115,7 @@ export const STOCHRSIConfig: IndicatorConfig<STOCHRSIConfigType> = {
 			]),
 		);
 
-		// 使用 Zod 验证配置
+		// Validate configuration using Zod
 		const validatedConfig = STOCHRSIConfigSchema.parse(config);
 		return validatedConfig;
 	},
@@ -124,7 +124,7 @@ export const STOCHRSIConfig: IndicatorConfig<STOCHRSIConfigType> = {
 		return getIndicatorValues(this.indicatorValueConfig);
 	},
 
-	// 使用通用解析函数
+	// Use generic parsing function
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
 		IndicatorType.STOCHRSI,
 		STOCHRSIConfigSchema,

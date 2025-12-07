@@ -7,45 +7,45 @@ import {
 import type { StrategyStatsName } from "@/types/statistics";
 
 interface BacktestStatsChartConfigState {
-	// 状态
+	// State
 	chartConfig: BacktestStrategyStatsChartConfig | null;
 	isLoading: boolean;
 	isSaving: boolean;
 
-	// 基础操作
+	// Basic operations
 	setChartConfig: (config: BacktestStrategyStatsChartConfig) => void;
 	getChartConfig: () => BacktestStrategyStatsChartConfig | null;
 	getStatsChartConfig: (
 		statsName: StrategyStatsName,
 	) => StrategyStatsChartConfig | undefined;
 
-	// 统计图表可见性管理
+	// Stats chart visibility management
 	getStatsVisibility: (statsName: StrategyStatsName) => boolean;
 	setStatsVisibility: (statsName: StrategyStatsName, visible: boolean) => void;
 	toggleStatsVisibility: (statsName: StrategyStatsName) => void;
 
-	// 统计图表添加管理
+	// Stats chart add management
 	addStats: (statsName: StrategyStatsName) => void;
 
-	// 统计图表删除管理
+	// Stats chart delete management
 	removeStats: (statsName: StrategyStatsName) => void;
 
-	// 统计图表配置编辑
+	// Stats chart config editing
 	updateStatsColor: (statsName: StrategyStatsName, color: string) => void;
 
-	// 重置配置
+	// Reset config
 	reset: () => void;
 }
 
 const useBacktestStatsChartConfigStore = create<BacktestStatsChartConfigState>(
 	(set, get) => ({
-		// 初始状态
+		// Initial state
 		chartConfig: defaultBacktestStrategyStatsChartConfig,
 
 		isLoading: false,
 		isSaving: false,
 
-		// 基础操作
+		// Basic operations
 		setChartConfig: (config: BacktestStrategyStatsChartConfig) => {
 			set({ chartConfig: config });
 		},
@@ -62,7 +62,7 @@ const useBacktestStatsChartConfigStore = create<BacktestStatsChartConfigState>(
 			);
 		},
 
-		// 统计图表可见性管理
+		// Stats chart visibility management
 		getStatsVisibility: (statsName: StrategyStatsName) => {
 			const config = get().getStatsChartConfig(statsName);
 			return config?.visible ?? true;
@@ -89,7 +89,7 @@ const useBacktestStatsChartConfigStore = create<BacktestStatsChartConfigState>(
 			get().setStatsVisibility(statsName, !currentVisibility);
 		},
 
-		// 统计图表添加管理,将isDelete设置为false
+		// Stats chart add management, set isDelete to false
 		addStats: (statsName: StrategyStatsName) => {
 			const { chartConfig } = get();
 			if (!chartConfig) return;
@@ -105,7 +105,7 @@ const useBacktestStatsChartConfigStore = create<BacktestStatsChartConfigState>(
 			set({ chartConfig: newConfig });
 		},
 
-		// 统计图表删除管理（软删除 - 设置为不可见）
+		// Stats chart delete management (soft delete - set to invisible)
 		removeStats: (statsName: StrategyStatsName) => {
 			const { chartConfig } = get();
 			if (!chartConfig) return;
@@ -121,7 +121,7 @@ const useBacktestStatsChartConfigStore = create<BacktestStatsChartConfigState>(
 			set({ chartConfig: newConfig });
 		},
 
-		// 统计图表配置编辑
+		// Stats chart config editing
 		updateStatsColor: (statsName: StrategyStatsName, color: string) => {
 			const { chartConfig } = get();
 			if (!chartConfig) return;
@@ -144,7 +144,7 @@ const useBacktestStatsChartConfigStore = create<BacktestStatsChartConfigState>(
 			set({ chartConfig: newConfig });
 		},
 
-		// 重置配置
+		// Reset config
 		reset: () => {
 			set({
 				chartConfig: null,

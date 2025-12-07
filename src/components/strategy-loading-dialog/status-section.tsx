@@ -28,7 +28,7 @@
 // 	currentStage,
 // 	logs,
 // }) => {
-// 	// 获取最新的日志事件信息
+// 	// Get the latest log event information
 // 	const latestEventInfo = useMemo(() => {
 // 		if (logs.length === 0) {
 // 			return {
@@ -40,17 +40,17 @@
 // 			};
 // 		}
 
-// 		// 获取最新的日志（按时间戳排序）
+// 		// Get the latest log (sorted by timestamp)
 // 		const latestLog = logs.sort((a, b) => b.timestamp - a.timestamp)[0];
 
 // 		if ("strategyState" in latestLog) {
-// 			// strategy-state-log：只有策略状态为Ready时才是最终成功状态
+// 			// strategy-state-log: Only when strategy state is Ready is it considered the final success state
 // 			const strategyLog = latestLog as StrategyStateLogEvent;
 // 			const isReady = strategyLog.strategyState === BacktestStrategyRunStatus.Ready;
 // 			const isStopped = strategyLog.strategyState === BacktestStrategyRunStatus.Stopped;
-// 			// 策略失败的判断条件：
-// 			// 1. strategyState 明确为 Failed
-// 			// 2. 或者有错误代码且日志级别为 error
+// 			// Conditions for strategy failure:
+// 			// 1. strategyState is explicitly Failed
+// 			// 2. Or has error code and log level is error
 // 			const isFailed =
 // 				strategyLog.strategyState === BacktestStrategyRunStatus.Failed ||
 // 				(strategyLog.error && strategyLog.logLevel === LogLevel.ERROR);
@@ -64,19 +64,19 @@
 // 				statusText: translateStrategyState(strategyLog.strategyState),
 // 			};
 // 		} else {
-// 			// node-state-log：显示节点名称+状态，但不算最终成功
+// 			// node-state-log: Display node name + state, but not considered final success
 // 			const nodeLog = latestLog as NodeStateLogEvent;
-// 			// 节点失败的判断条件：
-// 			// 1. nodeState 明确为 Failed
-// 			// 2. 或者有错误代码且日志级别为 error
+// 			// Conditions for node failure:
+// 			// 1. nodeState is explicitly Failed
+// 			// 2. Or has error code and log level is error
 // 			const isFailed =
 // 				nodeLog.nodeState === NodeState.Failed ||
 // 				(nodeLog.errorCode && nodeLog.logLevel === LogLevel.ERROR);
 
 // 			return {
 // 				type: "node-state-log-update",
-// 				isReady: false, // 节点状态永远不算最终成功
-// 				isStopped: false, // 节点状态不涉及停止
+// 				isReady: false, // Node state is never considered final success
+// 				isStopped: false, // Node state does not involve stopping
 // 				isFailed,
 // 				displayText: nodeLog.nodeName,
 // 				statusText: translateStrategyState(nodeLog.nodeState),
@@ -98,16 +98,16 @@
 // 						<div>
 // 							<div className="font-medium">
 // 								{latestEventInfo.type === "strategy-state-log-update" &&
-// 									`策略: ${latestEventInfo.displayText}`}
+// 									`Strategy: ${latestEventInfo.displayText}`}
 // 								{latestEventInfo.type === "node-state-log-update" &&
-// 									`节点: ${latestEventInfo.displayText}`}
-// 								{!latestEventInfo.type && "等待策略加载..."}
+// 									`Node: ${latestEventInfo.displayText}`}
+// 								{!latestEventInfo.type && "Waiting for strategy to load..."}
 // 							</div>
 // 							{latestEventInfo.statusText && (
 // 								<div
 // 									className={`text-sm ${latestEventInfo.isFailed ? "text-red-600" : "text-gray-600"}`}
 // 								>
-// 									状态: {latestEventInfo.statusText}
+// 									Status: {latestEventInfo.statusText}
 // 								</div>
 // 							)}
 // 						</div>
@@ -126,16 +126,16 @@
 // 						<div>
 // 							<div className="font-medium">
 // 								{latestEventInfo.type === "strategy-state-log-update" &&
-// 									`策略: ${latestEventInfo.displayText}`}
+// 									`Strategy: ${latestEventInfo.displayText}`}
 // 								{latestEventInfo.type === "node-state-log-update" &&
-// 									`节点: ${latestEventInfo.displayText}`}
-// 								{!latestEventInfo.type && "等待日志..."}
+// 									`Node: ${latestEventInfo.displayText}`}
+// 								{!latestEventInfo.type && "Waiting for logs..."}
 // 							</div>
 // 							{latestEventInfo.statusText && (
 // 								<div
 // 									className={`text-sm ${latestEventInfo.isFailed ? "text-red-600" : "text-gray-600"}`}
 // 								>
-// 									状态: {latestEventInfo.statusText}
+// 									Status: {latestEventInfo.statusText}
 // 								</div>
 // 							)}
 // 						</div>
@@ -146,7 +146,7 @@
 // 					<div className="flex items-center space-x-3">
 // 						<CheckCircle className="w-5 h-5 text-green-500" />
 // 						<div className="font-medium text-green-700">
-// 							策略加载完成，准备启动...
+// 							Strategy loaded, ready to start...
 // 						</div>
 // 					</div>
 // 				);
@@ -154,21 +154,21 @@
 // 				return (
 // 					<div className="flex items-center space-x-3">
 // 						<XCircle className="w-5 h-5 text-red-500" />
-// 						<div className="font-medium text-red-700">策略加载失败</div>
+// 						<div className="font-medium text-red-700">Strategy loading failed</div>
 // 					</div>
 // 				);
 // 			case "stopping":
 // 				return (
 // 					<div className="flex items-center space-x-3">
 // 						<Loader2 className="w-5 h-5 animate-spin text-orange-500" />
-// 						<div className="font-medium text-orange-700">正在停止策略...</div>
+// 						<div className="font-medium text-orange-700">Stopping strategy...</div>
 // 					</div>
 // 				);
 // 			case "stopped":
 // 				return (
 // 					<div className="flex items-center space-x-3">
 // 						<CheckCircle className="w-5 h-5 text-green-500" />
-// 						<div className="font-medium text-green-700">策略已安全停止</div>
+// 						<div className="font-medium text-green-700">Strategy safely stopped</div>
 // 					</div>
 // 				);
 // 			default:

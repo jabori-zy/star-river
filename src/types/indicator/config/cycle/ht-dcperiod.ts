@@ -15,21 +15,21 @@ import {
 	PriceSourceSchema,
 } from "@/types/indicator/schemas";
 
-// MA 指标配置的 Zod schema
+// Zod schema for HT_DCPERIOD indicator configuration
 const HtDcperiodConfigSchema = z.object({
 	priceSource: PriceSourceSchema,
 });
 
 export type HtDcperiodConfigType = z.infer<typeof HtDcperiodConfigSchema>;
 
-// MA指标的参数映射函数
+// Parameter mapping function for HT_DCPERIOD indicator
 function buildMAConfig(params: Map<string, string>): unknown {
 	return {
 		priceSource: params.get("price_source") as PriceSource,
 	};
 }
 
-// MA指标配置实现
+// HT_DCPERIOD indicator configuration implementation
 export const HtDcperiodConfig: IndicatorConfig<HtDcperiodConfigType> = {
 	category: IndicatorCategory.CYCLE,
 	type: IndicatorType.HT_DCPERIOD,
@@ -38,7 +38,7 @@ export const HtDcperiodConfig: IndicatorConfig<HtDcperiodConfigType> = {
 	params: {
 		priceSource: {
 			label: "indicator.configField.dataSource",
-			description: "选择指标计算价格源",
+			description: "Select the price source for indicator calculation",
 			defaultValue: PriceSource.CLOSE,
 			required: true,
 			legendShowName: "source",
@@ -73,7 +73,7 @@ export const HtDcperiodConfig: IndicatorConfig<HtDcperiodConfigType> = {
 			]),
 		);
 
-		// 使用 Zod 验证配置
+		// Validate configuration using Zod
 		const validatedConfig = HtDcperiodConfigSchema.parse(config);
 		return validatedConfig;
 	},
@@ -82,7 +82,7 @@ export const HtDcperiodConfig: IndicatorConfig<HtDcperiodConfigType> = {
 		return getIndicatorValues(this.indicatorValueConfig);
 	},
 
-	// 使用通用解析函数
+	// Use generic parsing function
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
 		IndicatorType.HT_DCPERIOD,
 		HtDcperiodConfigSchema,

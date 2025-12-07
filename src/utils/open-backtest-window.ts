@@ -1,22 +1,22 @@
 import { toast } from "sonner";
 
 /**
- * 打开回测窗口
+ * Open backtest window
  *
- * 根据运行环境（Electron 或浏览器）选择不同的打开方式：
- * - Electron 环境：通过 IPC 调用打开新窗口
- * - 浏览器环境：使用 window.open 打开新标签页
+ * Chooses different opening methods based on runtime environment (Electron or browser):
+ * - Electron environment: Opens new window via IPC call
+ * - Browser environment: Opens new tab using window.open
  *
- * @param strategyId 策略 ID
+ * @param strategyId Strategy ID
  */
 export async function openBacktestWindow(
 	strategyId: number,
 	strategyName: string,
 ): Promise<void> {
 	try {
-		// 检查是否在 Electron 环境中
+		// Check if running in Electron environment
 		if (window.require) {
-			// Electron 环境：打开新窗口
+			// Electron environment: open new window
 			const electronModule = window.require("electron");
 			if (electronModule?.ipcRenderer) {
 				await electronModule.ipcRenderer.invoke(
@@ -26,13 +26,13 @@ export async function openBacktestWindow(
 				);
 			}
 		} else {
-			// 浏览器环境：打开新标签页（使用 Hash Router 格式）
+			// Browser environment: open new tab (using Hash Router format)
 			const backtestUrl = `/#/backtest/${strategyId}?strategyName=${encodeURIComponent(strategyName)}`;
 			window.open(backtestUrl, "_blank", "width=1200,height=800");
 		}
 	} catch (error) {
-		console.error("打开回测窗口失败:", error);
-		toast.error("打开回测窗口失败");
+		console.error("Failed to open backtest window:", error);
+		toast.error("Failed to open backtest window");
 		throw error;
 	}
 }

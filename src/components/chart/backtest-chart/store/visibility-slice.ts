@@ -9,12 +9,12 @@ export const createVisibilitySlice: SliceCreator<VisibilitySlice> = (
 	set,
 	get,
 ) => ({
-	// 初始状态：所有指标和K线默认可见
+	// Initial state: all indicators and klines are visible by default
 	indicatorVisibilityMap: {},
 	klineVisibilityMap: {},
 
-	// === 指标可见性控制方法实现 ===
-	// 设置指标可见性
+	// === Indicator visibility control methods ===
+	// Set indicator visibility
 	setIndicatorVisibility: (
 		indicatorKeyStr: IndicatorKeyStr,
 		visible: boolean,
@@ -27,20 +27,20 @@ export const createVisibilitySlice: SliceCreator<VisibilitySlice> = (
 		}));
 	},
 
-	// 切换指标可见性
+	// Toggle indicator visibility
 	toggleIndicatorVisibility: (indicatorKeyStr: IndicatorKeyStr) => {
 		const currentVisibility = get().getIndicatorVisibility(indicatorKeyStr);
 		get().setIndicatorVisibility(indicatorKeyStr, !currentVisibility);
 	},
 
-	// 获取指标可见性，默认为true（可见）
+	// Get indicator visibility, default is true (visible)
 	getIndicatorVisibility: (indicatorKeyStr: IndicatorKeyStr) => {
 		const { indicatorVisibilityMap } = get();
-		return indicatorVisibilityMap[indicatorKeyStr] ?? true; // 默认可见
+		return indicatorVisibilityMap[indicatorKeyStr] ?? true; // Default visible
 	},
 
-	// === K线可见性控制方法实现 ===
-	// 设置K线可见性
+	// === Kline visibility control methods ===
+	// Set kline visibility
 	setKlineVisibility: (klineKeyStr: KlineKeyStr, visible: boolean) => {
 		set((state: BacktestChartStore) => ({
 			klineVisibilityMap: {
@@ -50,20 +50,20 @@ export const createVisibilitySlice: SliceCreator<VisibilitySlice> = (
 		}));
 	},
 
-	// 切换K线可见性
+	// Toggle kline visibility
 	toggleKlineVisibility: (klineKeyStr: KlineKeyStr) => {
 		const currentVisibility = get().getKlineVisibility(klineKeyStr);
 		get().setKlineVisibility(klineKeyStr, !currentVisibility);
 	},
 
-	// 获取K线可见性，默认为true（可见）
+	// Get kline visibility, default is true (visible)
 	getKlineVisibility: (klineKeyStr: KlineKeyStr) => {
 		const { klineVisibilityMap } = get();
-		return klineVisibilityMap[klineKeyStr] ?? true; // 默认可见
+		return klineVisibilityMap[klineKeyStr] ?? true; // Default visible
 	},
 
-	// === 批量操作方法实现 ===
-	// 重置所有为可见
+	// === Batch operation methods ===
+	// Reset all to visible
 	resetAllVisibility: () => {
 		set({
 			indicatorVisibilityMap: {},
@@ -71,7 +71,7 @@ export const createVisibilitySlice: SliceCreator<VisibilitySlice> = (
 		});
 	},
 
-	// 批量设置指标可见性
+	// Batch set indicator visibility
 	setBatchIndicatorVisibility: (
 		visibilityMap: Record<IndicatorKeyStr, boolean>,
 	) => {
@@ -83,7 +83,7 @@ export const createVisibilitySlice: SliceCreator<VisibilitySlice> = (
 		}));
 	},
 
-	// 批量设置K线可见性
+	// Batch set kline visibility
 	setBatchKlineVisibility: (visibilityMap: Record<KlineKeyStr, boolean>) => {
 		set((state: BacktestChartStore) => ({
 			klineVisibilityMap: {

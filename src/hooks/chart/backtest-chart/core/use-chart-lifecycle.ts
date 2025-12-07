@@ -13,12 +13,12 @@ interface UseChartLifecycleProps {
 }
 
 /**
- * 图表生命周期管理
+ * Chart lifecycle management
  *
- * 职责：
- * 1. 数据初始化流程
- * 2. 容器引用有效性监控
- * 3. 自动检测和修复容器引用丢失
+ * Responsibilities:
+ * 1. Data initialization flow
+ * 2. Container reference validity monitoring
+ * 3. Automatic detection and repair of container reference loss
  */
 export const useChartLifecycle = ({
 	strategyId,
@@ -32,55 +32,55 @@ export const useChartLifecycle = ({
 		useBacktestChartStore(chartId);
 
 	/**
-	 * 容器引用有效性监控
+	 * Container reference validity monitoring
 	 *
-	 * 关键修复：自动检测并修复图表容器引用丢失问题
+	 * Critical fix: Automatically detect and repair chart container reference loss
 	 *
-	 * 触发场景：
-	 * - 添加新图表时React重新渲染，导致现有图表的DOM容器被重新创建
-	 * - ResizablePanel布局变化导致DOM结构调整
-	 * - 其他任何导致DOM重排的操作
+	 * Trigger scenarios:
+	 * - When adding new charts, React re-renders causing existing chart's DOM containers to be recreated
+	 * - ResizablePanel layout changes cause DOM structure adjustments
+	 * - Any other operations that cause DOM reflow
 	 *
-	 * 检测逻辑：
-	 * 1. 获取图表实例和当前容器引用
-	 * 2. 通过chart.chartElement()获取图表实际绑定的DOM元素
-	 * 3. 比较实际绑定的DOM元素是否仍然是当前容器的子元素
+	 * Detection logic:
+	 * 1. Get chart instance and current container reference
+	 * 2. Get the DOM element actually bound to the chart via chart.chartElement()
+	 * 3. Compare whether the actually bound DOM element is still a child of the current container
 	 *
-	 * 修复流程：
-	 * 1. 销毁旧的图表实例（chart.remove()）
-	 * 2. 清空store中的图表引用（setChartRef(null)）
-	 * 3. 重置初始化状态，触发完整的重新初始化流程
+	 * Repair process:
+	 * 1. Destroy old chart instance (chart.remove())
+	 * 2. Clear chart reference in store (setChartRef(null))
+	 * 3. Reset initialization state to trigger complete re-initialization flow
 	 */
 	useEffect(() => {
 		const chart = getChartRef();
 		if (chart && chartContainerRef.current) {
-			// 获取图表实际绑定的DOM容器元素
+			// Get the DOM container element actually bound to the chart
 			const container = chart.chartElement();
 
-			// 检查图表是否仍然正确绑定到当前的容器
-			// 如果container不存在或者其父元素不是当前容器，说明引用已丢失
+			// Check if chart is still correctly bound to current container
+			// If container doesn't exist or its parent element is not the current container, reference is lost
 			if (!container || container.parentElement !== chartContainerRef.current) {
-				// 步骤1: 销毁旧的图表实例，释放资源
+				// Step 1: Destroy old chart instance, release resources
 				chart.remove();
 
-				// 步骤2: 清空store中的图表引用，确保后续初始化能够正常进行
+				// Step 2: Clear chart reference in store, ensure subsequent initialization can proceed normally
 				setChartRef(null);
 
-				// 步骤3: 重置初始化状态，触发完整的重新初始化流程
-				// 这会导致useEffect重新运行initChartData和initializeBacktestChart
+				// Step 3: Reset initialization state, trigger complete re-initialization flow
+				// This will cause useEffect to re-run initChartData and initializeBacktestChart
 				setIsInitialized(false);
 			}
 		}
 	}, [getChartRef, chartContainerRef, setChartRef, setIsInitialized]);
 
 	/**
-	 * 数据初始化
+	 * Data initialization
 	 *
-	 * 职责：
-	 * 1. 获取策略播放索引
-	 * 2. 获取策略时间戳
-	 * 3. 初始化图表数据
-	 * 4. 初始化图表实例
+	 * Responsibilities:
+	 * 1. Get strategy play index
+	 * 2. Get strategy timestamp
+	 * 3. Initialize chart data
+	 * 4. Initialize chart instance
 	 */
 	useEffect(() => {
 		if (isInitialized) {
@@ -93,7 +93,7 @@ export const useChartLifecycle = ({
 			try {
 				const playIndexValue = await get_play_index(strategyId);
 
-				// 在 initialize 函数内部调用 API
+				// Call API inside initialize function
 				const strategyDatetime = (await getStrategyDatetimeApi(strategyId))
 					.strategyDatetime;
 
@@ -106,7 +106,7 @@ export const useChartLifecycle = ({
 				}
 				initializeBacktestChart();
 			} catch (error) {
-				console.error("初始化回测图表时出错:", error);
+				console.error("Error initializing backtest chart:", error);
 			}
 		};
 

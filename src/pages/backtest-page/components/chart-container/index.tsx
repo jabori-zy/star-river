@@ -18,7 +18,7 @@ const ChartContainer: React.FC<ChartContainerProps> = ({
 	strategyId,
 	children,
 }) => {
-	// 如果有children，使用children；否则根据strategyChartConfig.charts生成ChartCard
+	// If there are children, use children; otherwise generate ChartCard based on strategyChartConfig.charts
 	const chartElements = children
 		? React.Children.toArray(children)
 		: strategyChartConfig.charts.map((chartConfig) => (
@@ -32,16 +32,16 @@ const ChartContainer: React.FC<ChartContainerProps> = ({
 	const chartCount = chartElements.length;
 	const layout = strategyChartConfig.layout;
 
-	// 如果没有图表，显示空状态
+	// If no charts, display empty state
 	if (chartCount === 0) {
 		return (
 			<div className="w-full h-full flex items-center justify-center text-gray-500">
-				请选择图表数量
+				Please select number of charts
 			</div>
 		);
 	}
 
-	// 网格布局
+	// Grid layout
 	if (layout === "grid" || layout === "grid-alt") {
 		return renderGridLayout(
 			chartElements,
@@ -51,7 +51,7 @@ const ChartContainer: React.FC<ChartContainerProps> = ({
 		);
 	}
 
-	// 横向布局（所有图表水平排列）
+	// Horizontal layout (all charts arranged horizontally)
 	if (layout === "horizontal") {
 		return (
 			<div className="w-full h-full p-2">
@@ -61,7 +61,7 @@ const ChartContainer: React.FC<ChartContainerProps> = ({
 					id="horizontal-chart-group"
 				>
 					{chartElements.map((chart, index) => {
-						// 使用图表ID作为key，如果没有则回退到索引
+						// Use chart ID as key, fallback to index if not available
 						const chartId =
 							strategyChartConfig.charts[index]?.id || `chart-${index}`;
 						return (
@@ -86,7 +86,7 @@ const ChartContainer: React.FC<ChartContainerProps> = ({
 		);
 	}
 
-	// 纵向布局（默认，所有图表垂直排列）
+	// Vertical layout (default, all charts arranged vertically)
 	return (
 		<div className="w-full h-full p-2">
 			<ResizablePanelGroup
@@ -95,7 +95,7 @@ const ChartContainer: React.FC<ChartContainerProps> = ({
 				id="vertical-chart-group"
 			>
 				{chartElements.map((chart, index) => {
-					// 使用图表ID作为key，如果没有则回退到索引
+					// Use chart ID as key, fallback to index if not available
 					const chartId =
 						strategyChartConfig.charts[index]?.id || `chart-${index}`;
 					return (
@@ -124,46 +124,46 @@ ChartContainer.displayName = "ChartContainer";
 
 export default ChartContainer;
 
-// 网格布局渲染函数
+// Grid layout rendering function
 function renderGridLayout(
 	chartElements: React.ReactNode[],
 	chartCount: number,
 	layoutMode: "grid" | "grid-alt",
 	strategyChartConfig: BacktestStrategyChartConfig,
 ) {
-	// 计算网格尺寸
+	// Calculate grid dimensions
 	const getGridDimensions = (count: number, isAlt: boolean) => {
 		if (count === 1) return { rows: 1, cols: 1 };
 		if (count === 2) return { rows: 1, cols: 2 };
-		if (count === 3) return { rows: 2, cols: 2 }; // 第一行2个，第二行1个占满
+		if (count === 3) return { rows: 2, cols: 2 }; // First row has 2, second row has 1 taking full width
 
-		// 对于4及以上的图表
+		// For 4 or more charts
 		if (count === 4) return { rows: 2, cols: 2 };
 
 		if (isAlt) {
-			// grid-alt: 奇数列，偶数行
-			if (count <= 6) return { rows: 2, cols: 3 }; // 2行3列
-			if (count <= 12) return { rows: 3, cols: 4 }; // 3行4列
-			if (count <= 20) return { rows: 4, cols: 5 }; // 4行5列
-			// 更多图表的处理
+			// grid-alt: odd columns, even rows
+			if (count <= 6) return { rows: 2, cols: 3 }; // 2 rows 3 columns
+			if (count <= 12) return { rows: 3, cols: 4 }; // 3 rows 4 columns
+			if (count <= 20) return { rows: 4, cols: 5 }; // 4 rows 5 columns
+			// Handle more charts
 			const cols =
 				Math.ceil(Math.sqrt(count)) +
-				(Math.ceil(Math.sqrt(count)) % 2 === 0 ? 1 : 0); // 确保列数为奇数
+				(Math.ceil(Math.sqrt(count)) % 2 === 0 ? 1 : 0); // Ensure odd number of columns
 			const rows = Math.ceil(count / cols);
-			return { rows: rows % 2 === 0 ? rows : rows + 1, cols }; // 确保行数为偶数
+			return { rows: rows % 2 === 0 ? rows : rows + 1, cols }; // Ensure even number of rows
 		} else {
-			// grid: 偶数列，奇数行（默认）
-			if (count <= 6) return { rows: 3, cols: 2 }; // 3行2列
-			if (count <= 8) return { rows: 3, cols: 4 }; // 3行4列，但实际只用到6-8个位置
-			if (count === 9) return { rows: 3, cols: 3 }; // 3行3列
-			if (count <= 12) return { rows: 3, cols: 4 }; // 3行4列
-			if (count <= 16) return { rows: 5, cols: 4 }; // 5行4列
-			// 更多图表的处理
+			// grid: even columns, odd rows (default)
+			if (count <= 6) return { rows: 3, cols: 2 }; // 3 rows 2 columns
+			if (count <= 8) return { rows: 3, cols: 4 }; // 3 rows 4 columns, but only uses 6-8 positions
+			if (count === 9) return { rows: 3, cols: 3 }; // 3 rows 3 columns
+			if (count <= 12) return { rows: 3, cols: 4 }; // 3 rows 4 columns
+			if (count <= 16) return { rows: 5, cols: 4 }; // 5 rows 4 columns
+			// Handle more charts
 			const cols =
 				Math.ceil(Math.sqrt(count)) +
-				(Math.ceil(Math.sqrt(count)) % 2 === 1 ? 1 : 0); // 确保列数为偶数
+				(Math.ceil(Math.sqrt(count)) % 2 === 1 ? 1 : 0); // Ensure even number of columns
 			const rows = Math.ceil(count / cols);
-			return { rows: rows % 2 === 0 ? rows + 1 : rows, cols }; // 确保行数为奇数
+			return { rows: rows % 2 === 0 ? rows + 1 : rows, cols }; // Ensure odd number of rows
 		}
 	};
 
@@ -172,7 +172,7 @@ function renderGridLayout(
 		layoutMode === "grid-alt",
 	);
 
-	// 将图表分组到行中
+	// Group charts into rows
 	const chartRows: React.ReactNode[][] = [];
 	for (let i = 0; i < rows; i++) {
 		const startIndex = i * cols;
@@ -190,7 +190,7 @@ function renderGridLayout(
 				id="grid-chart-group"
 			>
 				{chartRows.map((rowCharts, rowIndex) => {
-					// 为每行生成唯一的key，基于该行第一个图表的ID
+					// Generate unique key for each row based on the first chart's ID in that row
 					const firstChartIndex = rowIndex * cols;
 					const firstChartId =
 						strategyChartConfig.charts[firstChartIndex]?.id ||
@@ -201,7 +201,7 @@ function renderGridLayout(
 							<ResizablePanel
 								id={`grid-row-panel-${firstChartId}`}
 								order={rowIndex}
-								defaultSize={100 / chartRows.length} // 使用实际行数
+								defaultSize={100 / chartRows.length} // Use actual number of rows
 								minSize={10}
 								className={
 									rowIndex < chartRows.length - 1
@@ -211,7 +211,7 @@ function renderGridLayout(
 											: ""
 								}
 							>
-								{/* 如果最后一行只有一个图表且不是单独成行的设计，让它占满整行 */}
+								{/* If the last row has only one chart and is not designed to be a separate row, let it fill the entire row */}
 								{rowCharts.length === 1 &&
 								rowIndex === chartRows.length - 1 &&
 								chartCount > 2 &&
@@ -225,7 +225,7 @@ function renderGridLayout(
 										id={`grid-row-${rowIndex}-group`}
 									>
 										{rowCharts.map((chart, colIndex) => {
-											// 为每列生成唯一的key，基于图表在原数组中的位置
+											// Generate unique key for each column based on chart position in original array
 											const chartIndex = rowIndex * cols + colIndex;
 											const chartId =
 												strategyChartConfig.charts[chartIndex]?.id ||

@@ -23,7 +23,7 @@ export const createUtilitySlice =
 				return [];
 			}
 
-			// 从 indicatorChartConfigs 数组中获取所有未删除指标的 keyStr
+			// Get all non-deleted indicator keyStr from indicatorChartConfigs array
 			const indicatorKeyStrs = (chartConfig?.indicatorChartConfigs || [])
 				.filter((indicatorConfig) => !indicatorConfig.isDelete)
 				.map((indicatorConfig) => indicatorConfig.indicatorKeyStr);
@@ -32,12 +32,12 @@ export const createUtilitySlice =
 			return keyStrs;
 		},
 
-		// 只把数据相关的数据，全部清除
+		// Only clear all data-related items
 		resetData: () => {
-			// 清空图表系列数据
+			// Clear chart series data
 			const state = get();
 
-			// 清空K线系列数据
+			// Clear K-line series data
 			const klineSeriesRef = state.getKlineSeriesRef();
 			if (klineSeriesRef) {
 				klineSeriesRef.setData([]);
@@ -47,7 +47,7 @@ export const createUtilitySlice =
 				});
 			}
 
-			// 清空所有指标系列数据
+			// Clear all indicator series data
 			Object.entries(state.indicatorSeriesRef).forEach(
 				([_, indicatorSeries]) => {
 					Object.values(indicatorSeries).forEach((seriesRef) => {
@@ -58,13 +58,13 @@ export const createUtilitySlice =
 				},
 			);
 
-			// 清空订单标记
+			// Clear order markers
 			const orderMarkerSeriesRef = state.getOrderMarkerSeriesRef();
 			if (orderMarkerSeriesRef) {
 				orderMarkerSeriesRef.setMarkers([]);
 			}
 
-			// 清空store状态数据
+			// Clear store state data
 			set({
 				subscriptions: {},
 				indicatorVisibilityMap: {},
@@ -73,7 +73,7 @@ export const createUtilitySlice =
 				orderMarkers: [],
 				positionPriceLine: [],
 				orderPriceLine: [],
-				// 重置时保持可见性状态，不清空
+				// Keep visibility state during reset, don't clear
 			});
 		},
 	});

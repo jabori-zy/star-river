@@ -8,29 +8,29 @@ import {
 } from "@/types/indicator/indicator-config";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
-// WCLPRICE 指标配置的 Zod schema
+// Zod schema for WCLPRICE indicator configuration
 const WCLPRICEConfigSchema = z.object({});
 
 export type WCLPRICEConfigType = z.infer<typeof WCLPRICEConfigSchema>;
 
-// WCLPRICE指标的参数映射函数
+// Parameter mapping function for WCLPRICE indicator
 function buildWCLPRICEConfig(_params: Map<string, string>): unknown {
 	return {};
 }
 
-// WCLPRICE指标配置实现
+// WCLPRICE indicator configuration implementation
 export const WCLPRICEConfig: IndicatorConfig<WCLPRICEConfigType> = {
 	category: IndicatorCategory.PRICE_TRANSFORM,
 	type: IndicatorType.WCLPRICE,
 	displayName: "WCLPRICE",
-	description: "计算加权收盘价 (High + Low + 2 * Close) / 4",
+	description: "Calculate weighted close price (High + Low + 2 * Close) / 4",
 	params: {},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },
 		wclprice: { label: "wclprice", value: 0, legendShowName: "wclprice" },
 	},
 	chartConfig: {
-		isInMainChart: true, // 价格变换指标显示在主图
+		isInMainChart: true, // Price transform indicators display in main chart
 		seriesConfigs: [
 			{
 				name: "WCLPRICE",
@@ -50,7 +50,7 @@ export const WCLPRICEConfig: IndicatorConfig<WCLPRICEConfigType> = {
 		return getIndicatorValues(this.indicatorValueConfig);
 	},
 
-	// 使用通用解析函数
+	// Use generic parsing function
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
 		IndicatorType.WCLPRICE,
 		WCLPRICEConfigSchema,

@@ -19,12 +19,12 @@ import {
 	generateVariableHighlight,
 } from "../../variable-node-utils";
 
-// 获取变量类型的中文标签
+// Get variable type label
 export const getVariableLabel = (
 	variable: string,
 	t: (key: string) => string,
 ): string => {
-	// 检查是否是系统变量
+	// Check if it's a system variable
 	if (
 		Object.values(SystemVariableType).includes(variable as SystemVariableType)
 	) {
@@ -32,100 +32,100 @@ export const getVariableLabel = (
 			getSystemVariableMetadata(t)[variable as SystemVariableType];
 		return metadata.varDisplayName;
 	}
-	// 自定义变量直接返回变量名
+	// For custom variables, directly return the variable name
 	return variable;
 };
 
-// 获取变量触发类型的中文标签
+// Get variable trigger type label
 export const getVariableTypeLabel = (type: "condition" | "timer"): string => {
 	if (type === "condition") {
-		return "条件触发";
+		return "Condition Trigger";
 	} else if (type === "timer") {
-		return "定时触发";
+		return "Timer Trigger";
 	}
 	return type;
 };
 
-// 格式化交易对显示
+// Format symbol display
 export const formatSymbolDisplay = (symbol: string | null): string => {
-	return symbol || "全部交易对";
+	return symbol || "All Symbols";
 };
 
-// 格式化定时配置显示
+// Format timer configuration display
 export const getTimerConfigDisplay = (timerConfig: TimerTrigger): string => {
 	if (timerConfig.mode === "interval") {
 		const unitMap = {
-			second: "秒",
-			minute: "分钟",
-			hour: "小时",
-			day: "天",
+			second: "s",
+			minute: "min",
+			hour: "h",
+			day: "d",
 		};
 		return `${timerConfig.interval}${unitMap[timerConfig.unit]}`;
 	} else {
-		// scheduled 模式
+		// Scheduled mode
 		const { repeatMode } = timerConfig;
 		let description = "";
 
-		// 每小时模式：显示间隔
+		// Hourly mode: display interval
 		if (repeatMode === "hourly") {
 			const { hourlyInterval, minuteOfHour } = timerConfig;
 			description =
 				hourlyInterval === 1
-					? `每小时 第${minuteOfHour}分钟`
-					: `每${hourlyInterval}小时 第${minuteOfHour}分钟`;
+					? `Every hour at minute ${minuteOfHour}`
+					: `Every ${hourlyInterval} hours at minute ${minuteOfHour}`;
 			return description;
 		}
 
-		// 其他模式
+		// Other modes
 		const repeatMap = {
-			daily: "每天",
-			weekly: "每周",
-			monthly: "每月",
+			daily: "Daily",
+			weekly: "Weekly",
+			monthly: "Monthly",
 		};
 		description = repeatMap[repeatMode as "daily" | "weekly" | "monthly"];
 
-		// 每周模式：添加星期信息
+		// Weekly mode: add weekday information
 		if (repeatMode === "weekly") {
 			const { dayOfWeek } = timerConfig;
 			const weekdayMap: Record<number, string> = {
-				1: "周一",
-				2: "周二",
-				3: "周三",
-				4: "周四",
-				5: "周五",
-				6: "周六",
-				7: "周日",
+				1: "Mon",
+				2: "Tue",
+				3: "Wed",
+				4: "Thu",
+				5: "Fri",
+				6: "Sat",
+				7: "Sun",
 			};
 			description += ` ${weekdayMap[dayOfWeek] || ""}`;
 		}
 
-		// 每天模式：添加星期信息（如果有选择）
+		// Daily mode: add weekday information (if selected)
 		if (repeatMode === "daily") {
 			const { daysOfWeek } = timerConfig;
 			if (daysOfWeek && daysOfWeek.length > 0 && daysOfWeek.length < 7) {
 				const weekdayMap: Record<number, string> = {
-					1: "一",
-					2: "二",
-					3: "三",
-					4: "四",
-					5: "五",
-					6: "六",
-					7: "日",
+					1: "Mon",
+					2: "Tue",
+					3: "Wed",
+					4: "Thu",
+					5: "Fri",
+					6: "Sat",
+					7: "Sun",
 				};
 				const weekdayNames = daysOfWeek.map((d) => weekdayMap[d]).join(",");
-				description += ` (周${weekdayNames})`;
+				description += ` (${weekdayNames})`;
 			}
 		}
 
-		// 每月模式：添加日期信息
+		// Monthly mode: add date information
 		if (repeatMode === "monthly") {
 			const { dayOfMonth } = timerConfig;
 			if (typeof dayOfMonth === "number") {
-				description += ` 第${dayOfMonth}天`;
+				description += ` Day ${dayOfMonth}`;
 			} else {
 				const dayMap: Record<string, string> = {
-					first: "第一天",
-					last: "最后一天",
+					first: "First day",
+					last: "Last day",
 				};
 				description += ` ${dayMap[dayOfMonth]}`;
 			}
@@ -136,7 +136,7 @@ export const getTimerConfigDisplay = (timerConfig: TimerTrigger): string => {
 	}
 };
 
-// 获取更新操作类型的显示文本
+// Get update operation type display text
 export const getUpdateOperationLabel = (
 	type: UpdateVarValueOperation,
 	t: (key: string) => string,
@@ -150,14 +150,14 @@ export const getUpdateOperationLabel = (
 		max: "max",
 		min: "min",
 		toggle: "Toggle",
-		append: "追加",
-		remove: "移除",
-		clear: "清空",
+		append: "Append",
+		remove: "Remove",
+		clear: "Clear",
 	};
 	return labels[type];
 };
 
-// 获取变量配置的简要描述
+// Get variable configuration brief description
 export const getVariableConfigDescription = (
 	config: VariableConfig,
 	t: (key: string) => string,
@@ -183,20 +183,20 @@ export const getVariableConfigDescription = (
 
 		return description;
 	} else if (config.varOperation === "update") {
-		// update 模式
+		// Update mode
 		const opLabel = getUpdateOperationLabel(config.updateVarValueOperation, t);
 		if (config.updateVarValueOperation === "toggle") {
-			return `更新变量 - ${variableText} (${opLabel})`;
+			return `Update Variable - ${variableText} (${opLabel})`;
 		}
-		return `更新变量 - ${variableText} ${opLabel}`;
+		return `Update Variable - ${variableText} ${opLabel}`;
 	} else {
-		// reset 模式
+		// Reset mode
 		const typeText = getVariableTypeLabel(
 			effectiveTriggerType === "timer" || effectiveTriggerType === "condition"
 				? effectiveTriggerType
 				: "condition",
 		);
-		let description = `重置变量 - ${variableText} (${typeText})`;
+		let description = `Reset Variable - ${variableText} (${typeText})`;
 
 		if (effectiveTriggerType === "timer" && timerConfig) {
 			description += ` - ${getTimerConfigDisplay(timerConfig)}`;
@@ -206,7 +206,7 @@ export const getVariableConfigDescription = (
 	}
 };
 
-// 生成触发条件文本（用于节点面板显示）
+// Generate trigger condition text (for node panel display)
 export const generateTriggerConditionText = (
 	config: VariableConfig,
 	t: (key: string) => string,
@@ -214,7 +214,7 @@ export const generateTriggerConditionText = (
 	const effectiveTriggerType = getEffectiveTriggerType(config);
 
 	if (effectiveTriggerType === "condition") {
-		// 条件触发模式
+		// Condition trigger mode
 		const conditionTrigger =
 			config.triggerConfig?.type === "condition"
 				? config.triggerConfig.config
@@ -234,48 +234,48 @@ export const generateTriggerConditionText = (
 	}
 
 	if (effectiveTriggerType === "timer") {
-		// 定时触发模式
+		// Timer trigger mode
 		const timerConfig = getTimerTriggerConfig(config);
 		if (!timerConfig) return null;
 
 		if (timerConfig.mode === "interval") {
-			// 固定间隔模式
+			// Fixed interval mode
 			const unitMap = {
-				second: "秒",
-				minute: "分钟",
-				hour: "小时",
-				day: "天",
+				second: "s",
+				minute: "min",
+				hour: "h",
+				day: "d",
 			};
-			return `固定间隔: 每${timerConfig.interval}${unitMap[timerConfig.unit]}`;
+			return `Fixed Interval: Every ${timerConfig.interval}${unitMap[timerConfig.unit]}`;
 		}
 
 		if (timerConfig.mode === "scheduled") {
-			// 定时执行模式
+			// Scheduled execution mode
 			const { repeatMode } = timerConfig;
 
 			if (repeatMode === "hourly") {
 				const { hourlyInterval, minuteOfHour } = timerConfig;
 				if (hourlyInterval === 1) {
-					return `定时执行: 每小时第${minuteOfHour}分钟`;
+					return `Scheduled: At minute ${minuteOfHour} of every hour`;
 				}
-				return `定时执行: 每${hourlyInterval}小时第${minuteOfHour}分钟`;
+				return `Scheduled: At minute ${minuteOfHour} of every ${hourlyInterval} hours`;
 			}
 
 			if (repeatMode === "daily") {
 				const { time, daysOfWeek } = timerConfig;
-				let text = `定时执行: 每天 ${time}`;
+				let text = `Scheduled: Daily ${time}`;
 
 				if (daysOfWeek && daysOfWeek.length > 0 && daysOfWeek.length < 7) {
 					const weekdayMap: Record<number, string> = {
-						1: "周一",
-						2: "周二",
-						3: "周三",
-						4: "周四",
-						5: "周五",
-						6: "周六",
-						7: "周日",
+						1: "Mon",
+						2: "Tue",
+						3: "Wed",
+						4: "Thu",
+						5: "Fri",
+						6: "Sat",
+						7: "Sun",
 					};
-					const weekdayNames = daysOfWeek.map((d) => weekdayMap[d]).join("、");
+					const weekdayNames = daysOfWeek.map((d) => weekdayMap[d]).join(", ");
 					text += ` (${weekdayNames})`;
 				}
 
@@ -285,37 +285,37 @@ export const generateTriggerConditionText = (
 			if (repeatMode === "weekly") {
 				const { time, dayOfWeek } = timerConfig;
 				const weekdayMap: Record<number, string> = {
-					1: "周一",
-					2: "周二",
-					3: "周三",
-					4: "周四",
-					5: "周五",
-					6: "周六",
-					7: "周日",
+					1: "Mon",
+					2: "Tue",
+					3: "Wed",
+					4: "Thu",
+					5: "Fri",
+					6: "Sat",
+					7: "Sun",
 				};
-				return `定时执行: 每周${weekdayMap[dayOfWeek]} ${time}`;
+				return `Scheduled: Weekly ${weekdayMap[dayOfWeek]} ${time}`;
 			}
 
 			if (repeatMode === "monthly") {
 				const { time, dayOfMonth } = timerConfig;
 
 				if (typeof dayOfMonth === "number") {
-					return `定时执行: 每月第${dayOfMonth}天 ${time}`;
+					return `Scheduled: Day ${dayOfMonth} of every month ${time}`;
 				}
 
 				if (dayOfMonth === "first") {
-					return `定时执行: 每月第一天 ${time}`;
+					return `Scheduled: First day of every month ${time}`;
 				}
 
 				if (dayOfMonth === "last") {
-					return `定时执行: 每月最后一天 ${time}`;
+					return `Scheduled: Last day of every month ${time}`;
 				}
 			}
 		}
 	}
 
 	if (effectiveTriggerType === "dataflow") {
-		// 数据流触发模式
+		// Dataflow trigger mode
 		const dataflowConfig =
 			config.triggerConfig?.type === "dataflow"
 				? config.triggerConfig.config
@@ -331,29 +331,29 @@ export const generateTriggerConditionText = (
 
 		if (!fromNodeName || !fromVarDisplayName) return null;
 
-		// 获取节点类型标签
+		// Get node type label
 		const nodeTypeLabels: Record<string, string> = {
-			indicatorNode: "指标",
-			klineNode: "K线",
-			variableNode: "变量",
-			ifElseNode: "条件",
-			startNode: "起点",
-			futuresOrderNode: "合约订单",
-			PositionNode: "持仓管理",
+			indicatorNode: "Indicator",
+			klineNode: "Kline",
+			variableNode: "Variable",
+			ifElseNode: "Condition",
+			startNode: "Start",
+			futuresOrderNode: "Futures Order",
+			PositionNode: "Position",
 		};
-		const nodeTypeLabel = nodeTypeLabels[fromNodeType] || "节点";
+		const nodeTypeLabel = nodeTypeLabels[fromNodeType] || "Node";
 
-		// 构建完整路径：节点名称/节点类型配置ID/变量显示名称
-		return `数据流: ${fromNodeName}/${nodeTypeLabel}${fromVarConfigId}/${fromVarDisplayName}`;
+		// Build complete path: node name/node type config ID/variable display name
+		return `Dataflow: ${fromNodeName}/${nodeTypeLabel}${fromVarConfigId}/${fromVarDisplayName}`;
 	}
 
 	return null;
 };
 
 /**
- * 生成更新操作的文本（用于节点卡片显示）
- * 支持数据流模式下的特殊显示
- * 返回 React.ReactNode 以支持样式化的变量名
+ * Generate update operation text (for node card display)
+ * Supports special display in dataflow mode
+ * Returns React.ReactNode to support styled variable names
  */
 export const generateUpdateOperationNodeText = (
 	varDisplayName: string,
@@ -363,21 +363,20 @@ export const generateUpdateOperationNodeText = (
 	t: (key: string) => string,
 	dataflowTrigger?: DataFlowTrigger | null,
 ): React.ReactNode => {
-	// 数据流模式下的特殊处理
+	// Special handling in dataflow mode
 	if (triggerType === "dataflow" && dataflowTrigger) {
-		// max/min 操作
+		// max/min operations
 		if (operationType === "max" || operationType === "min") {
-			const operationTypeLabel = operationType === "max" ? "最大值" : "最小值";
+			const operationTypeLabel = operationType === "max" ? "max" : "min";
 			return (
 				<>
-					取 {generateVariableHighlight(varDisplayName)} 与{" "}
-					{generateValueHighlight(dataflowTrigger.fromVarDisplayName)} 中的
-					{operationTypeLabel}
+					Take {operationTypeLabel} of {generateVariableHighlight(varDisplayName)} and{" "}
+					{generateValueHighlight(dataflowTrigger.fromVarDisplayName)}
 				</>
 			);
 		}
 
-		// 加减乘除操作，显示运算符格式
+		// Add/subtract/multiply/divide operations, display operator format
 		if (operationType === "add") {
 			return (
 				<>
@@ -414,22 +413,22 @@ export const generateUpdateOperationNodeText = (
 			);
 		}
 
-		// set 操作
+		// set operation
 		if (operationType === "set") {
 			return (
-				<>设置为 {generateValueHighlight(dataflowTrigger.fromVarDisplayName)}</>
+				<>Set to {generateValueHighlight(dataflowTrigger.fromVarDisplayName)}</>
 			);
 		}
 	}
 
-	// 其他情况，使用标准格式
+	// For other cases, use standard format
 	const operationLabel = getUpdateOperationLabel(operationType, t);
 	const formattedValue = formatUpdateOperationValue(
 		operationValue,
 		operationType,
 	);
 
-	// 组合操作标签和值，对值添加样式
+	// Combine operation label and value, add style to value
 	if (operationLabel && formattedValue) {
 		return (
 			<>

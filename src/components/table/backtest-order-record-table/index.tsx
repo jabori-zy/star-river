@@ -44,7 +44,7 @@ interface BacktestOrderRecordTableProps {
 	showTitle?: boolean;
 }
 
-// 交易记录表
+// Order record table
 export function BacktestOrderRecordTable({
 	data,
 	title = "交易记录",
@@ -83,12 +83,12 @@ export function BacktestOrderRecordTable({
 		columnResizeMode: "onChange",
 	});
 
-	// 计算总页数
+	// Calculate total page count
 	const pageCount = table.getPageCount();
 
 	return (
 		<div className="flex w-full min-w-0 flex-col justify-start gap-6">
-			{/* 标题 */}
+			{/* Title */}
 			{showTitle && (
 				<div className="flex items-center justify-between px-4">
 					<div className="flex items-center gap-2">
@@ -100,7 +100,7 @@ export function BacktestOrderRecordTable({
 				</div>
 			)}
 
-			{/* 表格 */}
+			{/* Table */}
 			<div className="relative flex flex-col gap-4 w-full min-w-0 px-4">
 				<div className="w-full min-w-0 overflow-hidden rounded-lg border mx-0">
 					<div className="w-full min-w-0 overflow-x-auto">
@@ -186,7 +186,7 @@ export function BacktestOrderRecordTable({
 					</div>
 				</div>
 
-				{/* 分页 */}
+				{/* Pagination */}
 				<div className="flex flex-col-reverse items-center justify-between gap-4 md:flex-row px-0">
 					<div className="flex w-full flex-col-reverse items-center gap-4 md:flex-row md:w-auto">
 						<div className="flex items-center gap-2">
@@ -241,7 +241,7 @@ export function BacktestOrderRecordTable({
 								<ChevronLeftIcon />
 							</Button>
 							<div className="flex items-center gap-2">
-								{/* 页码显示逻辑 - 当页面数量较少时： */}
+								{/* Page number display logic - when page count is small: */}
 								{pageCount <= 10 ? (
 									Array.from({ length: pageCount }, (_, i) => {
 										const pageNumber = i + 1;
@@ -262,20 +262,20 @@ export function BacktestOrderRecordTable({
 									})
 								) : (
 									<>
-										{/* 页面较多时：只显示5页 */}
+										{/* When there are many pages: only show 5 pages */}
 										{[...Array(Math.min(5, pageCount))].map((_, idx) => {
 											let pageIdx: number;
 											const currentPage = table.getState().pagination.pageIndex;
 
-											// 分页页码计算
+											// Pagination calculation
 											if (currentPage < 3) {
-												// 当前页靠近开头：显示前5页
+												// Current page is near the beginning: show first 5 pages
 												pageIdx = idx;
 											} else if (currentPage > pageCount - 4) {
-												// 当前页靠近结尾：显示后5页
+												// Current page is near the end: show last 5 pages
 												pageIdx = pageCount - 5 + idx;
 											} else {
-												// 当前页处于中间：显示当前页的前后2个页
+												// Current page is in the middle: show 2 pages before and after current page
 												pageIdx = currentPage - 2 + idx;
 											}
 

@@ -13,7 +13,7 @@ import {
 } from "@/types/position";
 import type { VirtualPosition } from "@/types/position/virtual-position";
 
-// 仓位方向样式
+// Position side style
 export const getPositionSideStyle = (side: PositionSide) => {
 	switch (side) {
 		case PositionSide.Long:
@@ -25,7 +25,7 @@ export const getPositionSideStyle = (side: PositionSide) => {
 	}
 };
 
-// 仓位状态样式
+// Position state style
 export const getPositionStateStyle = (state: PositionState) => {
 	switch (state) {
 		case PositionState.Open:
@@ -41,7 +41,7 @@ export const getPositionStateStyle = (state: PositionState) => {
 	}
 };
 
-// Virtual Position 表格列定义 Hook
+// Virtual Position table column definition Hook
 export const usePositionColumns = (): ColumnDef<VirtualPosition>[] => {
 	const { t } = useTranslation();
 
@@ -64,7 +64,7 @@ export const usePositionColumns = (): ColumnDef<VirtualPosition>[] => {
 					</div>
 				),
 				filterFn: (row, id, value) => {
-					// 对于仓位ID，使用精确匹配或前缀匹配
+					// For position ID, use exact match or prefix match
 					const positionId = String(row.getValue(id));
 					return positionId.startsWith(value);
 				},

@@ -4,30 +4,30 @@ import useNodeValidation from "./use-node-validation";
 import useNodeVariables from "./use-node-variables";
 import useWorkflowUtils from "./use-workflow-utils";
 
-// 重新导出类型，保持对外接口一致
+// Re-export types to maintain consistent external interface
 export type { VariableItem } from "./use-node-variables";
 
 /**
- * 策略工作流主hook - 整合所有相关功能
+ * Main strategy workflow hook - Integrates all related functionality
  *
- * 功能模块：
- * - 节点连接验证
- * - 节点变量管理
- * - 节点变更处理
- * - 工具函数
+ * Functional modules:
+ * - Node connection validation
+ * - Node variable management
+ * - Node change handling
+ * - Utility functions
  */
 const useStrategyWorkflow = () => {
-	// 节点连接验证相关
+	// Node connection validation related
 	const { checkIsValidConnection } = useNodeValidation();
 
-	// 节点变量管理相关
+	// Node variable management related
 	const { getConnectedNodeVariables, getIfElseNodeCases } = useNodeVariables();
 
-	// 节点变更处理相关
+	// Node change handling related
 	const { handleNodeChanges } = useNodeChangeHandlers();
 	const { handleEdgeChanges } = useEdgeChangeHandlers();
 
-	// 工具函数相关
+	// Utility functions related
 	const {
 		getBacktestTimeRange,
 		getTargetNodeIds,
@@ -40,18 +40,18 @@ const useStrategyWorkflow = () => {
 	} = useWorkflowUtils();
 
 	return {
-		// 节点连接验证
+		// Node connection validation
 		checkIsValidConnection,
 
-		// 节点变量管理
+		// Node variable management
 		getConnectedNodeVariables,
 		getIfElseNodeCases,
-		// 节点变更处理
+		// Node change handling
 		handleNodeChanges,
 
-		// 边变更处理
+		// Edge change handling
 		handleEdgeChanges,
-		// 工具函数
+		// Utility functions
 		getBacktestTimeRange,
 		getTargetNodeIds,
 		getTargetNodeIdsBySourceHandleId,

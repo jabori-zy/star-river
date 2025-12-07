@@ -9,7 +9,7 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLDRAGONFLYDOJIConfigSchema = z.object({
-	// CDLDRAGONFLYDOJI 没有参数
+	// CDLDRAGONFLYDOJI has no parameters
 });
 
 export type CDLDRAGONFLYDOJIConfigType = z.infer<
@@ -18,7 +18,7 @@ export type CDLDRAGONFLYDOJIConfigType = z.infer<
 
 function buildCDLDRAGONFLYDOJIConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLDRAGONFLYDOJI 不需要任何参数
+		// CDLDRAGONFLYDOJI doesn't need any parameters
 	};
 }
 
@@ -29,7 +29,7 @@ export const CDLDRAGONFLYDOJIConfig: IndicatorConfig<CDLDRAGONFLYDOJIConfigType>
 		displayName: "CDLDRAGONFLYDOJI",
 		description: "Dragonfly Doji",
 		params: {
-			// CDLDRAGONFLYDOJI 没有参数
+			// CDLDRAGONFLYDOJI has no parameters
 		},
 		indicatorValueConfig: {
 			timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

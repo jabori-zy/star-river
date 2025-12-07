@@ -18,14 +18,14 @@ interface UseKlineSeriesManagerReturn {
 }
 
 /**
- * K线系列管理
+ * K-line series management
  *
- * 职责：
- * - K线周期切换
- * - 数据重新初始化
- * - 订阅管理
- * - 订单标记和价格线恢复
- * - 时间轴重置
+ * Responsibilities:
+ * - K-line period switching
+ * - Data re-initialization
+ * - Subscription management
+ * - Order marker and price line restoration
+ * - Time axis reset
  */
 export const useKlineSeriesManager = ({
 	strategyId,
@@ -52,32 +52,32 @@ export const useKlineSeriesManager = ({
 	const changeKline = useCallback(async () => {
 		const nextKlineKey = chartConfig.klineChartConfig.klineKeyStr;
 		const currentKlineKey = getKlineKeyStr();
-		// 如果k线key不一致，则切换k线
+		// If K-line keys don't match, switch K-line
 		if (currentKlineKey !== nextKlineKey) {
 			try {
-				// 清空现有订阅，确保指标订阅被移除
+				// Clear existing subscriptions to ensure indicator subscriptions are removed
 				cleanupSubscriptions();
-				// 重置k线key
+				// Reset K-line key
 				setKlineKeyStr(nextKlineKey);
-				// 先获取数据
+				// Fetch data first
 				const playIndexValue = await get_play_index(strategyId);
 				const strategyDatetime = (await getStrategyDatetimeApi(strategyId))
 					.strategyDatetime;
 				await initKlineData(strategyDatetime, playIndexValue, strategyId);
 
-				// 从图表移除当前的klineSeries
+				// Remove current klineSeries from chart
 				const chart = getChartRef();
 				if (chart) {
 					const klineSeries = getKlineSeriesRef();
 					if (klineSeries) {
 						klineSeries.unsubscribeDataChanged(onSeriesDataUpdate);
 						chart.removeSeries(klineSeries);
-						// 从store中删除klineSeriesRef
+						// Delete klineSeriesRef from store
 						deleteKlineSeriesRef();
 						deleteOrderMarkerSeriesRef();
 					}
 
-					// 创建新的klineSeries
+					// Create new klineSeries
 					const newKlineSeries = addKlineSeries(
 						chart,
 						chartConfig.klineChartConfig,
@@ -86,7 +86,7 @@ export const useKlineSeriesManager = ({
 						newKlineSeries.subscribeDataChanged(onSeriesDataUpdate);
 						setKlineSeriesRef(newKlineSeries);
 
-						// 恢复订单标记和价格线
+						// Restore order markers and price lines
 						const currentOrderMarkers = getOrderMarkers();
 						const orderMarkerSeries = createSeriesMarkers(
 							newKlineSeries,
@@ -108,7 +108,7 @@ export const useKlineSeriesManager = ({
 							});
 						}
 
-						// 重置时间轴，避免在切换周期后残留之前的缩放状态
+						// Reset time axis to avoid residual zoom state after switching periods
 						const timeScale = chart.timeScale();
 						timeScale.resetTimeScale();
 						requestAnimationFrame(() => {
@@ -116,10 +116,10 @@ export const useKlineSeriesManager = ({
 						});
 					}
 				}
-				// 重新订阅最新k线的数据流
+				// Re-subscribe to the latest K-line data stream
 				subscribe(nextKlineKey);
 			} catch (error) {
-				console.error("切换K线时出错:", error);
+				console.error("Error switching K-line:", error);
 			}
 		}
 	}, [

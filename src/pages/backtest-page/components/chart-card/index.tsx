@@ -23,19 +23,19 @@ interface ChartCardProps {
 
 const ChartCard: React.FC<ChartCardProps> = ({ chartConfig, strategyId }) => {
 	const { t } = useTranslation();
-	// 使用store中的方法
+	// Use methods from store
 	const { deleteChart, addIndicator, changeKline } =
 		useBacktestChartConfigStore();
 
 	const [isSymbolDialogOpen, setIsSymbolDialogOpen] = useState(false);
 	const [isIndicatorDialogOpen, setIsIndicatorDialogOpen] = useState(false);
 
-	// 处理kline选择
+	// Handle kline selection
 	const handleKlineSelect = (klineCacheKeyStr: string) => {
 		changeKline(chartConfig.id, klineCacheKeyStr);
 	};
 
-	// 处理指标添加
+	// Handle indicator addition
 	const handleIndicatorAdd = (indicatorChartConfig: IndicatorChartConfig) => {
 		addIndicator(chartConfig.id, indicatorChartConfig);
 	};
@@ -52,7 +52,7 @@ const ChartCard: React.FC<ChartCardProps> = ({ chartConfig, strategyId }) => {
 						<Search className="w-4 h-4 text-gray-500" />
 						{chartConfig.chartName}
 					</Button>
-					{/* 纵向的分界线 */}
+					{/* Vertical divider line */}
 					<div className="w-[1px] h-4 bg-gray-300" />
 					<Button
 						className="flex flex-row items-center gap-2 text-sm font-medium"
@@ -82,7 +82,7 @@ const ChartCard: React.FC<ChartCardProps> = ({ chartConfig, strategyId }) => {
 				<BacktestChart strategyId={strategyId} chartConfig={chartConfig} />
 			</div>
 
-			{/* Symbol选择Dialog */}
+			{/* Symbol selection Dialog */}
 			<SymbolListDialog
 				open={isSymbolDialogOpen}
 				onOpenChange={setIsSymbolDialogOpen}
@@ -91,7 +91,7 @@ const ChartCard: React.FC<ChartCardProps> = ({ chartConfig, strategyId }) => {
 				onKlineSelect={handleKlineSelect}
 			/>
 
-			{/* Indicator添加Dialog */}
+			{/* Indicator addition Dialog */}
 			<AddIndicatorDialog
 				chartConfig={chartConfig}
 				open={isIndicatorDialogOpen}

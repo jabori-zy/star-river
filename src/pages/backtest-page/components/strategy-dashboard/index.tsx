@@ -40,7 +40,7 @@ const StrategyDashboard = forwardRef<
 	) => {
 		const backtestInfoTabsRef = useRef<BacktestInfoTabsRef>(null);
 
-		// 暴露清空订单记录的方法
+		// Expose methods for clearing order records
 		useImperativeHandle(
 			ref,
 			() => ({
@@ -66,7 +66,7 @@ const StrategyDashboard = forwardRef<
 			[],
 		);
 
-		// 使用store中的状态和方法
+		// Use states and methods from store
 		const { chartConfig, isSaving, updateLayout, addChart, saveChartConfig } =
 			useBacktestChartConfigStore();
 		return (

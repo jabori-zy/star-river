@@ -8,28 +8,28 @@ import {
 } from "./utils";
 
 /**
- * NUMBER 类型提示生成器
- * 支持操作：
- * - get: 获取变量值
- * - update: 更新变量（set/add/subtract/multiply/divide/max/min）
- * - reset: 重置变量
+ * NUMBER type hint generator
+ * Supported operations:
+ * - get: Get variable value
+ * - update: Update variable (set/add/subtract/multiply/divide/max/min)
+ * - reset: Reset variable
  */
 export const generateNumberHint = (
 	params: HintGeneratorParams,
 ): React.ReactNode => {
 	const { varOperation } = params;
 
-	// ============ GET 操作 ============
+	// ============ GET operation ============
 	if (varOperation === "get") {
 		return generateGetOperation(params);
 	}
 
-	// ============ UPDATE 操作 ============
+	// ============ UPDATE operation ============
 	if (varOperation === "update") {
 		return generateUpdateOperation(params);
 	}
 
-	// ============ RESET 操作 ============
+	// ============ RESET operation ============
 	if (varOperation === "reset") {
 		return generateResetOperation(params);
 	}
@@ -37,14 +37,14 @@ export const generateNumberHint = (
 	return null;
 };
 
-// ==================== GET 操作 ====================
+// ==================== GET operation ====================
 
 /**
- * GET 操作 - 获取变量值
- * 场景：
- * 1. 获取交易对变量（有 symbol）
- * 2. 已有值 - 显示当前值
- * 3. 默认 - 将会获取值
+ * GET operation - Get variable value
+ * Scenarios:
+ * 1. Get trading pair variable (has symbol)
+ * 2. Has value - Display current value
+ * 3. Default - Will get value
  */
 function generateGetOperation(params: HintGeneratorParams): React.ReactNode {
 	const {
@@ -62,7 +62,7 @@ function generateGetOperation(params: HintGeneratorParams): React.ReactNode {
 		t,
 	});
 
-	// 场景1: 获取交易对变量
+	// Scenario 1: Get trading pair variable
 	if (symbol) {
 		return (
 			<>
@@ -73,7 +73,7 @@ function generateGetOperation(params: HintGeneratorParams): React.ReactNode {
 		);
 	}
 
-	// 场景2: 已有值 - 显示当前值
+	// Scenario 2: Has value - Display current value
 	if (value) {
 		return (
 			<>
@@ -83,7 +83,7 @@ function generateGetOperation(params: HintGeneratorParams): React.ReactNode {
 		);
 	}
 
-	// 场景3: 默认 - 将会获取值
+	// Scenario 3: Default - Will get value
 	return (
 		<>
 			{triggerPrefix} {t("variableNode.hint.get")}{" "}
@@ -92,41 +92,41 @@ function generateGetOperation(params: HintGeneratorParams): React.ReactNode {
 	);
 }
 
-// ==================== UPDATE 操作 ====================
+// ==================== UPDATE operation ====================
 
 /**
- * UPDATE 操作 - 更新变量
- * 操作类型：
- * - set: 设置为指定值
- * - add: 增加
- * - subtract: 减少
- * - multiply: 乘以
- * - divide: 除以
- * - max: 取最大值
- * - min: 取最小值
+ * UPDATE operation - Update variable
+ * Operation types:
+ * - set: Set to specified value
+ * - add: Add
+ * - subtract: Subtract
+ * - multiply: Multiply
+ * - divide: Divide
+ * - max: Take maximum value
+ * - min: Take minimum value
  *
- * 支持数据流触发（从其他变量获取值）
+ * Supports dataflow trigger (get value from other variables)
  */
 function generateUpdateOperation(params: HintGeneratorParams): React.ReactNode {
 	const { operationType, dataflowTrigger } = params;
 
 	if (!operationType) return null;
 
-	// 数据流触发的特殊处理
+	// Special handling for dataflow trigger
 	if (dataflowTrigger?.fromVarDisplayName) {
 		return generateDataflowUpdateHint(params);
 	}
 
-	// 普通触发（条件/定时）
+	// Normal trigger (condition/timer)
 	return generateNormalUpdateHint(params);
 }
 
 /**
- * 数据流触发的更新操作
- * 包含特殊格式：
- * - max/min: "取 变量A 与 变量B 中的最大值/最小值"
- * - add/subtract/multiply/divide: "变量A + 变量B"（运算符格式）
- * - set: "变量A 将被设置为 变量B"
+ * Dataflow-triggered update operation
+ * Contains special formats:
+ * - max/min: "Get the max/min value between variable A and variable B"
+ * - add/subtract/multiply/divide: "variable A + variable B" (operator format)
+ * - set: "variable A will be set to variable B"
  */
 function generateDataflowUpdateHint(
 	params: HintGeneratorParams,
@@ -136,7 +136,7 @@ function generateDataflowUpdateHint(
 
 	if (!dataflowTrigger) return null;
 
-	// 构建完整路径：节点名称/节点类型配置ID/变量显示名称
+	// Build full path: node name/node type config ID/variable display name
 	const fullPath = generateDataflowPath(
 		dataflowTrigger.fromNodeName,
 		dataflowTrigger.fromNodeType,
@@ -145,7 +145,7 @@ function generateDataflowUpdateHint(
 		t,
 	);
 
-	// max/min 操作
+	// max/min operation
 	if (operationType === "max" || operationType === "min") {
 		const operationLabel =
 			operationType === "max"
@@ -171,7 +171,7 @@ function generateDataflowUpdateHint(
 		}
 	}
 
-	// add 操作 - 加法运算符格式
+	// add operation - Addition operator format
 	if (operationType === "add") {
 		return (
 			<>
@@ -181,7 +181,7 @@ function generateDataflowUpdateHint(
 		);
 	}
 
-	// subtract 操作 - 减法运算符格式
+	// subtract operation - Subtraction operator format
 	if (operationType === "subtract") {
 		return (
 			<>
@@ -191,7 +191,7 @@ function generateDataflowUpdateHint(
 		);
 	}
 
-	// multiply 操作 - 乘法运算符格式
+	// multiply operation - Multiplication operator format
 	if (operationType === "multiply") {
 		return (
 			<>
@@ -201,7 +201,7 @@ function generateDataflowUpdateHint(
 		);
 	}
 
-	// divide 操作 - 除法运算符格式
+	// divide operation - Division operator format
 	if (operationType === "divide") {
 		return (
 			<>
@@ -211,7 +211,7 @@ function generateDataflowUpdateHint(
 		);
 	}
 
-	// set 操作 - 默认格式
+	// set operation - Default format
 	if (operationType === "set") {
 		return (
 			<>
@@ -225,8 +225,8 @@ function generateDataflowUpdateHint(
 }
 
 /**
- * 普通更新操作（条件/定时触发）
- * 使用固定值进行更新
+ * Normal update operation (condition/timer trigger)
+ * Update using fixed value
  */
 function generateNormalUpdateHint(
 	params: HintGeneratorParams,
@@ -248,7 +248,7 @@ function generateNormalUpdateHint(
 		t,
 	});
 
-	// set 操作
+	// set operation
 	if (operationType === "set") {
 		return (
 			<>
@@ -259,7 +259,7 @@ function generateNormalUpdateHint(
 		);
 	}
 
-	// add 操作
+	// add operation
 	if (operationType === "add") {
 		return (
 			<>
@@ -270,7 +270,7 @@ function generateNormalUpdateHint(
 		);
 	}
 
-	// subtract 操作
+	// subtract operation
 	if (operationType === "subtract") {
 		return (
 			<>
@@ -281,7 +281,7 @@ function generateNormalUpdateHint(
 		);
 	}
 
-	// multiply 操作
+	// multiply operation
 	if (operationType === "multiply") {
 		return (
 			<>
@@ -292,7 +292,7 @@ function generateNormalUpdateHint(
 		);
 	}
 
-	// divide 操作
+	// divide operation
 	if (operationType === "divide") {
 		return (
 			<>
@@ -306,10 +306,10 @@ function generateNormalUpdateHint(
 	return null;
 }
 
-// ==================== RESET 操作 ====================
+// ==================== RESET operation ====================
 
 /**
- * RESET 操作 - 重置变量为指定值
+ * RESET operation - Reset variable to specified value
  */
 function generateResetOperation(params: HintGeneratorParams): React.ReactNode {
 	const { t, variableDisplayName, value, conditionTrigger, timerTrigger } =

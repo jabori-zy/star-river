@@ -6,9 +6,9 @@ import type {
 import type { SliceCreator, TradingSlice } from "./types";
 
 export const createTradingSlice: SliceCreator<TradingSlice> = (set, get) => ({
-	orderMarkers: [], // 订单标记
-	positionPriceLine: [], // 仓位价格线
-	orderPriceLine: [], // 限价单价格线
+	orderMarkers: [], // Order markers
+	positionPriceLine: [], // Position price lines
+	orderPriceLine: [], // Limit order price lines
 
 	setOrderMarkers: (markers: OrderMarker[]) => set({ orderMarkers: markers }),
 

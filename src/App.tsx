@@ -22,35 +22,35 @@ import type { ApiError } from "./service";
 import useSystemConfigStore from "./store/use-system-config-store";
 import { useTranslation } from "react-i18next";
 
-// 创建 QueryClient 实例，配置全局默认选项
+// Create QueryClient instance with global default options
 const queryClient = new QueryClient({
 	defaultOptions: {
 		queries: {
-			staleTime: 60 * 1000, // 数据在 1 分钟内被视为新鲜的
-			gcTime: 5 * 60 * 1000, // 缓存数据保留 5 分钟（原 cacheTime）
-			retry: 1, // 失败后重试 1 次
-			refetchOnWindowFocus: false, // 窗口聚焦时不自动重新获取
+			staleTime: 60 * 1000, // Data is considered fresh within 1 minute
+			gcTime: 5 * 60 * 1000, // Cache data retained for 5 minutes (formerly cacheTime)
+			retry: 1, // Retry once on failure
+			refetchOnWindowFocus: false, // Don't auto-refetch on window focus
 		},
 		mutations: {
-			retry: 0, // mutation 失败不重试
+			retry: 0, // Don't retry on mutation failure
 		},
 	},
 
-	// ✅ 全局 Mutation 缓存配置 - 统一处理所有 mutation 的成功/失败
+	// Global Mutation cache config - unified handling of all mutation success/failure
 	mutationCache: new MutationCache({
-		// 所有 mutation 成功时的全局处理
+		// Global handling for all successful mutations
 		onSuccess: (_data, _variables, _context, mutation) => {
 			const meta = mutation.options.meta as
 				| { successMessage?: string; showSuccessToast?: boolean }
 				| undefined;
 
-			// 如果 meta 中指定了成功消息，则显示 toast
+			// Show toast if success message is specified in meta
 			if (meta?.successMessage && meta.showSuccessToast !== false) {
 				toast.success(meta.successMessage);
 			}
 		},
 
-		// 所有 mutation 失败时的全局处理
+		// Global handling for all failed mutations
 		onError: (error, _variables, _context, mutation) => {
 			const apiError = error as ApiError;
 			const meta = mutation.options.meta as
@@ -60,7 +60,7 @@ const queryClient = new QueryClient({
 				  }
 				| undefined;
 
-			// 默认显示错误 toast，除非明确禁用
+			// Show error toast by default unless explicitly disabled
 			if (meta?.showErrorToast !== false) {
 				const errorMessage = meta?.errorMessage
 					? `${meta.errorMessage}: ${apiError.message}`
@@ -84,7 +84,7 @@ const queryClient = new QueryClient({
 				});
 			}
 
-			// 开发环境下打印详细错误信息
+			// Print detailed error info in development environment
 			if (import.meta.env.DEV) {
 				console.error("[Mutation 错误]", {
 					error,
@@ -106,7 +106,7 @@ function App() {
 	useEffect(() => {
 		const initializeApp = async () => {
 			try {
-				// 加载系统配置
+				// Load system configuration
 				await loadSystemConfig();
 			} catch (error) {
 				console.error("应用初始化失败:", error);
@@ -118,23 +118,23 @@ function App() {
 		initializeApp();
 	}, [loadSystemConfig]);
 
-	// 当系统配置加载完成后，应用时区设置到 Luxon
+	// Apply timezone settings to Luxon when system config is loaded
 	useEffect(() => {
 		if (systemConfig?.timezone) {
 			Settings.defaultZone = systemConfig.timezone;
-			// console.log("应用启动时设置 Luxon 时区:", systemConfig.timezone);
+			// console.log("Set Luxon timezone on app startup:", systemConfig.timezone);
 		}
 	}, [systemConfig]);
 
-	// 监听系统配置变化，如果配置发生变化则刷新页面
+	// Listen for system config changes, refresh page if config changes
 	useEffect(() => {
-		// 如果是初次加载配置，只记录不刷新
+		// If initial config load, only record without refreshing
 		if (lastSystemConfig === null && systemConfig) {
 			setLastSystemConfig(systemConfig);
 			return;
 		}
 
-		// 如果配置发生了变化，刷新页面
+		// If config has changed, refresh page
 		if (
 			lastSystemConfig &&
 			systemConfig &&
@@ -142,7 +142,7 @@ function App() {
 				lastSystemConfig.timezone !== systemConfig.timezone)
 		) {
 
-			// 如果在 Electron 环境中，通知所有回测窗口刷新
+			// If in Electron environment, notify all backtest windows to refresh
 			if (window.require) {
 				try {
 					const electronModule = window.require("electron");
@@ -154,14 +154,14 @@ function App() {
 				}
 			}
 
-			// // 延迟一点时间让用户看到保存成功的提示
+			// // Delay a bit to let user see the save success message
 			// setTimeout(() => {
 			// 	window.location.reload();
 			// }, 10);
 		}
 	}, [systemConfig, lastSystemConfig]);
 
-	// 在系统配置加载完成前显示加载状态
+	// Show loading state before system config is loaded
 	if (!isAppReady) {
 		return (
 			<div className="flex items-center justify-center min-h-screen">
@@ -194,7 +194,7 @@ function App() {
 				}}
 			/>
 
-			{/* React Query DevTools - 仅在开发环境显示 */}
+			{/* React Query DevTools - only shown in development environment */}
 			{import.meta.env.DEV && (
 				<ReactQueryDevtools
 					initialIsOpen={false}

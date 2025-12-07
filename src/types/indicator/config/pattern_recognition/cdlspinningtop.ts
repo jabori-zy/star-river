@@ -9,7 +9,7 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLSPINNINGTOPConfigSchema = z.object({
-	// CDLSPINNINGTOP 没有参数
+	// CDLSPINNINGTOP has no parameters
 });
 
 export type CDLSPINNINGTOPConfigType = z.infer<
@@ -18,7 +18,7 @@ export type CDLSPINNINGTOPConfigType = z.infer<
 
 function buildCDLSPINNINGTOPConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLSPINNINGTOP 不需要任何参数
+		// CDLSPINNINGTOP doesn't need any parameters
 	};
 }
 
@@ -28,7 +28,7 @@ export const CDLSPINNINGTOPConfig: IndicatorConfig<CDLSPINNINGTOPConfigType> = {
 	displayName: "CDLSPINNINGTOP",
 	description: "Spinning Top",
 	params: {
-		// CDLSPINNINGTOP 没有参数
+		// CDLSPINNINGTOP has no parameters
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

@@ -6,20 +6,20 @@ import {
 import React from "react";
 
 /**
- * 自定义边
+ * Custom edge
  */
 const BaseEdge: React.FC<EdgeProps> = ({ selected, ...props }) => {
 	const [edgePath] = getBezierPath({
 		...props,
 	});
 
-	// 根据连接节点的悬停状态和选中状态计算边的颜色
+	// Calculate edge color based on connected nodes' hover state and selected state
 	const stroke = React.useMemo(() => {
 		if (selected) {
-			return "#101112"; // 选中时黑色
+			return "#101112"; // Black when selected
 		}
 
-		return "#9ca3af"; // 默认灰色
+		return "#9ca3af"; // Default gray
 	}, [selected]);
 
 	return (

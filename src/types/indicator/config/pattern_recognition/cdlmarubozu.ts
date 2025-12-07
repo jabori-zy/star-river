@@ -9,14 +9,14 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLMARUBOZUConfigSchema = z.object({
-	// CDLMARUBOZU 没有参数
+	// CDLMARUBOZU has no parameters
 });
 
 export type CDLMARUBOZUConfigType = z.infer<typeof CDLMARUBOZUConfigSchema>;
 
 function buildCDLMARUBOZUConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLMARUBOZU 不需要任何参数
+		// CDLMARUBOZU doesn't need any parameters
 	};
 }
 
@@ -26,7 +26,7 @@ export const CDLMARUBOZUConfig: IndicatorConfig<CDLMARUBOZUConfigType> = {
 	displayName: "CDLMARUBOZU",
 	description: "Marubozu",
 	params: {
-		// CDLMARUBOZU 没有参数
+		// CDLMARUBOZU has no parameters
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

@@ -4,7 +4,7 @@ import type { NodeType } from "@/types/node/index";
 import { VariableValueType } from "@/types/variable";
 import type { NodeDataBase } from ".";
 
-// 条件判断节点回测模式配置
+// Conditional node backtest mode configuration
 export type IfElseNodeBacktestConfig = {
 	cases: CaseItem[];
 };
@@ -17,32 +17,32 @@ export type IfElseNodeSimulateConfig = {
 	cases: CaseItem[];
 };
 
-// 条件判断节点数据
+// Conditional node data
 export type IfElseNodeData = NodeDataBase & {
-	// 针对不同交易模式的条件配置
+	// Conditional configuration for different trading modes
 	liveConfig?: IfElseNodeLiveConfig;
 	simulateConfig?: IfElseNodeSimulateConfig;
 	backtestConfig?: IfElseNodeBacktestConfig;
 	isNested: boolean; // is nested if-else node
 };
 
-// 条件组
+// Condition group
 export type CaseItem = {
 	caseId: number; // caseId
-	outputHandleId: string | null; // case输出handleId
-	logicalSymbol: LogicalSymbol | null; // 逻辑运算符
-	conditions: Condition[]; // 条件列表
+	outputHandleId: string | null; // case output handleId
+	logicalSymbol: LogicalSymbol | null; // Logical operator
+	conditions: Condition[]; // Condition list
 };
 
-// 条件
+// Condition
 export type Condition = {
-	conditionId: number; // 条件id
-	left: Variable | null; // 左变量
-	comparisonSymbol: ComparisonSymbol | null; // 比较运算符
-	right: Variable | Constant | null; // 右变量
+	conditionId: number; // Condition id
+	left: Variable | null; // Left variable
+	comparisonSymbol: ComparisonSymbol | null; // Comparison operator
+	right: Variable | Constant | null; // Right variable
 };
 
-// 比较运算符
+// Comparison operator
 export enum ComparisonSymbol {
 	equal = "=",
 	notEqual = "!=",
@@ -50,20 +50,20 @@ export enum ComparisonSymbol {
 	lessThan = "<",
 	greaterThanOrEqual = ">=",
 	lessThanOrEqual = "<=",
-	is = "is", // 是
-	isNot = "is not", // 不是
-	like = "like", // 模糊匹配
-	notLike = "not like", // 不模糊匹配
-	contains = "contains", // 包含
-	notContains = "not contains", // 不包含
-	isIn = "is in", // 在
-	isNotIn = "is not in", // 不在
-	isEmpty = "is empty", // 为空
-	isNotEmpty = "is not empty", // 不为空
+	is = "is", // Is
+	isNot = "is not", // Is not
+	like = "like", // Fuzzy match
+	notLike = "not like", // Not fuzzy match
+	contains = "contains", // Contains
+	notContains = "not contains", // Does not contain
+	isIn = "is in", // Is in
+	isNotIn = "is not in", // Is not in
+	isEmpty = "is empty", // Is empty
+	isNotEmpty = "is not empty", // Is not empty
 }
 
 /**
- * 根据变量类型获取可用的比较运算符
+ * Get available comparison operators based on variable type
  */
 export const getAvailableComparisonSymbols = (
 	varValueType: VariableValueType,
@@ -133,13 +133,13 @@ export const getAvailableComparisonSymbols = (
 			];
 
 		default:
-			// 默认返回基础运算符
+			// Default return basic operators
 			return [ComparisonSymbol.equal, ComparisonSymbol.notEqual];
 	}
 };
 
 /**
- * 获取比较运算符的显示文本
+ * Get display text for comparison operator
  */
 export const getComparisonSymbolLabel = (
 	symbol: ComparisonSymbol,
@@ -165,7 +165,7 @@ export const getComparisonSymbolLabel = (
 		[ComparisonSymbol.isIn]: t("ifElseNode.comparisonSymbols.isIn"),
 		[ComparisonSymbol.isNotIn]: t("ifElseNode.comparisonSymbols.isNotIn"),
 		[ComparisonSymbol.isEmpty]: t("ifElseNode.comparisonSymbols.isEmpty"),
-		[ComparisonSymbol.isNotEmpty]: "不为空",
+		[ComparisonSymbol.isNotEmpty]: t("ifElseNode.comparisonSymbols.isNotEmpty"),
 		[ComparisonSymbol.contains]: t("ifElseNode.comparisonSymbols.contains"),
 		[ComparisonSymbol.notContains]: t(
 			"ifElseNode.comparisonSymbols.notContains",
@@ -174,30 +174,30 @@ export const getComparisonSymbolLabel = (
 	return labels[symbol];
 };
 
-// 逻辑运算符
+// Logical operator
 export enum LogicalSymbol {
 	AND = "and",
 	Or = "or",
 }
 
-// 变量类型
+// Variable type
 export enum VarType {
-	variable = "variable", // 变量
-	constant = "constant", // 常量
+	variable = "variable", // Variable
+	constant = "constant", // Constant
 }
 
-// 左变量
+// Left variable
 export type Variable = {
-	varType: VarType | null; // 变量类型
-	nodeId: string | null; // 节点id（这个变量来源的节点id
-	nodeName: string | null; // 节点名称
-	nodeType: NodeType | null; // 节点类型
-	outputHandleId: string | null; // 变量输出handleId
-	varConfigId: number | null; // 变量配置id(指标配置id,K线配置id)
-	varName: string | null; // 变量, 如果是常量，则值为常量值
-	varDisplayName: string | null; // 变量名称(用户设置的变量名称，或者默认名称)
-	varValueType: VariableValueType; // 变量值类型
-	extraInfo?: Record<string, string | number | boolean | null> | null; // 额外信息
+	varType: VarType | null; // Variable type
+	nodeId: string | null; // Node id (the node id where this variable originates from)
+	nodeName: string | null; // Node name
+	nodeType: NodeType | null; // Node type
+	outputHandleId: string | null; // Variable output handleId
+	varConfigId: number | null; // Variable configuration id (indicator configuration id, kline configuration id)
+	varName: string | null; // Variable, if constant, the value is the constant value
+	varDisplayName: string | null; // Variable name (user-set variable name, or default name)
+	varValueType: VariableValueType; // Variable value type
+	extraInfo?: Record<string, string | number | boolean | null> | null; // Extra info
 };
 
 export type Constant = {

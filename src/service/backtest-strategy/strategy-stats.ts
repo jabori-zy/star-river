@@ -14,7 +14,7 @@ export async function getStrategyStatsHistory(
 	try {
 		console.log("getStrategyStatsHistory params", strategyId, datetime);
 
-		// 使用 URLSearchParams 正确编码 datetime 参数
+		// Use URLSearchParams to correctly encode datetime parameter
 		const queryParams = new URLSearchParams();
 		queryParams.append("datetime", datetime);
 
@@ -22,7 +22,7 @@ export async function getStrategyStatsHistory(
 			`${getApiUrl()}/${strategyId}/stats-history?${queryParams.toString()}`,
 		);
 		if (response.status !== 200) {
-			throw new Error(`获取策略统计历史失败: ${response.status}`);
+			throw new Error(`Failed to fetch strategy stats history: ${response.status}`);
 		}
 
 		return response.data.data as StrategyStats[];

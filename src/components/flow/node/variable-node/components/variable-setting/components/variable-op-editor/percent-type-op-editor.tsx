@@ -47,13 +47,13 @@ const PercentTypeOpEditor: React.FC<PercentTypeOpEditorProps> = ({
 	const conditionTrigger = getConditionTriggerConfig({ triggerConfig });
 	const timerTrigger = getTimerTriggerConfig({ triggerConfig });
 
-	// 判断是否应该显示提示文案
+	// Determine whether to show hint text
 	const shouldShowHint = () => {
-		// 条件触发模式：必须选择了触发条件
+		// Condition trigger mode: must have selected a trigger condition
 		if (effectiveTriggerType === "condition" && !conditionTrigger) {
 			return false;
 		}
-		// 必须有值
+		// Must have a value
 		return !!updateValue;
 	};
 

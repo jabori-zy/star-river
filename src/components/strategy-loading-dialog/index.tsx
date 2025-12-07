@@ -17,21 +17,21 @@
 // 	onOpenChange,
 // 	logs,
 // 	currentStage,
-// 	title = "策略加载中", // 默认为策略加载中
+// 	title = "Strategy Loading", // Default title
 // 	onStrategyStateChange,
 // }) => {
-// 	// 用于追踪已触发的回调状态，避免重复调用
+// 	// Track triggered callback states to avoid duplicate calls
 // 	const triggeredStatesRef = useRef<Set<string>>(new Set());
 
-// 	// 监听策略状态变化
+// 	// Listen for strategy state changes
 // 	useEffect(() => {
 // 		if (!onStrategyStateChange) return;
 
-// 		// 过滤策略日志
+// 		// Filter strategy logs
 // 		const strategyLogs = logs.filter((log) => "strategyState" in log);
 // 		if (strategyLogs.length === 0) return;
 
-// 		// 获取最新的策略日志
+// 		// Get the latest strategy log
 // 		const latestStrategyLog = strategyLogs.sort(
 // 			(a, b) =>
 // 				DateTime.fromISO(b.datetime).toMillis() -
@@ -42,7 +42,7 @@
 // 			const strategyState = latestStrategyLog.strategyState;
 // 			const stateKey = `${strategyState}-${latestStrategyLog.datetime}`;
 
-// 			// 检查是否已经触发过这个状态的回调
+// 			// Check if this state callback has already been triggered
 // 			if (!triggeredStatesRef.current.has(stateKey)) {
 // 				if (strategyState === StrategyState.Ready) {
 // 					onStrategyStateChange("ready");
@@ -55,7 +55,7 @@
 // 		}
 // 	}, [logs, onStrategyStateChange]);
 
-// 	// 为日志区域添加类型标记并排序
+// 	// Add type markers to logs and sort them
 // 	const allLogs = logs
 // 		.map((log) => ({
 // 			...log,
@@ -81,12 +81,12 @@
 // 				</DialogHeader>
 
 // 				<div className="flex-1 flex flex-col space-y-4 overflow-hidden">
-// 					{/* 顶部状态区域 */}
+// 					{/* Top status section */}
 // 					<div className="flex-shrink-0">
 // 						<StatusSection currentStage={currentStage} logs={logs} />
 // 					</div>
 
-// 					{/* 日志区域 - 固定高度 */}
+// 					{/* Log section - fixed height */}
 // 					<div className="flex-1 min-h-0 overflow-hidden">
 // 						<LogSection logs={allLogs} />
 // 					</div>

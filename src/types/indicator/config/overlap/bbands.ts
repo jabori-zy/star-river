@@ -18,16 +18,16 @@ import {
 } from "@/types/indicator/schemas";
 
 const BBANDSConfigSchema = z.object({
-	timePeriod: z.number().int().positive(), // 时间周期
-	devUp: z.number().positive(), // 上轨标准差 浮点数
-	devDown: z.number().positive(), // 下轨标准差 浮点数
-	maType: MATypeSchema, // 移动平均线类型
-	priceSource: PriceSourceSchema, // 价格源
+	timePeriod: z.number().int().positive(), // Time period
+	devUp: z.number().positive(), // Upper band standard deviation (float)
+	devDown: z.number().positive(), // Lower band standard deviation (float)
+	maType: MATypeSchema, // Moving average type
+	priceSource: PriceSourceSchema, // Price source
 });
 
 export type BBANDSConfigType = z.infer<typeof BBANDSConfigSchema>;
 
-// MACD指标的参数映射函数
+// Parameter mapping function for BBANDS indicator
 function buildBBANDSConfig(params: Map<string, string>): unknown {
 	return {
 		timePeriod: parseInt(params.get("time_period") || "12"),
@@ -42,39 +42,39 @@ export const BBANDSConfig: IndicatorConfig<BBANDSConfigType> = {
 	category: IndicatorCategory.OVERLAP,
 	type: IndicatorType.BBANDS,
 	displayName: "BBands",
-	description: "布林带指标",
+	description: "Bollinger Bands indicator",
 	params: {
 		timePeriod: {
 			label: "indicator.configField.timePeriod",
-			description: "选择时间周期",
+			description: "Select time period",
 			defaultValue: 20,
 			required: true,
 			legendShowName: "period",
 		},
 		devUp: {
 			label: "indicator.configField.devUp",
-			description: "选择上轨标准差",
+			description: "Select upper band standard deviation",
 			defaultValue: 2.0,
 			required: true,
 			legendShowName: "dev up",
 		},
 		devDown: {
 			label: "indicator.configField.devDown",
-			description: "选择下轨标准差",
+			description: "Select lower band standard deviation",
 			defaultValue: 2.0,
 			required: true,
 			legendShowName: "dev down",
 		},
 		maType: {
 			label: "indicator.configField.maType",
-			description: "选择移动平均线类型",
+			description: "Select moving average type",
 			defaultValue: MAType.SMA,
 			required: true,
 			legendShowName: "ma type",
 		},
 		priceSource: {
 			label: "indicator.configField.dataSource",
-			description: "选择指标计算价格源",
+			description: "Select price source for indicator calculation",
 			defaultValue: PriceSource.CLOSE,
 			required: true,
 			legendShowName: "source",
@@ -87,7 +87,7 @@ export const BBANDSConfig: IndicatorConfig<BBANDSConfigType> = {
 		lower: { label: "lower", value: 0, legendShowName: "lower" },
 	},
 	chartConfig: {
-		isInMainChart: true, // BBands显示在主图
+		isInMainChart: true, // BBands displays in main chart
 		seriesConfigs: [
 			{
 				name: "upper",
@@ -121,7 +121,7 @@ export const BBANDSConfig: IndicatorConfig<BBANDSConfigType> = {
 			]),
 		);
 
-		// 使用 Zod 验证配置
+		// Validate configuration using Zod
 		const validatedConfig = BBANDSConfigSchema.parse(config);
 		return validatedConfig;
 	},
@@ -130,7 +130,7 @@ export const BBANDSConfig: IndicatorConfig<BBANDSConfigType> = {
 		return getIndicatorValues(this.indicatorValueConfig);
 	},
 
-	// 使用通用解析函数
+	// Use generic parsing function
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
 		IndicatorType.BBANDS,
 		BBANDSConfigSchema,

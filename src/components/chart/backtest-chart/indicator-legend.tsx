@@ -9,8 +9,8 @@ import { IndicatorLegendEditDialog } from "./indicator-legend-edit-dialog";
 
 interface IndicatorLegendProps {
 	indicatorLegendData: IndicatorLegendData | null;
-	indicatorKeyStr: IndicatorKeyStr; // 指标键字符串，用于控制可见性
-	chartId: number; // 图表ID，用于获取对应的store
+	indicatorKeyStr: IndicatorKeyStr; // Indicator key string for controlling visibility
+	chartId: number; // Chart ID for getting corresponding store
 	className?: string;
 	style?: React.CSSProperties;
 }
@@ -20,29 +20,29 @@ const IndicatorLegend = forwardRef<HTMLDivElement, IndicatorLegendProps>(
 		{ indicatorLegendData, indicatorKeyStr, chartId, className = "", style },
 		ref,
 	) => {
-		// 使用当前图表的可见性状态管理
+		// Use current chart's visibility state management
 		// const { getIndicatorVisibility, toggleIndicatorVisibility } = useBacktestChartStore(chartId);
-		// 使用全局图表配置store， 切换时直接修改配置
+		// Use global chart config store, modify config directly when toggling
 		const {
 			toggleIndicatorVisibility,
 			getIndicatorVisibility,
-			removeIndicator, // 软删除指标
+			removeIndicator, // Soft delete indicator
 		} = useBacktestChartConfigStore();
 
-		// 编辑对话框状态
+		// Edit dialog state
 		const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
-		// 获取当前指标的可见性状态
+		// Get current indicator visibility state
 		const isVisible = getIndicatorVisibility(chartId, indicatorKeyStr);
 
-		// 追踪每个指标值的最大字符长度 (用于自适应宽度)
+		// Track maximum character length for each indicator value (for adaptive width)
 		const [maxWidths, setMaxWidths] = useState<Record<string, number>>({});
 
 		// Track the previous indicatorKeyStr to detect changes
 		const prevIndicatorKeyStrRef = useRef<IndicatorKeyStr>(indicatorKeyStr);
 
-		// 计算当前数据的字符长度并更新最大值
-		// 当 indicatorKeyStr 变化时，重置最大长度
+		// Calculate current data character length and update maximum value
+		// Reset max length when indicatorKeyStr changes
 		useEffect(() => {
 			// Check if the indicator key has changed
 			if (prevIndicatorKeyStrRef.current !== indicatorKeyStr) {
@@ -76,10 +76,10 @@ const IndicatorLegend = forwardRef<HTMLDivElement, IndicatorLegendProps>(
 			});
 		}, [indicatorKeyStr, indicatorLegendData]);
 
-		// 获取指定 key 的最大宽度（使用 ch 单位）
+		// Get maximum width for specified key (using ch units)
 		const getMaxWidth = (key: string): string => {
 			const maxLength = maxWidths[key];
-			// 至少保持 6ch 的最小宽度，加上 0.5ch 的缓冲
+			// Keep minimum width of 6ch, plus 0.5ch buffer
 			return `${Math.max(maxLength || 6, 6) + 0.5}ch`;
 		};
 
@@ -89,13 +89,13 @@ const IndicatorLegend = forwardRef<HTMLDivElement, IndicatorLegendProps>(
 			toggleIndicatorVisibility(chartId, indicatorKeyStr);
 		};
 
-		// 处理删除指标
+		// Handle indicator deletion
 		const handleDeleteIndicator = (e: React.MouseEvent) => {
 			e.stopPropagation();
 			removeIndicator(chartId, indicatorKeyStr);
 		};
 
-		// 处理编辑 - 暂时只是占位，不实现功能
+		// Handle edit - placeholder for now, no functionality implemented
 		const handleEdit = (e: React.MouseEvent) => {
 			e.stopPropagation();
 			setIsEditDialogOpen(true);
@@ -108,12 +108,12 @@ const IndicatorLegend = forwardRef<HTMLDivElement, IndicatorLegendProps>(
 				style={style}
 			>
 				<div className="flex flex-wrap gap-2 text-xs items-center">
-					{/* 指标名称 */}
+					{/* Indicator name */}
 					<span className="font-medium text-gray-700">
 						{indicatorLegendData?.indicatorName}
 					</span>
 
-					{/* 指标值 */}
+					{/* Indicator values */}
 					{(() => {
 						const valueEntries = Object.entries(
 							indicatorLegendData?.values || {},
@@ -122,7 +122,7 @@ const IndicatorLegend = forwardRef<HTMLDivElement, IndicatorLegendProps>(
 
 						return valueEntries.map(([key, valueInfo]) => (
 							<span key={key} className="inline-flex items-center">
-								{/* 单个值时不显示field字段，多个值时显示field字段 */}
+								{/* Single value: don't show field name, multiple values: show field name */}
 								{isSingleValue ? (
 									<span
 										className="font-mono text-center inline-block"
@@ -151,7 +151,7 @@ const IndicatorLegend = forwardRef<HTMLDivElement, IndicatorLegendProps>(
 						));
 					})()}
 
-					{/* 操作图标 - 仅鼠标悬浮可见 */}
+					{/* Action icons - only visible on hover */}
 					<div className="flex gap-1 ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
 						<Button
 							variant="outline"
@@ -161,7 +161,7 @@ const IndicatorLegend = forwardRef<HTMLDivElement, IndicatorLegendProps>(
 									? "hover:bg-blue-50 hover:border-blue-400"
 									: "hover:bg-gray-50 hover:border-gray-400 bg-gray-100"
 							}`}
-							title={isVisible ? "隐藏指标" : "显示指标"}
+							title={isVisible ? "Hide Indicator" : "Show Indicator"}
 							onClick={handleVisibilityToggle}
 						>
 							{isVisible ? (
@@ -174,7 +174,7 @@ const IndicatorLegend = forwardRef<HTMLDivElement, IndicatorLegendProps>(
 							variant="outline"
 							size="sm"
 							className="h-6 w-6 p-0 border-gray-300 bg-white hover:bg-yellow-50 hover:border-yellow-400"
-							title="编辑"
+							title="Edit"
 							onClick={handleEdit}
 						>
 							<Bolt size={12} className="text-yellow-600" />
@@ -183,7 +183,7 @@ const IndicatorLegend = forwardRef<HTMLDivElement, IndicatorLegendProps>(
 							variant="outline"
 							size="sm"
 							className="h-6 w-6 p-0 border-gray-300 bg-white hover:bg-red-50 hover:border-red-400"
-							title="删除"
+							title="Delete"
 							onClick={handleDeleteIndicator}
 						>
 							<Trash2 size={12} className="text-red-600" />
@@ -191,7 +191,7 @@ const IndicatorLegend = forwardRef<HTMLDivElement, IndicatorLegendProps>(
 					</div>
 				</div>
 
-				{/* 编辑对话框 */}
+				{/* Edit dialog */}
 				<IndicatorLegendEditDialog
 					open={isEditDialogOpen}
 					onOpenChange={setIsEditDialogOpen}

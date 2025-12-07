@@ -9,21 +9,21 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import type { IndicatorKey } from "@/types/symbol-key";
 
-// MA 指标配置的 Zod schema
+// Zod schema for ACC BANDS indicator configuration
 const AccBandsConfigSchema = z.object({
 	timePeriod: z.number().int().positive(),
 });
 
 export type AccBandsConfigType = z.infer<typeof AccBandsConfigSchema>;
 
-// MA指标的参数映射函数
+// Parameter mapping function for ACC BANDS indicator
 function buildAccBandsConfig(params: Map<string, string>): unknown {
 	return {
 		timePeriod: parseInt(params.get("time_period") || "0"),
 	};
 }
 
-// Acceleration Bands指标配置实现
+// Acceleration Bands indicator configuration implementation
 export const AccBandsConfig: IndicatorConfig<AccBandsConfigType> = {
 	category: IndicatorCategory.MOMENTUM,
 	type: IndicatorType.ACCBANDS,
@@ -31,8 +31,8 @@ export const AccBandsConfig: IndicatorConfig<AccBandsConfigType> = {
 	description: "Acceleration Bands",
 	params: {
 		timePeriod: {
-			label: "周期",
-			description: "选择Acceleration Bands的时间周期",
+			label: "Period",
+			description: "Select time period for Acceleration Bands",
 			defaultValue: 14,
 			required: true,
 			legendShowName: "period",
@@ -79,7 +79,7 @@ export const AccBandsConfig: IndicatorConfig<AccBandsConfigType> = {
 			]),
 		);
 
-		// 使用 Zod 验证配置
+		// Validate configuration using Zod
 		const validatedConfig = AccBandsConfigSchema.parse(config);
 		return validatedConfig;
 	},
@@ -88,7 +88,7 @@ export const AccBandsConfig: IndicatorConfig<AccBandsConfigType> = {
 		return getIndicatorValues(this.indicatorValueConfig);
 	},
 
-	// 使用通用解析函数
+	// Use generic parsing function
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
 		IndicatorType.ACCBANDS,
 		AccBandsConfigSchema,
@@ -108,10 +108,10 @@ export const AccBandsConfig: IndicatorConfig<AccBandsConfigType> = {
 	// 	seriesName: string,
 	// 	indicatorKey: IndicatorKey,
 	// ): string | undefined {
-	// 	// 如果指标类型为ACC_BANDS，则返回ACC_BANDS-seriesName-timePeriod
+	// 	// If indicator type is ACC_BANDS, return ACC_BANDS-seriesName-timePeriod
 	// 	if (indicatorKey.indicatorType === IndicatorType.ACCBANDS) {
 	// 		const accBandsConfig = indicatorKey.indicatorConfig as AccBandsConfigType;
-	// 		// 找到名称相同的seriesConfig
+	// 		// Find the seriesConfig with the same name
 	// 		const seriseConfig = this.chartConfig.seriesConfigs.find(
 	// 			(config) => config.name === seriesName,
 	// 		);

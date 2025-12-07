@@ -15,7 +15,7 @@ export async function getVirtualOrder(
 	try {
 		const response = await axios.get(`${getApiUrl()}/${strateygId}/virtual-orders`);
 		if (response.status !== 200) {
-			throw new Error(`获取虚拟订单失败: ${response.status}`);
+			throw new Error(`Failed to fetch virtual orders: ${response.status}`);
 		}
 
 		return response.data.data as VirtualOrder[];
@@ -33,7 +33,7 @@ export async function getVirtualPosition(
 			`${getApiUrl()}/${strateygId}/current-positions`,
 		);
 		if (response.status !== 200) {
-			throw new Error(`获取虚拟持仓失败: ${response.status}`);
+			throw new Error(`Failed to fetch virtual positions: ${response.status}`);
 		}
 		return response.data.data as VirtualPosition[];
 	} catch (error) {
@@ -50,7 +50,7 @@ export async function getHisotryVirtualPosition(
 			`${getApiUrl()}/${strateygId}/history-positions`,
 		);
 		if (response.status !== 200) {
-			throw new Error(`获取虚拟持仓历史失败: ${response.status}`);
+			throw new Error(`Failed to fetch virtual position history: ${response.status}`);
 		}
 		return response.data.data as VirtualPosition[];
 	} catch (error) {
@@ -67,7 +67,7 @@ export async function getVirtualTransaction(
 			`${getApiUrl()}/${strateygId}/virtual-transactions`,
 		);
 		if (response.status !== 200) {
-			throw new Error(`获取虚拟交易明细失败: ${response.status}`);
+			throw new Error(`Failed to fetch virtual transaction details: ${response.status}`);
 		}
 		return response.data.data as VirtualTransaction[];
 	} catch (error) {

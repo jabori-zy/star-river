@@ -20,12 +20,12 @@ export default function StrategyPage() {
 	const location = useLocation();
 	const queryClient = useQueryClient();
 	const { t } = useTranslation();
-	// 从路由状态获取策略 ID
+	// Get strategy ID from route state
 	const strategyId = location.state?.strategyId;
 
-	// ✅ 使用本地 state 管理策略数据
+	// ✅ Use local state to manage strategy data
 	const [strategy, setStrategy] = useState<Strategy | null>(null);
-	// 初始状态为 saved，当策略加载完成后保持 saved，只有用户编辑时才变为 unsaved
+	// Initial state is saved, remain saved after strategy loading completes, only change to unsaved when user edits
 	const [saveStatus, setSaveStatus] = useState<"saved" | "unsaved" | "saving">(
 		"saved",
 	);
@@ -38,7 +38,7 @@ export default function StrategyPage() {
 		BacktestStrategyRunState.Stopped,
 	);
 
-	// ✅ 使用 React Query Hook 获取策略（重命名为 queryStrategy 避免冲突）
+	// ✅ Use React Query Hook to get strategy (renamed to queryStrategy to avoid conflict)
 	const {
 		data: queryStrategy,
 		isLoading,
@@ -47,14 +47,14 @@ export default function StrategyPage() {
 		enabled: !!strategyId && strategyId >= 0,
 	});
 
-	// ✅ 使用 React Query Hook 获取策略运行状态
-	// 默认配置: staleTime=0, refetchOnMount=true, refetchOnWindowFocus=true
-	// 确保页面刷新和窗口聚焦时始终获取最新状态
+	// ✅ Use React Query Hook to get strategy run state
+	// Default config: staleTime=0, refetchOnMount=true, refetchOnWindowFocus=true
+	// Ensure always getting latest state when page refreshes or window focuses
 	const { data: apiRunState } = useGetStrategyRunState(strategyId, {
 		enabled: !!strategyId && strategyId > 0,
 	});
 
-	// ✅ 使用 useUpdateStrategy hook
+	// ✅ Use useUpdateStrategy hook
 	const { mutate: updateStrategy, isPending } = useUpdateStrategy({
 		meta: {
 			successMessage: t("apiMessage.strategySavedSuccess"),
@@ -67,29 +67,29 @@ export default function StrategyPage() {
 			setSaveStatus("saved");
 		},
 		onError: () => {
-			// 保存失败时，保持 unsaved 状态
+			// When save fails, maintain unsaved state
 			setSaveStatus("unsaved");
 		},
 	});
 
-	// 监听 isPending 状态来更新 saveStatus
+	// Monitor isPending state to update saveStatus
 	useEffect(() => {
 		if (isPending) {
 			setSaveStatus("saving");
 		}
 	}, [isPending]);
 
-	// ✅ 当 React Query 数据更新时，同步到本地 state
+	// ✅ When React Query data updates, sync to local state
 	useEffect(() => {
 		if (queryStrategy) {
 			setStrategy(queryStrategy);
 			setTradingMode(queryStrategy.tradeMode);
-			// 首次加载策略时，设置为 saved 状态
+			// When loading strategy for the first time, set to saved state
 			setSaveStatus("saved");
 		}
 	}, [queryStrategy, setTradingMode]);
 
-	// ✅ 从 API 获取的运行状态同步到本地 state（初始化用）
+	// ✅ Sync run state from API to local state (for initialization)
 	useEffect(() => {
 		if (apiRunState) {
 			setStrategyRunState(apiRunState);
@@ -132,7 +132,7 @@ export default function StrategyPage() {
 		(state: StrategyRunState) => {
 			setStrategyRunState(state);
 
-			// 只在终态时刷新缓存
+			// Only refresh cache in terminal states
 			if (
 				[
 					BacktestStrategyRunState.Ready,
@@ -152,16 +152,16 @@ export default function StrategyPage() {
 		async (strategyId: number, strategyName: string) => {
 			try {
 				await openBacktestWindow(strategyId, strategyName);
-				// 成功后关闭对话框
+				// Close dialog after success
 				setShowLoadingDialog(false);
 			} catch (error) {
-				// 错误已在工具函数中处理
+				// Error has been handled in utility function
 			}
 		},
 		[],
 	);
 
-	// 处理加载状态
+	// Handle loading state
 	if (isLoading) {
 		return (
 			<div className="h-screen flex flex-col items-center justify-center bg-background">
@@ -171,7 +171,7 @@ export default function StrategyPage() {
 		);
 	}
 
-	// 处理错误状态
+	// Handle error state
 	if (error) {
 		return (
 			<div className="h-screen flex flex-col items-center justify-center bg-background">
@@ -183,7 +183,7 @@ export default function StrategyPage() {
 		);
 	}
 
-	// 处理策略不存在的情况
+	// Handle case when strategy doesn't exist
 	if (!strategy) {
 		return (
 			<div className="h-screen flex flex-col items-center justify-center bg-background">

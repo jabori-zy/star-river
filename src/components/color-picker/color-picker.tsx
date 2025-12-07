@@ -72,12 +72,12 @@ export function ColorPicker({
 
 			<PopoverContent className="w-64 p-2" align="start">
 				<div className="space-y-3">
-					{/* 颜色选择器 */}
+					{/* Color picker */}
 					<div className="h-40 flex justify-center color-picker-container">
 						<HexColorPicker color={currentColor} onChange={handleColorChange} />
 					</div>
 
-					{/* 颜色值输入 */}
+					{/* Color value input */}
 					<ColorInput
 						value={currentColor}
 						onChange={handleColorChange}
@@ -86,7 +86,7 @@ export function ColorPicker({
 						onModeChange={setColorMode}
 					/>
 
-					{/* 透明度滑块 */}
+					{/* Alpha slider */}
 					{showAlpha && (
 						<>
 							<Separator />
@@ -98,7 +98,7 @@ export function ColorPicker({
 						</>
 					)}
 
-					{/* 预设颜色 */}
+					{/* Preset colors */}
 					{showPresets && presetColors.length > 0 && (
 						<>
 							<PresetColors
@@ -109,7 +109,7 @@ export function ColorPicker({
 						</>
 					)}
 
-					{/* 操作按钮
+					{/* Action buttons
           <Separator />
           <div className="flex gap-2">
             <Button
@@ -118,14 +118,14 @@ export function ColorPicker({
               onClick={() => setIsOpen(false)}
               className="flex-1"
             >
-              取消
+              Cancel
             </Button>
             <Button
               size="sm"
               onClick={handleComplete}
               className="flex-1"
             >
-              确定
+              Confirm
             </Button>
           </div> */}
 				</div>

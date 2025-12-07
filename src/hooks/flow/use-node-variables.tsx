@@ -13,28 +13,28 @@ import type {
 } from "@/types/node/variable-node";
 import { TradeMode } from "@/types/strategy";
 
-// 定义变量项类型，用于存储节点变量信息
+// Define variable item type for storing node variable information
 export interface VariableItem {
 	nodeId: string;
 	nodeName: string;
 	nodeType: NodeType;
-	variables: (SelectedIndicator | SelectedSymbol | VariableConfig)[]; // 可以包含指标节点、K线节点和变量节点的数据
+	variables: (SelectedIndicator | SelectedSymbol | VariableConfig)[]; // Can contain data from indicator nodes, kline nodes, and variable nodes
 }
 
 /**
- * 节点变量管理相关的hook
+ * Hook for node variable management
  */
 const useNodeVariables = () => {
-	// 获取 ReactFlow 的节点信息
+	// Get ReactFlow node information
 	const { getNode } = useReactFlow();
 
 	/**
-	 * 向变量列表中添加或更新变量选项
-	 * @param variableList 当前变量列表
-	 * @param nodeId 节点ID
-	 * @param nodeName 节点名称
-	 * @param nodeType 节点类型
-	 * @param variable 要添加的变量
+	 * Add or update variable options in the variable list
+	 * @param variableList Current variable list
+	 * @param nodeId Node ID
+	 * @param nodeName Node name
+	 * @param nodeType Node type
+	 * @param variable Variable to add
 	 */
 	const addOrUpdateVariableItem = useCallback(
 		(
@@ -44,11 +44,11 @@ const useNodeVariables = () => {
 			nodeType: NodeType,
 			variable: SelectedIndicator | SelectedSymbol | VariableConfig,
 		) => {
-			// 查找是否已存在相同节点ID的变量项
+			// Find if a variable item with the same node ID already exists
 			const existingItem = variableList.find((item) => item.nodeId === nodeId);
 
 			if (existingItem) {
-				// 检查是否已存在相同outputHandleId的变量，避免重复添加
+				// Check if a variable with the same outputHandleId already exists to avoid duplicates
 				const existingVariable = existingItem.variables.find(
 					(v) => v.outputHandleId === variable.outputHandleId,
 				);
@@ -56,7 +56,7 @@ const useNodeVariables = () => {
 					existingItem.variables.push(variable);
 				}
 			} else {
-				// 创建新的变量项
+				// Create a new variable item
 				variableList.push({
 					nodeId,
 					nodeName,
@@ -69,25 +69,25 @@ const useNodeVariables = () => {
 	);
 
 	/**
-	 * 获取连接节点的变量信息(ifelse节点专用)
-	 * 遍历所有连接，收集源节点的变量信息，用于后续节点使用
-	 * @param connections 连接列表
-	 * @param tradeMode 交易模式（实盘/回测）
-	 * @returns 变量项列表
+	 * Get variable information from connected nodes (specific to ifelse nodes)
+	 * Traverse all connections, collect variable information from source nodes for use by subsequent nodes
+	 * @param connections Connection list
+	 * @param tradeMode Trading mode (live/backtest)
+	 * @returns Variable item list
 	 */
 	const getConnectedNodeVariables = useCallback(
 		(connections: Connection[], tradeMode: TradeMode) => {
 			const tempVariableItemList: VariableItem[] = [];
 
-			// 遍历所有连接，收集变量信息
+			// Iterate through all connections to collect variable information
 			for (const connection of connections) {
 				const sourceNodeId = connection.source;
 				const sourceHandleId = connection.sourceHandle;
 
-				// 如果sourceHandleId为空，跳过此连接
+				// Skip this connection if sourceHandleId is empty
 				if (!sourceHandleId) continue;
 
-				// 判断上游节点是否有default output handle,如果是，则需要添加所有变量
+				// Check if upstream node has default output handle, if so, add all variables
 				const isDefaultOutput = isDefaultOutputHandleId(sourceHandleId);
 				const node = getNode(sourceNodeId);
 
@@ -95,9 +95,9 @@ const useNodeVariables = () => {
 
 				const nodeType = node.type as NodeType;
 
-				// 根据节点类型分别处理变量收集
+				// Handle variable collection based on node type
 				if (nodeType === NodeType.IndicatorNode) {
-					// 处理指标节点
+					// Handle indicator node
 					const indicatorNodeData = node.data as IndicatorNodeData;
 					const selectedIndicators =
 						tradeMode === TradeMode.LIVE
@@ -106,7 +106,7 @@ const useNodeVariables = () => {
 									?.selectedIndicators;
 
 					if (isDefaultOutput) {
-						// 默认输出：添加所有指标变量
+						// Default output: add all indicator variables
 						selectedIndicators?.forEach((indicator: SelectedIndicator) => {
 							addOrUpdateVariableItem(
 								tempVariableItemList,
@@ -117,7 +117,7 @@ const useNodeVariables = () => {
 							);
 						});
 					} else {
-						// 特定输出：只添加匹配的指标变量
+						// Specific output: only add matching indicator variable
 						const selectedIndicator = selectedIndicators?.find(
 							(indicator: SelectedIndicator) =>
 								indicator.outputHandleId === sourceHandleId,
@@ -133,9 +133,9 @@ const useNodeVariables = () => {
 						}
 					}
 				}
-				// 收集K线节点变量
+				// Collect kline node variables
 				else if (nodeType === NodeType.KlineNode) {
-					// 处理K线节点
+					// Handle kline node
 					const klineNodeData = node.data as KlineNodeData;
 					const selectedSymbols =
 						tradeMode === TradeMode.LIVE
@@ -144,7 +144,7 @@ const useNodeVariables = () => {
 									?.selectedSymbols;
 
 					if (isDefaultOutput) {
-						// 默认输出：添加所有K线变量
+						// Default output: add all kline variables
 						selectedSymbols?.forEach((symbol: SelectedSymbol) => {
 							addOrUpdateVariableItem(
 								tempVariableItemList,
@@ -155,7 +155,7 @@ const useNodeVariables = () => {
 							);
 						});
 					} else {
-						// 特定输出：只添加匹配的K线变量
+						// Specific output: only add matching kline variable
 						const selectedSymbol = selectedSymbols?.find(
 							(symbol: SelectedSymbol) =>
 								symbol.outputHandleId === sourceHandleId,
@@ -171,7 +171,7 @@ const useNodeVariables = () => {
 						}
 					}
 				} else if (nodeType === NodeType.VariableNode) {
-					// 处理变量节点
+					// Handle variable node
 					const variableNodeData = node.data as VariableNodeData;
 					const variableConfigs =
 						tradeMode === TradeMode.LIVE
@@ -179,7 +179,7 @@ const useNodeVariables = () => {
 							: variableNodeData?.backtestConfig?.variableConfigs;
 
 					if (isDefaultOutput) {
-						// 默认输出：添加所有变量配置
+						// Default output: add all variable configs
 						variableConfigs?.forEach((variableConfig: VariableConfig) => {
 							addOrUpdateVariableItem(
 								tempVariableItemList,
@@ -190,7 +190,7 @@ const useNodeVariables = () => {
 							);
 						});
 					} else {
-						// 特定输出：只添加匹配的变量配置
+						// Specific output: only add matching variable config
 						const variableConfig = variableConfigs?.find(
 							(config: VariableConfig) =>
 								config.outputHandleId === sourceHandleId,
@@ -214,15 +214,15 @@ const useNodeVariables = () => {
 	);
 
 	/**
-	 * 获取上游 if-else 节点的 case 信息
-	 * 用于收集连接到当前节点的 if-else 节点的 case 配置
-	 * @param connections 连接列表
-	 * @param tradeMode 交易模式（实盘/回测）
-	 * @returns case 信息列表，包含节点信息和对应的 case 配置
+	 * Get case information from upstream if-else nodes
+	 * Used to collect case configurations from if-else nodes connected to the current node
+	 * @param connections Connection list
+	 * @param tradeMode Trading mode (live/backtest)
+	 * @returns List of case information, including node info and corresponding case configurations
 	 */
 	const getIfElseNodeCases = useCallback(
 		(connections: Connection[], tradeMode: TradeMode) => {
-			// 导入 IfElseNodeData 和 CaseItem 类型
+			// Import IfElseNodeData and CaseItem types
 			const tempCaseList: Array<{
 				nodeId: string;
 				nodeName: string;
@@ -230,12 +230,12 @@ const useNodeVariables = () => {
 				caseItem: CaseItem | string;
 			}> = [];
 
-			// 遍历所有连接，收集 if-else 节点的 case 信息
+			// Iterate through all connections to collect if-else node case information
 			for (const connection of connections) {
 				const sourceNodeId = connection.source;
 				const sourceHandleId = connection.sourceHandle;
 
-				// 如果 sourceHandleId 为空，跳过此连接
+				// Skip this connection if sourceHandleId is empty
 				if (!sourceHandleId) continue;
 
 				const node = getNode(sourceNodeId);
@@ -243,10 +243,10 @@ const useNodeVariables = () => {
 
 				const nodeType = node.type as NodeType;
 
-				// 只处理 if-else 节点
+				// Only handle if-else nodes
 				if (nodeType === NodeType.IfElseNode) {
-					// 动态导入类型以避免循环依赖
-					const ifElseNodeData = node.data as IfElseNodeData; // 使用 any 避免直接导入 IfElseNodeData
+					// Dynamically import types to avoid circular dependencies
+					const ifElseNodeData = node.data as IfElseNodeData; // Use any to avoid direct import of IfElseNodeData
 
 					// if_else_node_1762999781229_v36t5s0_else_output split by "_"
 					const sourceHandleIdParts = sourceHandleId.split("_");
@@ -260,13 +260,13 @@ const useNodeVariables = () => {
 						continue;
 					}
 
-					// 根据交易模式获取对应的配置
+					// Get the corresponding config based on trade mode
 					const cases =
 						tradeMode === TradeMode.LIVE
 							? ifElseNodeData?.liveConfig?.cases
 							: ifElseNodeData?.backtestConfig?.cases;
 
-					// 查找匹配的 case（通过 outputHandleId）
+					// Find matching case (by outputHandleId)
 					const matchedCase = cases?.find(
 						(caseItem: CaseItem) => caseItem.outputHandleId === sourceHandleId,
 					);

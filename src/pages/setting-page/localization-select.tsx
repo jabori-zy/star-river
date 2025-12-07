@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/select";
 import { SupportLanguage, type SystemConfig } from "@/types/system";
 
-// 语言选择下拉框
+// Language selection dropdown
 export function LocalizationSelect({
 	localSystemConfig,
 	setLocalSystemConfig,
@@ -21,7 +21,7 @@ export function LocalizationSelect({
 	const { t } = useTranslation();
 
 	const handleLocalizationChange = (value: SupportLanguage) => {
-		// 如果选择的value等于当前配置，则不进行更新
+		// If selected value equals current config, don't update
 		if (value === localSystemConfig.localization) {
 			return;
 		}

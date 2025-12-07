@@ -9,14 +9,14 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLPIERCINGConfigSchema = z.object({
-	// CDLPIERCING 没有参数
+	// CDLPIERCING has no parameters
 });
 
 export type CDLPIERCINGConfigType = z.infer<typeof CDLPIERCINGConfigSchema>;
 
 function buildCDLPIERCINGConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLPIERCING 不需要任何参数
+		// CDLPIERCING doesn't need any parameters
 	};
 }
 
@@ -26,7 +26,7 @@ export const CDLPIERCINGConfig: IndicatorConfig<CDLPIERCINGConfigType> = {
 	displayName: "CDLPIERCING",
 	description: "Piercing Pattern",
 	params: {
-		// CDLPIERCING 没有参数
+		// CDLPIERCING has no parameters
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

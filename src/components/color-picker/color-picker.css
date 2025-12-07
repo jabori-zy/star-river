@@ -1,4 +1,4 @@
-/* 颜色选择器样式 */
+/* Color picker styles */
 .color-picker-container .react-colorful {
 	width: 100% !important;
 	max-width: 280px !important;
@@ -29,7 +29,7 @@
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* 隐藏数字输入框的加减按钮 */
+/* Hide number input spin buttons */
 .rgb-input input[type="number"]::-webkit-outer-spin-button,
 .rgb-input input[type="number"]::-webkit-inner-spin-button {
 	-webkit-appearance: none;

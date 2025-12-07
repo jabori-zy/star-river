@@ -26,7 +26,7 @@ interface BacktestStrategySettingProps {
 	updatePlaySpeed?: (playSpeed: number) => void;
 }
 
-// 回测策略设置
+// Backtest strategy settings
 const BacktestStrategySetting: React.FC<BacktestStrategySettingProps> = ({
 	initialBalance,
 	setInitialBalance,
@@ -58,7 +58,7 @@ const BacktestStrategySetting: React.FC<BacktestStrategySettingProps> = ({
 				className="h-8 text-sm"
 			/>
 
-			{/* 杠杆倍数 */}
+			{/* Leverage */}
 			<div className="space-y-2">
 				<div className="flex items-center gap-2">
 					<TrendingUp className="h-4 w-4 text-muted-foreground" />
@@ -75,7 +75,7 @@ const BacktestStrategySetting: React.FC<BacktestStrategySettingProps> = ({
 				/>
 			</div>
 
-			{/* 手续费率 */}
+			{/* Fee rate */}
 			<div className="space-y-2">
 				<div className="flex items-center gap-2">
 					<PercentSquare className="h-4 w-4 text-muted-foreground" />
@@ -93,7 +93,7 @@ const BacktestStrategySetting: React.FC<BacktestStrategySettingProps> = ({
 				/>
 			</div>
 
-			{/* 播放速度 */}
+			{/* Playback speed */}
 			<div className="space-y-2">
 				<div className="flex items-center gap-2">
 					<Play className="h-4 w-4 text-muted-foreground" />

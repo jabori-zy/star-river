@@ -17,38 +17,38 @@ import { getChartAlignedUtcTimestamp } from "../backtest-chart/utls";
 
 interface BacktestStatsChartStore {
 	strategyId: number;
-	statsData: Partial<Record<StrategyStatsName, SingleValueData[]>>; // 统计数据，key为统计名称
-	subscriptions: Subscription[]; // 订阅集合
+	statsData: Partial<Record<StrategyStatsName, SingleValueData[]>>; // Statistics data, key is statistics name
+	subscriptions: Subscription[]; // Subscription collection
 
-	// 数据初始化状态标志
+	// Data initialization status flag
 	isDataInitialized: boolean;
 
-	// 各种ref引用存储
+	// Various ref reference storage
 	chartRef: IChartApi | null;
-	statsPaneRefs: Partial<Record<StrategyStatsName, IPaneApi<Time> | null>>; // 每个统计图表的pane引用
+	statsPaneRefs: Partial<Record<StrategyStatsName, IPaneApi<Time> | null>>; // Pane reference for each statistics chart
 	statsSeriesRefs: Partial<
 		Record<StrategyStatsName, ISeriesApi<"Line"> | null>
-	>; // 每个统计数据的series引用
+	>; // Series reference for each statistics data
 	statsPaneHtmlElementRefs: Partial<
 		Record<StrategyStatsName, HTMLElement | null>
-	>; // 每个统计图表的pane HTML元素引用
+	>; // Pane HTML element reference for each statistics chart
 
-	// === Pane 版本号，用于强制重新渲染 legend ===
+	// === Pane version number, used to force legend re-rendering ===
 	paneVersion: number;
 
-	//数据初始化方法
+	// Data initialization method
 	initChartData: (datetime: string, cycleId: number, strategyId: number) => Promise<void>;
 
-	// === 数据管理方法 ===
+	// === Data management methods ===
 	setStatsData: (statsName: StrategyStatsName, data: SingleValueData[]) => void;
 	getStatsData: (statsName: StrategyStatsName) => SingleValueData[];
 	deleteStatsData: (statsName: StrategyStatsName) => void;
 
-	// 数据初始化状态管理
+	// Data initialization status management
 	getIsDataInitialized: () => boolean;
 	setIsDataInitialized: (initialized: boolean) => void;
 
-	// === ref 管理方法 ===
+	// === ref management methods ===
 	setChartRef: (chart: IChartApi | null) => void;
 	getChartRef: () => IChartApi | null;
 
@@ -73,11 +73,11 @@ interface BacktestStatsChartStore {
 		statsName: StrategyStatsName,
 	) => HTMLElement | null;
 
-	// Pane 版本号管理
+	// Pane version number management
 	getPaneVersion: () => number;
 	incrementPaneVersion: () => void;
 
-	// Observer 相关方法
+	// Observer related methods
 	initObserverSubscriptions: () => void;
 	cleanupSubscriptions: () => void;
 	onNewStatsData: (statsData: StrategyStats) => void;
@@ -86,7 +86,7 @@ interface BacktestStatsChartStore {
 	clearAllData: () => void;
 }
 
-// 创建单个统计图表store的工厂函数
+// Factory function to create a single statistics chart store
 const createBacktestStatsChartStore = (
 	strategyId: number,
 	_chartConfig: BacktestStrategyStatsChartConfig,
@@ -97,24 +97,24 @@ const createBacktestStatsChartStore = (
 		statsData: {},
 		subscriptions: [],
 
-		// 数据初始化状态
+		// Data initialization status
 		isDataInitialized: false,
 
-		// === ref 引用初始化 ===
+		// === ref reference initialization ===
 		chartRef: null,
 		statsPaneRefs: {},
 		statsSeriesRefs: {},
 		statsPaneHtmlElementRefs: {},
 
-		// === Pane 版本号，用于强制重新渲染 legend ===
+		// === Pane version number, used to force legend re-rendering ===
 		paneVersion: 0,
 
-		// 数据初始化方法
+		// Data initialization method
 		initChartData: async (datetime: string, cycleId: number, strategyId: number) => {
 			if (cycleId === 0) {
 				return;
 			}
-			// 初始化前，清除所有数据
+			// Clear all data before initialization
 			const state = get();
 			const initialStatsData = await getStrategyStatsHistory(
 				strategyId,
@@ -167,10 +167,10 @@ const createBacktestStatsChartStore = (
 
 				state.setIsDataInitialized(true);
 			}
-			
+
 		},
 
-		// === 数据管理方法 ===
+		// === Data management methods ===
 		setStatsData: (statsName: StrategyStatsName, data: SingleValueData[]) => {
 			set((state) => ({
 				statsData: { ...state.statsData, [statsName]: data },
@@ -184,12 +184,12 @@ const createBacktestStatsChartStore = (
 				return { statsData: rest };
 			}),
 
-		// 数据初始化状态管理
+		// Data initialization status management
 		getIsDataInitialized: () => get().isDataInitialized,
 		setIsDataInitialized: (initialized: boolean) =>
 			set({ isDataInitialized: initialized }),
 
-		// === ref 管理方法实现 ===
+		// === ref management methods implementation ===
 		setChartRef: (chart: IChartApi | null) => set({ chartRef: chart }),
 		getChartRef: () => get().chartRef,
 
@@ -231,27 +231,27 @@ const createBacktestStatsChartStore = (
 		getStatsPaneHtmlElementRef: (statsName: StrategyStatsName) =>
 			get().statsPaneHtmlElementRefs[statsName] || null,
 
-		// Pane 版本号管理
+		// Pane version number management
 		getPaneVersion: () => get().paneVersion,
 		incrementPaneVersion: () =>
 			set((state) => ({ paneVersion: state.paneVersion + 1 })),
 
-		// Observer 相关方法
+		// Observer related methods
 		initObserverSubscriptions: () => {
 			const state = get();
 
-			// 清理现有订阅
+			// Clean up existing subscriptions
 			state.cleanupSubscriptions();
 
 			try {
-				// 订阅统计数据流
+				// Subscribe to statistics data stream
 				const statsStream = createStatsStream(true);
 				const statsSubscription = statsStream.subscribe({
 					next: (statsEvent: BacktestStrategyStatsUpdateEvent) => {
 						state.onNewStatsData(statsEvent.statsSnapshot);
 					},
 					error: (error) => {
-						console.error("统计数据流订阅错误:", error);
+						console.error("Statistics data stream subscription error:", error);
 					},
 				});
 
@@ -259,7 +259,7 @@ const createBacktestStatsChartStore = (
 					subscriptions: [statsSubscription],
 				});
 			} catch (error) {
-				console.error("初始化统计数据 Observer 订阅时出错:", error);
+				console.error("Error initializing Observer subscription for statistics data:", error);
 			}
 		},
 
@@ -270,7 +270,7 @@ const createBacktestStatsChartStore = (
 				try {
 					subscription.unsubscribe();
 				} catch (error) {
-					console.error(`清理订阅 ${index} 时出错:`, error);
+					console.error(`Error cleaning up subscription ${index}:`, error);
 				}
 			});
 
@@ -283,7 +283,7 @@ const createBacktestStatsChartStore = (
 				statsData.datetime,
 			) as UTCTimestamp;
 
-			// 处理每个统计数据
+			// Process each statistics data
 			Object.entries(statsData).forEach(([statsName, value]) => {
 				const existingData = state.getStatsData(statsName as StrategyStatsName);
 				const newDataPoint: SingleValueData = {
@@ -291,10 +291,10 @@ const createBacktestStatsChartStore = (
 					value: value as number,
 				};
 
-				// 获取最后一个数据点
+				// Get last data point
 				const lastData = existingData[existingData.length - 1];
 
-				// 更新series
+				// Update series
 				const seriesRef = state.getStatsSeriesRef(
 					statsName as StrategyStatsName,
 				);
@@ -302,7 +302,7 @@ const createBacktestStatsChartStore = (
 					seriesRef.update(newDataPoint);
 				}
 
-				// 如果最后一个数据点的时间戳与新数据点的时间戳相同，则替换最后一个数据点
+				// If last data point's timestamp matches new data point's timestamp, replace the last data point
 				if (lastData && lastData.time === timestamp) {
 					const newData = [...existingData.slice(0, -1), newDataPoint];
 					state.setStatsData(statsName as StrategyStatsName, newData);
@@ -313,36 +313,36 @@ const createBacktestStatsChartStore = (
 			});
 		},
 
-		// 清空数据
+		// Clear data
 		resetData: () => {
 			const state = get();
 
-			// 清空所有统计series数据
+			// Clear all statistics series data
 			Object.values(state.statsSeriesRefs).forEach((seriesRef) => {
 				if (seriesRef) {
 					seriesRef.setData([]);
 				}
 			});
 
-			// 清空store状态数据
+			// Clear store state data
 			set({
 				statsData: {},
 			});
 		},
 
-		// 清空所有状态数据，包括图表引用和订阅
+		// Clear all state data, including chart references and subscriptions
 		clearAllData: () => {
 			const state = get();
 
-			// 1. 清理订阅
+			// 1. Clean up subscriptions
 			state.cleanupSubscriptions();
 
-			// 2. 销毁图表实例
+			// 2. Destroy chart instance
 			if (state.chartRef) {
 				state.chartRef.remove();
 			}
 
-			// 3. 重置所有状态
+			// 3. Reset all states
 			set({
 				statsData: {},
 				subscriptions: [],
@@ -356,13 +356,13 @@ const createBacktestStatsChartStore = (
 		},
 	}));
 
-// 多实例store管理器
+// Multi-instance store manager
 const storeInstances = new Map<
 	number,
 	ReturnType<typeof createBacktestStatsChartStore>
 >();
 
-// 获取或创建指定strategyId的store实例
+// Get or create store instance for specified strategyId
 export const getBacktestStatsChartStore = (
 	strategyId: number,
 	chartConfig?: BacktestStrategyStatsChartConfig,
@@ -383,19 +383,19 @@ export const getBacktestStatsChartStore = (
 	return store;
 };
 
-// 清理指定strategyId的store实例
+// Clean up store instance for specified strategyId
 export const cleanupBacktestStatsChartStore = (strategyId: number) => {
 	const store = storeInstances.get(strategyId);
 	if (store) {
-		// 清理订阅
+		// Clean up subscriptions
 		const state = store.getState();
 		state.cleanupSubscriptions();
-		// 从管理器中移除
+		// Remove from manager
 		storeInstances.delete(strategyId);
 	}
 };
 
-// Hook：根据strategyId获取对应的store
+// Hook: Get corresponding store based on strategyId
 export const useBacktestStatsChartStore = (
 	strategyId: number,
 	chartConfig?: BacktestStrategyStatsChartConfig,
@@ -404,7 +404,7 @@ export const useBacktestStatsChartStore = (
 	return store();
 };
 
-// 获取指定strategyId的store实例（不是hook）
+// Get store instance for specified strategyId (not a hook)
 export const getBacktestStatsChartStoreInstance = (strategyId: number) => {
 	return getBacktestStatsChartStore(strategyId);
 };

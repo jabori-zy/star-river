@@ -28,7 +28,7 @@ export const MFIConfig: IndicatorConfig<MFIConfigType> = {
 	params: {
 		timePeriod: {
 			label: "indicator.configField.timePeriod",
-			description: "计算周期",
+			description: "Calculation period",
 			defaultValue: 14,
 			required: true,
 			legendShowName: "period",

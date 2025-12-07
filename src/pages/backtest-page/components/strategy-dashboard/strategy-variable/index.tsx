@@ -57,12 +57,12 @@ const StrategyVariable = forwardRef<StrategyVariableRef, StrategyVariableProps>(
 			(CustomVariableUpdateEvent | SystemVariableUpdateEvent)[]
 		>([]);
 
-		// 同步 state 到 ref
+		// Sync state to ref
 		useEffect(() => {
 			variableUpdateEventsRef.current = variableUpdateEvents;
 		}, [variableUpdateEvents]);
 
-		// 初始化变量数据
+		// Initialize variable data
 		const getInitVariableData = useCallback(async () => {
 			if (isInitializingRef.current || hasInitializedRef.current) {
 				return;
@@ -70,7 +70,7 @@ const StrategyVariable = forwardRef<StrategyVariableRef, StrategyVariableProps>(
 
 			isInitializingRef.current = true;
 			try {
-				// 从API获取数据
+				// Fetch data from API
 				const initialVariableData = await getStrategyVariables(strategyId);
 				const events: (
 					| CustomVariableUpdateEvent
@@ -107,20 +107,20 @@ const StrategyVariable = forwardRef<StrategyVariableRef, StrategyVariableProps>(
 				setVariableUpdateEvents(events);
 				hasInitializedRef.current = true;
 			} catch (error) {
-				console.warn("获取策略变量失败", error);
+				console.warn("Failed to fetch strategy variables", error);
 			} finally {
 				isInitializingRef.current = false;
 			}
 		}, [strategyId]);
 
-		// 初始化数据
+		// Initialize data
 		useEffect(() => {
 			getInitVariableData();
 		}, [getInitVariableData]);
 
-		// SSE实时数据订阅
+		// SSE real-time data subscription
 		useEffect(() => {
-			// 清理之前的订阅（如果存在）
+			// Clean up previous subscriptions (if any)
 			if (customVariableSubscriptionRef.current) {
 				customVariableSubscriptionRef.current.unsubscribe();
 				customVariableSubscriptionRef.current = null;
@@ -131,11 +131,11 @@ const StrategyVariable = forwardRef<StrategyVariableRef, StrategyVariableProps>(
 				systemVariableSubscriptionRef.current = null;
 			}
 
-			// 创建自定义变量数据流订阅
+			// Create custom variable stream subscription
 			const customVariableStream = createCustomVariableStream(true);
 			const customVariableSubscription = customVariableStream.subscribe(
 				async (customVariableEvent) => {
-					// 如果列表为空且未初始化，先获取初始数据
+					// If list is empty and not initialized, fetch initial data first
 					if (
 						variableUpdateEventsRef.current.length === 0 &&
 						!isInitializingRef.current &&
@@ -144,10 +144,10 @@ const StrategyVariable = forwardRef<StrategyVariableRef, StrategyVariableProps>(
 						await getInitVariableData();
 					}
 
-					// 然后执行正常的插入/更新逻辑
+					// Then execute normal insert/update logic
 					setVariableUpdateEvents((prev) => {
 						const newVarName = customVariableEvent.customVariable.varName;
-						// 查找是否存在相同 varName 的数据
+						// Check if data with same varName exists
 						const existingIndex = prev.findIndex(
 							(event) =>
 								isCustomVariableUpdateEvent(event) &&
@@ -155,12 +155,12 @@ const StrategyVariable = forwardRef<StrategyVariableRef, StrategyVariableProps>(
 						);
 
 						if (existingIndex !== -1) {
-							// 替换现有的数据
+							// Replace existing data
 							const newPrev = [...prev];
 							newPrev[existingIndex] = customVariableEvent;
 							return newPrev;
 						} else {
-							// 不存在则在前面添加新数据
+							// If not exists, add new data at the front
 							return [customVariableEvent, ...prev];
 						}
 					});
@@ -169,12 +169,12 @@ const StrategyVariable = forwardRef<StrategyVariableRef, StrategyVariableProps>(
 
 			customVariableSubscriptionRef.current = customVariableSubscription;
 
-			// 创建系统变量数据流订阅
+			// Create system variable stream subscription
 			const systemVariableStream = createSystemVariableStream(true);
 			const systemVariableSubscription = systemVariableStream.subscribe(
 				async (systemVariableEvent) => {
 					console.log("systemVariableEvent", systemVariableEvent);
-					// 如果列表为空且未初始化，先获取初始数据
+					// If list is empty and not initialized, fetch initial data first
 					if (
 						variableUpdateEventsRef.current.length === 0 &&
 						!isInitializingRef.current &&
@@ -183,10 +183,10 @@ const StrategyVariable = forwardRef<StrategyVariableRef, StrategyVariableProps>(
 						await getInitVariableData();
 					}
 
-					// 然后执行正常的插入/更新逻辑
+					// Then execute normal insert/update logic
 					setVariableUpdateEvents((prev) => {
 						const newVarName = systemVariableEvent.sysVariable.varName;
-						// 查找是否存在相同 varName 的数据
+						// Check if data with same varName exists
 						const existingIndex = prev.findIndex(
 							(event) =>
 								isSystemVariableUpdateEvent(event) &&
@@ -194,12 +194,12 @@ const StrategyVariable = forwardRef<StrategyVariableRef, StrategyVariableProps>(
 						);
 
 						if (existingIndex !== -1) {
-							// 替换现有的数据
+							// Replace existing data
 							const newPrev = [...prev];
 							newPrev[existingIndex] = systemVariableEvent;
 							return newPrev;
 						} else {
-							// 不存在则在前面添加新数据
+							// If not exists, add new data at the front
 							return [systemVariableEvent, ...prev];
 						}
 					});
@@ -215,8 +215,8 @@ const StrategyVariable = forwardRef<StrategyVariableRef, StrategyVariableProps>(
 			};
 		}, [getInitVariableData]);
 
-		// 直接传入事件数组（若需要可在无 SSE 时回退为 mockData）
-		// 这里保留最简实现：仅使用实时和初始化事件
+		// Pass event array directly (can fallback to mockData when SSE is unavailable if needed)
+		// Keep simplest implementation here: only use real-time and initialized events
 		return <VariableTable data={variableUpdateEvents} />;
 	},
 );

@@ -9,7 +9,7 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLSTALLEDPATTERNConfigSchema = z.object({
-	// CDLSTALLEDPATTERN 没有参数
+	// CDLSTALLEDPATTERN has no parameters
 });
 
 export type CDLSTALLEDPATTERNConfigType = z.infer<
@@ -18,7 +18,7 @@ export type CDLSTALLEDPATTERNConfigType = z.infer<
 
 function buildCDLSTALLEDPATTERNConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLSTALLEDPATTERN 不需要任何参数
+		// CDLSTALLEDPATTERN doesn't need any parameters
 	};
 }
 
@@ -29,7 +29,7 @@ export const CDLSTALLEDPATTERNConfig: IndicatorConfig<CDLSTALLEDPATTERNConfigTyp
 		displayName: "CDLSTALLEDPATTERN",
 		description: "Stalled Pattern",
 		params: {
-			// CDLSTALLEDPATTERN 没有参数
+			// CDLSTALLEDPATTERN has no parameters
 		},
 		indicatorValueConfig: {
 			timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

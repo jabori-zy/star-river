@@ -1,4 +1,4 @@
-// 面板自适应钩子函数
+// Panel responsive resize hook function
 
 import { useEffect } from "react";
 

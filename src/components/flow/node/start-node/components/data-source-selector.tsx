@@ -36,9 +36,9 @@ const DataSourceSelector: React.FC<DataSourceSelectorProps> = ({
 				<Select
 					value={dataSource}
 					onValueChange={(value) => {
-						// 更新本地状态
+						// Update local state
 						setDataSource(value as BacktestDataSource);
-						// 更新节点数据
+						// Update node data
 						updateDataSource(value as BacktestDataSource);
 					}}
 				>

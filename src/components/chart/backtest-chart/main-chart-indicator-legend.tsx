@@ -3,7 +3,7 @@ import { useIndicatorLegend } from "@/hooks/chart/backtest-chart";
 import { useBacktestChartStore } from "./backtest-chart-store";
 import { IndicatorLegend } from "./indicator-legend";
 
-// 将主图指标图例组件提取到外部，避免在渲染时重新创建
+// Extract main chart indicator legend component to avoid recreation during render
 interface MainChartIndicatorLegendProps {
 	chartId: number;
 	indicatorKeyStr: string;
@@ -27,11 +27,11 @@ const MainChartIndicatorLegend = ({
 	const { chartRef, indicatorSeriesRef } = useBacktestChartStore(chartId);
 	const indicatorSeriesMap = indicatorSeriesRef[indicatorKeyStr] || {};
 
-	// 🔑 订阅主图鼠标事件，当图表引用就绪时立即订阅
+	// Subscribe to main chart mouse events, subscribe immediately when chart reference is ready
 	useEffect(() => {
 		if (!chartRef || !onCrosshairMove) return;
 
-		// console.log("订阅鼠标移动事件", indicatorKeyStr);
+		// console.log("Subscribe to mouse move event", indicatorKeyStr);
 		chartRef.subscribeCrosshairMove(onCrosshairMove);
 
 		return () => {
@@ -39,7 +39,7 @@ const MainChartIndicatorLegend = ({
 		};
 	}, [chartRef, indicatorKeyStr, onCrosshairMove]);
 
-	// 指标数据变动订阅，等待指标 series 准备好后再订阅
+	// Indicator data change subscription, wait for indicator series to be ready before subscribing
 	useEffect(() => {
 		const seriesList = Object.values(indicatorSeriesMap).filter(
 			(seriesRef): seriesRef is NonNullable<typeof seriesRef> =>
@@ -65,7 +65,7 @@ const MainChartIndicatorLegend = ({
 			indicatorKeyStr={indicatorKeyStr}
 			chartId={chartId}
 			style={{
-				// 主图指标：从40px开始，每个间隔30px
+				// Main chart indicators: start from 40px, 30px spacing between each
 				top: `${40 + index * 30}px`,
 				left: "0px",
 			}}

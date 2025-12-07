@@ -15,7 +15,7 @@ export function ColorInput({
 	const [inputValue, setInputValue] = React.useState(value);
 	const [isValid, setIsValid] = React.useState(true);
 
-	// 根据模式格式化显示值
+	// Format display value based on mode
 	React.useEffect(() => {
 		const formattedValue = formatColorByMode(value, mode);
 		setInputValue(formattedValue);
@@ -28,7 +28,7 @@ export function ColorInput({
 
 		if (isValidColor(newValue, mode)) {
 			setIsValid(true);
-			// 将输入的颜色转换为HEX格式传递给父组件
+			// Convert input color to HEX format and pass to parent component
 			const hexValue = convertToHex(newValue);
 			onChange(hexValue);
 		} else {
@@ -62,17 +62,17 @@ export function ColorInput({
 	const getErrorMessage = () => {
 		switch (mode) {
 			case "hex":
-				return "请输入有效的十六进制颜色值 (例如: #FF0000)";
+				return "Please enter a valid hexadecimal color value (e.g.: #FF0000)";
 			case "rgb":
-				return "请输入有效的RGB颜色值 (例如: rgb(255, 0, 0))";
+				return "Please enter a valid RGB color value (e.g.: rgb(255, 0, 0))";
 			default:
-				return "请输入有效的颜色值";
+				return "Please enter a valid color value";
 		}
 	};
 
 	return (
 		<div className="space-y-2">
-			{/* 模式切换 */}
+			{/* Mode toggle */}
 			{onModeChange && (
 				<div className="flex justify-start">
 					<ColorModeToggle mode={mode} onModeChange={handleModeChange} />

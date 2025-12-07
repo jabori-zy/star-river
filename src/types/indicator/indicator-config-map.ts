@@ -137,7 +137,7 @@ import { ATRConfig, NATRConfig, TRANGEConfig } from "./config/volatility";
 import { ADConfig, ADOSCConfig, OBVConfig } from "./config/volume";
 import type { IndicatorConfig } from "./indicator-config";
 
-// 配置映射，支持部分指标类型
+// Configuration mapping, supports partial indicator types
 export const INDICATOR_CONFIG_MAP: Partial<
 	Record<IndicatorType, IndicatorConfig>
 > = {

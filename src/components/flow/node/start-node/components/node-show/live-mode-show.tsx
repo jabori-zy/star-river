@@ -19,7 +19,7 @@ const LiveNodeShow: React.FC<LiveNodeShowProps> = ({ liveConfig }) => {
 	const [isAccountsOpen, setIsAccountsOpen] = useState(true);
 	return (
 		<div className="space-y-2">
-			{/* 已选账户展示 */}
+			{/* Selected accounts display */}
 			<div className="space-y-2">
 				{!liveConfig.selectedAccounts ||
 				liveConfig.selectedAccounts.length === 0 ? (
@@ -64,7 +64,7 @@ const LiveNodeShow: React.FC<LiveNodeShowProps> = ({ liveConfig }) => {
 					</Collapsible>
 				)}
 			</div>
-			{/* 变量展示 */}
+			{/* Variables display */}
 			<div className="space-y-2">
 				{liveConfig.customVariables?.length === 0 ? (
 					<div className="flex items-center justify-between gap-2 rounded-md">

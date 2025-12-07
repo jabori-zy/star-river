@@ -13,7 +13,7 @@ export type StrategyStatsChartConfig = {
 	seriesConfigs: StatsSeriesConfig;
 };
 
-// 回测策略统计图表配置
+// Backtest strategy stats chart configuration
 export type BacktestStrategyStatsChartConfig = {
 	statsChartConfigs: StrategyStatsChartConfig[];
 };
@@ -103,10 +103,10 @@ export const defaultBacktestStrategyStatsChartConfig: BacktestStrategyStatsChart
 	};
 
 /**
- * 获取统计图表配置（支持多语言）
- * @param statsName 统计指标名称
- * @param t 国际化翻译函数
- * @returns 图表配置（包含翻译后的名称）
+ * Get stats chart configuration (supports multiple languages)
+ * @param statsName Stats metric name
+ * @param t Internationalization translation function
+ * @returns Chart configuration (with translated names)
  */
 export function getStatsChartConfig(
 	statsName: StrategyStatsName,
@@ -121,10 +121,10 @@ export function getStatsChartConfig(
 		);
 	}
 
-	// 获取多语言版本的图表名称
+	// Get the multilingual version of the chart name
 	const chartName = t(`desktop.backtestPage.performance.${statsName}`);
 
-	// 返回包含翻译名称的配置
+	// Return configuration with translated names
 	return {
 		...config,
 		chartName,

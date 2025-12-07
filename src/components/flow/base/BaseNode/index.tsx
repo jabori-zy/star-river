@@ -5,55 +5,55 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import BaseHandle, { type BaseHandleProps } from "../BaseHandle";
 
-// BaseNode的属性接口
-//这是TypeScript的工具类型，作用是从NodeProps类型中只选择selected属性
-//extends - BaseNodeProps接口继承了从NodeProps中提取出来的selected属性
-//Pick<NodeProps, 'selected'> - 从NodeProps类型中选择selected属性，并将其作为BaseNodeProps接口的属性
+// BaseNode property interface
+// This is a TypeScript utility type that selects only the selected property from NodeProps type
+// extends - BaseNodeProps interface inherits the selected property extracted from NodeProps
+// Pick<NodeProps, 'selected'> - Selects the selected property from NodeProps type and uses it as BaseNodeProps interface property
 export interface BaseNodeProps extends Pick<NodeProps, "id" | "selected"> {
-	/** 节点标题 */
+	/** Node title */
 	nodeName: string;
-	/** 节点图标名称 (lucide-react 图标名称，如 "chart-candlestick") */
+	/** Node icon name (lucide-react icon name, e.g. "chart-candlestick") */
 	iconName: IconName;
-	// 图标的背景颜色 - 16进制颜色值，如 "#9ca3af"
+	// Icon background color - hex color value, e.g. "#9ca3af"
 	iconBackgroundColor?: string;
-	/** 子内容 */
+	/** Child content */
 	children?: ReactNode;
-	/** 自定义类名 */
+	/** Custom class name */
 	className?: string;
-	// 边框颜色(选中时边框颜色) - 16进制颜色值，如 "#9ca3af"
+	// Border color (border color when selected) - hex color value, e.g. "#9ca3af"
 	borderColor?: string;
-	// 默认输入handle属性
+	// Default input handle properties
 	defaultInputHandle?: BaseHandleProps;
-	// 默认输出handle属性
+	// Default output handle properties
 	defaultOutputHandle?: BaseHandleProps;
-	// 是否悬停
+	// Whether hovered
 	isHovered?: boolean;
 }
 
 /**
- * BaseNode - 所有节点的基础组件
- * 提供统一的样式和基础功能
+ * BaseNode - Base component for all nodes
+ * Provides unified styles and basic functionality
  */
 const BaseNode: React.FC<BaseNodeProps> = ({
 	id,
-	nodeName, // 节点标题
-	iconName, // 节点图标名称
-	children, // 子内容
-	className, // 自定义类名
-	selected = false, // 是否选中
-	isHovered = false, // 是否悬停
-	borderColor = "#9ca3af", // 边框颜色 (默认 gray-400)
-	iconBackgroundColor = "#9ca3af", // 图标背景颜色 (默认 red-400)
-	defaultInputHandle, // 默认输入handle属性
-	defaultOutputHandle, // 默认输出handle属性
+	nodeName, // Node title
+	iconName, // Node icon name
+	children, // Child content
+	className, // Custom class name
+	selected = false, // Whether selected
+	isHovered = false, // Whether hovered
+	borderColor = "#9ca3af", // Border color (default gray-400)
+	iconBackgroundColor = "#9ca3af", // Icon background color (default red-400)
+	defaultInputHandle, // Default input handle properties
+	defaultOutputHandle, // Default output handle properties
 	...props
 }) => {
-	// 根据selected状态决定边框样式和边框颜色
+	// Determine border style and color based on selected state
 	const borderStyle = selected
 		? { borderColor: borderColor, borderWidth: "2px" }
 		: { borderColor: "transparent", borderWidth: "2px" };
 
-	// 根据悬停状态决定阴影效果 - 移除transform，只用shadow
+	// Determine shadow effect based on hover state - remove transform, only use shadow
 	const shadowClass = isHovered
 		? "shadow-2xl"
 		: selected
@@ -71,10 +71,10 @@ const BaseNode: React.FC<BaseNodeProps> = ({
 			style={borderStyle}
 			{...props}
 		>
-			{/* 标题区域 */}
+			{/* Title area */}
 			<div className="px-2 pt-2">
 				<div className="flex items-center gap-2">
-					{/* 图标 */}
+					{/* Icon */}
 					{iconName && (
 						<div
 							className="p-1 rounded-sm flex-shrink-0"
@@ -87,17 +87,17 @@ const BaseNode: React.FC<BaseNodeProps> = ({
 						</div>
 					)}
 
-					{/* 标题文本 */}
+					{/* Title text */}
 					<div className="text-base font-bold text-black break-words leading-relaxed">
 						{nodeName}
 					</div>
 				</div>
-				{/* 默认的输入输出handle */}
+				{/* Default input/output handles */}
 				{defaultInputHandle && <BaseHandle {...defaultInputHandle} />}
 				{defaultOutputHandle && <BaseHandle {...defaultOutputHandle} />}
 			</div>
 
-			{/* 子内容区域 */}
+			{/* Child content area */}
 			{children && <div className="p-2">{children}</div>}
 		</div>
 	);

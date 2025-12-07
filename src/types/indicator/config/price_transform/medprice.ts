@@ -8,29 +8,29 @@ import {
 } from "@/types/indicator/indicator-config";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
-// MEDPRICE 指标配置的 Zod schema
+// Zod schema for MEDPRICE indicator configuration
 const MEDPRICEConfigSchema = z.object({});
 
 export type MEDPRICEConfigType = z.infer<typeof MEDPRICEConfigSchema>;
 
-// MEDPRICE指标的参数映射函数
+// Parameter mapping function for MEDPRICE indicator
 function buildMEDPRICEConfig(_params: Map<string, string>): unknown {
 	return {};
 }
 
-// MEDPRICE指标配置实现
+// MEDPRICE indicator configuration implementation
 export const MEDPRICEConfig: IndicatorConfig<MEDPRICEConfigType> = {
 	category: IndicatorCategory.PRICE_TRANSFORM,
 	type: IndicatorType.MEDPRICE,
 	displayName: "MEDPRICE",
-	description: "计算中位数价格 (High + Low) / 2",
+	description: "Calculate median price (High + Low) / 2",
 	params: {},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },
 		medprice: { label: "medprice", value: 0, legendShowName: "medprice" },
 	},
 	chartConfig: {
-		isInMainChart: true, // 价格变换指标显示在主图
+		isInMainChart: true, // Price transform indicators display in main chart
 		seriesConfigs: [
 			{
 				name: "MEDPRICE",
@@ -50,7 +50,7 @@ export const MEDPRICEConfig: IndicatorConfig<MEDPRICEConfigType> = {
 		return getIndicatorValues(this.indicatorValueConfig);
 	},
 
-	// 使用通用解析函数
+	// Use generic parsing function
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
 		IndicatorType.MEDPRICE,
 		MEDPRICEConfigSchema,

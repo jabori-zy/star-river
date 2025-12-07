@@ -1,8 +1,8 @@
 import type { TFunction } from "i18next";
 
 /**
- * 获取时间单位选项（不包含毫秒）
- * 用于定时器配置等常规时间间隔场景
+ * Get time unit options (excluding milliseconds)
+ * Used for timer configuration and regular time interval scenarios
  */
 export const getTimeUnitOptions = (t: TFunction) => [
 	{ value: "millisecond", label: t("common.timeUnit.millisecond") },

@@ -1,6 +1,6 @@
 import type { FormFieldConfig } from ".";
 
-// Binance账户表单配置
+// Binance account form configuration
 export const binanceFormConfig = {
 	title: "添加Binance账户",
 	description: "请填写Binance账户的必要信息",

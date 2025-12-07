@@ -48,7 +48,7 @@ export interface MT5AccountInfo {
 	trade_mode: string;
 }
 
-// 定义SSE事件类型
+// Define SSE event type
 export interface AccountInfo {
 	id: number;
 	account_id: number;
@@ -77,19 +77,19 @@ const useAccountSSE = () => {
 			try {
 				const data = JSON.parse(event.data);
 				setAccountEventData(data);
-				// console.log("SSE接收到数据:", data);
+				// console.log("SSE received data:", data);
 			} catch (error) {
-				console.error("SSE数据解析错误:", error);
+				console.error("SSE data parsing error:", error);
 			}
 		};
 
 		sse.onerror = (error) => {
-			console.error("SSE错误:", error);
+			console.error("SSE error:", error);
 			sse.close();
-			// 可以添加重连逻辑
+			// Reconnection logic can be added
 			setTimeout(() => {
-				console.log("尝试重新连接SSE...");
-				// 此处可以重新创建EventSource实例
+				console.log("Attempting to reconnect to SSE...");
+				// EventSource instance can be recreated here
 			}, 5000);
 		};
 

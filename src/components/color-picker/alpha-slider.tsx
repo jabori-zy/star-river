@@ -28,16 +28,16 @@ export function AlphaSlider({ color, alpha, onChange }: AlphaSliderProps) {
 		<div className="space-y-3">
 			<div className="flex items-center gap-3">
 				<div className="relative flex-1">
-					{/* 棋盘背景 */}
+					{/* Checkerboard background */}
 					<div
 						className="absolute inset-0 rounded-md"
 						style={checkerboardStyle}
 					/>
 
-					{/* 颜色渐变 */}
+					{/* Color gradient */}
 					<div className="absolute inset-0 rounded-md" style={gradientStyle} />
 
-					{/* 滑块 */}
+					{/* Slider */}
 					<Slider
 						value={[alpha * 100]}
 						onValueChange={handleAlphaChange}

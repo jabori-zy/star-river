@@ -49,9 +49,9 @@ export const useIndicatorNodeChangeHandler = () => {
 			const oldIndicatorData = oldNode.data as IndicatorNodeData;
 			const newIndicatorData = newNode.data as IndicatorNodeData;
 
-			// 定义输出的结果，默认是原来的节点
+			// Define output result, default is the original nodes
 			let updatedNodes = nodes;
-			let hasChanged = false; // 是否发生变化
+			let hasChanged = false; // Whether changes occurred
 
 			if (oldIndicatorData.backtestConfig !== newIndicatorData.backtestConfig) {
 				if (newIndicatorData.backtestConfig) {
@@ -90,7 +90,7 @@ const updateIfElseNode = (
 			const leftVariable = condition.left;
 			const rightVariable = condition.right;
 
-			// 如果左边量的variableConfigId不在indicatorNodeSelectedIndicatorsIds中, 则需要清空
+			// If left variable's variableConfigId is not in indicatorNodeSelectedIndicatorsIds, clear it
 			if (
 				shouldClearVariable(
 					leftVariable,
@@ -102,7 +102,7 @@ const updateIfElseNode = (
 				break;
 			}
 
-			// 如果右边量的variableConfigId不在indicatorNodeSelectedIndicatorsIds中, 则需要清空
+			// If right variable's variableConfigId is not in indicatorNodeSelectedIndicatorsIds, clear it
 			if (
 				shouldClearVariable(
 					rightVariable,
@@ -153,11 +153,11 @@ const updateIfElseNode = (
 };
 
 /**
- * 检查变量是否需要清空
- * @param variable 要检查的变量
- * @param klineNodeId K线节点ID
- * @param klineNodeSymbolIds K线节点有效的symbol配置ID列表
- * @returns 是否需要清空该变量
+ * Check if variable needs to be cleared
+ * @param variable Variable to check
+ * @param klineNodeId Kline node ID
+ * @param klineNodeSymbolIds Valid symbol config ID list of kline node
+ * @returns Whether the variable needs to be cleared
  */
 const shouldClearVariable = (
 	variable: Variable | null,

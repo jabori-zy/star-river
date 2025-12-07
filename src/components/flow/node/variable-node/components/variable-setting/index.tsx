@@ -43,7 +43,7 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 	const startNodeData = getStartNodeData();
 	const customVariables = startNodeData?.backtestConfig?.customVariables || [];
 
-	// 生成自定义变量选项
+	// Generate custom variable options
 	const customVariableOptions = React.useMemo(
 		() =>
 			customVariables.map((customVar: CustomVariable) => {
@@ -66,7 +66,7 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 		[customVariables],
 	);
 
-	// 根据变量类型和触发方式获取可用的更新操作
+	// Get available update operations based on variable type and trigger mode
 	const getAvailableOperations = React.useCallback(
 		(
 			varValueType: VariableValueType,
@@ -76,7 +76,7 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 				varValueType === VariableValueType.NUMBER ||
 				varValueType === VariableValueType.PERCENTAGE
 			) {
-				// 数据流模式支持 max 和 min，条件/定时触发模式不支持
+				// Dataflow mode supports max and min, condition/timer trigger modes do not
 				if (isDataflowMode) {
 					return ["set", "add", "subtract", "multiply", "divide", "max", "min"];
 				}
@@ -86,14 +86,14 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 			} else if (varValueType === VariableValueType.ENUM) {
 				return ["set", "append", "remove", "clear"];
 			} else {
-				// STRING, TIME 类型只支持直接赋值
+				// STRING, TIME types only support direct assignment
 				return ["set"];
 			}
 		},
 		[],
 	);
 
-	// 本地状态管理
+	// Local state management
 	const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
 	const [pendingDeleteVariable, setPendingDeleteVariable] =
 		useState<VariableConfig | null>(null);
@@ -123,7 +123,7 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 		return undefined;
 	}, [tradeMode, startNodeData]);
 
-	// 使用 React Query 获取交易对列表
+	// Use React Query to fetch symbol list
 	const { data: symbolList = [] } = useSymbolList(selectedAccountId ?? 0);
 
 	const symbolOptions = useMemo(
@@ -135,7 +135,7 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 		[symbolList],
 	);
 
-	// 创建默认的变量配置
+	// Create default variable config
 	const createDefaultVariableConfig = (
 		operation: VariableOperation,
 	): VariableConfig => {
@@ -209,7 +209,7 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 			),
 		];
 
-		// 如果有连接的目标节点，显示确认对话框
+		// If there are connected target nodes, show confirmation dialog
 		if (targetNodeIds.length > 0) {
 			setPendingDeleteVariable(variableToDelete);
 			setPendingVariableData({
@@ -220,11 +220,11 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 			return;
 		}
 
-		// 没有连接节点，直接删除
+		// No connected nodes, delete directly
 		performDelete(index);
 	};
 
-	// 执行删除
+	// Perform delete
 	const performDelete = (index?: number) => {
 		const targetIndex =
 			index !== undefined
@@ -239,7 +239,7 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 
 		const variableToDelete = variableConfigs[targetIndex];
 
-		// 删除边
+		// Delete edges
 		const sourceHandleId = variableToDelete.outputHandleId;
 		const targetHandleId = variableToDelete.inputHandleId;
 		const edges = getEdges();
@@ -255,7 +255,7 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 		);
 		onVariableConfigsChange(updatedVariables);
 
-		// 清理删除相关状态
+		// Clean up delete-related state
 		setPendingDeleteVariable(null);
 		setIsConfirmDialogOpen(false);
 		setPendingVariableData(null);
@@ -266,7 +266,7 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 	};
 
 	const handleCancelDelete = () => {
-		// 关闭确认对话框并清理状态
+		// Close confirmation dialog and clean up state
 		setIsConfirmDialogOpen(false);
 		setPendingDeleteVariable(null);
 		setPendingVariableData(null);
@@ -298,10 +298,10 @@ const VariableSetting: React.FC<VariableSettingProps> = ({
 				))}
 			</div>
 
-			{/* 添加变量按钮 */}
+			{/* Add variable button */}
 			<AddConfigButton onAddVariable={handleAddVariable} />
 
-			{/* 确认删除对话框 */}
+			{/* Confirm delete dialog */}
 			<NodeOpConfirmDialog
 				isOpen={isConfirmDialogOpen}
 				onOpenChange={setIsConfirmDialogOpen}

@@ -33,7 +33,7 @@ export const chartOptions: DeepPartial<ChartOptions> = {
 	},
 	localization: {
 		timeFormatter: (time: Time) => {
-			// 将时间戳转换为 yyyy-mm-dd hh:mm 格式（使用 UTC）
+			// Convert timestamp to yyyy-mm-dd hh:mm format (using UTC)
 			if (typeof time === "number") {
 				return DateTime.fromMillis(time * 1000)
 					.toUTC()

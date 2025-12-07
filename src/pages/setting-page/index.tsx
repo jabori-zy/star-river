@@ -7,7 +7,7 @@ import type { SystemConfig } from "@/types/system";
 import { LocalizationSelect } from "./localization-select";
 import { TimezoneSelect } from "./timezone-select";
 
-// 保存设置按钮
+// Save settings button
 const SaveSettingButton = ({
 	systemConfigIsChanged,
 	onSave,
@@ -34,16 +34,16 @@ const SettingPage = () => {
 	const { systemConfig, isLoading, updateSystemConfigAction } =
 		useSystemConfigStore();
 
-	// 本地系统配置状态
+	// Local system config state
 	const [localSystemConfig, setLocalSystemConfig] =
 		useState<SystemConfig | null>(null);
-	// 系统设置是否发生变化
+	// Whether system settings have changed
 	const [systemConfigIsChanged, setSystemConfigIsChanged] =
 		useState<boolean>(false);
-	// 保存操作的加载状态
+	// Loading state for save operation
 	const [isSaving, setIsSaving] = useState<boolean>(false);
 
-	// 当从store加载到系统配置时，初始化本地状态
+	// When system config is loaded from store, initialize local state
 	useEffect(() => {
 		if (systemConfig) {
 			setLocalSystemConfig(systemConfig);
@@ -51,7 +51,7 @@ const SettingPage = () => {
 		}
 	}, [systemConfig]);
 
-	// 保存设置的处理函数
+	// Handler function for saving settings
 	const handleSaveSetting = async () => {
 		if (!localSystemConfig) return;
 
@@ -59,7 +59,7 @@ const SettingPage = () => {
 		try {
 			await updateSystemConfigAction(localSystemConfig);
 
-			// 保存成功后，应用时区设置到 Luxon 全局配置
+			// After successful save, apply timezone setting to Luxon global config
 			if (localSystemConfig.timezone) {
 				Settings.defaultZone = localSystemConfig.timezone;
 				console.log(`已将全局时区设置为: ${localSystemConfig.timezone}`);

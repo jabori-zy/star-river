@@ -23,10 +23,10 @@ export const useBacktestStatsChart = ({
 }: UseBacktestStatsChartParams) => {
 	const [isInitialized, setIsInitialized] = useState(false);
 	const resizeObserver = useRef<ResizeObserver>(null);
-	// 数据是否已在图表中设置
+	// Whether data has been set in the chart
 	const [isChartDataSet, setIsChartDataSet] = useState(false);
 
-	// 是否是第一次加载
+	// Whether this is the first load
 	const isFirstChartConfigLoad = useRef(true);
 
 	const {
@@ -46,7 +46,7 @@ export const useBacktestStatsChart = ({
 		incrementPaneVersion,
 	} = useBacktestStatsChartStore(strategyId, chartConfig);
 
-	// 更改series配置
+	// Change series configuration
 	const changeSeriesConfig = useCallback(() => {
 		chartConfig.statsChartConfigs.forEach((statsChartConfig) => {
 			if (!statsChartConfig.isDelete) {
@@ -65,16 +65,16 @@ export const useBacktestStatsChart = ({
 	const createStatsPane = useCallback(
 		(chart: IChartApi) => {
 			chartConfig.statsChartConfigs.forEach((statsChartConfig) => {
-				// 如果图表可见，则创建pane
+				// If chart is visible, create pane
 
 				const statsName = statsChartConfig.seriesConfigs.statsName;
-				// 判断chart中是否有series
+				// Check if chart has series
 				const mainPane = chart.panes()[0];
-				// 将主图的pane添加到引用中
+				// Add main chart pane to reference
 				setStatsPaneRef(statsName, mainPane);
 				const mainChartSeries = mainPane.getSeries();
 
-				// 如果等于0， 则将series创建到主图中
+				// If equals 0, create series in main chart
 				if (mainChartSeries.length === 0) {
 					const series = addStatsSeries(
 						mainPane,
@@ -84,13 +84,13 @@ export const useBacktestStatsChart = ({
 						setStatsSeriesRef(statsName, series);
 					}
 				} else {
-					//1. 创建pane
+					//1. Create pane
 					const pane = chart.addPane(false);
 					pane.setStretchFactor(2);
-					//2. 设置pane
+					//2. Set pane
 					setStatsPaneRef(statsName, pane);
 
-					//3. 使用 setTimeout 延迟获取 HTML 元素，因为 pane 还没有完全实例化
+					//3. Use setTimeout to delay getting HTML element because pane is not fully instantiated yet
 					setTimeout(() => {
 						const htmlElement = pane.getHTMLElement();
 						if (htmlElement) {
@@ -98,8 +98,8 @@ export const useBacktestStatsChart = ({
 						}
 					}, 100);
 
-					//4. 创建series
-					// 第一个series创建到主图中
+					//4. Create series
+					// First series is created in the main chart
 					const series = addStatsSeries(
 						pane,
 						statsChartConfig,
@@ -118,24 +118,24 @@ export const useBacktestStatsChart = ({
 		],
 	);
 
-	// 删除series
+	// Delete series
 	const deleteSeries = useCallback(() => {
 		const chart = getChartRef();
 		if (chart) {
 			chartConfig.statsChartConfigs.forEach((statsChartConfig) => {
 				if (statsChartConfig.isDelete) {
 					const statsName = statsChartConfig.seriesConfigs.statsName;
-					// 待删除的series引用
+					// Series reference to be deleted
 					const removeSeriesRef = getStatsSeriesRef(statsName);
 
 					if (removeSeriesRef) {
-						// series所在的pane引用
+						// Pane reference where the series is located
 						const removePane = removeSeriesRef.getPane();
 						if (removePane) {
 							const removePaneIndex = removePane.paneIndex();
 							chart.removePane(removePaneIndex);
-							deleteStatsPaneRef(statsName); // 删除store中的pane引用
-							deleteStatsSeriesRef(statsName); // 删除store中的series引用
+							deleteStatsPaneRef(statsName); // Delete pane reference from store
+							deleteStatsSeriesRef(statsName); // Delete series reference from store
 
 							chartConfig.statsChartConfigs.forEach((statsChartConfig) => {
 								const statsName = statsChartConfig.seriesConfigs.statsName;
@@ -195,7 +195,7 @@ export const useBacktestStatsChart = ({
 					if (series) {
 						setStatsSeriesRef(statsName, series);
 
-						// 设置数据
+						// Set data
 						const statsData = getStatsData(statsName);
 						if (statsData) {
 							series.setData(statsData);
@@ -217,24 +217,24 @@ export const useBacktestStatsChart = ({
 	const initializeBacktestStatsChart = useCallback(() => {
 		const existingChart = getChartRef();
 		if (chartContainerRef.current && !existingChart) {
-			// 确保容器元素真正存在于DOM中
-			// 防止在DOM重排过程中尝试初始化图表
+			// Ensure container element truly exists in the DOM
+			// Prevent attempting to initialize chart during DOM reflow
 			if (!document.contains(chartContainerRef.current)) {
 				return;
 			}
 
-			// 创建新的LightweightCharts实例
+			// Create new LightweightCharts instance
 			const chart = createChart(chartContainerRef.current, chartOptions);
 			setChartRef(chart);
 
-			// 创建统计图表
+			// Create statistics chart
 			createStatsPane(chart);
 
-			// 初始化Observer订阅
-			// 初始化 observer 订阅
+			// Initialize Observer subscription
+			// Initialize observer subscription
 			setTimeout(() => {
 				initObserverSubscriptions();
-				// 标记为已初始化
+				// Mark as initialized
 				setIsInitialized(true);
 			}, 100);
 		}
@@ -248,49 +248,49 @@ export const useBacktestStatsChart = ({
 	]);
 
 	/**
-	 * 容器引用有效性监控
+	 * Container reference validity monitoring
 	 *
-	 * 关键修复：自动检测并修复图表容器引用丢失问题
+	 * Critical fix: Automatically detect and repair chart container reference loss
 	 *
-	 * 触发场景：
-	 * - 添加新图表时React重新渲染，导致现有图表的DOM容器被重新创建
-	 * - ResizablePanel布局变化导致DOM结构调整
-	 * - 其他任何导致DOM重排的操作
+	 * Trigger scenarios:
+	 * - When adding new charts, React re-renders causing existing chart's DOM containers to be recreated
+	 * - ResizablePanel layout changes cause DOM structure adjustments
+	 * - Any other operations that cause DOM reflow
 	 *
-	 * 检测逻辑：
-	 * 1. 获取图表实例和当前容器引用
-	 * 2. 通过chart.chartElement()获取图表实际绑定的DOM元素
-	 * 3. 比较实际绑定的DOM元素是否仍然是当前容器的子元素
+	 * Detection logic:
+	 * 1. Get chart instance and current container reference
+	 * 2. Get the DOM element actually bound to the chart via chart.chartElement()
+	 * 3. Compare whether the actually bound DOM element is still a child of the current container
 	 *
-	 * 修复流程：
-	 * 1. 销毁旧的图表实例（chart.remove()）
-	 * 2. 清空store中的图表引用（setChartRef(null)）
-	 * 3. 重置初始化状态，触发完整的重新初始化流程
+	 * Repair process:
+	 * 1. Destroy old chart instance (chart.remove())
+	 * 2. Clear chart reference in store (setChartRef(null))
+	 * 3. Reset initialization state to trigger complete re-initialization flow
 	 */
 	useEffect(() => {
 		const chart = getChartRef();
 		if (chart && chartContainerRef.current) {
-			// 获取图表实际绑定的DOM容器元素
+			// Get the DOM container element actually bound to the chart
 			const container = chart.chartElement();
 
-			// 检查图表是否仍然正确绑定到当前的容器
-			// 如果container不存在或者其父元素不是当前容器，说明引用已丢失
+			// Check if chart is still correctly bound to current container
+			// If container doesn't exist or its parent element is not the current container, reference is lost
 			if (!container || container.parentElement !== chartContainerRef.current) {
-				// 步骤1: 销毁旧的图表实例，释放资源
+				// Step 1: Destroy old chart instance, release resources
 				chart.remove();
 
-				// 步骤2: 清空store中的图表引用，确保后续初始化能够正常进行
+				// Step 2: Clear chart reference in store, ensure subsequent initialization can proceed normally
 				setChartRef(null);
 
-				// 步骤3: 重置初始化状态，触发完整的重新初始化流程
-				// 这会导致useEffect重新运行initChartData和initializeBacktestChart
+				// Step 3: Reset initialization state, trigger complete re-initialization flow
+				// This will cause useEffect to re-run initChartData and initializeBacktestChart
 				setIsInitialized(false);
 				setIsChartDataSet(false);
 			}
 		}
 	}, [getChartRef, chartContainerRef, setChartRef]);
 
-	// 图表系列初始化
+	// Chart series initialization
 	useEffect(() => {
 
 
@@ -306,9 +306,9 @@ export const useBacktestStatsChart = ({
 		}
 	}, [strategyId, initChartData, initializeBacktestStatsChart, isInitialized]);
 
-	// 图表数据初始化 - 在图表创建后且数据可用时设置数据
+	// Chart data initialization - Set data when chart is created and data is available
 	useEffect(() => {
-		// 如果图表已初始化，且数据已准备好，并且数据未设置，则设置数据
+		// If chart is initialized, data is ready, and data is not set, then set data
 		if (
 			isInitialized &&
 			getChartRef() &&
@@ -335,10 +335,10 @@ export const useBacktestStatsChart = ({
 		getStatsData,
 	]);
 
-	// 处理series配置变化
+	// Handle series configuration changes
 	useEffect(() => {
 		if (chartConfig) {
-			// 跳过第一次加载（初始化时），只在后续配置变化时重新创建
+			// Skip first load (during initialization), only recreate on subsequent config changes
 			if (isFirstChartConfigLoad.current) {
 				isFirstChartConfigLoad.current = false;
 				return;
@@ -349,7 +349,7 @@ export const useBacktestStatsChart = ({
 		}
 	}, [chartConfig, changeSeriesConfig, deleteSeries, addSeries]);
 
-	// 处理图表 resize
+	// Handle chart resize
 	useEffect(() => {
 		resizeObserver.current = new ResizeObserver((entries) => {
 			const { width, height } = entries[0].contentRect;

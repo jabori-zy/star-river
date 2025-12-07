@@ -15,7 +15,7 @@ import {
 	PriceSourceSchema,
 } from "@/types/indicator/schemas";
 
-// MOM 指标配置的 Zod schema
+// MOM indicator configuration Zod schema
 const MOMConfigSchema = z.object({
 	timePeriod: z.number().int().positive(),
 	priceSource: PriceSourceSchema,
@@ -23,7 +23,7 @@ const MOMConfigSchema = z.object({
 
 export type MOMConfigType = z.infer<typeof MOMConfigSchema>;
 
-// MOM指标的参数映射函数
+// MOM indicator parameter mapping function
 function buildMOMConfig(params: Map<string, string>): unknown {
 	return {
 		timePeriod: parseInt(params.get("time_period") || "0"),
@@ -31,23 +31,23 @@ function buildMOMConfig(params: Map<string, string>): unknown {
 	};
 }
 
-// MOM指标配置实现
+// MOM indicator configuration implementation
 export const MOMConfig: IndicatorConfig<MOMConfigType> = {
 	category: IndicatorCategory.MOMENTUM,
 	type: IndicatorType.MOM,
 	displayName: "MOM",
-	description: "动量指标",
+	description: "Momentum",
 	params: {
 		timePeriod: {
 			label: "indicator.configField.timePeriod",
-			description: "选择动量指标的时间周期",
+			description: "Select the time period for the momentum indicator",
 			defaultValue: 10,
 			required: true,
 			legendShowName: "period",
 		},
 		priceSource: {
 			label: "indicator.configField.dataSource",
-			description: "选择指标计算价格源",
+			description: "Select the price source for indicator calculation",
 			defaultValue: PriceSource.CLOSE,
 			required: true,
 			legendShowName: "source",
@@ -78,7 +78,7 @@ export const MOMConfig: IndicatorConfig<MOMConfigType> = {
 			]),
 		);
 
-		// 使用 Zod 验证配置
+		// Validate configuration using Zod
 		const validatedConfig = MOMConfigSchema.parse(config);
 		return validatedConfig;
 	},
@@ -87,7 +87,7 @@ export const MOMConfig: IndicatorConfig<MOMConfigType> = {
 		return getIndicatorValues(this.indicatorValueConfig);
 	},
 
-	// 使用通用解析函数
+	// Use common parsing function
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
 		IndicatorType.MOM,
 		MOMConfigSchema,

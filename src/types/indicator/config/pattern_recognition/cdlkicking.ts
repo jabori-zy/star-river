@@ -9,14 +9,14 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLKICKINGConfigSchema = z.object({
-	// CDLKICKING 没有参数
+	// CDLKICKING has no parameters
 });
 
 export type CDLKICKINGConfigType = z.infer<typeof CDLKICKINGConfigSchema>;
 
 function buildCDLKICKINGConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLKICKING 不需要任何参数
+		// CDLKICKING doesn't need any parameters
 	};
 }
 
@@ -26,7 +26,7 @@ export const CDLKICKINGConfig: IndicatorConfig<CDLKICKINGConfigType> = {
 	displayName: "CDLKICKING",
 	description: "Kicking",
 	params: {
-		// CDLKICKING 没有参数
+		// CDLKICKING has no parameters
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

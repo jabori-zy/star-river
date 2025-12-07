@@ -23,7 +23,7 @@ import { deleteAccountConfig, startMt5Terminal } from "@/service/account";
 import type { MT5Account } from "@/types/account";
 import { DragHandle } from "../account-table/drag-handle";
 
-// 格式化日期时间
+// Format date time
 const formatDateTime = (dateTimeStr: string) => {
 	if (!dateTimeStr) return "-";
 	try {
@@ -44,7 +44,7 @@ const formatDateTime = (dateTimeStr: string) => {
 	}
 };
 
-// 终端状态文本
+// Terminal status text
 export const getTerminalStatus = (status: string) => {
 	switch (status) {
 		case "connected":
@@ -54,7 +54,7 @@ export const getTerminalStatus = (status: string) => {
 	}
 };
 
-// 终端状态样式
+// Terminal status style
 export const getTerminalStatusStyle = (status: string) => {
 	switch (status) {
 		case "connected":
@@ -66,7 +66,7 @@ export const getTerminalStatusStyle = (status: string) => {
 	}
 };
 
-// EA状态样式
+// EA status style
 export const getEAStatusStyle = (status: string) => {
 	switch (status) {
 		case "open":
@@ -76,7 +76,7 @@ export const getEAStatusStyle = (status: string) => {
 	}
 };
 
-// EA状态文本
+// EA status text
 export const getEAStatus = (status: string) => {
 	switch (status) {
 		case "open":
@@ -86,8 +86,8 @@ export const getEAStatus = (status: string) => {
 	}
 };
 
-// 为开关按钮创建一个独立的组件，这样可以正确使用useState
-// 账户开关
+// Create a separate component for the switch button to correctly use useState
+// Account switch
 function AccountAvaliableSwitch({
 	enabled,
 	onChange,
@@ -111,7 +111,7 @@ function AccountAvaliableSwitch({
 	);
 }
 
-// Metatrader5账户列定义
+// Metatrader5 account column definitions
 export const mt5Columns: ColumnDef<MT5Account>[] = [
 	{
 		id: "drag",
@@ -146,16 +146,16 @@ export const mt5Columns: ColumnDef<MT5Account>[] = [
 		header: "终端路径",
 		cell: ({ row }) => {
 			const path = row.getValue("terminalPath") as string;
-			// 获取文件名部分
+			// Extract file name part
 			const fileName = path.split("\\").pop()?.split("/").pop() || path;
 
-			// 提取盘符
+			// Extract drive letter
 			let driveLetter = "";
 			if (path.match(/^[A-Za-z]:/)) {
 				driveLetter = path.charAt(0).toUpperCase();
 			}
 
-			// 设置Badge颜色
+			// Set Badge color
 			const getDriveColor = (drive: string) => {
 				switch (drive) {
 					case "C":
@@ -287,17 +287,17 @@ export const mt5Columns: ColumnDef<MT5Account>[] = [
 		header: "账户开关",
 		cell: ({ row }) => {
 			const isAvailable = row.getValue("isAvailable") as boolean;
-			// 使用API调用的处理函数
+			// Handler function using API call
 			const handleAccountToggle = async (value: boolean) => {
 				console.log(`账户 ${row.original.id} 状态被设置为: ${value}`);
 				row.original.isAvailable = value;
 				console.log(row.original);
-				// 调用API更新账户状态
+				// Call API to update account status
 				const requestBody = {
 					id: row.original.id,
 					is_available: value,
 				};
-				// 通过axios发送请求
+				// Send request via axios
 				axios
 					.post(
 						"http://localhost:3100/update_mt5_account_config_is_available",
@@ -309,7 +309,7 @@ export const mt5Columns: ColumnDef<MT5Account>[] = [
 						},
 					)
 					.then((res) => {
-						// 如果添加成功，则刷新账户数据
+						// If successful, refresh account data
 						if (res.data.code === 200) {
 							window.location.reload();
 						}
@@ -343,17 +343,17 @@ export const mt5Columns: ColumnDef<MT5Account>[] = [
 		header: "操作",
 		cell: ({ row }) => {
 			const account = row.original;
-			// 启动客户端
+			// Start terminal
 			const handleStartTerminal = async (account_id: number) => {
 				startMt5Terminal(account_id);
 			};
-			// 删除账户
+			// Delete account
 			const handleDeleteAccount = async (id: number) => {
 				console.log(`删除账户 ${id}`);
-				// 调用API删除账户
+				// Call API to delete account
 				const { data } = await deleteAccountConfig(id);
 				console.log(data);
-				// 删除后刷新页面
+				// Refresh page after deletion
 				window.location.reload();
 			};
 

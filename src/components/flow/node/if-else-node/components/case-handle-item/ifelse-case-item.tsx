@@ -26,7 +26,7 @@ import {
 
 interface IfElseCaseItemProps {
 	caseItem: CaseItem;
-	caseIndex?: number; // 显示用的顺序索引（1, 2, 3...），用于 UI 显示
+	caseIndex?: number; // Display index (1, 2, 3...), used for UI display
 	handleId: string;
 	handleColor: string;
 }
@@ -46,7 +46,7 @@ const ConditionItem = ({
 
 	return (
 		<div className="flex items-center gap-1 flex-wrap">
-			{/* 左变量 */}
+			{/* Left variable */}
 			<Tooltip>
 				<TooltipTrigger asChild>
 					<div className="flex items-start gap-1 px-1 py-1 bg-gray-50 rounded-md border hover:bg-gray-200 transition-colors cursor-default max-w-[200px]">
@@ -74,7 +74,7 @@ const ConditionItem = ({
 				</TooltipContent>
 			</Tooltip>
 
-			{/* 比较符号 */}
+			{/* Comparison symbol */}
 			{condition.comparisonSymbol && (
 				<Badge
 					variant="secondary"
@@ -84,7 +84,7 @@ const ConditionItem = ({
 				</Badge>
 			)}
 
-			{/* 右变量 */}
+			{/* Right variable */}
 			<Tooltip>
 				<TooltipTrigger asChild>
 					<div className="flex items-start gap-1 px-1 py-1 bg-gray-50 rounded-md border hover:bg-gray-200 transition-colors cursor-default max-w-[200px]">
@@ -112,7 +112,7 @@ const ConditionItem = ({
 				</TooltipContent>
 			</Tooltip>
 
-			{/* 逻辑符号 (不是最后一个条件时显示) */}
+			{/* Logical symbol (shown when not the last condition) */}
 			{!isLast && logicalSymbol && (
 				<Badge
 					variant="secondary"
@@ -131,20 +131,20 @@ export function IfElseCaseItem({
 	handleId,
 	handleColor,
 }: IfElseCaseItemProps) {
-	// 使用 caseIndex 来确定显示的编号和类型标签，如果没有则回退到 caseId
+	// Use caseIndex to determine display number and type label, fall back to caseId if not provided
 	const displayIndex = caseIndex ?? caseItem.caseId;
 	const caseTypeLabel = getCaseTypeLabel(displayIndex);
 	const { t } = useTranslation();
 
 	return (
 		<div className="relative">
-			{/* 标题 */}
+			{/* Title */}
 			<div className="flex items-center justify-between gap-2 pr-2 pl-1 relative">
 				<span className="text-xs font-bold text-muted-foreground">
 					{t("ifElseNode.case")}-{displayIndex}
 				</span>
 				<span className="text-sm font-bold">{caseTypeLabel}</span>
-				{/* 右侧连接点 - 直接放在内容框右侧 */}
+				{/* Right handle - placed directly on the right side of content box */}
 				<BaseHandle
 					id={handleId}
 					type="source"
@@ -156,9 +156,9 @@ export function IfElseCaseItem({
 			<div className="flex items-center justify-between px-2 py-2 bg-gray-100 rounded-md relative mb-2">
 				<div className="flex items-center gap-2 justify-between w-full">
 					<div className="flex flex-col gap-1 flex-1">
-						{/* 条件类型和ID */}
+						{/* Condition type and ID */}
 
-						{/* 条件列表 */}
+						{/* Condition list */}
 						<div className="text-xs text-muted-foreground space-y-1">
 							{caseItem.conditions.length === 0 ? (
 								<div className="text-xs text-muted-foreground">

@@ -9,14 +9,14 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLTRISTARConfigSchema = z.object({
-	// CDLTRISTAR 没有参数
+	// CDLTRISTAR has no parameters
 });
 
 export type CDLTRISTARConfigType = z.infer<typeof CDLTRISTARConfigSchema>;
 
 function buildCDLTRISTARConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLTRISTAR 不需要任何参数
+		// CDLTRISTAR doesn't need any parameters
 	};
 }
 
@@ -26,7 +26,7 @@ export const CDLTRISTARConfig: IndicatorConfig<CDLTRISTARConfigType> = {
 	displayName: "CDLTRISTAR",
 	description: "Tristar Pattern",
 	params: {
-		// CDLTRISTAR 没有参数
+		// CDLTRISTAR has no parameters
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

@@ -19,7 +19,7 @@ function NodeItem(props: NodeItemProps) {
 		event.dataTransfer.setData("application/reactflow", props.nodeType);
 		event.dataTransfer.effectAllowed = "move";
 
-		// 使用 zustand store 设置拖拽数据
+		// Use zustand store to set drag data
 		setDragNodeItem({
 			nodeId: props.nodeId,
 			nodeType: props.nodeType,
@@ -30,9 +30,9 @@ function NodeItem(props: NodeItemProps) {
 	};
 
 	const handleDragEnd = () => {
-		// 不要在这里立即清除 dragNodeItem，因为 onDrop 可能还没有触发
-		// setDragNodeItem 应该在 onDrop 完成后清除
-		// toast 也应该在实际添加节点后显示，而不是在拖拽结束时
+		// Don't immediately clear dragNodeItem here, because onDrop may not have triggered yet
+		// setDragNodeItem should be cleared after onDrop completes
+		// Toast should also be shown after actually adding the node, not when drag ends
 	};
 
 	return (
@@ -58,7 +58,7 @@ function NodeItem(props: NodeItemProps) {
 	);
 }
 
-// 节点列表面板
+// Node list panel
 const NodeListPanel: React.FC = () => {
 	const [searchTerm, setSearchTerm] = useState("");
 	const { t } = useTranslation();
@@ -96,7 +96,7 @@ const NodeListPanel: React.FC = () => {
 
 	return (
 		<div className="bg-white rounded-lg shadow-sm border border-gray-200 px-3 pb-3 pt-8 w-[240px] relative">
-			{/* 搜索框 - 绝对定位到顶部，为关闭按钮留出空间 */}
+			{/* Search box - absolutely positioned at top, leaving space for close button */}
 			<div className="pt-0">
 				<div className="relative">
 					<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -110,7 +110,7 @@ const NodeListPanel: React.FC = () => {
 			</div>
 			<Separator className="mt-4" />
 
-			{/* 节点列表 */}
+			{/* Node list */}
 			<ScrollArea className="h-[420px] ">
 				<div className="space-y-3 py-2 pr-2">
 					{filteredCategories.length > 0 ? (

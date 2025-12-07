@@ -13,7 +13,7 @@ import {
 } from "@/types/node/variable-node";
 import { calculateNextExecutionTime, generateCronExpression } from "./utils";
 
-// 星期选项定义（翻译键）
+// Weekday options definition (i18n keys)
 const WEEKDAY_I18N_KEYS = [
 	{ value: 1, key: "weekdayAbbr.monday" },
 	{ value: 2, key: "weekdayAbbr.tuesday" },
@@ -34,7 +34,7 @@ const ScheduleConfiger: React.FC<ScheduleConfigerProps> = ({
 	onChange,
 }) => {
 	const { t } = useTranslation();
-	// 包装 onChange，自动生成 cron 表达式
+	// Wrap onChange, automatically generate cron expression
 	const handleConfigChange = (newConfig: ScheduledTimerConfig) => {
 		const configWithCron = {
 			...newConfig,
@@ -55,7 +55,7 @@ const ScheduleConfiger: React.FC<ScheduleConfigerProps> = ({
 								| "daily"
 								| "weekly"
 								| "monthly";
-							// 使用工厂函数创建默认配置
+							// Use factory function to create default config
 							const newConfig = createDefaultScheduledConfig(newMode);
 							handleConfigChange(newConfig);
 						}}
@@ -72,7 +72,7 @@ const ScheduleConfiger: React.FC<ScheduleConfigerProps> = ({
 						className="h-8 w-auto min-w-20"
 					/>
 
-					{/* 每小时模式显示间隔和分钟 */}
+					{/* Hourly mode displays interval and minutes */}
 					{config.repeatMode === "hourly" ? (
 						<>
 							<span className="text-sm text-muted-foreground whitespace-nowrap">
@@ -159,7 +159,7 @@ const ScheduleConfiger: React.FC<ScheduleConfigerProps> = ({
 				</div>
 			</div>
 
-			{/* 月份日期选择 - 使用 RadioGroup */}
+			{/* Month day selection - Using RadioGroup */}
 			{config.repeatMode === "monthly" && (
 				<RadioGroup
 					value={
@@ -172,23 +172,23 @@ const ScheduleConfiger: React.FC<ScheduleConfigerProps> = ({
 						let fallbackStrategy: MonthlyFallbackStrategy | undefined;
 
 						if (value === "first") {
-							// "第一天" 使用字符串 "first"
+							// "First day" uses string "first"
 							dayValue = "first";
 							fallbackStrategy = undefined;
 						} else if (value === "last") {
-							// "最后一天" 使用特殊字符串 "last"
+							// "Last day" uses special string "last"
 							dayValue = "last";
 							fallbackStrategy = undefined;
 						} else if (value === "custom") {
-							// 保持当前数字值或默认为1
+							// Keep current number value or default to 1
 							dayValue =
 								typeof config.dayOfMonth === "number" ? config.dayOfMonth : 1;
-							// 如果是29/30/31，保留或设置回退策略
+							// If it's 29/30/31, retain or set fallback strategy
 							if (typeof dayValue === "number" && dayValue >= 29) {
 								fallbackStrategy = config.monthlyFallback || "last_day";
 							}
 						} else {
-							// 兜底逻辑
+							// Fallback logic
 							dayValue = value as DayOfMonth;
 							fallbackStrategy = undefined;
 						}
@@ -201,7 +201,7 @@ const ScheduleConfiger: React.FC<ScheduleConfigerProps> = ({
 					}}
 					className="space-y-2"
 				>
-					{/* 第 n 天（自定义日期） */}
+					{/* Day n (custom date) */}
 					<div className="space-y-2">
 						<div className="flex items-center space-x-2">
 							<RadioGroupItem value="custom" id="day-custom" />
@@ -221,7 +221,7 @@ const ScheduleConfiger: React.FC<ScheduleConfigerProps> = ({
 										handleConfigChange({
 											...config,
 											dayOfMonth: dayValue,
-											// 当选择29/30/31时，如果没有设置回退策略，默认为 last-day
+											// When selecting 29/30/31, if no fallback strategy is set, default to last-day
 											monthlyFallback:
 												dayValue >= 29
 													? config.monthlyFallback || "last_day"
@@ -238,7 +238,7 @@ const ScheduleConfiger: React.FC<ScheduleConfigerProps> = ({
 							</Label>
 						</div>
 
-						{/* 策略选择 - 当选择29/30/31天时，紧跟在第n天下方 */}
+						{/* Strategy selection - When selecting 29/30/31 days, appears directly below day n */}
 						{typeof config.dayOfMonth === "number" &&
 							config.dayOfMonth >= 29 && (
 								<div className="ml-8 space-y-1.5 rounded-md border border-orange-200 bg-orange-50 p-2">
@@ -297,7 +297,7 @@ const ScheduleConfiger: React.FC<ScheduleConfigerProps> = ({
 							)}
 					</div>
 
-					{/* 特殊选项 */}
+					{/* Special options */}
 					<div className="flex items-center space-x-2">
 						<RadioGroupItem value="first" id="day-first" />
 						<Label htmlFor="day-first" className="cursor-pointer font-normal">
@@ -313,7 +313,7 @@ const ScheduleConfiger: React.FC<ScheduleConfigerProps> = ({
 				</RadioGroup>
 			)}
 
-			{/* 星期选择 - 常驻显示 */}
+			{/* Week selection - Always displayed */}
 			{config.repeatMode === "weekly" && (
 				<div className="flex items-center gap-2 flex-wrap">
 					{WEEKDAY_I18N_KEYS.map((day) => {
@@ -330,7 +330,7 @@ const ScheduleConfiger: React.FC<ScheduleConfigerProps> = ({
 										: "hover:bg-muted"
 								}`}
 								onClick={() => {
-									// 每周模式：单选
+									// Weekly mode: single selection
 									handleConfigChange({
 										...config,
 										dayOfWeek: day.value,
@@ -344,7 +344,7 @@ const ScheduleConfiger: React.FC<ScheduleConfigerProps> = ({
 				</div>
 			)}
 
-			{/* 每天模式的星期选择 - 多选 */}
+			{/* Daily mode week selection - Multiple selection */}
 			{config.repeatMode === "daily" && (
 				<div className="flex items-center gap-2 flex-wrap">
 					{WEEKDAY_I18N_KEYS.map((day) => {
@@ -361,7 +361,7 @@ const ScheduleConfiger: React.FC<ScheduleConfigerProps> = ({
 										: "hover:bg-muted"
 								}`}
 								onClick={() => {
-									// 每天模式：多选
+									// Daily mode: multiple selection
 									const currentWeekdays = config.daysOfWeek || [];
 									let newWeekdays: number[];
 
@@ -375,7 +375,7 @@ const ScheduleConfiger: React.FC<ScheduleConfigerProps> = ({
 										);
 									}
 
-									// 确保至少有一个选中
+									// Ensure at least one is selected
 									if (newWeekdays.length > 0) {
 										handleConfigChange({
 											...config,
@@ -391,7 +391,7 @@ const ScheduleConfiger: React.FC<ScheduleConfigerProps> = ({
 				</div>
 			)}
 
-			{/* 下次执行时间预览 */}
+			{/* Next execution time preview */}
 			<div className="text-xs text-muted-foreground">
 				{t("variableNode.timerConfig.nextExecutionTime")}:{" "}
 				{formatDate(calculateNextExecutionTime(config))}

@@ -24,7 +24,7 @@ export function NavMain({
 	const location = useLocation();
 	return (
 		<SidebarGroup>
-			{/* <SidebarGroupLabel>常用功能</SidebarGroupLabel> */}
+			{/* <SidebarGroupLabel>Common Features</SidebarGroupLabel> */}
 			<SidebarMenu>
 				{items.map((item) => (
 					<SidebarMenuItem key={item.title}>

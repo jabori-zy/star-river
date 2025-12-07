@@ -7,28 +7,28 @@ import {
 } from "./utils";
 
 /**
- * BOOLEAN 类型提示生成器
- * 支持操作：
- * - get: 获取变量值
- * - update: 更新变量（set/toggle）
- * - reset: 重置变量
+ * BOOLEAN type hint generator
+ * Supported operations:
+ * - get: Get variable value
+ * - update: Update variable (set/toggle)
+ * - reset: Reset variable
  */
 export const generateBooleanHint = (
 	params: HintGeneratorParams,
 ): React.ReactNode => {
 	const { varOperation } = params;
 
-	// ============ GET 操作 ============
+	// ============ GET operation ============
 	if (varOperation === "get") {
 		return generateGetOperation(params);
 	}
 
-	// ============ UPDATE 操作 ============
+	// ============ UPDATE operation ============
 	if (varOperation === "update") {
 		return generateUpdateOperation(params);
 	}
 
-	// ============ RESET 操作 ============
+	// ============ RESET operation ============
 	if (varOperation === "reset") {
 		return generateResetOperation(params);
 	}
@@ -36,14 +36,14 @@ export const generateBooleanHint = (
 	return null;
 };
 
-// ==================== GET 操作 ====================
+// ==================== GET operation ====================
 
 /**
- * GET 操作 - 获取变量值
- * 场景：
- * 1. 获取交易对变量（有 symbol）
- * 2. 已有值 - 显示当前值
- * 3. 默认 - 将会获取值
+ * GET operation - Get variable value
+ * Scenarios:
+ * 1. Get trading pair variable (has symbol)
+ * 2. Has value - Display current value
+ * 3. Default - Will get value
  */
 function generateGetOperation(params: HintGeneratorParams): React.ReactNode {
 	const {
@@ -62,7 +62,7 @@ function generateGetOperation(params: HintGeneratorParams): React.ReactNode {
 	});
 	const valueLabel = value === "false" ? "False" : "True";
 
-	// 场景1: 获取交易对变量
+	// Scenario 1: Get trading pair variable
 	if (symbol) {
 		return (
 			<>
@@ -73,7 +73,7 @@ function generateGetOperation(params: HintGeneratorParams): React.ReactNode {
 		);
 	}
 
-	// 场景2: 已有值 - 显示当前值
+	// Scenario 2: Has value - Display current value
 	if (value) {
 		return (
 			<>
@@ -84,7 +84,7 @@ function generateGetOperation(params: HintGeneratorParams): React.ReactNode {
 		);
 	}
 
-	// 场景3: 默认 - 将会获取值
+	// Scenario 3: Default - Will get value
 	return (
 		<>
 			{triggerPrefix} {t("variableNode.hint.get")}{" "}
@@ -93,29 +93,29 @@ function generateGetOperation(params: HintGeneratorParams): React.ReactNode {
 	);
 }
 
-// ==================== UPDATE 操作 ====================
+// ==================== UPDATE operation ====================
 
 /**
- * UPDATE 操作 - 更新变量
- * 操作类型：
- * - toggle: 切换 True/False
- * - set: 设置为指定值（支持数据流触发）
+ * UPDATE operation - Update variable
+ * Operation types:
+ * - toggle: Toggle True/False
+ * - set: Set to specified value (supports dataflow trigger)
  */
 function generateUpdateOperation(params: HintGeneratorParams): React.ReactNode {
 	const { operationType, dataflowTrigger } = params;
 
-	// toggle 操作
+	// toggle operation
 	if (operationType === "toggle") {
 		return generateToggleHint(params);
 	}
 
-	// set 操作
+	// set operation
 	if (operationType === "set") {
-		// 数据流触发
+		// Dataflow trigger
 		if (dataflowTrigger?.fromVarDisplayName) {
 			return generateDataflowSetHint(params);
 		}
-		// 条件/定时触发
+		// Condition/timer trigger
 		return generateNormalSetHint(params);
 	}
 
@@ -123,7 +123,7 @@ function generateUpdateOperation(params: HintGeneratorParams): React.ReactNode {
 }
 
 /**
- * Toggle 操作 - 在 True/False 之间切换
+ * Toggle operation - Toggle between True/False
  */
 function generateToggleHint(params: HintGeneratorParams): React.ReactNode {
 	const { t, variableDisplayName, conditionTrigger, timerTrigger } = params;
@@ -142,7 +142,7 @@ function generateToggleHint(params: HintGeneratorParams): React.ReactNode {
 }
 
 /**
- * 数据流触发的 Set 操作 - 设置为来源变量的值
+ * Dataflow-triggered Set operation - Set to source variable value
  */
 function generateDataflowSetHint(params: HintGeneratorParams): React.ReactNode {
 	const { variableDisplayName, dataflowTrigger, t } = params;
@@ -157,7 +157,7 @@ function generateDataflowSetHint(params: HintGeneratorParams): React.ReactNode {
 }
 
 /**
- * 普通 Set 操作 - 设置为指定值（条件/定时触发）
+ * Normal Set operation - Set to specified value (condition/timer trigger)
  */
 function generateNormalSetHint(params: HintGeneratorParams): React.ReactNode {
 	const { t, variableDisplayName, value, conditionTrigger, timerTrigger } =
@@ -180,10 +180,10 @@ function generateNormalSetHint(params: HintGeneratorParams): React.ReactNode {
 	);
 }
 
-// ==================== RESET 操作 ====================
+// ==================== RESET operation ====================
 
 /**
- * RESET 操作 - 重置变量为指定值
+ * RESET operation - Reset variable to specified value
  */
 function generateResetOperation(params: HintGeneratorParams): React.ReactNode {
 	const { t, variableDisplayName, value, conditionTrigger, timerTrigger } =

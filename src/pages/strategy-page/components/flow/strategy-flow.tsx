@@ -26,7 +26,7 @@ import { useReactFlow } from "@xyflow/react";
 import { isEqual, omit } from "lodash-es";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { DevTools } from "@/components/flow/devtools"; // 开发者工具
+import { DevTools } from "@/components/flow/devtools"; // Developer tools
 import ControlPanel from "@/components/flow/node-controllor";
 import NodePanel from "@/components/flow/node-panel";
 import edgeTypes from "@/constants/edgeTypes";
@@ -54,8 +54,8 @@ export default function StrategyFlow({
 }: StrategyFlowProps) {
 	const [nodes, setNodes] = useNodesState<Node>([]);
 	const [edges, setEdges] = useEdgesState<Edge>([]);
-	// 正在拖拽的节点
-	const { dragNodeItem, setDragNodeItem } = useDndNodeStore();
+	// Currently dragging node
+	const { dragNodeItem, setDragNodeItem} = useDndNodeStore();
 	const { screenToFlowPosition, getNodeConnections, updateNodeData } =
 		useReactFlow();
 	const { t } = useTranslation();
@@ -65,25 +65,25 @@ export default function StrategyFlow({
 		undefined,
 	);
 
-	// 创建一个唯一的 key 用于强制重新渲染，包含策略ID和交易模式
+	// Create a unique key for forcing re-render, includes strategy ID and trading mode
 	const flowKey = useMemo(() => {
 		return `${strategy.id}-${strategy.tradeMode}`;
 	}, [strategy.id, strategy.tradeMode]);
 
-	// 当策略数据变化时更新节点和边
+	// Update nodes and edges when strategy data changes
 	useEffect(() => {
-		// 清空现有节点和边，确保模式切换时完全重新渲染
+		// Clear existing nodes and edges to ensure complete re-render when mode switches
 		setNodes([]);
 		setEdges([]);
 
 		if (strategy.nodes?.length > 0) {
-			// 添加延迟确保清空操作完成
+			// Add delay to ensure clear operation completes
 			setTimeout(() => {
 				setNodes(strategy.nodes);
 				setEdges(strategy.edges || []);
 			}, 0);
 		}
-		// 如果没有节点和边，则创建一个开始节点
+		// If there are no nodes and edges, create a start node
 		else {
 			setTimeout(() => {
 				const startNodeData = createDefaultStartNodeData(
@@ -120,9 +120,9 @@ export default function StrategyFlow({
 				y: event.clientY,
 			});
 
-			// 使用函数式状态更新，基于时间戳和随机数生成唯一ID
+			// Use functional state update, generate unique ID based on timestamp and random number
 			setNodes((currentNodes) => {
-				// 生成唯一ID：节点类型 + 随机数
+				// Generate unique ID: node type + random number
 				const random = Math.random().toString(36).substring(2, 9);
 				const uniqueId = `${dragNodeItem.nodeId}_${random}`;
 
@@ -188,7 +188,7 @@ export default function StrategyFlow({
 				return currentNodes.concat(newNode);
 			});
 
-			// 清除拖拽状态
+			// Clear drag state
 			setDragNodeItem(null);
 		},
 		[
@@ -247,7 +247,7 @@ export default function StrategyFlow({
 		[setEdges, onSaveStatusChange],
 	);
 
-	// 当连接节点时，将会触发onConnect事件
+	// When connecting nodes, onConnect event will be triggered
 	const onConnect: OnConnect = useCallback(
 		(conn: Connection) => {
 			setEdges((eds) => {
@@ -264,7 +264,7 @@ export default function StrategyFlow({
 				return newEdges;
 			});
 
-			// 如果需要在连接建立后执行某些操作，使用 useEffect
+			// If you need to perform some operations after connection is established, use useEffect
 		},
 		[setEdges],
 	);
@@ -288,25 +288,25 @@ export default function StrategyFlow({
 
 	const onBeforeDeleteNode: OnBeforeDelete = useCallback(
 		async ({ nodes, edges }) => {
-			// 过滤掉 start node,不允许删除开始节点
+			// Filter out start node, don't allow deleting start node
 			const nodesToDelete = nodes.filter(
 				(nd) => nd.type !== NodeType.StartNode,
 			);
 
-			// 检查是否有 start node 在删除列表中
+			// Check if there are start nodes in the deletion list
 			const hasStartNode = nodes.length !== nodesToDelete.length;
 
-			// 如果包含 start node,弹出提示
+			// If contains start node, show toast
 			if (hasStartNode) {
 				toast.error(t("strategy.workflow.cannotDeleteStartNode"));
 
-				// 如果所有节点都是 start node,则阻止删除
+				// If all nodes are start nodes, prevent deletion
 				if (nodesToDelete.length === 0) {
 					return false;
 				}
 			}
 
-			// 返回过滤后的节点列表,只删除非 start node 的节点
+			// Return filtered node list, only delete non-start nodes
 			return {
 				nodes: nodesToDelete,
 				edges,
@@ -332,7 +332,7 @@ export default function StrategyFlow({
 				);
 			});
 
-			// 设置节点悬停状态 - 深度合并以保留 nodeConfig 中的其他属性
+			// Set node hover state - deep merge to preserve other properties in nodeConfig
 			if (node.data?.nodeConfig) {
 				updateNodeData(node.id, {
 					nodeConfig: {
@@ -361,7 +361,7 @@ export default function StrategyFlow({
 					}),
 				);
 			});
-			// 设置节点悬停状态 - 深度合并以保留 nodeConfig 中的其他属性
+			// Set node hover state - deep merge to preserve other properties in nodeConfig
 			if (node.data?.nodeConfig) {
 				updateNodeData(node.id, {
 					nodeConfig: {
@@ -374,7 +374,7 @@ export default function StrategyFlow({
 		[getNodeConnections, setEdges, updateNodeData],
 	);
 
-	// 添加 useEffect 来监听 edges 的变化
+	// Add useEffect to monitor edges changes
 	// useEffect(() => {
 	// console.log("Current nodes:", nodes);
 	// console.log("Current edges:", edges);
@@ -383,7 +383,7 @@ export default function StrategyFlow({
 	return (
 		<div className="flex-1 h-full w-full overflow-x-auto">
 			<ReactFlow
-				key={flowKey} // 使用 flowKey 强制重新渲染，确保模式切换时组件完全重置
+				key={flowKey} // Use flowKey to force re-render, ensure component is completely reset when mode switches
 				nodes={nodes}
 				edges={edges}
 				onNodesChange={onNodesChange}
@@ -411,10 +411,10 @@ export default function StrategyFlow({
 					<DevTools />
 				)}
 				<MiniMap position="bottom-left" />
-				{/* 背景颜色：深灰色 */}
+				{/* Background */}
 				<Background />
 				<NodeToolbar />
-				{/* 节点面板 */}
+				{/* Node panel */}
 
 				{selectedNodeId && (
 					<NodePanel
@@ -422,7 +422,7 @@ export default function StrategyFlow({
 						setSelectedNodeId={setSelectedNodeId}
 					/>
 				)}
-				{/* 节点控制面板 */}
+				{/* Node control panel */}
 				<ControlPanel />
 			</ReactFlow>
 		</div>

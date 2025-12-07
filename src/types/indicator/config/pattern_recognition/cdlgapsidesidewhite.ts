@@ -9,7 +9,7 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLGAPSIDESIDEWHITEConfigSchema = z.object({
-	// CDLGAPSIDESIDEWHITE 没有参数
+	// CDLGAPSIDESIDEWHITE has no parameters
 });
 
 export type CDLGAPSIDESIDEWHITEConfigType = z.infer<
@@ -18,7 +18,7 @@ export type CDLGAPSIDESIDEWHITEConfigType = z.infer<
 
 function buildCDLGAPSIDESIDEWHITEConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLGAPSIDESIDEWHITE 不需要任何参数
+		// CDLGAPSIDESIDEWHITE doesn't need any parameters
 	};
 }
 
@@ -29,7 +29,7 @@ export const CDLGAPSIDESIDEWHITEConfig: IndicatorConfig<CDLGAPSIDESIDEWHITEConfi
 		displayName: "CDLGAPSIDESIDEWHITE",
 		description: "Up/Down-gap side-by-side white lines",
 		params: {
-			// CDLGAPSIDESIDEWHITE 没有参数
+			// CDLGAPSIDESIDEWHITE has no parameters
 		},
 		indicatorValueConfig: {
 			timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

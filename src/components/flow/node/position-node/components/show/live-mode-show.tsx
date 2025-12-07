@@ -7,10 +7,10 @@ interface LiveModeShowProps {
 }
 
 const LiveModeShow: React.FC<LiveModeShowProps> = ({ id, data }) => {
-	// 获取实盘模式配置
+	// Get live mode config
 	const liveConfig = data.liveConfig;
 
-	// 如果没有配置或者没有仓位操作，显示提示信息
+	// If no config or no position operations, show hint message
 	if (
 		!liveConfig ||
 		!liveConfig.positionOperations ||
@@ -18,22 +18,22 @@ const LiveModeShow: React.FC<LiveModeShowProps> = ({ id, data }) => {
 	) {
 		return (
 			<div className="text-sm text-muted-foreground p-2 text-center">
-				暂无仓位操作配置
+				No position operation configured
 			</div>
 		);
 	}
 
 	return (
 		<div className="space-y-2">
-			{/* 显示账户信息 */}
+			{/* Show account info */}
 			{liveConfig.selectedAccount && (
 				<div className="text-xs text-muted-foreground px-2">
-					账户: {liveConfig.selectedAccount.accountName} (
+					Account: {liveConfig.selectedAccount.accountName} (
 					{liveConfig.selectedAccount.exchange})
 				</div>
 			)}
 
-			{/* 渲染所有的仓位操作 */}
+			{/* Render all position operations */}
 			{liveConfig.positionOperations.map((operationConfig) => (
 				<PositionHandleItem
 					key={operationConfig.configId}

@@ -8,30 +8,30 @@ import {
 } from "@/types/indicator/indicator-config";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
-// PLUS_DM 指标配置的 Zod schema
+// Zod schema for PLUS_DM indicator configuration
 const PlusDmConfigSchema = z.object({
 	timePeriod: z.number().int().positive(),
 });
 
 export type PlusDmConfigType = z.infer<typeof PlusDmConfigSchema>;
 
-// PLUS_DM指标的参数映射函数
+// Parameter mapping function for PLUS_DM indicator
 function buildPlusDmConfig(params: Map<string, string>): unknown {
 	return {
 		timePeriod: parseInt(params.get("time_period") || "0"),
 	};
 }
 
-// PLUS_DM指标配置实现
+// PLUS_DM indicator configuration implementation
 export const PlusDmConfig: IndicatorConfig<PlusDmConfigType> = {
 	category: IndicatorCategory.MOMENTUM,
 	type: IndicatorType.PLUS_DM,
 	displayName: "Plus DM",
-	description: "正方向性运动",
+	description: "Plus Directional Movement",
 	params: {
 		timePeriod: {
 			label: "indicator.configField.timePeriod",
-			description: "选择正方向性运动的时间周期",
+			description: "Select time period for Plus Directional Movement",
 			defaultValue: 14,
 			required: true,
 			legendShowName: "period",
@@ -62,7 +62,7 @@ export const PlusDmConfig: IndicatorConfig<PlusDmConfigType> = {
 			]),
 		);
 
-		// 使用 Zod 验证配置
+		// Validate configuration using Zod
 		const validatedConfig = PlusDmConfigSchema.parse(config);
 		return validatedConfig;
 	},
@@ -71,7 +71,7 @@ export const PlusDmConfig: IndicatorConfig<PlusDmConfigType> = {
 		return getIndicatorValues(this.indicatorValueConfig);
 	},
 
-	// 使用通用解析函数
+	// Use generic parsing function
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
 		IndicatorType.PLUS_DM,
 		PlusDmConfigSchema,

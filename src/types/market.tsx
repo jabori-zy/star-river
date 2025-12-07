@@ -13,11 +13,11 @@ export type Instrument = {
 };
 
 export enum ExchangeStatus {
-	NotRegist = "NotRegistered", // 未注册
-	Created = "Created", // 已创建
-	Initializing = "Initializing", // 初始化中
-	Connected = "Connected", // 已连接
-	Stopping = "Stopping", // 停止中
-	Stopped = "Stopped", // 已停止
-	Error = "Error", // 错误
+	NotRegist = "NotRegistered", // Not registered
+	Created = "Created", // Created
+	Initializing = "Initializing", // Initializing
+	Connected = "Connected", // Connected
+	Stopping = "Stopping", // Stopping
+	Stopped = "Stopped", // Stopped
+	Error = "Error", // Error
 }

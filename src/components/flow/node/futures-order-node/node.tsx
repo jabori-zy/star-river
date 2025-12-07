@@ -40,26 +40,26 @@ const FuturesOrderNode: React.FC<NodeProps<FuturesOrderNodeType>> = ({
 	const borderColor =
 		currentNodeData?.nodeConfig?.borderColor ||
 		getNodeDefaultColor(NodeType.FuturesOrderNode);
-	// 获取当前的交易模式
+	// Get current trading mode
 	const { tradingMode } = useTradingModeStore();
 
-	// 获取开始节点数据
+	// Get start node data
 	const { getStartNodeData } = useStrategyWorkflow();
 	const startNodeData = getStartNodeData();
 	const startNodeTimeRange =
 		startNodeData?.backtestConfig?.exchangeModeConfig?.timeRange;
 
-	// 使用新版本 hook 管理回测配置
+	// Use new version hook to manage backtest config
 	const { updateTimeRange } = useBacktestConfig({ id });
 
-	// 监听开始节点的时间范围变化
+	// Listen for start node time range changes
 	useEffect(() => {
 		if (startNodeTimeRange) {
 			updateTimeRange(startNodeTimeRange);
 		}
 	}, [startNodeTimeRange, updateTimeRange]);
 
-	// 根据交易模式渲染不同的显示组件
+	// Render different display components based on trading mode
 	const renderModeShow = () => {
 		switch (tradingMode) {
 			case TradeMode.LIVE:

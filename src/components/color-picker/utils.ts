@@ -1,7 +1,7 @@
 import type { ColorValue } from "./types";
 
 /**
- * 将十六进制颜色转换为RGB
+ * Convert hexadecimal color to RGB
  */
 export function hexToRgb(
 	hex: string,
@@ -17,14 +17,14 @@ export function hexToRgb(
 }
 
 /**
- * 将RGB转换为十六进制
+ * Convert RGB to hexadecimal
  */
 export function rgbToHex(r: number, g: number, b: number): string {
 	return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
 }
 
 /**
- * 将RGB转换为HSL
+ * Convert RGB to HSL
  */
 export function rgbToHsl(
 	r: number,
@@ -72,7 +72,7 @@ export function rgbToHsl(
 }
 
 /**
- * 将HSL转换为RGB
+ * Convert HSL to RGB
  */
 export function hslToRgb(
 	h: number,
@@ -112,7 +112,7 @@ export function hslToRgb(
 }
 
 /**
- * 将RGB转换为HSV
+ * Convert RGB to HSV
  */
 export function rgbToHsv(
 	r: number,
@@ -157,7 +157,7 @@ export function rgbToHsv(
 }
 
 /**
- * 将HSV转换为RGB
+ * Convert HSV to RGB
  */
 export function hsvToRgb(
 	h: number,
@@ -196,21 +196,21 @@ export function hsvToRgb(
 }
 
 /**
- * 验证十六进制颜色格式
+ * Validate hexadecimal color format
  */
 export function isValidHex(hex: string): boolean {
 	return /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(hex);
 }
 
 /**
- * 验证RGB颜色格式
+ * Validate RGB color format
  */
 export function isValidRgb(rgb: string): boolean {
 	return /^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/.test(rgb);
 }
 
 /**
- * 解析RGB字符串
+ * Parse RGB string
  */
 export function parseRgb(
 	rgb: string,
@@ -230,7 +230,7 @@ export function parseRgb(
 }
 
 /**
- * 将颜色字符串转换为完整的ColorValue对象
+ * Convert color string to complete ColorValue object
  */
 export function parseColor(color: string, alpha: number = 1): ColorValue {
 	const hex = color.startsWith("#") ? color : `#${color}`;
@@ -246,7 +246,7 @@ export function parseColor(color: string, alpha: number = 1): ColorValue {
 }
 
 /**
- * 将颜色和透明度组合为RGBA字符串
+ * Combine color and alpha into RGBA string
  */
 export function colorToRgba(hex: string, alpha: number): string {
 	const rgb = hexToRgb(hex);
@@ -255,7 +255,7 @@ export function colorToRgba(hex: string, alpha: number): string {
 }
 
 /**
- * 根据模式格式化颜色值
+ * Format color value based on mode
  */
 export function formatColorByMode(hex: string, mode: string): string {
 	const rgb = hexToRgb(hex);
@@ -272,15 +272,15 @@ export function formatColorByMode(hex: string, mode: string): string {
 }
 
 /**
- * 将任意格式的颜色转换为HEX
+ * Convert color in any format to HEX
  */
 export function convertToHex(color: string): string {
-	// 如果已经是HEX格式
+	// If already in HEX format
 	if (isValidHex(color)) {
 		return color;
 	}
 
-	// 尝试解析RGB
+	// Try to parse RGB
 	if (isValidRgb(color)) {
 		const rgb = parseRgb(color);
 		if (rgb) {
@@ -288,12 +288,12 @@ export function convertToHex(color: string): string {
 		}
 	}
 
-	// 如果都不匹配，返回默认值
+	// If no match, return default value
 	return "#000000";
 }
 
 /**
- * 验证颜色格式
+ * Validate color format
  */
 export function isValidColor(color: string, mode: string): boolean {
 	switch (mode) {
@@ -307,19 +307,19 @@ export function isValidColor(color: string, mode: string): boolean {
 }
 
 /**
- * 默认预设颜色
+ * Default preset colors
  */
 export const DEFAULT_PRESET_COLORS = [
-	"#FF0000", // 红色
-	"#FF8000", // 橙色
-	"#FFFF00", // 黄色
-	"#80FF00", // 黄绿色
-	"#00FF00", // 绿色
-	"#00FF80", // 青绿色
-	"#00FFFF", // 青色
-	"#0080FF", // 天蓝色
-	"#0000FF", // 蓝色
-	"#8000FF", // 紫蓝色
-	"#FF00FF", // 紫色
-	"#FF0080", // 粉红色
+	"#FF0000", // Red
+	"#FF8000", // Orange
+	"#FFFF00", // Yellow
+	"#80FF00", // Yellow-green
+	"#00FF00", // Green
+	"#00FF80", // Cyan-green
+	"#00FFFF", // Cyan
+	"#0080FF", // Sky blue
+	"#0000FF", // Blue
+	"#8000FF", // Purple-blue
+	"#FF00FF", // Purple
+	"#FF0080", // Pink
 ];

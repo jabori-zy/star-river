@@ -14,7 +14,7 @@ import { parseKey } from "@/utils/parse-key";
 import { getIndicatorConfigDisplay, type IndicatorOption } from "./utils";
 
 interface IndicatorSelectorProps {
-	klineKeyStr: string; // K线指标的缓存键
+	klineKeyStr: string; // K-line indicator cache key
 	onIndicatorSelect?: (indicatorKey: string) => void;
 	selectedIndicatorKey?: string;
 	placeholder?: string;
@@ -27,7 +27,7 @@ export default function IndicatorSelector({
 	klineKeyStr,
 	onIndicatorSelect,
 	selectedIndicatorKey,
-	placeholder = "选择指标",
+	placeholder = "Select indicator",
 	className = "",
 	disabled = false,
 	strategyId,
@@ -37,7 +37,7 @@ export default function IndicatorSelector({
 	const [loading, setLoading] = useState(false);
 	const [isSelectOpen, setIsSelectOpen] = useState(false);
 
-	// 解析K线指标键
+	// Parse K-line indicator key
 	const klineConfig = useMemo(() => {
 		try {
 			return parseKey(klineKeyStr) as KlineKey;
@@ -46,7 +46,7 @@ export default function IndicatorSelector({
 		}
 	}, [klineKeyStr]);
 
-	// 获取策略缓存键
+	// Get strategy cache keys
 	const fetchCacheKeys = useCallback(async () => {
 		setLoading(true);
 		try {
@@ -59,13 +59,13 @@ export default function IndicatorSelector({
 
 			setKeys(parsedKeyMap);
 		} catch (error) {
-			console.error("获取缓存键失败:", error);
+			console.error("Failed to get cache keys:", error);
 		} finally {
 			setLoading(false);
 		}
 	}, [strategyId]);
 
-	// 计算可用的指标选项
+	// Calculate available indicator options
 	const availableIndicatorOptions = useMemo((): IndicatorOption[] => {
 		if (!klineConfig || Object.keys(keys).length === 0) return [];
 
@@ -76,7 +76,7 @@ export default function IndicatorSelector({
 			if (key.startsWith("indicator|")) {
 				const indicatorData = value as IndicatorKey;
 
-				// 确保交易所、交易对和时间周期完全一致
+				// Ensure exchange, symbol, and interval are completely consistent
 				if (
 					indicatorData.exchange === klineConfig.exchange &&
 					indicatorData.symbol === klineConfig.symbol &&
@@ -102,14 +102,14 @@ export default function IndicatorSelector({
 		return options;
 	}, [keys, klineConfig, t]);
 
-	// 组件挂载时获取缓存数据
+	// Get cache data when component mounts
 	useEffect(() => {
 		if (strategyId && klineConfig) {
 			fetchCacheKeys();
 		}
 	}, [strategyId, klineConfig, fetchCacheKeys]);
 
-	// 渲染指标选项
+	// Render indicator option
 	const renderIndicatorOption = (option: IndicatorOption) => {
 		const configDisplay = getIndicatorConfigDisplay(
 			option.indicatorConfig,
@@ -126,7 +126,7 @@ export default function IndicatorSelector({
 		);
 	};
 
-	// 获取选中的选项
+	// Get selected option
 	const selectedOption = selectedIndicatorKey
 		? availableIndicatorOptions.find(
 				(option) => option.key === selectedIndicatorKey,
@@ -136,7 +136,7 @@ export default function IndicatorSelector({
 	if (loading) {
 		return (
 			<div className="flex items-center justify-center py-2">
-				<div className="text-sm text-gray-500">加载指标数据...</div>
+				<div className="text-sm text-gray-500">Loading indicator data...</div>
 			</div>
 		);
 	}
@@ -144,7 +144,7 @@ export default function IndicatorSelector({
 	if (!klineConfig) {
 		return (
 			<div className="flex items-center justify-center py-2">
-				<div className="text-sm text-red-500">无效的指标键</div>
+				<div className="text-sm text-red-500">Invalid indicator key</div>
 			</div>
 		);
 	}
@@ -152,7 +152,7 @@ export default function IndicatorSelector({
 	if (availableIndicatorOptions.length === 0) {
 		return (
 			<div className="flex items-center justify-center py-2">
-				<div className="text-sm text-gray-500">暂无可用指标</div>
+				<div className="text-sm text-gray-500">No available indicators</div>
 			</div>
 		);
 	}

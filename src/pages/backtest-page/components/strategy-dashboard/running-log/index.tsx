@@ -32,7 +32,7 @@ const RunningLog = forwardRef<RunningLogRef, RunningLogProps>(
 		>([]);
 		const logStreamSubscriptionRef = useRef<Subscription | null>(null);
 
-		// 暴露清空日志的方法
+		// Expose method for clearing logs
 		useImperativeHandle(
 			ref,
 			() => ({
@@ -43,10 +43,10 @@ const RunningLog = forwardRef<RunningLogRef, RunningLogProps>(
 			[],
 		);
 
-		// 初始化日志数据
+		// Initialize log data
 		const getRunningLogData = useCallback(async () => {
 			try {
-				// 尝试从API获取数据
+				// Try to fetch data from API
 				const logData = await getStrategyRunningLog(strategyId);
 
 				setLogData(
@@ -58,37 +58,37 @@ const RunningLog = forwardRef<RunningLogRef, RunningLogProps>(
 				);
 			} catch (error) {
 				console.warn("获取策略运行日志失败", error);
-				// API失败时使用mock数据
+				// Use mock data when API fails
 			}
 		}, [strategyId]);
 
-		// 初始化日志数据
+		// Initialize log data
 		useEffect(() => {
 			getRunningLogData();
 		}, [getRunningLogData]);
 
-		// SSE实时数据订阅
+		// SSE real-time data subscription
 		useEffect(() => {
-			// 清理之前的订阅（如果存在）
+			// Clean up previous subscription (if exists)
 			if (logStreamSubscriptionRef.current) {
 				logStreamSubscriptionRef.current.unsubscribe();
 				logStreamSubscriptionRef.current = null;
 			}
 
-			// 创建运行日志数据流订阅
+			// Create running log data stream subscription
 			const logStream = createBacktestStrategyRunningLogStream(true);
 			const subscription = logStream.subscribe((logEvent) => {
-				// 只处理当前策略的日志
+				// Only process logs for current strategy
 				if (logEvent.strategyId === strategyId) {
 					setLogData((prev) => {
-						// 检查是否已存在相同的日志（基于timestamp和message防重复）
+						// Check if the same log already exists (based on timestamp and message to prevent duplicates)
 						const exists = prev.some(
 							(log) =>
 								log.datetime === logEvent.datetime &&
 								log.message === logEvent.message,
 						);
 						if (!exists) {
-							// 倒序插入，最新的日志在前面
+							// Insert in reverse order, newest logs first
 							return [logEvent, ...prev];
 						}
 						return prev;

@@ -9,14 +9,14 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLHIKKAKEConfigSchema = z.object({
-	// CDLHIKKAKE 没有参数
+	// CDLHIKKAKE has no parameters
 });
 
 export type CDLHIKKAKEConfigType = z.infer<typeof CDLHIKKAKEConfigSchema>;
 
 function buildCDLHIKKAKEConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLHIKKAKE 不需要任何参数
+		// CDLHIKKAKE doesn't need any parameters
 	};
 }
 
@@ -26,7 +26,7 @@ export const CDLHIKKAKEConfig: IndicatorConfig<CDLHIKKAKEConfigType> = {
 	displayName: "CDLHIKKAKE",
 	description: "Hikkake Pattern",
 	params: {
-		// CDLHIKKAKE 没有参数
+		// CDLHIKKAKE has no parameters
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

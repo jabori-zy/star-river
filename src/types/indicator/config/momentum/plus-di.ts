@@ -8,30 +8,30 @@ import {
 } from "@/types/indicator/indicator-config";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
-// PLUS_DI 指标配置的 Zod schema
+// Zod schema for PLUS_DI indicator configuration
 const PlusDiConfigSchema = z.object({
 	timePeriod: z.number().int().positive(),
 });
 
 export type PlusDiConfigType = z.infer<typeof PlusDiConfigSchema>;
 
-// PLUS_DI指标的参数映射函数
+// Parameter mapping function for PLUS_DI indicator
 function buildPlusDiConfig(params: Map<string, string>): unknown {
 	return {
 		timePeriod: parseInt(params.get("time_period") || "0"),
 	};
 }
 
-// PLUS_DI指标配置实现
+// PLUS_DI indicator configuration implementation
 export const PlusDiConfig: IndicatorConfig<PlusDiConfigType> = {
 	category: IndicatorCategory.MOMENTUM,
 	type: IndicatorType.PLUS_DI,
 	displayName: "Plus DI",
-	description: "正方向性指标",
+	description: "Plus Directional Indicator",
 	params: {
 		timePeriod: {
 			label: "indicator.configField.timePeriod",
-			description: "选择正方向性指标的时间周期",
+			description: "Select time period for Plus Directional Indicator",
 			defaultValue: 14,
 			required: true,
 			legendShowName: "period",
@@ -62,7 +62,7 @@ export const PlusDiConfig: IndicatorConfig<PlusDiConfigType> = {
 			]),
 		);
 
-		// 使用 Zod 验证配置
+		// Validate configuration using Zod
 		const validatedConfig = PlusDiConfigSchema.parse(config);
 		return validatedConfig;
 	},
@@ -71,7 +71,7 @@ export const PlusDiConfig: IndicatorConfig<PlusDiConfigType> = {
 		return getIndicatorValues(this.indicatorValueConfig);
 	},
 
-	// 使用通用解析函数
+	// Use generic parsing function
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
 		IndicatorType.PLUS_DI,
 		PlusDiConfigSchema,

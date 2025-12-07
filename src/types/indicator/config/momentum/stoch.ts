@@ -11,7 +11,7 @@ import {
 	MATypeSchema,
 } from "@/types/indicator/schemas";
 
-// STOCH 指标配置的 Zod schema
+// Zod schema for STOCH indicator configuration
 const STOCHConfigSchema = z.object({
 	fastKPeriod: z.number().int().positive(),
 	slowKPeriod: z.number().int().positive(),
@@ -22,7 +22,7 @@ const STOCHConfigSchema = z.object({
 
 export type STOCHConfigType = z.infer<typeof STOCHConfigSchema>;
 
-// STOCH指标的参数映射函数
+// Parameter mapping function for STOCH indicator
 function buildSTOCHConfig(params: Map<string, string>): unknown {
 	return {
 		fastKPeriod: parseInt(params.get("fast_k_period") || "0"),
@@ -33,44 +33,44 @@ function buildSTOCHConfig(params: Map<string, string>): unknown {
 	};
 }
 
-// STOCH指标配置实现
+// STOCH indicator configuration implementation
 export const STOCHConfig: IndicatorConfig<STOCHConfigType> = {
 	category: IndicatorCategory.MOMENTUM,
 	type: IndicatorType.STOCH,
 	displayName: "STOCH",
-	description: "随机指标",
+	description: "Stochastic Oscillator",
 	params: {
 		fastKPeriod: {
 			label: "indicator.configField.fastKPeriod",
-			description: "选择快速K线的计算周期",
+			description: "Select calculation period for fast K line",
 			defaultValue: 5,
 			required: true,
 			legendShowName: "fast_k",
 		},
 		slowKPeriod: {
 			label: "indicator.configField.slowKPeriod",
-			description: "选择慢速K线的计算周期",
+			description: "Select calculation period for slow K line",
 			defaultValue: 3,
 			required: true,
 			legendShowName: "slow_k",
 		},
 		slowKMaType: {
 			label: "indicator.configField.slowKMaType",
-			description: "选择慢速K线的移动平均线类型",
+			description: "Select moving average type for slow K line",
 			defaultValue: MAType.SMA,
 			required: true,
 			legendShowName: "slow_k_ma",
 		},
 		slowDPeriod: {
 			label: "indicator.configField.slowDPeriod",
-			description: "选择慢速D线的计算周期",
+			description: "Select calculation period for slow D line",
 			defaultValue: 3,
 			required: true,
 			legendShowName: "slow_d",
 		},
 		slowDMaType: {
 			label: "indicator.configField.slowDMaType",
-			description: "选择慢速D线的移动平均线类型",
+			description: "Select moving average type for slow D line",
 			defaultValue: MAType.SMA,
 			required: true,
 			legendShowName: "slow_d_ma",
@@ -109,7 +109,7 @@ export const STOCHConfig: IndicatorConfig<STOCHConfigType> = {
 			]),
 		);
 
-		// 使用 Zod 验证配置
+		// Validate configuration using Zod
 		const validatedConfig = STOCHConfigSchema.parse(config);
 		return validatedConfig;
 	},
@@ -118,7 +118,7 @@ export const STOCHConfig: IndicatorConfig<STOCHConfigType> = {
 		return getIndicatorValues(this.indicatorValueConfig);
 	},
 
-	// 使用通用解析函数
+	// Use generic parsing function
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
 		IndicatorType.STOCH,
 		STOCHConfigSchema,

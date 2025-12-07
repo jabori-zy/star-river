@@ -13,22 +13,22 @@ import CaseEditor from "../components/case-editor";
 const IfElseNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id }) => {
 	const { t } = useTranslation();
 
-	// ✅ 使用新版本 hook 管理回测配置
+	// Use new version hook to manage backtest configuration
 	const { backtestConfig, updateCase, removeCase, updateCases } =
 		useBacktestConfig({ id });
 
 	const { getConnectedNodeVariables } = useStrategyWorkflow();
 
-	// 获取所有连接
+	// Get all connections
 	const connections = useNodeConnections({ id, handleType: "target" });
 
 	const variables = getConnectedNodeVariables(connections, TradeMode.BACKTEST);
 
-	// 添加ELIF分支
+	// Add ELIF branch
 	const handleAddElif = () => {
 		const cases = backtestConfig?.cases;
 		if (!cases || cases.length === 0) {
-			// 如果没有 case，创建 ID 为 1 的第一个 case
+			// If no case exists, create first case with ID 1
 			updateCase({
 				caseId: 1,
 				outputHandleId: `${id}_output_1`,
@@ -38,7 +38,7 @@ const IfElseNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id }) => {
 			return;
 		}
 
-		// 找到最大的 caseId，新增时使用 maxId + 1
+		// Find maximum caseId, use maxId + 1 when adding new
 		const maxCaseId = Math.max(...cases.map((c) => c.caseId));
 		const newCaseId = maxCaseId + 1;
 
@@ -51,29 +51,29 @@ const IfElseNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id }) => {
 		updateCase(newCaseItem);
 	};
 
-	// 删除case
+	// Remove case
 	const handleRemoveCase = (caseId: number) => {
-		console.log("删除case", caseId);
+		console.log("Remove case", caseId);
 		removeCase(caseId);
-		// 注意：不需要重新设置 caseId，保持 ID 不变
+		// Note: No need to reset caseId, keep ID unchanged
 	};
 
-	// 处理拖拽排序
+	// Handle drag and drop sorting
 	const handleSortCases = (newList: CaseItem[]) => {
-		// 只保留CaseItem应有的字段，过滤掉ReactSortable添加的内部字段
-		// 保持原有的 caseId 不变，只改变顺序
+		// Only keep fields that CaseItem should have, filter out internal fields added by ReactSortable
+		// Keep original caseId unchanged, only change order
 		const cleanedCases = newList.map((c) => ({
-			caseId: c.caseId, // 保持原有 ID 不变
+			caseId: c.caseId, // Keep original ID unchanged
 			logicalSymbol: c.logicalSymbol,
 			conditions: c.conditions,
-			outputHandleId: c.outputHandleId, // 保持原有 outputHandleId
+			outputHandleId: c.outputHandleId, // Keep original outputHandleId
 		}));
 
-		// 更新本地状态
+		// Update local state
 		updateCases(cleanedCases);
 	};
 
-	// 为ReactSortable准备的带有id的cases
+	// Cases with id prepared for ReactSortable
 	const casesWithId = backtestConfig?.cases?.map((caseItem) => ({
 		...caseItem,
 		id: caseItem.caseId,
@@ -82,7 +82,7 @@ const IfElseNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id }) => {
 	return (
 		<div className="h-full overflow-y-auto bg-white">
 			<div className="flex flex-col gap-2 p-2">
-				{/* 如果cases为空，则传一个空的case */}
+				{/* If cases is empty, pass an empty case */}
 				{!backtestConfig?.cases || backtestConfig?.cases.length === 0 ? (
 					<CaseEditor
 						variableItemList={variables}
@@ -116,7 +116,7 @@ const IfElseNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id }) => {
 						))}
 					</ReactSortable>
 				)}
-				{/* 添加分支按钮 */}
+				{/* Add branch button */}
 				<div className="px-2">
 					<Button
 						variant="outline"
@@ -126,7 +126,7 @@ const IfElseNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id }) => {
 						<span className="text-xs">+ELIF</span>
 					</Button>
 				</div>
-				{/* 分支 */}
+				{/* Branch */}
 				<Separator orientation="horizontal" className="h-px bg-gray-200" />
 				<div className="flex flex-col gap-2 p-2">
 					<h3 className="text-sm font-bold">ELSE</h3>

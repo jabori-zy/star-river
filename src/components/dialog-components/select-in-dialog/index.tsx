@@ -161,7 +161,7 @@ export const SelectInDialog: React.FC<SelectInDialogProps> = ({
 			}
 
 			if (open) {
-				// 手动收起下拉内容，确保再次点击触发器时可以关闭
+				// Manually collapse dropdown to ensure it can be closed when trigger is clicked again
 				event.preventDefault();
 				handleOpenChange(false);
 			}

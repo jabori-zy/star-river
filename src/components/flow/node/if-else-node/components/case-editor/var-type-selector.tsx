@@ -18,7 +18,7 @@ const VarTypeSelector: React.FC<VarTypeSelectorProps> = ({
 }) => {
 	const [localVarType, setLocalVarType] = useState<VarType>(varType);
 
-	// 当传入的varType发生变化时，同步更新本地状态
+	// Synchronize local state when the incoming varType changes
 	useEffect(() => {
 		setLocalVarType(varType);
 	}, [varType]);

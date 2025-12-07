@@ -12,13 +12,13 @@ import type { StartNode, StartNodeData } from "@/types/node/start-node";
 import { type SelectedAccount, TradeMode } from "@/types/strategy";
 
 interface DataSourceSelectorProps {
-	startNode: StartNode | null; // 已连接的start节点
+	startNode: StartNode | null; // Connected start node
 	tradeMode: TradeMode;
-	selectedAccount?: SelectedAccount | null; // 当前选中的账户
-	onAccountChange?: (account: SelectedAccount) => void; // 账户变更回调
+	selectedAccount?: SelectedAccount | null; // Currently selected account
+	onAccountChange?: (account: SelectedAccount) => void; // Account change callback
 }
 
-// 已选择的账户列表
+// Selected account list
 const DataSourceSelector: React.FC<DataSourceSelectorProps> = ({
 	startNode,
 	tradeMode,
@@ -27,7 +27,7 @@ const DataSourceSelector: React.FC<DataSourceSelectorProps> = ({
 }) => {
 	const startNodeData = startNode?.data as StartNodeData;
 
-	// 根据交易模式获取账户列表
+	// Get account list based on trade mode
 	const accountList = useMemo(() => {
 		if (!startNodeData) return [];
 
@@ -46,10 +46,10 @@ const DataSourceSelector: React.FC<DataSourceSelectorProps> = ({
 		}
 	}, [startNodeData, tradeMode]);
 
-	// 检查是否有可用的账户/交易所
+	// Check if there are available accounts/exchanges
 	const hasAccounts = accountList.length > 0;
 
-	// 处理账户选择变更
+	// Handle account selection change
 	const handleAccountChange = (accountId: string) => {
 		const selectedAcc = accountList.find(
 			(acc) => acc.id.toString() === accountId,
@@ -61,7 +61,7 @@ const DataSourceSelector: React.FC<DataSourceSelectorProps> = ({
 
 	return (
 		<div className="flex flex-col gap-2">
-			<label className="text-sm font-bold text-gray-700">数据源</label>
+			<label className="text-sm font-bold text-gray-700">Data Source</label>
 
 			<Select
 				disabled={!hasAccounts}
@@ -70,7 +70,7 @@ const DataSourceSelector: React.FC<DataSourceSelectorProps> = ({
 			>
 				<SelectTrigger className="w-full h-8 px-2 bg-gray-100 border-1 rounded-md">
 					<SelectValue
-						placeholder={hasAccounts ? "请选择账户" : "当前策略未选择交易所"}
+						placeholder={hasAccounts ? "Please select account" : "No exchange selected for current strategy"}
 					/>
 				</SelectTrigger>
 				{hasAccounts && (
@@ -97,12 +97,12 @@ const DataSourceSelector: React.FC<DataSourceSelectorProps> = ({
 
 			{!hasAccounts && (
 				<p className="text-xs text-gray-500 mt-1">
-					在策略起点配置
+					Configure at strategy start point:
 					{tradeMode === TradeMode.LIVE
-						? "实盘账户"
+						? "Live account"
 						: tradeMode === TradeMode.BACKTEST
-							? "回测数据源"
-							: "模拟账户"}
+							? "Backtest data source"
+							: "Simulated account"}
 				</p>
 			)}
 		</div>

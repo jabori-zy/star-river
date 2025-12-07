@@ -2,38 +2,38 @@ import type { Exchange } from "@/types/market";
 import { FuturesOrderSide, OrderStatus, OrderType } from "./index";
 
 export type VirtualOrder = {
-	orderId: number; // 订单ID
+	orderId: number; // Order ID
 
-	strategyId: string; // 策略ID
+	strategyId: string; // Strategy ID
 
-	nodeId: string; // 节点ID
+	nodeId: string; // Node ID
 
-	orderConfigId: number; // 订单配置ID
+	orderConfigId: number; // Order config ID
 
-	exchange: string | Exchange; // 交易所
+	exchange: string | Exchange; // Exchange
 
-	symbol: string; // 交易对
+	symbol: string; // Trading symbol
 
-	orderSide: FuturesOrderSide; // 订单方向
+	orderSide: FuturesOrderSide; // Order side
 
-	orderType: OrderType; // 订单类型
+	orderType: OrderType; // Order type
 
-	orderStatus: OrderStatus; // 订单状态
+	orderStatus: OrderStatus; // Order status
 
-	quantity: number; // 数量
+	quantity: number; // Quantity
 
-	openPrice: number; // 开仓价格
+	openPrice: number; // Open price
 
-	tp: number | null; // 止盈价格
+	tp: number | null; // Take profit price
 
-	sl: number | null; // 止损价格
+	sl: number | null; // Stop loss price
 
-	createTime: string; // 创建时间
+	createTime: string; // Create time
 
-	updateTime: string; // 更新时间
+	updateTime: string; // Update time
 };
 
-// 订单方向样式
+// Order side style
 export const getOrderSideStyle = (futuresOrderSide: FuturesOrderSide) => {
 	switch (futuresOrderSide) {
 		case FuturesOrderSide.LONG:
@@ -45,7 +45,7 @@ export const getOrderSideStyle = (futuresOrderSide: FuturesOrderSide) => {
 	}
 };
 
-// 订单方向文本
+// Order side text
 export const getOrderSideText = (
 	side: FuturesOrderSide,
 	t: (key: string) => string,
@@ -60,7 +60,7 @@ export const getOrderSideText = (
 	}
 };
 
-// 订单状态样式
+// Order status style
 export const getOrderStatusStyle = (status: string) => {
 	switch (status) {
 		case "FILLED":
@@ -80,7 +80,7 @@ export const getOrderStatusStyle = (status: string) => {
 	}
 };
 
-// 订单状态文本
+// Order status text
 export const getOrderStatusText = (
 	status: OrderStatus,
 	t: (key: string) => string,
@@ -107,7 +107,7 @@ export const getOrderStatusText = (
 	}
 };
 
-// 订单类型文本
+// Order type text
 export const getOrderTypeText = (
 	type: OrderType,
 	t: (key: string) => string,

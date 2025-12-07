@@ -33,7 +33,7 @@ export interface DataSlice {
 	// >;
 	isDataInitialized: boolean;
 
-	visibleLogicalRange: LogicalRange | null; // 可见逻辑范围
+	visibleLogicalRange: LogicalRange | null; // Visible logical range
 
 	setKlineKeyStr: (klineKeyStr: KlineKeyStr) => void;
 	getKlineKeyStr: () => KlineKeyStr | null;

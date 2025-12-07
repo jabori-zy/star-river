@@ -46,7 +46,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 
 	return (
 		<div className="space-y-2">
-			{/* 数据源展示 */}
+			{/* Data source display */}
 			{backtestConfig.exchangeModeConfig?.selectedAccounts &&
 				backtestConfig.exchangeModeConfig.selectedAccounts.length > 0 && (
 					<div className="space-y-2">
@@ -72,7 +72,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 					</div>
 				)}
 
-			{/* 回测设置展示 */}
+			{/* Backtest settings display */}
 			<div className="space-y-2">
 				<Collapsible open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
 					<CollapsibleTrigger className="flex items-center gap-2 w-full">
@@ -87,7 +87,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 					</CollapsibleTrigger>
 					<CollapsibleContent className="mt-2">
 						<div className="flex flex-col gap-2 bg-gray-100 rounded-md p-2">
-							{/* 初始资金 */}
+							{/* Initial balance */}
 							<div className="flex items-center justify-between gap-2 rounded-md ">
 								<div className="flex items-center gap-2">
 									<Wallet className="w-4 h-4 text-blue-500" />
@@ -99,7 +99,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 									{backtestConfig.initialBalance}
 								</span>
 							</div>
-							{/* 杠杆倍数 */}
+							{/* Leverage multiplier */}
 							<div className="flex items-center justify-between gap-2 rounded-md ">
 								<div className="flex items-center gap-2">
 									<TrendingUp className="w-4 h-4 text-orange-500" />
@@ -109,7 +109,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 									{backtestConfig.leverage}x
 								</span>
 							</div>
-							{/* 手续费率 */}
+							{/* Fee rate */}
 							<div className="flex items-center justify-between gap-2 rounded-md ">
 								<div className="flex items-center gap-2">
 									<PercentSquare className="w-4 h-4 text-purple-500" />
@@ -119,7 +119,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 									{(backtestConfig.feeRate * 100).toFixed(2)}%
 								</span>
 							</div>
-							{/* 播放速度 */}
+							{/* Play speed */}
 							<div className="flex items-center justify-between gap-2 rounded-md ">
 								<div className="flex items-center gap-2">
 									<Play className="w-4 h-4 text-green-500" />
@@ -134,7 +134,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 				</Collapsible>
 			</div>
 
-			{/* 回测时间范围展示 */}
+			{/* Backtest time range display */}
 			{backtestConfig.exchangeModeConfig?.timeRange && (
 				<div className="space-y-2">
 					<Collapsible defaultOpen={true}>
@@ -192,7 +192,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 				</div>
 			)}
 
-			{/* 变量展示 */}
+			{/* Variables display */}
 			<div className="space-y-2">
 				{!backtestConfig.customVariables ||
 				backtestConfig.customVariables.length === 0 ? (

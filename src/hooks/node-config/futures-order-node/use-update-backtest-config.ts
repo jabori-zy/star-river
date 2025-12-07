@@ -132,7 +132,7 @@ export const useBacktestConfig = ({ id }: UseBacktestConfigProps) => {
 				// Remove the order at the specified index
 				draft.futuresOrderConfigs.splice(index, 1);
 
-				// Reassign IDs to maintain continuity
+				// Reassign IDs to maintain continuity (currently commented out)
 				// draft.futuresOrderConfigs = draft.futuresOrderConfigs.map(
 				// 	(order, newIndex) => ({
 				// 		...order,

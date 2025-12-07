@@ -19,12 +19,12 @@ const IndicatorNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id }) => {
 		handleId: getNodeDefaultInputHandleId(id, NodeType.IndicatorNode),
 	});
 
-	// 交易对列表
+	// Symbol list
 	const [localSymbolList, setLocalSymbolList] = useState<SelectedSymbol[]>([]);
 
 	const { getNode } = useReactFlow();
 
-	// ✅ 使用新版本 hook 管理回测配置
+	// ✅ Use new version hook to manage backtest configuration
 	const {
 		backtestConfig,
 		updateSelectedIndicators,
@@ -38,16 +38,16 @@ const IndicatorNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id }) => {
 		for (const connection of connections) {
 			const sourceNodeId = connection.source;
 			const sourceHandleId = connection.sourceHandle;
-			// 判断是否是默认输出句柄
+			// Check if it's a default output handle
 			if (!sourceHandleId) continue;
 			const isDefaultOutput = isDefaultOutputHandleId(sourceHandleId);
 			const node = getNode(sourceNodeId);
-			// 如果节点不存在，则跳过
+			// Skip if node doesn't exist
 			if (!node) continue;
 
 			const nodeType = node.type as NodeType;
 
-			// 如果不是k线节点，则跳过
+			// Skip if not a kline node
 			if (nodeType !== NodeType.KlineNode) continue;
 
 			const klineNodeData = node.data as KlineNodeData;
@@ -59,9 +59,9 @@ const IndicatorNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id }) => {
 
 			const selectedSymbols =
 				klineNodeData.backtestConfig?.exchangeModeConfig?.selectedSymbols;
-			// 如果是默认Handle,则加载所有的symbol
+			// If it's the default Handle, load all symbols
 			if (isDefaultOutput) {
-				// 默认输出：添加所有K线变量
+				// Default output: add all K-line variables
 				if (selectedSymbols) {
 					setLocalSymbolList(selectedSymbols);
 				}
@@ -84,18 +84,18 @@ const IndicatorNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id }) => {
 	return (
 		<div className="h-full overflow-y-auto bg-white">
 			<div className="flex flex-col gap-4 p-2">
-				{/* 连接状态显示 */}
+				{/* Connection status display */}
 				{/* <div className="space-y-2">
 					<Label className="flex items-center gap-2">
 						<Activity className="h-4 w-4 text-muted-foreground" />
-						连接状态
+						Connection Status
 					</Label>
 					{isConnected ? (
 						<Badge variant="secondary" className="bg-green-100 text-green-800">
-							已连接到K线节点
+							Connected to K-line node
 						</Badge>
 					) : (
-						<Badge variant="destructive">未连接</Badge>
+						<Badge variant="destructive">Not connected</Badge>
 					)}
 				</div> */}
 				<SymbolSelector

@@ -23,7 +23,7 @@ interface UseBacktestChartProps {
 }
 
 interface UseBacktestChartReturn {
-	klineLegendData: KlineLegendData | null; // K线图例数据
+	klineLegendData: KlineLegendData | null; // K-line legend data
 	getChartRef: () => IChartApi | null;
 }
 
@@ -33,9 +33,9 @@ export const useBacktestChart = ({
 	chartContainerRef,
 	chartOptions,
 }: UseBacktestChartProps): UseBacktestChartReturn => {
-	// 使用状态追踪初始化状态，而不是 ref
+	// Use state to track initialization status instead of ref
 	const [isInitialized, setIsInitialized] = useState(false);
-	// 是否是第一次加载
+	// Whether this is the first load
 	const isFirstChartConfigLoad = useRef(true);
 
 	const { setChartConfig, getChartRef } = useBacktestChartStore(
@@ -43,16 +43,16 @@ export const useBacktestChart = ({
 		chartConfig,
 	);
 
-	// K线 legend
+	// K-line legend
 	const { klineLegendData, onCrosshairMove, onSeriesDataUpdate } =
 		useKlineLegend({ chartId: chartConfig.id });
 
-	// 同步最新的图表配置到store，避免使用过期的配置
+	// Synchronize latest chart configuration to store to avoid using outdated config
 	useEffect(() => {
 		setChartConfig(chartConfig);
 	}, [chartConfig, setChartConfig]);
 
-	// 核心功能
+	// Core functionality
 	const { initializeBacktestChart } = useChartInitialization({
 		strategyId,
 		chartConfig,
@@ -73,7 +73,7 @@ export const useBacktestChart = ({
 
 	useChartResize({ chartContainerRef, chartId: chartConfig.id });
 
-	// 系列管理
+	// Series management
 	const { changeKline } = useKlineSeriesManager({
 		strategyId,
 		chartConfig,
@@ -87,29 +87,29 @@ export const useBacktestChart = ({
 
 	const { changeSeriesConfig } = useSeriesConfigManager({ chartConfig });
 
-	// 数据加载
+	// Data loading
 	useVisibleRangeHandler({ strategyId, chartConfig, isInitialized });
 
-	// 配置变更协调
+	// Configuration change coordination
 	useEffect(() => {
 		if (chartConfig) {
-			// 跳过第一次加载（初始化时），只在后续配置变化时重新创建
+			// Skip first load (during initialization), only recreate on subsequent config changes
 			if (isFirstChartConfigLoad.current) {
 				isFirstChartConfigLoad.current = false;
 				return;
 			}
-			// 切换k线
+			// Switch K-line
 			changeKline();
 
-			// 添加series (异步操作)
+			// Add series (async operation)
 			addSeries().catch((error) => {
-				console.error("添加series时出错:", error);
+				console.error("Error adding series:", error);
 			});
 
-			// 修改series配置
+			// Modify series configuration
 			changeSeriesConfig();
 
-			// 删除指标系列
+			// Delete indicator series
 			deleteSeries();
 		}
 	}, [chartConfig, addSeries, changeSeriesConfig, deleteSeries, changeKline]);

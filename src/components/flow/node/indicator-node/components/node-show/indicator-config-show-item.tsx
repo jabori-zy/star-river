@@ -15,7 +15,7 @@ import {
 } from "@/types/indicator/indicator-config";
 import type { SelectedIndicator } from "@/types/node/indicator-node";
 
-// MA类型选项映射
+// MA type option mapping
 const MA_TYPE_LABELS: Record<MAType, string> = {
 	[MAType.SMA]: "SMA",
 	[MAType.EMA]: "EMA",
@@ -28,12 +28,12 @@ const MA_TYPE_LABELS: Record<MAType, string> = {
 	[MAType.T3]: "T3",
 };
 
-// 从配置获取指标类型的显示标签
+// Get display label for indicator type from configuration
 const getIndicatorLabel = (type: IndicatorType): string => {
 	return getIndicatorDisplayName(type);
 };
 
-// 获取价格源的中文标签
+// Get Chinese label for price source
 const getPriceSourceLabel = (
 	priceSource: PriceSource,
 	t: TFunction,
@@ -41,7 +41,7 @@ const getPriceSourceLabel = (
 	return getPriceSourceDisplayName(priceSource, t);
 };
 
-// 根据新的配置结构获取指标参数显示文本
+// Get indicator parameter display text based on new configuration structure
 const getIndicatorParams = (
 	indicatorType: IndicatorType,
 	indicatorConfig: Record<string, unknown>,
@@ -50,7 +50,7 @@ const getIndicatorParams = (
 	const configInstance = getIndicatorConfig(indicatorType);
 	if (!configInstance) return "";
 
-	// 构建显示文本（排除价格源，单独显示）
+	// Build display text (exclude price source, display separately)
 	const paramParts: string[] = [];
 
 	Object.entries(configInstance.params).forEach(([key, param]) => {
@@ -84,7 +84,7 @@ export function IndicatorConfigShowItem({
 	return (
 		<div className="flex items-center justify-between px-2 py-2 bg-gray-100 rounded-md relative">
 			<div className="flex items-center gap-2 justify-between w-full">
-				{/* flex-1 表示占满剩余空间 */}
+				{/* flex-1 means filling remaining space */}
 				<div className="flex flex-col gap-1 flex-1">
 					<div className="flex items-center gap-2">
 						<span className="text-sm font-medium">

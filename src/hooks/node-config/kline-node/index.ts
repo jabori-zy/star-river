@@ -6,7 +6,7 @@ import type { TFunction } from "i18next";
 import { getNodeDefaultColor, getNodeIconName, NodeType } from "@/types/node";
 import type { KlineNodeData } from "@/types/node/kline-node";
 /**
- * 创建默认的 K线节点数据
+ * Create default Kline node data
  */
 export const createDefaultKlineNodeData = (
 	strategyId: number,

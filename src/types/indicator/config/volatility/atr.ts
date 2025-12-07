@@ -8,21 +8,21 @@ import {
 } from "@/types/indicator/indicator-config";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
-// ATR 指标配置的 Zod schema
+// Zod schema for ATR indicator configuration
 const ATRConfigSchema = z.object({
 	timePeriod: z.number().int().positive(),
 });
 
 export type ATRConfigType = z.infer<typeof ATRConfigSchema>;
 
-// ATR指标的参数映射函数
+// Parameter mapping function for ATR indicator
 function buildATRConfig(params: Map<string, string>): unknown {
 	return {
 		timePeriod: parseInt(params.get("time_period") || "14"),
 	};
 }
 
-// ATR指标配置实现
+// ATR indicator configuration implementation
 export const ATRConfig: IndicatorConfig<ATRConfigType> = {
 	category: IndicatorCategory.VOLATILITY,
 	type: IndicatorType.ATR,
@@ -31,7 +31,7 @@ export const ATRConfig: IndicatorConfig<ATRConfigType> = {
 	params: {
 		timePeriod: {
 			label: "indicator.configField.timePeriod",
-			description: "选择ATR的计算周期",
+			description: "Select the time period for ATR calculation",
 			defaultValue: 14,
 			required: true,
 			legendShowName: "period",
@@ -62,7 +62,7 @@ export const ATRConfig: IndicatorConfig<ATRConfigType> = {
 			]),
 		);
 
-		// 使用 Zod 验证配置
+		// Validate configuration using Zod
 		const validatedConfig = ATRConfigSchema.parse(config);
 		return validatedConfig;
 	},
@@ -71,7 +71,7 @@ export const ATRConfig: IndicatorConfig<ATRConfigType> = {
 		return getIndicatorValues(this.indicatorValueConfig);
 	},
 
-	// 使用通用解析函数
+	// Use generic parsing function
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
 		IndicatorType.ATR,
 		ATRConfigSchema,

@@ -9,14 +9,14 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const OBVConfigSchema = z.object({
-	// OBV 没有参数，只使用默认的空对象
+	// OBV has no parameters, uses default empty object
 });
 
 export type OBVConfigType = z.infer<typeof OBVConfigSchema>;
 
 function buildOBVConfig(_params: Map<string, string>): unknown {
 	return {
-		// OBV 不需要任何参数
+		// OBV requires no parameters
 	};
 }
 
@@ -26,7 +26,7 @@ export const OBVConfig: IndicatorConfig<OBVConfigType> = {
 	displayName: "OBV",
 	description: "On Balance Volume",
 	params: {
-		// OBV 没有参数
+		// OBV has no parameters
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

@@ -3,28 +3,28 @@ import { changeLanguage } from "@/i18n/i18n";
 import { getSystemConfig, updateSystemConfig } from "@/service/system";
 import type { SupportLanguage, SystemConfig } from "@/types/system";
 
-// 系统配置状态接口
+// System config state interface
 interface SystemConfigState {
 	systemConfig: SystemConfig | null;
 	isLoading: boolean;
 	isInitialized: boolean;
 
-	// 操作方法
+	// Action methods
 	loadSystemConfig: () => Promise<void>;
 	updateSystemConfigAction: (config: SystemConfig) => Promise<void>;
 	setLanguage: (language: SupportLanguage) => Promise<void>;
 }
 
-// 系统配置store
+// System config store
 const useSystemConfigStore = create<SystemConfigState>((set, get) => ({
 	systemConfig: null,
 	isLoading: false,
 	isInitialized: false,
 
-	// 加载系统配置
+	// Load system config
 	loadSystemConfig: async () => {
 		const { isLoading } = get();
-		if (isLoading) return; // 防止重复请求
+		if (isLoading) return; // Prevent duplicate requests
 
 		set({ isLoading: true });
 		try {
@@ -35,14 +35,14 @@ const useSystemConfigStore = create<SystemConfigState>((set, get) => ({
 				isInitialized: true,
 			});
 
-			// 自动设置语言
+			// Auto set language
 			if (config.localization) {
 				changeLanguage(config.localization);
 			}
 
-			// console.log("系统配置加载成功:", config);
+			// console.log("System config loaded successfully:", config);
 		} catch (error) {
-			console.error("加载系统配置失败:", error);
+			console.error("Failed to load system config:", error);
 			set({
 				isLoading: false,
 				isInitialized: true,
@@ -50,7 +50,7 @@ const useSystemConfigStore = create<SystemConfigState>((set, get) => ({
 		}
 	},
 
-	// 更新系统配置
+	// Update system config
 	updateSystemConfigAction: async (config: SystemConfig) => {
 		set({ isLoading: true });
 		try {
@@ -60,26 +60,26 @@ const useSystemConfigStore = create<SystemConfigState>((set, get) => ({
 				isLoading: false,
 			});
 
-			// 切换语言
+			// Switch language
 			if (updatedConfig.localization) {
 				changeLanguage(updatedConfig.localization);
 			}
 
-			console.log("系统配置更新成功:", updatedConfig);
+			console.log("System config updated successfully:", updatedConfig);
 		} catch (error) {
-			console.error("更新系统配置失败:", error);
+			console.error("Failed to update system config:", error);
 			set({ isLoading: false });
 			throw error;
 		}
 	},
 
-	// 设置语言（仅切换i18n语言，不更新数据库）
+	// Set language (only switch i18n language, don't update database)
 	setLanguage: async (language: SupportLanguage) => {
 		try {
 			await changeLanguage(language);
-			console.log("语言切换成功:", language);
+			console.log("Language switched successfully:", language);
 		} catch (error) {
-			console.error("语言切换失败:", error);
+			console.error("Failed to switch language:", error);
 			throw error;
 		}
 	},

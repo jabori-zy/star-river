@@ -19,11 +19,11 @@ import { VariableValueType } from "@/types/variable";
 
 interface ConstantInputProps {
 	className?: string;
-	value: number | string | boolean | string[]; // 支持多种类型
-	onValueChange: (value: number | string | boolean) => void; // 回调支持多种类型
-	valueType: VariableValueType; // 变量值类型
-	comparisonSymbol?: ComparisonSymbol | null; // 比较符号（用于判断特殊情况）
-	leftVarValueType?: VariableValueType | null; // 左变量类型（用于 isIn/isNotIn 时的提示）
+	value: number | string | boolean | string[]; // Support multiple types
+	onValueChange: (value: number | string | boolean) => void; // Callback supports multiple types
+	valueType: VariableValueType; // Variable value type
+	comparisonSymbol?: ComparisonSymbol | null; // Comparison symbol (for special case handling)
+	leftVarValueType?: VariableValueType | null; // Left variable type (for isIn/isNotIn prompt)
 }
 
 const ConstantInput: React.FC<ConstantInputProps> = ({
@@ -34,13 +34,13 @@ const ConstantInput: React.FC<ConstantInputProps> = ({
 	comparisonSymbol,
 	leftVarValueType,
 }) => {
-	// 数字类型的本地状态管理
+	// Local state management for number type
 	const [localValue, setLocalValue] = useState<string>(value.toString());
 	const [isFocused, setIsFocused] = useState(false);
 
 	useEffect(() => {
-		// 只有在组件不处于焦点状态时才更新本地值，避免用户输入时被覆盖
-		// 只对数字和百分比类型生效
+		// Only update local value when component is not focused, to avoid overriding user input
+		// Only applies to number and percentage types
 		if (
 			!isFocused &&
 			(valueType === VariableValueType.NUMBER ||
@@ -50,12 +50,12 @@ const ConstantInput: React.FC<ConstantInputProps> = ({
 		}
 	}, [value, isFocused, valueType]);
 
-	// 数字输入处理
+	// Number input handling
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const inputValue = e.target.value;
 		setLocalValue(inputValue);
 
-		// 如果输入不为空且是有效数字，立即通知父组件
+		// If input is not empty and is a valid number, immediately notify parent component
 		if (inputValue !== "" && !Number.isNaN(Number(inputValue))) {
 			onValueChange(Number(inputValue));
 		}
@@ -64,16 +64,16 @@ const ConstantInput: React.FC<ConstantInputProps> = ({
 	const handleBlur = () => {
 		setIsFocused(false);
 
-		// 失去焦点时处理输入值
+		// Handle input value when focus is lost
 		if (localValue === "") {
-			// 如果输入为空，默认设置为0
+			// If input is empty, default to 0
 			setLocalValue("0");
 			onValueChange(0);
 		} else if (Number.isNaN(Number(localValue))) {
-			// 如果输入无效，重置为原始值
+			// If input is invalid, reset to original value
 			setLocalValue(value.toString());
 		} else {
-			// 确保数值同步到父组件
+			// Ensure value is synchronized to parent component
 			const numValue = Number(localValue);
 			if (numValue !== value) {
 				onValueChange(numValue);
@@ -87,19 +87,19 @@ const ConstantInput: React.FC<ConstantInputProps> = ({
 
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
 		if (e.key === "Enter") {
-			// 阻止默认行为，模拟失去焦点
+			// Prevent default behavior, simulate focus loss
 			e.preventDefault();
 			(e.target as HTMLInputElement).blur();
 		}
 		if (e.key === "Escape") {
-			// 阻止默认行为，重置值并失去焦点
+			// Prevent default behavior, reset value and lose focus
 			e.preventDefault();
 			setLocalValue(value.toString());
 			(e.target as HTMLInputElement).blur();
 		}
 	};
 
-	// 将字符串转换为Date对象
+	// Convert string to Date object
 	const parseDatetime = (datetimeString: string): Date | undefined => {
 		if (!datetimeString) return undefined;
 		try {
@@ -109,26 +109,26 @@ const ConstantInput: React.FC<ConstantInputProps> = ({
 		}
 	};
 
-	// 时间选择处理
+	// Time selection handling
 	const handleTimeChange = (date: Date | undefined) => {
 		const formattedDate = formatDate(date);
 		onValueChange(formattedDate);
 	};
 
-	// 字符串输入处理
+	// String input handling
 	const handleStringChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		onValueChange(e.target.value);
 	};
 
 	const handleStringBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-		// 失去焦点时 trim 左右空格
+		// Trim spaces on both sides when focus is lost
 		const trimmedValue = e.target.value.trim();
 		if (trimmedValue !== e.target.value) {
 			onValueChange(trimmedValue);
 		}
 	};
 
-	// ENUM 选项处理
+	// ENUM option handling
 	const enumOptions = useMemo<Option[]>(() => {
 		if (!Array.isArray(value)) return [];
 		return value.map((val) => ({
@@ -142,7 +142,7 @@ const ConstantInput: React.FC<ConstantInputProps> = ({
 		onValueChange(JSON.stringify(values));
 	};
 
-	// 获取 isIn/isNotIn 的 placeholder
+	// Get placeholder for isIn/isNotIn
 	const getIsInPlaceholder = (): string => {
 		switch (leftVarValueType) {
 			case VariableValueType.NUMBER:
@@ -160,7 +160,7 @@ const ConstantInput: React.FC<ConstantInputProps> = ({
 		}
 	};
 
-	// 优先判断比较符号：isIn 或 isNotIn 使用 MultipleSelector
+	// Prioritize comparison symbol: use MultipleSelector for isIn or isNotIn
 	if (
 		comparisonSymbol === ComparisonSymbol.isIn ||
 		comparisonSymbol === ComparisonSymbol.isNotIn
@@ -177,7 +177,7 @@ const ConstantInput: React.FC<ConstantInputProps> = ({
 		);
 	}
 
-	// 根据类型渲染不同的输入组件
+	// Render different input components based on type
 	switch (valueType) {
 		case VariableValueType.STRING:
 			return (
@@ -216,7 +216,7 @@ const ConstantInput: React.FC<ConstantInputProps> = ({
 			return (
 				<div className={className}>
 					<style>{`
-					/* 覆盖时间选择器按钮样式 */
+					/* Override time picker button style */
 					.time-picker-override button {
 						background-color: transparent !important;
 						border-color: rgb(209 213 219) !important;
@@ -276,7 +276,7 @@ const ConstantInput: React.FC<ConstantInputProps> = ({
 						}
 					}}
 					onFocus={() => setIsFocused(true)}
-					// placeholder="如: 5"
+					// placeholder="e.g., 5"
 					className={className}
 				/>
 			);

@@ -1,12 +1,12 @@
 import type { IndicatorCategory, IndicatorType } from "@/types/indicator";
 
-// 特殊分类：全部
+// Special category: All
 export const ALL_CATEGORY = "ALL" as const;
 
-// 菜单项类型
+// Menu item type
 export type MenuType = "all" | "favorites";
 
-// 指标信息接口
+// Indicator information interface
 export interface IndicatorInfo {
 	type: IndicatorType;
 	displayName: string;

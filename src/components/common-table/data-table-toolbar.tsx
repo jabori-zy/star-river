@@ -14,25 +14,25 @@ export function DataTableToolbar<TData>({
 	const { t } = useTranslation();
 	const isFiltered = table.getState().columnFilters.length > 0;
 
-	// 如果有 searchKeys，默认选择第一个
+	// If searchKeys exist, select the first one by default
 	const [selectedSearchKey, setSelectedSearchKey] = useState<string>(
 		searchKeys?.[0] || "",
 	);
 	const [searchValue, setSearchValue] = useState<string>("");
 
-	// 根据 searchKeys 生成下拉选项
+	// Generate dropdown options based on searchKeys
 	const searchOptions =
 		searchKeys?.map((key) => {
 			const column = table.getColumn(key);
-			// 尝试从 column.columnDef.header 获取列名
+			// Try to get column name from column.columnDef.header
 			let label = key;
 			if (column) {
 				const header = column.columnDef.header;
-				// 如果 header 是字符串，直接使用
+				// If header is a string, use it directly
 				if (typeof header === "string") {
 					label = header;
 				}
-				// 如果有 meta.headerName，使用它
+				// If meta.headerName exists, use it
 				else if (
 					column.columnDef.meta &&
 					"headerName" in column.columnDef.meta
@@ -46,9 +46,9 @@ export function DataTableToolbar<TData>({
 			};
 		}) || [];
 
-	// 当切换搜索列时，清空搜索值并更新过滤
+	// When switching search column, clear search value and update filter
 	const handleSearchKeyChange = (newKey: string) => {
-		// 清除旧列的过滤
+		// Clear old column filter
 		if (selectedSearchKey) {
 			table.getColumn(selectedSearchKey)?.setFilterValue("");
 		}
@@ -56,7 +56,7 @@ export function DataTableToolbar<TData>({
 		setSearchValue("");
 	};
 
-	// 处理搜索值变化
+	// Handle search value changes
 	const handleSearchValueChange = (value: string) => {
 		setSearchValue(value);
 		if (selectedSearchKey) {
@@ -64,7 +64,7 @@ export function DataTableToolbar<TData>({
 		}
 	};
 
-	// 获取当前选中列的名称用于 placeholder
+	// Get current selected column name for placeholder
 	const selectedColumnLabel =
 		searchOptions.find((opt) => opt.value === selectedSearchKey)?.label ||
 		selectedSearchKey;

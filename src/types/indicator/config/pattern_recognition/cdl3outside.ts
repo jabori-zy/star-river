@@ -9,14 +9,14 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDL3OUTSIDEConfigSchema = z.object({
-	// CDL3OUTSIDE 没有参数
+	// CDL3OUTSIDE has no parameters
 });
 
 export type CDL3OUTSIDEConfigType = z.infer<typeof CDL3OUTSIDEConfigSchema>;
 
 function buildCDL3OUTSIDEConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDL3OUTSIDE 不需要任何参数
+		// CDL3OUTSIDE doesn't need any parameters
 	};
 }
 
@@ -26,7 +26,7 @@ export const CDL3OUTSIDEConfig: IndicatorConfig<CDL3OUTSIDEConfigType> = {
 	displayName: "CDL3OUTSIDE",
 	description: "Three Outside Up/Down",
 	params: {
-		// CDL3OUTSIDE 没有参数
+		// CDL3OUTSIDE has no parameters
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

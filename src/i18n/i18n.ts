@@ -3,7 +3,7 @@ import { camelCase } from "lodash-es";
 import { initReactI18next } from "react-i18next";
 import { SupportLanguage } from "@/types/system";
 import enUSApiMessage from "./en-US/api-message";
-// 静态导入 en-US 资源作为默认
+// Statically import en-US resources as default
 import enUSCommon from "./en-US/common";
 import enUSComponent from "./en-US/component";
 import enUSDektop from "./en-US/desktop";
@@ -20,7 +20,7 @@ import enUSStartNode from "./en-US/start-node";
 import enUSStrategy from "./en-US/strategy";
 import enUSVariableNode from "./en-US/variable-node";
 
-// 定义所有命名空间(模块名)
+// Define all namespaces (module names)
 const NAMESPACES = [
 	"common",
 	"desktop",
@@ -40,19 +40,19 @@ const NAMESPACES = [
 	"component",
 ];
 
-// 动态导入语言资源,带容错机制
+// Dynamically import language resources with fallback mechanism
 const requireSilent = async (lang: string, namespace: string) => {
 	let res: Record<string, any>;
 	try {
 		res = (await import(`./${lang}/${namespace}.ts`)).default;
 	} catch {
-		// 如果目标语言不存在,回退到 en-US
+		// If target language doesn't exist, fallback to en-US
 		res = (await import(`./en-US/${namespace}.ts`)).default;
 	}
 	return res;
 };
 
-// 异步加载指定语言的所有资源
+// Asynchronously load all resources for specified language
 export const loadLangResources = async (lang: string) => {
 	const modules = await Promise.all(
 		NAMESPACES.map((ns) => requireSilent(lang, ns)),
@@ -67,7 +67,7 @@ export const loadLangResources = async (lang: string) => {
 	return resources;
 };
 
-// 初始化时使用静态导入的 en-US 资源
+// Use statically imported en-US resources during initialization
 const getInitialTranslations = () => {
 	return {
 		[SupportLanguage.EN_US]: {
@@ -93,10 +93,10 @@ const getInitialTranslations = () => {
 	};
 };
 
-// 初始化 i18n
+// Initialize i18n
 if (!i18n.isInitialized) {
 	i18n.use(initReactI18next).init({
-		lng: undefined, // 不设置初始语言,等待从数据库加载
+		lng: undefined, // Don't set initial language, wait for database load
 		fallbackLng: SupportLanguage.EN_US,
 		resources: getInitialTranslations(),
 		interpolation: {
@@ -105,7 +105,7 @@ if (!i18n.isInitialized) {
 	});
 }
 
-// 切换语言(按需加载)
+// Switch language (lazy loading)
 export const changeLanguage = async (lng?: string) => {
 	if (!lng) return;
 	if (!i18n.hasResourceBundle(lng, "translation")) {

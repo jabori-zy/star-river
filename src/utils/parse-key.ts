@@ -3,7 +3,7 @@ import type { IndicatorType } from "../types/indicator";
 import type { IndicatorKey, Key, KlineKey } from "../types/symbol-key";
 
 /**
- * 解析缓存键字符串为相应类型
+ * Parse cache key string into corresponding type
  */
 export function parseKey(keyStr: string): Key {
 	const parts = keyStr.split("|");
@@ -22,14 +22,14 @@ export function parseKey(keyStr: string): Key {
 		const indicatorConfigStr = parts[4];
 		const indicatorType = indicatorConfigStr.split("(")[0] as IndicatorType;
 
-		// 使用新的解析函数
+		// Use the new parsing function
 		const indicatorConfig = parseIndicatorConfig(
 			indicatorType,
 			indicatorConfigStr,
 		);
 
 		if (!indicatorConfig) {
-			throw new Error(`无法解析指标配置: ${indicatorConfigStr}`);
+			throw new Error(`Unable to parse indicator configuration: ${indicatorConfigStr}`);
 		}
 
 		return {
@@ -43,6 +43,6 @@ export function parseKey(keyStr: string): Key {
 			endTime: parts[6],
 		} as IndicatorKey;
 	} else {
-		throw new Error(`不支持的缓存键类型: ${type}`);
+		throw new Error(`Unsupported cache key type: ${type}`);
 	}
 }

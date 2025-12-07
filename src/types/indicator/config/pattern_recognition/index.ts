@@ -1,309 +1,309 @@
-// K线形态识别指标 (Pattern Recognition Indicators)
+// Candlestick Pattern Recognition Indicators
 
-// 1. CDL2CROWS - 两只乌鸦
+// 1. CDL2CROWS - Two Crows
 export { CDL2CROWSConfig, type CDL2CROWSConfigType } from "./cdl2crows";
 
-// 2. CDL3BLACKCROWS - 三只乌鸦
+// 2. CDL3BLACKCROWS - Three Black Crows
 export {
 	CDL3BLACKCROWSConfig,
 	type CDL3BLACKCROWSConfigType,
 } from "./cdl3blackcrows";
 
-// 3. CDL3INSIDE - 三内部上涨/下跌
+// 3. CDL3INSIDE - Three Inside Up/Down
 export { CDL3INSIDEConfig, type CDL3INSIDEConfigType } from "./cdl3inside";
 
-// 4. CDL3LINESTRIKE - 三线打击
+// 4. CDL3LINESTRIKE - Three Line Strike
 export {
 	CDL3LINESTRIKEConfig,
 	type CDL3LINESTRIKEConfigType,
 } from "./cdl3linestrike";
 
-// 5. CDL3OUTSIDE - 三外部上涨/下跌
+// 5. CDL3OUTSIDE - Three Outside Up/Down
 export { CDL3OUTSIDEConfig, type CDL3OUTSIDEConfigType } from "./cdl3outside";
 
-// 6. CDL3STARSINSOUTH - 三颗星在南方
+// 6. CDL3STARSINSOUTH - Three Stars in the South
 export {
 	CDL3STARSINSOUTHConfig,
 	type CDL3STARSINSOUTHConfigType,
 } from "./cdl3starsinsouth";
 
-// 7. CDL3WHITESOLDIERS - 三只白兵
+// 7. CDL3WHITESOLDIERS - Three Advancing White Soldiers
 export {
 	CDL3WHITESOLDIERSConfig,
 	type CDL3WHITESOLDIERSConfigType,
 } from "./cdl3whitesoldiers";
 
-// 8. CDLABANDONEDBABY - 弃婴
+// 8. CDLABANDONEDBABY - Abandoned Baby
 export {
 	CDLABANDONEDBABYConfig,
 	type CDLABANDONEDBABYConfigType,
 } from "./cdlabandonedbaby";
 
-// 9. CDLADVANCEBLOCK - 前进阻挡
+// 9. CDLADVANCEBLOCK - Advance Block
 export {
 	CDLADVANCEBLOCKConfig,
 	type CDLADVANCEBLOCKConfigType,
 } from "./cdladvanceblock";
 
-// 10. CDLBELTHOLD - 带柄
+// 10. CDLBELTHOLD - Belt Hold
 export { CDLBELTHOLDConfig, type CDLBELTHOLDConfigType } from "./cdlbelthold";
 
-// 11. CDLBREAKAWAY - 突破
+// 11. CDLBREAKAWAY - Breakaway
 export {
 	CDLBREAKAWAYConfig,
 	type CDLBREAKAWAYConfigType,
 } from "./cdlbreakaway";
 
-// 12. CDLCLOSINGMARUBOZU - 收盘十字星
+// 12. CDLCLOSINGMARUBOZU - Closing Marubozu
 export {
 	CDLCLOSINGMARUBOZUConfig,
 	type CDLCLOSINGMARUBOZUConfigType,
 } from "./cdlclosingmarubozu";
 
-// 13. CDLCONCEALBABYSWALL - 隐藏婴儿吞噬
+// 13. CDLCONCEALBABYSWALL - Concealing Baby Swallow
 export {
 	CDLCONCEALBABYSWALLConfig,
 	type CDLCONCEALBABYSWALLConfigType,
 } from "./cdlconcealbabyswall";
 
-// 14. CDLCOUNTERATTACK - 反击
+// 14. CDLCOUNTERATTACK - Counterattack
 export {
 	CDLCOUNTERATTACKConfig,
 	type CDLCOUNTERATTACKConfigType,
 } from "./cdlcounterattack";
 
-// 15. CDLDARKCLOUDCOVER - 乌云盖顶
+// 15. CDLDARKCLOUDCOVER - Dark Cloud Cover
 export {
 	CDLDARKCLOUDCOVERConfig,
 	type CDLDARKCLOUDCOVERConfigType,
 } from "./cdldarkcloudcover";
 
-// 16. CDLDOJI - 十字星
+// 16. CDLDOJI - Doji
 export { CDLDOJIConfig, type CDLDOJIConfigType } from "./cdldoji";
 
-// 17. CDLDOJISTAR - 十字星
+// 17. CDLDOJISTAR - Doji Star
 export { CDLDOJISTARConfig, type CDLDOJISTARConfigType } from "./cdldojistar";
 
-// 18. CDLDRAGONFLYDOJI - 蜻蜓十字星
+// 18. CDLDRAGONFLYDOJI - Dragonfly Doji
 export {
 	CDLDRAGONFLYDOJIConfig,
 	type CDLDRAGONFLYDOJIConfigType,
 } from "./cdldragonflydoji";
 
-// 19. CDLENGULFING - 吞噬模式
+// 19. CDLENGULFING - Engulfing Pattern
 export {
 	CDLENGULFINGConfig,
 	type CDLENGULFINGConfigType,
 } from "./cdlengulfing";
 
-// 20. CDLEVENINGDOJISTAR - 黄昏十字星
+// 20. CDLEVENINGDOJISTAR - Evening Doji Star
 export {
 	CDLEVENINGDOJISTARConfig,
 	type CDLEVENINGDOJISTARConfigType,
 } from "./cdleveningdojistar";
 
-// 21. CDLEVENINGSTAR - 黄昏星
+// 21. CDLEVENINGSTAR - Evening Star
 export {
 	CDLEVENINGSTARConfig,
 	type CDLEVENINGSTARConfigType,
 } from "./cdleveningstar";
 
-// 22. CDLGAPSIDESIDEWHITE - 上/下缺口侧边白线
+// 22. CDLGAPSIDESIDEWHITE - Up/Down-gap Side-by-Side White Lines
 export {
 	CDLGAPSIDESIDEWHITEConfig,
 	type CDLGAPSIDESIDEWHITEConfigType,
 } from "./cdlgapsidesidewhite";
 
-// 23. CDLGRAVESTONEDOJI - 墓碑十字星
+// 23. CDLGRAVESTONEDOJI - Gravestone Doji
 export {
 	CDLGRAVESTONEDOJIConfig,
 	type CDLGRAVESTONEDOJIConfigType,
 } from "./cdlgravestonedoji";
 
-// 24. CDLHAMMER - 锤子
+// 24. CDLHAMMER - Hammer
 export { CDLHAMMERConfig, type CDLHAMMERConfigType } from "./cdlhammer";
 
-// 25. CDLHANGINGMAN - 吊人
+// 25. CDLHANGINGMAN - Hanging Man
 export {
 	CDLHANGINGMANConfig,
 	type CDLHANGINGMANConfigType,
 } from "./cdlhangingman";
 
-// 26. CDLHARAMI - 孕线模式
+// 26. CDLHARAMI - Harami Pattern
 export { CDLHARAMIConfig, type CDLHARAMIConfigType } from "./cdlharami";
 
-// 27. CDLHARAMICROSS - 孕线交叉模式
+// 27. CDLHARAMICROSS - Harami Cross Pattern
 export {
 	CDLHARAMICROSSConfig,
 	type CDLHARAMICROSSConfigType,
 } from "./cdlharamicross";
 
-// 28. CDLHIGHWAVE - 高浪烛
+// 28. CDLHIGHWAVE - High-Wave Candle
 export { CDLHIGHWAVEConfig, type CDLHIGHWAVEConfigType } from "./cdlhighwave";
 
-// 29. CDLHIKKAKE - 跳空模式
+// 29. CDLHIKKAKE - Hikkake Pattern
 export { CDLHIKKAKEConfig, type CDLHIKKAKEConfigType } from "./cdlhikkake";
 
-// 30. CDLHIKKAKEMOD - 修改跳空模式
+// 30. CDLHIKKAKEMOD - Modified Hikkake Pattern
 export {
 	CDLHIKKAKEMODConfig,
 	type CDLHIKKAKEMODConfigType,
 } from "./cdlhikkakemod";
 
-// 31. CDLHOMINGPIGEON - 归巢鸽
+// 31. CDLHOMINGPIGEON - Homing Pigeon
 export {
 	CDLHOMINGPIGEONConfig,
 	type CDLHOMINGPIGEONConfigType,
 } from "./cdlhomingpigeon";
 
-// 32. CDLIDENTICAL3CROWS - 相同三只乌鸦
+// 32. CDLIDENTICAL3CROWS - Identical Three Crows
 export {
 	CDLIDENTICAL3CROWSConfig,
 	type CDLIDENTICAL3CROWSConfigType,
 } from "./cdlidentical3crows";
 
-// 33. CDLINNECK - 颈线模式
+// 33. CDLINNECK - In-Neck Pattern
 export { CDLINNECKConfig, type CDLINNECKConfigType } from "./cdlinneck";
 
-// 34. CDLINVERTEDHAMMER - 倒锤子
+// 34. CDLINVERTEDHAMMER - Inverted Hammer
 export {
 	CDLINVERTEDHAMMERConfig,
 	type CDLINVERTEDHAMMERConfigType,
 } from "./cdlinvertedhammer";
 
-// 35. CDLKICKING - 踢腿
+// 35. CDLKICKING - Kicking
 export { CDLKICKINGConfig, type CDLKICKINGConfigType } from "./cdlkicking";
 
-// 36. CDLKICKINGBYLENGTH - 踢腿 - 牛/熊由更长的十字星决定
+// 36. CDLKICKINGBYLENGTH - Kicking - Bull/Bear Determined by Longer Marubozu
 export {
 	CDLKICKINGBYLENGTHConfig,
 	type CDLKICKINGBYLENGTHConfigType,
 } from "./cdlkickingbylength";
 
-// 37. CDLLADDERBOTTOM - 梯底
+// 37. CDLLADDERBOTTOM - Ladder Bottom
 export {
 	CDLLADDERBOTTOMConfig,
 	type CDLLADDERBOTTOMConfigType,
 } from "./cdlladderbottom";
 
-// 38. CDLLONGLEGGEDDOJI - 长脚十字星
+// 38. CDLLONGLEGGEDDOJI - Long Legged Doji
 export {
 	CDLLONGLEGGEDDOJIConfig,
 	type CDLLONGLEGGEDDOJIConfigType,
 } from "./cdllongleggeddoji";
 
-// 39. CDLLONGLINE - 长蜡烛
+// 39. CDLLONGLINE - Long Line Candle
 export { CDLLONGLINEConfig, type CDLLONGLINEConfigType } from "./cdllongline";
 
-// 40. CDLMARUBOZU - 实体蜡烛
+// 40. CDLMARUBOZU - Marubozu
 export { CDLMARUBOZUConfig, type CDLMARUBOZUConfigType } from "./cdlmarubozu";
 
-// 41. CDLMATCHINGLOW - 匹配低点
+// 41. CDLMATCHINGLOW - Matching Low
 export {
 	CDLMATCHINGLOWConfig,
 	type CDLMATCHINGLOWConfigType,
 } from "./cdlmatchinglow";
 
-// 42. CDLMATHOLD - 支撑
+// 42. CDLMATHOLD - Mat Hold
 export { CDLMATHOLDConfig, type CDLMATHOLDConfigType } from "./cdlmathold";
 
-// 43. CDLMORNINGDOJISTAR - 早晨十字星
+// 43. CDLMORNINGDOJISTAR - Morning Doji Star
 export {
 	CDLMORNINGDOJISTARConfig,
 	type CDLMORNINGDOJISTARConfigType,
 } from "./cdlmorningdojistar";
 
-// 44. CDLMORNINGSTAR - 早晨之星
+// 44. CDLMORNINGSTAR - Morning Star
 export {
 	CDLMORNINGSTARConfig,
 	type CDLMORNINGSTARConfigType,
 } from "./cdlmorningstar";
 
-// 45. CDLONNECK - 颈线模式
+// 45. CDLONNECK - On-Neck Pattern
 export { CDLONNECKConfig, type CDLONNECKConfigType } from "./cdlonneck";
 
-// 46. CDLPIERCING - 刺透模式
+// 46. CDLPIERCING - Piercing Pattern
 export { CDLPIERCINGConfig, type CDLPIERCINGConfigType } from "./cdlpiercing";
 
-// 47. CDLRICKSHAWMAN - 人力车夫
+// 47. CDLRICKSHAWMAN - Rickshaw Man
 export {
 	CDLRICKSHAWMANConfig,
 	type CDLRICKSHAWMANConfigType,
 } from "./cdlrickshawman";
 
-// 48. CDLRISEFALL3METHODS - 上升/下降三法
+// 48. CDLRISEFALL3METHODS - Rising/Falling Three Methods
 export {
 	CDLRISEFALL3METHODSConfig,
 	type CDLRISEFALL3METHODSConfigType,
 } from "./cdlrisefall3methods";
 
-// 49. CDLSEPARATINGLINES - 分离线
+// 49. CDLSEPARATINGLINES - Separating Lines
 export {
 	CDLSEPARATINGLINESConfig,
 	type CDLSEPARATINGLINESConfigType,
 } from "./cdlseparatinglines";
 
-// 50. CDLSHOOTINGSTAR - 射击之星
+// 50. CDLSHOOTINGSTAR - Shooting Star
 export {
 	CDLSHOOTINGSTARConfig,
 	type CDLSHOOTINGSTARConfigType,
 } from "./cdlshootingstar";
 
-// 51. CDLSHORTLINE - 短蜡烛
+// 51. CDLSHORTLINE - Short Line Candle
 export {
 	CDLSHORTLINEConfig,
 	type CDLSHORTLINEConfigType,
 } from "./cdlshortline";
 
-// 52. CDLSPINNINGTOP - 旋转顶部
+// 52. CDLSPINNINGTOP - Spinning Top
 export {
 	CDLSPINNINGTOPConfig,
 	type CDLSPINNINGTOPConfigType,
 } from "./cdlspinningtop";
 
-// 53. CDLSTALLEDPATTERN - 停滞模式
+// 53. CDLSTALLEDPATTERN - Stalled Pattern
 export {
 	CDLSTALLEDPATTERNConfig,
 	type CDLSTALLEDPATTERNConfigType,
 } from "./cdlstalledpattern";
 
-// 54. CDLSTICKSANDWICH - 针刺三明治
+// 54. CDLSTICKSANDWICH - Stick Sandwich
 export {
 	CDLSTICKSANDWICHConfig,
 	type CDLSTICKSANDWICHConfigType,
 } from "./cdlsticksandwich";
 
-// 55. CDLTAKURI - 蜻蜓十字星
+// 55. CDLTAKURI - Takuri (Dragonfly Doji with very long lower shadow)
 export { CDLTAKURIConfig, type CDLTAKURIConfigType } from "./cdltakuri";
 
-// 56. CDLTASUKIGAP - 田中缺口
+// 56. CDLTASUKIGAP - Tasuki Gap
 export {
 	CDLTASUKIGAPConfig,
 	type CDLTASUKIGAPConfigType,
 } from "./cdltasukigap";
 
-// 57. CDLTHRUSTING - 刺穿模式
+// 57. CDLTHRUSTING - Thrusting Pattern
 export {
 	CDLTHRUSTINGConfig,
 	type CDLTHRUSTINGConfigType,
 } from "./cdlthrusting";
 
-// 58. CDLTRISTAR - 三星模式
+// 58. CDLTRISTAR - Tristar Pattern
 export { CDLTRISTARConfig, type CDLTRISTARConfigType } from "./cdltristar";
 
-// 59. CDLUNIQUE3RIVER - 唯一三河
+// 59. CDLUNIQUE3RIVER - Unique 3 River
 export {
 	CDLUNIQUE3RIVERConfig,
 	type CDLUNIQUE3RIVERConfigType,
 } from "./cdlunique3river";
 
-// 60. CDLUPSIDEGAP2CROWS - 上缺口两只乌鸦
+// 60. CDLUPSIDEGAP2CROWS - Upside Gap Two Crows
 export {
 	CDLUPSIDEGAP2CROWSConfig,
 	type CDLUPSIDEGAP2CROWSConfigType,
 } from "./cdlupsidegap2crows";
 
-// 61. CDLXSIDEGAP3METHODS - 上/下缺口三法
+// 61. CDLXSIDEGAP3METHODS - Upside/Downside Gap Three Methods
 export {
 	CDLXSIDEGAP3METHODSConfig,
 	type CDLXSIDEGAP3METHODSConfigType,

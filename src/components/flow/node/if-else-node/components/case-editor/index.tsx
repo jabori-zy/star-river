@@ -14,9 +14,9 @@ import { VariableValueType } from "@/types/variable";
 import ConditionSetting from "./condition-setting";
 
 interface CaseEditorProps {
-	variableItemList: VariableItem[]; // 变量列表
-	caseItem: CaseItem; // 条件
-	caseIndex?: number; // 显示用的顺序索引（1, 2, 3...），用于 UI 显示
+	variableItemList: VariableItem[]; // Variable list
+	caseItem: CaseItem; // Condition
+	caseIndex?: number; // Display index (1, 2, 3...), used for UI display
 	onCaseChange: (caseItem: CaseItem) => void;
 	onCaseRemove: (caseId: number) => void;
 }
@@ -28,18 +28,18 @@ const CaseEditor: React.FC<CaseEditorProps> = ({
 	onCaseChange,
 	onCaseRemove,
 }) => {
-	// 本地的条件状态，用于编辑时，避免影响其他分支
+	// Local condition state for editing, to avoid affecting other branches
 	const [localCaseItem, setLocalCaseItem] = useState<CaseItem>(caseItem);
 	const { t } = useTranslation();
-	// 当caseItem prop变化时，更新本地状态
+	// Update local state when caseItem prop changes
 	useEffect(() => {
 		setLocalCaseItem(caseItem);
 	}, [caseItem]);
 
-	// 添加条件
+	// Add condition
 	const handleAddCondition = () => {
 		const newCondition: Condition = {
-			conditionId: localCaseItem.conditions.length + 1, // 列表长度+1
+			conditionId: localCaseItem.conditions.length + 1, // List length + 1
 			left: null,
 			comparisonSymbol: ComparisonSymbol.equal,
 			right: {
@@ -62,7 +62,7 @@ const CaseEditor: React.FC<CaseEditorProps> = ({
 		onCaseChange(updatedCaseItem);
 	};
 
-	// 删除条件
+	// Remove condition
 	const handleRemoveCondition = (conditionId: number) => {
 		const updatedCaseItem = {
 			...localCaseItem,
@@ -74,9 +74,9 @@ const CaseEditor: React.FC<CaseEditorProps> = ({
 		onCaseChange(updatedCaseItem);
 	};
 
-	// 更新条件
+	// Update condition
 	const handleUpdateCondition = (condition: Condition) => {
-		// 更新本地case中的条件
+		// Update condition in local case
 		const updatedConditions = localCaseItem.conditions.map((c) =>
 			c.conditionId === condition.conditionId ? condition : c,
 		);
@@ -85,7 +85,7 @@ const CaseEditor: React.FC<CaseEditorProps> = ({
 		onCaseChange(updatedCaseItem);
 	};
 
-	// 更新case的逻辑运算符
+	// Update logical operator for case
 	const handleUpdateLogicalSymbol = (logicalSymbol: LogicalSymbol) => {
 		const updatedCaseItem = { ...localCaseItem, logicalSymbol: logicalSymbol };
 		setLocalCaseItem(updatedCaseItem);
@@ -94,7 +94,7 @@ const CaseEditor: React.FC<CaseEditorProps> = ({
 
 	return (
 		<div className="flex flex-col gap-2">
-			{/* 标题 */}
+			{/* Title */}
 			<div className="flex flex-row gap-2 items-center h-8 p-2 justify-between">
 				<div className="flex flex-row gap-2 items-center">
 					<GripVertical className="w-4 h-4 text-gray-400 drag-handle cursor-grab active:cursor-grabbing" />
@@ -133,8 +133,8 @@ const CaseEditor: React.FC<CaseEditorProps> = ({
 					</Button>
 				</div>
 			</div>
-			{/* 条件 */}
-			{/* 如果caseItem为空，则默认显示一个空的case */}
+			{/* Conditions */}
+			{/* If caseItem is empty, display an empty case by default */}
 			{localCaseItem?.conditions?.length > 0 &&
 				localCaseItem?.conditions?.map((condition) => (
 					<div className="flex flex-row" key={condition.conditionId}>
@@ -147,7 +147,7 @@ const CaseEditor: React.FC<CaseEditorProps> = ({
 					</div>
 				))}
 
-			{/* 添加条件按钮 */}
+			{/* Add condition button */}
 			<div className="flex justify-start pl-2">
 				<Button
 					variant="outline"
@@ -158,7 +158,7 @@ const CaseEditor: React.FC<CaseEditorProps> = ({
 					{t("ifElseNode.addCondition")}
 				</Button>
 			</div>
-			{/* 用div模拟分割线 */}
+			{/* Use div to simulate divider */}
 			<div className="w-full h-px bg-gray-300 px-4 m-2 "></div>
 		</div>
 	);

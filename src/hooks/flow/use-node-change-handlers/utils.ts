@@ -1,17 +1,17 @@
 import type { Variable, VarType } from "@/types/node/if-else-node";
 
 /**
- * 创建清空的右变量（保留varType，其他字段置空）
- * @param varType 变量类型
- * @returns 清空的右变量对象
+ * Create an empty right variable (keep varType, clear other fields)
+ * @param varType Variable type
+ * @returns Empty right variable object
  */
 export const createEmptyRightVariable = (
 	varType: VarType | null,
 ): Variable => ({
-	varType, // 保留变量类型
-	nodeId: null, // 节点id置空
-	outputHandleId: null, // 变量输出handleId置空
-	varConfigId: null, // 变量配置id置空
-	varName: null, // 变量名称置空
-	nodeName: null, // 节点名称置空
+	varType, // Keep variable type
+	nodeId: null, // Clear node id
+	outputHandleId: null, // Clear variable output handleId
+	varConfigId: null, // Clear variable config id
+	varName: null, // Clear variable name
+	nodeName: null, // Clear node name
 });

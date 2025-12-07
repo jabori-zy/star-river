@@ -1,22 +1,22 @@
 import { create } from "zustand";
 
 interface CustomSysVariableNameState {
-	// 系统变量自定义名称映射表: key为系统变量名(如 current_time), value为用户自定义显示名称
+	// System variable custom name mapping: key is system variable name (e.g. current_time), value is user-defined display name
 	customNames: Record<string, string>;
 
-	//获取已设置的自定义名称列表
+	// Get list of configured custom names
 	getCustomNames: () => Record<string, string>;
 
-	// 获取自定义名称
+	// Get custom name
 	getCustomName: (varName: string) => string | undefined;
 
-	// 设置自定义名称
+	// Set custom name
 	setCustomName: (varName: string, customName: string) => void;
 
-	// 删除自定义名称
+	// Remove custom name
 	removeCustomName: (varName: string) => void;
 
-	// 清空所有自定义名称
+	// Clear all custom names
 	clearAllCustomNames: () => void;
 }
 

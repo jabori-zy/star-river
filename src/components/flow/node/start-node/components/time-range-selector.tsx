@@ -16,7 +16,7 @@ const TimeRangeSelector: React.FC<TimeRangeSelectorProps> = ({
 }) => {
 	const { t } = useTranslation();
 	// const { systemConfig } = useSystemConfigStore();
-	// 将字符串转换为Date对象
+	// Convert string to Date object
 	const parseDatetime = (datetimeString: string): Date | undefined => {
 		if (!datetimeString) return undefined;
 		try {
@@ -26,7 +26,7 @@ const TimeRangeSelector: React.FC<TimeRangeSelectorProps> = ({
 		}
 	};
 
-	// 将Date对象格式化为 'YYYY-MM-DD HH:mm:ss' 格式
+	// Format Date object to 'YYYY-MM-DD HH:mm:ss' format
 
 	return (
 		<div className="grid grid-cols-2 gap-2">

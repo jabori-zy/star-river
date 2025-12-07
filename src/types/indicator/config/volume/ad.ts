@@ -8,17 +8,17 @@ import {
 } from "@/types/indicator/indicator-config";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
-// MA 指标配置的 Zod schema
-const ADConfigSchema = z.object({}); // 没有参数
+// AD indicator configuration Zod schema
+const ADConfigSchema = z.object({}); // no parameters
 
 export type ADConfigType = z.infer<typeof ADConfigSchema>;
 
-// AD指标的参数映射函数
+// AD indicator parameter mapping function
 function buildADConfig(): unknown {
 	return {};
 }
 
-// Chaikin A/D Line #钱德动量线
+// Chaikin A/D Line - Chande Momentum Line
 export const ADConfig: IndicatorConfig<ADConfigType> = {
 	category: IndicatorCategory.VOLUME,
 	type: IndicatorType.AD,
@@ -45,7 +45,7 @@ export const ADConfig: IndicatorConfig<ADConfigType> = {
 	getDefaultConfig(): ADConfigType {
 		const config = {};
 
-		// 使用 Zod 验证配置
+		// Validate configuration using Zod
 		const validatedConfig = ADConfigSchema.parse(config);
 		return validatedConfig;
 	},
@@ -54,7 +54,7 @@ export const ADConfig: IndicatorConfig<ADConfigType> = {
 		return getIndicatorValues(this.indicatorValueConfig);
 	},
 
-	// 使用通用解析函数
+	// Use common parsing function
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
 		IndicatorType.AD,
 		ADConfigSchema,
@@ -74,10 +74,10 @@ export const ADConfig: IndicatorConfig<ADConfigType> = {
 	// 	seriesName: string,
 	// 	indicatorKey: IndicatorKey,
 	// ): string | undefined {
-	// 	// 如果指标类型为AD，则返回AD-seriesName
+	// 	// If indicator type is AD, return AD-seriesName
 	// 	if (indicatorKey.indicatorType === IndicatorType.AD) {
 	// 		// const adConfig = indicatorKey.indicatorConfig as ADConfigType;
-	// 		// 找到名称相同的seriesConfig
+	// 		// Find seriesConfig with matching name
 	// 		const seriseConfig = this.chartConfig.seriesConfigs.find(
 	// 			(config) => config.name === seriesName,
 	// 		);

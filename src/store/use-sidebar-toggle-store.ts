@@ -1,13 +1,13 @@
-// 用于判断侧边栏是否打开, 存储在全局store中
+// Used to determine if sidebar is open, stored in global store
 import { create } from "zustand";
 
-// 侧边栏是否打开的state
+// Sidebar open state interface
 interface SidebarToggleState {
 	isSidebarOpen: boolean;
 	setIsSidebarOpen: (isSidebarOpen: boolean) => void;
 }
 
-// 侧边栏是否打开的store
+// Sidebar toggle store
 const useSidebarToggleStore = create<SidebarToggleState>((set) => ({
 	isSidebarOpen: true,
 	setIsSidebarOpen: (isSidebarOpen) => {

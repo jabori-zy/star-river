@@ -20,7 +20,7 @@ export type StatsLegendData = {
 	timeString: string;
 };
 
-// 时间转换为字符串
+// Convert time to string
 const timeToString = (time: Time): string => {
 	if (typeof time === "number") {
 		return new Date(time * 1000).toLocaleString();
@@ -32,7 +32,7 @@ const timeToString = (time: Time): string => {
 	return time;
 };
 
-// 从stats数据获取最新值
+// Get latest value from stats data
 const getLastStatsValue = (
 	statsData: SingleValueData[],
 ): { value: number; time: Time } | null => {
@@ -47,7 +47,7 @@ const getLastStatsValue = (
 	};
 };
 
-// 将统计数据转换为图例数据
+// Convert statistics data to legend data
 const mapStatsDataToLegendData = (
 	config: StrategyStatsChartConfig,
 	statsData: Record<string, SingleValueData[]>,
@@ -57,7 +57,7 @@ const mapStatsDataToLegendData = (
 	const statsName = config.seriesConfigs.statsName;
 	const data = statsData[statsName];
 
-	// 从配置store获取实时颜色和翻译后的名称
+	// Get real-time color and translated name from config store
 	const currentConfig = getStatsChartConfig(
 		statsName as StrategyStatsName,
 		t,
@@ -76,13 +76,13 @@ const mapStatsDataToLegendData = (
 		};
 	}
 
-	// 查找指定时间的数据点
+	// Find data point at specified time
 	const dataPoint = time ? data.find((point) => point.time === time) : null;
 
-	// 如果没有找到指定时间的数据点，使用最新的数据点
+	// If no data point found at specified time, use the latest data point
 	const targetData = dataPoint || data[data.length - 1];
 
-	// 根据valueType格式化数值
+	// Format value according to valueType
 	let formattedValue: string;
 	if (config.valueType === "percentage") {
 		formattedValue = `${(targetData.value * 100).toFixed(5)}%`;
@@ -118,15 +118,15 @@ export const useStatsLegend = ({
 		statsChartConfigs: [statsChartConfig],
 	});
 
-	// 获取配置store以获取实时颜色更新
+	// Get config store for real-time color updates
 	const configStore = useBacktestStatsChartConfigStore();
 
 	const [legendData, setLegendData] = useState<StatsLegendData | null>(() => {
-		// 初始化时使用最新数据
+		// Use latest data on initialization
 		return mapStatsDataToLegendData(statsChartConfig, statsData, null, t);
 	});
 
-	// 监听数据变化和配置变化，自动更新图例数据
+	// Listen to data changes and config changes, automatically update legend data
 	useEffect(() => {
 		const newLegendData = mapStatsDataToLegendData(
 			statsChartConfig,
@@ -135,7 +135,7 @@ export const useStatsLegend = ({
 			t,
 		);
 		setLegendData((prev) => {
-			// 只有在时间、值、颜色或显示名称不同时才更新，避免不必要的渲染
+			// Only update when time, value, color, or display name differs, to avoid unnecessary rendering
 			const shouldUpdate =
 				prev?.time !== newLegendData?.time ||
 				prev?.value !== newLegendData?.value ||

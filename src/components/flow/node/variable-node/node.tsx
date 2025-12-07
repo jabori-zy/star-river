@@ -26,7 +26,7 @@ const VariableNode: React.FC<NodeProps<VariableNodeType>> = ({
 }) => {
 	const { getNodeData } = useStrategyWorkflow();
 	const variableNodeData = getNodeData(id) as VariableNodeData;
-	const nodeName = variableNodeData.nodeName || "变量节点";
+	const nodeName = variableNodeData.nodeName || "Variable Node";
 	const handleColor =
 		variableNodeData?.nodeConfig?.handleColor ||
 		getNodeDefaultColor(NodeType.VariableNode);
@@ -39,10 +39,10 @@ const VariableNode: React.FC<NodeProps<VariableNodeType>> = ({
 	const borderColor =
 		variableNodeData?.nodeConfig?.borderColor ||
 		getNodeDefaultColor(NodeType.VariableNode);
-	// 获取当前的交易模式
+	// Get current trading mode
 	const { tradingMode } = useTradingModeStore();
 
-	// 根据交易模式渲染不同的显示组件
+	// Render different display components based on trading mode
 	const renderModeShow = () => {
 		switch (tradingMode) {
 			case TradeMode.LIVE:

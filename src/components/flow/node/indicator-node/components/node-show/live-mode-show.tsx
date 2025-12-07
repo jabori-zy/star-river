@@ -12,7 +12,7 @@ interface LiveModeShowProps {
 	data: IndicatorNodeData;
 }
 
-// 获取时间周期的中文标签
+// Get Chinese label for time interval
 const getIntervalLabel = (interval: string) => {
 	const intervalMap: Record<string, string> = {
 		"1m": "1分钟",
@@ -33,7 +33,7 @@ const LiveModeShow: React.FC<LiveModeShowProps> = ({ data }) => {
 
 	return (
 		<div className="space-y-3">
-			{/* 指标展示 */}
+			{/* Indicator display */}
 			<div className="space-y-2">
 				{!selectedIndicators || selectedIndicators.length === 0 ? (
 					<div className="flex items-center justify-between gap-2 rounded-md">
@@ -64,7 +64,7 @@ const LiveModeShow: React.FC<LiveModeShowProps> = ({ data }) => {
 					</div>
 				)}
 			</div>
-			{/* 数据源信息 */}
+			{/* Data source information */}
 			<div className="space-y-2">
 				{!exchange || !symbol || !interval ? (
 					<div className="flex items-center justify-between gap-2 rounded-md">

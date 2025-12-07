@@ -23,7 +23,7 @@ const FuturesOrderNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	id,
 }) => {
 	const { t } = useTranslation();
-	// 获取开始节点数据
+	// Get start node data
 	const { getStartNodeData, getTargetNodeIds } = useStrategyWorkflow();
 	const startNodeData = getStartNodeData();
 	const accountList =
@@ -31,7 +31,7 @@ const FuturesOrderNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 
 	const { getNode, getEdges, setEdges } = useReactFlow();
 
-	// ✅ 使用新版本 hook 管理回测配置
+	// Use new version hook to manage backtest config
 	const {
 		backtestConfig,
 		updateExchangeModeConfig,
@@ -41,13 +41,13 @@ const FuturesOrderNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	} = useBacktestConfig({ id });
 	const orderConfigs = backtestConfig?.futuresOrderConfigs || [];
 
-	// 当前选中的账户
+	// Currently selected account
 	const [selectedAccount, setSelectedAccount] =
 		useState<SelectedAccount | null>(
 			backtestConfig?.exchangeModeConfig?.selectedAccount || null,
 		);
 
-	// 确认删除对话框状态
+	// Confirm delete dialog state
 	const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
 	const [pendingDeleteConfig, setPendingDeleteConfig] =
 		useState<FuturesOrderConfig | null>(null);
@@ -56,14 +56,14 @@ const FuturesOrderNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 		targetNodeNames: string[];
 	} | null>(null);
 
-	// 获取代币列表（在父组件统一获取，避免子组件重复请求）
+	// Get symbol list (unified fetch in parent component to avoid duplicate requests in child components)
 	const { data: symbolList = [] } = useSymbolList(selectedAccount?.id ?? 0);
 
-	// 处理账户选择变更
+	// Handle account selection change
 	const handleAccountChange = (account: SelectedAccount) => {
 		setSelectedAccount(account);
 
-		// 更新exchangeConfig
+		// Update exchangeConfig
 		const newExchangeConfig = {
 			selectedAccount: account,
 			timeRange: backtestConfig?.exchangeModeConfig?.timeRange || {
@@ -75,7 +75,7 @@ const FuturesOrderNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 		updateExchangeModeConfig(newExchangeConfig);
 	};
 
-	// 处理单个订单配置变更
+	// Handle single order config change
 	const handleOrderConfigChange = (
 		index: number,
 		config: FuturesOrderConfig,
@@ -83,7 +83,7 @@ const FuturesOrderNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 		updateFuturesOrderConfig(index, config);
 	};
 
-	// 删除订单配置
+	// Delete order config
 	const handleDeleteOrder = (index: number) => {
 		const configToDelete = orderConfigs[index];
 		const targetNodeIds = getTargetNodeIds(id);
@@ -96,7 +96,7 @@ const FuturesOrderNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 			),
 		];
 
-		// 如果有连接的目标节点，显示确认对话框
+		// If there are connected target nodes, show confirm dialog
 		if (targetNodeIds.length > 0) {
 			setPendingDeleteConfig(configToDelete);
 			setPendingDeleteData({
@@ -107,11 +107,11 @@ const FuturesOrderNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 			return;
 		}
 
-		// 没有连接节点，直接删除
+		// No connected nodes, delete directly
 		performDelete(index);
 	};
 
-	// 执行删除
+	// Perform delete
 	const performDelete = (index?: number) => {
 		const targetIndex =
 			index !== undefined
@@ -126,7 +126,7 @@ const FuturesOrderNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 
 		const configToDelete = orderConfigs[targetIndex];
 
-		// 删除边：inputHandleId + 所有 outputHandleIds
+		// Delete edges: inputHandleId + all outputHandleIds
 		const inputHandleId = configToDelete.inputHandleId;
 		const outputHandleIds = configToDelete.outputHandleIds || [];
 		const edges = getEdges();
@@ -137,10 +137,10 @@ const FuturesOrderNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 		);
 		setEdges(remainingEdges);
 
-		// 删除配置
+		// Delete config
 		removeFuturesOrderConfig(targetIndex);
 
-		// 清理状态
+		// Clean up state
 		setPendingDeleteConfig(null);
 		setIsConfirmDialogOpen(false);
 		setPendingDeleteData(null);
@@ -156,7 +156,7 @@ const FuturesOrderNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 		setPendingDeleteData(null);
 	};
 
-	// 添加新订单配置
+	// Add new order config
 	const handleAddOrder = () => {
 		const newOrderConfigId = orderConfigs.length + 1;
 		const orderType = OrderType.LIMIT;
@@ -229,7 +229,7 @@ const FuturesOrderNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 				)}
 			</div>
 
-			{/* 确认删除对话框 */}
+			{/* Confirm delete dialog */}
 			<NodeOpConfirmDialog
 				isOpen={isConfirmDialogOpen}
 				onOpenChange={setIsConfirmDialogOpen}

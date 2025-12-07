@@ -9,22 +9,22 @@ import { useSidebar } from "@/components/ui/sidebar";
 import useSidebarToggleStore from "@/store/use-sidebar-toggle-store";
 import { StrategyItemDropdownMenu } from "./dropdown-menu";
 
-// 策略列表项组件的属性
+// Strategy list item component properties
 export interface StrategyItemProps {
 	strategyId: number;
-	// 策略名称
+	// Strategy name
 	strategyName: string;
-	// 策略描述
+	// Strategy description
 	strategyDescription: string;
-	// 创建时间
+	// Create time
 	createTime: string;
-	// 更新时间
+	// Update time
 	updateTime: string;
-	// 状态 (backend returns: "stopped", "running", "paused", etc.)
+	// Status (backend returns: "stopped", "running", "paused", etc.)
 	strategyStatus: string;
-	// 交易模式
+	// Trade mode
 	tradeMode: string;
-	// 节点数量
+	// Node count
 	nodeCount: number;
 	onDelete: () => void;
 }
@@ -140,10 +140,10 @@ export function StrategyItem({
 					size="sm"
 					className="flex items-center gap-2 hover:bg-primary/10 transition-colors group-hover:translate-x-1 duration-200"
 					onClick={() => {
-						// 点击查看策略时，关闭侧边栏
+						// Close sidebar when clicking to view strategy
 						setOpen(false);
 						setIsSidebarOpen(false);
-						// 跳转到策略节点页面
+						// Navigate to strategy node page
 						navigate("/strategy", {
 							state: {
 								strategyId,

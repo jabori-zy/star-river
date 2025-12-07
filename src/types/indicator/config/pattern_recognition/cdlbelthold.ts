@@ -9,14 +9,14 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLBELTHOLDConfigSchema = z.object({
-	// CDLBELTHOLD 没有参数
+	// CDLBELTHOLD has no parameters
 });
 
 export type CDLBELTHOLDConfigType = z.infer<typeof CDLBELTHOLDConfigSchema>;
 
 function buildCDLBELTHOLDConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLBELTHOLD 不需要任何参数
+		// CDLBELTHOLD doesn't need any parameters
 	};
 }
 
@@ -26,7 +26,7 @@ export const CDLBELTHOLDConfig: IndicatorConfig<CDLBELTHOLDConfigType> = {
 	displayName: "CDLBELTHOLD",
 	description: "Belt-hold",
 	params: {
-		// CDLBELTHOLD 没有参数
+		// CDLBELTHOLD has no parameters
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

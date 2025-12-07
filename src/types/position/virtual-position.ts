@@ -8,15 +8,15 @@ export type VirtualPosition = {
 	exchange: string | Exchange;
 	symbol: string;
 	positionSide: PositionSide;
-	positionState: PositionState; // 持仓状态
+	positionState: PositionState; // Position state
 	quantity: number;
 	openPrice: number;
 	currentPrice: number;
-	unrealizedProfit: number; // 未实现盈亏
-	forcePrice: number; // 强制平仓价格
-	margin: number; // 保证金
-	marginRatio: number; // 保证金比例
-	roi: number; // 投资回报率
+	unrealizedProfit: number; // Unrealized profit/loss
+	forcePrice: number; // Forced liquidation price
+	margin: number; // Margin
+	marginRatio: number; // Margin ratio
+	roi: number; // Return on investment
 	createTime: string;
 	updateTime: string;
 };

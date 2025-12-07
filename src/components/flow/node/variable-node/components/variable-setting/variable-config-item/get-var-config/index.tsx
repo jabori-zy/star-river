@@ -83,7 +83,7 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 	const { getIfElseNodeCases } = useStrategyWorkflow();
 	const { tradingMode } = useTradingModeStore();
 
-	// 本地状态管理显示名称输入框，避免光标跳转问题
+	// Local state for display name input, avoiding cursor jump issues
 	const [localDisplayName, setLocalDisplayName] = useState(
 		config.varDisplayName,
 	);
@@ -94,21 +94,21 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 	const timerConfig = getTimerTriggerConfig(config);
 	// const dataflowConfig = getDataFlowTriggerConfig(config);
 
-	// 使用 ref 缓存 timer 和 condition 配置，防止切换触发类型时丢失
+	// Use ref to cache timer and condition configs, preventing loss when switching trigger types
 	const cachedTimerConfig = useRef<TimerTrigger>(
 		timerConfig || { mode: "interval", interval: 1, unit: "hour" },
 	);
 	const cachedConditionConfig = useRef<ConditionTrigger | null>(triggerCase);
 
-	// 获取当前节点的连接信息
-	// 从 config.inputHandleId 中提取节点 ID
-	// 格式: variable_node_1763022786201_1piowqt_input_1
+	// Get current node connection info
+	// Extract node ID from config.inputHandleId
+	// Format: variable_node_1763022786201_1piowqt_input_1
 	const connections = useNodeConnections({ id, handleType: "target" });
 
-	// 存储上游节点的case列表
+	// Store case list from upstream nodes
 	const [caseItemList, setCaseItemList] = useState<CaseItemInfo[]>([]);
 
-	// 获取上游节点的 case 列表
+	// Get case list from upstream nodes
 	useEffect(() => {
 		// filter default input handle connection
 		const conn = connections.filter(
@@ -120,7 +120,7 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 		setCaseItemList(cases);
 	}, [connections, getIfElseNodeCases, id, tradingMode, config.inputHandleId]);
 
-	// 当从 props 接收到新的配置时，更新缓存
+	// Update cache when receiving new config from props
 	useEffect(() => {
 		if (timerConfig) {
 			cachedTimerConfig.current = timerConfig;
@@ -133,14 +133,14 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 		}
 	}, [triggerCase]);
 
-	// 判断当前选中的变量是否是系统变量
+	// Check if currently selected variable is a system variable
 	const isSystemVariable = config.varName
 		? Object.values(SystemVariableType).includes(
 				config.varName as SystemVariableType,
 			)
 		: false;
 
-	// 当外部 config.varDisplayName 变化时同步到本地状态（非本地编辑触发时）
+	// Sync to local state when external config.varDisplayName changes (not triggered by local editing)
 	useEffect(() => {
 		if (
 			!isLocalEditingRef.current &&
@@ -150,7 +150,7 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 		}
 	}, [config.varDisplayName, localDisplayName]);
 
-	// 监听 store 中系统变量自定义名称的变化，实时更新 varDisplayName
+	// Listen for changes to custom system variable names in store, update varDisplayName in real-time
 	useEffect(() => {
 		if (isSystemVariable && config.varName && !isLocalEditingRef.current) {
 			const customName = getCustomName(config.varName);
@@ -164,7 +164,7 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [config, getCustomName, onConfigChange, isSystemVariable]);
 
-	// 判断当前选中的变量是否需要选择交易对
+	// Check if currently selected variable needs symbol selection
 	const shouldShowSymbolSelector =
 		!!config.varName &&
 		isSystemVariable &&
@@ -175,7 +175,7 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 					?.shouldSelectSymbol ?? false)
 			: false);
 
-	// 使用验证 Hook
+	// Use validation Hook
 	const {
 		variable,
 		symbol,
@@ -188,22 +188,22 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 		hasSymbol: "symbol" in config && !!config.symbol,
 	});
 
-	// 组装错误对象供 UI 使用
+	// Assemble error object for UI use
 	const errors = { variable, symbol, triggerCase: triggerCaseError };
 
-	// 处理变量选择变化
+	// Handle variable selection change
 	const handleVariableChange = (varName: string) => {
-		// 判断是自定义变量还是系统变量
+		// Check if it's a custom variable or system variable
 		const isCustomVar = customVariables.some((v) => v.varName === varName);
 		const isSystemVar = Object.values(SystemVariableType).includes(
 			varName as SystemVariableType,
 		);
 
 		if (isCustomVar) {
-			// 自定义变量
+			// Custom variable
 			const selectedVar = customVariables.find((v) => v.varName === varName);
 			if (selectedVar) {
-				// 构建新的自定义变量配置，只包含必要字段
+				// Build new custom variable config with only necessary fields
 				const newConfig: GetVariableConfig = {
 					configId: config.configId,
 					inputHandleId: config.inputHandleId,
@@ -219,13 +219,13 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 				onConfigChange(newConfig);
 			}
 		} else if (isSystemVar) {
-			// 系统变量
+			// System variable
 			const metadata =
 				getSystemVariableMetadata(t)[varName as SystemVariableType];
-			// 从 store 加载自定义名称
+			// Load custom name from store
 			const customName = getCustomName(varName);
 
-			// 获取当前的 symbol 值（如果存在）
+			// Get current symbol value (if exists)
 			const currentSymbol = "symbol" in config ? config.symbol : null;
 
 			const newConfig: GetVariableConfig = {
@@ -245,7 +245,7 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 		}
 	};
 
-	// 处理交易对选择变化
+	// Handle symbol selection change
 	const handleSymbolChange = (symbol: string) => {
 		if ("symbol" in config) {
 			onConfigChange({
@@ -255,18 +255,18 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 		}
 	};
 
-	// 处理自定义变量名称变化 - 只更新本地状态
+	// Handle custom variable name change - only update local state
 	const handleDisplayNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		isLocalEditingRef.current = true;
 		setLocalDisplayName(e.target.value);
 	};
 
-	// 失焦时同步到外部状态
+	// Sync to external state on blur
 	const handleDisplayNameBlur = () => {
 		isLocalEditingRef.current = false;
 
 		if (localDisplayName !== config.varDisplayName) {
-			// 如果是系统变量,同时更新 store
+			// If it's a system variable, also update store
 			if (isSystemVariable && config.varName) {
 				setCustomName(config.varName, localDisplayName);
 			}
@@ -278,13 +278,13 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 		}
 	};
 
-	// 处理触发条件变化
+	// Handle trigger case change
 	const handleTriggerCaseChange = (
 		nextTriggerCase: ConditionTrigger | null,
 	) => {
-		// 更新缓存
+		// Update cache
 		cachedConditionConfig.current = nextTriggerCase;
-		// 通知父组件
+		// Notify parent component
 		onConfigChange({
 			...config,
 			triggerConfig: nextTriggerCase
@@ -296,11 +296,11 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 		});
 	};
 
-	// 处理定时器配置变化
+	// Handle timer config change
 	const handleTimerConfigChange = (nextTimerConfig: TimerTrigger) => {
-		// 更新缓存
+		// Update cache
 		cachedTimerConfig.current = nextTimerConfig;
-		// 通知父组件
+		// Notify parent component
 		onConfigChange({
 			...config,
 			triggerConfig: {
@@ -310,7 +310,7 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 		});
 	};
 
-	// 处理触发类型变化
+	// Handle trigger type change
 	const handleTriggerTypeChange = (triggerType: TriggerType) => {
 		if (triggerType === "condition") {
 			onConfigChange({
@@ -331,7 +331,7 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 				},
 			});
 		} else {
-			// get 操作当前不支持 dataflow，回退到清空触发配置
+			// get operation currently doesn't support dataflow, fall back to clearing trigger config
 			onConfigChange({
 				...config,
 				triggerConfig: null,
@@ -341,7 +341,7 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 	const typeInfo = getTriggerTypeInfo(effectiveTriggerType, t);
 	const TriggerIcon = typeInfo.icon;
 
-	// 根据变量类型选择对应的生成器
+	// Select the corresponding generator based on variable type
 	const getHintGenerator = (varValueType?: VariableValueType) => {
 		if (!varValueType) return generateNumberHint;
 
@@ -370,9 +370,9 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 	const VarTypeIcon = getVariableValueTypeIcon(config.varValueType);
 	const varTypeIconColor = getVariableValueTypeIconColor(config.varValueType);
 
-	// 生成混合变量选项：自定义变量在前，系统变量在后
+	// Generate mixed variable options: custom variables first, system variables after
 	const mixedVariableOptions = [
-		// 自定义变量选项
+		// Custom variable options
 		...customVariables.map((customVar) => {
 			const TypeIconComponent = getVariableValueTypeIcon(
 				customVar.varValueType,
@@ -398,7 +398,7 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 				searchText: `${customVar.varDisplayName} ${customVar.varName}`,
 			};
 		}),
-		// 系统变量选项
+		// System variable options
 		...Object.values(SystemVariableType).map((sysVar) => {
 			const metadata = getSystemVariableMetadata(t)[sysVar];
 			const TypeIconComponent = getVariableValueTypeIcon(metadata.varValueType);
@@ -425,18 +425,18 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 		}),
 	];
 
-	// 判断当前选中的变量是否是自定义变量
+	// Check if currently selected variable is a custom variable
 	const isCustomVariable = config.varName
 		? customVariables.some((customVar) => customVar.varName === config.varName)
 		: false;
 
-	// 条件触发的提示文案
+	// Condition trigger hint text
 	const shouldShowConditionHint = () => {
-		// 必须选择了触发条件
+		// Must have selected a trigger condition
 		if (!triggerCase) {
 			return false;
 		}
-		// 如果需要交易对，必须选择了交易对
+		// If symbol selection is required, must have selected a symbol
 		if (
 			shouldShowSymbolSelector &&
 			!("symbol" in config ? config.symbol : null)
@@ -446,9 +446,9 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 		return true;
 	};
 
-	// 定时触发的提示文案
+	// Timer trigger hint text
 	const shouldShowTimerHint = () => {
-		// 如果需要交易对，必须选择了交易对
+		// If symbol selection is required, must have selected a symbol
 		if (
 			shouldShowSymbolSelector &&
 			!("symbol" in config ? config.symbol : null)
@@ -503,7 +503,7 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 							)}
 							<Tooltip>
 								<TooltipTrigger asChild>
-									{/* 第一行：图标 + 操作标题 + 触发方式 */}
+									{/* First row: icon + operation title + trigger method */}
 									<div className="flex items-center gap-2">
 										<TbFileImport className="h-4 w-4 text-blue-600 flex-shrink-0" />
 										<span className="text-sm font-medium">
@@ -525,11 +525,11 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 						</div>
 					</CollapsibleTrigger>
 
-					{/* 删除按钮 */}
+					{/* Delete button */}
 					<DeleteConfigButton onDelete={onDelete} />
 				</div>
 
-				{/* Dialog 中的完整配置 UI */}
+				{/* Full config UI in dialog */}
 				<CollapsibleContent>
 					<div className="flex flex-col gap-2 mt-2">
 						<div className="flex flex-col gap-2">
@@ -614,7 +614,7 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 							<p className="text-xs text-red-600 mt-1">{errors.triggerCase}</p>
 						)}
 
-						{/* 展开状态下显示描述文案 */}
+						{/* Show description text when expanded */}
 						{effectiveTriggerType === "condition" && conditionHint && (
 							<p className="text-xs text-muted-foreground mt-2">
 								{conditionHint}
@@ -628,7 +628,7 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 				</CollapsibleContent>
 			</Collapsible>
 
-			{/* 折叠状态下显示描述文案 */}
+			{/* Show description text when collapsed */}
 			{!isOpen && (
 				<>
 					{effectiveTriggerType === "condition" && conditionHint && (

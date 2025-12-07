@@ -8,41 +8,41 @@ import type {
 } from "@/types/strategy-event/strategy-state-log-event";
 import type { LogEvent } from "./types";
 
-// 状态翻译映射
+// State translation mapping
 export const translateStrategyState = (state: string | null) => {
-	if (!state) return "未知状态";
+	if (!state) return "Unknown state";
 
 	const stateMap: Record<StrategyState, string> = {
-		Checking: "检查中",
-		Created: "创建",
-		CheckPassed: "检查通过",
-		Initializing: "初始化中",
-		Ready: "就绪",
-		Stopping: "停止中",
-		Stopped: "停止",
-		Failed: "失败",
+		Checking: "Checking",
+		Created: "Created",
+		CheckPassed: "Check passed",
+		Initializing: "Initializing",
+		Ready: "Ready",
+		Stopping: "Stopping",
+		Stopped: "Stopped",
+		Failed: "Failed",
 	};
 	return stateMap[state as StrategyState] || state;
 };
 
 export const translateAction = (action: string | null) => {
-	if (!action) return "未知操作";
+	if (!action) return "Unknown action";
 
 	const actionMap: Record<NodeState, string> = {
-		Checking: "检查节点配置",
-		Created: "创建",
-		Initializing: "初始化",
-		Ready: "就绪",
-		Backtesting: "回测中",
-		BacktestComplete: "回测完成",
-		Stopping: "停止中",
-		Stopped: "停止",
-		Failed: "失败",
+		Checking: "Checking node config",
+		Created: "Created",
+		Initializing: "Initializing",
+		Ready: "Ready",
+		Backtesting: "Backtesting",
+		BacktestComplete: "Backtest complete",
+		Stopping: "Stopping",
+		Stopped: "Stopped",
+		Failed: "Failed",
 	};
 	return actionMap[action as NodeState] || action;
 };
 
-// 获取日志级别颜色和图标
+// Get log level color and icon
 export const getLogLevelStyle = (level: LogLevel) => {
 	switch (level) {
 		case LogLevel.ERROR:
@@ -72,7 +72,7 @@ export const getLogLevelStyle = (level: LogLevel) => {
 	}
 };
 
-// 合并并排序所有日志，最新的在下方
+// Merge and sort all logs, newest at bottom
 export const mergeAndSortLogs = (
 	strategyLogs: StrategyStateLogEvent[],
 	nodeLogs: NodeStateLogEvent[],

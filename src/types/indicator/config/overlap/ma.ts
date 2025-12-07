@@ -17,7 +17,7 @@ import {
 	PriceSourceSchema,
 } from "@/types/indicator/schemas";
 
-// MA 指标配置的 Zod schema
+// Zod schema for MA indicator configuration
 const MAConfigSchema = z.object({
 	maType: MATypeSchema,
 	timePeriod: z.number().int().positive(),
@@ -26,7 +26,7 @@ const MAConfigSchema = z.object({
 
 export type MAConfigType = z.infer<typeof MAConfigSchema>;
 
-// MA指标的参数映射函数
+// Parameter mapping function for MA indicator
 function buildMAConfig(params: Map<string, string>): unknown {
 	return {
 		maType: params.get("ma_type") as MAType,
@@ -35,30 +35,30 @@ function buildMAConfig(params: Map<string, string>): unknown {
 	};
 }
 
-// MA指标配置实现
+// MA indicator configuration implementation
 export const MAConfig: IndicatorConfig<MAConfigType> = {
 	category: IndicatorCategory.OVERLAP,
 	type: IndicatorType.MA,
 	displayName: "MA",
-	description: "计算指定周期的移动平均线",
+	description: "Calculate moving average for the specified period",
 	params: {
 		maType: {
 			label: "indicator.configField.maType",
-			description: "选择移动平均线的计算方式",
+			description: "Select calculation method for moving average",
 			defaultValue: MAType.SMA,
 			required: true,
 			legendShowName: "ma type",
 		},
 		timePeriod: {
 			label: "indicator.configField.timePeriod",
-			description: "选择移动平均线的时间周期",
+			description: "Select time period for moving average",
 			defaultValue: 14,
 			required: true,
 			legendShowName: "period",
 		},
 		priceSource: {
 			label: "indicator.configField.dataSource",
-			description: "选择指标计算价格源",
+			description: "Select price source for indicator calculation",
 			defaultValue: PriceSource.CLOSE,
 			required: true,
 			legendShowName: "source",
@@ -89,7 +89,7 @@ export const MAConfig: IndicatorConfig<MAConfigType> = {
 			]),
 		);
 
-		// 使用 Zod 验证配置
+		// Validate configuration using Zod
 		const validatedConfig = MAConfigSchema.parse(config);
 		return validatedConfig;
 	},
@@ -98,7 +98,7 @@ export const MAConfig: IndicatorConfig<MAConfigType> = {
 		return getIndicatorValues(this.indicatorValueConfig);
 	},
 
-	// 使用通用解析函数
+	// Use generic parsing function
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
 		IndicatorType.MA,
 		MAConfigSchema,
@@ -118,10 +118,10 @@ export const MAConfig: IndicatorConfig<MAConfigType> = {
 	// 	seriesName: string,
 	// 	indicatorKey: IndicatorKey,
 	// ): string | undefined {
-	// 	// 如果指标类型为MA，则返回MA-seriesName-maType-timePeriod
+	// 	// If indicator type is MA, return MA-seriesName-maType-timePeriod
 	// 	if (indicatorKey.indicatorType === IndicatorType.MA) {
 	// 		const maConfig = indicatorKey.indicatorConfig as MAConfigType;
-	// 		// 找到名称相同的seriesConfig
+	// 		// Find seriesConfig with the same name
 	// 		const seriseConfig = this.chartConfig.seriesConfigs.find(
 	// 			(config) => config.name === seriesName,
 	// 		);

@@ -8,29 +8,29 @@ import {
 } from "@/types/indicator/indicator-config";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
-// AVGPRICE 指标配置的 Zod schema
+// Zod schema for AVGPRICE indicator configuration
 const AVGPRICEConfigSchema = z.object({});
 
 export type AVGPRICEConfigType = z.infer<typeof AVGPRICEConfigSchema>;
 
-// AVGPRICE指标的参数映射函数
+// Parameter mapping function for AVGPRICE indicator
 function buildAVGPRICEConfig(_params: Map<string, string>): unknown {
 	return {};
 }
 
-// AVGPRICE指标配置实现
+// AVGPRICE indicator configuration implementation
 export const AVGPRICEConfig: IndicatorConfig<AVGPRICEConfigType> = {
 	category: IndicatorCategory.PRICE_TRANSFORM,
 	type: IndicatorType.AVGPRICE,
 	displayName: "AVGPRICE",
-	description: "计算平均价格 (High + Low + Close) / 3",
+	description: "Calculate average price (High + Low + Close) / 3",
 	params: {},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },
 		avgprice: { label: "avgprice", value: 0, legendShowName: "avgprice" },
 	},
 	chartConfig: {
-		isInMainChart: true, // 价格变换指标显示在主图
+		isInMainChart: true, // Price transform indicators display in main chart
 		seriesConfigs: [
 			{
 				name: "AVGPRICE",
@@ -50,7 +50,7 @@ export const AVGPRICEConfig: IndicatorConfig<AVGPRICEConfigType> = {
 		return getIndicatorValues(this.indicatorValueConfig);
 	},
 
-	// 使用通用解析函数
+	// Use generic parsing function
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
 		IndicatorType.AVGPRICE,
 		AVGPRICEConfigSchema,

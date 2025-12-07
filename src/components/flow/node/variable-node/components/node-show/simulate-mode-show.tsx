@@ -8,10 +8,10 @@ interface SimulateModeShowProps {
 }
 
 const SimulateModeShow: React.FC<SimulateModeShowProps> = ({ id, data }) => {
-	// 获取模拟模式配置
+	// Get simulation mode configuration
 	const simulateConfig = data.simulateConfig;
 
-	// 如果没有配置或者没有变量配置，显示提示信息
+	// If no config or no variable configs, show hint message
 	if (
 		!simulateConfig ||
 		!simulateConfig.variableConfigs ||
@@ -26,7 +26,7 @@ const SimulateModeShow: React.FC<SimulateModeShowProps> = ({ id, data }) => {
 
 	return (
 		<div className="space-y-2">
-			{/* 渲染所有的变量配置 */}
+			{/* Render all variable configs */}
 			{simulateConfig.variableConfigs.map((variableConfig) => (
 				<VariableHandleItem
 					key={variableConfig.configId}

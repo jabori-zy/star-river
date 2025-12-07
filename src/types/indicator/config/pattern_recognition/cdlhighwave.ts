@@ -9,14 +9,14 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLHIGHWAVEConfigSchema = z.object({
-	// CDLHIGHWAVE 没有参数
+	// CDLHIGHWAVE has no parameters
 });
 
 export type CDLHIGHWAVEConfigType = z.infer<typeof CDLHIGHWAVEConfigSchema>;
 
 function buildCDLHIGHWAVEConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLHIGHWAVE 不需要任何参数
+		// CDLHIGHWAVE doesn't need any parameters
 	};
 }
 
@@ -26,7 +26,7 @@ export const CDLHIGHWAVEConfig: IndicatorConfig<CDLHIGHWAVEConfigType> = {
 	displayName: "CDLHIGHWAVE",
 	description: "High-Wave Candle",
 	params: {
-		// CDLHIGHWAVE 没有参数
+		// CDLHIGHWAVE has no parameters
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

@@ -13,16 +13,16 @@ class BacktestStrategyPerformanceObservableService {
 	private performanceDataSubject = new Subject<StrategyPerformanceUpdateEvent>()
 
 	/**
-	 * 获取连接状态Observable
+	 * Get connection state Observable
 	 */
 	getConnectionState(): Observable<SSEConnectionState> {
 		return this.connectionState$.asObservable()
 	}
 
 	/**
-	 * 创建回测策略性能流
-	 * @param enabled 是否启用
-	 * @returns 回测策略性能流
+	 * Create backtest strategy performance stream
+	 * @param enabled Whether to enable
+	 * @returns Backtest strategy performance stream
 	 */
 	createBacktestStrategyPerformanceStream(
 		enabled: boolean = true,
@@ -30,19 +30,19 @@ class BacktestStrategyPerformanceObservableService {
 		if (!enabled) {
 			this.disconnect()
 			return new Observable((subscriber) => {
-				// 完成Observable
+				// Complete Observable
 				subscriber.complete()
 			})
 		}
 
-		// 如果SSE连接已打开，则返回性能数据Observable
+		// If SSE connection is already open, return performance data Observable
 		if (this.eventSource && this.eventSource.readyState === EventSource.OPEN) {
 			return this.performanceDataSubject
 				.asObservable()
 				.pipe(takeUntil(this.destroy$), share())
 		}
 
-		// 连接SSE
+		// Connect SSE
 		this.connect()
 
 		return this.performanceDataSubject
@@ -51,7 +51,7 @@ class BacktestStrategyPerformanceObservableService {
 	}
 
 	/**
-	 * 处理SSE消息
+	 * Handle SSE messages
 	 */
 	private connect(): void {
 		if (this.eventSource) {
@@ -63,47 +63,47 @@ class BacktestStrategyPerformanceObservableService {
 		try {
 			this.eventSource = new EventSource(getBacktestStrategyPerformanceUrl())
 
-			// 连接成功
+			// Connection successful
 			this.eventSource.onopen = () => {
 				this.connectionState$.next(SSEConnectionState.CONNECTED)
 			}
 
-			// 处理消息
+			// Handle messages
 			this.eventSource.onmessage = (event) => {
 				this.handleMessage(event)
 			}
 
-			// 处理错误
+			// Handle errors
 			this.eventSource.onerror = (error) => {
-				console.error("SSE连接错误:", error)
+				console.error("SSE connection error:", error)
 				this.connectionState$.next(SSEConnectionState.ERROR)
 				this.handleError()
 			}
 		} catch (error) {
-			console.error("SSE连接错误:", error)
+			console.error("SSE connection error:", error)
 			this.connectionState$.next(SSEConnectionState.ERROR)
 		}
 	}
 
 	/**
-	 * 处理SSE消息
+	 * Handle SSE messages
 	 */
 	private handleMessage(event: MessageEvent): void {
 		try {
 			const performanceEvent = JSON.parse(event.data) as StrategyPerformanceUpdateEvent
 			this.performanceDataSubject.next(performanceEvent)
 		} catch (error) {
-			console.error("处理SSE消息错误:", error)
+			console.error("Handle SSE message error:", error)
 		}
 	}
 
 	/**
-	 * 处理SSE错误
+	 * Handle SSE errors
 	 */
 	private handleError(): void {
 		this.disconnect()
 
-		// 重试连接
+		// Retry connection
 		// setTimeout(() => {
 		//     if (this.connectionState$.value === SSEConnectionState.ERROR) {
 		//         this.connect();
@@ -112,7 +112,7 @@ class BacktestStrategyPerformanceObservableService {
 	}
 
 	/**
-	 * 断开SSE连接
+	 * Disconnect SSE connection
 	 */
 	disconnect(): void {
 		if (this.eventSource) {
@@ -123,7 +123,7 @@ class BacktestStrategyPerformanceObservableService {
 	}
 
 	/**
-	 * 销毁Observable
+	 * Destroy Observable
 	 */
 	destroy(): void {
 		this.destroy$.next()
@@ -134,13 +134,13 @@ class BacktestStrategyPerformanceObservableService {
 	}
 }
 
-// 创建回测策略性能Observable服务
+// Create backtest strategy performance Observable service
 const backtestStrategyPerformanceObservableService =
 	new BacktestStrategyPerformanceObservableService()
 
 export default backtestStrategyPerformanceObservableService
 
-// 创建回测策略性能流
+// Create backtest strategy performance stream
 export const createBacktestStrategyPerformanceStream = (
 	enabled: boolean = true,
 ) =>
@@ -148,7 +148,7 @@ export const createBacktestStrategyPerformanceStream = (
 		enabled,
 	)
 
-// 获取性能连接状态
+// Get performance connection state
 export const getPerformanceConnectionState = () =>
 	backtestStrategyPerformanceObservableService.getConnectionState()
 

@@ -8,8 +8,8 @@ import { getBacktestStrategyStateLogUrl } from ".";
 import { SSEConnectionState } from "./backtest-strategy-event-obs";
 
 /**
- * 回测策略状态日志Observable服务
- * 将SSE数据流包装成RxJS Observable，处理策略日志数据更新
+ * Backtest strategy state log Observable service
+ * Wraps SSE data stream as RxJS Observable, handles strategy log data updates
  */
 class BacktestStrategyStateLogObservableService {
 	private eventSource: EventSource | null = null;
@@ -22,16 +22,16 @@ class BacktestStrategyStateLogObservableService {
 	>();
 
 	/**
-	 * 获取连接状态Observable
+	 * Get connection state Observable
 	 */
 	getConnectionState(): Observable<SSEConnectionState> {
 		return this.connectionState$.asObservable();
 	}
 
 	/**
-	 * 创建策略状态日志数据流Observable
-	 * @param enabled 是否启用连接
-	 * @returns 策略日志数据更新的Observable流
+	 * Create strategy state log data stream Observable
+	 * @param enabled Whether to enable connection
+	 * @returns Observable stream of strategy log data updates
 	 */
 	createBacktestStrategyStateLogStream(
 		enabled: boolean = true,
@@ -39,19 +39,19 @@ class BacktestStrategyStateLogObservableService {
 		if (!enabled) {
 			this.disconnect();
 			return new Observable((subscriber) => {
-				// 返回空的Observable
+				// Return empty Observable
 				subscriber.complete();
 			});
 		}
 
-		// 如果已经连接，直接返回现有的数据流
+		// If already connected, return existing data stream directly
 		if (this.eventSource && this.eventSource.readyState === EventSource.OPEN) {
 			return this.logDataSubject
 				.asObservable()
 				.pipe(takeUntil(this.destroy$), share());
 		}
 
-		// 建立新连接
+		// Establish new connection
 		this.connect();
 
 		return this.logDataSubject
@@ -60,7 +60,7 @@ class BacktestStrategyStateLogObservableService {
 	}
 
 	/**
-	 * 建立SSE连接
+	 * Establish SSE connection
 	 */
 	private connect(): void {
 		if (this.eventSource) {
@@ -72,17 +72,17 @@ class BacktestStrategyStateLogObservableService {
 		try {
 			this.eventSource = new EventSource(getBacktestStrategyStateLogUrl());
 
-			// 连接成功
+			// Connection successful
 			this.eventSource.onopen = () => {
 				this.connectionState$.next(SSEConnectionState.CONNECTED);
 			};
 
-			// 接收消息
+			// Receive messages
 			this.eventSource.onmessage = (event) => {
 				this.handleMessage(event);
 			};
 
-			// 连接错误
+			// Connection error
 			this.eventSource.onerror = (error) => {
 				console.error("Strategy state log sse connection error:", error);
 				this.connectionState$.next(SSEConnectionState.ERROR);
@@ -95,7 +95,7 @@ class BacktestStrategyStateLogObservableService {
 	}
 
 	/**
-	 * 处理SSE消息
+	 * Handle SSE messages
 	 */
 	private handleMessage(event: MessageEvent): void {
 		try {
@@ -109,12 +109,12 @@ class BacktestStrategyStateLogObservableService {
 	}
 
 	/**
-	 * 处理连接错误
+	 * Handle connection errors
 	 */
 	private handleError(): void {
 		this.disconnect();
 
-		// 可以在这里添加重连逻辑
+		// Reconnection logic can be added here
 		// setTimeout(() => {
 		//     if (this.connectionState$.value === SSEConnectionState.ERROR) {
 		//         this.connect();
@@ -123,7 +123,7 @@ class BacktestStrategyStateLogObservableService {
 	}
 
 	/**
-	 * 断开SSE连接
+	 * Disconnect SSE connection
 	 */
 	disconnect(): void {
 		if (this.eventSource) {
@@ -134,7 +134,7 @@ class BacktestStrategyStateLogObservableService {
 	}
 
 	/**
-	 * 销毁服务，清理所有资源
+	 * Destroy service and clean up all resources
 	 */
 	destroy(): void {
 		this.destroy$.next();
@@ -145,19 +145,19 @@ class BacktestStrategyStateLogObservableService {
 	}
 }
 
-// 创建单例实例
+// Create singleton instance
 const backtestStrategyStateLogObservableService =
 	new BacktestStrategyStateLogObservableService();
 
 export default backtestStrategyStateLogObservableService;
 
-// 导出便捷函数
+// Export convenience functions
 export const createBacktestStrategyStateLogStream = (enabled: boolean = true) =>
 	backtestStrategyStateLogObservableService.createBacktestStrategyStateLogStream(
 		enabled,
 	);
 
-// 连接管理
+// Connection management
 export const getStateLogConnectionState = () =>
 	backtestStrategyStateLogObservableService.getConnectionState();
 

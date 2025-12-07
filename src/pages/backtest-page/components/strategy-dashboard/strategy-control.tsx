@@ -16,7 +16,7 @@ interface StrategyControlProps {
 
 const StrategyControl: React.FC<StrategyControlProps> = ({ onStop }) => {
 	const { t } = useTranslation();
-	// 分别订阅状态，确保组件正确响应变化
+	// Subscribe to states separately to ensure component responds correctly to changes
 	const isRunning = useBacktestStrategyControlStore((state) => state.isRunning);
 	const isPlayFinished = useBacktestStrategyControlStore(
 		(state) => state.isPlayFinished,
@@ -50,11 +50,11 @@ const StrategyControl: React.FC<StrategyControlProps> = ({ onStop }) => {
 							variant="outline"
 							disabled={isPlayFinished}
 							onClick={() => {
-								// 如果正在运行，则暂停
+								// If running, pause
 								if (isRunning) {
 									onPause();
 								} else {
-									// 如果正在暂停，则播放
+									// If paused, play
 									onPlay();
 								}
 							}}

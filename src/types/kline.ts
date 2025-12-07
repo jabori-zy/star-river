@@ -1,10 +1,10 @@
 export type Kline = {
 	datetime: string;
-	open: number; // 开盘价
-	high: number; // 最高价
-	low: number; // 最低价
-	close: number; // 收盘价
-	volume: number; // 成交量
+	open: number; // Open price
+	high: number; // High price
+	low: number; // Low price
+	close: number; // Close price
+	volume: number; // Trading volume
 };
 
 export enum KlineInterval {

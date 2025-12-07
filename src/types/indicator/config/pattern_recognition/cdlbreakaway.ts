@@ -9,14 +9,14 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLBREAKAWAYConfigSchema = z.object({
-	// CDLBREAKAWAY 没有参数
+	// CDLBREAKAWAY has no parameters
 });
 
 export type CDLBREAKAWAYConfigType = z.infer<typeof CDLBREAKAWAYConfigSchema>;
 
 function buildCDLBREAKAWAYConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLBREAKAWAY 不需要任何参数
+		// CDLBREAKAWAY doesn't need any parameters
 	};
 }
 
@@ -26,7 +26,7 @@ export const CDLBREAKAWAYConfig: IndicatorConfig<CDLBREAKAWAYConfigType> = {
 	displayName: "CDLBREAKAWAY",
 	description: "Breakaway",
 	params: {
-		// CDLBREAKAWAY 没有参数
+		// CDLBREAKAWAY has no parameters
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

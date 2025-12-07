@@ -8,21 +8,21 @@ import {
 } from "@/types/indicator/indicator-config";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
-// MA 指标配置的 Zod schema
+// ADXR indicator configuration Zod schema
 const ADXRConfigSchema = z.object({
 	timePeriod: z.number().int().positive(),
 });
 
 export type ADXRConfigType = z.infer<typeof ADXRConfigSchema>;
 
-// MA指标的参数映射函数
+// ADXR indicator parameter mapping function
 function buildADXRConfig(params: Map<string, string>): unknown {
 	return {
 		timePeriod: parseInt(params.get("time_period") || "0"),
 	};
 }
 
-// MA指标配置实现
+// ADXR indicator configuration implementation
 export const ADXRConfig: IndicatorConfig<ADXRConfigType> = {
 	category: IndicatorCategory.MOMENTUM,
 	type: IndicatorType.ADXR,
@@ -31,7 +31,7 @@ export const ADXRConfig: IndicatorConfig<ADXRConfigType> = {
 	params: {
 		timePeriod: {
 			label: "indicator.configField.timePeriod",
-			description: "选择移动平均线的时间周期",
+			description: "Select the time period for the moving average",
 			defaultValue: 14,
 			required: true,
 			legendShowName: "period",
@@ -62,7 +62,7 @@ export const ADXRConfig: IndicatorConfig<ADXRConfigType> = {
 			]),
 		);
 
-		// 使用 Zod 验证配置
+		// Validate configuration using Zod
 		const validatedConfig = ADXRConfigSchema.parse(config);
 		return validatedConfig;
 	},
@@ -71,7 +71,7 @@ export const ADXRConfig: IndicatorConfig<ADXRConfigType> = {
 		return getIndicatorValues(this.indicatorValueConfig);
 	},
 
-	// 使用通用解析函数
+	// Use common parsing function
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
 		IndicatorType.ADXR,
 		ADXRConfigSchema,
@@ -91,10 +91,10 @@ export const ADXRConfig: IndicatorConfig<ADXRConfigType> = {
 	// 	seriesName: string,
 	// 	indicatorKey: IndicatorKey,
 	// ): string | undefined {
-	// 	// 如果指标类型为ADXR，则返回ADXR-seriesName-timePeriod
+	// 	// If indicator type is ADXR, return ADXR-seriesName-timePeriod
 	// 	if (indicatorKey.indicatorType === IndicatorType.ADXR) {
 	// 		const ADXRConfig = indicatorKey.indicatorConfig as ADXRConfigType;
-	// 		// 找到名称相同的seriesConfig
+	// 		// Find seriesConfig with matching name
 	// 		const seriseConfig = this.chartConfig.seriesConfigs.find(
 	// 			(config) => config.name === seriesName,
 	// 		);

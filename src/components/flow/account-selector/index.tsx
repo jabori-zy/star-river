@@ -18,16 +18,16 @@ import type { SelectedAccount, TradeMode } from "@/types/strategy";
 interface AccountSelectorProps {
 	label: string;
 	tradeMode?: TradeMode;
-	selectedAccount: SelectedAccount | null; // 当前选中的账户
+	selectedAccount: SelectedAccount | null; // Currently selected account
 	accountList: SelectedAccount[];
-	onAccountChange: (account: SelectedAccount) => void; // 账户变更回调
+	onAccountChange: (account: SelectedAccount) => void; // Account change callback
 	onConnectionStatusChange?: (
 		status: ExchangeStatus,
 		accountId: number,
-	) => void; // 连接状态变化回调
+	) => void; // Connection status change callback
 }
 
-// 已选择的账户列表
+// Selected account list
 const AccountSelector: React.FC<AccountSelectorProps> = ({
 	label,
 	accountList,
@@ -44,7 +44,7 @@ const AccountSelector: React.FC<AccountSelectorProps> = ({
 	const [isConnecting, setIsConnecting] = useState(false);
 	const pollingTimer = useRef<NodeJS.Timeout | null>(null);
 	const { t } = useTranslation();
-	// 清除轮询定时器
+	// Clear polling timer
 	const clearPollingTimer = useCallback(() => {
 		if (pollingTimer.current) {
 			clearInterval(pollingTimer.current);
@@ -52,7 +52,7 @@ const AccountSelector: React.FC<AccountSelectorProps> = ({
 		}
 	}, []);
 
-	// 获取交易所状态
+	// Get exchange status
 	const fetchExchangeStatus = useCallback(async () => {
 		if (!localSelectedAccount?.id) return;
 		try {
@@ -60,7 +60,7 @@ const AccountSelector: React.FC<AccountSelectorProps> = ({
 			const previousStatus = exchangeStatus;
 			setExchangeStatus(status);
 
-			// 当状态变化时触发回调
+			// Trigger callback when status changes
 			if (status !== previousStatus && onConnectionStatusChange) {
 				onConnectionStatusChange(status, localSelectedAccount.id);
 			}
@@ -72,7 +72,7 @@ const AccountSelector: React.FC<AccountSelectorProps> = ({
 		}
 	}, [localSelectedAccount?.id, exchangeStatus, onConnectionStatusChange]);
 
-	// 开始轮询账户状态
+	// Start polling account status
 	const startPolling = useCallback(async () => {
 		clearPollingTimer();
 
@@ -85,7 +85,7 @@ const AccountSelector: React.FC<AccountSelectorProps> = ({
 		}, 500);
 	}, [fetchExchangeStatus, clearPollingTimer]);
 
-	// 连接交易所
+	// Connect to exchange
 	const handleConnect = useCallback(async () => {
 		if (!localSelectedAccount?.id) return;
 		try {
@@ -98,14 +98,14 @@ const AccountSelector: React.FC<AccountSelectorProps> = ({
 		}
 	}, [localSelectedAccount?.id, startPolling]);
 
-	// 当选择的账户变化时，获取交易所状态
+	// Get exchange status when selected account changes
 	useEffect(() => {
 		if (localSelectedAccount?.id) {
 			fetchExchangeStatus();
 		}
 	}, [localSelectedAccount?.id, fetchExchangeStatus]);
 
-	// 处理账户选择变更
+	// Handle account selection change
 	const handleAccountChange = (accountId: string) => {
 		const selectedAcc = accountList?.find(
 			(acc) => acc.id.toString() === accountId,
@@ -122,7 +122,7 @@ const AccountSelector: React.FC<AccountSelectorProps> = ({
 		<div className="flex flex-col gap-2 p-2 rounded-md">
 			<div className="text-sm font-bold">{label}</div>
 
-			{/* 交易所未连接提示 */}
+			{/* Exchange not connected notification */}
 			{localSelectedAccount &&
 				exchangeStatus &&
 				exchangeStatus !== "Connected" && (

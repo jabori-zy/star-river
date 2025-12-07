@@ -9,7 +9,7 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLRICKSHAWMANConfigSchema = z.object({
-	// CDLRICKSHAWMAN 没有参数
+	// CDLRICKSHAWMAN has no parameters
 });
 
 export type CDLRICKSHAWMANConfigType = z.infer<
@@ -18,7 +18,7 @@ export type CDLRICKSHAWMANConfigType = z.infer<
 
 function buildCDLRICKSHAWMANConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLRICKSHAWMAN 不需要任何参数
+		// CDLRICKSHAWMAN doesn't need any parameters
 	};
 }
 
@@ -28,7 +28,7 @@ export const CDLRICKSHAWMANConfig: IndicatorConfig<CDLRICKSHAWMANConfigType> = {
 	displayName: "CDLRICKSHAWMAN",
 	description: "Rickshaw Man",
 	params: {
-		// CDLRICKSHAWMAN 没有参数
+		// CDLRICKSHAWMAN has no parameters
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

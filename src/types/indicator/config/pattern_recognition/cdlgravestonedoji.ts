@@ -9,7 +9,7 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLGRAVESTONEDOJIConfigSchema = z.object({
-	// CDLGRAVESTONEDOJI 没有参数
+	// CDLGRAVESTONEDOJI has no parameters
 });
 
 export type CDLGRAVESTONEDOJIConfigType = z.infer<
@@ -18,7 +18,7 @@ export type CDLGRAVESTONEDOJIConfigType = z.infer<
 
 function buildCDLGRAVESTONEDOJIConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLGRAVESTONEDOJI 不需要任何参数
+		// CDLGRAVESTONEDOJI doesn't need any parameters
 	};
 }
 
@@ -29,7 +29,7 @@ export const CDLGRAVESTONEDOJIConfig: IndicatorConfig<CDLGRAVESTONEDOJIConfigTyp
 		displayName: "CDLGRAVESTONEDOJI",
 		description: "Gravestone Doji",
 		params: {
-			// CDLGRAVESTONEDOJI 没有参数
+			// CDLGRAVESTONEDOJI has no parameters
 		},
 		indicatorValueConfig: {
 			timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

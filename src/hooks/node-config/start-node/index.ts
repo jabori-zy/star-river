@@ -6,7 +6,7 @@ import type { TFunction } from "i18next";
 import { getNodeDefaultColor, getNodeIconName, NodeType } from "@/types/node";
 import type { StartNodeData } from "@/types/node/start-node";
 /**
- * 创建默认的开始节点配置
+ * Create default start node configuration
  */
 export const createDefaultStartNodeData = (
 	strategyId: number,

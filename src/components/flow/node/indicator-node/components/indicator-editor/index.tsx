@@ -13,7 +13,7 @@ import EditDialog from "./edit-dialog";
 import IndicatorViewerDialog from "./indicator-viewer";
 
 interface IndicatorEditorProps {
-	id: string; // 节点ID，用于生成handleId
+	id: string; // Node ID, used to generate handleId
 	selectedIndicators: SelectedIndicator[];
 	onSelectedIndicatorsChange: (indicators: SelectedIndicator[]) => void;
 }
@@ -23,7 +23,7 @@ const IndicatorEditor: React.FC<IndicatorEditorProps> = ({
 	selectedIndicators,
 	onSelectedIndicatorsChange,
 }) => {
-	// 本地状态管理
+	// Local state management
 	const { t } = useTranslation();
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
 	const [isEditing, setIsEditing] = useState(false);
@@ -32,7 +32,7 @@ const IndicatorEditor: React.FC<IndicatorEditorProps> = ({
 	const [selectedIndicatorType, setSelectedIndicatorType] = useState<
 		IndicatorType | undefined
 	>(undefined);
-	const [fromIndicatorViewer, setFromIndicatorViewer] = useState(false); // 标记是否从指标浏览窗口打开的
+	const [fromIndicatorViewer, setFromIndicatorViewer] = useState(false); // Flag indicating whether opened from indicator viewer
 	const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
 	const [pendingDeleteIndicator, setPendingDeleteIndicator] =
 		useState<SelectedIndicator | null>(null);
@@ -56,7 +56,7 @@ const IndicatorEditor: React.FC<IndicatorEditorProps> = ({
 	const handleSelectIndicator = (indicatorType: IndicatorType) => {
 		setSelectedIndicatorType(indicatorType);
 		setShowIndicatorViewer(false);
-		setFromIndicatorViewer(true); // 标记从指标浏览窗口打开
+		setFromIndicatorViewer(true); // Mark as opened from indicator viewer
 		setIsDialogOpen(true);
 	};
 
@@ -64,19 +64,19 @@ const IndicatorEditor: React.FC<IndicatorEditorProps> = ({
 		setIsEditing(true);
 		setEditingIndex(index);
 		setSelectedIndicatorType(undefined);
-		setFromIndicatorViewer(false); // 编辑现有指标不是从浏览窗口来的
+		setFromIndicatorViewer(false); // Editing existing indicator is not from viewer
 		setIsDialogOpen(true);
 	};
 
-	// 处理编辑窗口关闭
+	// Handle edit dialog close
 	const handleEditDialogClose = () => {
 		if (fromIndicatorViewer && !isEditing) {
-			// 如果是从指标浏览窗口打开的新增指标，返回指标浏览窗口
+			// If opening new indicator from indicator viewer, return to indicator viewer
 			setIsDialogOpen(false);
 			setFromIndicatorViewer(false);
 			setShowIndicatorViewer(true);
 		} else {
-			// 否则直接关闭
+			// Otherwise close directly
 			setIsDialogOpen(false);
 			setFromIndicatorViewer(false);
 		}
@@ -96,7 +96,7 @@ const IndicatorEditor: React.FC<IndicatorEditorProps> = ({
 			),
 		];
 
-		// 如果有连接的目标节点，显示确认对话框
+		// If there are connected target nodes, show confirmation dialog
 		if (targetNodeIds.length > 0) {
 			setPendingDeleteIndicator(indicatorToDelete);
 			setPendingIndicatorData({
@@ -108,11 +108,11 @@ const IndicatorEditor: React.FC<IndicatorEditorProps> = ({
 			return;
 		}
 
-		// 没有连接节点，直接删除
+		// No connected nodes, delete directly
 		performDelete(index);
 	};
 
-	// 执行删除
+	// Execute deletion
 	const performDelete = (index?: number) => {
 		const targetIndex =
 			index !== undefined
@@ -129,7 +129,7 @@ const IndicatorEditor: React.FC<IndicatorEditorProps> = ({
 
 		const indicatorToDelete = selectedIndicators[targetIndex];
 
-		// 删除边
+		// Delete edges
 		const sourceHandleId = indicatorToDelete.outputHandleId;
 		if (sourceHandleId) {
 			deleteEdgeBySourceHandleId(sourceHandleId);
@@ -140,7 +140,7 @@ const IndicatorEditor: React.FC<IndicatorEditorProps> = ({
 		);
 		onSelectedIndicatorsChange(updatedIndicators);
 
-		// 清理删除相关状态
+		// Clean up deletion-related state
 		setPendingDeleteIndicator(null);
 		setIsConfirmDialogOpen(false);
 		setPendingIndicatorData(null);
@@ -148,16 +148,16 @@ const IndicatorEditor: React.FC<IndicatorEditorProps> = ({
 
 	const handleSave = (config: SelectedIndicator) => {
 		if (isEditing && editingIndex !== null) {
-			// 编辑现有指标
+			// Edit existing indicator
 			const updatedIndicators = [...selectedIndicators];
 			updatedIndicators[editingIndex] = config;
 			onSelectedIndicatorsChange(updatedIndicators);
 		} else {
-			// 添加新指标
+			// Add new indicator
 			onSelectedIndicatorsChange([...selectedIndicators, config]);
 		}
 		setIsDialogOpen(false);
-		setFromIndicatorViewer(false); // 保存后重置状态
+		setFromIndicatorViewer(false); // Reset state after saving
 	};
 
 	const handleConfirmDelete = () => {
@@ -165,7 +165,7 @@ const IndicatorEditor: React.FC<IndicatorEditorProps> = ({
 	};
 
 	const handleCancelDelete = () => {
-		// 关闭确认对话框并清理状态
+		// Close confirmation dialog and clean up state
 		setIsConfirmDialogOpen(false);
 		setPendingDeleteIndicator(null);
 		setPendingIndicatorData(null);
@@ -177,10 +177,10 @@ const IndicatorEditor: React.FC<IndicatorEditorProps> = ({
 	) => {
 		const indicatorConfigInstance = getIndicatorConfig(indicatorType);
 		if (!indicatorConfigInstance) {
-			return "未知配置";
+			return "Unknown configuration";
 		}
 
-		// 根据新的配置结构生成显示文本
+		// Generate display text based on new configuration structure
 		const parts: string[] = [];
 		Object.entries(indicatorConfigInstance.params).forEach(([key, param]) => {
 			const value = config[key];
@@ -252,7 +252,7 @@ const IndicatorEditor: React.FC<IndicatorEditorProps> = ({
 				)}
 			</div>
 
-			{/* 编辑对话框 */}
+			{/* Edit dialog */}
 			<EditDialog
 				isOpen={isDialogOpen}
 				onClose={handleEditDialogClose}
@@ -264,14 +264,14 @@ const IndicatorEditor: React.FC<IndicatorEditorProps> = ({
 				initialIndicatorType={selectedIndicatorType}
 			/>
 
-			{/* 指标浏览面板 */}
+			{/* Indicator viewer panel */}
 			<IndicatorViewerDialog
 				isOpen={showIndicatorViewer}
 				onClose={() => setShowIndicatorViewer(false)}
 				onSelectIndicator={handleSelectIndicator}
 			/>
 
-			{/* 确认删除对话框 */}
+			{/* Confirm delete dialog */}
 			<NodeOpConfirmDialog
 				isOpen={isConfirmDialogOpen}
 				onOpenChange={setIsConfirmDialogOpen}

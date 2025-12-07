@@ -9,14 +9,14 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLTASUKIGAPConfigSchema = z.object({
-	// CDLTASUKIGAP 没有参数
+	// CDLTASUKIGAP has no parameters
 });
 
 export type CDLTASUKIGAPConfigType = z.infer<typeof CDLTASUKIGAPConfigSchema>;
 
 function buildCDLTASUKIGAPConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLTASUKIGAP 不需要任何参数
+		// CDLTASUKIGAP doesn't need any parameters
 	};
 }
 
@@ -26,7 +26,7 @@ export const CDLTASUKIGAPConfig: IndicatorConfig<CDLTASUKIGAPConfigType> = {
 	displayName: "CDLTASUKIGAP",
 	description: "Tasuki Gap",
 	params: {
-		// CDLTASUKIGAP 没有参数
+		// CDLTASUKIGAP has no parameters
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

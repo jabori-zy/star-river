@@ -6,11 +6,11 @@ import type {
 import { getNodeTypeLabel } from "../../node-utils";
 
 /**
- * 触发条件前缀生成工具函数
+ * Trigger condition prefix generation utility functions
  */
 
 /**
- * 生成变量名高亮元素
+ * Generate variable name highlight element
  */
 export const generateVariableHighlight = (name?: string): React.ReactNode => {
 	if (!name) return null;
@@ -18,14 +18,14 @@ export const generateVariableHighlight = (name?: string): React.ReactNode => {
 };
 
 /**
- * 生成值高亮元素
+ * Generate value highlight element
  */
 export const generateValueHighlight = (value: string): React.ReactNode => {
 	return <span className="text-blue-600 font-medium">{value}</span>;
 };
 
 /**
- * 生成交易对符号高亮元素
+ * Generate trading pair symbol highlight element
  */
 export const generateSymbolHighlight = (symbol?: string): React.ReactNode => {
 	if (!symbol) return null;
@@ -33,9 +33,9 @@ export const generateSymbolHighlight = (symbol?: string): React.ReactNode => {
 };
 
 /**
- * 从 TriggerCase 获取触发标签
- * @param triggerCase 触发配置
- * @returns 触发标签（如 "Case 1" 或 "Else"）
+ * Get trigger label from TriggerCase
+ * @param triggerCase Trigger configuration
+ * @returns Trigger label (e.g. "Case 1" or "Else")
  */
 export const getTriggerCaseLabel = (
 	triggerCase: ConditionTrigger | null,
@@ -49,9 +49,9 @@ export const getTriggerCaseLabel = (
 };
 
 /**
- * 生成定时触发的时间间隔前缀文案
- * @param timerConfig 定时配置
- * @returns 时间间隔文案，如 "每5分钟，" 或 null
+ * Generate timer trigger interval prefix text
+ * @param timerConfig Timer configuration
+ * @returns Interval text, e.g. "Every 5 minutes," or null
  */
 export const generateTimerIntervalPrefix = (
 	t: (key: string, options?: { [key: string]: string }) => string,
@@ -83,9 +83,9 @@ export const generateTimerIntervalPrefix = (
 };
 
 /**
- * 生成定时执行模式的前缀文案
- * @param timerConfig 定时配置
- * @returns 定时执行文案，如 "每小时的第30分钟，" 或 null
+ * Generate scheduled execution mode prefix text
+ * @param timerConfig Timer configuration
+ * @returns Scheduled execution text, e.g. "At minute 30 of every hour," or null
  */
 export const generateSchedulePrefix = (
 	timerConfig: TimerTrigger,
@@ -98,7 +98,7 @@ export const generateSchedulePrefix = (
 	const { repeatMode } = timerConfig;
 
 	if (repeatMode === "hourly") {
-		// 每小时: 每{}小时的第{}分钟，
+		// Hourly: At minute {} of every {} hour(s),
 		const { hourlyInterval, minuteOfHour } = timerConfig;
 		if (hourlyInterval === 1) {
 			return t("variableNode.hint.scheduleHourlyOne", {
@@ -112,7 +112,7 @@ export const generateSchedulePrefix = (
 	}
 
 	if (repeatMode === "daily") {
-		// 每天: 每天 {}:{} (周一，周二...)
+		// Daily: Every day {}:{} (Mon, Tue...)
 		const { time, daysOfWeek } = timerConfig;
 		const weekdayMap: Record<number, string> = {
 			1: t("common.weekdayAbbr.monday"),
@@ -126,7 +126,7 @@ export const generateSchedulePrefix = (
 
 		let prefix = t("variableNode.hint.scheduleDaily", { time: time });
 
-		// 如果选择了特定的星期，添加星期信息
+		// If specific weekdays are selected, add weekday information
 		if (daysOfWeek && daysOfWeek.length > 0 && daysOfWeek.length < 7) {
 			const weekdayNames = daysOfWeek.map((d) => weekdayMap[d]).join("、");
 			prefix += ` (${weekdayNames})`;
@@ -136,7 +136,7 @@ export const generateSchedulePrefix = (
 	}
 
 	if (repeatMode === "weekly") {
-		// 每周: 每周{三} {}:{}
+		// Weekly: Every {Wednesday} {}:{}
 		const { time, dayOfWeek } = timerConfig;
 		const weekdayMap: Record<number, string> = {
 			1: t("common.weekday.monday"),
@@ -155,7 +155,7 @@ export const generateSchedulePrefix = (
 	}
 
 	if (repeatMode === "monthly") {
-		// 每月: 每月第{}天的{}:{}，每个月的最后一天
+		// Monthly: Day {} of every month at {}:{}, last day of every month
 		const { time, dayOfMonth } = timerConfig;
 
 		if (typeof dayOfMonth === "number") {
@@ -178,8 +178,8 @@ export const generateSchedulePrefix = (
 };
 
 /**
- * 生成触发条件前缀
- * 支持条件触发和定时触发两种模式（interval 和 scheduled）
+ * Generate trigger condition prefix
+ * Supports both condition trigger and timer trigger modes (interval and scheduled)
  */
 export const generateTriggerPrefix = ({
 	conditionTrigger,
@@ -190,7 +190,7 @@ export const generateTriggerPrefix = ({
 	timerTrigger?: TimerTrigger;
 	t: (key: string, options?: { [key: string]: string }) => string;
 }): React.ReactNode | null => {
-	// 定时触发模式：优先检查 scheduled 模式
+	// Timer trigger mode: prioritize checking scheduled mode
 	if (timerTrigger?.mode === "scheduled") {
 		const schedulePrefix = generateSchedulePrefix(timerTrigger, t);
 		if (schedulePrefix) {
@@ -198,13 +198,13 @@ export const generateTriggerPrefix = ({
 		}
 	}
 
-	// 定时触发模式：检查 interval 模式
+	// Timer trigger mode: check interval mode
 	const timerPrefix = generateTimerIntervalPrefix(t, timerTrigger);
 	if (timerPrefix) {
 		return timerPrefix;
 	}
 
-	// 条件触发模式：生成条件分支前缀
+	// Condition trigger mode: generate condition branch prefix
 	if (!conditionTrigger) return null;
 
 	const triggerNodeName = conditionTrigger.fromNodeName;
@@ -225,13 +225,13 @@ export const generateTriggerPrefix = ({
 };
 
 /**
- * 生成数据流触发的完整路径显示
- * @param fromNodeName 来源节点名称
- * @param fromNodeType 来源节点类型
- * @param fromVarConfigId 来源变量配置ID
- * @param fromVarDisplayName 来源变量显示名称
- * @param t 翻译函数
- * @returns 完整路径字符串，如 "节点名称/变量节点1/变量显示名"
+ * Generate full path display for dataflow trigger
+ * @param fromNodeName Source node name
+ * @param fromNodeType Source node type
+ * @param fromVarConfigId Source variable configuration ID
+ * @param fromVarDisplayName Source variable display name
+ * @param t Translation function
+ * @returns Full path string, e.g. "NodeName/VariableNode1/VariableDisplayName"
  */
 export const generateDataflowPath = (
 	fromNodeName: string,
@@ -240,9 +240,9 @@ export const generateDataflowPath = (
 	fromVarDisplayName: string,
 	t: (key: string, options?: { [key: string]: string }) => string,
 ): string => {
-	// 获取节点类型标签
+	// Get node type label
 	const nodeTypeLabel = getNodeTypeLabel(fromNodeType, t);
 
-	// 构建完整路径：节点名称/节点类型配置ID/变量显示名称
+	// Build full path: NodeName/NodeTypeConfigID/VariableDisplayName
 	return `${fromNodeName}/${nodeTypeLabel}${fromVarConfigId}/${fromVarDisplayName}`;
 };

@@ -42,26 +42,26 @@ const StringTypeOpEditor: React.FC<StringTypeOpEditorProps> = ({
 	const conditionTrigger = getConditionTriggerConfig({ triggerConfig });
 	const timerTrigger = getTimerTriggerConfig({ triggerConfig });
 
-	// 字符串输入处理
+	// String input handling
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		onUpdateValueChange(e.target.value);
 	};
 
 	const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-		// 失去焦点时 trim 左右空格
+		// Trim leading and trailing spaces on blur
 		const trimmedValue = e.target.value.trim();
 		if (trimmedValue !== e.target.value) {
 			onUpdateValueChange(trimmedValue);
 		}
 	};
 
-	// 判断是否应该显示提示文案
+	// Determine whether to show hint text
 	const shouldShowHint = () => {
-		// 条件触发模式:必须选择了触发条件
+		// Condition trigger mode: must have selected a trigger condition
 		if (effectiveTriggerType === "condition" && !conditionTrigger) {
 			return false;
 		}
-		// 必须有值
+		// Must have a value
 		return !!updateValue;
 	};
 

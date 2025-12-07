@@ -3,13 +3,13 @@ import type { StartNodeData } from "@/types/node/start-node";
 import { useBacktestConfig } from "./use-update-backtest-config";
 
 /**
- * 同步开始节点的时间范围到指标节点
+ * Synchronize start node's time range to indicator node
  *
- * 职责：
- * 监听开始节点的时间范围变化，自动同步到指标节点的回测配置中
+ * Responsibilities:
+ * Monitor start node's time range changes and automatically sync to indicator node's backtest config
  *
- * @param id - 指标节点 ID
- * @param startNodeData - 开始节点数据（从外部传入，避免重复获取）
+ * @param id - Indicator node ID
+ * @param startNodeData - Start node data (passed from external to avoid duplicate fetching)
  */
 export const useSyncTimeRange = ({
 	id,

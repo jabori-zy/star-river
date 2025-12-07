@@ -26,15 +26,15 @@ const ChartManageButton = ({
 	updateLayout,
 }: ChartManageButtonProps) => {
 	const { t } = useTranslation();
-	// 处理添加图表
+	// Handle adding chart
 	const handleAddChart = () => {
 		if (strategyChartConfig.charts.length === 0) {
-			// 如果没有图表，显示错误或提示
+			// If no charts, show error or prompt
 			console.warn("没有可复制的图表配置");
 			return;
 		}
 
-		// 复制最后一个图表的配置
+		// Copy the last chart's configuration
 		const lastChart =
 			strategyChartConfig.charts[strategyChartConfig.charts.length - 1];
 

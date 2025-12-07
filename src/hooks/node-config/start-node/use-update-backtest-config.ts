@@ -14,7 +14,7 @@ import { BacktestDataSource as BacktestDataSourceEnum } from "@/types/strategy";
 import type { CustomVariable } from "@/types/variable";
 
 /**
- * 创建默认的回测配置
+ * Create default backtest configuration
  */
 export const createDefaultBacktestConfig = (): StrategyBacktestConfig => {
 	return {
@@ -42,7 +42,7 @@ export const createDefaultBacktestConfig = (): StrategyBacktestConfig => {
 };
 
 interface UseBacktestConfigProps {
-	id: string; // 节点ID
+	id: string; // Node ID
 }
 
 export const useBacktestConfig = ({ id }: UseBacktestConfigProps) => {
@@ -53,7 +53,7 @@ export const useBacktestConfig = ({ id }: UseBacktestConfigProps) => {
 	const backtestConfig = nodeData?.backtestConfig ?? null;
 
 	/**
-	 * 通用更新函数：使用 Immer 简化嵌套更新
+	 * Generic update function: Use Immer to simplify nested updates
 	 */
 	const updateConfig = useCallback(
 		(updater: (draft: StrategyBacktestConfig) => void) => {
@@ -65,7 +65,7 @@ export const useBacktestConfig = ({ id }: UseBacktestConfigProps) => {
 		[backtestConfig, id, updateNodeData],
 	);
 
-	// ==================== 基础配置更新 ====================
+	// ==================== Basic Configuration Update ====================
 
 	const updateInitialBalance = useCallback(
 		(initialBalance: number) => {
@@ -112,7 +112,7 @@ export const useBacktestConfig = ({ id }: UseBacktestConfigProps) => {
 		[updateConfig],
 	);
 
-	// ==================== 交易所模式配置更新 ====================
+	// ==================== Exchange Mode Configuration Update ====================
 
 	const updateBacktestAccounts = useCallback(
 		(accounts: SelectedAccount[]) => {
@@ -149,7 +149,7 @@ export const useBacktestConfig = ({ id }: UseBacktestConfigProps) => {
 		[updateConfig],
 	);
 
-	// ==================== 自定义变量更新 ====================
+	// ==================== Custom Variable Update ====================
 
 	const updateBacktestVariables = useCallback(
 		(variables: CustomVariable[]) => {

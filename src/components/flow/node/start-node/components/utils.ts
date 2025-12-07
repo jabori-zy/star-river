@@ -1,10 +1,10 @@
 import { VariableValueType } from "@/types/variable";
 
 /**
- * 格式化变量值显示
- * @param value - 变量值
- * @param type - 变量类型
- * @returns 格式化后的字符串
+ * Format variable value display
+ * @param value - Variable value
+ * @param type - Variable type
+ * @returns Formatted string
  */
 export const formatVariableValue = (
 	value: string | number | boolean | string[] | null,

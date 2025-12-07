@@ -11,7 +11,7 @@ import {
 	MATypeSchema,
 } from "@/types/indicator/schemas";
 
-// STOCHF 指标配置的 Zod schema
+// Zod schema for STOCHF indicator configuration
 const STOCHFConfigSchema = z.object({
 	fastKPeriod: z.number().int().positive(),
 	fastDPeriod: z.number().int().positive(),
@@ -20,7 +20,7 @@ const STOCHFConfigSchema = z.object({
 
 export type STOCHFConfigType = z.infer<typeof STOCHFConfigSchema>;
 
-// STOCHF指标的参数映射函数
+// Parameter mapping function for STOCHF indicator
 function buildSTOCHFConfig(params: Map<string, string>): unknown {
 	return {
 		fastKPeriod: parseInt(params.get("fast_k_period") || "0"),
@@ -29,30 +29,30 @@ function buildSTOCHFConfig(params: Map<string, string>): unknown {
 	};
 }
 
-// STOCHF指标配置实现
+// STOCHF indicator configuration implementation
 export const STOCHFConfig: IndicatorConfig<STOCHFConfigType> = {
 	category: IndicatorCategory.MOMENTUM,
 	type: IndicatorType.STOCHF,
 	displayName: "STOCHF",
-	description: "快速随机指标",
+	description: "Stochastic Fast",
 	params: {
 		fastKPeriod: {
 			label: "indicator.configField.fastKPeriod",
-			description: "选择快速K线的计算周期",
+			description: "Select calculation period for fast K line",
 			defaultValue: 5,
 			required: true,
 			legendShowName: "fast_k",
 		},
 		fastDPeriod: {
 			label: "indicator.configField.fastDPeriod",
-			description: "选择快速D线的计算周期",
+			description: "Select calculation period for fast D line",
 			defaultValue: 3,
 			required: true,
 			legendShowName: "fast_d",
 		},
 		fastDMaType: {
 			label: "indicator.configField.fastDMaType",
-			description: "选择快速D线的移动平均线类型",
+			description: "Select moving average type for fast D line",
 			defaultValue: MAType.SMA,
 			required: true,
 			legendShowName: "fast_d_ma",
@@ -91,7 +91,7 @@ export const STOCHFConfig: IndicatorConfig<STOCHFConfigType> = {
 			]),
 		);
 
-		// 使用 Zod 验证配置
+		// Validate configuration using Zod
 		const validatedConfig = STOCHFConfigSchema.parse(config);
 		return validatedConfig;
 	},
@@ -100,7 +100,7 @@ export const STOCHFConfig: IndicatorConfig<STOCHFConfigType> = {
 		return getIndicatorValues(this.indicatorValueConfig);
 	},
 
-	// 使用通用解析函数
+	// Use generic parsing function
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
 		IndicatorType.STOCHF,
 		STOCHFConfigSchema,

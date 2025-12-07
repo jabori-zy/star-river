@@ -15,8 +15,8 @@ import { Switch } from "@/components/ui/switch";
 import type { BinanceAccount, OKXAccount } from "@/types/account";
 import { DragHandle } from "./drag-handle";
 
-// 为开关按钮创建一个独立的组件，这样可以正确使用useState
-// 账户开关
+// Create a separate component for the switch button to correctly use useState
+// Account switch
 function AccountAvaliableSwitch({
 	enabled,
 	onChange,
@@ -40,7 +40,7 @@ function AccountAvaliableSwitch({
 	);
 }
 
-// Binance账户列定义
+// Binance account column definitions
 export const binanceColumns: ColumnDef<BinanceAccount>[] = [
 	{
 		id: "drag",
@@ -113,10 +113,10 @@ export const binanceColumns: ColumnDef<BinanceAccount>[] = [
 		header: "账户开关",
 		cell: ({ row }) => {
 			const enabled = row.getValue("isAvailable") as boolean;
-			// 使用API调用的处理函数
+			// Handler function using API call
 			const handleAccountToggle = (value: boolean) => {
 				console.log(`账户 ${row.original.id} 状态被设置为: ${value}`);
-				// 这里可以添加实际的API调用来更新账户状态
+				// Add actual API call here to update account status
 			};
 
 			return (
@@ -240,7 +240,7 @@ export const binanceColumns: ColumnDef<BinanceAccount>[] = [
 	},
 ];
 
-// OKX账户列定义
+// OKX account column definitions
 export const okxColumns: ColumnDef<OKXAccount>[] = [
 	{
 		id: "drag",
@@ -313,10 +313,10 @@ export const okxColumns: ColumnDef<OKXAccount>[] = [
 		header: "账户开关",
 		cell: ({ row }) => {
 			const enabled = row.getValue("isAvailable") as boolean;
-			// 使用API调用的处理函数
+			// Handler function using API call
 			const handleAccountToggle = (value: boolean) => {
 				console.log(`账户 ${row.original.id} 状态被设置为: ${value}`);
-				// 这里可以添加实际的API调用来更新账户状态
+				// Add actual API call here to update account status
 			};
 
 			return (

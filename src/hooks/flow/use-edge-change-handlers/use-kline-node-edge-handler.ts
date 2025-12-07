@@ -7,12 +7,12 @@ import type { IndicatorNodeData } from "@/types/node/indicator-node";
 export const useKlineNodeEdgeHandler = () => {
 	const handleKlineNodeEdgeRemoved = useCallback(
 		(klineNode: Node, deletedEdge: Edge, nodes: Node[]): Node[] => {
-			//1. 找到targetNode
+			//1. Find targetNode
 			const targetNode = nodes.find((node) => node.id === deletedEdge.target);
 			if (targetNode) {
-				//2. 判断节点类型
+				//2. Determine node type
 				if (targetNode.type === NodeType.IndicatorNode) {
-					//3. 更新indicatorNode的selectedSymbol, 将selectedSymbol设置为null
+					//3. Update indicatorNode's selectedSymbol, set selectedSymbol to null
 					const indicatorNodeData = targetNode.data as IndicatorNodeData;
 					return nodes.map((node) => {
 						if (node.id === targetNode.id) {
@@ -42,7 +42,7 @@ export const useKlineNodeEdgeHandler = () => {
 					if (ifElseNodeData.backtestConfig) {
 						const cases = ifElseNodeData.backtestConfig.cases;
 
-						// 重置cases中与klineNode相关的变量
+						// Reset variables related to klineNode in cases
 						const updatedCases = cases.map((caseItem) => ({
 							...caseItem,
 							conditions: caseItem.conditions.map((condition) => ({

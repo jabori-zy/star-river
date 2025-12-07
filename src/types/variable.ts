@@ -9,15 +9,15 @@ import {
 } from "react-icons/tb";
 
 export enum VariableValueType {
-	NUMBER = "number", // 数字
-	STRING = "string", // 字符串
-	BOOLEAN = "boolean", // 布尔
-	TIME = "time", // 时间
-	ENUM = "enum", // 枚举类型
-	PERCENTAGE = "percentage", // 百分比
+	NUMBER = "number", // Number
+	STRING = "string", // String
+	BOOLEAN = "boolean", // Boolean
+	TIME = "time", // Time
+	ENUM = "enum", // Enum type
+	PERCENTAGE = "percentage", // Percentage
 }
 
-// 获取变量类型对应的图标组件
+// Get the icon component for the variable type
 export const getVariableValueTypeIcon = (type: VariableValueType) => {
 	switch (type) {
 		case VariableValueType.NUMBER:
@@ -37,7 +37,7 @@ export const getVariableValueTypeIcon = (type: VariableValueType) => {
 	}
 };
 
-// 获取变量类型对应的图标颜色类名
+// Get the icon color class name for the variable type
 export const getVariableValueTypeIconColor = (
 	type: VariableValueType,
 ): string => {
@@ -84,42 +84,42 @@ export interface SystemVariable {
 
 export interface CustomVariable {
 	varType: "custom";
-	varName: string; // 变量名（代码中使用的名称，符合变量命名规则）
-	varDisplayName: string; // 显示名称
-	varValueType: VariableValueType; // 变量类型
-	initialValue: string | number | boolean | string[]; // 初始值(初始值不能为空)
-	previousValue: string | number | boolean | string[] | null; // 前一个变量值(初始值为空)
-	varValue: string | number | boolean | string[] | null; // 当前变量值
+	varName: string; // Variable name (name used in code, follows variable naming rules)
+	varDisplayName: string; // Display name
+	varValueType: VariableValueType; // Variable type
+	initialValue: string | number | boolean | string[]; // Initial value (cannot be empty)
+	previousValue: string | number | boolean | string[] | null; // Previous variable value (initially empty)
+	varValue: string | number | boolean | string[] | null; // Current variable value
 }
 
-// 策略系统变量
+// Strategy system variables
 export enum SystemVariableType {
-	CURRENT_TIME = "current_time", // 当前时间
-	IS_MARKET_OPEN = "is_market_open", // 是否开盘
-	IS_MARKET_CLOSED = "is_market_closed", // 是否收盘
-	IS_TRADABLE = "is_tradable", // 是否可交易
-	TOTAL_CURRENT_POSITION_AMOUNT = "total_current_position_amount", // 当前总持仓数量
-	CURRENT_POSITION_AMOUNT = "current_position_amount", // 当前持仓数量(指定交易对)
-	TOTAL_HISTORY_POSITION_AMOUNT = "total_history_position_amount", // 历史总持仓数量
-	HISTORY_POSITION_AMOUNT = "history_position_amount", // 历史持仓数量(指定交易对)
-	TOTAL_UNFILLED_ORDER_AMOUNT = "total_unfilled_order_amount", // 总未成交订单数量
-	UNFILLED_ORDER_AMOUNT = "unfilled_order_amount", // 未成交订单数量(指定交易对)
-	TOTAL_HISTORY_ORDER_AMOUNT = "total_history_order_amount", // 历史总订单数量
-	HISTORY_ORDER_AMOUNT = "history_order_amount", // 历史订单数量(指定交易对)
-	CURRENT_ROI = "current_roi", // 当前投资回报率
-	CUMULATIVE_YIELD = "cumulative_yield", // 累计收益率
+	CURRENT_TIME = "current_time", // Current time
+	IS_MARKET_OPEN = "is_market_open", // Whether market is open
+	IS_MARKET_CLOSED = "is_market_closed", // Whether market is closed
+	IS_TRADABLE = "is_tradable", // Whether tradable
+	TOTAL_CURRENT_POSITION_AMOUNT = "total_current_position_amount", // Total current position amount
+	CURRENT_POSITION_AMOUNT = "current_position_amount", // Current position amount (for specific trading pair)
+	TOTAL_HISTORY_POSITION_AMOUNT = "total_history_position_amount", // Total historical position amount
+	HISTORY_POSITION_AMOUNT = "history_position_amount", // Historical position amount (for specific trading pair)
+	TOTAL_UNFILLED_ORDER_AMOUNT = "total_unfilled_order_amount", // Total unfilled order amount
+	UNFILLED_ORDER_AMOUNT = "unfilled_order_amount", // Unfilled order amount (for specific trading pair)
+	TOTAL_HISTORY_ORDER_AMOUNT = "total_history_order_amount", // Total historical order amount
+	HISTORY_ORDER_AMOUNT = "history_order_amount", // Historical order amount (for specific trading pair)
+	CURRENT_ROI = "current_roi", // Current return on investment
+	CUMULATIVE_YIELD = "cumulative_yield", // Cumulative yield
 }
 
-// 系统变量元数据
+// System variable metadata
 export interface SystemVariableMetadata {
 	varName: string;
 	varDisplayName: string;
 	varValueType: VariableValueType;
-	shouldSelectSymbol: boolean; // 是否需要选择交易对
+	shouldSelectSymbol: boolean; // Whether trading pair selection is required
 	description: string;
 }
 
-// 工具函数：获取系统变量元数据（支持多语言）
+// Utility function: Get system variable metadata (supports multiple languages)
 export const getSystemVariableMetadata = (
 	t: TFunction,
 ): Record<SystemVariableType, SystemVariableMetadata> => ({

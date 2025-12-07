@@ -6,7 +6,7 @@ export const MATypeSchema = z.nativeEnum(MAType);
 export const PriceSourceSchema = z.nativeEnum(PriceSource);
 export const IndicatorTypeSchema = z.nativeEnum(IndicatorType);
 
-// 指标参数的 Zod schema
+// Zod schema for indicator parameters
 export const IndicatorParamSchema = z.object({
 	label: z.string(),
 	description: z.string().optional(),
@@ -20,7 +20,7 @@ export const IndicatorParamSchema = z.object({
 	legendShowName: z.string(),
 });
 
-// 指标值配置的 Zod schema
+// Zod schema for indicator value configuration
 export const IndicatorValueConfigSchema = z.record(
 	z.string(),
 	z.object({
@@ -30,6 +30,6 @@ export const IndicatorValueConfigSchema = z.record(
 	}),
 );
 
-// 从 Zod schema 推导类型
+// Infer types from Zod schema
 export type IndicatorParam = z.infer<typeof IndicatorParamSchema>;
 export type IndicatorValueConfig = z.infer<typeof IndicatorValueConfigSchema>;

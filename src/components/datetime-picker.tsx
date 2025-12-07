@@ -23,9 +23,9 @@ interface DateTimePicker24hProps {
 	value?: Date;
 	onChange?: (date: Date | undefined) => void;
 	placeholder?: string;
-	showSeconds?: boolean; // 是否显示秒选择器，默认不显示
-	useDialogPopover?: boolean; // 是否在 Dialog 中使用非 Portal 版本
-	className?: string; // 自定义 Button 的样式
+	showSeconds?: boolean; // Whether to show seconds selector, default is false
+	useDialogPopover?: boolean; // Whether to use non-Portal version inside Dialog
+	className?: string; // Custom Button styles
 }
 
 export function DateTimePicker24h({
@@ -39,13 +39,13 @@ export function DateTimePicker24h({
 	const [date, setDate] = React.useState<Date | undefined>(value);
 	const [isOpen, setIsOpen] = React.useState(false);
 
-	// 根据是否显示秒来设置默认占位符
+	// Set default placeholder based on whether seconds are shown
 	const defaultPlaceholder = showSeconds
 		? "YYYY/MM/DD HH:mm:ss"
 		: "YYYY/MM/DD HH:mm";
 	const actualPlaceholder = placeholder || defaultPlaceholder;
 
-	// 同步外部value变化
+	// Sync external value changes
 	React.useEffect(() => {
 		setDate(value);
 	}, [value]);

@@ -14,18 +14,18 @@ import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-s
 import type { SeriesConfig } from "@/types/chart";
 import type { IndicatorKeyStr } from "@/types/symbol-key";
 
-// 指标图表专用预设颜色
+// Indicator chart preset colors
 const INDICATOR_PRESET_COLORS = [
-	"#2196F3", // 蓝色 - 主要趋势线
-	"#FF6B6B", // 红色 - 卖出信号
-	"#4ECDC4", // 青色 - 买入信号
-	"#45B7D1", // 天蓝色 - 辅助线
-	"#96CEB4", // 绿色 - 成交量
-	"#FFEAA7", // 黄色 - 警告信号
-	"#DDA0DD", // 紫色 - 震荡指标
-	"#98D8C8", // 薄荷绿 - 支撑位
-	"#F7DC6F", // 金色 - 阻力位
-	"#BB8FCE", // 淡紫色 - 中性信号
+	"#2196F3", // Blue - Main trend line
+	"#FF6B6B", // Red - Sell signal
+	"#4ECDC4", // Cyan - Buy signal
+	"#45B7D1", // Sky blue - Auxiliary line
+	"#96CEB4", // Green - Volume
+	"#FFEAA7", // Yellow - Warning signal
+	"#DDA0DD", // Purple - Oscillation indicator
+	"#98D8C8", // Mint green - Support level
+	"#F7DC6F", // Gold - Resistance level
+	"#BB8FCE", // Light purple - Neutral signal
 ];
 
 interface IndicatorLegendEditDialogProps {
@@ -50,7 +50,7 @@ export function IndicatorLegendEditDialog({
 		[],
 	);
 
-	// 获取当前指标的seriesConfigs
+	// Get current indicator's seriesConfigs
 	useEffect(() => {
 		if (open) {
 			const chart = getChartConfig(chartId);
@@ -68,14 +68,14 @@ export function IndicatorLegendEditDialog({
 		}
 	}, [open, chartId, indicatorKeyStr, getChartConfig]);
 
-	// 更新临时series配置的颜色（不实时保存）
+	// Update temporary series config color (not saved in real-time)
 	const updateTempSeriesColor = (index: number, color: string) => {
 		const newTempConfigs = [...tempSeriesConfigs];
 		newTempConfigs[index] = { ...newTempConfigs[index], color };
 		setTempSeriesConfigs(newTempConfigs);
 	};
 
-	// 确认修改 - 将临时配置保存到store
+	// Confirm changes - save temporary config to store
 	const handleConfirm = () => {
 		const newChartConfig = {
 			...chartConfig,
@@ -97,7 +97,7 @@ export function IndicatorLegendEditDialog({
 		onOpenChange(false);
 	};
 
-	// 取消修改 - 恢复原始配置
+	// Cancel changes - restore original config
 	const handleCancel = () => {
 		setTempSeriesConfigs([...originalSeriesConfigs]);
 		onOpenChange(false);
@@ -107,8 +107,8 @@ export function IndicatorLegendEditDialog({
 		<Dialog open={open} onOpenChange={onOpenChange} modal={false}>
 			<DialogContent className="sm:max-w-[350px]">
 				<DialogHeader>
-					<DialogTitle>编辑指标配置</DialogTitle>
-					<DialogDescription>修改指标系列的颜色配置</DialogDescription>
+					<DialogTitle>Edit Indicator Config</DialogTitle>
+					<DialogDescription>Modify indicator series color configuration</DialogDescription>
 				</DialogHeader>
 
 				<div className="space-y-3 py-4">
@@ -117,12 +117,12 @@ export function IndicatorLegendEditDialog({
 							key={`${series.name}-${series.indicatorValueKey}-${index}`}
 							className="flex items-center justify-between"
 						>
-							{/* 系列名称 */}
+							{/* Series name */}
 							<Label className="text-sm font-medium text-gray-700">
 								{series.name}
 							</Label>
 
-							{/* 颜色选择 */}
+							{/* Color picker */}
 							<div className="w-12">
 								<ColorPicker
 									value={series.color || "#000000"}
@@ -140,12 +140,12 @@ export function IndicatorLegendEditDialog({
 					))}
 				</div>
 
-				{/* 确认和取消按钮 */}
+				{/* Confirm and cancel buttons */}
 				<DialogFooter>
 					<Button variant="outline" onClick={handleCancel}>
-						取消
+						Cancel
 					</Button>
-					<Button onClick={handleConfirm}>确定</Button>
+					<Button onClick={handleConfirm}>Confirm</Button>
 				</DialogFooter>
 			</DialogContent>
 		</Dialog>

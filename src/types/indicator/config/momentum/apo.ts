@@ -17,7 +17,7 @@ import {
 	PriceSourceSchema,
 } from "@/types/indicator/schemas";
 
-// MA 指标配置的 Zod schema
+// APO indicator configuration Zod schema
 const APOConfigSchema = z.object({
 	fastPeriod: z.number().int().positive(),
 	slowPeriod: z.number().int().positive(),
@@ -27,7 +27,7 @@ const APOConfigSchema = z.object({
 
 export type APOConfigType = z.infer<typeof APOConfigSchema>;
 
-// MA指标的参数映射函数
+// APO indicator parameter mapping function
 function buildAPOConfig(params: Map<string, string>): unknown {
 	return {
 		fastPeriod: parseInt(params.get("fast_period") || "0"),
@@ -37,7 +37,7 @@ function buildAPOConfig(params: Map<string, string>): unknown {
 	};
 }
 
-// MA指标配置实现
+// APO indicator configuration implementation
 export const APOConfig: IndicatorConfig<APOConfigType> = {
 	category: IndicatorCategory.MOMENTUM,
 	type: IndicatorType.APO,
@@ -46,28 +46,28 @@ export const APOConfig: IndicatorConfig<APOConfigType> = {
 	params: {
 		maType: {
 			label: "indicator.configField.maType",
-			description: "选择移动平均线的计算方式",
+			description: "Select the calculation method for the moving average",
 			defaultValue: MAType.SMA,
 			required: true,
 			legendShowName: "ma type",
 		},
 		fastPeriod: {
 			label: "indicator.configField.fastPeriod",
-			description: "选择快线的计算周期",
+			description: "Select the calculation period for the fast line",
 			defaultValue: 12,
 			required: true,
 			legendShowName: "fast",
 		},
 		slowPeriod: {
 			label: "indicator.configField.slowPeriod",
-			description: "选择慢线的计算周期",
+			description: "Select the calculation period for the slow line",
 			defaultValue: 26,
 			required: true,
 			legendShowName: "slow",
 		},
 		priceSource: {
 			label: "indicator.configField.dataSource",
-			description: "选择指标计算价格源",
+			description: "Select the price source for indicator calculation",
 			defaultValue: PriceSource.CLOSE,
 			required: true,
 			legendShowName: "source",
@@ -98,7 +98,7 @@ export const APOConfig: IndicatorConfig<APOConfigType> = {
 			]),
 		);
 
-		// 使用 Zod 验证配置
+		// Validate configuration using Zod
 		const validatedConfig = APOConfigSchema.parse(config);
 		return validatedConfig;
 	},
@@ -107,7 +107,7 @@ export const APOConfig: IndicatorConfig<APOConfigType> = {
 		return getIndicatorValues(this.indicatorValueConfig);
 	},
 
-	// 使用通用解析函数
+	// Use common parsing function
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
 		IndicatorType.APO,
 		APOConfigSchema,
@@ -127,10 +127,10 @@ export const APOConfig: IndicatorConfig<APOConfigType> = {
 	// 	seriesName: string,
 	// 	indicatorKey: IndicatorKey,
 	// ): string | undefined {
-	// 	// 如果指标类型为APO，则返回APO-seriesName-fastPeriod-slowPeriod-maType-priceSource
+	// 	// If indicator type is APO, return APO-seriesName-fastPeriod-slowPeriod-maType-priceSource
 	// 	if (indicatorKey.indicatorType === IndicatorType.APO) {
 	// 		const APOConfig = indicatorKey.indicatorConfig as APOConfigType;
-	// 		// 找到名称相同的seriesConfig
+	// 		// Find seriesConfig with matching name
 	// 		const seriseConfig = this.chartConfig.seriesConfigs.find(
 	// 			(config) => config.name === seriesName,
 	// 		);

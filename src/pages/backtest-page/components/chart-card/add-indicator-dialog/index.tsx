@@ -31,29 +31,29 @@ export default function AddIndicatorDialog({
 	onIndicatorAdd,
 }: IndicatorListDialogProps) {
 	const { t } = useTranslation();
-	// 选中的指标缓存键
+	// Selected indicator cache key
 	const [selectedIndicatorKey, setSelectedIndicatorKey] = useState<
 		string | undefined
 	>(undefined);
 
-	// 当dialog打开时重置选择
+	// Reset selection when dialog opens
 	useEffect(() => {
 		if (open) {
-			setSelectedIndicatorKey(undefined); // 重置选择
+			setSelectedIndicatorKey(undefined); // Reset selection
 		}
 	}, [open]);
 
-	// 处理添加指标
+	// Handle add indicator
 	const handleAddIndicator = () => {
 		if (selectedIndicatorKey) {
-			// 解析指标数据
+			// Parse indicator data
 			// const indicatorData = parseKey(selectedIndicatorKey) as IndicatorKey;
 			const indicatorChartBaseConfig =
 				getIndciatorChartBaseConfigFromKeyStr(selectedIndicatorKey);
 
 			if (indicatorChartBaseConfig) {
-				// 添加指标配置
-				// 添加到主图
+				// Add indicator config
+				// Add to main chart
 				onIndicatorAdd({
 					indicatorKeyStr: selectedIndicatorKey,
 					isDelete: false,
@@ -65,7 +65,7 @@ export default function AddIndicatorDialog({
 		}
 	};
 
-	// 处理取消
+	// Handle cancel
 	const handleCancel = () => {
 		setSelectedIndicatorKey(undefined);
 		onOpenChange(false);

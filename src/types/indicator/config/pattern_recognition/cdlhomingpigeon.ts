@@ -9,7 +9,7 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLHOMINGPIGEONConfigSchema = z.object({
-	// CDLHOMINGPIGEON 没有参数
+	// CDLHOMINGPIGEON has no parameters
 });
 
 export type CDLHOMINGPIGEONConfigType = z.infer<
@@ -18,7 +18,7 @@ export type CDLHOMINGPIGEONConfigType = z.infer<
 
 function buildCDLHOMINGPIGEONConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLHOMINGPIGEON 不需要任何参数
+		// CDLHOMINGPIGEON doesn't need any parameters
 	};
 }
 
@@ -29,7 +29,7 @@ export const CDLHOMINGPIGEONConfig: IndicatorConfig<CDLHOMINGPIGEONConfigType> =
 		displayName: "CDLHOMINGPIGEON",
 		description: "Homing Pigeon",
 		params: {
-			// CDLHOMINGPIGEON 没有参数
+			// CDLHOMINGPIGEON has no parameters
 		},
 		indicatorValueConfig: {
 			timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

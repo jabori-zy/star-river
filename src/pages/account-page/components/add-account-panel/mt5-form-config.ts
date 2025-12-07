@@ -1,47 +1,47 @@
 import type { FormFieldConfig } from ".";
 
-// MT5账户表单配置
+// MT5 account form configuration
 export const mt5FormConfig = {
-	title: "添加MT5账户",
-	description: "请填写MT5账户的必要信息",
+	title: "Add MT5 Account",
+	description: "Please fill in the required information for MT5 account",
 	fields: [
 		{
 			name: "accountName",
-			label: "账户名称",
+			label: "Account Name",
 			type: "text",
-			placeholder: "请输入账户自定义名称",
-			description: "账户自定义名称，用于区分不同账户",
+			placeholder: "Enter custom account name",
+			description: "Custom account name to distinguish different accounts",
 			required: true,
 		},
 		{
 			name: "login",
-			label: "账户ID",
+			label: "Account ID",
 			type: "number",
-			placeholder: "请输入MT5账户ID",
-			description: "MT5平台分配的账号，必须是数字",
+			placeholder: "Enter MT5 account ID",
+			description: "Account number assigned by MT5 platform, must be numeric",
 			required: true,
 		},
 		{
 			name: "password",
-			label: "密码",
+			label: "Password",
 			type: "password",
-			placeholder: "请输入MT5账户密码",
+			placeholder: "Enter MT5 account password",
 			required: true,
 		},
 		{
 			name: "server",
-			label: "服务器",
-			type: "text", // 改为文本输入框
-			placeholder: "请输入MT5服务器地址",
-			description: "例如：MetaQuotes-Demo、ICMarkets-Live01",
+			label: "Server",
+			type: "text", // Changed to text input
+			placeholder: "Enter MT5 server address",
+			description: "For example: MetaQuotes-Demo, ICMarkets-Live01",
 			required: true,
 		},
 		{
 			name: "terminalPath",
-			label: "客户端路径",
+			label: "Terminal Path",
 			type: "text",
-			placeholder: "请输入MT5客户端安装路径",
-			description: "例如：C:\\Program Files\\MetaTrader 5",
+			placeholder: "Enter MT5 client installation path",
+			description: "For example: C:\\Program Files\\MetaTrader 5",
 			required: false,
 		},
 	] as FormFieldConfig[],

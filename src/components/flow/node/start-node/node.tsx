@@ -32,8 +32,8 @@ const StartNode: React.FC<NodeProps<StartNodeType>> = ({
 	const { getNodeData } = useStrategyWorkflow();
 	const startNodeData = getNodeData(id) as StartNodeData;
 
-	// 节点名称
-	const nodeName = startNodeData?.nodeName || "策略起点";
+	// Node name
+	const nodeName = startNodeData?.nodeName || "Strategy Start";
 	const liveConfig = startNodeData?.liveConfig || ({} as StrategyLiveConfig);
 	const backtestConfig =
 		startNodeData?.backtestConfig || ({} as StrategyBacktestConfig);
@@ -68,11 +68,11 @@ const StartNode: React.FC<NodeProps<StartNodeType>> = ({
 			selected={selected}
 			defaultOutputHandle={defaultOutputHandle}
 		>
-			{/* 实盘模式 */}
+			{/* Live mode */}
 			{tradingMode === TradeMode.LIVE && (
 				<LiveNodeShow liveConfig={liveConfig} />
 			)}
-			{/* 回测模式 */}
+			{/* Backtest mode */}
 			{tradingMode === TradeMode.BACKTEST && (
 				<BacktestNodeShow backtestConfig={backtestConfig} />
 			)}

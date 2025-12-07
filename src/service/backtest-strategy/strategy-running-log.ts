@@ -24,7 +24,7 @@ export async function getStrategyRunningLog(
 	try {
 		const response = await axios.get(`${getApiUrl()}/${strategyId}/running-log`);
 		if (response.status !== 200) {
-			throw new Error(`获取策略运行日志失败: ${response.status}`);
+			throw new Error(`Failed to fetch strategy running log: ${response.status}`);
 		}
 
 		const rawData = response.data.data;
@@ -45,7 +45,7 @@ export async function getStrategyRunningLog(
 				validatedLogs.push(result.data);
 			} else {
 				// Log validation error but continue processing other logs
-				console.error(`策略运行日志数据验证失败 [index ${i}]:`, {
+				console.error(`Strategy running log data validation failed [index ${i}]:`, {
 					raw: rawData[i],
 					errors: result.error.format(),
 				});
@@ -55,12 +55,12 @@ export async function getStrategyRunningLog(
 
 		// If all logs failed validation, throw error
 		if (validatedLogs.length === 0 && rawData.length > 0) {
-			throw new Error(`所有日志数据验证失败 (${errors.length} errors)`);
+			throw new Error(`All log data validation failed (${errors.length} errors)`);
 		}
 
 		// If some logs failed, log warning but return valid ones
 		if (errors.length > 0) {
-			console.warn(`部分日志数据验证失败: ${errors.length}/${rawData.length}`);
+			console.warn(`Partial log data validation failed: ${errors.length}/${rawData.length}`);
 		}
 
 		return validatedLogs;

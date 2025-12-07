@@ -44,7 +44,7 @@ export interface TimeFormatOptions {
  *
  * @example
  * formatTimeWithTimezone(new Date())
- * // => "刚刚 (UTC+8)"
+ * // => "Just now (UTC+8)"
  *
  * formatTimeWithTimezone('2025-11-18T15:30:00', { dateFormat: 'full' })
  * // => "2025-11-18 15:30 (UTC+8)"
@@ -182,7 +182,7 @@ export const formatDate = (date: Date | undefined): string => {
  *
  * @example
  * formatSmartTime(new Date())
- * // => "刚刚 (UTC+8)"
+ * // => "Just now (UTC+8)"
  */
 export function formatSmartTime(
 	date: Date | string | DateTime | undefined,
@@ -245,7 +245,7 @@ export function formatFullTime(
  *
  * @example
  * formatTimeOnly(new Date())
- * // => "刚刚"
+ * // => "Just now"
  */
 export function formatTimeOnly(
 	date: Date | string | DateTime | undefined,

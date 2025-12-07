@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { TransactionSide } from "@/types/transaction";
 import type { VirtualTransaction } from "@/types/transaction/virtual-transaction";
 
-// 获取交易方向样式
+// Get transaction side style
 const getTransactionSideStyle = (side: TransactionSide): string => {
 	switch (side) {
 		case TransactionSide.Long:
@@ -16,7 +16,7 @@ const getTransactionSideStyle = (side: TransactionSide): string => {
 	}
 };
 
-// 获取交易方向文本
+// Get transaction side text
 const getTransactionSideText = (side: TransactionSide): string => {
 	switch (side) {
 		case TransactionSide.Long:
@@ -28,7 +28,7 @@ const getTransactionSideText = (side: TransactionSide): string => {
 	}
 };
 
-// Virtual Transaction 表格列定义
+// Virtual Transaction table column definition
 export const virtualTransactionColumns: ColumnDef<VirtualTransaction>[] = [
 	{
 		accessorKey: "transactionId",

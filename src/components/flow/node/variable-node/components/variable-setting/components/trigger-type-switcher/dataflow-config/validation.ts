@@ -6,7 +6,7 @@ import type {
 import type { VariableValue } from "@/types/node/variable-node/variable-config-types";
 
 /**
- * 验证替换值是否有效（例如：除法操作不能为0）
+ * Validate if replace value is valid (e.g., division operation cannot be 0)
  */
 export function validateReplaceValue(
 	errorType: DataflowErrorType,
@@ -21,14 +21,14 @@ export function validateReplaceValue(
 	) {
 		const numValue = Number(replaceValue);
 		if (numValue === 0) {
-			return "分母不能为0";
+			return "Denominator cannot be 0";
 		}
 	}
 	return null;
 }
 
 /**
- * 检测特定错误类型的配置是否有验证错误
+ * Check if specific error type configuration has validation errors
  */
 export function getErrorTypeValidationError(
 	errorType: DataflowErrorType,

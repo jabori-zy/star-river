@@ -25,7 +25,7 @@ const OrderRecord = forwardRef<OrderRecordRef, OrderRecordProps>(
 		const [orderData, setOrderData] = useState<VirtualOrder[]>([]);
 		const orderStreamSubscription = useRef<Subscription | null>(null);
 
-		// 暴露清空订单的方法
+		// Expose method for clearing orders
 		useImperativeHandle(
 			ref,
 			() => ({
@@ -40,11 +40,11 @@ const OrderRecord = forwardRef<OrderRecordRef, OrderRecordProps>(
 			const virtualOrderData = (await getVirtualOrder(
 				strategyId,
 			)) as VirtualOrder[];
-			// 倒序排列
+			// Sort in reverse order
 			setOrderData(virtualOrderData.reverse());
 		}, [strategyId]);
 
-		// 初始化订单数据
+		// Initialize order data
 		useEffect(() => {
 			getVirtualOrderData();
 		}, [getVirtualOrderData]);
@@ -55,14 +55,14 @@ const OrderRecord = forwardRef<OrderRecordRef, OrderRecordProps>(
 				const subscription = orderStream.subscribe((orderEvent) => {
 					const order = orderEvent.futuresOrder;
 
-					// 使用函数式更新来避免闭包问题
+					// Use functional update to avoid closure issues
 					setOrderData((prev) => {
 						const existingOrder = prev.find((o) => o.orderId === order.orderId);
 						if (existingOrder) {
-							// 如果订单已经存在，则整个替换
+							// If order already exists, replace it entirely
 							return prev.map((o) => (o.orderId === order.orderId ? order : o));
 						} else {
-							// 倒序插入，时间越晚的越靠前
+							// Insert in reverse order, later times come first
 							return [order, ...prev];
 						}
 					});

@@ -3,14 +3,14 @@ import type { TFunction } from "i18next";
 import type { ConditionTrigger } from "@/types/condition-trigger";
 import type { SelectedAccount } from "@/types/strategy";
 import type { NodeDataBase } from ".";
-// 仓位操作类型
+// Position operation type
 export enum PositionOperation {
-	CloseAllPositions = "CloseAllPositions", // 全部平仓
-	CLOSE_POSITION = "ClosePosition", // 平仓
-	// PARTIALLY_CLOSE_POSITION = "PartiallyClosePosition", // 部分平仓
+	CloseAllPositions = "CloseAllPositions", // Close all positions
+	CLOSE_POSITION = "ClosePosition", // Close position
+	// PARTIALLY_CLOSE_POSITION = "PartiallyClosePosition", // Partially close position
 }
 
-// 获取仓位操作类型标签
+// Get position operation type label
 export const getPositionOperationLabel = (
 	operation: PositionOperation,
 	t: TFunction,
@@ -60,33 +60,33 @@ export const shouldSelectSymbol = (
 	return getPositionOperationMetadataMap(t)[operation].shouldSelectSymbol;
 };
 
-// 仓位操作配置
+// Position operation configuration
 export type PositionOperationConfig = {
-	configId: number; // 配置ID
-	inputHandleId: string; // 输入handleId
-	outputHandleIds: string[]; // 输出handleIds
-	symbol: string | null; // 交易对(可以不配置)
-	positionOperation: PositionOperation; // 操作类型
-	operationName: string; // 操作名称
-	triggerConfig: ConditionTrigger | null; // 触发条件
+	configId: number; // Configuration ID
+	inputHandleId: string; // Input handleId
+	outputHandleIds: string[]; // Output handleIds
+	symbol: string | null; // Trading pair (can be unconfigured)
+	positionOperation: PositionOperation; // Operation type
+	operationName: string; // Operation name
+	triggerConfig: ConditionTrigger | null; // Trigger condition
 };
 
-// 实盘仓位管理配置
+// Live position management configuration
 export type PositionLiveConfig = {
-	selectedAccount: SelectedAccount | null; // 账户选择
-	positionOperations: PositionOperationConfig[]; // 操作列表
+	selectedAccount: SelectedAccount | null; // Account selection
+	positionOperations: PositionOperationConfig[]; // Operation list
 };
 
-// 模拟仓位管理配置
+// Simulated position management configuration
 export type PositionSimulateConfig = {
-	selectedAccount: SelectedAccount | null; // 模拟账户选择
-	positionOperations: PositionOperationConfig[]; // 操作列表
+	selectedAccount: SelectedAccount | null; // Simulated account selection
+	positionOperations: PositionOperationConfig[]; // Operation list
 };
 
-// 回测仓位管理配置
+// Backtest position management configuration
 export type PositionBacktestConfig = {
-	selectedAccount: SelectedAccount | null; // 回测账户选择
-	positionOperations: PositionOperationConfig[]; // 操作列表
+	selectedAccount: SelectedAccount | null; // Backtest account selection
+	positionOperations: PositionOperationConfig[]; // Operation list
 };
 
 export type PositionNodeData = NodeDataBase & {

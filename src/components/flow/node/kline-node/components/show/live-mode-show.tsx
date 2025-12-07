@@ -14,7 +14,7 @@ const LiveModeShow: React.FC<LiveModeShowProps> = ({ liveConfig }) => {
 
 	return (
 		<div className="space-y-2">
-			{/* 交易对展示 */}
+			{/* Trading pair display */}
 			<div className="space-y-2">
 				{selectedSymbols.length === 0 ? (
 					<div className="flex items-center justify-between gap-2 rounded-md">
@@ -45,7 +45,7 @@ const LiveModeShow: React.FC<LiveModeShowProps> = ({ liveConfig }) => {
 				)}
 			</div>
 
-			{/* 账户展示 */}
+			{/* Account display */}
 			<div className="space-y-2">
 				{!selectedAccount || !selectedAccount.accountName ? (
 					<div className="flex items-center justify-between gap-2 rounded-md">

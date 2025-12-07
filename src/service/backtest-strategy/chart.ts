@@ -7,7 +7,7 @@ const API_VERSION = "api/v1";
 
 const getApiUrl = () => `${getApiBaseUrl()}/${API_VERSION}/${ROUTER}`;
 
-// 获取初始化图表数据
+// Get initial chart data
 export async function getInitialChartData(
 	strategyId: number,
 	keyStr: string,
@@ -24,11 +24,11 @@ export async function getInitialChartData(
 			params.append("limit", limit.toString());
 		}
 		const url = `${getApiUrl()}/${strategyId}/data?${params.toString()}`;
-		// console.log("获取数据参数: ", decodeURIComponent(params.toString().replace(/\+/g, ' ')));
+		// console.log("Get data params: ", decodeURIComponent(params.toString().replace(/\+/g, ' ')));
 		const response = await axios.get(url);
 
 		if (response.status !== 200) {
-			throw new Error(`获取数据失败: ${response.status}`);
+			throw new Error(`Failed to fetch data: ${response.status}`);
 		}
 
 		const data = response.data;
@@ -37,8 +37,8 @@ export async function getInitialChartData(
 		}
 		return [];
 	} catch (error) {
-		console.error("获取数据错误:", error);
-		// 错误回调
+		console.error("Error fetching data:", error);
+		// Error callback
 		return [];
 	}
 }
@@ -57,11 +57,11 @@ export async function getPartialChartData(
 		const url = `${getApiUrl()}/${strategyId}/data-by-datetime?${params.toString()}`;
 		const response = await axios.get(url);
 		if (response.status !== 200) {
-			throw new Error(`获取数据失败: ${response.status}`);
+			throw new Error(`Failed to fetch data: ${response.status}`);
 		}
 		return response.data.data;
 	} catch (error) {
-		console.error("获取数据错误:", error);
+		console.error("Error fetching data:", error);
 		return [];
 	}
 }

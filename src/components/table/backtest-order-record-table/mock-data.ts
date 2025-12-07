@@ -1,7 +1,7 @@
 import { FuturesOrderSide, OrderStatus, OrderType } from "@/types/order";
 import type { VirtualOrder } from "@/types/order/virtual-order";
 
-// 模拟数据生成函数
+// Mock data generation function
 export function generateMockVirtualOrders(count: number = 50): VirtualOrder[] {
 	const symbols = [
 		"BTCUSDT",
@@ -45,12 +45,12 @@ export function generateMockVirtualOrders(count: number = 50): VirtualOrder[] {
 			orderStatuses[Math.floor(Math.random() * orderStatuses.length)];
 		const exchange = exchanges[Math.floor(Math.random() * exchanges.length)];
 
-		// 生成价格相关数据
-		const basePrice = Math.random() * 50000 + 1000; // 1000-51000范围的基础价格
+		// Generate price related data
+		const basePrice = Math.random() * 50000 + 1000; // Base price in range 1000-51000
 		const openPrice = Math.round(basePrice * 100) / 100;
 		const quantity = Math.round((Math.random() * 10 + 0.1) * 1000) / 1000;
 
-		// 生成止盈止损价格（有50%概率为null）
+		// Generate take profit and stop loss prices (50% chance to be null)
 		const tp =
 			Math.random() > 0.5
 				? Math.round(openPrice * (1 + Math.random() * 0.1) * 100) / 100
@@ -60,7 +60,7 @@ export function generateMockVirtualOrders(count: number = 50): VirtualOrder[] {
 				? Math.round(openPrice * (1 - Math.random() * 0.05) * 100) / 100
 				: null;
 
-		// 生成时间戳
+		// Generate timestamp
 		const createTime = new Date(
 			Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000,
 		).toISOString();
@@ -89,12 +89,12 @@ export function generateMockVirtualOrders(count: number = 50): VirtualOrder[] {
 		mockData.push(order);
 	}
 
-	// 按创建时间倒序排序
+	// Sort by create time in descending order
 	return mockData.sort(
 		(a, b) =>
 			new Date(b.createTime).getTime() - new Date(a.createTime).getTime(),
 	);
 }
 
-// 导出默认的模拟数据
+// Export default mock data
 export const mockVirtualOrders = generateMockVirtualOrders(30);

@@ -1,20 +1,20 @@
 const fs = require("fs");
 const path = require("path");
 
-// 配置
+// Configuration
 const BASE_LANG = "en-US";
 const TARGET_LANGS = ["zh-CN"];
 const I18N_DIR = path.join(__dirname);
 
 /**
- * 解析嵌套对象
+ * Parse nested object
  */
 function parseNestedObject(objString, level = 0) {
 	const result = {};
 	let i = 0;
 
 	while (i < objString.length) {
-		// 跳过空白字符
+		// Skip whitespace characters
 		while (i < objString.length && /\s/.test(objString[i])) {
 			i++;
 		}
@@ -23,7 +23,7 @@ function parseNestedObject(objString, level = 0) {
 			break;
 		}
 
-		// 匹配键名
+		// Match key name
 		const keyMatch = objString.slice(i).match(/^(\w+)\s*:/);
 		if (!keyMatch) {
 			i++;
@@ -33,16 +33,16 @@ function parseNestedObject(objString, level = 0) {
 		const key = keyMatch[1];
 		i += keyMatch[0].length;
 
-		// 跳过空白字符
+		// Skip whitespace characters
 		while (i < objString.length && /\s/.test(objString[i])) {
 			i++;
 		}
 
 		if (i >= objString.length) break;
 
-		// 检查是否是嵌套对象
+		// Check if it's a nested object
 		if (objString[i] === "{") {
-			// 找到匹配的右大括号
+			// Find the matching closing brace
 			let braceCount = 1;
 			let j = i + 1;
 
@@ -60,7 +60,7 @@ function parseNestedObject(objString, level = 0) {
 				i++;
 			}
 		} else {
-			// 匹配字符串值
+			// Match string value
 			const valueMatch = objString.slice(i).match(/^["'`]([^"'`]*?)["'`]/);
 			if (valueMatch) {
 				result[key] = valueMatch[1];
@@ -70,7 +70,7 @@ function parseNestedObject(objString, level = 0) {
 			}
 		}
 
-		// 跳过逗号和空白字符
+		// Skip comma and whitespace characters
 		while (i < objString.length && /[\s,]/.test(objString[i])) {
 			i++;
 		}
@@ -80,7 +80,7 @@ function parseNestedObject(objString, level = 0) {
 }
 
 /**
- * 扁平化对象，获取所有键的路径
+ * Flatten object and get all key paths
  */
 function flattenKeys(obj, prefix = "", result = {}) {
 	for (const [key, value] of Object.entries(obj)) {
@@ -97,7 +97,7 @@ function flattenKeys(obj, prefix = "", result = {}) {
 }
 
 /**
- * 从扁平化的键创建嵌套对象
+ * Create nested object from flattened keys
  */
 function unflattenKeys(flatObj) {
 	const result = {};
@@ -121,13 +121,13 @@ function unflattenKeys(flatObj) {
 }
 
 /**
- * 解析 TypeScript 文件中导出的对象
+ * Parse exported object from TypeScript file
  */
 function parseTranslationFile(filePath) {
 	try {
 		const content = fs.readFileSync(filePath, "utf8");
 
-		// 匹配 const translation = { ... } 的内容
+		// Match the content of const translation = { ... }
 		const match = content.match(
 			/const\s+translation\s*=\s*({[\s\S]*?})\s*;?\s*export/,
 		);
@@ -136,7 +136,7 @@ function parseTranslationFile(filePath) {
 			return {};
 		}
 
-		const objString = match[1].slice(1, -1); // 去掉外层大括号
+		const objString = match[1].slice(1, -1); // Remove outer braces
 		const parsedObj = parseNestedObject(objString);
 
 		return parsedObj;
@@ -147,7 +147,7 @@ function parseTranslationFile(filePath) {
 }
 
 /**
- * 生成翻译文件内容
+ * Generate translation file content
  */
 function generateTranslationFile(translations) {
 	function formatObject(obj, indent = 1) {
@@ -179,7 +179,7 @@ export default translation;
 }
 
 /**
- * 确保目录存在
+ * Ensure directory exists
  */
 function ensureDirectoryExists(dirPath) {
 	if (!fs.existsSync(dirPath)) {
@@ -189,16 +189,16 @@ function ensureDirectoryExists(dirPath) {
 }
 
 /**
- * 处理单个语言的文件生成
+ * Process file generation for a single language
  */
 function processLanguage(targetLang) {
 	const baseLangDir = path.join(I18N_DIR, BASE_LANG);
 	const targetLangDir = path.join(I18N_DIR, targetLang);
 
-	// 确保目标语言目录存在
+	// Ensure target language directory exists
 	ensureDirectoryExists(targetLangDir);
 
-	// 获取基础语言目录下的所有 .ts 文件
+	// Get all .ts files in the base language directory
 	const baseFiles = fs
 		.readdirSync(baseLangDir)
 		.filter((file) => file.endsWith(".ts"));
@@ -212,7 +212,7 @@ function processLanguage(targetLang) {
 
 		console.log(`\nProcessing file: ${fileName}`);
 
-		// 解析基础语言文件
+		// Parse base language file
 		const baseTranslations = parseTranslationFile(baseFilePath);
 		const baseFlatKeys = flattenKeys(baseTranslations);
 		const baseKeyPaths = Object.keys(baseFlatKeys);
@@ -221,7 +221,7 @@ function processLanguage(targetLang) {
 
 		let targetTranslations = {};
 
-		// 如果目标文件存在，解析现有的翻译
+		// If target file exists, parse existing translations
 		if (fs.existsSync(targetFilePath)) {
 			targetTranslations = parseTranslationFile(targetFilePath);
 			const targetFlatKeys = flattenKeys(targetTranslations);
@@ -234,7 +234,7 @@ function processLanguage(targetLang) {
 			console.log(`  Target file does not exist, will create new file`);
 		}
 
-		// 合并翻译，对于缺失的 key 设置为空字符串
+		// Merge translations, set empty string for missing keys
 		let hasChanges = false;
 		const targetFlatKeys = flattenKeys(targetTranslations);
 		const mergedFlatKeys = { ...targetFlatKeys };
@@ -247,10 +247,10 @@ function processLanguage(targetLang) {
 			}
 		});
 
-		// 将扁平化的键转换回嵌套对象
+		// Convert flattened keys back to nested object
 		const mergedTranslations = unflattenKeys(mergedFlatKeys);
 
-		// 如果有变化或文件不存在，写入文件
+		// Write file if there are changes or file doesn't exist
 		if (hasChanges || !fs.existsSync(targetFilePath)) {
 			const content = generateTranslationFile(mergedTranslations);
 			fs.writeFileSync(targetFilePath, content, "utf8");
@@ -262,25 +262,25 @@ function processLanguage(targetLang) {
 }
 
 /**
- * 主函数
+ * Main function
  */
 function main() {
 	console.log("🌍 Starting i18n generation...");
 	console.log(`Base language: ${BASE_LANG}`);
 	console.log(`Target languages: ${TARGET_LANGS.join(", ")}`);
 
-	// 检查基础语言目录是否存在
+	// Check if base language directory exists
 	const baseLangDir = path.join(I18N_DIR, BASE_LANG);
 	if (!fs.existsSync(baseLangDir)) {
 		console.error(`❌ Base language directory not found: ${baseLangDir}`);
 		process.exit(1);
 	}
 
-	// 处理每个目标语言
+	// Process each target language
 	TARGET_LANGS.forEach(processLanguage);
 
 	console.log("\n✨ i18n generation completed!");
 }
 
-// 运行脚本
+// Run script
 main();

@@ -15,7 +15,7 @@ import {
 	PriceSourceSchema,
 } from "@/types/indicator/schemas";
 
-// ROCR100 指标配置的 Zod schema
+// Zod schema for ROCR100 indicator configuration
 const ROCR100ConfigSchema = z.object({
 	timePeriod: z.number().int().positive(),
 	priceSource: PriceSourceSchema,
@@ -23,7 +23,7 @@ const ROCR100ConfigSchema = z.object({
 
 export type ROCR100ConfigType = z.infer<typeof ROCR100ConfigSchema>;
 
-// ROCR100指标的参数映射函数
+// Parameter mapping function for ROCR100 indicator
 function buildROCR100Config(params: Map<string, string>): unknown {
 	return {
 		timePeriod: parseInt(params.get("time_period") || "0"),
@@ -31,23 +31,23 @@ function buildROCR100Config(params: Map<string, string>): unknown {
 	};
 }
 
-// ROCR100指标配置实现
+// ROCR100 indicator configuration implementation
 export const ROCR100Config: IndicatorConfig<ROCR100ConfigType> = {
 	category: IndicatorCategory.MOMENTUM,
 	type: IndicatorType.ROCR100,
 	displayName: "ROCR100",
-	description: "变化率比率100比例指标 - (price/prevPrice)*100",
+	description: "Rate of Change Ratio 100 Scale - (price/prevPrice)*100",
 	params: {
 		timePeriod: {
 			label: "indicator.configField.timePeriod",
-			description: "选择变化率比率100比例指标的时间周期",
+			description: "Select time period for Rate of Change Ratio 100 Scale",
 			defaultValue: 10,
 			required: true,
 			legendShowName: "period",
 		},
 		priceSource: {
 			label: "indicator.configField.dataSource",
-			description: "选择指标计算价格源",
+			description: "Select price source for indicator calculation",
 			defaultValue: PriceSource.CLOSE,
 			required: true,
 			legendShowName: "source",
@@ -78,7 +78,7 @@ export const ROCR100Config: IndicatorConfig<ROCR100ConfigType> = {
 			]),
 		);
 
-		// 使用 Zod 验证配置
+		// Validate configuration using Zod
 		const validatedConfig = ROCR100ConfigSchema.parse(config);
 		return validatedConfig;
 	},
@@ -87,7 +87,7 @@ export const ROCR100Config: IndicatorConfig<ROCR100ConfigType> = {
 		return getIndicatorValues(this.indicatorValueConfig);
 	},
 
-	// 使用通用解析函数
+	// Use generic parsing function
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
 		IndicatorType.ROCR100,
 		ROCR100ConfigSchema,

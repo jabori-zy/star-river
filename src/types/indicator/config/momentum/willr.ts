@@ -8,30 +8,30 @@ import {
 } from "@/types/indicator/indicator-config";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
-// WILLR 指标配置的 Zod schema
+// Zod schema for WILLR indicator configuration
 const WILLRConfigSchema = z.object({
 	timePeriod: z.number().int().positive(),
 });
 
 export type WILLRConfigType = z.infer<typeof WILLRConfigSchema>;
 
-// WILLR指标的参数映射函数
+// Parameter mapping function for WILLR indicator
 function buildWILLRConfig(params: Map<string, string>): unknown {
 	return {
 		timePeriod: parseInt(params.get("time_period") || "0"),
 	};
 }
 
-// WILLR指标配置实现
+// WILLR indicator configuration implementation
 export const WILLRConfig: IndicatorConfig<WILLRConfigType> = {
 	category: IndicatorCategory.MOMENTUM,
 	type: IndicatorType.WILLR,
 	displayName: "WILLR",
-	description: "威廉指标",
+	description: "Williams %R indicator",
 	params: {
 		timePeriod: {
 			label: "indicator.configField.timePeriod",
-			description: "选择威廉指标的时间周期",
+			description: "Select time period for Williams %R indicator",
 			defaultValue: 14,
 			required: true,
 			legendShowName: "period",
@@ -62,7 +62,7 @@ export const WILLRConfig: IndicatorConfig<WILLRConfigType> = {
 			]),
 		);
 
-		// 使用 Zod 验证配置
+		// Validate configuration using Zod
 		const validatedConfig = WILLRConfigSchema.parse(config);
 		return validatedConfig;
 	},
@@ -71,7 +71,7 @@ export const WILLRConfig: IndicatorConfig<WILLRConfigType> = {
 		return getIndicatorValues(this.indicatorValueConfig);
 	},
 
-	// 使用通用解析函数
+	// Use generic parsing function
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
 		IndicatorType.WILLR,
 		WILLRConfigSchema,

@@ -11,7 +11,7 @@ import type { BacktestChartStore, StoreContext } from "./types";
 import { createUtilitySlice } from "./utility-slice";
 import { createVisibilitySlice } from "./visibility-slice";
 
-// 创建单个图表store的工厂函数
+// Factory function to create single chart store
 const createBacktestChartStore = (
 	chartId: number,
 	chartConfig: BacktestChartConfig,
@@ -22,7 +22,7 @@ const createBacktestChartStore = (
 	};
 
 	return create<BacktestChartStore>()((...args) => ({
-		// 组合所有slices
+		// Combine all slices
 		...createDataSlice(...args),
 		...createRefsSlice(...args),
 		...createVisibilitySlice(...args),
@@ -31,18 +31,18 @@ const createBacktestChartStore = (
 		...createEventHandlerSlice(context)(...args),
 		...createDataInitializationSlice()(...args),
 		...createUtilitySlice(context)(...args),
-		// 添加chartConfig到store中，某些方法需要访问
+		// Add chartConfig to store, some methods need access to it
 		chartConfig: chartConfig,
 	}));
 };
 
-// 多实例store管理器
+// Multi-instance store manager
 const storeInstances = new Map<
 	number,
 	ReturnType<typeof createBacktestChartStore>
 >();
 
-// 获取或创建指定chartId的store实例
+// Get or create store instance for specified chartId
 export const getBacktestChartStore = (
 	chartId: number,
 	chartConfig?: BacktestChartConfig,
@@ -60,19 +60,19 @@ export const getBacktestChartStore = (
 	return store;
 };
 
-// 清理指定chartId的store实例
+// Clean up store instance for specified chartId
 export const cleanupBacktestChartStore = (chartId: number) => {
 	const store = storeInstances.get(chartId);
 	if (store) {
-		// 清理订阅
+		// Clean up subscriptions
 		const state = store.getState();
 		state.cleanupSubscriptions();
-		// 从管理器中移除
+		// Remove from manager
 		storeInstances.delete(chartId);
 	}
 };
 
-// Hook：根据chartId获取对应的store
+// Hook: Get corresponding store based on chartId
 export const useBacktestChartStore = (
 	chartId: number,
 	chartConfig?: BacktestChartConfig,
@@ -81,12 +81,12 @@ export const useBacktestChartStore = (
 	return store();
 };
 
-// 获取指定chartId的store实例（不是hook）
+// Get store instance for specified chartId (not a hook)
 export const getBacktestChartStoreInstance = (chartId: number) => {
 	return getBacktestChartStore(chartId);
 };
 
-// 重置所有store的数据
+// Reset data for all stores
 export const resetAllBacktestChartStore = () => {
 	storeInstances.forEach((store) => {
 		store.getState().resetData();

@@ -9,14 +9,14 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLHIKKAKEMODConfigSchema = z.object({
-	// CDLHIKKAKEMOD 没有参数
+	// CDLHIKKAKEMOD has no parameters
 });
 
 export type CDLHIKKAKEMODConfigType = z.infer<typeof CDLHIKKAKEMODConfigSchema>;
 
 function buildCDLHIKKAKEMODConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLHIKKAKEMOD 不需要任何参数
+		// CDLHIKKAKEMOD doesn't need any parameters
 	};
 }
 
@@ -26,7 +26,7 @@ export const CDLHIKKAKEMODConfig: IndicatorConfig<CDLHIKKAKEMODConfigType> = {
 	displayName: "CDLHIKKAKEMOD",
 	description: "Modified Hikkake Pattern",
 	params: {
-		// CDLHIKKAKEMOD 没有参数
+		// CDLHIKKAKEMOD has no parameters
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

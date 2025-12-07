@@ -37,7 +37,7 @@ export function RgbInput({ value, onChange, disabled }: RgbInputProps) {
 
 		setErrors(newErrors);
 
-		// 如果所有值都有效，更新颜色
+		// If all values are valid, update color
 		if (!newErrors.r && !newErrors.g && !newErrors.b) {
 			const hexValue = rgbToHex(rNum, gNum, bNum);
 			onChange(hexValue);
@@ -63,7 +63,7 @@ export function RgbInput({ value, onChange, disabled }: RgbInputProps) {
 	};
 
 	const handleBlur = (component: "r" | "g" | "b") => {
-		// 失焦时，如果值无效，恢复到当前有效值
+		// On blur, if value is invalid, restore to current valid value
 		if (errors[component]) {
 			const currentRgb = hexToRgb(value) || { r: 0, g: 0, b: 0 };
 			switch (component) {
@@ -137,7 +137,7 @@ export function RgbInput({ value, onChange, disabled }: RgbInputProps) {
 				</div>
 			</div>
 			{(errors.r || errors.g || errors.b) && (
-				<p className="text-xs text-destructive">请输入 0-255 之间的有效数值</p>
+				<p className="text-xs text-destructive">Please enter a valid value between 0-255</p>
 			)}
 		</div>
 	);

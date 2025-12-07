@@ -13,25 +13,25 @@ const setupIpcHandlers = () => {
 		return result;
 	});
 
-	// 检查或打开回测窗口（如果存在则移动到前台，否则创建新窗口）
+	// Check or open backtest window (if exists, bring to front; otherwise create new window)
 	ipcMain.handle("check-or-open-backtest-window", (_, strategyId) => {
 		const result = checkOrOpenBacktestWindow(strategyId);
 		return result;
 	});
 
-	// 关闭指定策略的回测窗口
+	// Close backtest window for specified strategy
 	ipcMain.handle("close-backtest-window", (_, strategyId) => {
 		const closed = closeBacktestWindow(strategyId);
 		return closed;
 	});
 
-	// 刷新所有回测窗口
+	// Refresh all backtest windows
 	ipcMain.handle("refresh-all-backtest-windows", () => {
 		const refreshedCount = refreshAllBacktestWindows();
 		return refreshedCount;
 	});
 
-	// 窗口控制IPC处理程序
+	// Window control IPC handlers
 	ipcMain.handle("minimize-window", () => {
 		const focusedWindow = BrowserWindow.getFocusedWindow();
 		if (focusedWindow) {
@@ -57,7 +57,7 @@ const setupIpcHandlers = () => {
 		}
 	});
 
-	// 获取后端端口
+	// Get backend port
 	ipcMain.handle("get-backend-port", () => {
 		return getBackendPort();
 	});

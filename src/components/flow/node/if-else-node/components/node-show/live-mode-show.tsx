@@ -7,10 +7,10 @@ interface LiveModeShowProps {
 }
 
 const LiveModeShow: React.FC<LiveModeShowProps> = ({ id, data }) => {
-	// 获取回测模式配置
+	// Get live mode configuration
 	const liveConfig = data.liveConfig;
 
-	// 如果没有配置或者没有cases，显示提示信息
+	// If no configuration or no cases, display a message
 	if (!liveConfig || !liveConfig.cases || liveConfig.cases.length === 0) {
 		return (
 			<div className="text-sm text-muted-foreground p-2 text-center">
@@ -21,7 +21,7 @@ const LiveModeShow: React.FC<LiveModeShowProps> = ({ id, data }) => {
 
 	return (
 		<div className="space-y-2">
-			{/* 渲染所有的条件case */}
+			{/* Render all condition cases */}
 			{liveConfig.cases.map((caseItem) => (
 				<IfElseCaseItem
 					key={caseItem.caseId}
@@ -30,7 +30,7 @@ const LiveModeShow: React.FC<LiveModeShowProps> = ({ id, data }) => {
 				/>
 			))}
 
-			{/* 固定的ELSE分支 */}
+			{/* Fixed ELSE branch */}
 			<ElseCaseItem handleId={`${id}-else`} />
 		</div>
 	);

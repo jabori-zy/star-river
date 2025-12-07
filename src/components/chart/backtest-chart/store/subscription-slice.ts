@@ -27,34 +27,34 @@ export const createSubscriptionSlice: SliceCreator<SubscriptionSlice> = (
 	initObserverSubscriptions: () => {
 		const state = get();
 
-		// 清理现有订阅
+		// Clean up existing subscriptions
 		state.cleanupSubscriptions();
 
 		try {
 			state.getKeyStr().forEach((keyStr: KeyStr) => {
 				const key = parseKey(keyStr);
 				if (key.type === "kline") {
-					// 订阅K线数据流
+					// Subscribe to K-line data stream
 					const klineStream = createKlineStreamFromKey(keyStr, true);
 					const klineSubscription = klineStream.subscribe({
 						next: (klineData: Kline) => {
-							// 更新kline
+							// Update kline
 							state.onNewKline(klineData);
 						},
 						error: (error: Error) => {
-							console.error("K线数据流订阅错误:", error);
+							console.error("K-line data stream subscription error:", error);
 						},
 					});
 					state._addObserverSubscription(keyStr, klineSubscription);
 
-					// 订阅与该k线相关的订单数据流
+					// Subscribe to order data stream related to this kline
 					const orderStream = createOrderStreamForSymbol(
 						key.exchange,
 						key.symbol,
 					);
 					const orderSubscription = orderStream.subscribe(
 						(virtualOrderEvent: VirtualOrderEvent) => {
-							// 统一处理订单成交事件
+							// Unified handling of order filled events
 							if (
 								virtualOrderEvent.event === "futures-order-filled-event" ||
 								virtualOrderEvent.event === "take-profit-order-filled-event" ||
@@ -78,7 +78,7 @@ export const createSubscriptionSlice: SliceCreator<SubscriptionSlice> = (
 						},
 					);
 					state._addObserverSubscription(keyStr, orderSubscription);
-					// 订阅与仓位相关的数据流
+					// Subscribe to position-related data stream
 					const positionStream = createPositionStreamForSymbol(
 						key.exchange,
 						key.symbol,
@@ -102,7 +102,7 @@ export const createSubscriptionSlice: SliceCreator<SubscriptionSlice> = (
 								number | string
 							>,
 						) => {
-							// 转换指标数据格式为 Record<keyof IndicatorValueConfig, SingleValueData[]>
+							// Convert indicator data format to Record<keyof IndicatorValueConfig, SingleValueData[]>
 							const indicator: Record<
 								keyof IndicatorValueConfig,
 								SingleValueData[]
@@ -110,7 +110,7 @@ export const createSubscriptionSlice: SliceCreator<SubscriptionSlice> = (
 
 							Object.entries(indicatorData).forEach(
 								([indicatorValueKey, value]) => {
-									// 跳过datetime字段，只处理指标值
+									// Skip datetime field, only process indicator values
 									if (indicatorValueKey === "datetime") return;
 
 									indicator[indicatorValueKey as keyof IndicatorValueConfig] = [
@@ -126,23 +126,23 @@ export const createSubscriptionSlice: SliceCreator<SubscriptionSlice> = (
 									];
 								},
 							);
-							// 更新indicator
+							// Update indicator
 							state.onNewIndicator(keyStr, indicator);
 						},
 						error: (error: Error) => {
-							console.error("指标数据流订阅错误:", error);
+							console.error("Indicator data stream subscription error:", error);
 						},
 					});
 					state._addObserverSubscription(keyStr, indicatorSubscription);
 				}
 			});
 		} catch (error) {
-			console.error("初始化 Observer 订阅时出错:", error);
+			console.error("Error initializing Observer subscription:", error);
 		}
 	},
 
 	unsubscribe: (keyStr: KeyStr) => {
-		console.log("取消订阅:", keyStr);
+		console.log("Unsubscribing:", keyStr);
 		const state = get();
 		state.subscriptions[keyStr]?.forEach((subscription) => {
 			subscription.unsubscribe();
@@ -151,7 +151,7 @@ export const createSubscriptionSlice: SliceCreator<SubscriptionSlice> = (
 
 	subscribe: (keyStr: KeyStr) => {
 		const state = get();
-		// 判断keyStr是否在state.subscriptions中
+		// Check if keyStr is in state.subscriptions
 		if (state.subscriptions[keyStr]) {
 			return;
 		}
@@ -164,7 +164,7 @@ export const createSubscriptionSlice: SliceCreator<SubscriptionSlice> = (
 					state.onNewKline(klineData);
 				},
 				error: (error: Error) => {
-					console.error("K线数据流订阅错误:", error);
+					console.error("K-line data stream subscription error:", error);
 				},
 			});
 			state._addObserverSubscription(keyStr, klineSubscription);
@@ -216,7 +216,7 @@ export const createSubscriptionSlice: SliceCreator<SubscriptionSlice> = (
 				next: (
 					indicatorData: Record<keyof IndicatorValueConfig, number | string>,
 				) => {
-					// 转换指标数据格式为 Record<keyof IndicatorValueConfig, SingleValueData[]>
+					// Convert indicator data format to Record<keyof IndicatorValueConfig, SingleValueData[]>
 					const indicator: Record<
 						keyof IndicatorValueConfig,
 						SingleValueData[]
@@ -224,7 +224,7 @@ export const createSubscriptionSlice: SliceCreator<SubscriptionSlice> = (
 
 					Object.entries(indicatorData).forEach(
 						([indicatorValueKey, value]) => {
-							// 跳过datetime字段，只处理指标值
+							// Skip datetime field, only process indicator values
 							if (indicatorValueKey === "datetime") return;
 
 							indicator[indicatorValueKey as keyof IndicatorValueConfig] = [
@@ -240,7 +240,7 @@ export const createSubscriptionSlice: SliceCreator<SubscriptionSlice> = (
 							];
 						},
 					);
-					// 更新indicator
+					// Update indicator
 					state.onNewIndicator(keyStr, indicator);
 				},
 			});
@@ -264,9 +264,9 @@ export const createSubscriptionSlice: SliceCreator<SubscriptionSlice> = (
 			subscriptions.forEach((subscription, index) => {
 				try {
 					subscription.unsubscribe();
-					// console.log(`订阅 ${index} 已清理`);
+					// console.log(`Subscription ${index} cleaned up`);
 				} catch (error) {
-					console.error(`清理订阅 ${index} 时出错:`, error);
+					console.error(`Error cleaning up subscription ${index}:`, error);
 				}
 			});
 		});

@@ -9,7 +9,7 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLUPSIDEGAP2CROWSConfigSchema = z.object({
-	// CDLUPSIDEGAP2CROWS 没有参数
+	// CDLUPSIDEGAP2CROWS has no parameters
 });
 
 export type CDLUPSIDEGAP2CROWSConfigType = z.infer<
@@ -18,7 +18,7 @@ export type CDLUPSIDEGAP2CROWSConfigType = z.infer<
 
 function buildCDLUPSIDEGAP2CROWSConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLUPSIDEGAP2CROWS 不需要任何参数
+		// CDLUPSIDEGAP2CROWS doesn't need any parameters
 	};
 }
 
@@ -29,7 +29,7 @@ export const CDLUPSIDEGAP2CROWSConfig: IndicatorConfig<CDLUPSIDEGAP2CROWSConfigT
 		displayName: "CDLUPSIDEGAP2CROWS",
 		description: "Upside Gap Two Crows",
 		params: {
-			// CDLUPSIDEGAP2CROWS 没有参数
+			// CDLUPSIDEGAP2CROWS has no parameters
 		},
 		indicatorValueConfig: {
 			timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

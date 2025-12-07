@@ -55,7 +55,7 @@ export interface TimeDisplayProps {
  * ```tsx
  * // Smart relative time with tooltip
  * <TimeDisplay date={new Date()} />
- * // Shows: "刚刚 (UTC+8)"
+ * // Shows: "Just now (UTC+8)"
  * // Tooltip: "2025-11-18 17:06:52 +08:00"
  *
  * // Custom format

@@ -8,21 +8,21 @@ import {
 } from "@/types/indicator/indicator-config";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
-// NATR 指标配置的 Zod schema
+// Zod schema for NATR indicator configuration
 const NATRConfigSchema = z.object({
 	timePeriod: z.number().int().positive(),
 });
 
 export type NATRConfigType = z.infer<typeof NATRConfigSchema>;
 
-// NATR指标的参数映射函数
+// Parameter mapping function for NATR indicator
 function buildNATRConfig(params: Map<string, string>): unknown {
 	return {
 		timePeriod: parseInt(params.get("time_period") || "14"),
 	};
 }
 
-// NATR指标配置实现
+// NATR indicator configuration implementation
 export const NATRConfig: IndicatorConfig<NATRConfigType> = {
 	category: IndicatorCategory.VOLATILITY,
 	type: IndicatorType.NATR,
@@ -31,7 +31,7 @@ export const NATRConfig: IndicatorConfig<NATRConfigType> = {
 	params: {
 		timePeriod: {
 			label: "indicator.configField.timePeriod",
-			description: "选择NATR的计算周期",
+			description: "Select the time period for NATR calculation",
 			defaultValue: 14,
 			required: true,
 			legendShowName: "period",
@@ -62,7 +62,7 @@ export const NATRConfig: IndicatorConfig<NATRConfigType> = {
 			]),
 		);
 
-		// 使用 Zod 验证配置
+		// Validate configuration using Zod
 		const validatedConfig = NATRConfigSchema.parse(config);
 		return validatedConfig;
 	},
@@ -71,7 +71,7 @@ export const NATRConfig: IndicatorConfig<NATRConfigType> = {
 		return getIndicatorValues(this.indicatorValueConfig);
 	},
 
-	// 使用通用解析函数
+	// Use generic parsing function
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
 		IndicatorType.NATR,
 		NATRConfigSchema,

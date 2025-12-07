@@ -32,14 +32,14 @@ const PositionRecord = forwardRef<PositionRecordRef, PositionRecordProps>(
 
 		const positionStreamSubscriptionRef = useRef<Subscription | null>(null);
 
-		// 使用全局状态管理isShowHistoryPosition
+		// Use global state management for isShowHistoryPosition
 		const { getShowHistoryPosition, setShowHistoryPosition } =
 			useBacktestUIStore();
 		const isShowHistoryPosition = getShowHistoryPosition(strategyId);
 		const setIsShowHistoryPosition = (show: boolean) =>
 			setShowHistoryPosition(strategyId, show);
 
-		// 暴露清空持仓的方法
+		// Expose method for clearing positions
 		useImperativeHandle(
 			ref,
 			() => ({
@@ -53,7 +53,7 @@ const PositionRecord = forwardRef<PositionRecordRef, PositionRecordProps>(
 		const getVirtualPositionData = useCallback(async () => {
 			const virtualPositionData = await getVirtualPosition(strategyId);
 			const historyPositionData = await getHisotryVirtualPosition(strategyId);
-			// 如果显示历史持仓，则将当前持仓和历史持仓合并
+			// If showing history positions, merge current and history positions
 			if (isShowHistoryPosition) {
 				setPositionData(
 					[...virtualPositionData, ...historyPositionData].reverse(),
@@ -63,19 +63,19 @@ const PositionRecord = forwardRef<PositionRecordRef, PositionRecordProps>(
 			}
 		}, [strategyId, isShowHistoryPosition]);
 
-		// 初始化持仓数据，当isShowHistoryPosition变化时也重新获取
+		// Initialize position data, also re-fetch when isShowHistoryPosition changes
 		useEffect(() => {
 			getVirtualPositionData();
 		}, [getVirtualPositionData]);
 
 		useEffect(() => {
-			// 清理之前的订阅（如果存在）
+			// Clean up previous subscription (if exists)
 			if (positionStreamSubscriptionRef.current) {
 				positionStreamSubscriptionRef.current.unsubscribe();
 				positionStreamSubscriptionRef.current = null;
 			}
 
-			// 创建新的订阅
+			// Create new subscription
 			const positionStream = createPositionStream();
 			const subscription = positionStream.subscribe((positionEvent) => {
 				if (
@@ -83,25 +83,25 @@ const PositionRecord = forwardRef<PositionRecordRef, PositionRecordProps>(
 					positionEvent.event === "position-updated-event"
 				) {
 					const position = positionEvent.virtualPosition;
-					// 使用函数式更新来避免闭包问题
+					// Use functional update to avoid closure issues
 					setPositionData((prev) => {
 						const existingPosition = prev.find(
 							(p) => p.positionId === position.positionId,
 						);
 						if (existingPosition) {
-							// 如果持仓已经存在，则整个替换
+							// If position already exists, replace it entirely
 							return prev.map((p) =>
 								p.positionId === position.positionId ? position : p,
 							);
 						} else {
-							// 倒序插入，时间越晚的越靠前
+							// Insert in reverse order, later times come first
 							return [position, ...prev];
 						}
 					});
 				} else if (positionEvent.event === "position-closed-event") {
-					// 如果显示历史持仓，则不删除已平仓的持仓
+					// If showing history positions, don't delete closed positions
 					if (!isShowHistoryPosition) {
-						// 删除已平仓的持仓
+						// Delete closed positions
 						setPositionData((prev) =>
 							prev.filter(
 								(p) =>

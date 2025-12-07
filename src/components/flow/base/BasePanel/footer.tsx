@@ -1,18 +1,18 @@
 import { Button } from "@/components/ui/button";
 
 /**
- * 面板底部props
+ * Panel footer props
  */
 interface BasePanelFooterProps {
-	tradeMode: string; // 交易模式
-	onLiveModeSave: () => void; // 实时模式保存按钮的回调
-	onBacktestModeSave: () => void; // 回测模式保存按钮的回调
-	onSimulationModeSave: () => void; // 模拟模式保存按钮的回调
-	onCancel: () => void; // 取消按钮的回调
+	tradeMode: string; // Trading mode
+	onLiveModeSave: () => void; // Live mode save button callback
+	onBacktestModeSave: () => void; // Backtest mode save button callback
+	onSimulationModeSave: () => void; // Simulation mode save button callback
+	onCancel: () => void; // Cancel button callback
 }
 
 /**
- * 面板底部
+ * Panel footer
  *
  *
  *

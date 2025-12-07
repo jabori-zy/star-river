@@ -29,7 +29,7 @@ const StrategyBenchmark = forwardRef<
 	const [error, setError] = useState<string | null>(null);
 	const performanceStreamSubscriptionRef = useRef<Subscription | null>(null);
 
-	// 获取初始数据
+	// Fetch initial data
 	const fetchData = useCallback(async () => {
 		setIsLoading(true);
 		setError(null);
@@ -49,7 +49,7 @@ const StrategyBenchmark = forwardRef<
 		}
 	}, [strategyId]);
 
-	// 暴露清空性能数据的方法
+	// Expose method for clearing performance data
 	useImperativeHandle(
 		ref,
 		() => ({
@@ -60,23 +60,23 @@ const StrategyBenchmark = forwardRef<
 		[],
 	);
 
-	// 初始化性能数据
+	// Initialize performance data
 	useEffect(() => {
 		fetchData();
 	}, [fetchData]);
 
-	// SSE实时数据订阅
+	// SSE real-time data subscription
 	useEffect(() => {
-		// 清理之前的订阅（如果存在）
+		// Clean up previous subscription (if exists)
 		if (performanceStreamSubscriptionRef.current) {
 			performanceStreamSubscriptionRef.current.unsubscribe();
 			performanceStreamSubscriptionRef.current = null;
 		}
 
-		// 创建性能数据流订阅
+		// Create performance data stream subscription
 		const performanceStream = createBacktestStrategyPerformanceStream(true);
 		const subscription = performanceStream.subscribe((performanceEvent) => {
-			// 只处理当前策略的性能数据
+			// Only process performance data for current strategy
 			if (performanceEvent.strategyId === strategyId) {
 				setData(performanceEvent.report);
 			}

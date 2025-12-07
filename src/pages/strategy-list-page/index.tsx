@@ -94,10 +94,10 @@ function StrategyListPage() {
 										/>
 									</PaginationItem>
 
-									{/* 生成页码按钮 */}
+									{/* Generate pagination buttons */}
 									{Array.from({ length: data.totalPages }, (_, i) => i + 1).map(
 										(page) => {
-											// 只显示当前页附近的页码和首尾页
+											// Only show page numbers near current page and first/last pages
 											if (
 												page === 1 ||
 												page === data.totalPages ||

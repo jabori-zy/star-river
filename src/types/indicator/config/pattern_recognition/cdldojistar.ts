@@ -9,14 +9,14 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLDOJISTARConfigSchema = z.object({
-	// CDLDOJISTAR 没有参数
+	// CDLDOJISTAR has no parameters
 });
 
 export type CDLDOJISTARConfigType = z.infer<typeof CDLDOJISTARConfigSchema>;
 
 function buildCDLDOJISTARConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLDOJISTAR 不需要任何参数
+		// CDLDOJISTAR doesn't need any parameters
 	};
 }
 
@@ -26,7 +26,7 @@ export const CDLDOJISTARConfig: IndicatorConfig<CDLDOJISTARConfigType> = {
 	displayName: "CDLDOJISTAR",
 	description: "Doji Star",
 	params: {
-		// CDLDOJISTAR 没有参数
+		// CDLDOJISTAR has no parameters
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

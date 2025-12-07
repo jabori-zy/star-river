@@ -12,23 +12,23 @@ import { TradeMode } from "@/types/strategy";
 import type { SettingProps } from "./setting-panel";
 
 export interface SettingPanelProps {
-	liveModeSettingPanel?: React.ComponentType<SettingProps> | React.ReactNode; // 实时模式设置面板
+	liveModeSettingPanel?: React.ComponentType<SettingProps> | React.ReactNode; // Live mode settings panel
 	backtestModeSettingPanel?:
 		| React.ComponentType<SettingProps>
-		| React.ReactNode; // 回测模式设置面板
+		| React.ReactNode; // Backtest mode settings panel
 	simulationModeSettingPanel?:
 		| React.ComponentType<SettingProps>
-		| React.ReactNode; // 模拟模式设置面板
+		| React.ReactNode; // Simulation mode settings panel
 }
 
 interface TradeModeSwitcherProps {
-	id: string; // 节点ID
-	settingPanel: SettingPanelProps; // 设置面板
+	id: string; // Node ID
+	settingPanel: SettingPanelProps; // Settings panel
 }
 
 /**
- * 交易模式切换器
- * 切换不同的tab，展示不同的内容
+ * Trade mode switcher
+ * Switch different tabs to display different content
  */
 const TradeModeSwitcher: React.FC<TradeModeSwitcherProps> = ({
 	settingPanel,
@@ -36,17 +36,17 @@ const TradeModeSwitcher: React.FC<TradeModeSwitcherProps> = ({
 }) => {
 	const { tradingMode } = useTradingModeStore();
 	const { t } = useTranslation();
-	// 渲染设置面板的辅助函数
+	// Helper function to render settings panel
 	const renderSettingPanel = (
 		panel: React.ComponentType<SettingProps> | React.ReactNode,
 	) => {
 		if (React.isValidElement(panel)) {
-			// 如果是ReactNode，直接返回
+			// If it's a ReactNode, return directly
 			return panel;
 		}
 
 		if (typeof panel === "function") {
-			// 如果是组件函数，传递props
+			// If it's a component function, pass props
 			const PanelComponent = panel as React.ComponentType<SettingProps>;
 			return <PanelComponent id={id} />;
 		}
@@ -57,8 +57,8 @@ const TradeModeSwitcher: React.FC<TradeModeSwitcherProps> = ({
 	return (
 		<Tabs className="h-full flex flex-col" defaultValue={tradingMode}>
 			{/*
-                flex-wrap: 换行
-                h-auto: 高度自适应
+                flex-wrap: wrap
+                h-auto: auto height
 
             */}
 			<TabsList className="flex flex-wrap h-10 gap-1 w-full px-2 flex-shrink-0">

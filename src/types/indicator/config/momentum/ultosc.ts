@@ -8,7 +8,7 @@ import {
 } from "@/types/indicator/indicator-config";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
-// ULTOSC 指标配置的 Zod schema
+// Zod schema for ULTOSC indicator configuration
 const ULTOSCConfigSchema = z.object({
 	timePeriod1: z.number().int().positive(),
 	timePeriod2: z.number().int().positive(),
@@ -17,7 +17,7 @@ const ULTOSCConfigSchema = z.object({
 
 export type ULTOSCConfigType = z.infer<typeof ULTOSCConfigSchema>;
 
-// ULTOSC指标的参数映射函数
+// Parameter mapping function for ULTOSC indicator
 function buildULTOSCConfig(params: Map<string, string>): unknown {
 	return {
 		timePeriod1: parseInt(params.get("time_period1") || "0"),
@@ -26,30 +26,30 @@ function buildULTOSCConfig(params: Map<string, string>): unknown {
 	};
 }
 
-// ULTOSC指标配置实现
+// ULTOSC indicator configuration implementation
 export const ULTOSCConfig: IndicatorConfig<ULTOSCConfigType> = {
 	category: IndicatorCategory.MOMENTUM,
 	type: IndicatorType.ULTOSC,
 	displayName: "ULTOSC",
-	description: "终极振荡器",
+	description: "Ultimate Oscillator",
 	params: {
 		timePeriod1: {
 			label: "indicator.configField.timePeriod1",
-			description: "选择第一个时间周期",
+			description: "Select first time period",
 			defaultValue: 7,
 			required: true,
 			legendShowName: "period1",
 		},
 		timePeriod2: {
 			label: "indicator.configField.timePeriod2",
-			description: "选择第二个时间周期",
+			description: "Select second time period",
 			defaultValue: 14,
 			required: true,
 			legendShowName: "period2",
 		},
 		timePeriod3: {
 			label: "indicator.configField.timePeriod3",
-			description: "选择第三个时间周期",
+			description: "Select third time period",
 			defaultValue: 28,
 			required: true,
 			legendShowName: "period3",
@@ -80,7 +80,7 @@ export const ULTOSCConfig: IndicatorConfig<ULTOSCConfigType> = {
 			]),
 		);
 
-		// 使用 Zod 验证配置
+		// Validate configuration using Zod
 		const validatedConfig = ULTOSCConfigSchema.parse(config);
 		return validatedConfig;
 	},
@@ -89,7 +89,7 @@ export const ULTOSCConfig: IndicatorConfig<ULTOSCConfigType> = {
 		return getIndicatorValues(this.indicatorValueConfig);
 	},
 
-	// 使用通用解析函数
+	// Use generic parsing function
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
 		IndicatorType.ULTOSC,
 		ULTOSCConfigSchema,

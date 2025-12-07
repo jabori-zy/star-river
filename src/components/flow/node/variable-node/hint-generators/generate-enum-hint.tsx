@@ -7,28 +7,28 @@ import {
 } from "./utils";
 
 /**
- * ENUM 类型提示生成器
- * 支持操作：
- * - get: 获取变量值
- * - update: 更新变量（set/append/remove/clear）
- * - reset: 重置变量
+ * ENUM type hint generator
+ * Supported operations:
+ * - get: Get variable value
+ * - update: Update variable (set/append/remove/clear)
+ * - reset: Reset variable
  */
 export const generateEnumHint = (
 	params: HintGeneratorParams,
 ): React.ReactNode => {
 	const { varOperation } = params;
 
-	// ============ GET 操作 ============
+	// ============ GET operation ============
 	if (varOperation === "get") {
 		return generateGetOperation(params);
 	}
 
-	// ============ UPDATE 操作 ============
+	// ============ UPDATE operation ============
 	if (varOperation === "update") {
 		return generateUpdateOperation(params);
 	}
 
-	// ============ RESET 操作 ============
+	// ============ RESET operation ============
 	if (varOperation === "reset") {
 		return generateResetOperation(params);
 	}
@@ -36,14 +36,14 @@ export const generateEnumHint = (
 	return null;
 };
 
-// ==================== GET 操作 ====================
+// ==================== GET operation ====================
 
 /**
- * GET 操作 - 获取变量值
- * 场景：
- * 1. 获取交易对变量（有 symbol）
- * 2. 已有值 - 显示当前值
- * 3. 默认 - 将会获取值
+ * GET operation - Get variable value
+ * Scenarios:
+ * 1. Get trading pair variable (has symbol)
+ * 2. Has value - Display current value
+ * 3. Default - Will get value
  */
 function generateGetOperation(params: HintGeneratorParams): React.ReactNode {
 	const {
@@ -62,7 +62,7 @@ function generateGetOperation(params: HintGeneratorParams): React.ReactNode {
 		t,
 	});
 
-	// 构建显示值
+	// Build display value
 	const hasValues = selectedValues && selectedValues.length > 0;
 	const valueList = hasValues ? selectedValues.join("、") : "";
 	const displayValue = hasValues
@@ -71,7 +71,7 @@ function generateGetOperation(params: HintGeneratorParams): React.ReactNode {
 			? value
 			: "[]";
 
-	// 场景1: 获取交易对变量
+	// Scenario 1: Get trading pair variable
 	if (symbol) {
 		return (
 			<>
@@ -82,7 +82,7 @@ function generateGetOperation(params: HintGeneratorParams): React.ReactNode {
 		);
 	}
 
-	// 场景2: 已有值 - 显示当前值
+	// Scenario 2: Has value - Display current value
 	if (displayValue !== "[]") {
 		return (
 			<>
@@ -93,7 +93,7 @@ function generateGetOperation(params: HintGeneratorParams): React.ReactNode {
 		);
 	}
 
-	// 场景3: 默认 - 将会获取值
+	// Scenario 3: Default - Will get value
 	return (
 		<>
 			{triggerPrefix}
@@ -102,30 +102,30 @@ function generateGetOperation(params: HintGeneratorParams): React.ReactNode {
 	);
 }
 
-// ==================== UPDATE 操作 ====================
+// ==================== UPDATE operation ====================
 
 /**
- * UPDATE 操作 - 更新变量
- * 操作类型：
- * - set: 设置为指定值（支持数据流触发）
- * - append: 添加元素
- * - remove: 删除元素
- * - clear: 清空所有元素
+ * UPDATE operation - Update variable
+ * Operation types:
+ * - set: Set to specified value (supports dataflow trigger)
+ * - append: Add elements
+ * - remove: Remove elements
+ * - clear: Clear all elements
  */
 function generateUpdateOperation(params: HintGeneratorParams): React.ReactNode {
 	const { operationType, dataflowTrigger } = params;
 
-	// clear 操作
+	// clear operation
 	if (operationType === "clear") {
 		return generateClearHint(params);
 	}
 
-	// set 操作（数据流触发）
+	// set operation (dataflow trigger)
 	if (operationType === "set" && dataflowTrigger?.fromVarDisplayName) {
 		return generateDataflowSetHint(params);
 	}
 
-	// set/append/remove 操作（普通触发）
+	// set/append/remove operations (normal trigger)
 	if (
 		operationType === "set" ||
 		operationType === "append" ||
@@ -138,7 +138,7 @@ function generateUpdateOperation(params: HintGeneratorParams): React.ReactNode {
 }
 
 /**
- * Clear 操作 - 清空所有元素
+ * Clear operation - Clear all elements
  */
 function generateClearHint(params: HintGeneratorParams): React.ReactNode {
 	const { t, variableDisplayName, conditionTrigger, timerTrigger } = params;
@@ -157,7 +157,7 @@ function generateClearHint(params: HintGeneratorParams): React.ReactNode {
 }
 
 /**
- * 数据流触发的 Set 操作 - 设置为来源变量的值
+ * Dataflow-triggered Set operation - Set to source variable value
  */
 function generateDataflowSetHint(params: HintGeneratorParams): React.ReactNode {
 	const { variableDisplayName, dataflowTrigger, t } = params;
@@ -172,7 +172,7 @@ function generateDataflowSetHint(params: HintGeneratorParams): React.ReactNode {
 }
 
 /**
- * 普通更新操作 - set/append/remove
+ * Normal update operation - set/append/remove
  */
 function generateNormalUpdateHint(
 	params: HintGeneratorParams,
@@ -193,7 +193,7 @@ function generateNormalUpdateHint(
 		t,
 	});
 
-	// 构建显示值
+	// Build display value
 	const hasValues = selectedValues && selectedValues.length > 0;
 	const valueList = hasValues ? selectedValues.join("、") : "";
 	const displayValue = hasValues
@@ -202,7 +202,7 @@ function generateNormalUpdateHint(
 			? value
 			: "[]";
 
-	// set 操作
+	// set operation
 	if (operationType === "set") {
 		return (
 			<>
@@ -213,7 +213,7 @@ function generateNormalUpdateHint(
 		);
 	}
 
-	// append 操作
+	// append operation
 	if (operationType === "append") {
 		return (
 			<>
@@ -224,7 +224,7 @@ function generateNormalUpdateHint(
 		);
 	}
 
-	// remove 操作
+	// remove operation
 	if (operationType === "remove") {
 		return (
 			<>
@@ -238,10 +238,10 @@ function generateNormalUpdateHint(
 	return null;
 }
 
-// ==================== RESET 操作 ====================
+// ==================== RESET operation ====================
 
 /**
- * RESET 操作 - 重置变量为指定值
+ * RESET operation - Reset variable to specified value
  */
 function generateResetOperation(params: HintGeneratorParams): React.ReactNode {
 	const {
@@ -259,7 +259,7 @@ function generateResetOperation(params: HintGeneratorParams): React.ReactNode {
 		t,
 	});
 
-	// 构建显示值
+	// Build display value
 	const hasValues = selectedValues && selectedValues.length > 0;
 	const valueList = hasValues ? selectedValues.join("、") : "";
 	const displayValue = hasValues

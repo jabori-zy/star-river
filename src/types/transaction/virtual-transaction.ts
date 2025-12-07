@@ -5,29 +5,29 @@ import type { PositionId } from "@/types/position";
 import type { TransactionId, TransactionSide } from ".";
 
 export type VirtualTransaction = {
-	transactionId: TransactionId; // 交易明细id
+	transactionId: TransactionId; // Transaction detail id
 
-	orderId: OrderId; // 订单id
+	orderId: OrderId; // Order id
 
-	positionId: PositionId; // 持仓id
+	positionId: PositionId; // Position id
 
-	strategyId: string; // 策略id
+	strategyId: string; // Strategy id
 
-	nodeId: NodeId; // 节点id
+	nodeId: NodeId; // Node id
 
-	orderConfigId: number; // 订单配置id
+	orderConfigId: number; // Order config id
 
-	exchange: string | Exchange; // 交易所
+	exchange: string | Exchange; // Exchange
 
-	symbol: string; // 交易品种
+	symbol: string; // Trading symbol
 
-	transactionSide: TransactionSide; // 交易方向
+	transactionSide: TransactionSide; // Transaction direction
 
-	quantity: number; // 交易数量
+	quantity: number; // Transaction quantity
 
-	price: number; // 交易价格
+	price: number; // Transaction price
 
-	profit: number | null; // 收益
+	profit: number | null; // Profit
 
-	createTime: string; // 创建时间
+	createTime: string; // Create time
 };

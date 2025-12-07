@@ -32,26 +32,26 @@ import { DataTableToolbar } from "./data-table-toolbar";
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
 	data: TData[];
-	// 功能开关
+	// Feature toggles
 	enableSorting?: boolean;
 	enableFiltering?: boolean;
 	enablePagination?: boolean;
 	enableRowSelection?: boolean;
 	enableRowExpansion?: boolean;
-	// 搜索配置
+	// Search configuration
 	searchKeys?: string[];
-	// 分页配置
+	// Pagination configuration
 	pageSize?: number;
 	pageSizeOptions?: number[];
-	// 样式配置
+	// Style configuration
 	enableCompactMode?: boolean;
 	compactThreshold?: number;
-	// 自定义工具栏内容
+	// Custom toolbar content
 	toolbarChildren?: React.ReactNode;
-	// 展开功能配置
+	// Row expansion configuration
 	renderExpandedRow?: (row: TData) => React.ReactNode;
 	defaultExpanded?: boolean;
-	// 回调
+	// Callbacks
 	onRowClick?: (row: TData) => void;
 }
 
@@ -92,7 +92,7 @@ export function DataTable<TData, TValue>({
 
 	const containerRef = React.useRef<HTMLDivElement>(null);
 
-	// ResizeObserver 监听容器宽度变化
+	// ResizeObserver to monitor container width changes
 	React.useEffect(() => {
 		if (!enableCompactMode || !containerRef.current) return;
 
@@ -105,13 +105,13 @@ export function DataTable<TData, TValue>({
 		return () => observer.disconnect();
 	}, [enableCompactMode, compactThreshold]);
 
-	// 动态生成 columns：如果启用展开功能，自动在第一列插入展开按钮列
+	// Dynamically generate columns: if row expansion is enabled, automatically insert expander column as first column
 	const enhancedColumns = React.useMemo(() => {
 		if (!enableRowExpansion || !renderExpandedRow) {
 			return columns;
 		}
 
-		// 创建展开按钮列
+		// Create expander button column
 		const expanderColumn: ColumnDef<TData, TValue> = {
 			id: "expander",
 			header: "",
@@ -230,7 +230,7 @@ export function DataTable<TData, TValue>({
 											</TableCell>
 										))}
 									</TableRow>
-									{/* 展开行 */}
+									{/* Expanded row */}
 									{enableRowExpansion &&
 										row.getIsExpanded() &&
 										renderExpandedRow && (

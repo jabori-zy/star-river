@@ -55,13 +55,13 @@ export default function StrategyPageHeader({
 	const titleInputRef = useRef<HTMLInputElement>(null);
 	const descInputRef = useRef<HTMLInputElement>(null);
 
-	// 同步本地状态
+	// Sync local state
 	useEffect(() => {
 		setTitleInput(strategy.name);
 		setDescInput(strategy.description);
 	}, [strategy.name, strategy.description]);
 
-	// 更新时间显示
+	// Update time display
 	useEffect(() => {
 		const updateTimer = () => {
 			if (strategy.updateTime) {
@@ -78,11 +78,11 @@ export default function StrategyPageHeader({
 			}
 		};
 		updateTimer();
-		const interval = setInterval(updateTimer, 5000); // 每5秒更新
+		const interval = setInterval(updateTimer, 5000); // Update every 5 seconds
 		return () => clearInterval(interval);
 	}, [strategy.updateTime, t]);
 
-	// 自动聚焦输入框
+	// Auto focus input box
 	useEffect(() => {
 		if (isEditingTitle && titleInputRef.current) {
 			titleInputRef.current.focus();
@@ -100,10 +100,10 @@ export default function StrategyPageHeader({
 	const handleTitleSubmit = () => {
 		setIsEditingTitle(false);
 		if (!titleInput.trim()) {
-			setTitleInput(strategy.name); // 恢复原值
+			setTitleInput(strategy.name); // Restore original value
 			return;
 		}
-		// 如果标题改变了，通知父组件
+		// If title changed, notify parent component
 		if (titleInput !== strategy.name && onStrategyChange) {
 			onStrategyChange({ name: titleInput });
 		}
@@ -111,7 +111,7 @@ export default function StrategyPageHeader({
 
 	const handleDescSubmit = () => {
 		setIsEditingDesc(false);
-		// 如果描述改变了，通知父组件
+		// If description changed, notify parent component
 		if (descInput !== strategy.description && onStrategyChange) {
 			onStrategyChange({ description: descInput });
 		}

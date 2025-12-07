@@ -9,7 +9,7 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLINVERTEDHAMMERConfigSchema = z.object({
-	// CDLINVERTEDHAMMER 没有参数
+	// CDLINVERTEDHAMMER has no parameters
 });
 
 export type CDLINVERTEDHAMMERConfigType = z.infer<
@@ -18,7 +18,7 @@ export type CDLINVERTEDHAMMERConfigType = z.infer<
 
 function buildCDLINVERTEDHAMMERConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLINVERTEDHAMMER 不需要任何参数
+		// CDLINVERTEDHAMMER doesn't need any parameters
 	};
 }
 
@@ -29,7 +29,7 @@ export const CDLINVERTEDHAMMERConfig: IndicatorConfig<CDLINVERTEDHAMMERConfigTyp
 		displayName: "CDLINVERTEDHAMMER",
 		description: "Inverted Hammer",
 		params: {
-			// CDLINVERTEDHAMMER 没有参数
+			// CDLINVERTEDHAMMER has no parameters
 		},
 		indicatorValueConfig: {
 			timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

@@ -30,7 +30,7 @@ export function DataTablePagination<TData>({
 			<div className="flex-1 text-sm text-muted-foreground">
 				{selectedRowsCount > 0 && (
 					<span>
-						已选择 {selectedRowsCount} / {totalRows} 行
+						Selected {selectedRowsCount} / {totalRows} rows
 					</span>
 				)}
 			</div>

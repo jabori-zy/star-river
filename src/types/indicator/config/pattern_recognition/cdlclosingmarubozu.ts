@@ -9,7 +9,7 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLCLOSINGMARUBOZUConfigSchema = z.object({
-	// CDLCLOSINGMARUBOZU 没有参数
+	// CDLCLOSINGMARUBOZU has no parameters
 });
 
 export type CDLCLOSINGMARUBOZUConfigType = z.infer<
@@ -18,7 +18,7 @@ export type CDLCLOSINGMARUBOZUConfigType = z.infer<
 
 function buildCDLCLOSINGMARUBOZUConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLCLOSINGMARUBOZU 不需要任何参数
+		// CDLCLOSINGMARUBOZU doesn't need any parameters
 	};
 }
 
@@ -29,7 +29,7 @@ export const CDLCLOSINGMARUBOZUConfig: IndicatorConfig<CDLCLOSINGMARUBOZUConfigT
 		displayName: "CDLCLOSINGMARUBOZU",
 		description: "Closing Marubozu",
 		params: {
-			// CDLCLOSINGMARUBOZU 没有参数
+			// CDLCLOSINGMARUBOZU has no parameters
 		},
 		indicatorValueConfig: {
 			timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

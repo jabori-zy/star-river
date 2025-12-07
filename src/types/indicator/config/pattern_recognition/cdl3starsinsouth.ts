@@ -9,7 +9,7 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDL3STARSINSOUTHConfigSchema = z.object({
-	// CDL3STARSINSOUTH 没有参数
+	// CDL3STARSINSOUTH has no parameters
 });
 
 export type CDL3STARSINSOUTHConfigType = z.infer<
@@ -18,7 +18,7 @@ export type CDL3STARSINSOUTHConfigType = z.infer<
 
 function buildCDL3STARSINSOUTHConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDL3STARSINSOUTH 不需要任何参数
+		// CDL3STARSINSOUTH doesn't need any parameters
 	};
 }
 
@@ -29,7 +29,7 @@ export const CDL3STARSINSOUTHConfig: IndicatorConfig<CDL3STARSINSOUTHConfigType>
 		displayName: "CDL3STARSINSOUTH",
 		description: "Three Stars In The South",
 		params: {
-			// CDL3STARSINSOUTH 没有参数
+			// CDL3STARSINSOUTH has no parameters
 		},
 		indicatorValueConfig: {
 			timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

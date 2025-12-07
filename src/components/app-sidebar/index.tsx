@@ -15,7 +15,7 @@ import CreateStrategyButton from "./create-strategy-button";
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	return (
 		<Sidebar
-			// collapsible="icon"  // 折叠图标 这里控制是否展示图标
+			// collapsible="icon"  // Collapse icon - controls whether to show icon
 			variant="floating"
 			{...props}
 		>
@@ -25,7 +25,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			<div className="pt-4">
 				<NavMain items={sideBarMenu.navMain} />
 			</div>
-			<SidebarContent>{/* 这里未来放置常用策略的列表 */}</SidebarContent>
+			<SidebarContent>{/* Future location for frequently used strategy list */}</SidebarContent>
 			{/* <SidebarFooter>
 				<NavUser user={sideBarMenu.user} />
 			</SidebarFooter> */}

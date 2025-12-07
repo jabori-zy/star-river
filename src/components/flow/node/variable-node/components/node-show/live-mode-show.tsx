@@ -8,10 +8,10 @@ interface LiveModeShowProps {
 }
 
 const LiveModeShow: React.FC<LiveModeShowProps> = ({ id, data }) => {
-	// 获取实盘模式配置
+	// Get live mode configuration
 	const liveConfig = data.liveConfig;
 
-	// 如果没有配置或者没有变量配置，显示提示信息
+	// If no config or no variable configs, show hint message
 	if (
 		!liveConfig ||
 		!liveConfig.variableConfigs ||
@@ -26,7 +26,7 @@ const LiveModeShow: React.FC<LiveModeShowProps> = ({ id, data }) => {
 
 	return (
 		<div className="space-y-2">
-			{/* 渲染所有的变量配置 */}
+			{/* Render all variable configs */}
 			{liveConfig.variableConfigs.map((variableConfig) => (
 				<VariableHandleItem
 					key={variableConfig.configId}

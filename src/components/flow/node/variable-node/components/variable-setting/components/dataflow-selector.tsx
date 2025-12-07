@@ -33,8 +33,8 @@ interface DataFlowSelectorProps {
 	selectedVariableName: string | null;
 	updateOperationType: UpdateVarValueOperation;
 	availableOperations: UpdateVarValueOperation[];
-	targetVariableType?: VariableValueType; // 目标变量的类型，用于过滤数据流变量
-	targetVariableDisplayName?: string; // 目标变量的显示名称，用于提示文案
+	targetVariableType?: VariableValueType; // Target variable type, used to filter dataflow variables
+	targetVariableDisplayName?: string; // Target variable display name, used for hint text
 	onNodeChange: (
 		nodeId: string,
 		nodeType: NodeType | null,
@@ -50,7 +50,7 @@ interface DataFlowSelectorProps {
 	onOperationTypeChange: (operationType: UpdateVarValueOperation) => void;
 }
 
-// 类型守卫 - 用于判断变量类型
+// Type guards - used to determine variable types
 const isVariableConfig = (
 	variable: SelectedIndicator | SelectedSymbol | VariableConfig,
 ): variable is VariableConfig => {
@@ -92,7 +92,7 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 	const { t, i18n } = useTranslation();
 	const language = i18n.language;
 
-	// 生成选项value，格式：nodeId|handleId|variable|variableName
+	// Generate option value, format: nodeId|handleId|variable|variableName
 	const generateOptionValue = useCallback(
 		(
 			nodeId: string,
@@ -108,12 +108,12 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 		[],
 	);
 
-	// 同步节点选择状态
+	// Sync node selection state
 	useEffect(() => {
 		setLocalNodeId(selectedNodeId || "");
 	}, [selectedNodeId]);
 
-	// 同步变量选择状态
+	// Sync variable selection state
 	useEffect(() => {
 		if (selectedNodeId && selectedHandleId && selectedVariable) {
 			const variableString = generateOptionValue(
@@ -134,7 +134,7 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 		generateOptionValue,
 	]);
 
-	// 处理节点选择
+	// Handle node selection
 	const handleNodeChange = (nodeId: string) => {
 		const nodeType = variableItemList.find(
 			(item) => item.nodeId === nodeId,
@@ -142,11 +142,11 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 		const nodeName =
 			variableItemList.find((item) => item.nodeId === nodeId)?.nodeName || "";
 		setLocalNodeId(nodeId);
-		setVariableString(""); // 清空变量选择
+		setVariableString(""); // Clear variable selection
 		onNodeChange(nodeId, nodeType || null, nodeName);
 	};
 
-	// 处理变量选择
+	// Handle variable selection
 	const handleVariableChange = (variableValue: string) => {
 		const [nodeId, outputHandleId, variable, variableName] =
 			variableValue.split("|");
@@ -159,20 +159,20 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 		);
 
 		let variableId = 0;
-		let variableValueType = VariableValueType.NUMBER; // 默认为 NUMBER 类型
+		let variableValueType = VariableValueType.NUMBER; // Default to NUMBER type
 
 		if (selectedVar) {
 			variableId = selectedVar.configId;
 
-			// 根据变量类型获取 varValueType
+			// Get varValueType based on variable type
 			if (isVariableConfig(selectedVar)) {
-				// 变量节点：从配置中获取
+				// Variable node: get from config
 				variableValueType = selectedVar.varValueType;
 			} else if (
 				isSelectedIndicator(selectedVar) ||
 				isSelectedSymbol(selectedVar)
 			) {
-				// 指标节点和K线节点：都是 NUMBER 类型
+				// Indicator node and Kline node: both are NUMBER type
 				variableValueType = VariableValueType.NUMBER;
 			}
 		}
@@ -187,7 +187,7 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 		);
 	};
 
-	// 获取选中节点的变量列表
+	// Get variable list of selected node
 	const getSelectedNodeVariables = () => {
 		const selectedNode = variableItemList.find(
 			(item) => item.nodeId === localNodeId,
@@ -195,7 +195,7 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 		return selectedNode?.variables || [];
 	};
 
-	// 过滤节点列表：只保留有有效变量的节点
+	// Filter node list: only keep nodes with valid variables
 	const getFilteredNodeList = useCallback(() => {
 		// console.log("variableItemList", variableItemList);
 		if (!targetVariableType) {
@@ -203,13 +203,13 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 		}
 
 		return variableItemList.filter((item) => {
-			// 检查该节点是否有任何变量匹配目标类型
+			// Check if the node has any variable matching the target type
 			const hasValidVariable = item.variables.some((v) => {
-				// 指标节点和K线节点都是 NUMBER 类型
+				// Indicator node and Kline node are both NUMBER type
 				if (isSelectedIndicator(v) || isSelectedSymbol(v)) {
 					return targetVariableType === VariableValueType.NUMBER;
 				}
-				// 变量节点根据其具体类型过滤
+				// Variable node filters based on its specific type
 				if (isVariableConfig(v)) {
 					return v.varValueType === targetVariableType;
 				}
@@ -223,15 +223,15 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 	const filteredNodeList = getFilteredNodeList();
 	const hasNoNodes = filteredNodeList.length === 0;
 
-	// 检查当前选中的节点是否在过滤后的列表中
+	// Check if currently selected node is in the filtered list
 	const isSelectedNodeInFilteredList = filteredNodeList.some(
 		(item) => item.nodeId === localNodeId,
 	);
 
-	// 如果当前选中的节点不在过滤后的列表中，使用空字符串作为value
+	// If current selected node is not in filtered list, use empty string as value
 	const nodeSelectValue = isSelectedNodeInFilteredList ? localNodeId : "";
 
-	// 根据变量类型选择对应的生成器
+	// Select corresponding generator based on variable type
 	const getHintGenerator = (varValueType?: VariableValueType) => {
 		if (!varValueType) return generateNumberHint;
 
@@ -247,7 +247,7 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 		return generatorMap[varValueType] || generateNumberHint;
 	};
 
-	// 生成提示文案
+	// Generate hint text
 	const generateHintText = (): React.ReactNode => {
 		if (
 			!selectedNodeId ||
@@ -269,7 +269,7 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 		const fromNodeType = selectedNode.nodeType;
 		const fromVarDisplayName = selectedVariableName;
 
-		// 获取变量配置ID和变量类型
+		// Get variable config ID and variable type
 		const selectedVar = selectedNode.variables.find(
 			(v) => v.outputHandleId === selectedHandleId,
 		);
@@ -278,7 +278,7 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 		}
 		const fromVarConfigId = selectedVar.configId;
 
-		// 获取变量值类型
+		// Get variable value type
 		let fromVarValueType: VariableValueType;
 		if (isVariableConfig(selectedVar)) {
 			fromVarValueType = selectedVar.varValueType;
@@ -291,7 +291,7 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 			fromVarValueType = VariableValueType.NUMBER;
 		}
 
-		// 使用新的 hint 生成器
+		// Use new hint generator
 		return getHintGenerator(targetVariableType)({
 			t,
 			language,
@@ -316,7 +316,7 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 	return (
 		<div className="flex flex-col gap-2">
 			<ButtonGroup className="w-full">
-				{/* 操作符选择器 */}
+				{/* Operator selector */}
 				<SelectInDialog
 					value={updateOperationType}
 					onValueChange={(value: string) => {
@@ -329,7 +329,7 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 					className="w-[70px] h-8"
 				/>
 
-				{/* 节点选择器 */}
+				{/* Node selector */}
 				<SelectInDialog
 					value={nodeSelectValue}
 					onValueChange={handleNodeChange}
@@ -343,7 +343,7 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 					className="h-8 text-xs font-normal min-w-20 flex-1"
 				/>
 
-				{/* 变量选择器 */}
+				{/* Variable selector */}
 				<SelectInDialog
 					value={variableString}
 					onValueChange={handleVariableChange}
@@ -365,7 +365,7 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 				</SelectInDialog>
 			</ButtonGroup>
 
-			{/* 提示文案 */}
+			{/* Hint text */}
 			{generateHintText() && (
 				<p className="text-xs text-muted-foreground">{generateHintText()}</p>
 			)}

@@ -7,27 +7,27 @@ import type { VariableNodeData } from "@/types/node/variable-node";
 export const useVarNodeEdgeHandler = () => {
 	const handleVarNodeEdgeRemoved = useCallback(
 		(varNode: Node, deletedEdge: Edge, nodes: Node[]): Node[] => {
-			//1. 找到targetNode
+			//1. Find targetNode
 			const targetNode = nodes.find((node) => node.id === deletedEdge.target);
 			const sourceHandleId = deletedEdge.sourceHandle;
 			console.log("sourceHandleId", sourceHandleId);
-			// 对应的varNode中的指标配置Id
+			// Corresponding indicator configuration ID in varNode
 			const varNodeData = varNode.data as VariableNodeData;
 
-			// 如果indicatorConfigId为空，说明是sourceHandleId为默认输出句柄，需要清空target节点的所有配置
+			// If indicatorConfigId is empty, it means sourceHandleId is the default output handle, need to clear all configurations of target node
 			const varConfigId = varNodeData.backtestConfig?.variableConfigs?.find(
 				(variable) => variable.outputHandleId === sourceHandleId,
 			)?.configId;
 
 			if (!targetNode) return nodes;
-			//2. 判断节点类型
+			//2. Determine node type
 			if (targetNode.type === NodeType.IfElseNode) {
 				const varNodeId = varNode.id;
 				const ifElseNodeData = targetNode.data as IfElseNodeData;
 				if (ifElseNodeData.backtestConfig) {
 					const cases = ifElseNodeData.backtestConfig.cases;
-					// 重置cases中与varNode相关的变量\
-					// 条件: leftVariable或rightVariable的nodeId为varNodeId，并且variableConfigId === varConfigId
+					// Reset variables related to varNode in cases
+					// Condition: leftVariable or rightVariable's nodeId is varNodeId, and variableConfigId === varConfigId
 					const updatedCases = cases.map((caseItem) => ({
 						...caseItem,
 						conditions: caseItem.conditions.map((condition) => ({

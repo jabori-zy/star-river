@@ -9,14 +9,14 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLSHORTLINEConfigSchema = z.object({
-	// CDLSHORTLINE 没有参数
+	// CDLSHORTLINE has no parameters
 });
 
 export type CDLSHORTLINEConfigType = z.infer<typeof CDLSHORTLINEConfigSchema>;
 
 function buildCDLSHORTLINEConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLSHORTLINE 不需要任何参数
+		// CDLSHORTLINE doesn't need any parameters
 	};
 }
 
@@ -26,7 +26,7 @@ export const CDLSHORTLINEConfig: IndicatorConfig<CDLSHORTLINEConfigType> = {
 	displayName: "CDLSHORTLINE",
 	description: "Short Line Candle",
 	params: {
-		// CDLSHORTLINE 没有参数
+		// CDLSHORTLINE has no parameters
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

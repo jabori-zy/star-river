@@ -15,7 +15,7 @@ import {
 	PriceSourceSchema,
 } from "@/types/indicator/schemas";
 
-// ROCP 指标配置的 Zod schema
+// Zod schema for ROCP indicator configuration
 const ROCPConfigSchema = z.object({
 	timePeriod: z.number().int().positive(),
 	priceSource: PriceSourceSchema,
@@ -23,7 +23,7 @@ const ROCPConfigSchema = z.object({
 
 export type ROCPConfigType = z.infer<typeof ROCPConfigSchema>;
 
-// ROCP指标的参数映射函数
+// Parameter mapping function for ROCP indicator
 function buildROCPConfig(params: Map<string, string>): unknown {
 	return {
 		timePeriod: parseInt(params.get("time_period") || "0"),
@@ -31,23 +31,23 @@ function buildROCPConfig(params: Map<string, string>): unknown {
 	};
 }
 
-// ROCP指标配置实现
+// ROCP indicator configuration implementation
 export const ROCPConfig: IndicatorConfig<ROCPConfigType> = {
 	category: IndicatorCategory.MOMENTUM,
 	type: IndicatorType.ROCP,
 	displayName: "ROCP",
-	description: "变化率百分比指标 - (price-prevPrice)/prevPrice",
+	description: "Rate of Change Percentage - (price-prevPrice)/prevPrice",
 	params: {
 		timePeriod: {
 			label: "indicator.configField.timePeriod",
-			description: "选择变化率百分比指标的时间周期",
+			description: "Select time period for Rate of Change Percentage",
 			defaultValue: 10,
 			required: true,
 			legendShowName: "period",
 		},
 		priceSource: {
 			label: "indicator.configField.dataSource",
-			description: "选择指标计算价格源",
+			description: "Select price source for indicator calculation",
 			defaultValue: PriceSource.CLOSE,
 			required: true,
 			legendShowName: "source",
@@ -78,7 +78,7 @@ export const ROCPConfig: IndicatorConfig<ROCPConfigType> = {
 			]),
 		);
 
-		// 使用 Zod 验证配置
+		// Validate configuration using Zod
 		const validatedConfig = ROCPConfigSchema.parse(config);
 		return validatedConfig;
 	},
@@ -87,7 +87,7 @@ export const ROCPConfig: IndicatorConfig<ROCPConfigType> = {
 		return getIndicatorValues(this.indicatorValueConfig);
 	},
 
-	// 使用通用解析函数
+	// Use generic parsing function
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
 		IndicatorType.ROCP,
 		ROCPConfigSchema,

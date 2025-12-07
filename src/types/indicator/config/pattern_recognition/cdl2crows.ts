@@ -9,14 +9,14 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDL2CROWSConfigSchema = z.object({
-	// CDL2CROWS 没有参数
+	// CDL2CROWS has no parameters
 });
 
 export type CDL2CROWSConfigType = z.infer<typeof CDL2CROWSConfigSchema>;
 
 function buildCDL2CROWSConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDL2CROWS 不需要任何参数
+		// CDL2CROWS doesn't need any parameters
 	};
 }
 
@@ -26,7 +26,7 @@ export const CDL2CROWSConfig: IndicatorConfig<CDL2CROWSConfigType> = {
 	displayName: "CDL2CROWS",
 	description: "Two Crows",
 	params: {
-		// CDL2CROWS 没有参数
+		// CDL2CROWS has no parameters
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

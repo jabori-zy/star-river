@@ -9,7 +9,7 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLLADDERBOTTOMConfigSchema = z.object({
-	// CDLLADDERBOTTOM 没有参数
+	// CDLLADDERBOTTOM has no parameters
 });
 
 export type CDLLADDERBOTTOMConfigType = z.infer<
@@ -18,7 +18,7 @@ export type CDLLADDERBOTTOMConfigType = z.infer<
 
 function buildCDLLADDERBOTTOMConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLLADDERBOTTOM 不需要任何参数
+		// CDLLADDERBOTTOM doesn't need any parameters
 	};
 }
 
@@ -29,7 +29,7 @@ export const CDLLADDERBOTTOMConfig: IndicatorConfig<CDLLADDERBOTTOMConfigType> =
 		displayName: "CDLLADDERBOTTOM",
 		description: "Ladder Bottom",
 		params: {
-			// CDLLADDERBOTTOM 没有参数
+			// CDLLADDERBOTTOM has no parameters
 		},
 		indicatorValueConfig: {
 			timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

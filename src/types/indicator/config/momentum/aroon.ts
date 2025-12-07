@@ -8,21 +8,21 @@ import {
 } from "@/types/indicator/indicator-config";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
-// AROON 指标配置的 Zod schema
+// AROON indicator configuration Zod schema
 const AROONConfigSchema = z.object({
 	timePeriod: z.number().int().positive(),
 });
 
 export type AROONConfigType = z.infer<typeof AROONConfigSchema>;
 
-// AROON指标的参数映射函数
+// AROON indicator parameter mapping function
 function buildAROONConfig(params: Map<string, string>): unknown {
 	return {
 		timePeriod: parseInt(params.get("time_period") || "0"),
 	};
 }
 
-// AROON指标配置实现
+// AROON indicator configuration implementation
 export const AROONConfig: IndicatorConfig<AROONConfigType> = {
 	category: IndicatorCategory.MOMENTUM,
 	type: IndicatorType.AROON,
@@ -31,7 +31,7 @@ export const AROONConfig: IndicatorConfig<AROONConfigType> = {
 	params: {
 		timePeriod: {
 			label: "indicator.configField.timePeriod",
-			description: "选择AROON指标的时间周期",
+			description: "Select the time period for the AROON indicator",
 			defaultValue: 14,
 			required: true,
 			legendShowName: "period",
@@ -70,7 +70,7 @@ export const AROONConfig: IndicatorConfig<AROONConfigType> = {
 			]),
 		);
 
-		// 使用 Zod 验证配置
+		// Validate configuration using Zod
 		const validatedConfig = AROONConfigSchema.parse(config);
 		return validatedConfig;
 	},
@@ -79,7 +79,7 @@ export const AROONConfig: IndicatorConfig<AROONConfigType> = {
 		return getIndicatorValues(this.indicatorValueConfig);
 	},
 
-	// 使用通用解析函数
+	// Use common parsing function
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
 		IndicatorType.AROON,
 		AROONConfigSchema,
@@ -99,10 +99,10 @@ export const AROONConfig: IndicatorConfig<AROONConfigType> = {
 	// 	seriesName: string,
 	// 	indicatorKey: IndicatorKey,
 	// ): string | undefined {
-	// 	// 如果指标类型为AROON，则返回AROON-seriesName-timePeriod
+	// 	// If indicator type is AROON, return AROON-seriesName-timePeriod
 	// 	if (indicatorKey.indicatorType === IndicatorType.AROON) {
 	// 		const AROONConfig = indicatorKey.indicatorConfig as AROONConfigType;
-	// 		// 找到名称相同的seriesConfig
+	// 		// Find seriesConfig with matching name
 	// 		const seriseConfig = this.chartConfig.seriesConfigs.find(
 	// 			(config) => config.name === seriesName,
 	// 		);

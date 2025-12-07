@@ -17,13 +17,13 @@ interface BacktestChartProps {
 }
 
 const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
-	// 图表容器的引用
+	// Chart container reference
 	const chartContainerRef = useRef<HTMLDivElement>(null);
 
-	// 图表API引用，用于调试面板
+	// Chart API reference for debug panel
 	const chartApiRef = useRef<IChartApi | null>(null);
 
-	// 使用 backtest chart hooks
+	// Use backtest chart hooks
 	const { klineLegendData } = useBacktestChart({
 		strategyId,
 		chartConfig,
@@ -31,11 +31,11 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 		chartOptions,
 	});
 
-	// 获取图表API引用 - 使用稳定的引用
+	// Get chart API reference - use stable reference
 	const { getChartRef, getVisibleLogicalRange, getKlineSeriesRef } =
 		useBacktestChartStore(chartConfig.id, chartConfig);
 
-	// 使用 useCallback 稳定函数引用
+	// Use useCallback to stabilize function reference
 	const updateChartApiRef = useCallback(() => {
 		const chartApi = getChartRef();
 		if (chartApi && chartApiRef.current !== chartApi) {
@@ -43,7 +43,7 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 		}
 	}, [getChartRef]);
 
-	// 更新chartApiRef
+	// Update chartApiRef
 	useEffect(() => {
 		updateChartApiRef();
 	}, [updateChartApiRef]);
@@ -70,7 +70,7 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 
 	return (
 		<div className="relative w-full h-full">
-			{/* 图表容器div */}
+			{/* Chart container div */}
 			<div
 				ref={chartContainerRef}
 				id="chart-container"
@@ -83,16 +83,16 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 					size="icon"
 					onClick={handleJumpToLatest}
 					className="absolute top-0 right-26 z-20 h-8 w-8"
-					title="跳转至最新K线"
+					title="Jump to latest kline"
 				>
 					<ArrowRightToLine className="h-4 w-4" />
 				</Button>
 			)}
 
-			{/* K线图例 */}
+			{/* Kline legend */}
 			<KlineLegend klineSeriesData={klineLegendData} chartId={chartConfig.id} />
 
-			{/* 主图指标图例 */}
+			{/* Main chart indicator legends */}
 			{chartConfig.indicatorChartConfigs
 				.filter(
 					(indicatorConfig) =>
@@ -107,7 +107,7 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 					/>
 				))}
 
-			{/* 子图指标图例 - 使用 Portal 方式渲染到对应的 Pane 中 */}
+			{/* Subchart indicator legends - use Portal to render to corresponding Pane */}
 			{chartConfig.indicatorChartConfigs
 				.filter((config) => !config.isInMainChart && !config.isDelete)
 				.map((indicatorConfig) => {
@@ -120,7 +120,7 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 					);
 				})}
 
-			{/* 调试面板
+			{/* Debug panel
 			<IndicatorDebugPanel
 				chartConfig={chartConfig}
 				chartApiRef={chartApiRef}

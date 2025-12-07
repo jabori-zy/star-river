@@ -26,7 +26,7 @@ export function CustomizeColumnOptions<TData>({
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end" className="w-[150px]">
-				{/* <DropdownMenuLabel>切换列</DropdownMenuLabel> */}
+				{/* <DropdownMenuLabel>Toggle Columns</DropdownMenuLabel> */}
 				{/* <DropdownMenuSeparator /> */}
 				{table
 					.getAllColumns()

@@ -23,10 +23,10 @@ export const ErrorPolicyConfig: React.FC<ErrorPolicyConfigProps> = ({
 	const errorLog = policy?.errorLog || { notify: false };
 	const isLogEnabled = errorLog.notify;
 
-	// 获取当前错误类型支持的策略列表
+	// Get list of strategies supported by current error type
 	const availableStrategies = ERROR_TYPE_SUPPORT_POLICY[errorType] || [];
 
-	// 对于除法操作的 zeroValue，过滤掉 stillUpdate
+	// For zeroValue in division operations, filter out stillUpdate
 	const supportedStrategies = availableStrategies.filter((strategy) => {
 		if (errorType === "zeroValue" && updateOperationType === "divide") {
 			return strategy !== "stillUpdate";
@@ -34,7 +34,7 @@ export const ErrorPolicyConfig: React.FC<ErrorPolicyConfigProps> = ({
 		return true;
 	});
 
-	// 日志级别选项
+	// Log level options
 	const logLevelOptions = [
 		{ value: "warn", label: t("variableNode.dataflowConfig.warn") },
 		{ value: "error", label: t("variableNode.dataflowConfig.error") },
@@ -159,7 +159,7 @@ export const ErrorPolicyConfig: React.FC<ErrorPolicyConfigProps> = ({
 
 	return (
 		<div className="space-y-3">
-			{/* 策略选择 */}
+			{/* Strategy selection */}
 			<div className="space-y-2">
 				<RadioGroup value={strategy} onValueChange={handleStrategyChange}>
 					{supportedStrategies.includes("skip") && (
@@ -202,9 +202,6 @@ export const ErrorPolicyConfig: React.FC<ErrorPolicyConfigProps> = ({
 								</Label>
 								{strategy === "valueReplace" && (
 									<div className="mt-2 ml-1">
-										{/* <Label className="text-xs text-muted-foreground">
-											{t("variableNode.dataflowConfig.replaceWith")}
-										</Label> */}
 										<ReplaceValueInput
 											errorType={errorType}
 											replaceValue={
@@ -260,7 +257,7 @@ export const ErrorPolicyConfig: React.FC<ErrorPolicyConfigProps> = ({
 				</RadioGroup>
 			</div>
 
-			{/* 错误日志配置 */}
+			{/* Error log configuration */}
 			<div className="space-y-2">
 				<div className="flex items-center space-x-2">
 					<Checkbox

@@ -15,8 +15,8 @@ export type KlineLegendData = {
 	high?: string;
 	low?: string;
 	close?: string;
-	time: Time; // 使用 Time 类型，与 K线数据保持一致
-	timeString: string; // 用于显示的时间字符串
+	time: Time; // Use Time type to match K-line data
+	timeString: string; // Time string for display
 	color?: string;
 	change?: string;
 };
@@ -40,7 +40,7 @@ const isCandlestickData = (
 
 const timeToString = (time: Time): string => {
 	if (typeof time === "number") {
-		// 对于分钟级数据，显示日期和时间
+		// For minute-level data, display date and time
 		return dayjs(time * 1000).format("YYYY-MM-DD HH:mm");
 	}
 
@@ -68,8 +68,8 @@ const mapCandlestickDataToLegendData = ({
 		high: high.toFixed(2),
 		low: low.toFixed(2),
 		close: close.toFixed(2),
-		time: time, // 保持原始时间格式用于比较
-		timeString: timeToString(time), // 用于显示的时间字符串
+		time: time, // Keep original time format for comparison
+		timeString: timeToString(time), // Time string for display
 		color: decreased ? colors.red : colors.green,
 		change: `${sign}${difference.toFixed(2)} (${sign}${((difference / open) * 100).toFixed(2)}%)`,
 	};
@@ -96,10 +96,10 @@ interface UseKlineLegendProps {
 }
 
 export const useKlineLegend = ({ chartId }: UseKlineLegendProps) => {
-	// 从 store 获取数据和方法
+	// Get data and methods from store
 	const { getKlineSeriesRef } = useBacktestChartStore(chartId);
 
-	// 初始化 legendData
+	// Initialize legendData
 	const [legendData, setLegendData] = useState<KlineLegendData | null>(() => {
 		const klineSeries = getKlineSeriesRef();
 		if (!klineSeries) return null;
@@ -112,7 +112,7 @@ export const useKlineLegend = ({ chartId }: UseKlineLegendProps) => {
 		return null;
 	});
 
-	// 监听 K线数据变化事件
+	// Listen to K-line data change events
 	const onSeriesDataUpdate = useCallback(
 		(_scope: DataChangedScope) => {
 			const klineSeries = getKlineSeriesRef();
@@ -149,12 +149,12 @@ export const useKlineLegend = ({ chartId }: UseKlineLegendProps) => {
 				return;
 			}
 
-			// 获取数据，可能为 undefined
+			// Get data, which may be undefined
 			const dataFromChart = param.seriesData.get(seriesApi);
 
-			// 先检查是否为 undefined，再进行类型检查
+			// First check if undefined, then perform type check
 			if (!isCandlestickData(dataFromChart)) {
-				// 如果没有数据，显示最后一个数据点而不是 null
+				// If no data, display the last data point instead of null
 				const lastBarData = getLastBarLegendData(seriesApi);
 				setLegendData((prev) =>
 					prev?.time !== lastBarData?.time ? lastBarData : prev,

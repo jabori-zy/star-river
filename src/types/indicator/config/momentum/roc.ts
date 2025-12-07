@@ -15,7 +15,7 @@ import {
 	PriceSourceSchema,
 } from "@/types/indicator/schemas";
 
-// ROC 指标配置的 Zod schema
+// Zod schema for ROC indicator configuration
 const ROCConfigSchema = z.object({
 	timePeriod: z.number().int().positive(),
 	priceSource: PriceSourceSchema,
@@ -23,7 +23,7 @@ const ROCConfigSchema = z.object({
 
 export type ROCConfigType = z.infer<typeof ROCConfigSchema>;
 
-// ROC指标的参数映射函数
+// Parameter mapping function for ROC indicator
 function buildROCConfig(params: Map<string, string>): unknown {
 	return {
 		timePeriod: parseInt(params.get("time_period") || "0"),
@@ -31,23 +31,23 @@ function buildROCConfig(params: Map<string, string>): unknown {
 	};
 }
 
-// ROC指标配置实现
+// ROC indicator configuration implementation
 export const ROCConfig: IndicatorConfig<ROCConfigType> = {
 	category: IndicatorCategory.MOMENTUM,
 	type: IndicatorType.ROC,
 	displayName: "ROC",
-	description: "变化率指标 - ((price/prevPrice)-1)*100",
+	description: "Rate of Change - ((price/prevPrice)-1)*100",
 	params: {
 		timePeriod: {
 			label: "indicator.configField.timePeriod",
-			description: "选择变化率指标的时间周期",
+			description: "Select time period for Rate of Change",
 			defaultValue: 10,
 			required: true,
 			legendShowName: "period",
 		},
 		priceSource: {
 			label: "indicator.configField.dataSource",
-			description: "选择指标计算价格源",
+			description: "Select price source for indicator calculation",
 			defaultValue: PriceSource.CLOSE,
 			required: true,
 			legendShowName: "source",
@@ -78,7 +78,7 @@ export const ROCConfig: IndicatorConfig<ROCConfigType> = {
 			]),
 		);
 
-		// 使用 Zod 验证配置
+		// Validate configuration using Zod
 		const validatedConfig = ROCConfigSchema.parse(config);
 		return validatedConfig;
 	},
@@ -87,7 +87,7 @@ export const ROCConfig: IndicatorConfig<ROCConfigType> = {
 		return getIndicatorValues(this.indicatorValueConfig);
 	},
 
-	// 使用通用解析函数
+	// Use generic parsing function
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
 		IndicatorType.ROC,
 		ROCConfigSchema,

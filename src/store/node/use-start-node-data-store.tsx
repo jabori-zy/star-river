@@ -9,23 +9,23 @@ import {
 } from "@/types/strategy";
 import type { CustomVariable } from "@/types/variable";
 
-// StartNode数据状态接口
+// StartNode data state interface
 interface StartNodeDataState {
-	// Live模式配置
+	// Live mode configuration
 	liveConfig: StrategyLiveConfig | null;
-	// Backtest模式配置
+	// Backtest mode configuration
 	backtestConfig: StrategyBacktestConfig | null;
 }
 
-// StartNode数据操作接口
+// StartNode data actions interface
 interface StartNodeDataActions {
-	// === Live配置相关方法 ===
+	// === Live config related methods ===
 	setLiveConfig: (config: StrategyLiveConfig) => void;
 	setDefaultLiveConfig: () => void;
 	updateLiveAccounts: (accounts: SelectedAccount[]) => void;
 	updateLiveVariables: (variables: CustomVariable[]) => void;
 
-	// === Backtest配置相关方法 ===
+	// === Backtest config related methods ===
 	setBacktestConfig: (config: StrategyBacktestConfig) => void;
 	setDefaultBacktestConfig: () => void;
 	updateInitialBalance: (balance: number) => void;
@@ -37,13 +37,13 @@ interface StartNodeDataActions {
 	updateTimeRange: (timeRange: TimeRange) => void;
 	updateBacktestVariables: (variables: CustomVariable[]) => void;
 
-	// === 重置方法 ===
+	// === Reset methods ===
 	resetLiveConfig: () => void;
 	resetBacktestConfig: () => void;
 	resetAll: () => void;
 }
 
-// 默认配置生成函数
+// Default config generator functions
 const createDefaultLiveConfig = (): StrategyLiveConfig => ({
 	selectedAccounts: [],
 	customVariables: [],
@@ -66,15 +66,15 @@ const createDefaultBacktestConfig = (): StrategyBacktestConfig => ({
 	customVariables: [],
 });
 
-// 创建zustand store
+// Create zustand store
 export const useStartNodeDataStore = create<
 	StartNodeDataState & StartNodeDataActions
 >((set) => ({
-	// === 初始状态 ===
+	// === Initial state ===
 	liveConfig: null,
 	backtestConfig: null,
 
-	// === Live配置相关方法 ===
+	// === Live config related methods ===
 	setLiveConfig: (config: StrategyLiveConfig) => {
 		set({ liveConfig: config });
 	},
@@ -112,7 +112,7 @@ export const useStartNodeDataStore = create<
 		}));
 	},
 
-	// === Backtest配置相关方法 ===
+	// === Backtest config related methods ===
 	setBacktestConfig: (config: StrategyBacktestConfig) => {
 		set({ backtestConfig: config });
 	},
@@ -246,7 +246,7 @@ export const useStartNodeDataStore = create<
 		}));
 	},
 
-	// === 重置方法 ===
+	// === Reset methods ===
 	resetLiveConfig: () => {
 		set({ liveConfig: null });
 	},

@@ -44,10 +44,10 @@ export const UpdateVarHandleItem: React.FC<UpdateVarHandleItemProps> = ({
 
 	const triggerConditionText = generateTriggerConditionText(variableConfig, t);
 
-	// 获取数据流触发配置（用于 max/min 操作的特殊显示）
+	// Get dataflow trigger config (for special display of max/min operations)
 	const dataflowTrigger = getDataFlowTriggerConfig(variableConfig);
 
-	// 生成操作文本
+	// Generate operation text
 	const operationText = generateUpdateOperationNodeText(
 		variableConfig.varDisplayName,
 		variableConfig.updateVarValueOperation,

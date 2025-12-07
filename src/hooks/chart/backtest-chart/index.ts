@@ -1,4 +1,4 @@
-// 主 Hook
+// Main Hook
 
 // Types - Core
 export type {

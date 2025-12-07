@@ -1,59 +1,59 @@
 /**
- * 策略相关的 Query Keys 工厂函数
+ * Strategy-related Query Keys factory functions
  *
- * TanStack Query 最佳实践：集中管理所有查询键，避免硬编码和重复定义
+ * TanStack Query best practice: centralized management of all query keys, avoiding hard-coding and duplicate definitions
  *
  * @example
  * ```ts
- * // 获取所有策略相关的查询
+ * // Get all strategy-related queries
  * queryClient.invalidateQueries({ queryKey: strategyKeys.all });
  *
- * // 获取策略列表
+ * // Get strategy list
  * useQuery({ queryKey: strategyKeys.list({ page: 1, perPage: 20 }) });
  *
- * // 获取单个策略详情
+ * // Get single strategy details
  * useQuery({ queryKey: strategyKeys.detail(strategyId) });
  * ```
  */
 export const strategyKeys = {
 	/**
-	 * 所有策略相关的查询
-	 * 用于失效所有策略相关缓存
+	 * All strategy-related queries
+	 * Used to invalidate all strategy-related cache
 	 */
 	all: ["strategies"] as const,
 
 	/**
-	 * 所有策略列表查询
+	 * All strategy list queries
 	 */
 	lists: () => [...strategyKeys.all, "list"] as const,
 
 	/**
-	 * 特定条件的策略列表查询
-	 * @param filters 过滤条件（页码、每页数量等）
+	 * Strategy list query with specific conditions
+	 * @param filters Filter conditions (page number, items per page, etc.)
 	 */
 	list: (filters: { page?: number; perPage?: number; search?: string }) =>
 		[...strategyKeys.lists(), filters] as const,
 
 	/**
-	 * 所有策略详情查询
+	 * All strategy details queries
 	 */
 	details: () => [...strategyKeys.all, "detail"] as const,
 
 	/**
-	 * 特定策略的详情查询
-	 * @param id 策略 ID
+	 * Specific strategy details query
+	 * @param id Strategy ID
 	 */
 	detail: (id: number) => [...strategyKeys.details(), id] as const,
 
 	/**
-	 * 策略的缓存键
-	 * @param id 策略 ID
+	 * Strategy cache keys
+	 * @param id Strategy ID
 	 */
 	cacheKeys: (id: number) => [...strategyKeys.all, "cacheKeys", id] as const,
 
 	/**
-	 * 策略的回测图表配置
-	 * @param id 策略 ID
+	 * Strategy backtest chart configuration
+	 * @param id Strategy ID
 	 */
 	backtestChartConfig: (id: number) =>
 		[...strategyKeys.all, "backtestChartConfig", id] as const,

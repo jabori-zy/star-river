@@ -20,24 +20,24 @@ const useEdgeChangeHandlers = () => {
 		): [Edge[], Node[]] => {
 			const updatedEdges = newEdges;
 			let updatedNodes = getNodes();
-			// 收集所有被删除的来自 klineNode 的边，按 sourceNode 分组
+			// Collect all deleted edges from klineNode, grouped by sourceNode
 			const klineNodeRemovedEdges = new Map<string, Edge[]>();
 			const indicatorNodeRemovedEdges = new Map<string, Edge[]>();
 			const varNodeRemovedEdges = new Map<string, Edge[]>();
 
 			for (const change of changes) {
 				if (change.type === "remove") {
-					// 找到被删除的边
+					// Find the deleted edge
 					const removedEdge = oldEdges.find((edge) => edge.id === change.id);
 					if (removedEdge) {
-						// 确认被删除的边的sourceNodeId
+						// Confirm the sourceNodeId of the deleted edge
 						const sourceNodeId = removedEdge.source;
-						// 确认sourceNodeId对应的节点类型
+						// Confirm the node type corresponding to sourceNodeId
 						const sourceNode = updatedNodes.find(
 							(node) => node.id === sourceNodeId,
 						);
 						if (sourceNode && sourceNode.type === NodeType.KlineNode) {
-							// 收集来自同一个 klineNode 的边
+							// Collect edges from the same klineNode
 							if (!klineNodeRemovedEdges.has(sourceNodeId)) {
 								klineNodeRemovedEdges.set(sourceNodeId, []);
 							}
@@ -72,13 +72,13 @@ const useEdgeChangeHandlers = () => {
 				}
 			}
 
-			// 批量处理每个 klineNode 的边删除
+			// Batch process edge deletion for each klineNode
 			// for (const [sourceNodeId, removedEdges] of klineNodeRemovedEdges) {
 			// 	const sourceNode = updatedNodes.find(
 			// 		(node) => node.id === sourceNodeId,
 			// 	);
 			// 	if (sourceNode) {
-			// 		// 处理每条被删除的边
+			// 		// Handle each deleted edge
 			// 		for (const removedEdge of removedEdges) {
 			// 			updatedNodes = handleKlineNodeEdgeRemoved(
 			// 				sourceNode,

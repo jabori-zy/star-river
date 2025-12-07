@@ -14,12 +14,12 @@ import type { IndicatorNodeData } from "@/types/node/indicator-node";
 import type { KlineNodeData } from "@/types/node/kline-node";
 import { VariableValueType } from "@/types/variable";
 
-// 获取条件类型的中文标签
+// Get the label for condition type
 export const getCaseTypeLabel = (caseId: number) => {
 	return caseId === 1 ? "IF" : "ELIF";
 };
 
-// 获取比较符号 - 直接返回符号
+// Get comparison symbol - directly return the symbol
 export const getComparisonLabel = (
 	symbol: ComparisonSymbol | null,
 	t: TFunction,
@@ -28,7 +28,7 @@ export const getComparisonLabel = (
 	return getComparisonSymbolLabel(symbol, t);
 };
 
-// 获取逻辑符号的中文标签
+// Get the label for logical symbol
 export const getLogicalLabel = (symbol: LogicalSymbol | null) => {
 	if (!symbol) return "";
 	const logicalMap: Record<LogicalSymbol, string> = {
@@ -38,7 +38,7 @@ export const getLogicalLabel = (symbol: LogicalSymbol | null) => {
 	return logicalMap[symbol] || symbol;
 };
 
-// 获取变量显示文本
+// Get variable display text
 const formatConstantValue = (constant: Constant): string => {
 	const { varValue } = constant;
 
@@ -49,7 +49,7 @@ const formatConstantValue = (constant: Constant): string => {
 		if (varValue.length === 0) {
 			return "[]";
 		}
-		// 只显示前5个元素
+		// Only display the first 5 elements
 		if (varValue.length > 5) {
 			const displayValues = varValue.slice(0, 5);
 			return `${displayValues.join(", ")}...`;
@@ -131,7 +131,7 @@ export const getVariableNodeVariableLable = (
 	return `${variable.varDisplayName}`;
 };
 
-// 获取变量的 Tooltip 文本
+// Get variable Tooltip text
 export const getVariableTooltipLabel = (
 	variable: Variable | Constant | null,
 	t: (key: string) => string,

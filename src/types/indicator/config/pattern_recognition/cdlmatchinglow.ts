@@ -9,7 +9,7 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLMATCHINGLOWConfigSchema = z.object({
-	// CDLMATCHINGLOW 没有参数
+	// CDLMATCHINGLOW has no parameters
 });
 
 export type CDLMATCHINGLOWConfigType = z.infer<
@@ -18,7 +18,7 @@ export type CDLMATCHINGLOWConfigType = z.infer<
 
 function buildCDLMATCHINGLOWConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLMATCHINGLOW 不需要任何参数
+		// CDLMATCHINGLOW doesn't need any parameters
 	};
 }
 
@@ -28,7 +28,7 @@ export const CDLMATCHINGLOWConfig: IndicatorConfig<CDLMATCHINGLOWConfigType> = {
 	displayName: "CDLMATCHINGLOW",
 	description: "Matching Low",
 	params: {
-		// CDLMATCHINGLOW 没有参数
+		// CDLMATCHINGLOW has no parameters
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

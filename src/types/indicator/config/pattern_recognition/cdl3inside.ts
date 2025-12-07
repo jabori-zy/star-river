@@ -9,14 +9,14 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDL3INSIDEConfigSchema = z.object({
-	// CDL3INSIDE 没有参数
+	// CDL3INSIDE has no parameters
 });
 
 export type CDL3INSIDEConfigType = z.infer<typeof CDL3INSIDEConfigSchema>;
 
 function buildCDL3INSIDEConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDL3INSIDE 不需要任何参数
+		// CDL3INSIDE doesn't need any parameters
 	};
 }
 
@@ -26,7 +26,7 @@ export const CDL3INSIDEConfig: IndicatorConfig<CDL3INSIDEConfigType> = {
 	displayName: "CDL3INSIDE",
 	description: "Three Inside Up/Down",
 	params: {
-		// CDL3INSIDE 没有参数
+		// CDL3INSIDE has no parameters
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

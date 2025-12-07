@@ -2,7 +2,7 @@ import type { NodeType } from "@/types/node/index";
 import { VariableValueType } from "@/types/variable";
 import type { VariableValue } from "./variable-config-types";
 
-// ==================== 定时触发相关类型 ====================
+// ==================== Timer trigger related types ====================
 
 export type TimerUnit = "millisecond" | "second" | "minute" | "hour" | "day";
 
@@ -119,7 +119,7 @@ export function createDefaultScheduledConfig(
 	}
 }
 
-// ==================== 条件与数据流触发 ====================
+// ==================== Condition and dataflow trigger ====================
 
 export const VALUE_TYPE_SUPPORT_POLICY: Record<
 	VariableValueType,
@@ -147,9 +147,9 @@ export type ErrorLog =
 	| { notify: true; level: "warn" | "error" };
 
 export type DataflowErrorType =
-	| "nullValue" // 空值错误
-	| "expired" // 过期错误
-	| "zeroValue"; // 零值错误
+	| "nullValue" // Null value error
+	| "expired" // Expiration error
+	| "zeroValue"; // Zero value error
 
 export type DataflowErrorPolicyStrategy =
 	| "skip"
@@ -169,7 +169,7 @@ export type DataflowErrorPolicy =
 	| UsePreviousValuePolicy;
 
 /**
- * 仍然更新策略
+ * Still update policy
  */
 export type StillUpdatePolicy = BaseDataflowErrorPolicy & {
 	strategy: "stillUpdate";

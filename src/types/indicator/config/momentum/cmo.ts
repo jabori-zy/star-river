@@ -15,7 +15,7 @@ import {
 	PriceSourceSchema,
 } from "@/types/indicator/schemas";
 
-// CMO 指标配置的 Zod schema
+// CMO indicator configuration Zod schema
 const CMOConfigSchema = z.object({
 	timePeriod: z.number().int().positive(),
 	priceSource: PriceSourceSchema,
@@ -23,7 +23,7 @@ const CMOConfigSchema = z.object({
 
 export type CMOConfigType = z.infer<typeof CMOConfigSchema>;
 
-// CMO指标的参数映射函数
+// CMO indicator parameter mapping function
 function buildCMOConfig(params: Map<string, string>): unknown {
 	return {
 		timePeriod: parseInt(params.get("time_period") || "0"),
@@ -31,7 +31,7 @@ function buildCMOConfig(params: Map<string, string>): unknown {
 	};
 }
 
-// CMO指标配置实现
+// CMO indicator configuration implementation
 export const CMOConfig: IndicatorConfig<CMOConfigType> = {
 	category: IndicatorCategory.MOMENTUM,
 	type: IndicatorType.CMO,
@@ -40,14 +40,14 @@ export const CMOConfig: IndicatorConfig<CMOConfigType> = {
 	params: {
 		timePeriod: {
 			label: "indicator.configField.timePeriod",
-			description: "选择CMO指标的时间周期",
+			description: "Select the time period for the CMO indicator",
 			defaultValue: 14,
 			required: true,
 			legendShowName: "period",
 		},
 		priceSource: {
 			label: "indicator.configField.dataSource",
-			description: "选择指标计算价格源",
+			description: "Select the price source for indicator calculation",
 			defaultValue: PriceSource.CLOSE,
 			required: true,
 			legendShowName: "source",
@@ -78,7 +78,7 @@ export const CMOConfig: IndicatorConfig<CMOConfigType> = {
 			]),
 		);
 
-		// 使用 Zod 验证配置
+		// Validate configuration using Zod
 		const validatedConfig = CMOConfigSchema.parse(config);
 		return validatedConfig;
 	},
@@ -87,7 +87,7 @@ export const CMOConfig: IndicatorConfig<CMOConfigType> = {
 		return getIndicatorValues(this.indicatorValueConfig);
 	},
 
-	// 使用通用解析函数
+	// Use common parsing function
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
 		IndicatorType.CMO,
 		CMOConfigSchema,
@@ -107,10 +107,10 @@ export const CMOConfig: IndicatorConfig<CMOConfigType> = {
 	// 	seriesName: string,
 	// 	indicatorKey: IndicatorKey,
 	// ): string | undefined {
-	// 	// 如果指标类型为CMO，则返回CMO-seriesName-timePeriod-priceSource
+	// 	// If indicator type is CMO, return CMO-seriesName-timePeriod-priceSource
 	// 	if (indicatorKey.indicatorType === IndicatorType.CMO) {
 	// 		const CMOConfig = indicatorKey.indicatorConfig as CMOConfigType;
-	// 		// 找到名称相同的seriesConfig
+	// 		// Find seriesConfig with matching name
 	// 		const seriseConfig = this.chartConfig.seriesConfigs.find(
 	// 			(config) => config.name === seriesName,
 	// 		);

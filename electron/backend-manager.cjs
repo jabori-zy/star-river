@@ -4,30 +4,30 @@ const fs = require("node:fs");
 const net = require("node:net");
 const { app } = require("electron");
 
-// 判断是否为开发环境
+// Check if development environment
 const isDev = process.env.NODE_ENV === "development" || !app.isPackaged;
 
 let backendProcess = null;
 let backendHealthCheckInterval = null;
 let backendPort = null;
 
-// 检测端口是否被占用
+// Check if port is in use
 const portUsed = (port) => {
 	return new Promise((resolve) => {
 		const server = net.createServer().listen(port, "0.0.0.0");
 		server.on("listening", () => {
 			server.close();
-			resolve(port); // 端口可用，返回端口号
+			resolve(port); // Port available, return port number
 		});
 		server.on("error", (err) => {
 			if (err.code === "EADDRINUSE") {
-				resolve(err); // 端口被占用，返回错误
+				resolve(err); // Port is in use, return error
 			}
 		});
 	});
 };
 
-// 查找可用端口（从 startPort 开始递增）
+// Find available port (incrementing from startPort)
 const findAvailablePort = (startPort = 3100) => {
 	return new Promise((resolve) => {
 		const tryPort = async (port) => {
@@ -43,20 +43,20 @@ const findAvailablePort = (startPort = 3100) => {
 	});
 };
 
-// 获取后端端口
+// Get backend port
 const getBackendPort = () => backendPort;
 
-// 获取后端可执行文件名称（区分平台）
+// Get backend executable name (platform-specific)
 const getBackendName = () => {
 	let backendName = "star-river-backend";
-	// Windows平台添加.exe后缀
+	// Add .exe suffix for Windows platform
 	if (process.platform === "win32") {
 		backendName += ".exe";
 	}
 	return backendName;
 };
 
-// 获取平台目录名称
+// Get platform directory name
 const getPlatformDir = () => {
 	switch (process.platform) {
 		case "darwin":
@@ -70,12 +70,12 @@ const getPlatformDir = () => {
 	}
 };
 
-// 开发环境：从 resources 目录加载
+// Development environment: load from resources directory
 const getDevBackendPath = () => {
 	const backendName = getBackendName();
 	const platformDir = getPlatformDir();
 
-	// 开发环境：项目根目录/resources/{platform}/star-river-backend
+	// Development environment: project root/resources/{platform}/star-river-backend
 	const backendPath = path.join(__dirname, "..", "resources", platformDir, backendName);
 	if (fs.existsSync(backendPath)) {
 		return backendPath;
@@ -85,11 +85,11 @@ const getDevBackendPath = () => {
 	return null;
 };
 
-// 生产环境：从 resourcesPath 目录加载
+// Production environment: load from resourcesPath directory
 const getProdBackendPath = () => {
 	const backendName = getBackendName();
 
-	// 生产环境：resourcesPath/service/
+	// Production environment: resourcesPath/service/
 	const backendPath = path.join(process.resourcesPath, "service", backendName);
 	if (fs.existsSync(backendPath)) {
 		return backendPath;
@@ -99,7 +99,7 @@ const getProdBackendPath = () => {
 	return null;
 };
 
-// 根据环境获取后端路径
+// Get backend path based on environment
 const getBackendPath = () => {
 	return isDev ? getDevBackendPath() : getProdBackendPath();
 };
@@ -107,18 +107,18 @@ const getBackendPath = () => {
 const createRustBackend = async () => {
 	const backendPath = getBackendPath();
 
-	// 检查后端可执行文件路径
+	// Check backend executable path
 	if (!backendPath) {
 		return false;
 	}
 
-	// 查找可用端口
+	// Find available port
 	backendPort = await findAvailablePort(3100);
 	console.log(`find available backend port: ${backendPort}`);
 
 	console.log(`try to start backend: ${backendPath}`);
 
-	// 获取后端所在目录作为工作目录
+	// Get backend directory as working directory
 	const backendDir = path.dirname(backendPath);
 	console.log(`backend directory: ${backendDir}`);
 
@@ -142,7 +142,7 @@ const createRustBackend = async () => {
 			if (code !== 0 && code !== null) {
 				console.error(`backend process exited with code ${code}`);
 			}
-			// 清理健康检查定时器
+			// Clean up health check timer
 			if (backendHealthCheckInterval) {
 				clearInterval(backendHealthCheckInterval);
 				backendHealthCheckInterval = null;
@@ -156,7 +156,7 @@ const createRustBackend = async () => {
 
 		console.log(`backend service started, PID: ${backendProcess.pid}, port: ${backendPort}`);
 
-		// 启动健康检查
+		// Start health check
 		startBackendHealthCheck();
 
 		return true;
@@ -167,7 +167,7 @@ const createRustBackend = async () => {
 };
 
 const startBackendHealthCheck = () => {
-	// 每30秒检查后端进程是否还在运行
+	// Check every 30 seconds if backend process is still running
 	backendHealthCheckInterval = setInterval(() => {
 		if (!backendProcess || backendProcess.killed) {
 			console.log("detected backend process stopped");
@@ -180,7 +180,7 @@ const startBackendHealthCheck = () => {
 };
 
 const killBackendProcess = () => {
-	// 清理健康检查定时器
+	// Clean up health check timer
 	if (backendHealthCheckInterval) {
 		clearInterval(backendHealthCheckInterval);
 		backendHealthCheckInterval = null;
@@ -189,10 +189,10 @@ const killBackendProcess = () => {
 	if (backendProcess && !backendProcess.killed) {
 		console.log("terminating backend process...");
 		try {
-			// 先尝试优雅关闭
+			// Try graceful shutdown first
 			backendProcess.kill("SIGTERM");
 
-			// 如果5秒后仍未关闭，强制终止
+			// Force terminate if not closed after 5 seconds
 			setTimeout(() => {
 				if (backendProcess && !backendProcess.killed) {
 					console.log("force terminate backend process");

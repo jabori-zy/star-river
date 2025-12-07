@@ -14,7 +14,7 @@ import { useTranslation } from "react-i18next";
 	
 const VariableNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id }) => {
 	const { t } = useTranslation();
-	// ✅ 使用新版本 hook 管理回测配置
+	// Use new version hook to manage backtest configuration
 	const {
 		backtestConfig,
 		setDefaultBacktestConfig,
@@ -22,13 +22,13 @@ const VariableNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id }) => {
 		updateVariableConfigs,
 	} = useBacktestConfig({ id });
 
-	// 获取开始节点数据
+	// Get start node data
 	const { getStartNodeData } = useStrategyWorkflow();
 	const startNodeData = getStartNodeData();
 	const accountList =
 		startNodeData?.backtestConfig?.exchangeModeConfig?.selectedAccounts || [];
 
-	// 初始化默认配置
+	// Initialize default configuration
 	React.useEffect(() => {
 		if (!backtestConfig) {
 			setDefaultBacktestConfig();
@@ -45,7 +45,7 @@ const VariableNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id }) => {
 		updateVariableConfigs(variableConfigs);
 	};
 
-	// 获取当前选中的账户
+	// Get currently selected account
 	const selectedAccount =
 		backtestConfig?.dataSource === BacktestDataSource.EXCHANGE
 			? backtestConfig?.exchangeModeConfig?.selectedAccount || null

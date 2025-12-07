@@ -1,7 +1,7 @@
 import type { StrategyPerformanceReport } from "@/types/strategy/strategy-benchmark";
 
 /**
- * 策略性能更新事件
+ * Strategy performance update event
  */
 export interface StrategyPerformanceUpdateEvent {
 	channel: "strategy";

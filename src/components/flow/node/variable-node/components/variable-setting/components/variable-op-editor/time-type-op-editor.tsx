@@ -40,24 +40,24 @@ const TimeTypeOpEditor: React.FC<TimeTypeOpEditorProps> = ({
 	const conditionTrigger = getConditionTriggerConfig({ triggerConfig });
 	const timerTrigger = getTimerTriggerConfig({ triggerConfig });
 
-	// 判断是否应该显示提示文案
+	// Determine whether to show hint text
 	const shouldShowHint = () => {
-		// 条件触发模式：必须选择了触发条件
+		// Condition trigger mode: must have selected a trigger condition
 		if (effectiveTriggerType === "condition" && !conditionTrigger) {
 			return false;
 		}
-		// 必须有值
+		// Must have a value
 		return !!updateValue;
 	};
 
-	// 安全地解析日期值
+	// Safely parse date value
 	const getDateValue = (): Date | undefined => {
 		if (!updateValue || updateValue.trim() === "") {
 			return undefined;
 		}
 		try {
 			const date = new Date(updateValue);
-			// 检查日期是否有效
+			// Check if date is valid
 			if (isNaN(date.getTime())) {
 				return undefined;
 			}

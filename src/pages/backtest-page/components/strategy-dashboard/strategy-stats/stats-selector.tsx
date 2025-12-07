@@ -12,7 +12,7 @@ import {
 import { useBacktestStatsChartConfigStore } from "@/store/use-backtest-stats-chart-config-store";
 import type { StrategyStatsName } from "@/types/statistics";
 
-// 统计选项配置（不包含 label，label 将通过 i18n 动态获取）
+// Statistics option configuration (excludes label, which will be dynamically retrieved via i18n)
 const statsOptions: { value: StrategyStatsName }[] = [
 	{ value: "balance" },
 	{ value: "unrealizedPnl" },
@@ -28,7 +28,7 @@ const StatsSelector: React.FC = () => {
 	const { addStats, removeStats, chartConfig } =
 		useBacktestStatsChartConfigStore();
 
-	// 获取当前选中的统计项（isDelete为false的项）
+	// Get currently selected statistics (items where isDelete is false)
 	const getSelectedStats = (): StrategyStatsName[] => {
 		if (!chartConfig) return [];
 		return chartConfig.statsChartConfigs
@@ -43,7 +43,7 @@ const StatsSelector: React.FC = () => {
 		if (checked) {
 			addStats(stat);
 		} else {
-			// 如果是最后一个选中的统计项，不允许取消选择
+			// If this is the last selected stat, don't allow deselection
 			if (isLastSelectedStat && selectedStats.includes(stat)) {
 				return;
 			}
@@ -52,7 +52,7 @@ const StatsSelector: React.FC = () => {
 	};
 
 	const isCheckboxDisabled = (stat: StrategyStatsName) => {
-		// 如果这是最后一个选中的统计项，则禁用取消选择
+		// If this is the last selected stat, disable deselection
 		return isLastSelectedStat && selectedStats.includes(stat);
 	};
 

@@ -9,7 +9,7 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLSHOOTINGSTARConfigSchema = z.object({
-	// CDLSHOOTINGSTAR 没有参数
+	// CDLSHOOTINGSTAR has no parameters
 });
 
 export type CDLSHOOTINGSTARConfigType = z.infer<
@@ -18,7 +18,7 @@ export type CDLSHOOTINGSTARConfigType = z.infer<
 
 function buildCDLSHOOTINGSTARConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLSHOOTINGSTAR 不需要任何参数
+		// CDLSHOOTINGSTAR doesn't need any parameters
 	};
 }
 
@@ -29,7 +29,7 @@ export const CDLSHOOTINGSTARConfig: IndicatorConfig<CDLSHOOTINGSTARConfigType> =
 		displayName: "CDLSHOOTINGSTAR",
 		description: "Shooting Star",
 		params: {
-			// CDLSHOOTINGSTAR 没有参数
+			// CDLSHOOTINGSTAR has no parameters
 		},
 		indicatorValueConfig: {
 			timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

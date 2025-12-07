@@ -34,7 +34,7 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
-// 定义表单项接口
+// Define form field interface
 export interface FormFieldConfig {
 	name: string;
 	label: string;
@@ -45,7 +45,7 @@ export interface FormFieldConfig {
 	required?: boolean;
 }
 
-// 通用账户表单属性
+// Generic account form properties
 export interface AccountFormProps {
 	title: string;
 	description: string;
@@ -63,10 +63,10 @@ export function AddAccountPanel({
 	defaultValues = {},
 	trigger,
 }: AccountFormProps) {
-	// 状态控制对话框的打开和关闭
+	// State to control dialog open/close
 	const [open, setOpen] = React.useState(false);
 
-	// 基于字段创建zod验证模式
+	// Create zod validation schema based on fields
 	const formSchema = React.useMemo(() => {
 		const schema: Record<string, z.ZodTypeAny> = {};
 
@@ -102,13 +102,13 @@ export function AddAccountPanel({
 		return z.object(schema);
 	}, [fields]);
 
-	// 表单初始化
+	// Form initialization
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues,
 	});
 
-	// 表单提交处理
+	// Form submission handler
 	const handleSubmit = (values: z.infer<typeof formSchema>) => {
 		if (onSubmit) {
 			onSubmit(values);

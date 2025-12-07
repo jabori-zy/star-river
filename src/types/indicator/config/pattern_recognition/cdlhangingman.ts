@@ -9,14 +9,14 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLHANGINGMANConfigSchema = z.object({
-	// CDLHANGINGMAN 没有参数
+	// CDLHANGINGMAN has no parameters
 });
 
 export type CDLHANGINGMANConfigType = z.infer<typeof CDLHANGINGMANConfigSchema>;
 
 function buildCDLHANGINGMANConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLHANGINGMAN 不需要任何参数
+		// CDLHANGINGMAN doesn't need any parameters
 	};
 }
 
@@ -26,7 +26,7 @@ export const CDLHANGINGMANConfig: IndicatorConfig<CDLHANGINGMANConfigType> = {
 	displayName: "CDLHANGINGMAN",
 	description: "Hanging Man",
 	params: {
-		// CDLHANGINGMAN 没有参数
+		// CDLHANGINGMAN has no parameters
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

@@ -27,18 +27,18 @@ interface VariableSelectorProps {
 		nodeId: string,
 		nodeType: NodeType | null,
 		nodeName: string,
-	) => void; // 节点选择回调
+	) => void; // Node selection callback
 	onVariableChange: (
 		variableId: number,
 		handleId: string,
 		variable: string,
 		variableName: string,
 		varValueType: VariableValueType,
-	) => void; // 变量选择回调
-	whitelistValueType?: VariableValueType | null; // 可选：白名单 - 只保留指定类型
-	blacklistValueType?: VariableValueType | null; // 可选：黑名单 - 排除指定类型
+	) => void; // Variable selection callback
+	whitelistValueType?: VariableValueType | null; // Optional: whitelist - only keep specified type
+	blacklistValueType?: VariableValueType | null; // Optional: blacklist - exclude specified type
 	excludeVariable?: {
-		// 可选：排除特定变量（用于避免变量与自身比较）
+		// Optional: exclude specific variable (to avoid variable comparing with itself)
 		nodeId: string;
 		outputHandleId: string;
 		varName: string | number;
@@ -59,7 +59,7 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 	);
 	const [variableString, setVariableString] = useState<string>("");
 	const { t } = useTranslation();
-	// 生成选项value，格式：nodeId|handleId|variable|variableName
+	// Generate option value, format: nodeId|handleId|variable|variableName
 	const generateOptionValue = useCallback(
 		(
 			nodeId: string,
@@ -75,7 +75,7 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 		[],
 	);
 
-	// 检查某个节点是否有可用变量
+	// Check if a node has available variables
 	const nodeHasAvailableVariables = useCallback(
 		(nodeId: string) => {
 			const node = variableItemList.find((item) => item.nodeId === nodeId);
@@ -102,22 +102,22 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 		],
 	);
 
-	// 获取过滤后的节点列表（只包含有可用变量的节点）
+	// Get filtered node list (only includes nodes with available variables)
 	const filteredVariableItemList = useMemo(() => {
 		return variableItemList.filter((item) =>
 			nodeHasAvailableVariables(item.nodeId),
 		);
 	}, [variableItemList, nodeHasAvailableVariables]);
 
-	// 当传入的variable发生变化时，同步更新本地状态
+	// Synchronize local state when the incoming variable changes
 	useEffect(() => {
 		if (variable) {
-			// 更新选中的节点ID
+			// Update selected node ID
 			setSelectedNodeId(variable.nodeId || "");
 
-			// 更新变量字符串
+			// Update variable string
 			if (variable.nodeId && variable.outputHandleId && variable.varName) {
-				// 注意：这里 varName 是 variable，varDisplayName 是 variableName
+				// Note: varName is variable here, varDisplayName is variableName
 				const variableString = generateOptionValue(
 					variable.nodeId,
 					variable.outputHandleId,
@@ -129,13 +129,13 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 				setVariableString("");
 			}
 		} else {
-			// 如果variable为null，清空状态
+			// If variable is null, clear state
 			setSelectedNodeId("");
 			setVariableString("");
 		}
 	}, [variable, generateOptionValue]);
 
-	// 当过滤条件变化导致当前选中的节点被过滤掉时，清除选择
+	// Clear selection when filter changes cause currently selected node to be filtered out
 	useEffect(() => {
 		if (selectedNodeId && !nodeHasAvailableVariables(selectedNodeId)) {
 			setSelectedNodeId("");
@@ -144,12 +144,12 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 		}
 	}, [selectedNodeId, nodeHasAvailableVariables, onNodeChange]);
 
-	// 处理节点选择
+	// Handle node selection
 	const handleNodeChange = (nodeId: string) => {
 		const nodeType = variableItemList.find(
 			(item) => item.nodeId === nodeId,
 		)?.nodeType;
-		// console.log("🔍 节点选择:", {
+		// console.log("🔍 Node selection:", {
 		// 	nodeId,
 		// 	nodeName: variableItemList.find((item) => item.nodeId === nodeId)
 		// 		?.nodeName,
@@ -157,7 +157,7 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 		// 		?.nodeType,
 		// });
 		setSelectedNodeId(nodeId);
-		// 清空当前选择
+		// Clear current selection
 		onNodeChange(
 			nodeId,
 			nodeType || null,
@@ -165,7 +165,7 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 		);
 	};
 
-	// 处理变量选择
+	// Handle variable selection
 	const handleVariableChange = (variableValue: string) => {
 		const [nodeId, outputHandleId, variable, variableName] =
 			variableValue.split("|");
@@ -177,20 +177,20 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 		);
 
 		let variableId = 0;
-		let varValueType = VariableValueType.NUMBER; // 默认为 NUMBER 类型
+		let varValueType = VariableValueType.NUMBER; // Default to NUMBER type
 
 		if (selectedVar) {
 			variableId = selectedVar.configId;
 
-			// 根据变量类型获取 varValueType
+			// Get varValueType based on variable type
 			if (isVariableConfig(selectedVar)) {
-				// 变量节点：从配置中获取
+				// Variable node: get from configuration
 				varValueType = selectedVar.varValueType;
 			} else if (
 				isSelectedIndicator(selectedVar) ||
 				isSelectedSymbol(selectedVar)
 			) {
-				// 指标节点和K线节点：都是 NUMBER 类型
+				// Indicator node and K-line node: both are NUMBER type
 				varValueType = VariableValueType.NUMBER;
 			}
 		}
@@ -205,7 +205,7 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 		);
 	};
 
-	// 获取选中节点的变量列表
+	// Get variable list of selected node
 	const getSelectedNodeVariables = () => {
 		const selectedNode = variableItemList.find(
 			(item) => item.nodeId === selectedNodeId,
@@ -213,7 +213,7 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 		return selectedNode?.variables || [];
 	};
 
-	// 检查当前选中节点是否有可用变量
+	// Check if currently selected node has available variables
 	const hasAvailableVariables = () => {
 		const variables = getSelectedNodeVariables();
 		const options = renderVariableOptionsUtil({
@@ -228,7 +228,7 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 		return options && options.length > 0;
 	};
 
-	// 渲染变量选项或空状态提示
+	// Render variable options or empty state prompt
 	const renderVariableContent = () => {
 		const variables = getSelectedNodeVariables();
 		const options = renderVariableOptionsUtil({
@@ -240,7 +240,7 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 			blacklistValueType,
 			excludeVariable,
 		});
-		// 如果没有可用变量，显示提示信息
+		// If no available variables, display prompt message
 		if (!options || options.length === 0) {
 			return (
 				<div className="py-2 text-center text-sm text-muted-foreground">
@@ -252,7 +252,7 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 		return options;
 	};
 
-	// 获取变量选择器的 placeholder
+	// Get variable selector placeholder
 	const getVariablePlaceholder = () => {
 		if (!selectedNodeId) {
 			return t("ifElseNode.selectVariable");
@@ -264,7 +264,7 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 
 	return (
 		<ButtonGroup className="w-full">
-			{/* 节点选择器 */}
+			{/* Node selector */}
 			<Select value={selectedNodeId} onValueChange={handleNodeChange}>
 				<SelectTrigger
 					className={cn(
@@ -300,7 +300,7 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 				</SelectContent>
 			</Select>
 
-			{/* 变量选择器 */}
+			{/* Variable selector */}
 			<Select
 				value={variableString}
 				onValueChange={handleVariableChange}

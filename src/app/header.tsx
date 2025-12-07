@@ -24,12 +24,12 @@ import useSidebarToggleStore from "@/store/use-sidebar-toggle-store";
 
 // import type { useHeaderStore } from "@/store/use-header-store";
 
-// 声明electron的require
+// Declare Electron's require
 const { ipcRenderer } = window.require
 	? window.require("electron")
 	: { ipcRenderer: null };
 
-// 扩展CSSProperties类型以支持WebKit拖拽属性
+// Extend CSSProperties type to support WebKit drag properties
 declare module "react" {
 	interface CSSProperties {
 		WebkitAppRegion?: "drag" | "no-drag";

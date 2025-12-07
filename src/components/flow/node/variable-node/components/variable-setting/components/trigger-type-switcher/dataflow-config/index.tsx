@@ -34,18 +34,18 @@ const DataflowConfig: React.FC<DataflowConfigProps> = ({
 }) => {
 	const { t } = useTranslation();
 
-	// 根据变量类型动态获取支持的错误类型
+	// Dynamically get supported error types based on variable type
 	const supportedErrorTypes: DataflowErrorType[] = replaceValueType
 		? VALUE_TYPE_SUPPORT_POLICY[replaceValueType]
 		: ["nullValue", "expired", "zeroValue"];
 
-	// 验证整个 dataflow 配置是否有效
+	// Validate if the entire dataflow configuration is valid
 	useEffect(() => {
 		if (!onValidationChange) return;
 
 		let isValid = true;
 
-		// 检查所有错误策略中的 replaceValue 是否有效
+		// Check if replaceValue in all error policies is valid
 		for (const errorType of supportedErrorTypes) {
 			const policy = errorPolicy[errorType];
 			if (policy?.strategy === "valueReplace") {
@@ -69,7 +69,7 @@ const DataflowConfig: React.FC<DataflowConfigProps> = ({
 		onValidationChange,
 	]);
 
-	// 获取异常类型的显示名称
+	// Get the display name of the error type
 	const getErrorTypeName = (errorType: DataflowErrorType): string => {
 		const nameMap: Record<DataflowErrorType, string> = {
 			nullValue: t("variableNode.dataflowConfig.nullValue"),
@@ -81,13 +81,13 @@ const DataflowConfig: React.FC<DataflowConfigProps> = ({
 
 	return (
 		<div className="space-y-4">
-			{/* 过期时长配置 */}
+			{/* Expiration duration configuration */}
 			<ExpireDurationSection
 				expireDuration={expireDuration}
 				onExpireDurationChange={onExpireDurationChange}
 			/>
 
-			{/* 异常处理策略 */}
+			{/* Error handling strategy */}
 			<div className="space-y-3">
 				<Label className="text-sm font-medium">
 					{t("variableNode.dataflowConfig.errorHandling")}

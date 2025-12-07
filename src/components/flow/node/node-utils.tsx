@@ -21,7 +21,7 @@ import {
 	VariableValueType,
 } from "@/types/variable";
 
-// 类型守卫
+// Type guards
 export const isSelectedIndicator = (
 	variable: SelectedIndicator | SelectedSymbol | VariableConfig,
 ): variable is SelectedIndicator => {
@@ -57,10 +57,10 @@ interface RenderVariableOptionsParams {
 		variableName?: string | null,
 	) => string;
 	t: (key: string) => string;
-	whitelistValueType?: VariableValueType | null; // 可选：白名单 - 只保留指定类型
-	blacklistValueType?: VariableValueType | null; // 可选：黑名单 - 排除指定类型
+	whitelistValueType?: VariableValueType | null; // Optional: whitelist - only keep specified type
+	blacklistValueType?: VariableValueType | null; // Optional: blacklist - exclude specified type
 	excludeVariable?: {
-		// 可选：排除特定变量（用于避免变量与自身比较）
+		// Optional: exclude specific variable (to avoid variable comparing with itself)
 		nodeId: string;
 		outputHandleId: string;
 		varName: string | number;
@@ -68,8 +68,8 @@ interface RenderVariableOptionsParams {
 }
 
 /**
- * 渲染带分割线的变量选项
- * 支持指标节点、K线节点和变量节点
+ * Render variable options with separators
+ * Supports indicator nodes, K-line nodes and variable nodes
  */
 export const renderVariableOptions = ({
 	variables,
@@ -82,15 +82,15 @@ export const renderVariableOptions = ({
 }: RenderVariableOptionsParams): React.ReactNode[] | null => {
 	if (variables.length === 0) return null;
 
-	// 白名单过滤：如果指定了白名单类型，只保留该类型的变量
+	// Whitelist filtering: if whitelist type is specified, only keep variables of that type
 	let filteredVariables = variables;
 	if (whitelistValueType) {
 		filteredVariables = variables.filter((v) => {
-			// 指标节点和K线节点都是 NUMBER 类型
+			// Indicator nodes and K-line nodes are both NUMBER type
 			if (isSelectedIndicator(v) || isSelectedSymbol(v)) {
 				return whitelistValueType === VariableValueType.NUMBER;
 			}
-			// 变量节点根据其具体类型过滤
+			// Variable nodes filtered by their specific type
 			if (isVariableConfig(v)) {
 				return v.varValueType === whitelistValueType;
 			}
@@ -98,14 +98,14 @@ export const renderVariableOptions = ({
 		});
 	}
 
-	// 黑名单过滤：如果指定了黑名单类型，排除该类型的变量
+	// Blacklist filtering: if blacklist type is specified, exclude variables of that type
 	if (blacklistValueType) {
 		filteredVariables = filteredVariables.filter((v) => {
-			// 指标节点和K线节点都是 NUMBER 类型
+			// Indicator nodes and K-line nodes are both NUMBER type
 			if (isSelectedIndicator(v) || isSelectedSymbol(v)) {
 				return blacklistValueType !== VariableValueType.NUMBER;
 			}
-			// 变量节点根据其具体类型过滤
+			// Variable nodes filtered by their specific type
 			if (isVariableConfig(v)) {
 				return v.varValueType !== blacklistValueType;
 			}
@@ -113,24 +113,24 @@ export const renderVariableOptions = ({
 		});
 	}
 
-	// 如果指定了排除变量，则进一步过滤
+	// If exclude variable is specified, filter further
 	if (excludeVariable) {
 		filteredVariables = filteredVariables.filter((v) => {
-			// 检查是否是需要排除的变量
+			// Check if this is the variable to exclude
 			const shouldExclude =
 				v.outputHandleId === excludeVariable.outputHandleId &&
 				(() => {
 					const excludeVarName = String(excludeVariable.varName);
-					// 对于指标节点，检查是否是同一个变量字段
+					// For indicator nodes, check if it's the same variable field
 					if (isSelectedIndicator(v)) {
 						return Object.keys(v.value).some((key) => key === excludeVarName);
 					}
-					// 对于K线节点，检查是否是同一个字段
+					// For K-line nodes, check if it's the same field
 					if (isSelectedSymbol(v)) {
 						const klineFields = ["open", "high", "low", "close", "volume"];
 						return klineFields.includes(excludeVarName);
 					}
-					// 对于变量节点，检查变量名
+					// For variable nodes, check variable name
 					if (isVariableConfig(v)) {
 						return String(v.varName) === excludeVarName;
 					}
@@ -153,9 +153,9 @@ export const renderVariableOptions = ({
 
 	const result: React.ReactNode[] = [];
 
-	// 渲染指标选项
+	// Render indicator options
 	if (indicators.length > 0) {
-		// 指标变量都是NUMBER类型
+		// Indicator variables are all NUMBER type
 		const TypeIconComponent = getVariableValueTypeIcon(
 			VariableValueType.NUMBER,
 		);
@@ -245,16 +245,16 @@ export const renderVariableOptions = ({
 		});
 	}
 
-	// 指标和K线之间的分割线
+	// Separator between indicators and K-lines
 	if (indicators.length > 0 && klineNodes.length > 0) {
 		result.push(
 			<SelectSeparator key="separator_indicator_kline" className="my-1" />,
 		);
 	}
 
-	// 渲染K线选项
+	// Render K-line options
 	if (klineNodes.length > 0) {
-		// K线变量都是NUMBER类型
+		// K-line variables are all NUMBER type
 		const TypeIconComponent = getVariableValueTypeIcon(
 			VariableValueType.NUMBER,
 		);
@@ -342,7 +342,7 @@ export const renderVariableOptions = ({
 		});
 	}
 
-	// K线和变量之间的分割线
+	// Separator between K-lines and variables
 	if (
 		(indicators.length > 0 || klineNodes.length > 0) &&
 		variableConfigs.length > 0
@@ -352,12 +352,12 @@ export const renderVariableOptions = ({
 		);
 	}
 
-	// 渲染变量节点选项
+	// Render variable node options
 	if (variableConfigs.length > 0) {
 		const variableItems: React.ReactNode[] = [];
 
 		variableConfigs.forEach((variable) => {
-			// 获取变量类型图标和颜色
+			// Get variable type icon and color
 			const TypeIconComponent = getVariableValueTypeIcon(variable.varValueType);
 			const typeIconColor = getVariableValueTypeIconColor(
 				variable.varValueType,
@@ -403,8 +403,8 @@ export const renderVariableOptions = ({
 };
 
 /**
- * 渲染节点选项
- * 将 VariableItem 列表转换为 SelectInDialog 的 options 格式
+ * Render node options
+ * Convert VariableItem list to SelectInDialog options format
  */
 export const renderNodeOptions = (variableItemList: VariableItem[]) => {
 	return variableItemList.map((item) => ({

@@ -35,7 +35,7 @@ const DialogPopoverContent: React.FC<
 export interface SelectWithSearchOption {
 	value: string;
 	label: string | React.ReactNode;
-	searchText?: string; // 可选的搜索文本，用于纯文本搜索
+	searchText?: string; // Optional search text for plain text search
 }
 
 interface SelectWithSearchProps {
@@ -68,7 +68,7 @@ export const SelectWithSearch: React.FC<SelectWithSearchProps> = ({
 
 	const selectedOption = options.find((option) => option.value === value);
 
-	// 提取纯文本用于搜索
+	// Extract plain text for search
 	const getSearchText = (option: SelectWithSearchOption): string => {
 		if (option.searchText) {
 			return option.searchText;
@@ -76,11 +76,11 @@ export const SelectWithSearch: React.FC<SelectWithSearchProps> = ({
 		if (typeof option.label === "string") {
 			return option.label;
 		}
-		// 如果 label 是 React 节点，使用 value 作为搜索文本
+		// If label is a React node, use value as search text
 		return option.value;
 	};
 
-	// 过滤选项
+	// Filter options
 	const filteredOptions = options.filter((option) => {
 		if (!searchTerm) return true;
 		return getSearchText(option)
@@ -88,7 +88,7 @@ export const SelectWithSearch: React.FC<SelectWithSearchProps> = ({
 			.includes(searchTerm.toLowerCase());
 	});
 
-	// 重置搜索词当关闭时
+	// Reset search term when closed
 	const handleOpenChange = (newOpen: boolean) => {
 		setOpen(newOpen);
 		if (!newOpen) {

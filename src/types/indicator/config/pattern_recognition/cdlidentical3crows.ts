@@ -9,7 +9,7 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLIDENTICAL3CROWSConfigSchema = z.object({
-	// CDLIDENTICAL3CROWS 没有参数
+	// CDLIDENTICAL3CROWS has no parameters
 });
 
 export type CDLIDENTICAL3CROWSConfigType = z.infer<
@@ -18,7 +18,7 @@ export type CDLIDENTICAL3CROWSConfigType = z.infer<
 
 function buildCDLIDENTICAL3CROWSConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLIDENTICAL3CROWS 不需要任何参数
+		// CDLIDENTICAL3CROWS doesn't need any parameters
 	};
 }
 
@@ -29,7 +29,7 @@ export const CDLIDENTICAL3CROWSConfig: IndicatorConfig<CDLIDENTICAL3CROWSConfigT
 		displayName: "CDLIDENTICAL3CROWS",
 		description: "Identical Three Crows",
 		params: {
-			// CDLIDENTICAL3CROWS 没有参数
+			// CDLIDENTICAL3CROWS has no parameters
 		},
 		indicatorValueConfig: {
 			timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

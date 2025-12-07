@@ -42,7 +42,7 @@ const PositionNode: React.FC<NodeProps<PositionNodeType>> = ({
 		getNodeDefaultColor(NodeType.PositionNode);
 	const isHovered = currentNodeData?.nodeConfig?.isHovered || false;
 
-	// 根据交易模式渲染不同的内容
+	// Render different content based on trading mode
 	const renderModeContent = () => {
 		switch (tradingMode) {
 			case TradeMode.LIVE:

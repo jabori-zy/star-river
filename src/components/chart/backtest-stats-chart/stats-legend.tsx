@@ -15,7 +15,7 @@ interface StatsLegendProps {
 
 export const StatsLegend = forwardRef<HTMLDivElement, StatsLegendProps>(
 	({ statsLegendData, className = "", style }, ref) => {
-		// 使用统计图表配置store
+		// Use statistics chart configuration store
 		const {
 			getChartConfig,
 			getStatsVisibility,
@@ -23,10 +23,10 @@ export const StatsLegend = forwardRef<HTMLDivElement, StatsLegendProps>(
 			removeStats,
 		} = useBacktestStatsChartConfigStore();
 
-		// 编辑对话框状态
+		// Edit dialog state
 		const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
-		// 当前配置个数(不包括被删除的)
+		// Current configuration count (excluding deleted ones)
 		const [statsCount, setStatsCount] = useState(0);
 
 		useEffect(() => {
@@ -44,24 +44,24 @@ export const StatsLegend = forwardRef<HTMLDivElement, StatsLegendProps>(
 			return null;
 		}
 
-		// 获取当前统计的可见性状态
+		// Get current statistics visibility state
 		const isVisible = getStatsVisibility(
 			statsLegendData.statsName as StrategyStatsName,
 		);
 
-		// 处理可见性切换
+		// Handle visibility toggle
 		const handleVisibilityToggle = (e: React.MouseEvent) => {
 			e.stopPropagation();
 			toggleStatsVisibility(statsLegendData.statsName as StrategyStatsName);
 		};
 
-		// 处理删除统计
+		// Handle delete statistics
 		const handleDeleteStats = (e: React.MouseEvent) => {
 			e.stopPropagation();
 			removeStats(statsLegendData.statsName as StrategyStatsName);
 		};
 
-		// 处理编辑
+		// Handle edit
 		const handleEdit = (e: React.MouseEvent) => {
 			e.stopPropagation();
 			setIsEditDialogOpen(true);
@@ -74,17 +74,17 @@ export const StatsLegend = forwardRef<HTMLDivElement, StatsLegendProps>(
 				style={style}
 			>
 				<div className="flex items-center gap-2 text-xs">
-					{/* 统计名称 */}
+					{/* Statistics name */}
 					<span className="font-medium text-gray-700">
 						{statsLegendData.displayName}
 					</span>
 
-					{/* 统计值 */}
+					{/* Statistics value */}
 					<span className="font-mono" style={{ color: statsLegendData.color }}>
 						{statsLegendData.value}
 					</span>
 
-					{/* 操作图标 - 仅鼠标悬浮可见 */}
+					{/* Operation icons - visible only on hover */}
 					<div className="flex gap-1 ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
 						<Button
 							variant="outline"
@@ -94,7 +94,7 @@ export const StatsLegend = forwardRef<HTMLDivElement, StatsLegendProps>(
 									? "hover:bg-blue-50 hover:border-blue-400"
 									: "hover:bg-gray-50 hover:border-gray-400 bg-gray-100"
 							}`}
-							title={isVisible ? "隐藏统计" : "显示统计"}
+							title={isVisible ? "Hide statistics" : "Show statistics"}
 							onClick={handleVisibilityToggle}
 						>
 							{isVisible ? (
@@ -107,18 +107,18 @@ export const StatsLegend = forwardRef<HTMLDivElement, StatsLegendProps>(
 							variant="outline"
 							size="sm"
 							className="h-6 w-6 p-0 border-gray-300 bg-white hover:bg-yellow-50 hover:border-yellow-400"
-							title="编辑"
+							title="Edit"
 							onClick={handleEdit}
 						>
 							<Bolt size={12} className="text-yellow-600" />
 						</Button>
-						{/* 如果statsCount = 1,则不显示删除按钮 */}
+						{/* Don't show delete button if statsCount = 1 */}
 						{statsCount > 1 && (
 							<Button
 								variant="outline"
 								size="sm"
 								className="h-6 w-6 p-0 border-gray-300 bg-white hover:bg-red-50 hover:border-red-400"
-								title="删除"
+								title="Delete"
 								onClick={handleDeleteStats}
 							>
 								<Trash2 size={12} className="text-red-600" />
@@ -127,7 +127,7 @@ export const StatsLegend = forwardRef<HTMLDivElement, StatsLegendProps>(
 					</div>
 				</div>
 
-				{/* 编辑对话框 */}
+				{/* Edit dialog */}
 				<StatsLegendEditDialog
 					open={isEditDialogOpen}
 					onOpenChange={setIsEditDialogOpen}

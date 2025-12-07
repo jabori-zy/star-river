@@ -9,7 +9,7 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLADVANCEBLOCKConfigSchema = z.object({
-	// CDLADVANCEBLOCK 没有参数
+	// CDLADVANCEBLOCK has no parameters
 });
 
 export type CDLADVANCEBLOCKConfigType = z.infer<
@@ -18,7 +18,7 @@ export type CDLADVANCEBLOCKConfigType = z.infer<
 
 function buildCDLADVANCEBLOCKConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLADVANCEBLOCK 不需要任何参数
+		// CDLADVANCEBLOCK doesn't need any parameters
 	};
 }
 
@@ -29,7 +29,7 @@ export const CDLADVANCEBLOCKConfig: IndicatorConfig<CDLADVANCEBLOCKConfigType> =
 		displayName: "CDLADVANCEBLOCK",
 		description: "Advance Block",
 		params: {
-			// CDLADVANCEBLOCK 没有参数
+			// CDLADVANCEBLOCK has no parameters
 		},
 		indicatorValueConfig: {
 			timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

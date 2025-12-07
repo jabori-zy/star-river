@@ -20,11 +20,11 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 	data,
 	handleColor,
 }) => {
-	// 获取回测模式配置
+	// Get backtest mode configuration
 	const backtestConfig = data.backtestConfig;
 	const isNested = data.isNested;
 	const { t } = useTranslation();
-	// 如果没有配置或者没有cases，显示提示信息
+	// If no configuration or no cases, display prompt message
 	if (
 		!backtestConfig ||
 		!backtestConfig.cases ||
@@ -49,13 +49,13 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 							</div>
 						</TooltipTrigger>
 						<TooltipContent>
-							{/* 当上层循环为true时，该节点才会执行 */}
+							{/* This node will only execute when the upper loop is true */}
 							<p>{t("ifElseNode.nestedDescription")}</p>
 						</TooltipContent>
 					</Tooltip>
 				</TooltipProvider>
 			)}
-			{/* 渲染所有的条件case */}
+			{/* Render all condition cases */}
 			{backtestConfig.cases.map((caseItem, index) => (
 				<IfElseCaseItem
 					key={caseItem.caseId}
@@ -66,7 +66,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 				/>
 			))}
 
-			{/* 固定的ELSE分支 */}
+			{/* Fixed ELSE branch */}
 			<ElseCaseItem handleId={`${id}_else_output`} handleColor={handleColor} />
 		</div>
 	);

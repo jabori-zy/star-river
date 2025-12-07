@@ -45,21 +45,21 @@ const BoolTypeOpEditor: React.FC<BoolTypeOpEditorProps> = ({
 	const conditionTrigger = getConditionTriggerConfig({ triggerConfig });
 	const timerTrigger = getTimerTriggerConfig({ triggerConfig });
 
-	// 判断是否应该显示提示文案
+	// Determine whether to show hint text
 	const shouldShowHint = () => {
-		// 条件触发模式：必须选择了触发条件
+		// Condition trigger mode: must have selected a trigger condition
 		if (effectiveTriggerType === "condition" && !conditionTrigger) {
 			return false;
 		}
-		// toggle 操作不需要输入值，可以直接显示
+		// Toggle operation doesn't need input value, can display directly
 		if (updateOperationType === "toggle") {
 			return true;
 		}
-		// 其他操作需要有值
+		// Other operations need values
 		return !!updateValue;
 	};
 
-	// toggle 模式：只显示操作选择器和说明文案
+	// Toggle mode: only show operation selector and description text
 	if (updateOperationType === "toggle") {
 		return (
 			<div className="flex flex-col gap-2">
@@ -72,7 +72,7 @@ const BoolTypeOpEditor: React.FC<BoolTypeOpEditorProps> = ({
 							onUpdateValueChange("");
 						}
 					}}
-					placeholder="选择更新操作"
+					placeholder="Select update operation"
 					options={availableOperationOptions}
 				/>
 				{shouldShowHint() && (
@@ -91,7 +91,7 @@ const BoolTypeOpEditor: React.FC<BoolTypeOpEditorProps> = ({
 		);
 	}
 
-	// set 模式：显示操作符和值选择器
+	// Set mode: show operator and value selector
 	return (
 		<div className="flex flex-col gap-2">
 			<ButtonGroup className="w-full">

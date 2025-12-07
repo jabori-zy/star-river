@@ -63,7 +63,7 @@ interface AccountTableProps<TData extends Account> {
 	title?: string;
 }
 
-// 账户表格组件
+// Account table component
 export function AccountTable<TData extends Account>({
 	tableData: initialTableData,
 	columns,
@@ -73,7 +73,7 @@ export function AccountTable<TData extends Account>({
 		() => initialTableData,
 	);
 
-	// 当initialTableData更新时，更新内部tableData状态
+	// When initialTableData updates, update internal tableData state
 	React.useEffect(() => {
 		setTableData(initialTableData);
 	}, [initialTableData]);
@@ -88,28 +88,28 @@ export function AccountTable<TData extends Account>({
 		pageSize: 10,
 	});
 
-	// 创建一个唯一ID用于DndContext
+	// Create a unique ID for DndContext
 	const dndId = React.useId();
 
-	// 设置传感器用于拖拽识别，修改为只对拖拽手柄元素反应
+	// Set up sensors for drag detection, modified to only react to drag handle element
 	const sensors = useSensors(
 		useSensor(MouseSensor, {
-			// 激活条件：只能从拖拽手柄开始拖拽
+			// Activation condition: can only start dragging from drag handle
 			activationConstraint: {
-				distance: 10, // 设置最小拖拽距离，防止误触
+				distance: 10, // Set minimum drag distance to prevent accidental triggering
 			},
 		}),
 		useSensor(TouchSensor, {
-			// 激活条件：只能从拖拽手柄开始拖拽
+			// Activation condition: can only start dragging from drag handle
 			activationConstraint: {
-				delay: 250, // 触摸必须保持一定时间才能激活，防止与滚动冲突
-				tolerance: 5, // 触摸可移动的最大距离，超过则不激活拖拽
+				delay: 250, // Touch must be held for a certain time to activate, prevent conflict with scrolling
+				tolerance: 5, // Maximum distance touch can move, exceeding this will not activate dragging
 			},
 		}),
 		useSensor(KeyboardSensor, {}),
 	);
 
-	// 提取所有数据项的ID，用于排序
+	// Extract IDs of all data items for sorting
 	const dataIds = React.useMemo<UniqueIdentifier[]>(
 		() => tableData.map((item) => (item as { id: string | number }).id),
 		[tableData],
@@ -137,7 +137,7 @@ export function AccountTable<TData extends Account>({
 		getFacetedUniqueValues: getFacetedUniqueValues(),
 	});
 
-	// 处理拖拽结束事件
+	// Handle drag end event
 	function handleDragEnd(event: DragEndEvent) {
 		const { active, over } = event;
 		if (active && over && active.id !== over.id) {
@@ -149,7 +149,7 @@ export function AccountTable<TData extends Account>({
 		}
 	}
 
-	// 计算总页数
+	// Calculate total page count
 	const pageCount = table.getPageCount();
 
 	return (
@@ -270,7 +270,7 @@ export function AccountTable<TData extends Account>({
 								<ChevronLeftIcon />
 							</Button>
 							<div className="flex items-center gap-2">
-								{/* 页码直接导航按钮 - 仅在页数较少时显示 */}
+								{/* Direct page navigation buttons - only show when page count is low */}
 								{pageCount <= 10 ? (
 									Array.from({ length: pageCount }, (_, i) => (
 										<Button
@@ -288,20 +288,20 @@ export function AccountTable<TData extends Account>({
 									))
 								) : (
 									<>
-										{/* 页数较多时显示省略分页 */}
+										{/* Show ellipsis pagination when there are many pages */}
 										{[...Array(Math.min(5, pageCount))].map((_, idx) => {
 											let pageIdx: number;
 											const currentPage = table.getState().pagination.pageIndex;
 
-											// 计算显示哪些页码
+											// Calculate which page numbers to display
 											if (currentPage < 3) {
-												// 当前页靠前，显示前5页
+												// When current page is near the beginning, show first 5 pages
 												pageIdx = idx;
 											} else if (currentPage > pageCount - 4) {
-												// 当前页靠后，显示后5页
+												// When current page is near the end, show last 5 pages
 												pageIdx = pageCount - 5 + idx;
 											} else {
-												// 当前页在中间，显示当前页及其前后各2页
+												// When current page is in the middle, show current page and 2 pages on each side
 												pageIdx = currentPage - 2 + idx;
 											}
 

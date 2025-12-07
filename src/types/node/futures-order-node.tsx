@@ -19,7 +19,7 @@ export type FuturesOrderNodeSimulateConfig = {
 
 export type FuturesOrderNodeBacktestExchangeModeConfig = {
 	selectedAccount?: SelectedAccount;
-	timeRange: TimeRange; // 回测时间范围
+	timeRange: TimeRange; // Backtest time range
 };
 
 export type FuturesOrderNodeBacktestConfig = {
@@ -29,7 +29,7 @@ export type FuturesOrderNodeBacktestConfig = {
 };
 
 export type FuturesOrderNodeData = NodeDataBase & {
-	// 针对不同交易模式的条件配置
+	// Conditional configuration for different trading modes
 	liveConfig?: FuturesOrderNodeLiveConfig;
 	backtestConfig?: FuturesOrderNodeBacktestConfig;
 	simulateConfig?: FuturesOrderNodeSimulateConfig;

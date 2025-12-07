@@ -15,7 +15,7 @@ import {
 	PriceSourceSchema,
 } from "@/types/indicator/schemas";
 
-// ROCR 指标配置的 Zod schema
+// Zod schema for ROCR indicator configuration
 const ROCRConfigSchema = z.object({
 	timePeriod: z.number().int().positive(),
 	priceSource: PriceSourceSchema,
@@ -23,7 +23,7 @@ const ROCRConfigSchema = z.object({
 
 export type ROCRConfigType = z.infer<typeof ROCRConfigSchema>;
 
-// ROCR指标的参数映射函数
+// Parameter mapping function for ROCR indicator
 function buildROCRConfig(params: Map<string, string>): unknown {
 	return {
 		timePeriod: parseInt(params.get("time_period") || "0"),
@@ -31,23 +31,23 @@ function buildROCRConfig(params: Map<string, string>): unknown {
 	};
 }
 
-// ROCR指标配置实现
+// ROCR indicator configuration implementation
 export const ROCRConfig: IndicatorConfig<ROCRConfigType> = {
 	category: IndicatorCategory.MOMENTUM,
 	type: IndicatorType.ROCR,
 	displayName: "ROCR",
-	description: "变化率比率指标 - (price/prevPrice)",
+	description: "Rate of Change Ratio - (price/prevPrice)",
 	params: {
 		timePeriod: {
 			label: "indicator.configField.timePeriod",
-			description: "选择变化率比率指标的时间周期",
+			description: "Select time period for Rate of Change Ratio",
 			defaultValue: 10,
 			required: true,
 			legendShowName: "period",
 		},
 		priceSource: {
 			label: "indicator.configField.dataSource",
-			description: "选择指标计算价格源",
+			description: "Select price source for indicator calculation",
 			defaultValue: PriceSource.CLOSE,
 			required: true,
 			legendShowName: "source",
@@ -78,7 +78,7 @@ export const ROCRConfig: IndicatorConfig<ROCRConfigType> = {
 			]),
 		);
 
-		// 使用 Zod 验证配置
+		// Validate configuration using Zod
 		const validatedConfig = ROCRConfigSchema.parse(config);
 		return validatedConfig;
 	},
@@ -87,7 +87,7 @@ export const ROCRConfig: IndicatorConfig<ROCRConfigType> = {
 		return getIndicatorValues(this.indicatorValueConfig);
 	},
 
-	// 使用通用解析函数
+	// Use generic parsing function
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
 		IndicatorType.ROCR,
 		ROCRConfigSchema,

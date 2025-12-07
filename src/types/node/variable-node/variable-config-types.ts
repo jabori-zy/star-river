@@ -18,7 +18,7 @@ type BaseVariableConfig = {
 
 export type VariableValue = string | number | boolean | string[] | null;
 
-export type InitialVariableValue = string | number | boolean | string[]; // 初始值不能为空
+export type InitialVariableValue = string | number | boolean | string[]; // Initial value cannot be null
 
 export type GetSystemVariableConfig = BaseVariableConfig & {
 	varOperation: "get";

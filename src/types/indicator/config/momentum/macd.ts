@@ -21,7 +21,7 @@ const MACDConfigSchema = z.object({
 
 export type MACDConfigType = z.infer<typeof MACDConfigSchema>;
 
-// MACD指标的参数映射函数
+// Parameter mapping function for MACD indicator
 function buildMACDConfig(params: Map<string, string>): unknown {
 	return {
 		fastPeriod: parseInt(params.get("fast_period") || "12"),
@@ -35,32 +35,32 @@ export const MACDConfig: IndicatorConfig<MACDConfigType> = {
 	category: IndicatorCategory.MOMENTUM,
 	type: IndicatorType.MACD,
 	displayName: "MACD",
-	description: "指数平滑移动平均线收敛发散指标",
+	description: "Moving Average Convergence Divergence indicator",
 	params: {
 		fastPeriod: {
 			label: "indicator.configField.fastPeriod",
-			description: "选择快线的计算周期",
+			description: "Select calculation period for fast line",
 			defaultValue: 12,
 			required: true,
 			legendShowName: "fast",
 		},
 		slowPeriod: {
 			label: "indicator.configField.slowPeriod",
-			description: "选择慢线的计算周期",
+			description: "Select calculation period for slow line",
 			defaultValue: 26,
 			required: true,
 			legendShowName: "slow",
 		},
 		signalPeriod: {
 			label: "indicator.configField.signalPeriod",
-			description: "选择信号线的计算周期",
+			description: "Select calculation period for signal line",
 			defaultValue: 9,
 			required: true,
 			legendShowName: "signal",
 		},
 		priceSource: {
 			label: "indicator.configField.dataSource",
-			description: "选择指标计算价格源",
+			description: "Select price source for indicator calculation",
 			defaultValue: PriceSource.CLOSE,
 			required: true,
 			legendShowName: "source",
@@ -107,7 +107,7 @@ export const MACDConfig: IndicatorConfig<MACDConfigType> = {
 			]),
 		);
 
-		// 使用 Zod 验证配置
+		// Validate configuration using Zod
 		const validatedConfig = MACDConfigSchema.parse(config);
 		return validatedConfig;
 	},
@@ -116,7 +116,7 @@ export const MACDConfig: IndicatorConfig<MACDConfigType> = {
 		return getIndicatorValues(this.indicatorValueConfig);
 	},
 
-	// 使用通用解析函数
+	// Use generic parsing function
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
 		IndicatorType.MACD,
 		MACDConfigSchema,

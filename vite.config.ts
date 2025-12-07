@@ -6,7 +6,7 @@ import { viteStaticCopy } from "vite-plugin-static-copy";
 
 // https://vite.dev/config/
 export default defineConfig({
-	base: "./", // 使用相对路径，支持 file:// 协议加载
+	base: "./", // Use relative path to support file:// protocol loading
 	plugins: [
 		react(),
 		tailwindcss(),
@@ -20,7 +20,7 @@ export default defineConfig({
 				// 	src: "node_modules/scichart/_wasm/scichart2d.wasm",
 				// 	dest: "",
 				// },
-				// 如果需要 3D 图表，取消下面的注释
+				// Uncomment below if 3D charts are needed
 				// {
 				//   src: 'node_modules/scichart/_wasm/scichart3d.data',
 				//   dest: ''

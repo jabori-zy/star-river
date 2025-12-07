@@ -9,7 +9,7 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLHARAMICROSSConfigSchema = z.object({
-	// CDLHARAMICROSS 没有参数
+	// CDLHARAMICROSS has no parameters
 });
 
 export type CDLHARAMICROSSConfigType = z.infer<
@@ -18,7 +18,7 @@ export type CDLHARAMICROSSConfigType = z.infer<
 
 function buildCDLHARAMICROSSConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLHARAMICROSS 不需要任何参数
+		// CDLHARAMICROSS doesn't need any parameters
 	};
 }
 
@@ -28,7 +28,7 @@ export const CDLHARAMICROSSConfig: IndicatorConfig<CDLHARAMICROSSConfigType> = {
 	displayName: "CDLHARAMICROSS",
 	description: "Harami Cross Pattern",
 	params: {
-		// CDLHARAMICROSS 没有参数
+		// CDLHARAMICROSS has no parameters
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

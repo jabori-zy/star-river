@@ -1,26 +1,26 @@
 import { create } from "zustand";
 
-// 回测页面UI状态管理
+// Backtest page UI state management
 interface BacktestUIState {
-	// 按策略ID管理的UI状态
+	// UI state managed by strategy ID
 	uiState: Record<
 		number,
 		{
 			isShowHistoryPosition: boolean;
-			// 可以在这里添加更多UI状态
+			// More UI states can be added here
 		}
 	>;
 
-	// 设置是否显示历史持仓
+	// Set whether to show history position
 	setShowHistoryPosition: (strategyId: number, show: boolean) => void;
 
-	// 获取是否显示历史持仓
+	// Get whether to show history position
 	getShowHistoryPosition: (strategyId: number) => boolean;
 
-	// 清空指定策略的UI状态
+	// Clear UI state for specified strategy
 	clearUIState: (strategyId: number) => void;
 
-	// 清空所有UI状态
+	// Clear all UI states
 	clearAllUIState: () => void;
 }
 

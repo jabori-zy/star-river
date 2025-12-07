@@ -2,55 +2,55 @@ import { create } from "zustand";
 import type { Kline } from "@/types/kline";
 import type { KeyStr } from "@/types/symbol-key";
 
-// 定义缓存大小常量
+// Define cache size constant
 const MAX_CACHE_SIZE = 20;
 
-// 回测策略数据存储
+// Backtest strategy data store
 interface BacktestStrategyMarketDataState {
-	// 按数据的缓存键存储的数据列表
+	// Data list stored by cache key
 	marketData: Record<KeyStr, (Kline | Record<string, number>)[]>;
 
-	// 添加新数据到指定的缓存key中，自动控制缓存大小
+	// Add new data to specified cache key, automatically control cache size
 	addMarketData: (
 		cacheKey: KeyStr,
 		data: (Kline | Record<string, number>)[],
 	) => void;
 
-	// 清空特定缓存key的所有数据
+	// Clear all data for specific cache key
 	clearMarketData: (cacheKey: KeyStr) => void;
 
-	// 清空所有数据
+	// Clear all data
 	clearAllMarketData: () => void;
 
-	// 获取指定缓存key的最新数据
+	// Get latest data for specified cache key
 	getLatestMarketData: (
 		cacheKey: KeyStr,
 	) => Kline | Record<string, number> | undefined;
 
-	// 获取所有的缓存key的数据
+	// Get data for all cache keys
 	getAllMarketData: () => Record<KeyStr, (Kline | Record<string, number>)[]>;
 }
 
 export const useBacktestStrategyMarketDataStore =
 	create<BacktestStrategyMarketDataState>((set, get) => ({
-		// 初始化事件存储
+		// Initialize event storage
 		marketData: {},
 
-		// 添加数据到指定缓存key中，限制缓存大小为 MAX_CACHE_SIZE
+		// Add data to specified cache key, limit cache size to MAX_CACHE_SIZE
 		addMarketData: (cacheKey, data) =>
 			set((state) => {
-				// 判断cacheKey是否存在
+				// Check if cacheKey exists
 				if (!state.marketData[cacheKey]) {
 					state.marketData[cacheKey] = [];
 				}
 				const currentData = state.marketData[cacheKey];
-				// 如果当前数据数组已达到最大容量，则移除最早的数据
+				// If current data array has reached max capacity, remove earliest data
 				let newData: (Kline | Record<string, number>)[] = [];
 				if (currentData.length >= MAX_CACHE_SIZE) {
-					// 移除第一个元素(最旧的)，并添加新事件到末尾
+					// Remove first element (oldest) and add new event to the end
 					newData = [...currentData.slice(1), ...data];
 				} else {
-					// 直接添加新事件到末尾
+					// Directly add new event to the end
 					newData = [...currentData, ...data];
 				}
 				// console.log("marketData", state.marketData);
@@ -63,7 +63,7 @@ export const useBacktestStrategyMarketDataStore =
 				};
 			}),
 
-		// 清空特定缓存key的所有数据
+		// Clear all data for specific cache key
 		clearMarketData: (cacheKey) =>
 			set((state) => ({
 				marketData: {
@@ -72,20 +72,20 @@ export const useBacktestStrategyMarketDataStore =
 				},
 			})),
 
-		// 清空所有数据
+		// Clear all data
 		clearAllMarketData: () =>
 			set({
 				marketData: {},
 			}),
 
-		// 获取指定缓存key的最新数据
+		// Get latest data for specified cache key
 		getLatestMarketData: (cacheKey) => {
 			const cache = get().marketData[cacheKey];
 			if (!cache || cache.length === 0) return undefined;
 			return cache[cache.length - 1];
 		},
 
-		// 获取所有的缓存key的数据
+		// Get data for all cache keys
 		getAllMarketData: () => {
 			return get().marketData;
 		},

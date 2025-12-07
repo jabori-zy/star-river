@@ -5,13 +5,13 @@ import type { StrategyFlowNode } from "@/types/node";
 import type { StartNode } from "@/types/node/start-node";
 
 /**
- * 工具函数相关的hook
+ * Hook for utility functions
  */
 const useWorkflowUtils = () => {
 	const { getEdges, setEdges } = useReactFlow();
 
 	/**
-	 * 获取回测模式的时间范围
+	 * Get backtest mode time range
 	 */
 	const getBacktestTimeRange = useCallback(() => {
 		const backtestConfig = useStartNodeDataStore.getState().backtestConfig;
@@ -19,9 +19,9 @@ const useWorkflowUtils = () => {
 	}, []);
 
 	/**
-	 * 获取指定节点作为source连接的所有target节点ID
-	 * @param sourceNodeId 源节点ID
-	 * @returns 目标节点ID数组
+	 * Get all target node IDs connected from a specified node as source
+	 * @param sourceNodeId Source node ID
+	 * @returns Array of target node IDs
 	 */
 	const getTargetNodeIdsBySourceNodeId = useCallback(
 		(sourceNodeId: string) => {
@@ -47,27 +47,27 @@ const useWorkflowUtils = () => {
 	);
 
 	/**
-	 * 删除指定的source handleId的所有的边
-	 * @param sourceHandleId 源节点handleId
+	 * Delete all edges with the specified source handleId
+	 * @param sourceHandleId Source node handleId
 	 */
 	const deleteEdgeBySourceHandleId = useCallback(
 		(sourceHandleId: string) => {
 			const edges = getEdges();
 
-			// 过滤掉指定 sourceHandle 的边
+			// Filter out edges with the specified sourceHandle
 			const remainingEdges = edges.filter(
 				(edge) => edge.sourceHandle !== sourceHandleId,
 			);
 
-			// 更新边状态
+			// Update edge state
 			setEdges(remainingEdges);
 		},
 		[getEdges, setEdges],
 	);
 
 	/**
-	 * 删除指定的target handleId的所有的边
-	 * @param targetHandleId 目标节点handleId
+	 * Delete all edges with the specified target handleId
+	 * @param targetHandleId Target node handleId
 	 */
 	const deleteEdgesByTargetHandleId = useCallback(
 		(targetHandleId: string) => {

@@ -15,10 +15,10 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 	handleColor,
 }) => {
 	const { t } = useTranslation();
-	// 获取回测模式配置
+	// Get backtest mode configuration
 	const backtestConfig = data.backtestConfig;
 
-	// 如果没有配置或者没有变量配置，显示提示信息
+	// If no config or no variable configs, show hint message
 	if (
 		!backtestConfig ||
 		!backtestConfig.variableConfigs ||
@@ -33,7 +33,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 
 	return (
 		<div className="space-y-2">
-			{/* 渲染所有的变量配置 */}
+			{/* Render all variable configs */}
 			{backtestConfig.variableConfigs.map((variableConfig) => (
 				<VariableHandleItem
 					key={variableConfig.configId}

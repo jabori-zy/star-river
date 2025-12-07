@@ -1,4 +1,4 @@
-// 定义账户公共属性
+// Define common account properties
 export interface BaseAccount {
 	id: number;
 	accountName: string;
@@ -8,7 +8,7 @@ export interface BaseAccount {
 	updatedTime: string;
 }
 
-// Metatrader5特有属性
+// MetaTrader5 specific properties
 export interface MT5Account extends BaseAccount {
 	login: number;
 	server: string;
@@ -21,7 +21,7 @@ export interface MT5Account extends BaseAccount {
 	eaStatus: string;
 }
 
-// Binance特有属性
+// Binance specific properties
 export interface BinanceAccount extends BaseAccount {
 	apiKey: string;
 	secretKey: string;
@@ -30,7 +30,7 @@ export interface BinanceAccount extends BaseAccount {
 	tradingAllowed: boolean;
 }
 
-// OKX特有属性
+// OKX specific properties
 export interface OKXAccount extends BaseAccount {
 	apiVersion: string;
 	marginMode: "cross" | "isolated";
@@ -38,5 +38,5 @@ export interface OKXAccount extends BaseAccount {
 	availableBalance: number;
 }
 
-// 定义账户联合类型
+// Define account union type
 export type Account = MT5Account | BinanceAccount | OKXAccount;

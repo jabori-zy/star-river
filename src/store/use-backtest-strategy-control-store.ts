@@ -56,9 +56,9 @@ export const useBacktestStrategyControlStore =
 			set({ isRunning: true });
 			try {
 				await play(strategyId);
-				// play()成功启动后，回测完成会通过事件通知
+				// After play() starts successfully, backtest completion will be notified via events
 			} catch (error: any) {
-				// play启动失败，停止运行状态
+				// play failed to start, stop running state
 				set({ isRunning: false });
 				console.error("play error:", error);
 			}
@@ -79,11 +79,11 @@ export const useBacktestStrategyControlStore =
 			set({ isRunning: false, isPlayFinished: false });
 			stop(strategyId);
 
-			// 重置图表stores
+			// Reset chart stores
 			resetAllBacktestChartStore();
 			resetAllBacktestStatsChartStore();
 
-			// 调用清空数据的回调
+			// Call clear data callback
 			clearDataCallback?.();
 		},
 
@@ -94,7 +94,7 @@ export const useBacktestStrategyControlStore =
 			try {
 				await playOne(strategyId);
 			} catch (error: any) {
-				// 检查是否是回测完成的错误
+				// Check if this is a backtest completion error
 				const errorCode = error?.response?.data?.error_code;
 				const errorCodeChain = error?.response?.data?.error_code_chain;
 
@@ -103,9 +103,9 @@ export const useBacktestStrategyControlStore =
 					errorCodeChain?.includes("BACKTEST_STRATEGY_1012")
 				) {
 					set({ isRunning: false, isPlayFinished: true });
-					toast.success("回测完成");
+					toast.success("Backtest completed");
 				} else {
-					// 其他错误正常抛出
+					// Throw other errors normally
 					console.error("playOne error:", error);
 				}
 			}
@@ -114,15 +114,15 @@ export const useBacktestStrategyControlStore =
 		startEventListening: () => {
 			const { isRunning, strategyEventSubscription } = get();
 
-			// 清理现有订阅
+			// Clean up existing subscription
 			if (strategyEventSubscription) {
 				strategyEventSubscription.unsubscribe();
 				set({ strategyEventSubscription: null });
 			}
 
-			// 如果不在播放，则不需要监听
+			// If not playing, no need to listen
 			if (!isRunning) {
-				console.log("不在播放，不启动事件监听");
+				console.log("Not playing, skipping event listener start");
 				return;
 			}
 
@@ -149,11 +149,11 @@ export const useBacktestStrategyControlStore =
 			const { strategyId } = get();
 
 			if (strategyId !== null && eventStrategyId !== strategyId) {
-				console.log("策略ID不匹配，忽略事件");
+				console.log("Strategy ID mismatch, ignoring event");
 				return;
 			}
 
 			set({ isRunning: false, isPlayFinished: true });
-			toast.success("回测完成");
+			toast.success("Backtest completed");
 		},
 	}));

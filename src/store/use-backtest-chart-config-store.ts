@@ -19,14 +19,14 @@ import type {
 import { parseKey } from "@/utils/parse-key";
 
 interface BacktestChartConfigState {
-	// 状态
+	// State
 	chartConfig: BacktestStrategyChartConfig;
 	isLoading: boolean;
 	isSaving: boolean;
 	configLoaded: boolean;
 	strategyId: number | null;
 
-	// 基础操作
+	// Basic operations
 	setStrategyId: (strategyId: number | null) => void;
 	setChartConfig: (config: BacktestStrategyChartConfig) => void;
 	getChartConfig: (chartId: number) => BacktestChartConfig | undefined;
@@ -34,12 +34,12 @@ interface BacktestChartConfigState {
 	setSaving: (saving: boolean) => void;
 	setConfigLoaded: (loaded: boolean) => void;
 
-	// 图表配置操作
+	// Chart config operations
 	loadChartConfig: (strategyId: number) => Promise<void>;
 	saveChartConfig: () => Promise<void>;
 	createDefaultChart: () => Promise<void>;
 
-	// 图表管理
+	// Chart management
 	addChart: (klineKeyStr: string) => void;
 	deleteChart: (chartId: number) => void;
 	updateChart: (
@@ -49,7 +49,7 @@ interface BacktestChartConfigState {
 	) => void;
 	updateLayout: (layout: LayoutMode) => void;
 
-	// 指标管理
+	// Indicator management
 	addIndicator: (
 		chartId: number,
 		indicatorChartConfig: IndicatorChartConfig,
@@ -72,7 +72,7 @@ interface BacktestChartConfigState {
 	toggleKlineVisibility: (chartId: number) => void;
 	getKlineVisibility: (chartId: number) => boolean;
 
-	// 辅助方法
+	// Helper methods
 	getKeys: () => Promise<Record<string, KlineKey | IndicatorKey>>;
 	getChartById: (chartId: number) => BacktestChartConfig | undefined;
 	_updateChart: (
@@ -102,7 +102,7 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 	(set, get) => ({
 		...initialState,
 
-		// 基础操作
+		// Basic operations
 		setStrategyId: (strategyId) => set({ strategyId }),
 		setChartConfig: (chartConfig) => set({ chartConfig }),
 		setLoading: (isLoading) => set({ isLoading }),
@@ -114,7 +114,7 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 			return chartConfig.charts.find((chart) => chart.id === chartId);
 		},
 
-		// 获取策略缓存键
+		// Get strategy cache keys
 		getKeys: async () => {
 			const { strategyId } = get();
 			if (!strategyId) return {};
@@ -131,26 +131,26 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 
 				return parsedKeyMap;
 			} catch (error) {
-				console.error("获取策略缓存键失败:", error);
+				console.error("Failed to get strategy cache keys:", error);
 				return {};
 			}
 		},
 
-		// 创建默认图表配置
+		// Create default chart config
 		createDefaultChart: async () => {
 			const { getKeys } = get();
 
 			try {
 				const cacheKeys = await getKeys();
 				if (cacheKeys && Object.keys(cacheKeys).length > 0) {
-					// 过滤出kline key
+					// Filter out kline keys
 					const klineKeys = Object.keys(cacheKeys).filter((key) => {
 						const parsedKey = cacheKeys[key];
 						return parsedKey.type === "kline";
 					});
 
 					if (klineKeys.length > 0) {
-						// 使用第一个kline key创建默认图表
+						// Create default chart using first kline key
 						const firstKlineKey = klineKeys[0];
 						const klineData = cacheKeys[firstKlineKey] as KlineKey;
 						const defaultChart: BacktestChartConfig = {
@@ -164,7 +164,7 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 							indicatorChartConfigs: [],
 						};
 
-						console.log("创建默认图表:", defaultChart);
+						console.log("Creating default chart:", defaultChart);
 						set({
 							chartConfig: {
 								charts: [defaultChart],
@@ -175,8 +175,8 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 					}
 				}
 
-				// 没有可用的kline key，使用空配置
-				console.log("没有可用的数据，使用空配置");
+				// No available kline key, use empty config
+				console.log("No available data, using empty config");
 				set({
 					chartConfig: {
 						charts: [],
@@ -184,8 +184,8 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 					},
 				});
 			} catch (error) {
-				console.error("创建默认图表失败:", error);
-				// 创建失败时使用空配置
+				console.error("Failed to create default chart:", error);
+				// Use empty config when creation fails
 				set({
 					chartConfig: {
 						charts: [],
@@ -195,18 +195,18 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 			}
 		},
 
-		// 从后端加载图表配置
+		// Load chart config from backend
 		loadChartConfig: async (strategyId: number) => {
 			try {
 				set({ isLoading: true, strategyId });
 				const chartConfig = await getBacktestStrategyChartConfig(strategyId);
 
 				const keys = await get().getKeys();
-				// console.log("获取的缓存键:", keys);
+				// console.log("Retrieved cache keys:", keys);
 
-				// 判断缓存键是否为空
+				// Check if cache keys are empty
 				if (keys && Object.keys(keys).length > 0) {
-					// 在一个循环中分离 kline 和 indicator keys
+					// Separate kline and indicator keys in one loop
 					const klineKeys: string[] = [];
 					const indicatorKeys: string[] = [];
 
@@ -219,50 +219,50 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 						}
 					});
 
-					// 如果chartConfig不为空，则进行验证和修复
+					// If chartConfig is not empty, validate and fix
 					if (chartConfig) {
-						// 检查后端返回的配置是否有效
-						// 是否有charts字段，并且charts字段是否为数组，并且charts字段的长度是否大于0
+						// Check if backend returned config is valid
+						// Does it have charts field, and is charts field an array, and is charts field length greater than 0
 						const hasValidConfig =
 							chartConfig.charts &&
 							Array.isArray(chartConfig.charts) &&
 							chartConfig.charts.length > 0;
-						// console.log("后端返回的图表配置是否有效:", hasValidConfig);
+						// console.log("Is backend returned chart config valid:", hasValidConfig);
 
 						if (hasValidConfig) {
-							// 使用后端配置，验证并修复配置
+							// Use backend config, validate and fix config
 							const { _validateAndFixChartConfig } = get();
 							const validatedConfig = _validateAndFixChartConfig(
 								chartConfig,
 								klineKeys,
 								indicatorKeys,
 							);
-							// console.log("验证并修复后的图表配置: ", validatedConfig);
+							// console.log("Validated and fixed chart config: ", validatedConfig);
 							set({ chartConfig: validatedConfig });
 						}
 					} else {
-						// 后端配置无效（null、空数组或不存在），创建默认图表
+						// Backend config is invalid (null, empty array or non-existent), create default chart
 						const { createDefaultChart } = get();
 						await createDefaultChart();
 					}
 				} else {
-					// 后端配置无效（null、空数组或不存在），创建默认图表
+					// Backend config is invalid (null, empty array or non-existent), create default chart
 					const { createDefaultChart } = get();
 					await createDefaultChart();
 				}
 				set({ configLoaded: true });
 			} catch (error) {
-				console.error("获取图表配置失败:", error);
+				console.error("Failed to get chart config:", error);
 				set({ configLoaded: true });
-				// 加载失败时也尝试创建默认图表
+				// Try to create default chart when loading fails
 				try {
 					const { createDefaultChart } = get();
 					await createDefaultChart();
 				} catch (defaultError) {
-					console.error("创建默认图表也失败:", defaultError);
+					console.error("Failed to create default chart as well:", defaultError);
 				}
-				toast.error("获取图表配置失败", {
-					description: "已使用默认配置，您可以重新添加图表",
+				toast.error("Failed to get chart config", {
+					description: "Using default config, you can re-add charts",
 					duration: 4000,
 				});
 			} finally {
@@ -270,14 +270,14 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 			}
 		},
 
-		// 保存图表配置到后端
+		// Save chart config to backend
 		saveChartConfig: async () => {
 			const { strategyId, chartConfig } = get();
 			if (!strategyId) return;
 
 			try {
 				set({ isSaving: true });
-				// 保存前，将chartConfig中的indicatorChartConfigs中的isDelete为true的指标删除
+				// Before saving, remove indicators with isDelete true from indicatorChartConfigs in chartConfig
 				const updatedChartConfig = {
 					...chartConfig,
 					charts: chartConfig.charts.map((chart) => ({
@@ -288,11 +288,11 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 					})),
 				};
 				await updateBacktestStrategyChartConfig(strategyId, updatedChartConfig);
-				toast.success("图表配置保存成功");
+				toast.success("Chart config saved successfully");
 			} catch (error) {
-				console.error("保存图表配置失败:", error);
-				toast.error("保存图表配置失败", {
-					description: error instanceof Error ? error.message : "未知错误",
+				console.error("Failed to save chart config:", error);
+				toast.error("Failed to save chart config", {
+					description: error instanceof Error ? error.message : "Unknown error",
 					duration: 4000,
 				});
 			} finally {
@@ -300,7 +300,7 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 			}
 		},
 
-		// 添加图表
+		// Add chart
 		addChart: (klineKeyStr) => {
 			const { chartConfig } = get();
 			const maxChartId = Math.max(
@@ -326,16 +326,16 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 					charts: [...chartConfig.charts, newChart],
 				},
 			});
-			console.log("当前的图表配置: ", get().chartConfig);
+			console.log("Current chart config: ", get().chartConfig);
 		},
 
-		// 删除图表
+		// Delete chart
 		deleteChart: (chartId) => {
 			const { chartConfig } = get();
 
-			// 判断是否是最后一个图表
+			// Check if this is the last chart
 			if (chartConfig.charts.length === 1) {
-				toast.error("至少保留一个图表");
+				toast.error("At least one chart must be kept");
 				return;
 			}
 
@@ -347,7 +347,7 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 			});
 		},
 
-		// 更新图表
+		// Update chart
 		updateChart: (chartId, klineCacheKeyStr, chartName) => {
 			const { chartConfig } = get();
 
@@ -370,7 +370,7 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 			});
 		},
 
-		// 更新布局模式
+		// Update layout mode
 		updateLayout: (layout) => {
 			const { chartConfig } = get();
 			set({
@@ -381,7 +381,7 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 			});
 		},
 
-		// 通用的图表更新函数
+		// Generic chart update function
 		_updateChart: (
 			chartId: number,
 			chartUpdater: (chart: BacktestChartConfig) => BacktestChartConfig,
@@ -397,44 +397,44 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 			});
 		},
 
-		// 添加指标
+		// Add indicator
 		addIndicator: (chartId, indicatorChartConfig) => {
 			const indicatorKey = parseKey(
 				indicatorChartConfig.indicatorKeyStr,
 			) as IndicatorKey;
 			const { chartConfig, _updateChart } = get();
 
-			// 检查目标图表是否存在
+			// Check if target chart exists
 			const targetChart = chartConfig.charts.find(
 				(chart) => chart.id === chartId,
 			);
 			if (!targetChart) {
-				console.warn(`图表 ID ${chartId} 不存在`);
+				console.warn(`Chart ID ${chartId} does not exist`);
 				return;
 			}
 
 			const { indicatorKeyStr } = indicatorChartConfig;
 			const indicatorName = indicatorKey.indicatorType.toUpperCase();
 
-			// 检查指标是否已存在且未被删除
+			// Check if indicator already exists and is not deleted
 			const existingIndicator = targetChart.indicatorChartConfigs.find(
 				(config) =>
 					config.indicatorKeyStr === indicatorKeyStr && !config.isDelete,
 			);
 
 			if (existingIndicator) {
-				toast.warning(`${indicatorName}已存在`, { duration: 2000 });
+				toast.warning(`${indicatorName} already exists`, { duration: 2000 });
 				return;
 			}
 
-			// 检查是否存在已删除的同名指标
+			// Check if a deleted indicator with the same name exists
 			const deletedIndicator = targetChart.indicatorChartConfigs.find(
 				(config) =>
 					config.indicatorKeyStr === indicatorKeyStr && config.isDelete,
 			);
 
 			if (deletedIndicator) {
-				// 恢复已删除的指标
+				// Restore deleted indicator
 				_updateChart(chartId, (chart) => ({
 					...chart,
 					indicatorChartConfigs: chart.indicatorChartConfigs.map((config) =>
@@ -444,7 +444,7 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 					),
 				}));
 			} else {
-				// 添加新指标
+				// Add new indicator
 				_updateChart(chartId, (chart) => ({
 					...chart,
 					indicatorChartConfigs: [
@@ -454,14 +454,14 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 				}));
 			}
 
-			toast.success(`${indicatorName}添加成功`, { duration: 2000 });
+			toast.success(`${indicatorName} added successfully`, { duration: 2000 });
 		},
 
-		// 移除指标
+		// Remove indicator
 		removeIndicator: (chartId, indicatorKeyStr) => {
 			const { _updateChart } = get();
 
-			// 软删除：只设置isDelete为true，不从数组中移除
+			// Soft delete: only set isDelete to true, don't remove from array
 			_updateChart(chartId, (chart) => ({
 				...chart,
 				indicatorChartConfigs: chart.indicatorChartConfigs.map((config) =>
@@ -470,14 +470,14 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 						: config,
 				),
 			}));
-			console.log("当前的图表配置: ", get().chartConfig);
+			console.log("Current chart config: ", get().chartConfig);
 		},
 
-		// 切换k线，切换k线需要将chartId对应的图表的所有的指标删除（软删除）
-		// 对应的chartId的图表标题也要修改
+		// Switch kline, when switching kline, all indicators of the chart corresponding to chartId need to be deleted (soft delete)
+		// The chart title corresponding to chartId also needs to be modified
 		changeKline: (chartId, klineKeyStr) => {
 			const { chartConfig } = get();
-			// 将所有的指标删除
+			// Delete all indicators
 			chartConfig.charts.forEach((chart) => {
 				if (chart.id === chartId) {
 					chart.indicatorChartConfigs = chart.indicatorChartConfigs.map(
@@ -500,28 +500,28 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 					),
 				},
 			});
-			console.log("当前的图表配置: ", get().chartConfig);
+			console.log("Current chart config: ", get().chartConfig);
 		},
 
-		// 根据ID获取图表
+		// Get chart by ID
 		getChartById: (chartId) => {
 			const { chartConfig } = get();
 			return chartConfig.charts.find((chart) => chart.id === chartId);
 		},
 
-		// 验证并修复图表配置
+		// Validate and fix chart config
 		_validateAndFixChartConfig: (chartConfig, klineKeys, indicatorKeys) => {
 			const updatedCharts = chartConfig.charts.map((chart) => {
 				const klineChartKey = chart.klineChartConfig.klineKeyStr;
 
-				// 创建新的图表配置对象
+				// Create new chart config object
 				const updatedChart = { ...chart };
 
-				// 判断klineChartKey是否在klineKeys中
-				// 如果不在，则将该图表的key替换为klineKeys中的第一个
+				// Check if klineChartKey is in klineKeys
+				// If not, replace the chart's key with the first one in klineKeys
 				if (!klineKeys.includes(klineChartKey)) {
 					if (klineKeys.length === 0) {
-						console.warn("klineKeys 为空，无法修复缺失的 klineKey");
+						console.warn("klineKeys is empty, cannot fix missing klineKey");
 					} else {
 						const klineKey = parseKey(klineKeys[0]) as KlineKey;
 						updatedChart.chartName = `${klineKey.symbol} ${klineKey.interval}`;
@@ -532,13 +532,13 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 					}
 				}
 
-				// 处理指标配置
+				// Process indicator config
 				updatedChart.indicatorChartConfigs = chart.indicatorChartConfigs.map(
 					(indicator_chart) => {
 						const indicatorChartKey = indicator_chart.indicatorKeyStr;
-						// 判断indicatorChartKey是否在indicatorKeys中
+						// Check if indicatorChartKey is in indicatorKeys
 						if (!indicatorKeys.includes(indicatorChartKey)) {
-							// 如果不在，则将该指标删除
+							// If not, delete this indicator
 							return { ...indicator_chart, isDelete: true };
 						}
 						return indicator_chart;
@@ -560,7 +560,7 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 				(chart) => chart.id === chartId,
 			);
 			if (!targetChart) {
-				console.warn(`图表 ID ${chartId} 不存在`);
+				console.warn(`Chart ID ${chartId} does not exist`);
 				return;
 			}
 
@@ -590,7 +590,7 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 				(chart) => chart.id === chartId,
 			);
 			if (!targetChart) {
-				console.warn(`图表 ID ${chartId} 不存在`);
+				console.warn(`Chart ID ${chartId} does not exist`);
 				return false;
 			}
 
@@ -606,7 +606,7 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 				(chart) => chart.id === chartId,
 			);
 			if (!targetChart) {
-				console.warn(`图表 ID ${chartId} 不存在`);
+				console.warn(`Chart ID ${chartId} does not exist`);
 				return;
 			}
 
@@ -615,7 +615,7 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 			);
 
 			if (!indicatorChartConfig) {
-				console.warn(`指标 ${indicatorKeyStr} 不存在`);
+				console.warn(`Indicator ${indicatorKeyStr} does not exist`);
 				return;
 			}
 
@@ -624,7 +624,7 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 				visible:
 					indicatorChartConfig.visible === undefined
 						? false
-						: !indicatorChartConfig.visible, // 如果visible未定义，则默认不显示
+						: !indicatorChartConfig.visible, // If visible is undefined, default to not showing
 			};
 
 			set({
@@ -653,7 +653,7 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 				(chart) => chart.id === chartId,
 			);
 			if (!targetChart) {
-				console.warn(`图表 ID ${chartId} 不存在`);
+				console.warn(`Chart ID ${chartId} does not exist`);
 				return false;
 			}
 
@@ -662,7 +662,7 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 			);
 
 			if (!indicatorChartConfig) {
-				console.warn(`指标 ${indicatorKeyStr} 不存在`);
+				console.warn(`Indicator ${indicatorKeyStr} does not exist`);
 				return false;
 			}
 
@@ -672,7 +672,7 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 			);
 		},
 
-		// 重置状态
+		// Reset state
 		reset: () => set(initialState),
 	}),
 );

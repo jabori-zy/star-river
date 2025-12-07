@@ -9,14 +9,14 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLENGULFINGConfigSchema = z.object({
-	// CDLENGULFING 没有参数
+	// CDLENGULFING has no parameters
 });
 
 export type CDLENGULFINGConfigType = z.infer<typeof CDLENGULFINGConfigSchema>;
 
 function buildCDLENGULFINGConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLENGULFING 不需要任何参数
+		// CDLENGULFING doesn't need any parameters
 	};
 }
 
@@ -26,7 +26,7 @@ export const CDLENGULFINGConfig: IndicatorConfig<CDLENGULFINGConfigType> = {
 	displayName: "CDLENGULFING",
 	description: "Engulfing Pattern",
 	params: {
-		// CDLENGULFING 没有参数
+		// CDLENGULFING has no parameters
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

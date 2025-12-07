@@ -9,14 +9,14 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLTHRUSTINGConfigSchema = z.object({
-	// CDLTHRUSTING 没有参数
+	// CDLTHRUSTING has no parameters
 });
 
 export type CDLTHRUSTINGConfigType = z.infer<typeof CDLTHRUSTINGConfigSchema>;
 
 function buildCDLTHRUSTINGConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLTHRUSTING 不需要任何参数
+		// CDLTHRUSTING doesn't need any parameters
 	};
 }
 
@@ -26,7 +26,7 @@ export const CDLTHRUSTINGConfig: IndicatorConfig<CDLTHRUSTINGConfigType> = {
 	displayName: "CDLTHRUSTING",
 	description: "Thrusting Pattern",
 	params: {
-		// CDLTHRUSTING 没有参数
+		// CDLTHRUSTING has no parameters
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

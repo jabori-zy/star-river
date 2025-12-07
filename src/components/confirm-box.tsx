@@ -16,10 +16,10 @@ interface ConfirmBoxProps {
 	confirmText: string;
 	cancelText: string;
 	onConfirm: () => void | Promise<void>;
-	children: React.ReactNode; // 触发器内容
+	children: React.ReactNode; // Trigger content
 }
 
-// 退出应用二次确认框
+// Application exit confirmation dialog
 const ConfirmBox = ({
 	title,
 	description,

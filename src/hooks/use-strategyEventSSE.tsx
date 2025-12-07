@@ -7,7 +7,7 @@ const useStrategyEventSSE = (strategyId: number, enabled: boolean = true) => {
 	const { addEvent, clearEvents } = useStrategyEventStore();
 
 	useEffect(() => {
-		// 如果未启用，则关闭现有连接并返回
+		// If not enabled, close existing connection and return
 		if (!enabled) {
 			if (eventSourceRef.current) {
 				eventSourceRef.current.close();
@@ -16,46 +16,46 @@ const useStrategyEventSSE = (strategyId: number, enabled: boolean = true) => {
 			return;
 		}
 
-		// 创建 SSE 连接
+		// Create SSE connection
 		const sse = new EventSource(
 			"http://localhost:3100/strategy_sse?strategy_id=" + strategyId,
 		);
 		eventSourceRef.current = sse;
 
-		// 处理接收到的消息
+		// Handle received messages
 		sse.onmessage = (event) => {
 			try {
 				const strategyEvent = JSON.parse(event.data) as LiveStrategyEvent;
 				const eventName = strategyEvent.event_name;
 
-				// 确保事件名称有效
+				// Ensure event name is valid
 				if (
 					eventName === "strategy-data-update" ||
 					eventName === "node-message-update"
 				) {
-					// 将事件添加到对应的存储中
+					// Add event to corresponding storage
 					addEvent(eventName, strategyEvent);
 				} else {
-					console.warn("未知的事件类型:", eventName);
+					console.warn("Unknown event type:", eventName);
 				}
 			} catch (error) {
-				console.error("解析 SSE 消息失败:", error);
+				console.error("Failed to parse SSE message:", error);
 			}
 		};
 
-		// 处理连接错误
+		// Handle connection errors
 		sse.onerror = (error) => {
-			console.error("SSE 连接错误:", error);
-			// 尝试关闭连接
+			console.error("SSE connection error:", error);
+			// Attempt to close connection
 			if (eventSourceRef.current) {
 				eventSourceRef.current.close();
 				eventSourceRef.current = null;
 			}
 
-			// 可以在这里添加重连逻辑
+			// Reconnection logic can be added here
 		};
 
-		// 清理函数，关闭连接
+		// Cleanup function, close connection
 		return () => {
 			if (eventSourceRef.current) {
 				eventSourceRef.current.close();
@@ -64,9 +64,9 @@ const useStrategyEventSSE = (strategyId: number, enabled: boolean = true) => {
 		};
 	}, [strategyId, enabled, addEvent]);
 
-	// 返回可用的操作
+	// Return available operations
 	return {
-		clearEvents, // 从 store 重新导出清除方法，方便直接使用
+		clearEvents, // Re-export clear method from store for convenience
 		isConnected: !!eventSourceRef.current,
 	};
 };

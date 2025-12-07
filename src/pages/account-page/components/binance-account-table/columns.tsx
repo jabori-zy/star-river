@@ -15,7 +15,7 @@ import { Switch } from "@/components/ui/switch";
 import type { BinanceAccount } from "@/types/account";
 import { DragHandle } from "../account-table/drag-handle";
 
-// 账户开关组件
+// Account switch component
 function AccountAvaliableSwitch({
 	enabled,
 	onChange,
@@ -34,12 +34,12 @@ function AccountAvaliableSwitch({
 		<Switch
 			checked={isEnabled}
 			onCheckedChange={handleChange}
-			aria-label="账户开关"
+			aria-label="Account switch"
 		/>
 	);
 }
 
-// Binance账户列定义
+// Binance account column definitions
 export const binanceColumns: ColumnDef<BinanceAccount>[] = [
 	{
 		id: "drag",
@@ -112,10 +112,10 @@ export const binanceColumns: ColumnDef<BinanceAccount>[] = [
 		header: "账户开关",
 		cell: ({ row }) => {
 			const enabled = row.getValue("isAvailable") as boolean;
-			// 使用API调用的处理函数
+			// Handler function using API call
 			const handleAccountToggle = (value: boolean) => {
-				console.log(`账户 ${row.original.id} 状态被设置为: ${value}`);
-				// 这里可以添加实际的API调用来更新账户状态
+				console.log(`Account ${row.original.id} status set to: ${value}`);
+				// Actual API call can be added here to update account status
 			};
 
 			return (

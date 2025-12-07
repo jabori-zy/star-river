@@ -10,14 +10,14 @@ import DataSourceSelector from "../components/data-source-selector";
 import TimeRangeSelector from "../components/time-range-selector";
 import VariableEditor from "../components/variable-editor";
 
-// 新开始节点回测模式设置面板
+// New start node backtest mode settings panel
 export const StartNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 	id,
 }) => {
-	// ✅ 使用 useNodesData 订阅节点数据变化，确保 UI 实时更新
+	// ✅ Use useNodesData to subscribe to node data changes, ensure UI updates in real-time
 	const { getNodeData } = useStrategyWorkflow();
 	const startNodeData = getNodeData(id) as StartNodeData;
-	// 使用自定义 hook 管理回测配置
+	// Use custom hook to manage backtest config
 	const {
 		updateInitialBalance,
 		updateLeverage,
@@ -29,7 +29,7 @@ export const StartNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 		updateBacktestVariables,
 	} = useBacktestConfig({ id });
 
-	// 从节点数据读取所有需要的配置（实时响应更新）
+	// Read all required config from node data (responds to updates in real-time)
 	const backtestConfig = startNodeData?.backtestConfig;
 	const dataSource = backtestConfig?.dataSource || BacktestDataSource.EXCHANGE;
 	const selectedAccounts =
@@ -48,15 +48,15 @@ export const StartNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 			<div className="flex flex-col gap-4 p-4">
 				<DataSourceSelector
 					dataSource={dataSource}
-					setDataSource={() => {}} // 不再需要本地状态设置
+					setDataSource={() => {}} // No longer need local state setting
 					updateDataSource={updateDataSource}
 				/>
-				{/* 根据数据源切换不同的组件 */}
+				{/* Switch components based on data source */}
 				{dataSource === BacktestDataSource.EXCHANGE && (
 					<div className="space-y-4">
 						<AccountSelector
 							selectedAccounts={selectedAccounts}
-							setSelectedAccounts={() => {}} // 不再需要本地状态设置
+							setSelectedAccounts={() => {}} // No longer need local state setting
 							updateSelectedAccounts={updateBacktestAccounts}
 						/>
 						<TimeRangeSelector
@@ -67,16 +67,16 @@ export const StartNodeBacktestSettingPanel: React.FC<SettingProps> = ({
 				)}
 				<BacktestStrategySetting
 					initialBalance={initialBalance}
-					setInitialBalance={() => {}} // 不再需要本地状态设置
+					setInitialBalance={() => {}} // No longer need local state setting
 					updateInitialBalance={updateInitialBalance}
 					leverage={leverage}
-					setLeverage={() => {}} // 不再需要本地状态设置
+					setLeverage={() => {}} // No longer need local state setting
 					updateLeverage={updateLeverage}
 					feeRate={feeRate}
-					setFeeRate={() => {}} // 不再需要本地状态设置
+					setFeeRate={() => {}} // No longer need local state setting
 					updateFeeRate={updateFeeRate}
 					playSpeed={playSpeed}
-					setPlaySpeed={() => {}} // 不再需要本地状态设置
+					setPlaySpeed={() => {}} // No longer need local state setting
 					updatePlaySpeed={updatePlaySpeed}
 				/>
 

@@ -1,19 +1,19 @@
 const { BrowserWindow, Menu, MenuItem, app } = require("electron");
 const path = require("node:path");
 
-// 用于跟踪策略ID到窗口的映射
+// Map to track strategy ID to window
 const strategyWindows = new Map();
 
-// 判断是否为开发环境
+// Check if development environment
 const isDev = process.env.NODE_ENV === "development" || !app.isPackaged;
 
-// 获取页面 URL（使用 HashRouter，路由通过 # 传递）
+// Get page URL (using HashRouter, route passed via #)
 const getURL = (route = "") => {
 	if (isDev) {
 		const base = "http://localhost:5173";
 		return route ? `${base}/#${route}` : base;
 	}
-	// 生产环境加载本地文件
+	// Production environment loads local file
 	const base = `file://${path.join(__dirname, "../dist/index.html")}`;
 	return route ? `${base}#${route}` : base;
 };
@@ -39,7 +39,7 @@ const createWindow = () => {
 
 	mainWindow.loadURL(getURL());
 
-	// 监听全屏状态变化，通知渲染进程
+	// Listen for fullscreen state changes and notify the renderer process
 	mainWindow.on("enter-full-screen", () => {
 		mainWindow.webContents.send("fullscreen-change", true);
 	});
@@ -47,7 +47,7 @@ const createWindow = () => {
 		mainWindow.webContents.send("fullscreen-change", false);
 	});
 
-	// 开发环境自动打开控制台
+	// Automatically open DevTools in development environment
 	if (isDev) {
 		mainWindow.webContents.openDevTools();
 		setupDevContextMenu(mainWindow);
@@ -86,7 +86,7 @@ const createBacktestWindow = (strategyId, strategyName) => {
 
 	backtestWindow.loadURL(backtestUrl);
 
-	// 监听全屏状态变化，通知渲染进程
+	// Listen for fullscreen state changes and notify the renderer process
 	backtestWindow.on("enter-full-screen", () => {
 		backtestWindow.webContents.send("fullscreen-change", true);
 	});
@@ -134,7 +134,7 @@ const closeBacktestWindow = (strategyId) => {
 	}
 };
 
-// 检查指定策略的回测窗口是否存在并处理（打开或移动到前台）
+// Check if backtest window for the specified strategy exists and handle it (open or bring to front)
 const checkOrOpenBacktestWindow = (strategyId, strategyName) => {
 	const existingWindow = strategyWindows.get(strategyId);
 
@@ -191,7 +191,7 @@ const setupDevContextMenu = (window) => {
 
 		menu.append(
 			new MenuItem({
-				label: "检查元素",
+				label: "Inspect Element",
 				click: () => {
 					window.webContents.inspectElement(params.x, params.y);
 				},
@@ -200,7 +200,7 @@ const setupDevContextMenu = (window) => {
 
 		menu.append(
 			new MenuItem({
-				label: "打开开发者工具",
+				label: "Open DevTools",
 				click: () => {
 					window.webContents.openDevTools();
 				},
@@ -211,7 +211,7 @@ const setupDevContextMenu = (window) => {
 
 		menu.append(
 			new MenuItem({
-				label: "刷新",
+				label: "Refresh",
 				accelerator: "CmdOrCtrl+R",
 				click: () => {
 					window.webContents.reload();

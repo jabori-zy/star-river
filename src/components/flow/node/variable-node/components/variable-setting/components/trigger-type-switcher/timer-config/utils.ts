@@ -1,13 +1,13 @@
 import type { TimerTrigger } from "@/types/node/variable-node";
 
 /**
- * 计算下次执行时间
+ * Calculate next execution time
  */
 export const calculateNextExecutionTime = (config: TimerTrigger): Date => {
 	const now = new Date();
 
 	if (config.mode === "interval") {
-		// 固定间隔模式：当前时间 + 间隔
+		// Fixed interval mode: current time + interval
 		const { interval, unit } = config;
 		const nextTime = new Date(now);
 
@@ -28,23 +28,23 @@ export const calculateNextExecutionTime = (config: TimerTrigger): Date => {
 
 		return nextTime;
 	} else {
-		// 定时执行模式
+		// Scheduled execution mode
 		const { repeatMode } = config;
 
 		if (repeatMode === "hourly") {
-			// 每小时/每n小时模式
+			// Hourly/every n hours mode
 			const { hourlyInterval, minuteOfHour } = config;
 			const nextTime = new Date(now);
 
-			// 设置到下一个整点的指定分钟
+			// Set to the specified minute of the next hour
 			nextTime.setMinutes(minuteOfHour, 0, 0);
 
-			// 如果当前时间已经过了这个分钟，移到下一个间隔
+			// If the current time has passed this minute, move to the next interval
 			if (nextTime <= now) {
 				nextTime.setHours(nextTime.getHours() + hourlyInterval);
 			}
 
-			// 确保是间隔的倍数
+			// Ensure it's a multiple of the interval
 			const currentHour = nextTime.getHours();
 			const targetHour =
 				Math.ceil(currentHour / hourlyInterval) * hourlyInterval;
@@ -53,18 +53,18 @@ export const calculateNextExecutionTime = (config: TimerTrigger): Date => {
 
 			return nextTime;
 		} else if (repeatMode === "daily") {
-			// 每天模式
+			// Daily mode
 			const { time, daysOfWeek: customWeekdays } = config;
 			const [hours, minutes] = time.split(":").map(Number);
 			const nextTime = new Date(now);
 			nextTime.setHours(hours, minutes, 0, 0);
 
-			// 如果今天的时间已经过了，移到明天
+			// If today's time has passed, move to tomorrow
 			if (nextTime <= now) {
 				nextTime.setDate(nextTime.getDate() + 1);
 			}
 
-			// 检查星期是否匹配
+			// Check if the day of week matches
 			if (customWeekdays && customWeekdays.length > 0) {
 				while (true) {
 					const dayOfWeek = nextTime.getDay() === 0 ? 7 : nextTime.getDay();
@@ -77,17 +77,17 @@ export const calculateNextExecutionTime = (config: TimerTrigger): Date => {
 
 			return nextTime;
 		} else if (repeatMode === "weekly") {
-			// 每周模式
+			// Weekly mode
 			const { time, dayOfWeek } = config;
 			const [hours, minutes] = time.split(":").map(Number);
-			const targetWeekday = dayOfWeek; // 必填，单选
+			const targetWeekday = dayOfWeek; // Required, single select
 			const nextTime = new Date(now);
 			nextTime.setHours(hours, minutes, 0, 0);
 
 			const currentWeekday = nextTime.getDay() === 0 ? 7 : nextTime.getDay();
 			let daysToAdd = targetWeekday - currentWeekday;
 
-			// 如果是同一天但时间已过，或者目标日期在本周之前
+			// If it's the same day but time has passed, or target date is before this week
 			if (daysToAdd < 0 || (daysToAdd === 0 && nextTime <= now)) {
 				daysToAdd += 7;
 			}
@@ -95,7 +95,7 @@ export const calculateNextExecutionTime = (config: TimerTrigger): Date => {
 			nextTime.setDate(nextTime.getDate() + daysToAdd);
 			return nextTime;
 		} else if (repeatMode === "monthly") {
-			// 每月模式
+			// Monthly mode
 			const { time, dayOfMonth } = config;
 			const [hours, minutes] = time.split(":").map(Number);
 			const nextTime = new Date(now);
@@ -107,7 +107,7 @@ export const calculateNextExecutionTime = (config: TimerTrigger): Date => {
 			} else if (dayOfMonth === "first") {
 				targetDay = 1;
 			} else {
-				// "last" - 最后一天
+				// "last" - last day
 				targetDay = new Date(
 					nextTime.getFullYear(),
 					nextTime.getMonth() + 1,
@@ -117,11 +117,11 @@ export const calculateNextExecutionTime = (config: TimerTrigger): Date => {
 
 			nextTime.setDate(targetDay);
 
-			// 如果本月的日期已经过了，移到下个月
+			// If the date of this month has passed, move to next month
 			if (nextTime <= now) {
 				nextTime.setMonth(nextTime.getMonth() + 1);
 				if (dayOfMonth === "last") {
-					// 重新计算下个月的最后一天
+					// Recalculate the last day of next month
 					targetDay = new Date(
 						nextTime.getFullYear(),
 						nextTime.getMonth() + 1,
@@ -131,7 +131,7 @@ export const calculateNextExecutionTime = (config: TimerTrigger): Date => {
 				nextTime.setDate(targetDay);
 			}
 
-			// 处理月份天数不足的情况（例如2月没有30日）
+			// Handle case when the month has insufficient days (e.g., February doesn't have day 30)
 			if (typeof dayOfMonth === "number" && dayOfMonth > 28) {
 				const daysInMonth = new Date(
 					nextTime.getFullYear(),
@@ -139,14 +139,14 @@ export const calculateNextExecutionTime = (config: TimerTrigger): Date => {
 					0,
 				).getDate();
 				if (dayOfMonth > daysInMonth) {
-					// 根据回退策略处理
+					// Handle according to fallback strategy
 					if (config.monthlyFallback === "skip") {
-						// 跳过该月，移到下个月
+						// Skip this month, move to next month
 						nextTime.setMonth(nextTime.getMonth() + 1);
-						// 递归检查下个月
+						// Recursively check next month
 						return calculateNextExecutionTime(config);
 					} else {
-						// 默认或 "last-day": 使用该月最后一天
+						// Default or "last-day": use the last day of the month
 						nextTime.setDate(daysInMonth);
 					}
 				}
@@ -160,92 +160,92 @@ export const calculateNextExecutionTime = (config: TimerTrigger): Date => {
 };
 
 /**
- * 生成 Cron 表达式
- * Cron 格式：分 时 日 月 星期
- * @param config - 定时配置
- * @returns Cron 表达式字符串
+ * Generate Cron expression
+ * Cron format: minute hour day month weekday
+ * @param config - Timer configuration
+ * @returns Cron expression string
  */
 export const generateCronExpression = (config: TimerTrigger): string => {
 	if (config.mode === "interval") {
-		// 固定间隔模式
+		// Fixed interval mode
 		const { interval, unit } = config;
 
 		switch (unit) {
 			case "second":
-				// Cron 不支持秒级，转换为每分钟执行（近似）
-				// 实际应该由后端用其他调度方式处理
+				// Cron doesn't support second-level, convert to execute every minute (approximate)
+				// Should actually be handled by backend with other scheduling methods
 				return `*/${Math.ceil(interval / 60)} * * * *`;
 
 			case "minute":
 				if (interval === 1) {
-					return "* * * * *"; // 每分钟
+					return "* * * * *"; // Every minute
 				}
-				return `*/${interval} * * * *`; // 每N分钟
+				return `*/${interval} * * * *`; // Every N minutes
 
 			case "hour":
-				return `0 */${interval} * * *`; // 每N小时的第0分钟
+				return `0 */${interval} * * *`; // Minute 0 of every N hours
 
 			case "day":
-				return `0 0 */${interval} * *`; // 每N天的00:00
+				return `0 0 */${interval} * *`; // 00:00 of every N days
 
 			default:
-				return "0 0 * * *"; // 默认每天00:00
+				return "0 0 * * *"; // Default: every day at 00:00
 		}
 	} else {
-		// 定时执行模式
+		// Scheduled execution mode
 		const { repeatMode } = config;
 
 		if (repeatMode === "hourly") {
-			// 每小时/每n小时模式
+			// Hourly/every n hours mode
 			const { hourlyInterval, minuteOfHour } = config;
 			if (hourlyInterval === 1) {
-				return `${minuteOfHour} * * * *`; // 每小时的第X分钟
+				return `${minuteOfHour} * * * *`; // Minute X of every hour
 			}
-			return `${minuteOfHour} */${hourlyInterval} * * *`; // 每N小时的第X分钟
+			return `${minuteOfHour} */${hourlyInterval} * * *`; // Minute X of every N hours
 		} else if (repeatMode === "daily") {
-			// 每天模式
+			// Daily mode
 			const { time, daysOfWeek: customWeekdays } = config;
 			const [hours, minutes] = time.split(":").map(Number);
 
 			if (customWeekdays && customWeekdays.length > 0) {
-				// 有星期过滤
-				// Cron 中：0=周日, 1=周一, ..., 6=周六
-				// 我们的数据：1=周一, 2=周二, ..., 7=周日
+				// With weekday filter
+				// In Cron: 0=Sunday, 1=Monday, ..., 6=Saturday
+				// Our data: 1=Monday, 2=Tuesday, ..., 7=Sunday
 				const cronWeekdays = customWeekdays
 					.map((day) => (day === 7 ? 0 : day))
 					.sort()
 					.join(",");
 				return `${minutes} ${hours} * * ${cronWeekdays}`;
 			}
-			return `${minutes} ${hours} * * *`; // 每天
+			return `${minutes} ${hours} * * *`; // Daily
 		} else if (repeatMode === "weekly") {
-			// 每周模式
+			// Weekly mode
 			const { time, dayOfWeek } = config;
 			const [hours, minutes] = time.split(":").map(Number);
-			const weekday = dayOfWeek; // 必填，单选
+			const weekday = dayOfWeek; // Required, single select
 			const cronWeekday = weekday === 7 ? 0 : weekday;
 			return `${minutes} ${hours} * * ${cronWeekday}`;
 		} else if (repeatMode === "monthly") {
-			// 每月模式
+			// Monthly mode
 			const { time, dayOfMonth } = config;
 			const [hours, minutes] = time.split(":").map(Number);
 
 			if (typeof dayOfMonth === "number") {
-				// 具体日期 - 生成标准 cron 表达式
-				// 后端通过 monthlyFallback 字段来决定如何处理天数不足的情况
+				// Specific date - generate standard cron expression
+				// Backend uses monthlyFallback field to decide how to handle insufficient days
 				return `${minutes} ${hours} ${dayOfMonth} * *`;
 			} else if (dayOfMonth === "first") {
-				// 第一天
+				// First day
 				return `${minutes} ${hours} 1 * *`;
 			} else if (dayOfMonth === "last") {
-				// 最后一天 - 某些 cron 实现支持 L，但不是标准语法
-				// 后端可以解析这个特殊标记或使用其他方式处理（如使用 28-31 范围）
+				// Last day - some cron implementations support L, but it's not standard syntax
+				// Backend can parse this special marker or handle it in other ways (e.g., using 28-31 range)
 				return `${minutes} ${hours} L * *`;
 			}
 
-			return `${minutes} ${hours} 1 * *`; // 默认第一天
+			return `${minutes} ${hours} 1 * *`; // Default: first day
 		}
 	}
 
-	return "0 0 * * *"; // 默认每天00:00
+	return "0 0 * * *"; // Default: every day at 00:00
 };

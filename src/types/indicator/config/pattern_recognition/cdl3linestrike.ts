@@ -9,7 +9,7 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDL3LINESTRIKEConfigSchema = z.object({
-	// CDL3LINESTRIKE 没有参数
+	// CDL3LINESTRIKE has no parameters
 });
 
 export type CDL3LINESTRIKEConfigType = z.infer<
@@ -18,7 +18,7 @@ export type CDL3LINESTRIKEConfigType = z.infer<
 
 function buildCDL3LINESTRIKEConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDL3LINESTRIKE 不需要任何参数
+		// CDL3LINESTRIKE doesn't need any parameters
 	};
 }
 
@@ -28,7 +28,7 @@ export const CDL3LINESTRIKEConfig: IndicatorConfig<CDL3LINESTRIKEConfigType> = {
 	displayName: "CDL3LINESTRIKE",
 	description: "Three-Line Strike",
 	params: {
-		// CDL3LINESTRIKE 没有参数
+		// CDL3LINESTRIKE has no parameters
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

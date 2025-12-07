@@ -8,29 +8,29 @@ import {
 } from "@/types/indicator/indicator-config";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
-// TYPPRICE 指标配置的 Zod schema
+// Zod schema for TYPPRICE indicator configuration
 const TYPPRICEConfigSchema = z.object({});
 
 export type TYPPRICEConfigType = z.infer<typeof TYPPRICEConfigSchema>;
 
-// TYPPRICE指标的参数映射函数
+// Parameter mapping function for TYPPRICE indicator
 function buildTYPPRICEConfig(_params: Map<string, string>): unknown {
 	return {};
 }
 
-// TYPPRICE指标配置实现
+// TYPPRICE indicator configuration implementation
 export const TYPPRICEConfig: IndicatorConfig<TYPPRICEConfigType> = {
 	category: IndicatorCategory.PRICE_TRANSFORM,
 	type: IndicatorType.TYPPRICE,
 	displayName: "TYPPRICE",
-	description: "计算典型价格 (High + Low + Close) / 3",
+	description: "Calculate typical price (High + Low + Close) / 3",
 	params: {},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },
 		typprice: { label: "typprice", value: 0, legendShowName: "typprice" },
 	},
 	chartConfig: {
-		isInMainChart: true, // 价格变换指标显示在主图
+		isInMainChart: true, // Price transform indicators display in main chart
 		seriesConfigs: [
 			{
 				name: "TYPPRICE",
@@ -50,7 +50,7 @@ export const TYPPRICEConfig: IndicatorConfig<TYPPRICEConfigType> = {
 		return getIndicatorValues(this.indicatorValueConfig);
 	},
 
-	// 使用通用解析函数
+	// Use generic parsing function
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
 		IndicatorType.TYPPRICE,
 		TYPPRICEConfigSchema,

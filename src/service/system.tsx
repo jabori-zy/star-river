@@ -12,7 +12,7 @@ export async function getSystemConfig(): Promise<SystemConfig> {
 		const response = await axios.get(`${getApiUrl()}/config`);
 		return response.data.data as SystemConfig;
 	} catch (error) {
-		console.error("获取系统配置错误:", error);
+		console.error("Error fetching system config:", error);
 		throw error;
 	}
 }
@@ -24,7 +24,7 @@ export async function updateSystemConfig(
 		const response = await axios.put(`${getApiUrl()}/config`, systemConfig);
 		return response.data.data as SystemConfig;
 	} catch (error) {
-		console.error("更新系统配置错误:", error);
+		console.error("Error updating system config:", error);
 		throw error;
 	}
 }
@@ -34,7 +34,7 @@ export async function getTimezones(): Promise<string[]> {
 		const response = await axios.get(`${getApiUrl()}/timezones`);
 		return response.data.data as string[];
 	} catch (error) {
-		console.error("获取时区错误:", error);
+		console.error("Error fetching timezones:", error);
 		throw error;
 	}
 }

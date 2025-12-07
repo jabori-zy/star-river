@@ -7,10 +7,10 @@ interface SimulateModeShowProps {
 }
 
 const SimulateModeShow: React.FC<SimulateModeShowProps> = ({ id, data }) => {
-	// 获取模拟模式配置
+	// Get simulate mode config
 	const simulateConfig = data.simulateConfig;
 
-	// 如果没有配置或者没有仓位操作，显示提示信息
+	// If no config or no position operations, show hint message
 	if (
 		!simulateConfig ||
 		!simulateConfig.positionOperations ||
@@ -18,22 +18,22 @@ const SimulateModeShow: React.FC<SimulateModeShowProps> = ({ id, data }) => {
 	) {
 		return (
 			<div className="text-sm text-muted-foreground p-2 text-center">
-				暂无仓位操作配置
+				No position operation configured
 			</div>
 		);
 	}
 
 	return (
 		<div className="space-y-2">
-			{/* 显示账户信息 */}
+			{/* Show account info */}
 			{simulateConfig.selectedAccount && (
 				<div className="text-xs text-muted-foreground px-2">
-					账户: {simulateConfig.selectedAccount.accountName} (
+					Account: {simulateConfig.selectedAccount.accountName} (
 					{simulateConfig.selectedAccount.exchange})
 				</div>
 			)}
 
-			{/* 渲染所有的仓位操作 */}
+			{/* Render all position operations */}
 			{simulateConfig.positionOperations.map((operationConfig) => (
 				<PositionHandleItem
 					key={operationConfig.configId}

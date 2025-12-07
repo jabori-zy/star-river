@@ -10,7 +10,7 @@ import {
 	type IndicatorValueConfig,
 } from "./schemas";
 
-// 基础指标配置接口
+// Base indicator configuration interface
 export interface BaseIndicatorConfig {
 	category: IndicatorCategory;
 	type: IndicatorType;
@@ -18,14 +18,14 @@ export interface BaseIndicatorConfig {
 	description?: string;
 	chartConfig: IndicatorChartBaseConfig;
 	indicatorValueConfig: IndicatorValueConfig;
-	getValue(): Record<keyof IndicatorValueConfig, number>; // 获取指标值
+	getValue(): Record<keyof IndicatorValueConfig, number>; // Get indicator value
 	// getSeriesName(
 	// 	seriesName: string,
 	// 	indicatorKey: IndicatorKey,
 	// ): string | undefined;
 }
 
-// 默认的getValue实现工具函数
+// Default getValue implementation utility function
 export function getIndicatorValues(
 	indicatorValueConfig: IndicatorValueConfig,
 ): Record<keyof IndicatorValueConfig, number> {
@@ -37,7 +37,7 @@ export function getIndicatorValues(
 	);
 }
 
-// 通用的指标配置解析函数
+// Generic indicator configuration parsing function
 export function createParseIndicatorConfigFromKeyStr<T>(
 	expectedType: IndicatorType,
 	schema: z.ZodSchema<T>,
@@ -52,37 +52,37 @@ export function createParseIndicatorConfigFromKeyStr<T>(
 
 			if (indicatorType !== expectedType) {
 				console.warn(
-					`指标类型不匹配，期望: ${expectedType}, 实际: ${indicatorType}`,
+					`Indicator type mismatch, expected: ${expectedType}, actual: ${indicatorType}`,
 				);
 				return undefined;
 			}
 
-			// 使用传入的configBuilder构建配置对象
+			// Build configuration object using the passed configBuilder
 			const configCandidate = configBuilder(params);
 
-			// 使用传入的schema验证配置
+			// Validate configuration using the passed schema
 			const validatedConfig = schema.parse(configCandidate);
-			// console.log("验证通过的配置:", validatedConfig);
+			// console.log("Validated configuration:", validatedConfig);
 
 			return validatedConfig;
 		} catch (error) {
-			console.error("解析指标配置失败:", error);
+			console.error("Failed to parse indicator configuration:", error);
 			if (error instanceof z.ZodError) {
-				console.error("验证错误详情:", error.errors);
+				console.error("Validation error details:", error.errors);
 			}
 			return undefined;
 		}
 	};
 }
 
-// 通用指标配置接口
+// Generic indicator configuration interface
 export interface IndicatorConfig<
 	T extends Record<string, unknown> = Record<string, unknown>,
 > extends BaseIndicatorConfig {
 	params: {
 		[K in keyof T]-?: IndicatorParam;
 	};
-	getDefaultConfig(): T; // 获取默认配置
+	getDefaultConfig(): T; // Get default configuration
 	parseIndicatorConfigFromKeyStr(
 		indicatorType: IndicatorType,
 		indicatorConfigStr: string,
@@ -90,11 +90,11 @@ export interface IndicatorConfig<
 	validateConfig(config: unknown): config is T;
 }
 
-// 解析键字符串为参数映射
+// Parse key string to parameter map
 export function parseKeyStrToMap(keyStr: string): Map<string, string> {
 	const paramStr = keyStr.match(/\((.*?)\)/)?.[1] || "";
 	const params = new Map<string, string>();
-	// 无参数时返回空Map
+	// Return empty Map when no parameters
 	if (!paramStr) {
 		return params;
 	}
@@ -110,23 +110,23 @@ export function parseKeyStrToMap(keyStr: string): Map<string, string> {
 }
 
 /**
- * 根据指标类型和配置字符串解析指标配置
- * @param indicatorType 指标类型
- * @param indicatorConfigStr 指标配置字符串
- * @returns 解析后的配置对象，如果不支持或验证失败则返回 undefined
+ * Parse indicator configuration based on indicator type and configuration string
+ * @param indicatorType Indicator type
+ * @param indicatorConfigStr Indicator configuration string
+ * @returns Parsed configuration object, returns undefined if not supported or validation fails
  */
 export function parseIndicatorConfig(
 	indicatorType: IndicatorType,
 	indicatorConfigStr: string,
 ): Record<string, unknown> | undefined {
 	try {
-		// 验证指标类型
+		// Validate indicator type
 		const validatedType = IndicatorTypeSchema.parse(indicatorType);
 
 		const config = INDICATOR_CONFIG_MAP[validatedType];
 
 		if (!config) {
-			console.warn(`不支持的指标类型: ${validatedType}`);
+			console.warn(`Unsupported indicator type: ${validatedType}`);
 			return undefined;
 		}
 
@@ -136,27 +136,27 @@ export function parseIndicatorConfig(
 		);
 
 		if (!parsedConfig) {
-			console.error("配置解析失败");
+			console.error("Configuration parsing failed");
 			return undefined;
 		}
 
-		// 验证解析结果
+		// Validate parsing result
 		if (!config.validateConfig(parsedConfig)) {
-			console.error("配置验证失败");
+			console.error("Configuration validation failed");
 			return undefined;
 		}
 
 		return parsedConfig as Record<string, unknown>;
 	} catch (error) {
-		console.error("解析指标配置时发生错误:", error);
+		console.error("Error occurred while parsing indicator configuration:", error);
 		return undefined;
 	}
 }
 
 /**
- * 获取指标配置实例
- * @param indicatorType 指标类型
- * @returns 指标配置实例，如果不支持则返回 undefined
+ * Get indicator configuration instance
+ * @param indicatorType Indicator type
+ * @returns Indicator configuration instance, returns undefined if not supported
  */
 export function getIndicatorConfig(
 	indicatorType: IndicatorType,
@@ -165,7 +165,7 @@ export function getIndicatorConfig(
 		const validatedType = IndicatorTypeSchema.parse(indicatorType);
 		return INDICATOR_CONFIG_MAP[validatedType];
 	} catch (error) {
-		console.error("获取指标配置时发生错误:", error);
+		console.error("Error occurred while getting indicator configuration:", error);
 		return undefined;
 	}
 }

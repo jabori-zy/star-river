@@ -8,7 +8,7 @@ import {
 } from "@/types/indicator/indicator-config";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
-// MA 指标配置的 Zod schema
+// ADOSC indicator configuration Zod schema
 const ADOSCConfigSchema = z.object({
 	fastPeriod: z.number().int().positive(),
 	slowPeriod: z.number().int().positive(),
@@ -16,7 +16,7 @@ const ADOSCConfigSchema = z.object({
 
 export type ADOSCConfigType = z.infer<typeof ADOSCConfigSchema>;
 
-// AD指标的参数映射函数
+// ADOSC indicator parameter mapping function
 function buildADOSCConfig(params: Map<string, string>): unknown {
 	return {
 		fastPeriod: parseInt(params.get("fast_period") || "12"),
@@ -24,7 +24,7 @@ function buildADOSCConfig(params: Map<string, string>): unknown {
 	};
 }
 
-// AD指标配置实现
+// ADOSC indicator configuration implementation
 export const ADOSCConfig: IndicatorConfig<ADOSCConfigType> = {
 	category: IndicatorCategory.VOLUME,
 	type: IndicatorType.ADOSC,
@@ -33,14 +33,14 @@ export const ADOSCConfig: IndicatorConfig<ADOSCConfigType> = {
 	params: {
 		fastPeriod: {
 			label: "indicator.configField.fastPeriod",
-			description: "选择快线的计算周期",
+			description: "Select the calculation period for the fast line",
 			defaultValue: 12,
 			required: true,
 			legendShowName: "fast",
 		},
 		slowPeriod: {
 			label: "indicator.configField.slowPeriod",
-			description: "选择慢线的计算周期",
+			description: "Select the calculation period for the slow line",
 			defaultValue: 26,
 			required: true,
 			legendShowName: "slow",
@@ -71,7 +71,7 @@ export const ADOSCConfig: IndicatorConfig<ADOSCConfigType> = {
 			]),
 		);
 
-		// 使用 Zod 验证配置
+		// Validate configuration using Zod
 		const validatedConfig = ADOSCConfigSchema.parse(config);
 		return validatedConfig;
 	},
@@ -80,7 +80,7 @@ export const ADOSCConfig: IndicatorConfig<ADOSCConfigType> = {
 		return getIndicatorValues(this.indicatorValueConfig);
 	},
 
-	// 使用通用解析函数
+	// Use common parsing function
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
 		IndicatorType.ADOSC,
 		ADOSCConfigSchema,
@@ -100,10 +100,10 @@ export const ADOSCConfig: IndicatorConfig<ADOSCConfigType> = {
 	// 	seriesName: string,
 	// 	indicatorKey: IndicatorKey,
 	// ): string | undefined {
-	// 	// 如果指标类型为AD，则返回AD-seriesName
+	// 	// If indicator type is ADOSC, return ADOSC-seriesName
 	// 	if (indicatorKey.indicatorType === IndicatorType.ADOSC) {
 	// 		const adoscConfig = indicatorKey.indicatorConfig as ADOSCConfigType;
-	// 		// 找到名称相同的seriesConfig
+	// 		// Find seriesConfig with matching name
 	// 		const seriseConfig = this.chartConfig.seriesConfigs.find(
 	// 			(config) => config.name === seriesName,
 	// 		);

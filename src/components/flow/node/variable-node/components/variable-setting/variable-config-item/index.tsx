@@ -45,31 +45,31 @@ const VariableConfigItem: React.FC<VariableConfigItemProps> = ({
 	getUpdateOperationLabel,
 	allConfigs,
 }) => {
-	// 检测是否有重复的变量操作配置（仅针对自定义变量）
+	// Check for duplicate variable operation configuration (only for custom variables)
 	const checkDuplicateVariableOperation = (varName: string): string | null => {
-		// 检查是否是自定义变量
+		// Check if it's a custom variable
 		const isCustomVariable = customVariables.some(
 			(customVar: CustomVariable) => customVar.varName === varName,
 		);
 
-		// 只对自定义变量进行检测
+		// Only check for custom variables
 		if (!isCustomVariable) {
 			return null;
 		}
 
-		// 查找是否有相同变量的配置
+		// Find if there's a config with the same variable
 		for (let i = 0; i < allConfigs.length; i++) {
-			// 跳过当前配置自己
+			// Skip the current config itself
 			if (i === index) {
 				continue;
 			}
 
 			const existingConfig = allConfigs[i];
 
-			// 如果找到相同变量名的配置
+			// If a config with the same variable name is found
 			if (existingConfig.varName === varName) {
-				// 同一个自定义变量只能配置一次（get/update/reset 任选其一）
-				// 返回已存在的操作类型
+				// Same custom variable can only be configured once (choose one of get/update/reset)
+				// Return the existing operation type
 				return existingConfig.varOperation;
 			}
 		}
@@ -79,7 +79,7 @@ const VariableConfigItem: React.FC<VariableConfigItemProps> = ({
 
 	const duplicateOperation = checkDuplicateVariableOperation(config.varName);
 
-	// 根据操作类型渲染对应的配置项组件
+	// Render the corresponding config item component based on operation type
 	const renderConfigContent = () => {
 		switch (config.varOperation) {
 			case "get":
@@ -134,7 +134,7 @@ const VariableConfigItem: React.FC<VariableConfigItemProps> = ({
 
 	return (
 		<>
-			{/* 配置内容 */}
+			{/* Config content */}
 			{renderConfigContent()}
 		</>
 	);

@@ -17,7 +17,7 @@ import type {
 	StrategyRunningLogEvent,
 } from "@/types/strategy-event/running-log-event";
 
-// 日志级别图标映射
+// Log level icon mapping
 const getLogLevelIcon = (logLevel: LogLevel) => {
 	switch (logLevel) {
 		case LogLevel.DEBUG:
@@ -35,7 +35,7 @@ const getLogLevelIcon = (logLevel: LogLevel) => {
 	}
 };
 
-// 日志级别样式映射
+// Log level style mapping
 const getLogLevelStyle = (logLevel: LogLevel) => {
 	switch (logLevel) {
 		case LogLevel.DEBUG:
@@ -53,7 +53,7 @@ const getLogLevelStyle = (logLevel: LogLevel) => {
 	}
 };
 
-// Strategy Running Log 表格列定义
+// Strategy Running Log table column definition
 export const createStrategyRunningLogColumns = (
 	isCompactMode: boolean,
 ): ColumnDef<StrategyRunningLogEvent | NodeRunningLogEvent>[] => [
@@ -167,10 +167,10 @@ export const createStrategyRunningLogColumns = (
 	{
 		accessorKey: "message",
 		header: "消息",
-		size: 1000, // 设置较大的初始宽度
-		minSize: 200, // 最小宽度确保内容可读
-		// 不设置 maxSize，让该列可以占据剩余空间
-		enableResizing: false, // 禁用调整大小
+		size: 1000, // Set larger initial width
+		minSize: 200, // Minimum width to ensure content is readable
+		// Don't set maxSize, let this column occupy remaining space
+		enableResizing: false, // Disable resizing
 		cell: ({ row }) => (
 			<div
 				className="text-left text-sm leading-relaxed break-all"

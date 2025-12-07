@@ -20,7 +20,7 @@ interface LogTableFiltersProps {
 }
 
 export function LogTableFilters({ table }: LogTableFiltersProps) {
-	// 获取唯一的节点名称列表
+	// Get unique node name list
 	const uniqueNodeNames = Array.from(
 		new Set(
 			table
@@ -30,7 +30,7 @@ export function LogTableFilters({ table }: LogTableFiltersProps) {
 		),
 	).sort();
 
-	// 获取当前的筛选值
+	// Get current filter values
 	const logLevelFilter = table
 		.getColumn("logLevel")
 		?.getFilterValue() as string;
@@ -39,19 +39,19 @@ export function LogTableFilters({ table }: LogTableFiltersProps) {
 		.getColumn("nodeName")
 		?.getFilterValue() as string;
 
-	// 清空所有筛选
+	// Clear all filters
 	const clearAllFilters = () => {
 		table.getColumn("logLevel")?.setFilterValue(undefined);
 		table.getColumn("type")?.setFilterValue(undefined);
 		table.getColumn("nodeName")?.setFilterValue(undefined);
 	};
 
-	// 检查是否有任何筛选器处于激活状态
+	// Check if any filter is active
 	const hasActiveFilters = !!(logLevelFilter || typeFilter || nodeNameFilter);
 
 	return (
 		<div className="flex flex-wrap gap-3 items-center p-4 bg-muted/30 border-b">
-			{/* 日志级别筛选 */}
+			{/* Log level filter */}
 			<div className="flex items-center gap-2">
 				<span className="text-sm font-medium text-muted-foreground">级别:</span>
 				<Select
@@ -76,7 +76,7 @@ export function LogTableFilters({ table }: LogTableFiltersProps) {
 				</Select>
 			</div>
 
-			{/* 来源筛选 */}
+			{/* Source filter */}
 			<div className="flex items-center gap-2">
 				<span className="text-sm font-medium text-muted-foreground">来源:</span>
 				<Select
@@ -98,7 +98,7 @@ export function LogTableFilters({ table }: LogTableFiltersProps) {
 				</Select>
 			</div>
 
-			{/* 节点名称筛选 */}
+			{/* Node name filter */}
 			<div className="flex items-center gap-2">
 				<span className="text-sm font-medium text-muted-foreground">节点:</span>
 				<Select
@@ -123,7 +123,7 @@ export function LogTableFilters({ table }: LogTableFiltersProps) {
 				</Select>
 			</div>
 
-			{/* 活动筛选器显示和清空按钮 */}
+			{/* Active filters display and clear button */}
 			{hasActiveFilters && (
 				<div className="flex items-center gap-2">
 					<span className="text-sm text-muted-foreground">筛选中:</span>
@@ -185,7 +185,7 @@ export function LogTableFilters({ table }: LogTableFiltersProps) {
 				</div>
 			)}
 
-			{/* 筛选结果统计 */}
+			{/* Filter result statistics */}
 			<div className="ml-auto text-sm text-muted-foreground">
 				显示 {table.getFilteredRowModel().rows.length} /{" "}
 				{table.getCoreRowModel().rows.length} 条记录

@@ -9,14 +9,14 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLHARAMIConfigSchema = z.object({
-	// CDLHARAMI 没有参数
+	// CDLHARAMI has no parameters
 });
 
 export type CDLHARAMIConfigType = z.infer<typeof CDLHARAMIConfigSchema>;
 
 function buildCDLHARAMIConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLHARAMI 不需要任何参数
+		// CDLHARAMI doesn't need any parameters
 	};
 }
 
@@ -26,7 +26,7 @@ export const CDLHARAMIConfig: IndicatorConfig<CDLHARAMIConfigType> = {
 	displayName: "CDLHARAMI",
 	description: "Harami Pattern",
 	params: {
-		// CDLHARAMI 没有参数
+		// CDLHARAMI has no parameters
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

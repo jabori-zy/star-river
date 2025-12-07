@@ -7,10 +7,10 @@ interface UseChartResizeProps {
 }
 
 /**
- * 处理图表容器 resize
+ * Handle chart container resize
  *
- * 职责：
- * 使用 ResizeObserver 监听容器尺寸变化，自动调整图表大小
+ * Responsibilities:
+ * Use ResizeObserver to monitor container size changes and automatically adjust chart size
  */
 export const useChartResize = ({
 	chartContainerRef,

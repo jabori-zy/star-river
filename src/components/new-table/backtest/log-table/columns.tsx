@@ -11,7 +11,7 @@ import type {
 	StrategyRunningLogEvent,
 } from "@/types/strategy-event/running-log-event";
 
-// 日志级别图标映射
+// Log level icon mapping
 // const getLogLevelIcon = (logLevel: LogLevel) => {
 // 	switch (logLevel) {
 // 		case LogLevel.DEBUG:
@@ -29,7 +29,7 @@ import type {
 // 	}
 // };
 
-// 日志级别样式映射
+// Log level style mapping
 const getLogLevelStyle = (logLevel: LogLevel) => {
 	switch (logLevel) {
 		case LogLevel.DEBUG:
@@ -47,7 +47,7 @@ const getLogLevelStyle = (logLevel: LogLevel) => {
 	}
 };
 
-// Log 表格列定义 Hook
+// Log table column definition Hook
 export const useLogColumns = (): ColumnDef<
 	StrategyRunningLogEvent | NodeRunningLogEvent
 >[] => {

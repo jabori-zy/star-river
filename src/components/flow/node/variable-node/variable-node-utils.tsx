@@ -14,21 +14,21 @@ import {
 	SystemVariableType,
 } from "@/types/variable";
 /**
- * 获取变量类型的中文名称（仅用于系统变量）
- * 对于自定义变量，应该直接返回变量名
+ * Get the display name of variable type (only for system variables)
+ * For custom variables, should directly return the variable name
  */
 export const getVariableLabel = (type: string, t: TFunction): string => {
-	// 检查是否是系统变量
+	// Check if it's a system variable
 	if (Object.values(SystemVariableType).includes(type as SystemVariableType)) {
 		const metadata = getSystemVariableMetadata(t)[type as SystemVariableType];
 		return metadata.varDisplayName;
 	}
-	// 自定义变量直接返回变量名（变量名通常就是 varName）
+	// For custom variables, directly return the variable name
 	return type;
 };
 
 /**
- * 生成默认变量名称
+ * Generate default variable name
  */
 export const generateVariableName = (
 	variableType: string,
@@ -38,7 +38,7 @@ export const generateVariableName = (
 ): string => {
 	let typeLabel: string;
 
-	// 检查是否是系统变量
+	// Check if it's a system variable
 	if (
 		Object.values(SystemVariableType).includes(
 			variableType as SystemVariableType,
@@ -46,11 +46,11 @@ export const generateVariableName = (
 	) {
 		typeLabel = getVariableLabel(variableType, t);
 	} else if (customVariables) {
-		// 自定义变量：从列表中查找 varDisplayName
+		// Custom variable: find varDisplayName from the list
 		const customVar = customVariables.find((v) => v.varName === variableType);
 		typeLabel = customVar?.varDisplayName || variableType;
 	} else {
-		// 如果没有提供自定义变量列表，使用变量名本身
+		// If custom variable list is not provided, use the variable name itself
 		typeLabel = variableType;
 	}
 
@@ -59,8 +59,8 @@ export const generateVariableName = (
 };
 
 /**
- * 检查是否存在重复配置（相同交易对+变量类型+触发方式）
- * 只对 get 操作进行重复检查
+ * Check if there is a duplicate configuration (same symbol + variable type + trigger method)
+ * Only check duplicates for get operations
  */
 export const isDuplicateConfig = (
 	existingConfigs: VariableConfig[],
@@ -84,31 +84,31 @@ export const isDuplicateConfig = (
 };
 
 /**
- * 获取更新操作的输入框占位符文本
+ * Get placeholder text for update operation input field
  */
 export const getUpdateOperationPlaceholder = (
 	operationType: UpdateVarValueOperation,
 ): string => {
 	const placeholderMap: Record<UpdateVarValueOperation, string> = {
-		set: "输入新值",
-		add: "输入增加值",
-		subtract: "输入减少值",
-		multiply: "输入乘数",
-		divide: "输入除数",
-		max: "输入比较值",
-		min: "输入比较值",
-		toggle: "输入值",
-		append: "输入要添加的值",
-		remove: "输入要删除的值",
-		clear: "输入值",
+		set: "Enter new value",
+		add: "Enter increment value",
+		subtract: "Enter decrement value",
+		multiply: "Enter multiplier",
+		divide: "Enter divisor",
+		max: "Enter comparison value",
+		min: "Enter comparison value",
+		toggle: "Enter value",
+		append: "Enter value to add",
+		remove: "Enter value to remove",
+		clear: "Enter value",
 	};
-	return placeholderMap[operationType] || "输入值";
+	return placeholderMap[operationType] || "Enter value";
 };
 
 /**
- * 从 TriggerCase 获取触发标签
- * @param triggerCase 触发配置
- * @returns 触发标签（如 "Case 1" 或 "Else"）
+ * Get trigger label from TriggerCase
+ * @param triggerCase Trigger configuration
+ * @returns Trigger label (e.g. "Case 1" or "Else")
  */
 export const getTriggerCaseLabel = (
 	triggerCase: ConditionTrigger | null,
@@ -123,7 +123,7 @@ export const getTriggerCaseLabel = (
 };
 
 /**
- * 触发类型配置
+ * Trigger type configuration
  */
 export interface TriggerTypeInfo {
 	icon: LucideIcon;
@@ -133,43 +133,43 @@ export interface TriggerTypeInfo {
 }
 
 /**
- * 触发类型元数据映射表
+ * Trigger type metadata mapping table
  */
 const TRIGGER_TYPE_METADATA: Record<TriggerType, TriggerTypeInfo> = {
 	condition: {
 		icon: Filter,
-		label: "条件触发",
+		label: "Condition Trigger",
 		color: "text-orange-500",
 		badgeColor: "bg-orange-100 text-orange-800",
 	},
 	timer: {
 		icon: Clock,
-		label: "定时触发",
+		label: "Timer Trigger",
 		color: "text-blue-500",
 		badgeColor: "bg-blue-100 text-blue-800",
 	},
 	dataflow: {
 		icon: Workflow,
-		label: "数据流触发",
+		label: "Dataflow Trigger",
 		color: "text-blue-500",
 		badgeColor: "bg-emerald-100 text-emerald-800",
 	},
 };
 
 /**
- * 获取触发类型的图标
- * @param triggerType 触发类型
- * @returns 图标组件
+ * Get trigger type icon
+ * @param triggerType Trigger type
+ * @returns Icon component
  */
 export const getTriggerTypeIcon = (triggerType: TriggerType): LucideIcon => {
 	return TRIGGER_TYPE_METADATA[triggerType].icon;
 };
 
 /**
- * 获取触发类型的标签文本
- * @param triggerType 触发类型
- * @param t i18n 翻译函数
- * @returns 标签文本
+ * Get trigger type label text
+ * @param triggerType Trigger type
+ * @param t i18n translation function
+ * @returns Label text
  */
 export const getTriggerTypeLabel = (
 	triggerType: TriggerType,
@@ -184,28 +184,28 @@ export const getTriggerTypeLabel = (
 };
 
 /**
- * 获取触发类型的颜色样式类名
- * @param triggerType 触发类型
- * @returns Tailwind 颜色类名
+ * Get trigger type color style class name
+ * @param triggerType Trigger type
+ * @returns Tailwind color class name
  */
 export const getTriggerTypeColor = (triggerType: TriggerType): string => {
 	return TRIGGER_TYPE_METADATA[triggerType].color;
 };
 
 /**
- * 获取触发类型的 Badge 颜色样式类名
- * @param triggerType 触发类型
- * @returns Tailwind Badge 颜色类名
+ * Get trigger type Badge color style class name
+ * @param triggerType Trigger type
+ * @returns Tailwind Badge color class name
  */
 export const getTriggerTypeBadgeColor = (triggerType: TriggerType): string => {
 	return TRIGGER_TYPE_METADATA[triggerType].badgeColor;
 };
 
 /**
- * 获取触发类型的完整信息
- * @param triggerType 触发类型
- * @param t i18n 翻译函数
- * @returns 触发类型信息对象
+ * Get complete information of trigger type
+ * @param triggerType Trigger type
+ * @param t i18n translation function
+ * @returns Trigger type information object
  */
 export const getTriggerTypeInfo = (
 	triggerType: TriggerType,
@@ -218,10 +218,10 @@ export const getTriggerTypeInfo = (
 	};
 };
 
-// ==================== 公共辅助组件和函数 ====================
+// ==================== Public helper components and functions ====================
 
 /**
- * 生成变量名高亮元素
+ * Generate variable name highlight element
  */
 export const generateVariableHighlight = (name?: string): React.ReactNode => {
 	if (!name) return null;
@@ -229,7 +229,7 @@ export const generateVariableHighlight = (name?: string): React.ReactNode => {
 };
 
 /**
- * 生成值高亮元素
+ * Generate value highlight element
  */
 export const generateValueHighlight = (value: string): React.ReactNode => {
 	return <span className="text-blue-600 font-medium">{value}</span>;
@@ -241,9 +241,9 @@ export const generateSymbolHighlight = (symbol?: string): React.ReactNode => {
 };
 
 /**
- * 生成定时触发的时间间隔前缀文案
- * @param timerConfig 定时配置
- * @returns 时间间隔文案，如 "每5分钟，" 或 null
+ * Generate timer trigger interval prefix text
+ * @param timerConfig Timer configuration
+ * @returns Interval text, e.g. "Every 5 minutes," or null
  */
 export const generateTimerIntervalPrefix = (
 	t: (key: string, options?: { [key: string]: string }) => string,
@@ -276,9 +276,9 @@ export const generateTimerIntervalPrefix = (
 };
 
 /**
- * 生成定时执行模式的前缀文案
- * @param timerConfig 定时配置
- * @returns 定时执行文案，如 "每小时的第30分钟，" 或 null
+ * Generate scheduled execution mode prefix text
+ * @param timerConfig Timer configuration
+ * @returns Scheduled execution text, e.g. "At minute 30 of every hour," or null
  */
 export const generateSchedulePrefix = (
 	timerConfig: TimerTrigger,
@@ -291,7 +291,7 @@ export const generateSchedulePrefix = (
 	const { repeatMode } = timerConfig;
 
 	if (repeatMode === "hourly") {
-		// 每小时: 每{}小时的第{}分钟，
+		// Hourly: At minute {} of every {} hour(s),
 		const { hourlyInterval, minuteOfHour } = timerConfig;
 		if (hourlyInterval === 1) {
 			return t("variableNode.hint.scheduleHourlyOne", {
@@ -305,7 +305,7 @@ export const generateSchedulePrefix = (
 	}
 
 	if (repeatMode === "daily") {
-		// 每天: 每天 {}:{} (周一，周二...)
+		// Daily: Every day {}:{} (Mon, Tue...)
 		const { time, daysOfWeek } = timerConfig;
 		const weekdayMap: Record<number, string> = {
 			1: t("common.weekdayAbbr.monday"),
@@ -319,7 +319,7 @@ export const generateSchedulePrefix = (
 
 		let prefix = t("variableNode.hint.scheduleDaily", { time: time });
 
-		// 如果选择了特定的星期，添加星期信息
+		// If specific weekdays are selected, add weekday information
 		if (daysOfWeek && daysOfWeek.length > 0 && daysOfWeek.length < 7) {
 			const weekdayNames = daysOfWeek.map((d) => weekdayMap[d]).join("、");
 			prefix += ` (${weekdayNames})`;
@@ -329,7 +329,7 @@ export const generateSchedulePrefix = (
 	}
 
 	if (repeatMode === "weekly") {
-		// 每周: 每周{三} {}:{}
+		// Weekly: Every {Wednesday} {}:{}
 		const { time, dayOfWeek } = timerConfig;
 		const weekdayMap: Record<number, string> = {
 			1: t("common.weekday.monday"),
@@ -348,7 +348,7 @@ export const generateSchedulePrefix = (
 	}
 
 	if (repeatMode === "monthly") {
-		// 每月: 每月第{}天的{}:{}，每个月的最后一天
+		// Monthly: Day {} of every month at {}:{}, last day of every month
 		const { time, dayOfMonth } = timerConfig;
 
 		if (typeof dayOfMonth === "number") {
@@ -370,33 +370,33 @@ export const generateSchedulePrefix = (
 	return null;
 };
 
-// ==================== 更新操作文本生成器（用于节点显示）====================
+// ==================== Update operation text generator (for node display) ====================
 
 // /**
-//  * 获取更新操作类型的显示文本
-//  * 对于某些操作（如增加、减少等），不需要显示文本，因为会在值中体现
+//  * Get display text for update operation type
+//  * For some operations (such as add, subtract, etc.), no text is needed as it's reflected in the value
 //  */
 // export const getUpdateOperationLabel = (
 // 	operationType: UpdateVarValueOperation,
 // ): string => {
 // 	const operationLabels: Record<UpdateVarValueOperation, string> = {
-// 		set: "设置为",
-// 		add: "", // 通过 +5 的格式体现
-// 		subtract: "", // 通过 -5 的格式体现
-// 		multiply: "", // 通过 ×5 的格式体现
-// 		divide: "", // 通过 ÷5 的格式体现
-// 		max: "取最大值",
-// 		min: "取最小值",
-// 		toggle: "切换",
-// 		append: "添加",
-// 		remove: "删除",
-// 		clear: "清空",
+// 		set: "Set to",
+// 		add: "", // Shown as +5 format
+// 		subtract: "", // Shown as -5 format
+// 		multiply: "", // Shown as ×5 format
+// 		divide: "", // Shown as ÷5 format
+// 		max: "Take max value",
+// 		min: "Take min value",
+// 		toggle: "Toggle",
+// 		append: "Append",
+// 		remove: "Remove",
+// 		clear: "Clear",
 // 	};
 // 	return operationLabels[operationType] || operationType;
 // };
 
 /**
- * 格式化更新操作的值显示
+ * Format update operation value display
  */
 export const formatUpdateOperationValue = (
 	value: string | number | boolean | string[] | null,
@@ -406,39 +406,39 @@ export const formatUpdateOperationValue = (
 		return "";
 	}
 
-	// 如果是清空或切换操作，不需要显示值
+	// If it's clear or toggle operation, no need to display value
 	if (operationType === "clear" || operationType === "toggle") {
 		return "";
 	}
 
-	// 如果是数组（枚举类型）
+	// If it's an array (enum type)
 	if (Array.isArray(value)) {
-		return value.length > 0 ? `[${value.join("、")}]` : "[]";
+		return value.length > 0 ? `[${value.join(", ")}]` : "[]";
 	}
 
-	// 如果是布尔值
+	// If it's a boolean value
 	if (typeof value === "boolean") {
 		return value ? "True" : "False";
 	}
 
 	const stringValue = String(value);
 
-	// 对于增加操作，添加 + 前缀
+	// For add operation, add + prefix
 	if (operationType === "add") {
 		return `+${stringValue}`;
 	}
 
-	// 对于减少操作，添加 - 前缀
+	// For subtract operation, add - prefix
 	if (operationType === "subtract") {
 		return `-${stringValue}`;
 	}
 
-	// 对于乘法操作，添加 × 符号
+	// For multiply operation, add × symbol
 	if (operationType === "multiply") {
 		return `×${stringValue}`;
 	}
 
-	// 对于除法操作，添加 ÷ 符号
+	// For divide operation, add ÷ symbol
 	if (operationType === "divide") {
 		return `÷${stringValue}`;
 	}

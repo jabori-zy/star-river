@@ -47,7 +47,7 @@ const IntervalConfiger: React.FC<IntervalConfigerProps> = ({
 				<SelectInDialog
 					value={config.unit}
 					onValueChange={(value) => handleUnitChange(value as TimerUnit)}
-					placeholder="选择时间单位"
+					placeholder={t("variableNode.timerConfig.selectTimeUnit")}
 					options={getTimeUnitOptions(t)}
 					className="h-8 flex-1"
 				/>

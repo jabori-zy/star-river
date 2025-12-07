@@ -8,21 +8,21 @@ import {
 } from "@/types/indicator/indicator-config";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
-// AROONOSC 指标配置的 Zod schema
+// AROONOSC indicator configuration Zod schema
 const AROONOSCConfigSchema = z.object({
 	timePeriod: z.number().int().positive(),
 });
 
 export type AROONOSCConfigType = z.infer<typeof AROONOSCConfigSchema>;
 
-// AROONOSC指标的参数映射函数
+// AROONOSC indicator parameter mapping function
 function buildAROONOSCConfig(params: Map<string, string>): unknown {
 	return {
 		timePeriod: parseInt(params.get("time_period") || "0"),
 	};
 }
 
-// AROONOSC指标配置实现
+// AROONOSC indicator configuration implementation
 export const AROONOSCConfig: IndicatorConfig<AROONOSCConfigType> = {
 	category: IndicatorCategory.MOMENTUM,
 	type: IndicatorType.AROONOSC,
@@ -31,7 +31,7 @@ export const AROONOSCConfig: IndicatorConfig<AROONOSCConfigType> = {
 	params: {
 		timePeriod: {
 			label: "indicator.configField.timePeriod",
-			description: "选择AROON振荡器的时间周期",
+			description: "Select the time period for the AROON oscillator",
 			defaultValue: 14,
 			required: true,
 			legendShowName: "period",
@@ -62,7 +62,7 @@ export const AROONOSCConfig: IndicatorConfig<AROONOSCConfigType> = {
 			]),
 		);
 
-		// 使用 Zod 验证配置
+		// Validate configuration using Zod
 		const validatedConfig = AROONOSCConfigSchema.parse(config);
 		return validatedConfig;
 	},
@@ -71,7 +71,7 @@ export const AROONOSCConfig: IndicatorConfig<AROONOSCConfigType> = {
 		return getIndicatorValues(this.indicatorValueConfig);
 	},
 
-	// 使用通用解析函数
+	// Use common parsing function
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
 		IndicatorType.AROONOSC,
 		AROONOSCConfigSchema,
@@ -91,10 +91,10 @@ export const AROONOSCConfig: IndicatorConfig<AROONOSCConfigType> = {
 	// 	seriesName: string,
 	// 	indicatorKey: IndicatorKey,
 	// ): string | undefined {
-	// 	// 如果指标类型为AROONOSC，则返回AROONOSC-seriesName-timePeriod
+	// 	// If indicator type is AROONOSC, return AROONOSC-seriesName-timePeriod
 	// 	if (indicatorKey.indicatorType === IndicatorType.AROONOSC) {
 	// 		const AROONOSCConfig = indicatorKey.indicatorConfig as AROONOSCConfigType;
-	// 		// 找到名称相同的seriesConfig
+	// 		// Find seriesConfig with matching name
 	// 		const seriseConfig = this.chartConfig.seriesConfigs.find(
 	// 			(config) => config.name === seriesName,
 	// 		);

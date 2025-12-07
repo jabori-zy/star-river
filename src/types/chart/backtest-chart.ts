@@ -5,7 +5,7 @@ import type {
 	// SubChartConfig,
 } from ".";
 
-// 回测图表配置
+// Backtest chart configuration
 export type BacktestChartConfig = {
 	id: number;
 	chartName: string;

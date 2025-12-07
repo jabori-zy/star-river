@@ -8,21 +8,21 @@ import {
 } from "@/types/indicator/indicator-config";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
-// CCI 指标配置的 Zod schema
+// Zod schema for CCI indicator configuration
 const CCIConfigSchema = z.object({
 	timePeriod: z.number().int().positive(),
 });
 
 export type CCIConfigType = z.infer<typeof CCIConfigSchema>;
 
-// CCI指标的参数映射函数
+// Parameter mapping function for CCI indicator
 function buildCCIConfig(params: Map<string, string>): unknown {
 	return {
 		timePeriod: parseInt(params.get("time_period") || "0"),
 	};
 }
 
-// CCI指标配置实现
+// CCI indicator configuration implementation
 export const CCIConfig: IndicatorConfig<CCIConfigType> = {
 	category: IndicatorCategory.MOMENTUM,
 	type: IndicatorType.CCI,
@@ -31,7 +31,7 @@ export const CCIConfig: IndicatorConfig<CCIConfigType> = {
 	params: {
 		timePeriod: {
 			label: "indicator.configField.timePeriod",
-			description: "选择CCI指标的时间周期",
+			description: "Select time period for CCI indicator",
 			defaultValue: 14,
 			required: true,
 			legendShowName: "period",
@@ -62,7 +62,7 @@ export const CCIConfig: IndicatorConfig<CCIConfigType> = {
 			]),
 		);
 
-		// 使用 Zod 验证配置
+		// Validate configuration using Zod
 		const validatedConfig = CCIConfigSchema.parse(config);
 		return validatedConfig;
 	},
@@ -71,7 +71,7 @@ export const CCIConfig: IndicatorConfig<CCIConfigType> = {
 		return getIndicatorValues(this.indicatorValueConfig);
 	},
 
-	// 使用通用解析函数
+	// Use generic parsing function
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
 		IndicatorType.CCI,
 		CCIConfigSchema,
@@ -91,10 +91,10 @@ export const CCIConfig: IndicatorConfig<CCIConfigType> = {
 	// 	seriesName: string,
 	// 	indicatorKey: IndicatorKey,
 	// ): string | undefined {
-	// 	// 如果指标类型为CCI，则返回CCI-seriesName-timePeriod
+	// 	// If indicator type is CCI, return CCI-seriesName-timePeriod
 	// 	if (indicatorKey.indicatorType === IndicatorType.CCI) {
 	// 		const CCIConfig = indicatorKey.indicatorConfig as CCIConfigType;
-	// 		// 找到名称相同的seriesConfig
+	// 		// Find seriesConfig with the same name
 	// 		const seriseConfig = this.chartConfig.seriesConfigs.find(
 	// 			(config) => config.name === seriesName,
 	// 		);

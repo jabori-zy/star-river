@@ -21,7 +21,7 @@ export type IndicatorLegendData = {
 	timeString: string;
 };
 
-// 默认颜色配置
+// Default color configuration
 const defaultColors = {
 	blue: "#3b82f6",
 	green: "#22c55e",
@@ -29,18 +29,18 @@ const defaultColors = {
 	gray: "#6b7280",
 };
 
-// 解析指标名称从indicatorKeyStr，包含配置参数
+// Parse indicator name from indicatorKeyStr, including configuration parameters
 const parseIndicatorName = (indicatorKeyStr: IndicatorKeyStr): string => {
 	try {
 		const indicatorKey = parseKey(indicatorKeyStr) as IndicatorKey;
 		const config = getIndicatorConfig(indicatorKey.indicatorType);
 		const displayName = config?.displayName || indicatorKey.indicatorType;
 
-		// 直接使用已解析的配置参数
+		// Directly use the parsed configuration parameters
 		const parsedConfig = indicatorKey.indicatorConfig;
 
 		if (parsedConfig && config?.params) {
-			// 构建参数字符串，直接使用 config.params
+			// Build parameter string, directly use config.params
 			const paramStrings: string[] = [];
 			Object.entries(config.params).forEach(([key, paramDef]) => {
 				const value = parsedConfig[key as keyof typeof parsedConfig];
@@ -49,7 +49,7 @@ const parseIndicatorName = (indicatorKeyStr: IndicatorKeyStr): string => {
 				}
 			});
 
-			// 如果有参数，则格式化为 "指标名(参数1=值1, 参数2=值2)"
+			// If there are parameters, format as "IndicatorName(param1=value1, param2=value2)"
 			if (paramStrings.length > 0) {
 				return `${displayName}(${paramStrings.join(", ")}):`;
 			}
@@ -57,12 +57,12 @@ const parseIndicatorName = (indicatorKeyStr: IndicatorKeyStr): string => {
 
 		return displayName;
 	} catch (error) {
-		console.error("解析指标名称失败:", error);
+		console.error("Failed to parse indicator name:", error);
 		return "Unknown";
 	}
 };
 
-// 时间转换为字符串
+// Convert time to string
 const timeToString = (time: Time): string => {
 	if (typeof time === "number") {
 		return new Date(time * 1000).toLocaleString();
@@ -74,7 +74,7 @@ const timeToString = (time: Time): string => {
 	return time;
 };
 
-// 从图表配置中获取指标值的颜色
+// Get indicator value color from chart configuration
 const getIndicatorValueColorFromConfig = (
 	indicatorKeyStr: IndicatorKeyStr,
 	valueKey: string,
@@ -94,7 +94,7 @@ const getIndicatorValueColorFromConfig = (
 		}
 	}
 
-	// 如果配置中没有颜色，使用默认颜色
+	// If no color in configuration, use default color
 	const colorList = [
 		defaultColors.blue,
 		defaultColors.green,
@@ -108,7 +108,7 @@ const getIndicatorValueColorFromConfig = (
 	return colorList[Math.abs(hash) % colorList.length];
 };
 
-// 处理指标值的通用函数
+// Generic function for processing indicator values
 const processIndicatorValues = (
 	indicatorKeyStr: IndicatorKeyStr,
 	indicatorData: Record<keyof IndicatorValueConfig, SingleValueData[]>,
@@ -120,18 +120,18 @@ const processIndicatorValues = (
 		{ label: string; value: string; color?: string }
 	> = {};
 
-	// // 解析indicatorType用于获取legend名称
+	// // Parse indicatorType to get legend name
 	// let indicatorType: string | undefined;
 	// try {
 	// 	const indicatorKey = parseKey(indicatorKeyStr) as IndicatorKey;
 	// 	indicatorType = indicatorKey.indicatorType;
 	// } catch (error) {
-	// 	console.error("解析indicatorType失败:", error);
+	// 	console.error("Failed to parse indicatorType:", error);
 	// }
 
 	Object.entries(indicatorData).forEach(
 		([indicatorValueField, indicatorData]) => {
-			// 找到与time相同的数据
+			// Find data with the same time
 			const dataPoint = indicatorData.find((point) => point.time === time);
 			legendValue[indicatorValueField] = {
 				label: indicatorValueField,
@@ -150,7 +150,7 @@ const processIndicatorValues = (
 	return legendValue;
 };
 
-// 获取最新数据点的图例数据
+// Get legend data for the latest data point
 const getLastDataLegendData = (
 	indicatorKeyStr: IndicatorKeyStr,
 	indicatorData: Record<keyof IndicatorValueConfig, SingleValueData[]>,
@@ -166,7 +166,7 @@ const getLastDataLegendData = (
 		}
 	}
 
-	// 如果没有找到时间，使用当前时间作为默认值
+	// If no time is found, use current time as default value
 	const time = latestTime || (Math.floor(Date.now() / 1000) as Time);
 
 	const indicatorName = parseIndicatorName(indicatorKeyStr);
@@ -194,7 +194,7 @@ export const useIndicatorLegend = ({
 	chartId,
 	indicatorKeyStr,
 }: UseIndicatorLegendProps) => {
-	// 从 store 获取数据和方法
+	// Get data and methods from store
 	const { getIndicatorAllSeriesRef, indicatorSeriesRef } =
 		useBacktestChartStore(chartId);
 
@@ -221,19 +221,19 @@ export const useIndicatorLegend = ({
 		return getLastDataLegendData(indicatorKeyStr, indicatorData, chartConfig);
 	}, [chartConfig, getIndicatorAllSeriesRef, indicatorKeyStr]);
 
-	// 初始化 legendData
+	// Initialize legendData
 	const [legendData, setLegendData] = useState<IndicatorLegendData | null>(
 		buildLegendDataFromSeries,
 	);
-	// console.log("indicator legend 初始化", legendData);
+	// console.log("indicator legend initialization", legendData);
 
-	// 同步当前 series 数据到 legend，确保在首次加载数据就绪时也能显示
+	// Sync current series data to legend, ensuring display even when data is ready on first load
 	useEffect(() => {
 		const latestLegendData = buildLegendDataFromSeries();
 		setLegendData(latestLegendData);
 	}, [buildLegendDataFromSeries, indicatorSeriesMap]);
 
-	// 监听指标数据变化事件
+	// Listen to indicator data change events
 	const onSeriesDataUpdate = useCallback(
 		(_scope: DataChangedScope) => {
 			const indicatorAllSeriesRef = getIndicatorAllSeriesRef(indicatorKeyStr);
@@ -274,7 +274,7 @@ export const useIndicatorLegend = ({
 			const indicatorName = parseIndicatorName(indicatorKeyStr);
 			const time = param?.time || null;
 
-			// 使用通用函数处理指标值
+			// Use generic function to process indicator values
 			const values = processIndicatorValues(
 				indicatorKeyStr,
 				indicatorData,

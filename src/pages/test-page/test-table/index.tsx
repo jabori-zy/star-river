@@ -1,7 +1,7 @@
 import { OrderTable } from "@/components/new-table/backtest/order-table";
 import type { VirtualOrder } from "@/types/order/virtual-order";
 
-// Mock 数据
+// Mock data
 const mockOrders: VirtualOrder[] = [
 	{
 		orderId: 1001,

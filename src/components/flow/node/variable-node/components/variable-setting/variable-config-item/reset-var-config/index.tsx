@@ -81,20 +81,20 @@ const ResetVarConfigItem: React.FC<ResetVarConfigItemProps> = ({
 	const triggerCase = getConditionTriggerConfig(config) ?? null;
 	const timerConfig = getTimerTriggerConfig(config);
 
-	// 使用 ref 缓存 timer 和 condition 配置，防止切换触发类型时丢失
+	// Use ref to cache timer and condition configs, preventing loss when switching trigger types
 	const cachedTimerConfig = useRef<TimerTrigger>(
 		timerConfig || { mode: "interval", interval: 1, unit: "hour" },
 	);
 	const cachedConditionConfig = useRef<ConditionTrigger | null>(triggerCase);
 
-	// 获取当前节点的连接信息
-	// 从 config.inputHandleId 中提取节点 ID
+	// Get current node connection info
+	// Extract node ID from config.inputHandleId
 	const connections = useNodeConnections({ id, handleType: "target" });
 
-	// 存储上游节点的case列表
+	// Store case list from upstream nodes
 	const [caseItemList, setCaseItemList] = useState<CaseItemInfo[]>([]);
 
-	// 获取上游节点的 case 列表
+	// Get case list from upstream nodes
 	useEffect(() => {
 		// filter default input handle connection
 		const conn = connections.filter(
@@ -106,7 +106,7 @@ const ResetVarConfigItem: React.FC<ResetVarConfigItemProps> = ({
 		setCaseItemList(cases);
 	}, [connections, getIfElseNodeCases, id, tradingMode, config.inputHandleId]);
 
-	// 当从 props 接收到新的配置时，更新缓存
+	// Update cache when receiving new config from props
 	useEffect(() => {
 		if (timerConfig) {
 			cachedTimerConfig.current = timerConfig;
@@ -119,7 +119,7 @@ const ResetVarConfigItem: React.FC<ResetVarConfigItemProps> = ({
 		}
 	}, [triggerCase]);
 
-	// 处理变量选择变化
+	// Handle variable selection change
 	const handleVariableChange = (varName: string) => {
 		const selectedVar = customVariables.find((v) => v.varName === varName);
 		if (selectedVar) {
@@ -128,13 +128,13 @@ const ResetVarConfigItem: React.FC<ResetVarConfigItemProps> = ({
 				varName: selectedVar.varName,
 				varDisplayName: selectedVar.varDisplayName,
 				varValueType: selectedVar.varValueType,
-				// 根据变量类型设置默认初始值
+				// Set default initial value based on variable type
 				varInitialValue: selectedVar.initialValue,
 			});
 		}
 	};
 
-	// 使用验证 Hook
+	// Use validation Hook
 	const {
 		variable,
 		triggerCase: triggerCaseError,
@@ -144,10 +144,10 @@ const ResetVarConfigItem: React.FC<ResetVarConfigItemProps> = ({
 		duplicateOperation,
 	});
 
-	// 组装错误对象供 UI 使用
+	// Assemble error object for UI use
 	const errors = { variable, triggerCase: triggerCaseError };
 
-	// 处理触发类型变化
+	// Handle trigger type change
 	const handleTriggerTypeChange = (triggerType: TriggerType) => {
 		if (triggerType === "condition") {
 			onConfigChange({
@@ -175,13 +175,13 @@ const ResetVarConfigItem: React.FC<ResetVarConfigItemProps> = ({
 		}
 	};
 
-	// 处理触发条件变化
+	// Handle trigger case change
 	const handleTriggerCaseChange = (
 		nextTriggerCase: ConditionTrigger | null,
 	) => {
-		// 更新缓存
+		// Update cache
 		cachedConditionConfig.current = nextTriggerCase;
-		// 通知父组件
+		// Notify parent component
 		onConfigChange({
 			...config,
 			triggerConfig: nextTriggerCase
@@ -193,11 +193,11 @@ const ResetVarConfigItem: React.FC<ResetVarConfigItemProps> = ({
 		});
 	};
 
-	// 处理定时器配置变化
+	// Handle timer config change
 	const handleTimerConfigChange = (timerConfig: TimerTrigger) => {
-		// 更新缓存
+		// Update cache
 		cachedTimerConfig.current = timerConfig;
-		// 通知父组件
+		// Notify parent component
 		onConfigChange({
 			...config,
 			triggerConfig: {
@@ -218,7 +218,7 @@ const ResetVarConfigItem: React.FC<ResetVarConfigItemProps> = ({
 		config.varValueType,
 	);
 
-	// 根据变量类型选择对应的生成器
+	// Select the corresponding generator based on variable type
 	const getHintGenerator = (varValueType?: VariableValueType) => {
 		if (!varValueType) return generateNumberHint;
 
@@ -234,20 +234,20 @@ const ResetVarConfigItem: React.FC<ResetVarConfigItemProps> = ({
 		return generatorMap[varValueType] || generateNumberHint;
 	};
 
-	// 判断是否应该显示提示文案
+	// Determine whether to show hint text
 	const shouldShowHint = () => {
-		// 必须选择了变量
+		// Must have selected a variable
 		if (!config.varName) {
 			return false;
 		}
-		// 条件触发模式：必须选择了触发条件
+		// Condition trigger mode: must have selected a trigger condition
 		if (effectiveTriggerType === "condition" && !triggerCase) {
 			return false;
 		}
 		return true;
 	};
 
-	// 生成条件触发提示
+	// Generate condition trigger hint
 	const conditionHint = (() => {
 		if (effectiveTriggerType !== "condition" || !shouldShowHint()) {
 			return null;
@@ -273,7 +273,7 @@ const ResetVarConfigItem: React.FC<ResetVarConfigItemProps> = ({
 		return hint;
 	})();
 
-	// 生成定时触发提示
+	// Generate timer trigger hint
 	const timerHint = (() => {
 		if (effectiveTriggerType !== "timer" || !shouldShowHint()) {
 			return null;
@@ -314,7 +314,7 @@ const ResetVarConfigItem: React.FC<ResetVarConfigItemProps> = ({
 							)}
 							<Tooltip>
 								<TooltipTrigger asChild>
-									{/* 第一行：图标 + 操作标题 + 触发方式 */}
+									{/* First row: icon + operation title + trigger method */}
 									<div className="flex items-center gap-2">
 										<TbRefresh className="h-4 w-4 text-orange-600 flex-shrink-0" />
 										<span className="text-sm font-medium">
@@ -336,11 +336,11 @@ const ResetVarConfigItem: React.FC<ResetVarConfigItemProps> = ({
 						</div>
 					</CollapsibleTrigger>
 
-					{/* 删除按钮 */}
+					{/* Delete button */}
 					<DeleteConfigButton onDelete={onDelete} />
 				</div>
 
-				{/* Dialog 中的完整配置 UI */}
+				{/* Full config UI in dialog */}
 				<CollapsibleContent>
 					<div className="flex flex-col gap-2 mt-2">
 						<div className="flex flex-col gap-2">
@@ -368,7 +368,7 @@ const ResetVarConfigItem: React.FC<ResetVarConfigItemProps> = ({
 							)}
 						</div>
 
-						{/* 触发方式 */}
+						{/* Trigger method */}
 						<TriggerTypeSwitcher
 							triggerType={effectiveTriggerType}
 							onTriggerTypeChange={handleTriggerTypeChange}
@@ -387,7 +387,7 @@ const ResetVarConfigItem: React.FC<ResetVarConfigItemProps> = ({
 							<p className="text-xs text-red-600 mt-1">{errors.triggerCase}</p>
 						)}
 
-						{/* 展开状态下显示描述文案 */}
+						{/* Show description text when expanded */}
 						{effectiveTriggerType === "condition" && conditionHint && (
 							<p className="text-xs text-muted-foreground mt-2">
 								{conditionHint}
@@ -401,7 +401,7 @@ const ResetVarConfigItem: React.FC<ResetVarConfigItemProps> = ({
 				</CollapsibleContent>
 			</Collapsible>
 
-			{/* 折叠状态下显示描述文案 */}
+			{/* Show description text when collapsed */}
 			{!isOpen && (
 				<>
 					{effectiveTriggerType === "condition" && conditionHint && (

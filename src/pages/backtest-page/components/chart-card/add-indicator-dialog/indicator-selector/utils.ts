@@ -9,7 +9,7 @@ export interface IndicatorOption {
 	indicatorConfig: Record<string, unknown>;
 }
 
-// MA类型标签映射
+// MA type label mapping
 const MA_TYPE_LABELS: Record<MAType, string> = {
 	[MAType.SMA]: "SMA",
 	[MAType.EMA]: "EMA",
@@ -22,7 +22,7 @@ const MA_TYPE_LABELS: Record<MAType, string> = {
 	[MAType.T3]: "T3",
 };
 
-// 根据新的配置结构获取指标参数显示文本
+// Get indicator parameter display text based on new config structure
 export const getIndicatorConfigDisplay = (
 	indicatorConfig: Record<string, unknown>,
 	t: TFunction,
@@ -33,7 +33,7 @@ export const getIndicatorConfigDisplay = (
 	const configInstance = getIndicatorConfig(indicatorType as IndicatorType);
 	if (!configInstance) return "";
 
-	// 构建显示文本（排除价格源，不显示）
+	// Build display text (exclude price source, don't display)
 	const paramParts: string[] = [];
 
 	Object.entries(configInstance.params).forEach(([key, param]) => {

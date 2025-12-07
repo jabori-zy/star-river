@@ -28,7 +28,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 	const computedOptions = useMemo(() => {
 		const baseOptions = [...options];
 
-		// 如果当前值不在选项列表中，添加它
+		// If current value is not in option list, add it
 		if (value && !baseOptions.some((option) => option.value === value)) {
 			baseOptions.push({
 				value,

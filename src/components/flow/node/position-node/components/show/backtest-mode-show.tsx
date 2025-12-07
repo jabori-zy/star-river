@@ -13,10 +13,10 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 	data,
 	handleColor,
 }) => {
-	// 获取回测模式配置
+	// Get backtest mode config
 	const backtestConfig = data.backtestConfig;
 	const { t } = useTranslation();
-	// 如果没有配置或者没有仓位操作，显示提示信息
+	// If no config or no position operations, show hint message
 	if (
 		!backtestConfig ||
 		!backtestConfig.positionOperations ||
@@ -31,7 +31,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 
 	return (
 		<div className="space-y-2">
-			{/* 渲染所有的仓位操作 */}
+			{/* Render all position operations */}
 			{backtestConfig.positionOperations.map((operationConfig) => (
 				<PositionHandleItem
 					key={operationConfig.configId}

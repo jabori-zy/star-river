@@ -1,8 +1,8 @@
 /**
- * 变量节点提示文案生成器
+ * Variable node hint generators
  *
- * 按变量类型拆分为6个独立生成器，每个生成器独立维护
- * 便于快速定位问题和修改文案
+ * Split into 6 independent generators by variable type, each maintained separately
+ * Facilitates quick problem location and text modification
  */
 
 export { generateBooleanHint } from "./generate-boolean-hint";

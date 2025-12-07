@@ -37,7 +37,7 @@ export const useOrderColumns = (): ColumnDef<VirtualOrder>[] => {
 					</div>
 				),
 				filterFn: (row, id, value) => {
-					// 对于订单ID，使用精确匹配或前缀匹配
+					// For order ID, use exact match or prefix match
 					const orderId = String(row.getValue(id));
 					return orderId.startsWith(value);
 				},

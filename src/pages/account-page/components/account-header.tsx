@@ -17,7 +17,7 @@ export function AccountsHeader({
 	onAddAccount,
 }: AccountsHeaderProps) {
 	const handleAddAccount = (values: Partial<Account>) => {
-		console.log("添加账户数据:", values);
+		console.log("Add account data:", values);
 		onAddAccount({
 			...values,
 			exchange: activeTab,
@@ -29,22 +29,22 @@ export function AccountsHeader({
 			case "metatrader5":
 				return {
 					formConfig: mt5FormConfig,
-					label: "添加MT5账户",
+					label: "Add MT5 Account",
 				};
 			case "binance":
 				return {
-					formConfig: binanceFormConfig, // 暂时使用MT5配置
-					label: "添加Binance账户",
+					formConfig: binanceFormConfig, // Temporarily using MT5 configuration
+					label: "Add Binance Account",
 				};
 			case "okx":
 				return {
-					formConfig: mt5FormConfig, // 暂时使用MT5配置
-					label: "添加OKX账户",
+					formConfig: mt5FormConfig, // Temporarily using MT5 configuration
+					label: "Add OKX Account",
 				};
 			default:
 				return {
 					formConfig: mt5FormConfig,
-					label: "添加账户",
+					label: "Add Account",
 				};
 		}
 	};

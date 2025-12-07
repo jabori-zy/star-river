@@ -31,26 +31,26 @@ interface EditDialogProps {
 	selectedIndicators: SelectedIndicator[];
 	onSave: (config: SelectedIndicator) => void;
 	nodeId: string;
-	initialIndicatorType?: IndicatorType; // 新增：从指标浏览面板传入的指标类型
+	initialIndicatorType?: IndicatorType; // New: Indicator type passed from indicator viewer panel
 }
 
-// 表单数据类型
+// Form data type
 type FormDataValue = string | number | PriceSource | MAType;
 type FormData = Record<string, FormDataValue>;
 
-// 指标选项类型
+// Indicator option type
 interface IndicatorOption {
 	value: IndicatorType;
 	label: string;
 }
 
-// 选择框选项类型
+// Select box option type
 interface SelectOption {
 	value: string | number | PriceSource | MAType;
 	label: string;
 }
 
-// 价格源选项
+// Price source options
 const PRICE_SOURCE_OPTIONS: SelectOption[] = [
 	{ value: PriceSource.CLOSE, label: "market.klineValueField.close" },
 	{ value: PriceSource.OPEN, label: "market.klineValueField.open" },
@@ -58,7 +58,7 @@ const PRICE_SOURCE_OPTIONS: SelectOption[] = [
 	{ value: PriceSource.LOW, label: "market.klineValueField.low" },
 ];
 
-// MA类型选项
+// MA type options
 const MA_TYPE_OPTIONS: SelectOption[] = [
 	{ value: MAType.SMA, label: "indicator.maType.sma" },
 	{ value: MAType.EMA, label: "indicator.maType.ema" },
@@ -87,31 +87,31 @@ const EditDialog: React.FC<EditDialogProps> = ({
 	const [formData, setFormData] = useState<Partial<FormData>>({});
 	const [showIndicatorViewer, setShowIndicatorViewer] = useState(false);
 	const { t } = useTranslation();
-	// 获取当前指标的配置实例
+	// Get current indicator's configuration instance
 	const getCurrentConfigInstance = useCallback(() => {
 		return getIndicatorConfig(indicatorType);
 	}, [indicatorType]);
 
-	// 类型守卫：检查值是否为数字
+	// Type guard: check if value is a number
 	const isNumber = (value: FormDataValue): value is number => {
 		return typeof value === "number";
 	};
 
-	// 检查指标配置是否已存在
+	// Check if indicator configuration already exists
 	const isIndicatorConfigExists = (excludeIndex?: number): boolean => {
 		const configInstance = getCurrentConfigInstance();
 		if (!configInstance) return false;
 
 		return selectedIndicators.some((indicator, index) => {
 			if (excludeIndex !== undefined && index === excludeIndex) {
-				return false; // 排除正在编辑的项
+				return false; // Exclude item being edited
 			}
 
 			if (indicator.indicatorType !== indicatorType) {
 				return false;
 			}
 
-			// 检查关键字段是否相同
+			// Check if key fields are the same
 			return Object.keys(configInstance.params).every((key) => {
 				const configValue = indicator.indicatorConfig[key];
 				const formValue = formData[key];
@@ -120,22 +120,22 @@ const EditDialog: React.FC<EditDialogProps> = ({
 		});
 	};
 
-	// 每次对话框打开时重置状态
+	// Reset state each time dialog opens
 	useEffect(() => {
 		if (isOpen) {
 			if (isEditing && editingIndex !== null) {
 				const existingIndicator = selectedIndicators[editingIndex];
 				setIndicatorType(existingIndicator.indicatorType);
 
-				// 设置表单数据为现有配置
+				// Set form data to existing configuration
 				setFormData({
 					...existingIndicator.indicatorConfig,
 				} as Partial<FormData>);
 			} else {
-				// 使用传入的指标类型或默认值
+				// Use passed indicator type or default value
 				const targetType = initialIndicatorType || IndicatorType.MA;
 				setIndicatorType(targetType);
-				// 设置默认值
+				// Set default values
 				const configInstance = getIndicatorConfig(targetType);
 				if (configInstance) {
 					const defaultConfig = configInstance.getDefaultConfig();
@@ -151,7 +151,7 @@ const EditDialog: React.FC<EditDialogProps> = ({
 		initialIndicatorType,
 	]);
 
-	// 当指标类型改变时，重新初始化表单数据
+	// Reinitialize form data when indicator type changes
 	useEffect(() => {
 		if (isOpen && !isEditing) {
 			const configInstance = getCurrentConfigInstance();
@@ -162,33 +162,33 @@ const EditDialog: React.FC<EditDialogProps> = ({
 		}
 	}, [isOpen, isEditing, getCurrentConfigInstance]);
 
-	// 获取下一个配置 ID
+	// Get next configuration ID
 	const getNextConfigId = (): number => {
 		if (selectedIndicators.length === 0) return 1;
 		return Math.max(...selectedIndicators.map((i) => i.configId)) + 1;
 	};
 
-	// 根据指标类型创建初始值
+	// Create initial value based on indicator type
 	const createInitialValue = (type: IndicatorType): Record<string, number> => {
 		const configInstance = getIndicatorConfig(type);
 		if (configInstance) {
 			return configInstance.getValue() as Record<string, number>;
 		}
-		// 默认返回
+		// Default return
 		return { timestamp: 0, ma: 0 } as Record<string, number>;
 	};
 
-	// 创建指标配置
+	// Create indicator configuration
 	const createIndicatorConfig = (
 		type: IndicatorType,
 		configId: number,
 	): SelectedIndicator => {
 		const configInstance = getIndicatorConfig(type);
 		if (!configInstance) {
-			throw new Error(`不支持的指标类型: ${type}`);
+			throw new Error(`Unsupported indicator type: ${type}`);
 		}
 
-		// 更新配置实例的 params 默认值
+		// Update default values of configuration instance params
 		Object.entries(formData).forEach(([key, value]) => {
 			if (configInstance.params[key]) {
 				configInstance.params[key].defaultValue = value as
@@ -199,7 +199,7 @@ const EditDialog: React.FC<EditDialogProps> = ({
 			}
 		});
 
-		// 获取配置
+		// Get configuration
 		const config = configInstance.getDefaultConfig();
 
 		return {
@@ -215,7 +215,7 @@ const EditDialog: React.FC<EditDialogProps> = ({
 		const configInstance = getCurrentConfigInstance();
 		if (!configInstance) return;
 
-		// 验证必填字段
+		// Validate required fields
 		const hasEmptyRequired = Object.entries(configInstance.params).some(
 			([key, param]) => {
 				if (param.required) {
@@ -236,20 +236,20 @@ const EditDialog: React.FC<EditDialogProps> = ({
 			return;
 		}
 
-		// 检查是否重复（排除正在编辑的项）
+		// Check for duplicates (excluding item being edited)
 		if (isIndicatorConfigExists(editingIndex || undefined)) {
 			return;
 		}
 
-		// 确定使用的 configId
+		// Determine configId to use
 		const configId =
 			isEditing && editingIndex !== null
-				? selectedIndicators[editingIndex].configId // 编辑模式：保持原有 ID
-				: getNextConfigId(); // 新增模式：获取下一个 ID
+				? selectedIndicators[editingIndex].configId // Edit mode: keep original ID
+				: getNextConfigId(); // Add mode: get next ID
 
 		const configObj = createIndicatorConfig(indicatorType, configId);
 
-		// 如果是编辑模式，保持原有的 outputHandleId
+		// If in edit mode, keep original outputHandleId
 		if (isEditing && editingIndex !== null) {
 			configObj.outputHandleId =
 				selectedIndicators[editingIndex].outputHandleId;
@@ -259,7 +259,7 @@ const EditDialog: React.FC<EditDialogProps> = ({
 		onClose();
 	};
 
-	// 处理表单字段值变化
+	// Handle form field value change
 	const handleFieldChange = (fieldName: string, value: FormDataValue): void => {
 		setFormData((prev) => ({
 			...prev,
@@ -267,7 +267,7 @@ const EditDialog: React.FC<EditDialogProps> = ({
 		}));
 	};
 
-	// 获取选择框选项
+	// Get select box options
 	const getSelectOptions = (fieldName: string): SelectOption[] => {
 		if (fieldName === "priceSource") {
 			return PRICE_SOURCE_OPTIONS;
@@ -277,7 +277,7 @@ const EditDialog: React.FC<EditDialogProps> = ({
 		return [];
 	};
 
-	// 渲染表单字段
+	// Render form field
 	const renderFormField = (
 		key: string,
 		param: { label: string; defaultValue: unknown; required: boolean },
@@ -288,7 +288,7 @@ const EditDialog: React.FC<EditDialogProps> = ({
 			formData[key] !== undefined ? formData[key] : defaultValue || ""
 		) as FormDataValue;
 
-		// 根据默认值类型判断字段类型
+		// Determine field type based on default value type
 		if (typeof defaultValue === "number") {
 			return (
 				<div key={key} className="grid gap-2">
@@ -314,7 +314,7 @@ const EditDialog: React.FC<EditDialogProps> = ({
 			);
 		}
 
-		// 选择框字段
+		// Select box field
 		if (
 			typeof defaultValue === "string" &&
 			(key === "priceSource" || key === "maType")
@@ -356,7 +356,7 @@ const EditDialog: React.FC<EditDialogProps> = ({
 
 	const configInstance = getCurrentConfigInstance();
 
-	// 检查是否有可配置的参数
+	// Check if there are configurable parameters
 	const hasConfigurableParams =
 		configInstance && Object.keys(configInstance.params).length > 0;
 
@@ -365,8 +365,8 @@ const EditDialog: React.FC<EditDialogProps> = ({
 			<Dialog open={isOpen} onOpenChange={onClose} modal={false}>
 				<DialogContent
 					className="sm:max-w-[425px]"
-					onOpenAutoFocus={(e) => e.preventDefault()} // 防止自动聚焦，避免 aria-hidden 警告
-					onInteractOutside={(e) => e.preventDefault()} // 防止点击外部区域关闭对话框
+					onOpenAutoFocus={(e) => e.preventDefault()} // Prevent auto focus, avoid aria-hidden warning
+					onInteractOutside={(e) => e.preventDefault()} // Prevent closing dialog when clicking outside
 					aria-describedby={undefined}
 				>
 					<DialogHeader>
@@ -376,13 +376,13 @@ const EditDialog: React.FC<EditDialogProps> = ({
 					</DialogHeader>
 					<div className="grid gap-4 py-4">
 						{hasConfigurableParams ? (
-							/* 动态渲染当前指标类型的表单字段 */
+							/* Dynamically render form fields for current indicator type */
 							configInstance &&
 							Object.entries(configInstance.params).map(([key, param]) =>
 								renderFormField(key, param),
 							)
 						) : (
-							/* 无参数时显示提示信息 */
+							/* Show hint message when there are no parameters */
 							<div className="text-gray-500">
 								{t("indicatorNode.editDialog.noParams")}
 							</div>
@@ -406,13 +406,13 @@ const EditDialog: React.FC<EditDialogProps> = ({
 				</DialogContent>
 			</Dialog>
 
-			{/* 指标浏览面板 */}
+			{/* Indicator viewer panel */}
 			<IndicatorViewerDialog
 				isOpen={showIndicatorViewer}
 				onClose={() => setShowIndicatorViewer(false)}
 				onSelectIndicator={(selectedType: IndicatorType) => {
 					setIndicatorType(selectedType);
-					// 重新初始化表单数据
+					// Reinitialize form data
 					const configInstance = getIndicatorConfig(selectedType);
 					if (configInstance) {
 						const defaultConfig = configInstance.getDefaultConfig();

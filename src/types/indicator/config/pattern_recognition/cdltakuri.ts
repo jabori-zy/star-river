@@ -9,14 +9,14 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLTAKURIConfigSchema = z.object({
-	// CDLTAKURI 没有参数
+	// CDLTAKURI has no parameters
 });
 
 export type CDLTAKURIConfigType = z.infer<typeof CDLTAKURIConfigSchema>;
 
 function buildCDLTAKURIConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLTAKURI 不需要任何参数
+		// CDLTAKURI doesn't need any parameters
 	};
 }
 
@@ -26,7 +26,7 @@ export const CDLTAKURIConfig: IndicatorConfig<CDLTAKURIConfigType> = {
 	displayName: "CDLTAKURI",
 	description: "Takuri (Dragonfly Doji with very long lower shadow)",
 	params: {
-		// CDLTAKURI 没有参数
+		// CDLTAKURI has no parameters
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

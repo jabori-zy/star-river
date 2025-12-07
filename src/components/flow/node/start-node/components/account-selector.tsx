@@ -36,40 +36,40 @@ import { ExchangeStatus } from "@/types/market";
 import type { SelectedAccount } from "@/types/strategy";
 
 interface AccountSelectorProps {
-	selectedAccounts: SelectedAccount[]; // 已选择账户，可以多选
+	selectedAccounts: SelectedAccount[]; // Selected accounts, multiple selection allowed
 	setSelectedAccounts: (accounts: SelectedAccount[]) => void;
 	updateSelectedAccounts: (accounts: SelectedAccount[]) => void;
 }
 
-// 账户选择器
+// Account selector
 const AccountSelector = ({
 	selectedAccounts,
 	setSelectedAccounts,
 	updateSelectedAccounts,
 }: AccountSelectorProps) => {
 	const { t } = useTranslation();
-	// 可用的MT5账户列表
+	// Available MT5 account list
 	const [availableAccounts, setAvailableAccounts] = useState<Account[]>([]);
-	// 是否正在加载账户
+	// Loading accounts status
 	const [isLoadingAccounts, setIsLoadingAccounts] = useState<boolean>(false);
-	// 错误信息
+	// Error message
 	const [errorMessage, setErrorMessage] = useState<string>("");
-	// 是否锁定账户选择
+	// Lock account selection
 	const [isLockedSelect, setIsLockedSelect] = useState<boolean>(true);
-	// 本地维护的账户列表 - 仅在内部使用
+	// Local maintained account list - internal use only
 	const [localAccounts, setLocalAccounts] = useState<SelectedAccount[]>([]);
-	// 账户连接状态 - key为accountId
+	// Account connection status - key is accountId
 	const [accountStatuses, setAccountStatuses] = useState<
 		Record<number, ExchangeStatus>
 	>({});
-	// 正在连接的账户ID
+	// Currently connecting account IDs
 	const [connectingAccounts, setConnectingAccounts] = useState<Set<number>>(
 		new Set(),
 	);
-	// 轮询定时器引用
+	// Polling timer reference
 	const pollingTimers = useRef<Map<number, NodeJS.Timeout>>(new Map());
 
-	// 获取账户数据
+	// Fetch account data
 	const fetchAccountConfigs = async () => {
 		setIsLoadingAccounts(true);
 		setErrorMessage("");
@@ -77,28 +77,28 @@ const AccountSelector = ({
 			const accounts = (await getAccountConfigs(null)) as Account[];
 			setAvailableAccounts(accounts);
 		} catch (error) {
-			console.error("获取账户配置失败:", error);
-			setErrorMessage("获取账户配置失败");
+			console.error("Failed to get account config:", error);
+			setErrorMessage("Failed to get account config");
 			setAvailableAccounts([]);
 		} finally {
 			setIsLoadingAccounts(false);
 		}
 	};
 
-	// 获取交易所状态
+	// Fetch exchange status
 	const fetchExchangeStatus = useCallback(async (accountId: number) => {
 		try {
 			const status = await getExchangeStatus(accountId);
-			// console.log("获取到的交易所状态:", status);
+			// console.log("Fetched exchange status:", status);
 			setAccountStatuses((prev) => ({ ...prev, [accountId]: status }));
 			return status;
 		} catch (error) {
-			console.error("获取交易所状态失败:", error);
+			console.error("Failed to get exchange status:", error);
 			return null;
 		}
 	}, []);
 
-	// 清除轮询定时器
+	// Clear polling timer
 	const clearPollingTimer = useCallback((accountId: number) => {
 		const timer = pollingTimers.current.get(accountId);
 		if (timer) {
@@ -107,17 +107,17 @@ const AccountSelector = ({
 		}
 	}, []);
 
-	// 开始轮询账户状态
+	// Start polling account status
 	const startPolling = useCallback(
 		async (accountId: number) => {
-			// 清除已存在的定时器
+			// Clear existing timer
 			clearPollingTimer(accountId);
 
-			// 每500ms轮询一次
+			// Poll every 500ms
 			const timer = setInterval(async () => {
 				const status = await fetchExchangeStatus(accountId);
 				if (status === ExchangeStatus.Connected) {
-					// 连接成功，停止轮询
+					// Connected successfully, stop polling
 					clearPollingTimer(accountId);
 					setConnectingAccounts((prev) => {
 						const next = new Set(prev);
@@ -132,16 +132,16 @@ const AccountSelector = ({
 		[fetchExchangeStatus, clearPollingTimer],
 	);
 
-	// 连接交易所
+	// Connect to exchange
 	const handleConnectExchange = useCallback(
 		async (accountId: number) => {
 			try {
 				setConnectingAccounts((prev) => new Set(prev).add(accountId));
 				await connectExchange(accountId);
-				// 开始轮询状态
+				// Start polling status
 				await startPolling(accountId);
 			} catch (error) {
-				console.error("连接交易所失败:", error);
+				console.error("Failed to connect to exchange:", error);
 				setConnectingAccounts((prev) => {
 					const next = new Set(prev);
 					next.delete(accountId);
@@ -152,7 +152,7 @@ const AccountSelector = ({
 		[startPolling],
 	);
 
-	// 组件卸载时清除所有定时器
+	// Clear all timers when component unmounts
 	useEffect(() => {
 		return () => {
 			pollingTimers.current.forEach((timer) => clearInterval(timer));
@@ -160,12 +160,12 @@ const AccountSelector = ({
 		};
 	}, []);
 
-	// 初始化时从props同步到本地状态，并获取账户状态
+	// Sync from props to local state on init, and fetch account status
 	useEffect(() => {
 		if (selectedAccounts && selectedAccounts.length > 0) {
 			setLocalAccounts([...selectedAccounts]);
 
-			// 获取所有已选择账户的交易所连接状态
+			// Fetch exchange connection status for all selected accounts
 			selectedAccounts.forEach((account) => {
 				if (account.id !== 0) {
 					fetchExchangeStatus(account.id);
@@ -176,31 +176,31 @@ const AccountSelector = ({
 		}
 	}, [selectedAccounts, fetchExchangeStatus]);
 
-	// 添加账户
+	// Add account
 	const handleAddAccount = () => {
 		setIsLockedSelect(false);
 		const newAccount = {
 			id: 0,
 			accountName: "",
 			exchange: "" as Exchange,
-			// 在 backtest 模式下，可用资金字段不需要用户输入，设置为 0
+			// In backtest mode, available balance field doesn't need user input, set to 0
 			availableBalance: 0,
 		};
 		setLocalAccounts((prev) => [...prev, newAccount]);
 	};
 
-	// 移除账户
+	// Remove account
 	const handleRemoveAccount = (index: number) => {
 		const newAccounts = [...localAccounts];
 		newAccounts.splice(index, 1);
 		setLocalAccounts(newAccounts);
 
-		// 同步到父组件
+		// Sync to parent component
 		const validAccounts = newAccounts.filter((acc) => acc.id !== 0);
 		setSelectedAccounts(validAccounts);
 	};
 
-	// 更新账户信息
+	// Update account info
 	const updateLocalAccount = (
 		index: number,
 		updates: Partial<SelectedAccount>,
@@ -209,26 +209,26 @@ const AccountSelector = ({
 		newAccounts[index] = { ...newAccounts[index], ...updates };
 		setLocalAccounts(newAccounts);
 
-		// 同步到父组件
+		// Sync to parent component
 		const validAccounts = newAccounts.filter((acc) => acc.id !== 0);
 		setSelectedAccounts(validAccounts);
 	};
 
-	// 获取可用的账户选项（剔除已选择的账户）
+	// Get available account options (excluding already selected accounts)
 	const getAvailableAccountOptions = (currentIndex: number) => {
-		// 获取已选择的账户ID列表（排除当前项）
+		// Get selected account ID list (excluding current item)
 		const selectedIds = localAccounts
 			.filter((_, idx) => idx !== currentIndex)
 			.map((acc) => acc.id)
 			.filter((id) => id !== 0);
 
-		// 过滤出未被选择的账户
+		// Filter out unselected accounts
 		return availableAccounts.filter(
 			(account) => !selectedIds.includes(account.id),
 		);
 	};
 
-	// 处理账户选择变更
+	// Handle account selection change
 	const handleAccountChange = async (index: number, selectedId: string) => {
 		if (!selectedId) return;
 
@@ -245,19 +245,19 @@ const AccountSelector = ({
 				availableBalance: 0,
 			});
 
-			// 获取账户的交易所连接状态
+			// Fetch exchange connection status for account
 			await fetchExchangeStatus(numericId);
 		}
 	};
 
-	// 处理下拉列表打开事件
+	// Handle dropdown open event
 	const handleSelectOpen = async (open: boolean) => {
 		if (open && availableAccounts.length === 0) {
 			await fetchAccountConfigs();
 		}
 	};
 
-	// 渲染账户选择器
+	// Render account selector
 	const renderAccountSelector = (account: SelectedAccount, index: number) => {
 		const availableOptions = getAvailableAccountOptions(index);
 
@@ -343,7 +343,7 @@ const AccountSelector = ({
 					<span className="font-medium text-sm">{t("startNode.account")}</span>
 				</div>
 				<div className="flex items-center gap-2">
-					{/* 锁定账户选择 */}
+					{/* Lock account selection */}
 					{!isLockedSelect ? (
 						<Button
 							variant="ghost"
@@ -353,7 +353,7 @@ const AccountSelector = ({
 								setIsLockedSelect(true);
 								updateSelectedAccounts(localAccounts);
 							}}
-							title="锁定已选账户"
+							title="Lock selected accounts"
 						>
 							<LockOpen className="h-4 w-4" />
 						</Button>
@@ -363,7 +363,7 @@ const AccountSelector = ({
 							size="icon"
 							className="h-8 w-8"
 							onClick={() => setIsLockedSelect(false)}
-							title="解锁已选账户"
+							title="Unlock selected accounts"
 						>
 							<Lock className="h-4 w-4" />
 						</Button>
@@ -390,7 +390,7 @@ const AccountSelector = ({
 							className="flex items-center gap-2"
 						>
 							<div className="flex items-center gap-2">
-								{/* 连接状态图标 */}
+								{/* Connection status icon */}
 								{account.id !== 0 && (
 									<TooltipProvider>
 										<Tooltip>
@@ -449,7 +449,7 @@ const AccountSelector = ({
 									})
 								}
 								className="h-8 flex-1 text-sm"
-								placeholder="可用资金"
+								placeholder="Available balance"
 								disabled={isLockedSelect}
 							/>
 							<div className="flex items-center">
@@ -486,7 +486,7 @@ const AccountSelector = ({
 					))
 				)}
 
-				{/* 添加账户按钮 */}
+				{/* Add account button */}
 				{!isLockedSelect && (
 					<Button
 						variant="outline"
@@ -499,7 +499,7 @@ const AccountSelector = ({
 					</Button>
 				)}
 
-				{/* 显示可用账户状态 */}
+				{/* Show available account status */}
 				{availableAccounts.length > 0 &&
 					localAccounts.filter((acc) => acc.id !== 0).length >=
 						availableAccounts.length && (

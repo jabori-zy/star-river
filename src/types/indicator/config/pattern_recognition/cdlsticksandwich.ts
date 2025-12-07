@@ -9,7 +9,7 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLSTICKSANDWICHConfigSchema = z.object({
-	// CDLSTICKSANDWICH 没有参数
+	// CDLSTICKSANDWICH has no parameters
 });
 
 export type CDLSTICKSANDWICHConfigType = z.infer<
@@ -18,7 +18,7 @@ export type CDLSTICKSANDWICHConfigType = z.infer<
 
 function buildCDLSTICKSANDWICHConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLSTICKSANDWICH 不需要任何参数
+		// CDLSTICKSANDWICH doesn't need any parameters
 	};
 }
 
@@ -29,7 +29,7 @@ export const CDLSTICKSANDWICHConfig: IndicatorConfig<CDLSTICKSANDWICHConfigType>
 		displayName: "CDLSTICKSANDWICH",
 		description: "Stick Sandwich",
 		params: {
-			// CDLSTICKSANDWICH 没有参数
+			// CDLSTICKSANDWICH has no parameters
 		},
 		indicatorValueConfig: {
 			timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

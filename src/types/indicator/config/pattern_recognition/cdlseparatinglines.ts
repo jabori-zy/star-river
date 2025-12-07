@@ -9,7 +9,7 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLSEPARATINGLINESConfigSchema = z.object({
-	// CDLSEPARATINGLINES 没有参数
+	// CDLSEPARATINGLINES has no parameters
 });
 
 export type CDLSEPARATINGLINESConfigType = z.infer<
@@ -18,7 +18,7 @@ export type CDLSEPARATINGLINESConfigType = z.infer<
 
 function buildCDLSEPARATINGLINESConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLSEPARATINGLINES 不需要任何参数
+		// CDLSEPARATINGLINES doesn't need any parameters
 	};
 }
 
@@ -29,7 +29,7 @@ export const CDLSEPARATINGLINESConfig: IndicatorConfig<CDLSEPARATINGLINESConfigT
 		displayName: "CDLSEPARATINGLINES",
 		description: "Separating Lines",
 		params: {
-			// CDLSEPARATINGLINES 没有参数
+			// CDLSEPARATINGLINES has no parameters
 		},
 		indicatorValueConfig: {
 			timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

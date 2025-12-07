@@ -1,4 +1,4 @@
-// 重新导出store相关的内容
+// Re-export store related content
 export {
 	cleanupBacktestChartStore,
 	getBacktestChartStore,
@@ -7,5 +7,5 @@ export {
 	useBacktestChartStore,
 } from "./store";
 
-// 导出类型定义
+// Export type definitions
 export type { BacktestChartStore } from "./store/types";

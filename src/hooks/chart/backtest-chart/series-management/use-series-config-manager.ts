@@ -11,11 +11,11 @@ interface UseSeriesConfigManagerReturn {
 }
 
 /**
- * 系列配置管理
+ * Series configuration management
  *
- * 职责：
- * - 修改K线可见性
- * - 修改指标系列颜色和可见性
+ * Responsibilities:
+ * - Modify K-line visibility
+ * - Modify indicator series color and visibility
  */
 export const useSeriesConfigManager = ({
 	chartConfig,
@@ -25,7 +25,7 @@ export const useSeriesConfigManager = ({
 	);
 
 	const changeSeriesConfig = useCallback(() => {
-		// 切换蜡烛图可见性
+		// Toggle candlestick visibility
 		const klineSeries = getKlineSeriesRef();
 		if (klineSeries) {
 			klineSeries.applyOptions({
@@ -33,7 +33,7 @@ export const useSeriesConfigManager = ({
 			});
 		}
 
-		// 根据indicatorChartConfig，获取seriesApi
+		// Get seriesApi based on indicatorChartConfig
 		chartConfig.indicatorChartConfigs.forEach((config) => {
 			config.seriesConfigs.forEach((seriesConfig) => {
 				const seriesApi = getIndicatorSeriesRef(

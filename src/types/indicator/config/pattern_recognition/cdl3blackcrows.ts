@@ -9,7 +9,7 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDL3BLACKCROWSConfigSchema = z.object({
-	// CDL3BLACKCROWS 没有参数
+	// CDL3BLACKCROWS has no parameters
 });
 
 export type CDL3BLACKCROWSConfigType = z.infer<
@@ -18,7 +18,7 @@ export type CDL3BLACKCROWSConfigType = z.infer<
 
 function buildCDL3BLACKCROWSConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDL3BLACKCROWS 不需要任何参数
+		// CDL3BLACKCROWS doesn't need any parameters
 	};
 }
 
@@ -28,7 +28,7 @@ export const CDL3BLACKCROWSConfig: IndicatorConfig<CDL3BLACKCROWSConfigType> = {
 	displayName: "CDL3BLACKCROWS",
 	description: "Three Black Crows",
 	params: {
-		// CDL3BLACKCROWS 没有参数
+		// CDL3BLACKCROWS has no parameters
 	},
 	indicatorValueConfig: {
 		timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

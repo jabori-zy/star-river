@@ -13,13 +13,13 @@ interface UseVisibleRangeHandlerProps {
 }
 
 /**
- * 可见范围处理和懒加载协调
+ * Visible range handling and lazy loading coordination
  *
- * 职责：
- * - 监听可见范围变化
- * - 虚拟滚动检测（当 logicalRange.from >= 30 时触发）
- * - 防抖和加载状态管理
- * - 协调K线和指标数据加载
+ * Responsibilities:
+ * - Monitor visible range changes
+ * - Virtual scroll detection (triggers when logicalRange.from >= 30)
+ * - Debouncing and loading state management
+ * - Coordinate K-line and indicator data loading
  */
 export const useVisibleRangeHandler = ({
 	strategyId,
@@ -43,14 +43,14 @@ export const useVisibleRangeHandler = ({
 		chartConfig,
 	});
 
-	// 订阅图表的可见逻辑范围变化
+	// Subscribe to chart's visible logical range changes
 	useEffect(() => {
 		const chart = getChartRef();
 		if (!chart || !isInitialized) {
 			return;
 		}
 
-		// 使用ref追踪是否正在加载，防止重复请求
+		// Use ref to track if loading is in progress, to prevent duplicate requests
 		const loadingRef = { current: false };
 
 		const handleVisibleRangeChange = (logicalRange: LogicalRange | null) => {
@@ -61,15 +61,15 @@ export const useVisibleRangeHandler = ({
 			// console.log("visibleRangeChange", logicalRange);
 			setVisibleLogicalRange(logicalRange);
 
-			// 只有在接近边界时才加载更多数据
+			// Only load more data when approaching the boundary
 			if (logicalRange.from >= 30) {
 				return;
 			}
 
-			// 设置加载标志，防止重复请求
+			// Set loading flag to prevent duplicate requests
 			loadingRef.current = true;
 
-			// 获取当前的 klineSeries（从最新的 ref 中获取）
+			// Get current klineSeries (from the latest ref)
 			const currentKlineSeries = getKlineSeriesRef();
 			if (currentKlineSeries) {
 				const klineData = currentKlineSeries.data();
@@ -80,33 +80,33 @@ export const useVisibleRangeHandler = ({
 
 				if (firstKlineDateTime) {
 					console.log("firstKlineDateTime:", firstKlineDateTime);
-					// 获取 klineKeyStr，如果不存在则提前返回
+					// Get klineKeyStr, return early if it doesn't exist
 					const klineKeyStr = getKlineKeyStr();
 					if (!klineKeyStr) {
 						loadingRef.current = false;
 						return;
 					}
 
-					// 获取第一根k线前的100根k线
+					// Get 100 K-lines before the first K-line
 					loadKlineHistory(firstKlineDateTime, klineKeyStr)
 						.catch((error) => {
-							console.error("加载K线历史数据时出错:", error);
+							console.error("Error loading K-line historical data:", error);
 						})
 						.finally(() => {
-							// 重置加载标志
+							// Reset loading flag
 							loadingRef.current = false;
 						});
 				}
 			}
 
-			// 处理指标数据
+			// Handle indicator data
 			const indicatorsNeedingData = chartConfig.indicatorChartConfigs.filter(
 				(config) => !config.isDelete,
 			);
 
 			if (indicatorsNeedingData.length > 0) {
 				indicatorsNeedingData.forEach((config) => {
-					// 使用 find 代替 forEach + return，更高效地获取第一个时间戳
+					// Use find instead of forEach + return to more efficiently get the first timestamp
 					let firstIndicatorDateTime = "";
 
 					for (const seriesConfig of config.seriesConfigs) {
@@ -122,21 +122,21 @@ export const useVisibleRangeHandler = ({
 								);
 								if (firstDataTime) {
 									firstIndicatorDateTime = firstDataTime;
-									break; // 找到第一个有效时间后立即退出
+									break; // Exit immediately after finding the first valid time
 								}
 							}
 						}
 					}
 
 					if (firstIndicatorDateTime) {
-						// 获取指标的前100根数据
+						// Get 100 data points before the indicator
 						loadIndicatorHistory(
 							config.indicatorKeyStr,
 							firstIndicatorDateTime,
 							config.seriesConfigs,
 						).catch((error) => {
 							console.error(
-								`加载指标 ${config.indicatorKeyStr} 历史数据时出错:`,
+								`Error loading historical data for indicator ${config.indicatorKeyStr}:`,
 								error,
 							);
 						});
@@ -145,12 +145,12 @@ export const useVisibleRangeHandler = ({
 			}
 		};
 
-		// 订阅可见范围变化
+		// Subscribe to visible range changes
 		chart
 			.timeScale()
 			.subscribeVisibleLogicalRangeChange(handleVisibleRangeChange);
 
-		// 清理函数：取消订阅
+		// Cleanup function: Unsubscribe
 		return () => {
 			chart
 				.timeScale()

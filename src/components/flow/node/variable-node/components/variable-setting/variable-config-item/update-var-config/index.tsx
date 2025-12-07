@@ -87,7 +87,7 @@ interface UpdateVarConfigItemProps {
 }
 
 /**
- * 构建 TriggerConfig
+ * Build TriggerConfig
  */
 const buildTriggerConfig = (
 	updateTriggerType: "condition" | "timer" | "dataflow",
@@ -100,13 +100,13 @@ const buildTriggerConfig = (
 	if (updateTriggerType === "timer" && timerConfig) {
 		return { type: "timer", config: timerConfig };
 	}
-	// dataflow 模式需要从其他地方获取 DataFlowTrigger 数据
+	// Dataflow mode needs to get DataFlowTrigger data from elsewhere
 	return undefined;
 };
 
 /**
- * 渲染更新操作编辑器
- * 根据变量类型返回对应的编辑器组件
+ * Render update operation editor
+ * Returns the corresponding editor component based on variable type
  */
 const renderOperationEditor = (
 	variable: string,
@@ -131,7 +131,7 @@ const renderOperationEditor = (
 	const selectedVar = customVariables.find(
 		(v: CustomVariable) => v.varName === variable,
 	);
-	// 条件/定时触发模式不支持 max/min，数据流模式支持
+	// Condition/timer trigger modes don't support max/min, dataflow mode does
 	const isDataflowMode = updateTriggerType === "dataflow";
 	const availableOps = getAvailableOperations(
 		selectedVar?.varValueType || VariableValueType.NUMBER,
@@ -143,14 +143,14 @@ const renderOperationEditor = (
 	}));
 	const varValueType = selectedVar?.varValueType || VariableValueType.NUMBER;
 
-	// 构建 triggerConfig
+	// Build triggerConfig
 	const triggerConfig = buildTriggerConfig(
 		updateTriggerType,
 		triggerCase,
 		timerConfig,
 	);
 
-	// 根据变量类型返回对应的编辑器组件
+	// Return the corresponding editor component based on variable type
 	switch (varValueType) {
 		case VariableValueType.BOOLEAN:
 			return (
@@ -245,7 +245,7 @@ const renderOperationEditor = (
 };
 
 /**
- * 创建空的 DataFlow 触发器配置
+ * Create empty DataFlow trigger configuration
  */
 const createEmptyDataflowTrigger = (): DataFlowTrigger => ({
 	fromNodeId: "",
@@ -305,7 +305,7 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 	);
 	const dataflowValidationRef = React.useRef(true);
 
-	// 使用 ref 缓存 timer、condition 和 dataflow 配置，防止切换触发类型时丢失
+	// Use ref to cache timer, condition and dataflow configurations to prevent loss when switching trigger types
 	const cachedTimerConfig = useRef<TimerTrigger>(
 		timerConfig || { mode: "interval", interval: 1, unit: "hour" },
 	);
@@ -314,17 +314,17 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 		dataflowConfig || createEmptyDataflowTrigger(),
 	);
 
-	// 获取当前节点的连接信息
+	// Get connection information of current node
 	const connections = useNodeConnections({ id, handleType: "target" });
 
-	// 存储上游节点的case列表
+	// Store case list of upstream nodes
 	const [caseItemList, setCaseItemList] = useState<CaseItemInfo[]>([]);
-	// 存储上游节点的变量列表
+	// Store variable list of upstream nodes
 	const [variableItemList, setVariableItemList] = useState<VariableItem[]>([]);
 
-	// 获取上游节点的 case 列表和变量列表
+	// Get case list and variable list of upstream nodes
 	useEffect(() => {
-		// filter default input handle connection
+		// Filter default input handle connection
 		const conn = connections.filter(
 			(connection) =>
 				connection.targetHandle === `${id}_default_input` ||
@@ -333,7 +333,7 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 		const cases = getIfElseNodeCases(conn, tradingMode as TradeMode);
 		setCaseItemList(cases);
 
-		// 获取连接节点的变量并更新状态
+		// Get variables from connected nodes and update state
 		const variables = getConnectedNodeVariables(
 			connections,
 			tradingMode as TradeMode,
@@ -348,7 +348,7 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 		config.inputHandleId,
 	]);
 
-	// 当从 props 接收到新的配置时，更新缓存
+	// Update cache when receiving new configuration from props
 	useEffect(() => {
 		if (timerConfig) {
 			cachedTimerConfig.current = timerConfig;
@@ -367,16 +367,16 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 		}
 	}, [dataflowConfig]);
 
-	// 更新 dataflow 配置的辅助函数
+	// Helper function to update dataflow configuration
 	const updateDataflowConfig = (
 		updater: (prev: DataFlowTrigger) => DataFlowTrigger,
 	) => {
 		const prevConfig =
 			getDataFlowTriggerConfig(config) ?? createEmptyDataflowTrigger();
 		const newConfig = updater(prevConfig);
-		// 更新缓存
+		// Update cache
 		cachedDataflowConfig.current = newConfig;
-		// 通知父组件
+		// Notify parent component
 		onConfigChange({
 			...config,
 			triggerConfig: {
@@ -386,7 +386,7 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 		});
 	};
 
-	// 使用验证 Hook
+	// Use validation Hook
 	const {
 		variable,
 		triggerCase: triggerCaseError,
@@ -398,10 +398,10 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 		effectiveTriggerType,
 	});
 
-	// 组装错误对象供 UI 使用
+	// Assemble error object for UI use
 	const errors = { variable, triggerCase: triggerCaseError, dataflow };
 
-	// 处理变量选择变化
+	// Handle variable selection change
 	const handleVariableChange = (varName: string) => {
 		const selectedVar = customVariables.find((v) => v.varName === varName);
 		if (selectedVar) {
@@ -414,7 +414,7 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 		}
 	};
 
-	// 处理触发类型变化
+	// Handle trigger type change
 	const handleTriggerTypeChange = (
 		triggerType: "condition" | "timer" | "dataflow",
 	) => {
@@ -447,13 +447,13 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 		}
 	};
 
-	// 处理触发条件变化
+	// Handle trigger condition change
 	const handleTriggerCaseChange = (
 		nextTriggerCase: ConditionTrigger | null,
 	) => {
-		// 更新缓存
+		// Update cache
 		cachedConditionConfig.current = nextTriggerCase;
-		// 通知父组件
+		// Notify parent component
 		onConfigChange({
 			...config,
 			triggerConfig: nextTriggerCase
@@ -465,11 +465,11 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 		});
 	};
 
-	// 处理定时器配置变化
+	// Handle timer configuration change
 	const handleTimerConfigChange = (timerConfig: TimerTrigger) => {
-		// 更新缓存
+		// Update cache
 		cachedTimerConfig.current = timerConfig;
-		// 通知父组件
+		// Notify parent component
 		onConfigChange({
 			...config,
 			triggerConfig: {
@@ -479,7 +479,7 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 		});
 	};
 
-	// 处理数据流配置校验结果
+	// Handle dataflow configuration validation result
 	const handleDataflowValidationChange = React.useCallback(
 		(isValid: boolean) => {
 			dataflowValidationRef.current = isValid;
@@ -487,7 +487,7 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 		[],
 	);
 
-	// 处理过期时长变化
+	// Handle expiration duration change
 	const handleExpireDurationChange = (expireDuration: {
 		unit: TimerUnit;
 		duration: number;
@@ -498,7 +498,7 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 		}));
 	};
 
-	// 处理错误策略变化
+	// Handle error policy change
 	const handleErrorPolicyChange = (
 		errorType: DataflowErrorType,
 		policy: DataflowErrorPolicy,
@@ -512,7 +512,7 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 		}));
 	};
 
-	// 处理数据流节点变化
+	// Handle dataflow node change
 	const handleNodeChange = (
 		nodeId: string,
 		nodeType: NodeType | null,
@@ -538,7 +538,7 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 		});
 	};
 
-	// 处理数据流变量变化
+	// Handle dataflow variable change
 	const handleVariableChangeDataflow = (
 		variableId: number,
 		handleId: string,
@@ -556,7 +556,7 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 		}));
 	};
 
-	// 处理数据流操作类型变化
+	// Handle dataflow operation type change
 	const handleOperationTypeChangeDataflow = (
 		operation: UpdateVarValueOperation,
 	) => {
@@ -566,7 +566,7 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 		});
 	};
 
-	// 处理更新操作类型变化（条件/定时模式）
+	// Handle update operation type change (condition/timer mode)
 	const handleUpdateOperationTypeChange = (
 		operation: UpdateVarValueOperation,
 	) => {
@@ -576,7 +576,7 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 		});
 	};
 
-	// 处理更新值变化
+	// Handle update value change
 	const handleUpdateValueChange = (value: string) => {
 		onConfigChange({
 			...config,
@@ -590,7 +590,7 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 	const VarTypeIcon = getVariableValueTypeIcon(config.varValueType);
 	const varTypeIconColor = getVariableValueTypeIconColor(config.varValueType);
 
-	// 获取 updateValue 字符串
+	// Get updateValue string
 	const updateValue =
 		typeof config.updateOperationValue === "string" ||
 		typeof config.updateOperationValue === "number" ||
@@ -600,7 +600,7 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 				? JSON.stringify(config.updateOperationValue)
 				: "";
 
-	// 根据变量类型选择对应的生成器
+	// Select the corresponding generator based on variable type
 	const getHintGenerator = (varValueType?: VariableValueType) => {
 		if (!varValueType) return generateNumberHint;
 
@@ -620,7 +620,7 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 		}
 	};
 
-	// 条件触发的提示文案
+	// Hint text for condition trigger
 	const conditionHint =
 		effectiveTriggerType === "condition" && config.varDisplayName && triggerCase
 			? getHintGenerator(config.varValueType)({
@@ -635,7 +635,7 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 				})
 			: null;
 
-	// 定时触发的提示文案
+	// Hint text for timer trigger
 	const timerHint =
 		effectiveTriggerType === "timer" && config.varDisplayName && timerConfig
 			? getHintGenerator(config.varValueType)({
@@ -650,7 +650,7 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 				})
 			: null;
 
-	// 数据流触发的提示文案
+	// Hint text for dataflow trigger
 	const dataflowHint =
 		effectiveTriggerType === "dataflow" &&
 		config.varDisplayName &&
@@ -682,7 +682,7 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 							)}
 							<Tooltip>
 								<TooltipTrigger asChild>
-									{/* 第一行：图标 + 操作标题 + 触发方式 + 操作类型 */}
+									{/* First line: icon + operation title + trigger method + operation type */}
 									<div className="flex items-center gap-2">
 										<TbEdit className="h-4 w-4 text-green-600 flex-shrink-0" />
 										<span className="text-sm font-medium">
@@ -704,11 +704,11 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 						</div>
 					</CollapsibleTrigger>
 
-					{/* 删除按钮 */}
+					{/* Delete button */}
 					<DeleteConfigButton onDelete={onDelete} />
 				</div>
 
-				{/* Dialog 中的完整配置 UI */}
+				{/* Complete configuration UI in Dialog */}
 				<CollapsibleContent>
 					<div className="flex flex-col gap-2 mt-2">
 						<div className="flex flex-col gap-2">
@@ -737,7 +737,7 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 							)}
 						</div>
 
-						{/* 触发方式 */}
+						{/* Trigger method */}
 						<TriggerTypeSwitcher
 							triggerType={effectiveTriggerType}
 							onTriggerTypeChange={handleTriggerTypeChange}
@@ -785,7 +785,7 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 							<p className="text-xs text-red-600 mt-1">{errors.triggerCase}</p>
 						)}
 
-						{/* 数据流模式：操作符 + 上游节点变量选择器 */}
+						{/* Dataflow mode: operator + upstream node variable selector */}
 						{effectiveTriggerType === "dataflow" && config.varName && (
 							<div className="flex flex-col gap-2">
 								<Label
@@ -798,18 +798,18 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 									const selectedVar = customVariables.find(
 										(v: CustomVariable) => v.varName === config.varName,
 									);
-									// 数据流模式传入 true，支持 max/min 操作
+									// Dataflow mode passes true, supporting max/min operations
 									let availableOps = getAvailableOperations(
 										selectedVar?.varValueType || VariableValueType.NUMBER,
 										true,
 									);
 
-									// 数据流模式下，BOOLEAN类型去除toggle操作
+									// In dataflow mode, remove toggle operation for BOOLEAN type
 									if (selectedVar?.varValueType === VariableValueType.BOOLEAN) {
 										availableOps = availableOps.filter((op) => op !== "toggle");
 									}
 
-									// 数据流模式统一使用 DataFlowSelector
+									// Dataflow mode uniformly uses DataFlowSelector
 									return (
 										<DataFlowSelector
 											variableItemList={variableItemList}
@@ -835,7 +835,7 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 							</div>
 						)}
 
-						{/* 条件触发和定时触发模式：更新操作和值 */}
+						{/* Condition trigger and timer trigger mode: update operation and value */}
 						{config.varName &&
 							(effectiveTriggerType === "condition" ||
 								effectiveTriggerType === "timer") && (
@@ -866,7 +866,7 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 				</CollapsibleContent>
 			</Collapsible>
 
-			{/* 折叠状态下显示描述文案 */}
+			{/* Display description text when collapsed */}
 			{!isOpen && (
 				<>
 					{effectiveTriggerType === "condition" && conditionHint && (

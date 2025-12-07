@@ -10,7 +10,7 @@ import {
 	getOrderTypeText,
 } from "@/types/order/virtual-order";
 
-// Virtual Order 表格列定义
+// Virtual Order table column definition
 export const virtualOrderColumns: ColumnDef<VirtualOrder>[] = [
 	{
 		accessorKey: "orderId",

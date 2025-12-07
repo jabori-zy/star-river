@@ -9,55 +9,55 @@ import type {
 import type { NodeDataBase } from ".";
 import type { SelectedSymbol } from "./kline-node";
 
-// 选中的指标, 用于连接到其他节点, 使用新的指标配置结构
+// Selected indicator, used to connect to other nodes, using new indicator configuration structure
 export type SelectedIndicator = {
-	configId: number; // 指标id
-	outputHandleId: string; // 出口id, 用于连接到其他节点
-	indicatorType: IndicatorType; // 指标类型
-	indicatorConfig: Record<string, unknown>; // 使用新结构的 getConfig() 返回值
+	configId: number; // Indicator id
+	outputHandleId: string; // Output id, used to connect to other nodes
+	indicatorType: IndicatorType; // Indicator type
+	indicatorConfig: Record<string, unknown>; // getConfig() return value using new structure
 	value: Record<string, number>;
 };
 
-// 实盘交易指标配置
+// Live trading indicator configuration
 export type IndicatorNodeLiveConfig = {
-	exchange: string | Exchange | null; // 交易所
-	symbol: string | null; // 交易对
-	interval: string | null; // 时间周期
-	selectedIndicators: SelectedIndicator[]; // 选中的指标
+	exchange: string | Exchange | null; // Exchange
+	symbol: string | null; // Trading pair
+	interval: string | null; // Time interval
+	selectedIndicators: SelectedIndicator[]; // Selected indicators
 };
 
-// 模拟交易指标配置
+// Simulated trading indicator configuration
 export type IndicatorNodeSimulateConfig = {
-	exchange?: string | Exchange; // 交易所
-	symbol?: string; // 交易对
-	interval?: string; // 时间周期
-	selectedIndicators: SelectedIndicator[]; // 选中的指标
+	exchange?: string | Exchange; // Exchange
+	symbol?: string; // Trading pair
+	interval?: string; // Time interval
+	selectedIndicators: SelectedIndicator[]; // Selected indicators
 };
 
 export type IndicatorNodeBacktestFileConfig = {
-	filePath: string; // 文件路径
+	filePath: string; // File path
 };
 
-// 回测交易 交易所配置
+// Backtest trading exchange configuration
 export type IndicatorNodeBacktestExchangeModeConfig = {
-	selectedAccount: SelectedAccount | null; // 选中的账户
-	selectedSymbol: SelectedSymbol | null; // 选中的交易对
-	selectedIndicators: SelectedIndicator[]; // 选中的指标
-	timeRange: TimeRange; // 时间范围
+	selectedAccount: SelectedAccount | null; // Selected account
+	selectedSymbol: SelectedSymbol | null; // Selected trading pair
+	selectedIndicators: SelectedIndicator[]; // Selected indicators
+	timeRange: TimeRange; // Time range
 };
 
-// 指标节点回测模式配置
+// Indicator node backtest mode configuration
 export type IndicatorNodeBacktestConfig = {
-	dataSource: BacktestDataSource; // 数据来源
-	fileModeConfig: IndicatorNodeBacktestFileConfig | null; // 文件数据源配置
-	exchangeModeConfig: IndicatorNodeBacktestExchangeModeConfig | null; // 交易所数据源配置
+	dataSource: BacktestDataSource; // Data source
+	fileModeConfig: IndicatorNodeBacktestFileConfig | null; // File data source configuration
+	exchangeModeConfig: IndicatorNodeBacktestExchangeModeConfig | null; // Exchange data source configuration
 };
 
-// 指标节点数据类型
+// Indicator node data type
 export type IndicatorNodeData = NodeDataBase & {
-	liveConfig?: IndicatorNodeLiveConfig; // 实盘交易配置
-	simulateConfig?: IndicatorNodeSimulateConfig; // 模拟交易配置
-	backtestConfig?: IndicatorNodeBacktestConfig; // 回测交易配置
+	liveConfig?: IndicatorNodeLiveConfig; // Live trading configuration
+	simulateConfig?: IndicatorNodeSimulateConfig; // Simulated trading configuration
+	backtestConfig?: IndicatorNodeBacktestConfig; // Backtest trading configuration
 };
 
 export type IndicatorNode = Node<IndicatorNodeData, "indicatorNode">;

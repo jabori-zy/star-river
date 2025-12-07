@@ -9,7 +9,7 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLLONGLEGGEDDOJIConfigSchema = z.object({
-	// CDLLONGLEGGEDDOJI 没有参数
+	// CDLLONGLEGGEDDOJI has no parameters
 });
 
 export type CDLLONGLEGGEDDOJIConfigType = z.infer<
@@ -18,7 +18,7 @@ export type CDLLONGLEGGEDDOJIConfigType = z.infer<
 
 function buildCDLLONGLEGGEDDOJIConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLLONGLEGGEDDOJI 不需要任何参数
+		// CDLLONGLEGGEDDOJI doesn't need any parameters
 	};
 }
 
@@ -29,7 +29,7 @@ export const CDLLONGLEGGEDDOJIConfig: IndicatorConfig<CDLLONGLEGGEDDOJIConfigTyp
 		displayName: "CDLLONGLEGGEDDOJI",
 		description: "Long Legged Doji",
 		params: {
-			// CDLLONGLEGGEDDOJI 没有参数
+			// CDLLONGLEGGEDDOJI has no parameters
 		},
 		indicatorValueConfig: {
 			timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

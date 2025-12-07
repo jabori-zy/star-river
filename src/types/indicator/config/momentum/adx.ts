@@ -8,21 +8,21 @@ import {
 } from "@/types/indicator/indicator-config";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
-// MA 指标配置的 Zod schema
+// Zod schema for ADX indicator configuration
 const ADXConfigSchema = z.object({
 	timePeriod: z.number().int().positive(),
 });
 
 export type ADXConfigType = z.infer<typeof ADXConfigSchema>;
 
-// MA指标的参数映射函数
+// Parameter mapping function for ADX indicator
 function buildADXConfig(params: Map<string, string>): unknown {
 	return {
 		timePeriod: parseInt(params.get("time_period") || "0"),
 	};
 }
 
-// MA指标配置实现
+// ADX indicator configuration implementation
 export const ADXConfig: IndicatorConfig<ADXConfigType> = {
 	category: IndicatorCategory.MOMENTUM,
 	type: IndicatorType.ADX,
@@ -31,7 +31,7 @@ export const ADXConfig: IndicatorConfig<ADXConfigType> = {
 	params: {
 		timePeriod: {
 			label: "indicator.configField.timePeriod",
-			description: "选择移动平均线的时间周期",
+			description: "Select time period for moving average",
 			defaultValue: 14,
 			required: true,
 			legendShowName: "period",
@@ -62,7 +62,7 @@ export const ADXConfig: IndicatorConfig<ADXConfigType> = {
 			]),
 		);
 
-		// 使用 Zod 验证配置
+		// Validate configuration using Zod
 		const validatedConfig = ADXConfigSchema.parse(config);
 		return validatedConfig;
 	},
@@ -71,7 +71,7 @@ export const ADXConfig: IndicatorConfig<ADXConfigType> = {
 		return getIndicatorValues(this.indicatorValueConfig);
 	},
 
-	// 使用通用解析函数
+	// Use generic parsing function
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
 		IndicatorType.ADX,
 		ADXConfigSchema,
@@ -91,10 +91,10 @@ export const ADXConfig: IndicatorConfig<ADXConfigType> = {
 	// 	seriesName: string,
 	// 	indicatorKey: IndicatorKey,
 	// ): string | undefined {
-	// 	// 如果指标类型为ADX，则返回ADX-seriesName-timePeriod
+	// 	// If indicator type is ADX, return ADX-seriesName-timePeriod
 	// 	if (indicatorKey.indicatorType === IndicatorType.ADX) {
 	// 		const ADXConfig = indicatorKey.indicatorConfig as ADXConfigType;
-	// 		// 找到名称相同的seriesConfig
+	// 		// Find seriesConfig with the same name
 	// 		const seriseConfig = this.chartConfig.seriesConfigs.find(
 	// 			(config) => config.name === seriesName,
 	// 		);

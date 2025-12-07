@@ -9,7 +9,7 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDL3WHITESOLDIERSConfigSchema = z.object({
-	// CDL3WHITESOLDIERS 没有参数
+	// CDL3WHITESOLDIERS has no parameters
 });
 
 export type CDL3WHITESOLDIERSConfigType = z.infer<
@@ -18,7 +18,7 @@ export type CDL3WHITESOLDIERSConfigType = z.infer<
 
 function buildCDL3WHITESOLDIERSConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDL3WHITESOLDIERS 不需要任何参数
+		// CDL3WHITESOLDIERS doesn't need any parameters
 	};
 }
 
@@ -29,7 +29,7 @@ export const CDL3WHITESOLDIERSConfig: IndicatorConfig<CDL3WHITESOLDIERSConfigTyp
 		displayName: "CDL3WHITESOLDIERS",
 		description: "Three Advancing White Soldiers",
 		params: {
-			// CDL3WHITESOLDIERS 没有参数
+			// CDL3WHITESOLDIERS has no parameters
 		},
 		indicatorValueConfig: {
 			timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

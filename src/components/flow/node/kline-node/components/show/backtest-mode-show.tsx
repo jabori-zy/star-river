@@ -25,7 +25,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 
 	return (
 		<div className="space-y-2">
-			{/* 交易对展示 */}
+			{/* Trading pair display */}
 			<div className="space-y-2">
 				{selectedSymbols.length === 0 ? (
 					<div className="flex items-center justify-between gap-2 rounded-md">
@@ -59,7 +59,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 				)}
 			</div>
 
-			{/* 数据源展示 */}
+			{/* Data source display */}
 			<div className="space-y-2">
 				{!selectedAccount || !selectedAccount.accountName ? (
 					<div className="flex items-center justify-between gap-2 rounded-md">
@@ -83,7 +83,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 					</div>
 				)}
 			</div>
-			{/* 回测时间范围展示 */}
+			{/* Backtest time range display */}
 			{/* <div className="space-y-2">
 				{!localTimeRange?.startDate || !localTimeRange?.endDate ? (
 					<div className="flex items-center justify-between gap-2 rounded-md">

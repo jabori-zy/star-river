@@ -18,21 +18,21 @@ interface UpdateOptions {
 }
 
 /**
- * 根据ID获取策略详情
+ * Get strategy details by ID
  */
 export async function getStrategyById(strategyId: number): Promise<Strategy> {
 	try {
 		const response = await axios.get(`${getApiUrl()}/${strategyId}`);
 
 		if (response.status !== 200) {
-			throw new Error(`获取策略失败: ${response.status}`);
+			throw new Error(`Failed to fetch strategy: ${response.status}`);
 		}
 
 		const data = response.data;
-		// console.log("接口获取的原始策略数据", data.data);
+		// console.log("Raw strategy data from API", data.data);
 
 		if (!data.data) {
-			throw new Error("获取策略数据为空");
+			throw new Error("Strategy data is empty");
 		}
 
 		const strategy: Strategy = {
@@ -51,19 +51,19 @@ export async function getStrategyById(strategyId: number): Promise<Strategy> {
 
 		return strategy;
 	} catch (error) {
-		console.error("获取策略详情错误:", error);
+		console.error("Error fetching strategy details:", error);
 		throw error;
 	}
 }
 
 /**
- * 获取所有策略列表
+ * Get all strategies list
  */
 export async function getAllStrategies(): Promise<Strategy[]> {
 	try {
 		const response = await axios.get(`${getApiBaseUrl()}/get_strategies`);
 		if (response.status !== 200) {
-			throw new Error(`获取策略列表失败: ${response.status}`);
+			throw new Error(`Failed to fetch strategies list: ${response.status}`);
 		}
 
 		const data = response.data;
@@ -86,7 +86,7 @@ export async function getAllStrategies(): Promise<Strategy[]> {
 			updateTime: item["updated_time"],
 		}));
 	} catch (error) {
-		console.error("获取策略列表错误:", error);
+		console.error("Error fetching strategies list:", error);
 		throw error;
 	}
 }
@@ -105,29 +105,29 @@ export async function createStrategy(
 			description: strategyDescription,
 		});
 
-		console.log("创建策略响应", response);
+		console.log("Create strategy response", response);
 
 		if (response.status !== 201) {
-			throw new Error(`创建策略失败: ${response.status}`);
+			throw new Error(`Failed to create strategy: ${response.status}`);
 		}
 
 		const data = response.data;
 		const result = await getStrategyById(data.data.id);
 
-		// 成功回调
+		// Success callback
 		if (options?.showToast) {
-			toast.success("创建成功");
+			toast.success("Created successfully");
 		}
 		options?.onSuccess?.();
 
 		return result;
 	} catch (error) {
-		console.error("创建策略错误:", error);
+		console.error("Error creating strategy:", error);
 
-		// 错误回调
+		// Error callback
 		if (options?.showToast) {
 			toast.error(
-				`创建失败: ${error instanceof Error ? error.message : String(error)}`,
+				`Failed to create: ${error instanceof Error ? error.message : String(error)}`,
 			);
 		}
 		options?.onError?.(
@@ -141,7 +141,7 @@ export async function createStrategy(
 }
 
 /**
- * 获取策略订阅的缓存键
+ * Get strategy subscribed cache keys
  */
 export async function getStrategyCacheKeys(
 	strategyId: number,
@@ -150,7 +150,7 @@ export async function getStrategyCacheKeys(
 		const response = await axios.get(`${getApiUrl()}/${strategyId}/cache-keys`);
 		return response.data.data;
 	} catch (error) {
-		console.error("获取策略订阅的缓存键错误:", error);
+		console.error("Error fetching strategy subscribed cache keys:", error);
 		throw error;
 	}
 }
@@ -170,7 +170,7 @@ export async function updateBacktestStrategyChartConfig(
 		);
 		return response.data;
 	} catch (error) {
-		console.error("更新策略图表配置错误:", error);
+		console.error("Error updating strategy chart config:", error);
 		throw error;
 	}
 }
@@ -184,11 +184,11 @@ export async function getBacktestStrategyChartConfig(
 			`${getApiUrl()}/backtest/${strategyId}/chart_config`,
 		);
 		if (response.status !== 200) {
-			throw new Error(`获取策略图表配置失败: ${response.status}`);
+			throw new Error(`Failed to fetch strategy chart config: ${response.status}`);
 		}
 		return response.data.data;
 	} catch (error) {
-		console.error("获取策略图表配置错误:", error);
+		console.error("Error fetching strategy chart config:", error);
 		throw error;
 	}
 }

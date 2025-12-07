@@ -9,7 +9,7 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLRISEFALL3METHODSConfigSchema = z.object({
-	// CDLRISEFALL3METHODS 没有参数
+	// CDLRISEFALL3METHODS has no parameters
 });
 
 export type CDLRISEFALL3METHODSConfigType = z.infer<
@@ -18,7 +18,7 @@ export type CDLRISEFALL3METHODSConfigType = z.infer<
 
 function buildCDLRISEFALL3METHODSConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLRISEFALL3METHODS 不需要任何参数
+		// CDLRISEFALL3METHODS doesn't need any parameters
 	};
 }
 
@@ -29,7 +29,7 @@ export const CDLRISEFALL3METHODSConfig: IndicatorConfig<CDLRISEFALL3METHODSConfi
 		displayName: "CDLRISEFALL3METHODS",
 		description: "Rising/Falling Three Methods",
 		params: {
-			// CDLRISEFALL3METHODS 没有参数
+			// CDLRISEFALL3METHODS has no parameters
 		},
 		indicatorValueConfig: {
 			timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

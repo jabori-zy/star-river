@@ -9,7 +9,7 @@ import {
 import { useCallback } from "react";
 import { NodeType } from "@/types/node/index";
 
-// 节点连接支持映射表 - 定义每种节点类型可以连接到哪些节点类型
+// Node connection support map - defines which node types each node type can connect to
 const NodeSupportConnectionMap: Record<NodeType, NodeType[]> = {
 	[NodeType.StartNode]: [NodeType.KlineNode, NodeType.VariableNode],
 	[NodeType.KlineNode]: [
@@ -33,26 +33,26 @@ const NodeSupportConnectionMap: Record<NodeType, NodeType[]> = {
 	[NodeType.VariableNode]: [NodeType.IfElseNode, NodeType.VariableNode],
 };
 
-// 节点连接数量限制 - 定义每种节点类型最多可以被连接的次数（-1表示无限制）
+// Node connection limit - defines the maximum number of incoming connections for each node type (-1 means unlimited)
 const NodeSupportConnectionLimit: Record<NodeType, number> = {
-	[NodeType.StartNode]: 0, // 开始节点不能连接
-	[NodeType.KlineNode]: 1, // 只能有一个入口
-	[NodeType.IndicatorNode]: 1, // 只能有一个入口
-	[NodeType.IfElseNode]: -1, // -1代表不限制
-	[NodeType.FuturesOrderNode]: -1, // -1代表不限制
-	[NodeType.PositionNode]: -1, // -1代表不限制
-	[NodeType.VariableNode]: -1, // -1代表不限制
+	[NodeType.StartNode]: 0, // Start node cannot receive connections
+	[NodeType.KlineNode]: 1, // Can only have one incoming connection
+	[NodeType.IndicatorNode]: 1, // Can only have one incoming connection
+	[NodeType.IfElseNode]: -1, // -1 means unlimited
+	[NodeType.FuturesOrderNode]: -1, // -1 means unlimited
+	[NodeType.PositionNode]: -1, // -1 means unlimited
+	[NodeType.VariableNode]: -1, // -1 means unlimited
 };
 
 /**
- * 检测是否会形成循环连接
- * 使用深度优先搜索(DFS)从目标节点向下遍历，检查是否能到达源节点
+ * Detect if a circular connection will be formed
+ * Uses depth-first search (DFS) to traverse from the target node downward and check if the source node can be reached
  *
- * @param sourceNodeId - 待连接的源节点ID
- * @param targetNode - 待连接的目标节点对象
- * @param nodes - 所有节点列表
- * @param edges - 所有边列表
- * @returns true 表示会形成循环，false 表示不会
+ * @param sourceNodeId - Source node ID to be connected
+ * @param targetNode - Target node object to be connected
+ * @param nodes - List of all nodes
+ * @param edges - List of all edges
+ * @returns true indicates a cycle will be formed, false indicates it will not
  */
 const hasCycle = (
 	sourceNodeId: string,
@@ -78,36 +78,36 @@ const hasCycle = (
 };
 
 /**
- * 节点连接验证相关的hook
+ * Hook for node connection validation
  */
 const useNodeValidation = () => {
-	// 获取 ReactFlow 的节点和连接信息
+	// Get ReactFlow nodes and connections information
 	const { getNode, getNodeConnections, getNodes, getEdges } = useReactFlow();
 
 	/**
-	 * 检查连接是否有效
-	 * 根据节点类型和连接限制来判断两个节点之间是否可以建立连接
+	 * Check if connection is valid
+	 * Determines whether a connection can be established between two nodes based on node types and connection limits
 	 */
 	const checkIsValidConnection: IsValidConnection = useCallback(
 		(connection: Connection | Edge): boolean => {
 			const sourceNodeId = connection.source;
 			const targetNodeId = connection.target;
 
-			// 获取源节点和目标节点
+			// Get source and target nodes
 			const sourceNode = getNode(sourceNodeId);
 			const targetNode = getNode(targetNodeId);
 
-			// 节点不存在则连接无效
+			// Connection is invalid if nodes don't exist
 			if (!sourceNode || !targetNode) {
 				return false;
 			}
 
-			// 防止自循环 (A → A)
+			// Prevent self-loop (A → A)
 			if (sourceNode.id === targetNode.id) {
 				return false;
 			}
 
-			// 检查源节点是否支持连接到目标节点类型
+			// Check if source node supports connection to target node type
 			const supportedConnections =
 				NodeSupportConnectionMap[sourceNode.type as NodeType];
 			if (
@@ -117,7 +117,7 @@ const useNodeValidation = () => {
 				return false;
 			}
 
-			// 检查目标节点的连接数量限制
+			// Check target node's connection limit
 			const targetNodeConnections = getNodeConnections({
 				nodeId: targetNodeId,
 				type: "target",
@@ -125,9 +125,9 @@ const useNodeValidation = () => {
 			const targetNodeSupportConnectionLimit =
 				NodeSupportConnectionLimit[targetNode.type as NodeType];
 
-			// -1表示无限制，需要继续检查循环
+			// -1 means unlimited, continue to check for cycles
 			if (targetNodeSupportConnectionLimit !== -1) {
-				// 检查是否超过连接数量限制
+				// Check if connection limit is exceeded
 				const isOverLimit =
 					targetNodeSupportConnectionLimit > targetNodeConnections.length;
 				if (!isOverLimit) {
@@ -135,7 +135,7 @@ const useNodeValidation = () => {
 				}
 			}
 
-			// 防止形成循环连接 (A → B → C → A)
+			// Prevent circular connections (A → B → C → A)
 			if (hasCycle(sourceNode.id, targetNode, getNodes(), getEdges())) {
 				return false;
 			}

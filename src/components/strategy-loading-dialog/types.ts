@@ -14,7 +14,7 @@ export interface StrategyLoadingDialogProps {
 		| "failed"
 		| "stopping"
 		| "stopped";
-	title?: "策略加载中" | "策略停止中"; // 可选的标题参数
+	title?: "Strategy Loading" | "Strategy Stopping"; // Optional title parameter
 	onStrategyStateChange?: (state: "ready" | "failed") => void;
 }
 

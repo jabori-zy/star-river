@@ -19,14 +19,14 @@ export const createRefsSlice: SliceCreator<RefsSlice> = (set, get) => ({
 	paneVersion: 0,
 
 	/**
-	 * 设置图表实例引用
+	 * Set chart instance reference
 	 *
-	 * 关键修复：支持传入null值以清理图表引用
+	 * Critical fix: Support passing null value to clean up chart reference
 	 *
-	 * 使用场景：
-	 * 1. 图表初始化时保存图表实例
-	 * 2. 容器引用丢失时清理旧实例（传入null）
-	 * 3. 图表销毁时释放引用
+	 * Use cases:
+	 * 1. Save chart instance during chart initialization
+	 * 2. Clean up old instance when container reference is lost (pass null)
+	 * 3. Release reference when chart is destroyed
 	 */
 	setChartRef: (chart: IChartApi | null) => set({ chartRef: chart }),
 
@@ -104,7 +104,7 @@ export const createRefsSlice: SliceCreator<RefsSlice> = (set, get) => ({
 	getSubChartPaneHtmlElementRef: (indicatorKeyStr: IndicatorKeyStr) =>
 		get().subChartPaneHtmlElementRef[indicatorKeyStr] || null,
 
-	// Pane 版本号管理
+	// Pane version number management
 	getPaneVersion: () => get().paneVersion,
 
 	incrementPaneVersion: () => set({ paneVersion: get().paneVersion + 1 }),

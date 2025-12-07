@@ -41,7 +41,7 @@ export interface NodePhaseReport {
 	minDuration: Duration;
 	maxDuration: Duration;
 	totalDuration: Duration;
-	avgDurationPercentage: number; // 平均耗时占比
+	avgDurationPercentage: number; // Average duration percentage
 	p25: Duration;
 	p50: Duration;
 	p75: Duration;
@@ -59,7 +59,7 @@ export interface StrategyPhaseReport {
 	minDuration: Duration;
 	maxDuration: Duration;
 	totalDuration: Duration;
-	durationPercentage: number; // 耗时占比
+	durationPercentage: number; // Duration percentage
 	p25: Duration;
 	p50: Duration;
 	p75: Duration;
@@ -86,7 +86,7 @@ export interface NodePerformanceReport {
 	p95: Duration;
 	p99: Duration;
 	recentAvg100: Duration;
-	avgDurationPercentage: number; // 平均耗时占比
+	avgDurationPercentage: number; // Average duration percentage
 	phaseReports: NodePhaseReport[];
 }
 

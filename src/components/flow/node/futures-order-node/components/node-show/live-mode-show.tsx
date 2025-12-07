@@ -7,12 +7,12 @@ interface LiveModeShowProps {
 }
 
 const LiveModeShow: React.FC<LiveModeShowProps> = ({ id, data }) => {
-	// 获取实盘模式配置
+	// Get live mode config
 	const liveConfig = data.liveConfig;
 
 	const exchangeName = liveConfig?.selectedLiveAccount?.exchange;
 
-	// 如果没有配置或者没有订单配置，显示提示信息
+	// If no config or no order configs, show hint message
 	if (
 		!liveConfig ||
 		!liveConfig.futuresOrderConfigs ||
@@ -20,7 +20,7 @@ const LiveModeShow: React.FC<LiveModeShowProps> = ({ id, data }) => {
 	) {
 		return (
 			<div className="text-sm text-muted-foreground p-2 text-center">
-				暂无订单配置
+				No order configured
 			</div>
 		);
 	}
@@ -28,10 +28,10 @@ const LiveModeShow: React.FC<LiveModeShowProps> = ({ id, data }) => {
 	return (
 		<div className="flex flex-col gap-2">
 			<div className="flex items-center mb-1">
-				<span className="text-xs text-muted-foreground">订单将会发送至</span>
+				<span className="text-xs text-muted-foreground">Orders will be sent to </span>
 				<span className="text-xs font-bold ">{exchangeName}</span>
 			</div>
-			{/* 渲染所有的订单配置 */}
+			{/* Render all order configs */}
 			{liveConfig.futuresOrderConfigs.map((config) => (
 				<OrderHandleItem id={id} key={config.orderId} orderConfig={config} />
 			))}

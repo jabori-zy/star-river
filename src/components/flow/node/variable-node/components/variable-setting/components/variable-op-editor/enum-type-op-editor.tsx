@@ -43,21 +43,21 @@ const EnumTypeOpEditor: React.FC<EnumTypeOpEditorProps> = ({
 	const conditionTrigger = getConditionTriggerConfig({ triggerConfig });
 	const timerTrigger = getTimerTriggerConfig({ triggerConfig });
 
-	// 判断是否应该显示提示文案
+	// Determine whether to show hint text
 	const shouldShowHint = (hasValues: boolean) => {
-		// 条件触发模式：必须选择了触发条件
+		// Condition trigger mode: must have selected a trigger condition
 		if (effectiveTriggerType === "condition" && !conditionTrigger) {
 			return false;
 		}
-		// clear 操作不需要输入值，可以直接显示
+		// Clear operation doesn't need input value, can display directly
 		if (updateOperationType === "clear") {
 			return true;
 		}
-		// 其他操作需要有值
+		// Other operations need values
 		return hasValues;
 	};
 
-	// 将 JSON 字符串解析为 Option[]
+	// Parse JSON string to Option[]
 	const parseValue = (): Option[] => {
 		try {
 			const parsedValue = JSON.parse(updateValue || "[]");
@@ -69,13 +69,13 @@ const EnumTypeOpEditor: React.FC<EnumTypeOpEditorProps> = ({
 		}
 	};
 
-	// 将 Option[] 转换为 JSON 字符串
+	// Convert Option[] to JSON string
 	const handleValueChange = (options: Option[]) => {
 		const values = options.map((opt) => opt.value);
 		onUpdateValueChange(JSON.stringify(values));
 	};
 
-	// 解析当前选中的值
+	// Parse currently selected values
 	const getSelectedValues = (): string[] => {
 		try {
 			const parsedValue = JSON.parse(updateValue || "[]");
@@ -85,7 +85,7 @@ const EnumTypeOpEditor: React.FC<EnumTypeOpEditorProps> = ({
 		}
 	};
 
-	// clear 操作不需要输入值
+	// Clear operation doesn't need input value
 	if (updateOperationType === "clear") {
 		return (
 			<div className="flex flex-col gap-2">
@@ -95,7 +95,7 @@ const EnumTypeOpEditor: React.FC<EnumTypeOpEditorProps> = ({
 					onValueChange={(value) =>
 						onUpdateOperationTypeChange(value as UpdateVarValueOperation)
 					}
-					placeholder="选择更新操作"
+					placeholder="Select update operation"
 					options={availableOperationOptions}
 				/>
 				{shouldShowHint(true) && (
@@ -114,7 +114,7 @@ const EnumTypeOpEditor: React.FC<EnumTypeOpEditorProps> = ({
 		);
 	}
 
-	// set, append, remove 操作需要多选输入
+	// set, append, remove operations need multi-select input
 	const selectedValues = getSelectedValues();
 	const hasValues = selectedValues.length > 0;
 
@@ -127,7 +127,7 @@ const EnumTypeOpEditor: React.FC<EnumTypeOpEditorProps> = ({
 					onValueChange={(value) =>
 						onUpdateOperationTypeChange(value as UpdateVarValueOperation)
 					}
-					placeholder="选择更新操作"
+					placeholder="Select update operation"
 					options={availableOperationOptions}
 					className="w-auto"
 				/>
@@ -137,10 +137,10 @@ const EnumTypeOpEditor: React.FC<EnumTypeOpEditorProps> = ({
 						onChange={handleValueChange}
 						placeholder={
 							updateOperationType === "set"
-								? "输入新数组的值"
+								? "Enter new array values"
 								: updateOperationType === "append"
-									? "输入要添加的值"
-									: "输入要删除的值"
+									? "Enter values to add"
+									: "Enter values to remove"
 						}
 						creatable={true}
 						triggerSearchOnFocus={true}
@@ -148,10 +148,10 @@ const EnumTypeOpEditor: React.FC<EnumTypeOpEditorProps> = ({
 						emptyIndicator={
 							<p className="text-center text-sm text-muted-foreground">
 								{updateOperationType === "set"
-									? "输入后按回车设置数组值"
+									? "Press Enter after typing to set array values"
 									: updateOperationType === "append"
-										? "输入后按回车添加元素"
-										: "输入后按回车选择要删除的元素"}
+										? "Press Enter after typing to add elements"
+										: "Press Enter after typing to select elements to remove"}
 							</p>
 						}
 					/>

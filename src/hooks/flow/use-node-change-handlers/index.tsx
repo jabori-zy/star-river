@@ -6,7 +6,7 @@ import { useKlineNodeChangeHandler } from "./use-kline-node-change-handler";
 import { useVarNodeChangeHandler } from "./use-var-node-change-handler";
 
 /**
- * 节点变更处理相关的hook
+ * Hook for handling node changes
  */
 const useNodeChangeHandlers = () => {
 	const { handleKlineNodeChange } = useKlineNodeChangeHandler();
@@ -14,7 +14,7 @@ const useNodeChangeHandlers = () => {
 	const { handleVarNodeChange } = useVarNodeChangeHandler();
 
 	/**
-	 * 处理节点变化的主要逻辑
+	 * Main logic for handling node changes
 	 */
 	const handleNodeChanges = useCallback(
 		(
@@ -23,9 +23,9 @@ const useNodeChangeHandlers = () => {
 			newNodes: Node[],
 			edges: Edge[],
 		): Node[] => {
-			// 需要更新的节点
+			// Nodes that need to be updated
 			let updatedNodes = newNodes;
-			// 检查是否有节点的数据发生变化
+			// Check if any node data has changed
 			for (const change of changes) {
 				if (change.type === "replace") {
 					const newNode = change.item;

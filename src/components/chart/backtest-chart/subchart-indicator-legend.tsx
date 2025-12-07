@@ -11,8 +11,8 @@ interface SubchartIndicatorLegendProps {
 }
 
 /**
- * 🔑 优化后的子图指标 Legend 组件
- * 使用 React Portal 而不是 createRoot，简化渲染流程
+ * Optimized subchart indicator Legend component
+ * Uses React Portal instead of createRoot to simplify rendering process
  */
 export function SubchartIndicatorLegend({
 	chartId,
@@ -32,17 +32,17 @@ export function SubchartIndicatorLegend({
 
 	const indicatorSeriesMap = indicatorSeriesRef[indicatorKeyStr] || {};
 
-	// 🔑 获取当前的 pane 版本号，用于监听 pane 变化
+	// Get current pane version number to listen for pane changes
 	const paneVersion = getPaneVersion();
 
-	// 🔑 获取 legend 数据和事件处理器
+	// Get legend data and event handlers
 	const { legendData, onCrosshairMove, onSeriesDataUpdate } =
 		useIndicatorLegend({
 			chartId,
 			indicatorKeyStr,
 		});
 
-	// 🔑 延迟订阅图表事件，确保图表完全初始化
+	// Delay subscribing to chart events to ensure chart is fully initialized
 	useEffect(() => {
 		if (!chartRef || !onCrosshairMove) {
 			return;
@@ -76,17 +76,17 @@ export function SubchartIndicatorLegend({
 		};
 	}, [indicatorSeriesMap, onSeriesDataUpdate]);
 
-	// 🔑 创建 Portal 容器，响应 paneRef 的变化
+	// Create Portal container, responding to paneRef changes
 	useEffect(() => {
-		// 当pane被删除时版本号会变化，触发重新创建容器
-		void paneVersion; // 引用paneVersion以消除ESLint警告
-		void subChartPaneHtmlElementRef; // 引用subChartPaneHtmlElementRef以消除ESLint警告
+		// Version number changes when pane is deleted, triggering container recreation
+		void paneVersion; // Reference paneVersion to eliminate ESLint warning
+		void subChartPaneHtmlElementRef; // Reference subChartPaneHtmlElementRef to eliminate ESLint warning
 
 		const createPortalContainer = () => {
 			const paneRef = getSubChartPaneRef(indicatorKeyStr);
 
 			if (!paneRef) {
-				// 如果 pane 还没准备好，稍后重试
+				// If pane is not ready yet, retry later
 				setTimeout(createPortalContainer, 100);
 				return;
 			}
@@ -95,27 +95,27 @@ export function SubchartIndicatorLegend({
 				// console.log("subChartPaneHtmlElementRef", subChartPaneHtmlElementRef);
 				const htmlElement = getSubChartPaneHtmlElementRef(indicatorKeyStr);
 				if (!htmlElement) {
-					// console.warn(`无法获取子图 HTML 元素: ${indicatorKeyStr}`);
+					// console.warn(`Cannot get subchart HTML element: ${indicatorKeyStr}`);
 					return;
 				}
 
-				// 查找包含 canvas 元素的 div
+				// Find div containing canvas element
 				const canvasContainer = htmlElement.querySelector(
 					'div[style*="width: 100%"][style*="height: 100%"][style*="position: relative"][style*="overflow: hidden"]',
 				) as HTMLDivElement;
 
 				if (!canvasContainer) {
-					console.warn(`无法找到 canvas 容器元素: ${indicatorKeyStr}`);
+					console.warn(`Cannot find canvas container element: ${indicatorKeyStr}`);
 					return;
 				}
 
-				// 检查是否已经存在容器
+				// Check if container already exists
 				let container = canvasContainer.querySelector(
 					`[data-legend-key="${indicatorKeyStr}"]`,
 				) as HTMLDivElement;
 
 				if (!container) {
-					// 创建 Portal 容器
+					// Create Portal container
 					container = document.createElement("div");
 					container.style.position = "absolute";
 					container.style.top = "4px";
@@ -134,9 +134,9 @@ export function SubchartIndicatorLegend({
 
 		createPortalContainer();
 
-		// 清理函数
+		// Cleanup function
 		return () => {
-			// 使用闭包捕获当前的 portalContainer 值
+			// Use closure to capture current portalContainer value
 			setPortalContainer((currentContainer) => {
 				if (currentContainer?.parentNode) {
 					currentContainer.parentNode.removeChild(currentContainer);
@@ -151,9 +151,9 @@ export function SubchartIndicatorLegend({
 		paneVersion,
 		getSubChartPaneHtmlElementRef,
 		subChartPaneHtmlElementRef,
-	]); // 依赖 paneVersion，当 pane 被删除时会重新创建容器
+	]); // Depend on paneVersion, container will be recreated when pane is deleted
 
-	// 🔑 使用 Portal 渲染，简单直接
+	// Use Portal for rendering, simple and direct
 	if (!portalContainer || !legendData) {
 		return null;
 	}

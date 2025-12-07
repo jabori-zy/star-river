@@ -18,12 +18,12 @@ interface UseKlineDataLoaderReturn {
 }
 
 /**
- * K线历史数据加载
+ * K-line historical data loading
  *
- * 职责：
- * - 加载K线历史数据
- * - 数据转换和合并
- * - 延迟更新避免无限触发
+ * Responsibilities:
+ * - Load K-line historical data
+ * - Data transformation and merging
+ * - Delayed updates to avoid infinite triggering
  */
 export const useKlineDataLoader = ({
 	strategyId,
@@ -42,10 +42,10 @@ export const useKlineDataLoader = ({
 				});
 
 				const klinedata = data as Kline[];
-				// 剔除最后1根k线（避免重复计算slice）
+				// Remove the last K-line (to avoid duplicate slice calculations)
 				const trimmedData = klinedata.slice(0, -1);
 
-				// 如果数据长度为0，则不进行处理
+				// If data length is 0, do not process
 				if (trimmedData.length === 0) {
 					return;
 				}
@@ -59,11 +59,11 @@ export const useKlineDataLoader = ({
 						close: kline.close,
 					}),
 				);
-				// console.log("加载k线历史数据", partialKlineData.length);
+				// console.log("Loading K-line historical data", partialKlineData.length);
 
-				// 添加延迟，避免无限触发可见范围变化事件
+				// Add delay to avoid infinite triggering of visible range change events
 				setTimeout(() => {
-					// 重新获取最新的 klineSeries，确保使用最新的引用
+					// Re-fetch the latest klineSeries to ensure using the latest reference
 					const latestKlineSeries = getKlineSeriesRef();
 					if (latestKlineSeries) {
 						const newData = [...partialKlineData, ...latestKlineSeries.data()];
@@ -71,7 +71,7 @@ export const useKlineDataLoader = ({
 					}
 				}, 250);
 			} catch (error) {
-				console.error("加载K线历史数据时出错:", error);
+				console.error("Error loading K-line historical data:", error);
 			}
 		},
 		[strategyId, getKlineSeriesRef],

@@ -19,8 +19,8 @@ interface SymbolSelectorProps {
 	selectedSymbols: SelectedSymbol[]; // selected symbols
 	selectedDataSource?: SelectedAccount | null; // selected data source
 	onSymbolsChange: (symbols: SelectedSymbol[]) => void; // symbol change callback
-	symbolList: Instrument[]; // 代币列表（从父组件传入）
-	supportKlineInterval: string[]; // 支持的K线周期（从父组件传入）
+	symbolList: Instrument[]; // Symbol list (passed from parent component)
+	supportKlineInterval: string[]; // Supported kline intervals (passed from parent component)
 }
 
 // Trading symbol selector
@@ -120,7 +120,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 
 		// const symbolRegex = /^[A-Z0-9]+\/[A-Z0-9]+$/;
 		// if (!symbolRegex.test(symbol.toUpperCase())) {
-		//     setNameError("交易对格式不正确，应为 BTC/USDT 格式");
+		//     setNameError("Invalid symbol format, should be like BTC/USDT");
 		//     return false;
 		// }
 
@@ -161,7 +161,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 			(id) => getNode(id)?.data.nodeName as string,
 		);
 
-		// 如果有连接的目标节点，显示确认对话框
+		// If there are connected target nodes, show confirmation dialog
 		if (targetNodeIds.length > 0) {
 			setPendingDeleteSymbol(symbolToDelete);
 			setPendingSymbolData({
@@ -174,16 +174,16 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 			return;
 		}
 
-		// 没有连接节点，直接删除
+		// No connected nodes, delete directly
 		performDelete(symbolToDelete);
 	};
 
-	// 执行删除
+	// Perform delete
 	const performDelete = (symbolToDelete?: SelectedSymbol) => {
 		const targetSymbol = symbolToDelete || pendingDeleteSymbol;
 		if (!targetSymbol) return;
 
-		// 删除边
+		// Delete edge
 		const sourceHandleId = targetSymbol.outputHandleId;
 		if (sourceHandleId) {
 			deleteEdgeBySourceHandleId(sourceHandleId);
@@ -198,7 +198,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 		);
 		syncToParent(newSymbols);
 
-		// 清理删除相关状态
+		// Clean up delete related state
 		setPendingDeleteSymbol(null);
 		setIsConfirmDialogOpen(false);
 		setPendingSymbolData(null);
@@ -209,24 +209,24 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 			return;
 		}
 
-		// 如果是新增操作，直接保存，不弹出确认对话框
+		// If adding new, save directly without confirmation dialog
 		if (!editingSymbol) {
 			performSave();
 			return;
 		}
 
-		// 如果是编辑操作，检查是否有连接的目标节点
+		// If editing, check for connected target nodes
 		const targetNodeIds = getTargetNodeIds(nodeId);
 		const targetNodeNames = targetNodeIds.map(
 			(id) => getNode(id)?.data.nodeName as string,
 		);
 
-		// 如果有连接的目标节点，先关闭选择对话框，然后显示确认对话框
+		// If there are connected target nodes, close selection dialog first, then show confirmation dialog
 		if (targetNodeIds.length > 0) {
-			// 先关闭选择对话框
+			// Close selection dialog first
 			setIsDialogOpen(false);
 
-			// 保存待处理的数据
+			// Save pending data
 			setPendingSymbolData({
 				symbolName,
 				symbolInterval,
@@ -234,18 +234,18 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 				targetNodeNames: targetNodeNames,
 			});
 
-			// 短暂延迟后显示确认对话框，确保选择对话框完全关闭
+			// Show confirmation dialog after brief delay to ensure selection dialog fully closed
 			setTimeout(() => {
 				setIsConfirmDialogOpen(true);
 			}, 50);
 			return;
 		}
 
-		// 没有连接节点，直接保存
+		// No connected nodes, save directly
 		performSave();
 	};
 
-	// 执行保存
+	// Perform save
 	const performSave = () => {
 		const currentSymbolName = pendingSymbolData?.symbolName || symbolName;
 		const currentSymbolInterval =
@@ -254,13 +254,13 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 		let newSymbols: SelectedSymbol[];
 
 		if (editingSymbol) {
-			// 编辑现有symbol，保持原有的configId和outputHandleId
+			// Edit existing symbol, keep original configId and outputHandleId
 			const newSymbol: SelectedSymbol = {
-				configId: editingSymbol.configId, // 保持原有configId
-				outputHandleId: editingSymbol.outputHandleId, // 保持原有outputHandleId
+				configId: editingSymbol.configId, // Keep original configId
+				outputHandleId: editingSymbol.outputHandleId, // Keep original outputHandleId
 				symbol: currentSymbolName,
 				interval: currentSymbolInterval,
-				klineValue: editingSymbol.klineValue, // 保持原有klineValue
+				klineValue: editingSymbol.klineValue, // Keep original klineValue
 			};
 
 			newSymbols = localSymbols.map((s) =>
@@ -270,7 +270,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 					: s,
 			);
 		} else {
-			// 新增symbol时才计算新的configId
+			// Calculate new configId only when adding new symbol
 			const maxConfigId = localSymbols.reduce(
 				(max, symbol) => Math.max(max, symbol.configId),
 				0,
@@ -296,11 +296,11 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 		setIsDialogOpen(false);
 		setEditingSymbol(undefined);
 
-		// 清理确认对话框状态
+		// Clean up confirmation dialog state
 		setIsConfirmDialogOpen(false);
 		setPendingSymbolData(null);
 
-		// 重置表单状态
+		// Reset form state
 		resetForm();
 	};
 
@@ -313,30 +313,30 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 	};
 
 	const handleCancelSave = () => {
-		// 关闭确认对话框
+		// Close confirmation dialog
 		setIsConfirmDialogOpen(false);
 
-		// 如果是删除操作，直接清理状态
+		// If delete operation, clean up state directly
 		if (pendingDeleteSymbol) {
 			setPendingDeleteSymbol(null);
 			setPendingSymbolData(null);
 			return;
 		}
 
-		// 如果是保存操作，短暂延迟后重新打开选择对话框
+		// If save operation, reopen selection dialog after brief delay
 		setTimeout(() => {
 			setIsDialogOpen(true);
 		}, 100);
 
-		// 注意：不清空 pendingSymbolData 和表单状态，保持用户的选择
-		// setPendingSymbolData(null); // 注释掉这行，保持数据
+		// Note: Don't clear pendingSymbolData and form state, keep user's selection
+		// setPendingSymbolData(null); // Commented out to keep data
 	};
 
-	// 处理选择对话框关闭事件
+	// Handle selection dialog close event
 	const handleSelectDialogOpenChange = (open: boolean) => {
 		setIsDialogOpen(open);
 
-		// 如果用户直接关闭对话框（不是通过保存触发），清理临时数据
+		// If user closes dialog directly (not triggered by save), clean up temporary data
 		if (!open && !isConfirmDialogOpen) {
 			setPendingSymbolData(null);
 			setEditingSymbol(undefined);
@@ -409,7 +409,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 				)}
 			</div>
 
-			{/* 添加/编辑交易对对话框 */}
+			{/* Add/edit symbol dialog */}
 			<SymbolSelectDialog
 				accountId={selectedDataSource?.id ?? 0}
 				accountName={selectedDataSource?.accountName || ""}
@@ -428,7 +428,7 @@ const SymbolSelector: React.FC<SymbolSelectorProps> = ({
 				supportKlineInterval={supportKlineInterval}
 			/>
 
-			{/* 确认修改对话框 */}
+			{/* Confirm modification dialog */}
 			<NodeOpConfirmDialog
 				isOpen={isConfirmDialogOpen}
 				onOpenChange={setIsConfirmDialogOpen}

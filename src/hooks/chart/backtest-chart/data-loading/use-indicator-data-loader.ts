@@ -24,12 +24,12 @@ interface UseIndicatorDataLoaderReturn {
 }
 
 /**
- * 指标历史数据加载
+ * Indicator historical data loading
  *
- * 职责：
- * - 加载指标历史数据
- * - 批量处理多个指标系列
- * - 数据转换和合并
+ * Responsibilities:
+ * - Load indicator historical data
+ * - Batch process multiple indicator series
+ * - Data transformation and merging
  */
 export const useIndicatorDataLoader = ({
 	strategyId,
@@ -59,22 +59,22 @@ export const useIndicatorDataLoader = ({
 					return;
 				}
 
-				// 剔除最后1根数据（避免重复计算slice）
+				// Remove the last data point (to avoid duplicate slice calculations)
 				const trimmedData = indicatorData.slice(0, -1);
 				if (trimmedData.length === 0) {
 					return;
 				}
-				// console.log("加载指标历史数据", trimmedData.length);
+				// console.log("Loading indicator historical data", trimmedData.length);
 
 				const partialIndicatorData: Record<
 					keyof IndicatorValueConfig,
 					SingleValueData[]
 				> = {};
 
-				// 优化：预先构建数据结构，避免重复扩展数组
+				// Optimization: Pre-build data structure to avoid repeated array expansion
 				trimmedData.forEach((item) => {
 					Object.entries(item).forEach(([indicatorValueField, value]) => {
-						// 跳过datetime字段，只处理指标值，并过滤value为0的数据和value为空的数据
+						// Skip datetime field, only process indicator values, and filter out data where value is 0 or null
 						if (
 							indicatorValueField !== "datetime" &&
 							value !== 0 &&
@@ -94,7 +94,7 @@ export const useIndicatorDataLoader = ({
 					});
 				});
 
-				// 更新各个系列的数据
+				// Update data for each series
 				seriesConfigs.forEach((seriesConfig) => {
 					const indicatorSeriesRef = getIndicatorSeriesRef(
 						indicatorKeyStr,
@@ -113,7 +113,7 @@ export const useIndicatorDataLoader = ({
 					}
 				});
 			} catch (error) {
-				console.error(`加载指标 ${indicatorKeyStr} 历史数据时出错:`, error);
+				console.error(`Error loading historical data for indicator ${indicatorKeyStr}:`, error);
 			}
 		},
 		[strategyId, getIndicatorSeriesRef],

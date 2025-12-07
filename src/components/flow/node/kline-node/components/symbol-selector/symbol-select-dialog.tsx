@@ -29,10 +29,10 @@ interface SymbolSelectDialogProps {
 	onSymbolNameChange: (value: string) => void;
 	onSymbolIntervalChange: (value: string) => void;
 	onSave: () => void;
-	// 添加原始保存的值，用于比较
+	// Add original saved values for comparison
 	originalSymbolName?: string;
 	originalSymbolInterval?: string;
-	// 从父组件传入的数据
+	// Data passed from parent component
 	symbolList: Instrument[];
 	supportKlineInterval: string[];
 }
@@ -59,7 +59,7 @@ export const SymbolSelectDialog: React.FC<SymbolSelectDialogProps> = ({
 		null,
 	);
 
-	// 获取交易所状态
+	// Fetch exchange status
 	const fetchExchangeStatus = useCallback(async () => {
 		if (!accountId) return;
 		try {
@@ -67,30 +67,30 @@ export const SymbolSelectDialog: React.FC<SymbolSelectDialogProps> = ({
 			setExchangeStatus(status);
 			return status;
 		} catch (error) {
-			console.error("获取交易所状态失败:", error);
+			console.error("Failed to get exchange status:", error);
 			return null;
 		}
 	}, [accountId]);
 
 	useEffect(() => {
 		if (accountId && isOpen) {
-			// 获取交易所状态
+			// Fetch exchange status
 			fetchExchangeStatus();
 		}
 	}, [accountId, isOpen, fetchExchangeStatus]);
 
-	// 判断当前值是否与原始保存值相同
-	// 如果是编辑模式，使用editingSymbol的值；否则使用传入的original值
+	// Check if current value is same as original saved value
+	// If in edit mode, use editingSymbol's value; otherwise use passed original value
 	const savedSymbolName = editingSymbol?.symbol || originalSymbolName;
 	const savedSymbolInterval = editingSymbol?.interval || originalSymbolInterval;
 
 	const hasChanges =
 		symbolName !== savedSymbolName || symbolInterval !== savedSymbolInterval;
 
-	// 判断是否已连接
+	// Check if connected
 	const isConnected = exchangeStatus === "Connected";
 
-	// Save按钮是否可用：没有错误 && 有变化 && 表单填写完整
+	// Save button enabled: no error && has changes && form filled
 	const isSaveDisabled = !!nameError || !hasChanges || !symbolName.trim();
 
 	return (
@@ -109,7 +109,7 @@ export const SymbolSelectDialog: React.FC<SymbolSelectDialogProps> = ({
 					</DialogDescription>
 				</DialogHeader>
 
-				{/* 交易所未连接警告 */}
+				{/* Exchange not connected warning */}
 				{exchangeStatus && exchangeStatus !== "Connected" && (
 					<div className="">
 						<p className="text-sm text-yellow-700">

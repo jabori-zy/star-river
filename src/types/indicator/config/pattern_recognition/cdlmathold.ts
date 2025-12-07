@@ -28,7 +28,7 @@ export const CDLMATHOLDConfig: IndicatorConfig<CDLMATHOLDConfigType> = {
 	params: {
 		penetration: {
 			label: "indicator.configField.penetration",
-			description: "穿透度参数",
+			description: "Penetration parameter",
 			defaultValue: 0.5,
 			required: true,
 			legendShowName: "penetration",

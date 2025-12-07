@@ -6,19 +6,19 @@ import type {
 } from "@/types/strategy";
 import type { NodeDataBase } from ".";
 
-// 开始节点数据
+// Start node data
 export type StartNodeData = NodeDataBase & {
-	liveConfig: StrategyLiveConfig | null; // 实盘交易配置。三个配置中，只有一个有效，可以共存
-	backtestConfig: StrategyBacktestConfig | null; // 回测交易配置
-	simulateConfig: StrategySimulateConfig | null; // 模拟交易配置
+	liveConfig: StrategyLiveConfig | null; // Live trading config. Only one of the three configs is active, but they can coexist
+	backtestConfig: StrategyBacktestConfig | null; // Backtest trading config
+	simulateConfig: StrategySimulateConfig | null; // Simulate trading config
 };
 
 export type StartNode = Node<StartNodeData, "startNode">;
 
 // export type NodeProps<NodeType extends Node = Node> = NodePropsBase<NodeType>;
-// export type 导出 NodeProps类型
-// NodeProps - 新定义的类型别名名称，用于表示React Flow中自定义节点组件的props类型
-// <NodeType extends Node = Node> - 泛型参数定义
-// 1.extends Node - 约束条件，表示NodeType必须是Node类型或其子类型
-// 2. = Node - 默认值，表示NodeType如果没有显式指定，则默认为Node类型
-// = NodePropsBase<NodeType> - 类型别名的实际定义，表示NodeProps实际上就是NodePropsBase类型，并传入相同的泛型参数
+// export type exports the NodeProps type
+// NodeProps - A newly defined type alias name, used to represent the props type for custom node components in React Flow
+// <NodeType extends Node = Node> - Generic parameter definition
+// 1.extends Node - Constraint condition, meaning NodeType must be of type Node or its subtype
+// 2. = Node - Default value, meaning if NodeType is not explicitly specified, it defaults to Node type
+// = NodePropsBase<NodeType> - The actual definition of the type alias, meaning NodeProps is essentially the NodePropsBase type with the same generic parameter passed in

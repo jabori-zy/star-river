@@ -30,27 +30,27 @@ export const createEventHandlerSlice =
 			) as UTCTimestamp;
 
 			const candlestickData: CandlestickData = {
-				time: timestamp, // 转换为秒级时间戳
+				time: timestamp, // Convert to seconds-level timestamp
 				open: kline.open,
 				high: kline.high,
 				low: kline.low,
 				close: kline.close,
 			};
 
-			// 调用series的update方法
+			// Call series update method
 			const klineSeries = get().getKlineSeriesRef();
 			if (klineSeries) {
 				klineSeries.update(candlestickData);
-				// 如果k线数据长度大于10， 则删除前5根k线
+				// If kline data length exceeds 10, delete the first 5 klines
 				const visibleLogicalRangeFrom = get().getVisibleLogicalRange();
 				// console.log("visibleLogicalRangeFrom", visibleLogicalRangeFrom, "data length", klineSeries.data().length);
-				// 如果可见逻辑范围逻辑起始点大于10， 并且k线数据长度大于200， 则删除前50根k线
+				// If visible logical range start is greater than 10 and kline data length exceeds 200, delete the first 50 klines
 				if (
 					visibleLogicalRangeFrom &&
 					visibleLogicalRangeFrom.from > 100 &&
 					klineSeries.data().length > MAX_DATA_LENGTH
 				) {
-					// console.log("删除前50根k线");
+					// console.log("Delete first 50 klines");
 					const newData = klineSeries.data().slice(50);
 					klineSeries.setData(newData);
 				}
@@ -62,11 +62,11 @@ export const createEventHandlerSlice =
 			indicator: Record<keyof IndicatorValueConfig, SingleValueData[]>,
 		) => {
 			Object.entries(indicator).forEach(([indicatorValueKey, newDataArray]) => {
-				// 处理新数据数组中的每个数据点
+				// Process each data point in the new data array
 				newDataArray.forEach((newDataPoint, _) => {
-					// // 获取该指标值字段的最后一个数据点
+					// // Get the last data point of the indicator value field
 					// const lastData = existingData[existingData.length - 1];
-					// 过滤主图指标的0值
+					// Filter out 0 values for main chart indicators
 					if (newDataPoint.value === 0 || newDataPoint.value === null) {
 						return;
 					}
@@ -79,14 +79,14 @@ export const createEventHandlerSlice =
 					if (indicatorSeriesRef) {
 						indicatorSeriesRef.update(newDataPoint);
 
-						// 如果指标数据长度大于10， 则删除前5根指标数据
+						// If indicator data length exceeds 10, delete the first 5 indicator data points
 						const visibleLogicalRangeFrom = get().getVisibleLogicalRange();
 						if (
 							visibleLogicalRangeFrom &&
 							visibleLogicalRangeFrom.from > 100 &&
 							indicatorSeriesRef.data().length > MAX_DATA_LENGTH
 						) {
-							// console.log("删除前50根指标数据", indicatorValueKey);
+							// console.log("Delete first 50 indicator data points", indicatorValueKey);
 							const newData = indicatorSeriesRef.data().slice(50);
 							indicatorSeriesRef.setData(newData);
 						}
@@ -94,7 +94,7 @@ export const createEventHandlerSlice =
 				});
 			});
 
-			// 更新状态
+			// Update state
 			// set((prevState: BacktestChartStore) => ({
 			// 	indicatorData: {
 			// 		...prevState.indicatorData,
@@ -104,8 +104,8 @@ export const createEventHandlerSlice =
 		},
 
 		onNewOrder: (newOrder: VirtualOrder) => {
-			// 后端返回时间，转换为时间戳：2025-07-25T00:20:00Z -> timestamp
-			// 开仓订单
+			// Backend returns time, convert to timestamp: 2025-07-25T00:20:00Z -> timestamp
+			// Open position order
 			if (newOrder.orderStatus === OrderStatus.FILLED) {
 				const markers = virtualOrderToMarker(newOrder);
 				get().setOrderMarkers([...get().orderMarkers, ...markers]);
@@ -116,13 +116,13 @@ export const createEventHandlerSlice =
 				}
 			}
 
-			// 限价单, 状态为挂单和已创建时，创建限价单价格线
+			// Limit order, when status is placed or created, create limit order price line
 			else if (
 				newOrder.orderType === OrderType.LIMIT &&
 				(newOrder.orderStatus === OrderStatus.PLACED ||
 					newOrder.orderStatus === OrderStatus.CREATED)
 			) {
-				// 创建限价单价格线
+				// Create limit order price line
 				const limitOrderPriceLine = virtualOrderToLimitOrderPriceLine(newOrder);
 				if (limitOrderPriceLine) {
 					get().setOrderPriceLine([
@@ -218,7 +218,7 @@ export const createEventHandlerSlice =
 					candleSeriesRef.createPriceLine(stopLossPriceLine);
 				}
 			} else if (order.orderType === OrderType.LIMIT) {
-				// 创建限价单价格线
+				// Create limit order price line
 				const limitOrderPriceLine = virtualOrderToLimitOrderPriceLine(order);
 				if (limitOrderPriceLine) {
 					get().setOrderPriceLine([
@@ -273,7 +273,7 @@ export const createEventHandlerSlice =
 		},
 
 		onLimitOrderFilled: (limitOrder: VirtualOrder) => {
-			// 删除限价单价格线
+			// Delete limit order price line
 			const candleSeriesRef = get().getKlineSeriesRef();
 			if (candleSeriesRef) {
 				const readyToRemovePriceLines = candleSeriesRef
@@ -289,7 +289,7 @@ export const createEventHandlerSlice =
 					get().deleteOrderPriceLine(pricelineId);
 				});
 			}
-			// 创建标记
+			// Create marker
 			if (limitOrder.orderStatus === OrderStatus.FILLED) {
 				const markers = virtualOrderToMarker(limitOrder);
 				get().setOrderMarkers([...get().orderMarkers, ...markers]);
@@ -317,7 +317,7 @@ export const createEventHandlerSlice =
 					get().deleteOrderPriceLine(pricelineId);
 				});
 			}
-			// 创建标记
+			// Create marker
 			if (tpOrder.orderStatus === OrderStatus.FILLED) {
 				const markers = virtualOrderToMarker(tpOrder);
 				get().setOrderMarkers([...get().orderMarkers, ...markers]);
@@ -345,7 +345,7 @@ export const createEventHandlerSlice =
 					get().deleteOrderPriceLine(pricelineId);
 				});
 			}
-			// 创建标记
+			// Create marker
 			if (slOrder.orderStatus === OrderStatus.FILLED) {
 				const markers = virtualOrderToMarker(slOrder);
 				get().setOrderMarkers([...get().orderMarkers, ...markers]);
@@ -367,7 +367,7 @@ export const createEventHandlerSlice =
 			}
 		},
 
-		// 仓位关闭后，清除仓位价格线
+		// Clear position price line after position closes
 		onPositionClosed: (position: VirtualPosition) => {
 			const candleSeriesRef = get().getKlineSeriesRef();
 			if (candleSeriesRef) {

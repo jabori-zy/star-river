@@ -37,10 +37,10 @@ const IndicatorNode: React.FC<NodeProps<IndicatorNodeType>> = ({
 		currentNodeData?.nodeConfig?.handleColor ||
 		getNodeDefaultColor(NodeType.IndicatorNode);
 
-	// 同步源节点的 Symbol 配置
+	// Synchronize source node's Symbol configuration
 	useSyncSourceNode({ id, currentNodeData });
 
-	// 同步开始节点的时间范围
+	// Synchronize start node's time range
 	useSyncTimeRange({ id, startNodeData });
 
 	const defaultInputHandle: BaseHandleProps = {

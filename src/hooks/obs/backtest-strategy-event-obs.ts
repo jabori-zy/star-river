@@ -15,7 +15,7 @@ import type {
 import type { KeyStr } from "@/types/symbol-key";
 import { getBacktestStrategyEventSseUrl } from ".";
 
-// SSE连接状态
+// SSE connection state
 export enum SSEConnectionState {
 	DISCONNECTED = "disconnected",
 	CONNECTING = "connecting",
@@ -24,20 +24,20 @@ export enum SSEConnectionState {
 }
 
 const orderEvent = [
-	"futures-order-filled-event", // 订单成交
-	"futures-order-created-event", // 订单创建
-	"futures-order-canceled-event", // 订单取消
-	"take-profit-order-created-event", // 止盈单创建
-	"stop-loss-order-created-event", // 止损单创建
-	"take-profit-order-filled-event", // 止盈单成交
-	"stop-loss-order-filled-event", // 止损单成交
-	"take-profit-order-canceled-event", // 止盈单取消
-	"stop-loss-order-canceled-event", // 止损单取消
+	"futures-order-filled-event", // Order filled
+	"futures-order-created-event", // Order created
+	"futures-order-canceled-event", // Order canceled
+	"take-profit-order-created-event", // Take profit order created
+	"stop-loss-order-created-event", // Stop loss order created
+	"take-profit-order-filled-event", // Take profit order filled
+	"stop-loss-order-filled-event", // Stop loss order filled
+	"take-profit-order-canceled-event", // Take profit order canceled
+	"stop-loss-order-canceled-event", // Stop loss order canceled
 ];
 
 /**
- * 回测策略数据Observable服务
- * 将SSE数据流包装成RxJS Observable，处理K线、指标、订单等数据更新
+ * Backtest strategy data Observable service
+ * Wraps SSE data stream as RxJS Observable, handles Kline, indicator, order and other data updates
  */
 class BacktestStrategyDataObservableService {
 	private eventSource: EventSource | null = null;
@@ -55,34 +55,34 @@ class BacktestStrategyDataObservableService {
 	private customVariableDataSubject = new Subject<CustomVariableUpdateEvent>();
 	private systemVariableDataSubject = new Subject<SystemVariableUpdateEvent>();
 	/**
-	 * 获取连接状态Observable
+	 * Get connection state Observable
 	 */
 	getConnectionState(): Observable<SSEConnectionState> {
 		return this.connectionState$.asObservable();
 	}
 
 	/**
-	 * 创建K线数据流Observable
-	 * @param enabled 是否启用连接
-	 * @returns K线数据更新的Observable流
+	 * Create Kline data stream Observable
+	 * @param enabled Whether to enable connection
+	 * @returns Observable stream of Kline data updates
 	 */
 	createKlineStream(enabled: boolean = true): Observable<KlineUpdateEvent> {
 		if (!enabled) {
 			this.disconnect();
 			return new Observable((subscriber) => {
-				// 返回空的Observable
+				// Return empty Observable
 				subscriber.complete();
 			});
 		}
 
-		// 如果已经连接，直接返回现有的数据流
+		// If already connected, return existing data stream directly
 		if (this.eventSource && this.eventSource.readyState === EventSource.OPEN) {
 			return this.klineDataSubject
 				.asObservable()
 				.pipe(takeUntil(this.destroy$), share());
 		}
 
-		// 建立新连接
+		// Establish new connection
 		this.connect();
 
 		return this.klineDataSubject
@@ -91,10 +91,10 @@ class BacktestStrategyDataObservableService {
 	}
 
 	/**
-	 * 为特定缓存键创建过滤后的K线数据流
-	 * @param keyStr 缓存键
-	 * @param enabled 是否启用
-	 * @returns 过滤后的K线数据流
+	 * Create filtered Kline data stream for specific cache key
+	 * @param keyStr Cache key
+	 * @param enabled Whether to enable
+	 * @returns Filtered Kline data stream
 	 */
 	createKlineStreamFromKey(
 		keyStr: KeyStr,
@@ -108,9 +108,9 @@ class BacktestStrategyDataObservableService {
 	}
 
 	/**
-	 * 创建指标数据流Observable
-	 * @param enabled 是否启用连接
-	 * @returns 指标数据更新的Observable流
+	 * Create indicator data stream Observable
+	 * @param enabled Whether to enable connection
+	 * @returns Observable stream of indicator data updates
 	 */
 	createIndicatorStream(
 		enabled: boolean = true,
@@ -118,19 +118,19 @@ class BacktestStrategyDataObservableService {
 		if (!enabled) {
 			this.disconnect();
 			return new Observable((subscriber) => {
-				// 返回空的Observable
+				// Return empty Observable
 				subscriber.complete();
 			});
 		}
 
-		// 如果已经连接，直接返回现有的数据流
+		// If already connected, return existing data stream directly
 		if (this.eventSource && this.eventSource.readyState === EventSource.OPEN) {
 			return this.indicatorDataSubject
 				.asObservable()
 				.pipe(takeUntil(this.destroy$), share());
 		}
 
-		// 建立新连接
+		// Establish new connection
 		this.connect();
 
 		return this.indicatorDataSubject
@@ -139,10 +139,10 @@ class BacktestStrategyDataObservableService {
 	}
 
 	/**
-	 * 为特定缓存键创建过滤后的指标数据流
-	 * @param keyStr 缓存键
-	 * @param enabled 是否启用
-	 * @returns 过滤后的指标数据流
+	 * Create filtered indicator data stream for specific cache key
+	 * @param keyStr Cache key
+	 * @param enabled Whether to enable
+	 * @returns Filtered indicator data stream
 	 */
 	createIndicatorStreamFromKey(
 		keyStr: KeyStr,
@@ -156,27 +156,27 @@ class BacktestStrategyDataObservableService {
 	}
 
 	/**
-	 * 创建订单数据流Observable
-	 * @param enabled 是否启用连接
-	 * @returns 订单数据更新的Observable流
+	 * Create order data stream Observable
+	 * @param enabled Whether to enable connection
+	 * @returns Observable stream of order data updates
 	 */
 	createOrderStream(enabled: boolean = true): Observable<VirtualOrderEvent> {
 		if (!enabled) {
 			this.disconnect();
 			return new Observable((subscriber) => {
-				// 返回空的Observable
+				// Return empty Observable
 				subscriber.complete();
 			});
 		}
 
-		// 如果已经连接，直接返回现有的数据流
+		// If already connected, return existing data stream directly
 		if (this.eventSource && this.eventSource.readyState === EventSource.OPEN) {
 			return this.orderDataSubject
 				.asObservable()
 				.pipe(takeUntil(this.destroy$), share());
 		}
 
-		// 建立新连接
+		// Establish new connection
 		this.connect();
 
 		return this.orderDataSubject
@@ -185,11 +185,11 @@ class BacktestStrategyDataObservableService {
 	}
 
 	/**
-	 * 为特定交易所和交易对创建过滤后的订单数据流
-	 * @param exchange 交易所
-	 * @param symbol 交易对
-	 * @param enabled 是否启用
-	 * @returns 过滤后的订单数据流
+	 * Create filtered order data stream for specific exchange and symbol
+	 * @param exchange Exchange
+	 * @param symbol Trading pair
+	 * @param enabled Whether to enable
+	 * @returns Filtered order data stream
 	 */
 	createOrderStreamForSymbol(
 		exchange: string,
@@ -359,7 +359,7 @@ class BacktestStrategyDataObservableService {
 			.pipe(takeUntil(this.destroy$), share());
 	}
 	/**
-	 * 建立SSE连接
+	 * Establish SSE connection
 	 */
 	private connect(): void {
 		if (this.eventSource) {
@@ -371,39 +371,39 @@ class BacktestStrategyDataObservableService {
 		try {
 			this.eventSource = new EventSource(getBacktestStrategyEventSseUrl());
 
-			// 连接成功
+			// Connection successful
 			this.eventSource.onopen = () => {
 				this.connectionState$.next(SSEConnectionState.CONNECTED);
 			};
 
-			// 接收消息
+			// Receive messages
 			this.eventSource.onmessage = (event) => {
 				this.handleMessage(event);
 			};
 
-			// 连接错误
+			// Connection error
 			this.eventSource.onerror = (error) => {
-				console.error("SSE连接错误:", error);
+				console.error("SSE connection error:", error);
 				this.connectionState$.next(SSEConnectionState.ERROR);
 				this.handleError();
 			};
 		} catch (error) {
-			console.error("创建SSE连接失败:", error);
+			console.error("Failed to create SSE connection:", error);
 			this.connectionState$.next(SSEConnectionState.ERROR);
 		}
 	}
 
 	/**
-	 * 处理SSE消息
+	 * Handle SSE messages
 	 */
 	private handleMessage(event: MessageEvent): void {
 		try {
 			const strategyEvent = JSON.parse(event.data);
-			// console.log("收到SSE消息:", strategyEvent);
+			// console.log("Received SSE message:", strategyEvent);
 
-			// 处理K线更新事件
+			// Handle Kline update event
 			if (strategyEvent.event === "kline-update-event") {
-				// 类型安全的事件构建
+				// Type-safe event construction
 				const klineEvent: KlineUpdateEvent = {
 					channel: strategyEvent.channel,
 					event: strategyEvent.event,
@@ -418,16 +418,16 @@ class BacktestStrategyDataObservableService {
 				this.klineDataSubject.next(klineEvent);
 			}
 
-			// 处理指标更新事件
+			// Handle indicator update event
 			if (strategyEvent.event === "indicator-update-event") {
 				const indicatorEvent = strategyEvent as IndicatorUpdateEvent;
 
-				// 直接使用原始指标事件，datetime保持为string类型
-				// console.log("发送指标数据到Observable流:", indicatorEvent);
+				// Use raw indicator event directly, datetime remains as string type
+				// console.log("Send indicator data to Observable stream:", indicatorEvent);
 				this.indicatorDataSubject.next(indicatorEvent);
 			}
 
-			// 处理订单成交事件
+			// Handle order filled event
 			if (orderEvent.includes(strategyEvent.event)) {
 				const orderEvent = strategyEvent as VirtualOrderEvent;
 
@@ -437,7 +437,7 @@ class BacktestStrategyDataObservableService {
 					strategyEvent.event === "futures-order-canceled-event"
 				) {
 					// console.log("orderEvent", orderEvent);
-					// 转换futuresOrder中的createTime和updateTime字符串为Date对象
+					// Convert createTime and updateTime strings in futuresOrder to Date objects
 					const orderUpdateEvent: VirtualOrderEvent = {
 						...orderEvent,
 						futuresOrder: orderEvent.futuresOrder,
@@ -450,7 +450,7 @@ class BacktestStrategyDataObservableService {
 					strategyEvent.event === "take-profit-order-filled-event" ||
 					strategyEvent.event === "take-profit-order-canceled-event"
 				) {
-					// 转换futuresOrder中的createTime和updateTime字符串为Date对象
+					// Convert createTime and updateTime strings in futuresOrder to Date objects
 					const orderUpdateEvent: VirtualOrderEvent = {
 						...orderEvent,
 						futuresOrder: strategyEvent.takeProfitOrder,
@@ -462,7 +462,7 @@ class BacktestStrategyDataObservableService {
 					strategyEvent.event === "stop-loss-order-filled-event" ||
 					strategyEvent.event === "stop-loss-order-canceled-event"
 				) {
-					// 转换futuresOrder中的createTime和updateTime字符串为Date对象
+					// Convert createTime and updateTime strings in futuresOrder to Date objects
 					const orderUpdateEvent: VirtualOrderEvent = {
 						...orderEvent,
 						futuresOrder: strategyEvent.stopLossOrder,
@@ -478,7 +478,7 @@ class BacktestStrategyDataObservableService {
 			) {
 				const positionEvent = strategyEvent as VirtualPositionEvent;
 
-				// 转换virtualPosition中的createTime和updateTime字符串为Date对象
+				// Convert createTime and updateTime strings in virtualPosition to Date objects
 				const positionUpdateEvent: VirtualPositionEvent = {
 					...positionEvent,
 					virtualPosition: positionEvent.virtualPosition,
@@ -508,17 +508,17 @@ class BacktestStrategyDataObservableService {
 				this.systemVariableDataSubject.next(systemVariableEvent);
 			}
 		} catch (error) {
-			console.error("解析SSE消息失败:", error);
+			console.error("Failed to parse SSE message:", error);
 		}
 	}
 
 	/**
-	 * 处理连接错误
+	 * Handle connection errors
 	 */
 	private handleError(): void {
 		this.disconnect();
 
-		// 可以在这里添加重连逻辑
+		// Reconnection logic can be added here
 		// setTimeout(() => {
 		//     if (this.connectionState$.value === SSEConnectionState.ERROR) {
 		//         this.connect();
@@ -527,7 +527,7 @@ class BacktestStrategyDataObservableService {
 	}
 
 	/**
-	 * 断开SSE连接
+	 * Disconnect SSE connection
 	 */
 	disconnect(): void {
 		if (this.eventSource) {
@@ -538,7 +538,7 @@ class BacktestStrategyDataObservableService {
 	}
 
 	/**
-	 * 销毁服务，清理所有资源
+	 * Destroy service and clean up all resources
 	 */
 	destroy(): void {
 		this.destroy$.next();
@@ -551,15 +551,15 @@ class BacktestStrategyDataObservableService {
 	}
 }
 
-// 创建单例实例
+// Create singleton instance
 const backtestStrategyDataObservableService =
 	new BacktestStrategyDataObservableService();
 
 export default backtestStrategyDataObservableService;
 
-// 导出便捷函数
+// Export convenience functions
 
-// K线相关
+// Kline related
 export const createKlineStream = (enabled: boolean = true) =>
 	backtestStrategyDataObservableService.createKlineStream(enabled);
 
@@ -572,7 +572,7 @@ export const createKlineStreamFromKey = (
 		enabled,
 	);
 
-// 指标相关
+// Indicator related
 export const createIndicatorStream = (enabled: boolean = true) =>
 	backtestStrategyDataObservableService.createIndicatorStream(enabled);
 
@@ -585,7 +585,7 @@ export const createIndicatorStreamFromKey = (
 		enabled,
 	);
 
-// 订单相关
+// Order related
 export const createOrderStream = (enabled: boolean = true) =>
 	backtestStrategyDataObservableService.createOrderStream(enabled);
 
@@ -603,11 +603,11 @@ export const createOrderStreamForSymbol = (
 export const createTransactionStream = (enabled: boolean = true) =>
 	backtestStrategyDataObservableService.createTransactionStream(enabled);
 
-// 仓位相关
+// Position related
 export const createPositionStream = (enabled: boolean = true) =>
 	backtestStrategyDataObservableService.createPositionStream(enabled);
 
-// 仓位相关
+// Position related
 export const createPositionStreamForSymbol = (
 	exchange: string,
 	symbol: string,
@@ -631,7 +631,7 @@ export const createCustomVariableStream = (enabled: boolean = true) =>
 export const createSystemVariableStream = (enabled: boolean = true) =>
 	backtestStrategyDataObservableService.createSystemVariableStream(enabled);
 
-// 连接管理
+// Connection management
 export const getConnectionState = () =>
 	backtestStrategyDataObservableService.getConnectionState();
 

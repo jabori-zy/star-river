@@ -12,11 +12,11 @@ import type { SelectedAccount } from "@/types/strategy";
 
 interface TradeAccountSelectorProps {
 	accountList: SelectedAccount[];
-	selectedAccount: SelectedAccount | null; // 当前选中的账户
-	onAccountChange: (account: SelectedAccount) => void; // 账户变更回调
+	selectedAccount: SelectedAccount | null; // Currently selected account
+	onAccountChange: (account: SelectedAccount) => void; // Account change callback
 }
 
-// 已选择的账户列表
+// Selected account list
 const TradeAccountSelector: React.FC<TradeAccountSelectorProps> = ({
 	accountList,
 	selectedAccount,
@@ -32,7 +32,7 @@ const TradeAccountSelector: React.FC<TradeAccountSelectorProps> = ({
 		if (selectedAccount) {
 			setLocalSelectedAccount(selectedAccount);
 		}
-		// 如果账户列表为空，则设置为false
+		// If account list is empty, set to false
 		if (accountList.length === 0) {
 			setHasAccounts(false);
 		} else {
@@ -40,7 +40,7 @@ const TradeAccountSelector: React.FC<TradeAccountSelectorProps> = ({
 		}
 	}, [selectedAccount, accountList]);
 
-	// 处理账户选择变更
+	// Handle account selection change
 	const handleAccountChange = (accountId: string) => {
 		const selectedAcc = accountList?.find(
 			(acc) => acc.id.toString() === accountId,
@@ -62,7 +62,7 @@ const TradeAccountSelector: React.FC<TradeAccountSelectorProps> = ({
 			>
 				<SelectTrigger className="w-full h-8 px-2 bg-gray-100 border-1 rounded-md">
 					<SelectValue
-						placeholder={hasAccounts ? "请选择账户" : "未配置账户"}
+						placeholder={hasAccounts ? "Select Account" : "No Account Configured"}
 					/>
 				</SelectTrigger>
 				{hasAccounts && (
@@ -85,7 +85,7 @@ const TradeAccountSelector: React.FC<TradeAccountSelectorProps> = ({
 			</Select>
 
 			{!hasAccounts && (
-				<p className="text-xs text-gray-500 mt-1">在策略起点配置</p>
+				<p className="text-xs text-gray-500 mt-1">Configure in strategy start node</p>
 			)}
 		</div>
 	);

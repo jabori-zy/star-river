@@ -59,7 +59,7 @@ const PositionOpItem: React.FC<PositionOpItemProps> = ({
 	const [isOpen, setIsOpen] = useState(true);
 	const [caseItemList, setCaseItemList] = useState<CaseItemInfo[]>([]);
 
-	// 获取上游节点的 case 列表
+	// Get case list from upstream nodes
 	useEffect(() => {
 		const conn = connections.filter(
 			(connection) =>
@@ -199,7 +199,7 @@ const PositionOpItem: React.FC<PositionOpItemProps> = ({
 
 				<CollapsibleContent>
 					<div className="px-4 pb-4 pt-1 grid gap-4">
-						{/* 触发条件 */}
+						{/* Trigger Condition */}
 						<div className="grid gap-2">
 							<Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
 								<GitBranch className="h-3.5 w-3.5 text-indigo-500" />

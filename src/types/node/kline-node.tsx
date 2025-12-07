@@ -8,57 +8,57 @@ import type {
 import type { NodeDataBase } from ".";
 
 export type SelectedSymbol = {
-	configId: number; // 配置id
-	outputHandleId: string; // 出口id, 用于连接到其他节点
-	symbol: string; // 交易对
-	interval: string; // 时间周期
+	configId: number; // Configuration id
+	outputHandleId: string; // Output id, used to connect to other nodes
+	symbol: string; // Trading pair
+	interval: string; // Time interval
 	klineValue?: Kline;
 };
 
-// k线节点实盘交易配置
+// Kline node live trading configuration
 export type KlineNodeLiveConfig = {
-	selectedAccount: SelectedAccount | null; //选择的账户
-	selectedSymbols: SelectedSymbol[]; // 选择的交易对(可以多选)
+	selectedAccount: SelectedAccount | null; // Selected account
+	selectedSymbols: SelectedSymbol[]; // Selected trading pairs (multiple selection allowed)
 };
 
-// k线节点模拟交易配置
+// Kline node simulated trading configuration
 export type KlineNodeSimulateConfig = {
-	selectedAccount: SelectedAccount; //选择的账户
-	selectedSymbols: SelectedSymbol[]; // 选择的交易对(可以多选)
+	selectedAccount: SelectedAccount; // Selected account
+	selectedSymbols: SelectedSymbol[]; // Selected trading pairs (multiple selection allowed)
 };
 
-// k线节点回测交易 文件数据源配置
+// Kline node backtest trading file data source configuration
 export type KlineNodeBacktestFileModeConfig = {
-	filePath: string; // 文件路径
+	filePath: string; // File path
 };
 
-// k线节点回测交易 交易所数据源配置
+// Kline node backtest trading exchange data source configuration
 export type KlineNodeBacktestExchangeModeConfig = {
-	selectedAccount: SelectedAccount | null; // 数据来源账户
-	selectedSymbols: SelectedSymbol[]; // 选择的交易对(可以多选)
-	timeRange: TimeRange; // 时间范围
+	selectedAccount: SelectedAccount | null; // Data source account
+	selectedSymbols: SelectedSymbol[]; // Selected trading pairs (multiple selection allowed)
+	timeRange: TimeRange; // Time range
 };
 
-// k线节点回测交易 配置
+// Kline node backtest trading configuration
 export type KlineNodeBacktestConfig = {
-	dataSource: BacktestDataSource; // 数据来源
-	fileModeConfig: KlineNodeBacktestFileModeConfig | null; // 文件数据源配置
-	exchangeModeConfig: KlineNodeBacktestExchangeModeConfig | null; // 交易所数据源配置
+	dataSource: BacktestDataSource; // Data source
+	fileModeConfig: KlineNodeBacktestFileModeConfig | null; // File data source configuration
+	exchangeModeConfig: KlineNodeBacktestExchangeModeConfig | null; // Exchange data source configuration
 };
 
 export type KlineData = {
-	timestamp: number | null; // 时间戳
-	open: number | null; // 开盘价
-	high: number | null; // 最高价
-	low: number | null; // 最低价
-	close: number | null; // 收盘价
-	volume: number | null; // 成交量
+	timestamp: number | null; // Timestamp
+	open: number | null; // Open price
+	high: number | null; // High price
+	low: number | null; // Low price
+	close: number | null; // Close price
+	volume: number | null; // Trading volume
 };
 
-// 实时数据节点数据
+// Real-time data node data
 export type KlineNodeData = NodeDataBase & {
-	liveConfig?: KlineNodeLiveConfig; // 实盘交易配置。三个配置中，只有一个有效，可以共存
-	simulateConfig?: KlineNodeSimulateConfig; // 模拟交易配置
-	backtestConfig?: KlineNodeBacktestConfig; // 回测交易配置
+	liveConfig?: KlineNodeLiveConfig; // Live trading configuration. Among the three configurations, only one is valid, can coexist
+	simulateConfig?: KlineNodeSimulateConfig; // Simulated trading configuration
+	backtestConfig?: KlineNodeBacktestConfig; // Backtest trading configuration
 };
 export type KlineNode = Node<KlineNodeData, "klineNode">;

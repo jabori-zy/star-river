@@ -70,7 +70,7 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 	const { tradingMode } = useTradingModeStore();
 	const connections = useNodeConnections({ id: nodeId, handleType: "target" });
 
-	// 使用 useMemo 生成多语言选项
+	// Use useMemo to generate i18n options
 	const ORDER_TYPE_OPTIONS = useMemo(
 		() => [
 			{ value: OrderType.LIMIT, label: getOrderTypeLabel(OrderType.LIMIT, t) },
@@ -116,10 +116,10 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 		[t],
 	);
 
-	// 折叠状态
+	// Collapse state
 	const [isOpen, setIsOpen] = useState(true);
 
-	// 表单状态
+	// Form state
 	const [symbol, setSymbol] = useState<string>(config?.symbol || "");
 	const [orderType, setOrderType] = useState<OrderType>(
 		config?.orderType || OrderType.LIMIT,
@@ -127,7 +127,7 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 	const [orderSide, setOrderSide] = useState<FuturesOrderSide>(
 		config?.orderSide || FuturesOrderSide.LONG,
 	);
-	// 使用字符串状态处理输入，避免数字输入问题
+	// Use string state to handle input, avoiding number input issues
 	const [priceStr, setPriceStr] = useState<string>(
 		config?.price ? String(config.price) : "",
 	);
@@ -146,9 +146,9 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 		config?.triggerConfig ?? null,
 	);
 
-	// 存储上游节点的case列表
+	// Store case list from upstream nodes
 	const [caseItemList, setCaseItemList] = useState<CaseItemInfo[]>([]);
-	// 获取symbol信息
+	// Get symbol info
 	const [symbolInfo, setSymbolInfo] = useState<Instrument | null>(null);
 
 	useEffect(() => {
@@ -163,7 +163,7 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 		setCaseItemList(cases);
 	}, [connections, getIfElseNodeCases, id, tradingMode, config.inputHandleId]);
 
-	// 获取symbol信息的函数
+	// Function to get symbol info
 	const loadSymbolInfo = useCallback(
 		async (symbolName: string) => {
 			if (!accountId || !symbolName.trim()) {
@@ -175,14 +175,14 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 				const info = await getSymbolInfo(accountId, symbolName);
 				setSymbolInfo(info);
 			} catch (error) {
-				console.error("获取symbol信息失败:", error);
+				console.error("Failed to get symbol info:", error);
 				setSymbolInfo(null);
 			}
 		},
 		[accountId],
 	);
 
-	// 当symbol变化时获取symbol信息
+	// Get symbol info when symbol changes
 	useEffect(() => {
 		if (symbol && accountId) {
 			loadSymbolInfo(symbol);
@@ -191,7 +191,7 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 		}
 	}, [symbol, accountId, loadSymbolInfo]);
 
-	// 保存配置 - 在字段变化时调用
+	// Save config - called when fields change
 	const saveConfig = useCallback(
 		(updates: Partial<FuturesOrderConfig>) => {
 			const currentPrice = parseFloat(priceStr) || 0;
@@ -230,7 +230,7 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 		],
 	);
 
-	// 字段变化处理函数
+	// Field change handler functions
 	const handleSymbolChange = (value: string) => {
 		setSymbol(value);
 		saveConfig({ symbol: value });
@@ -246,23 +246,23 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 		saveConfig({ orderSide: value });
 	};
 
-	// 价格输入处理 - 只更新字符串状态
+	// Price input handling - only update string state
 	const handlePriceInputChange = (value: string) => {
 		setPriceStr(value);
 	};
 
-	// 价格失焦时保存
+	// Save on price blur
 	const handlePriceBlur = () => {
 		const numValue = parseFloat(priceStr) || 0;
 		saveConfig({ price: numValue });
 	};
 
-	// 数量输入处理 - 只更新字符串状态
+	// Quantity input handling - only update string state
 	const handleQuantityInputChange = (value: string) => {
 		setQuantityStr(value);
 	};
 
-	// 数量失焦时保存
+	// Save on quantity blur
 	const handleQuantityBlur = () => {
 		const numValue = parseFloat(quantityStr) || 0;
 		saveConfig({ quantity: numValue });
@@ -299,7 +299,7 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 	return (
 		<div className="group flex-1 rounded-lg border border-slate-200 bg-slate-50/50 hover:border-slate-300 transition-all">
 			<Collapsible open={isOpen} onOpenChange={setIsOpen}>
-				{/* 标题行 */}
+				{/* Title row */}
 				<div className="flex items-center justify-between p-2">
 					<CollapsibleTrigger asChild>
 						<div className="flex flex-1 items-center gap-2 cursor-pointer select-none">
@@ -346,7 +346,7 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 						</div>
 					</CollapsibleTrigger>
 
-					{/* 删除按钮 */}
+					{/* Delete button */}
 					<Button
 						variant="ghost"
 						size="icon"
@@ -357,10 +357,10 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 					</Button>
 				</div>
 
-				{/* 表单内容 */}
+				{/* Form content */}
 				<CollapsibleContent>
 					<div className="px-4 pb-4 pt-1 grid gap-4">
-						{/* 触发条件 */}
+						{/* Trigger condition */}
 						<div className="grid gap-2">
 							<Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
 								<GitBranch className="h-3.5 w-3.5 text-indigo-500" />
@@ -378,7 +378,7 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 							)}
 						</div>
 
-						{/* 订单类型 */}
+						{/* Order type */}
 						<div className="grid gap-2">
 							<Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
 								<Settings2 className="h-3.5 w-3.5 text-blue-500" />
@@ -395,7 +395,7 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 							/>
 						</div>
 
-						{/* 交易对 */}
+						{/* Symbol */}
 						<div className="grid gap-2">
 							<Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
 								<Hash className="h-3.5 w-3.5 text-orange-500" />
@@ -426,7 +426,7 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 							)}
 						</div>
 
-						{/* 买卖方向 */}
+						{/* Order side */}
 						<div className="grid gap-2">
 							<Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
 								<TrendingUp className="h-3.5 w-3.5 text-emerald-500" />
@@ -445,7 +445,7 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 							/>
 						</div>
 
-						{/* 价格 - 仅限价单显示 */}
+						{/* Price - only shown for limit orders */}
 						{!isMarketOrder && (
 							<div className="grid gap-2">
 								<Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
@@ -470,7 +470,7 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 							</div>
 						)}
 
-						{/* 数量 */}
+						{/* Quantity */}
 						<div className="grid gap-2">
 							<Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
 								<Coins className="h-3.5 w-3.5 text-purple-500" />
@@ -507,7 +507,7 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 							)}
 						</div>
 
-						{/* 止盈 */}
+						{/* Take Profit */}
 						<div className="grid gap-2">
 							<Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
 								<ArrowUpCircle className="h-3.5 w-3.5 text-green-500" />
@@ -538,7 +538,7 @@ const OrderConfigForm: React.FC<OrderConfigFormProps> = ({
 							/>
 						</div>
 
-						{/* 止损 */}
+						{/* Stop Loss */}
 						<div className="grid gap-2">
 							<Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
 								<ArrowUpCircle className="h-3.5 w-3.5 text-red-500 rotate-180" />

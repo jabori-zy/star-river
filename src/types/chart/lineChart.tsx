@@ -1,4 +1,4 @@
-// 折线图数据类型
+// Line chart data type
 
 export type SmaDataItem = {
 	timestamp: number;

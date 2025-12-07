@@ -17,7 +17,7 @@ import {
 	PriceSourceSchema,
 } from "@/types/indicator/schemas";
 
-// PPO 指标配置的 Zod schema
+// Zod schema for PPO indicator configuration
 const PPOConfigSchema = z.object({
 	fastPeriod: z.number().int().positive(),
 	slowPeriod: z.number().int().positive(),
@@ -27,7 +27,7 @@ const PPOConfigSchema = z.object({
 
 export type PPOConfigType = z.infer<typeof PPOConfigSchema>;
 
-// PPO指标的参数映射函数
+// Parameter mapping function for PPO indicator
 function buildPPOConfig(params: Map<string, string>): unknown {
 	return {
 		fastPeriod: parseInt(params.get("fast_period") || "0"),
@@ -37,37 +37,37 @@ function buildPPOConfig(params: Map<string, string>): unknown {
 	};
 }
 
-// PPO指标配置实现
+// PPO indicator configuration implementation
 export const PPOConfig: IndicatorConfig<PPOConfigType> = {
 	category: IndicatorCategory.MOMENTUM,
 	type: IndicatorType.PPO,
 	displayName: "PPO",
-	description: "百分比价格振荡器",
+	description: "Percentage Price Oscillator",
 	params: {
 		maType: {
 			label: "indicator.configField.maType",
-			description: "选择移动平均线的计算方式",
+			description: "Select moving average calculation method",
 			defaultValue: MAType.SMA,
 			required: true,
 			legendShowName: "ma type",
 		},
 		fastPeriod: {
 			label: "indicator.configField.fastPeriod",
-			description: "选择快线的计算周期",
+			description: "Select calculation period for fast line",
 			defaultValue: 12,
 			required: true,
 			legendShowName: "fast",
 		},
 		slowPeriod: {
 			label: "indicator.configField.slowPeriod",
-			description: "选择慢线的计算周期",
+			description: "Select calculation period for slow line",
 			defaultValue: 26,
 			required: true,
 			legendShowName: "slow",
 		},
 		priceSource: {
 			label: "indicator.configField.dataSource",
-			description: "选择指标计算价格源",
+			description: "Select price source for indicator calculation",
 			defaultValue: PriceSource.CLOSE,
 			required: true,
 			legendShowName: "source",
@@ -98,7 +98,7 @@ export const PPOConfig: IndicatorConfig<PPOConfigType> = {
 			]),
 		);
 
-		// 使用 Zod 验证配置
+		// Validate configuration using Zod
 		const validatedConfig = PPOConfigSchema.parse(config);
 		return validatedConfig;
 	},
@@ -107,7 +107,7 @@ export const PPOConfig: IndicatorConfig<PPOConfigType> = {
 		return getIndicatorValues(this.indicatorValueConfig);
 	},
 
-	// 使用通用解析函数
+	// Use generic parsing function
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
 		IndicatorType.PPO,
 		PPOConfigSchema,

@@ -11,22 +11,22 @@ interface NodePanelProps {
 }
 
 /**
- * 所有节点的面板。根据选择的节点，在同一个面板中，切换不同节点的面板
- * 参考dify框架的实现方式，使用映射表来管理不同节点的设置面板
+ * Panel for all nodes. Based on the selected node, switch different node panels within the same panel
+ * Inspired by dify framework implementation, use mapping table to manage different node settings panels
  */
 const NodePanel: React.FC<NodePanelProps> = ({
 	selectedNodeId,
 	setSelectedNodeId,
 }) => {
-	// 获取节点实例
+	// Get node instance
 	const { getNodes } = useReactFlow();
-	// 当前选中的节点类型
+	// Currently selected node type
 	const [selectedNodeType, setSelectedNodeType] = useState<string | undefined>(
 		undefined,
 	);
-	// 当前选中的节点数据
+	// Currently selected node data
 
-	// 监听节点选择状态变化
+	// Listen for node selection state changes
 	useEffect(() => {
 		// const checkSelectedNodes = () => {
 		const nodes = getNodes();
@@ -34,7 +34,7 @@ const NodePanel: React.FC<NodePanelProps> = ({
 		const selectedNode = nodes.find((node) => node.id === selectedNodeId);
 		// console.log("selectedNode", selectedNode?.id);
 
-		// 如果选中的节点存在，则设置节点id和类型，并显示面板
+		// If the selected node exists, set node id and type, and show panel
 		if (selectedNode) {
 			// setSelectedNodeId(selectedNodeId);
 			setSelectedNodeType(selectedNode.type || undefined);
@@ -46,20 +46,20 @@ const NodePanel: React.FC<NodePanelProps> = ({
 		}
 		// };
 
-		// 立即检查一次
+		// Check immediately once
 		// checkSelectedNodes();
 
-		// 设置定时器定期检查
+		// Set timer to check periodically
 		// const interval = setInterval(checkSelectedNodes, 400);
 
 		// return () => clearInterval(interval);
 	}, [selectedNodeId, getNodes]);
 
-	// 使用useMemo优化性能，获取当前节点的设置面板配置
+	// Use useMemo to optimize performance, get current node's settings panel configuration
 	const currentPanelConfig = useMemo(() => {
 		// console.log("selectedNodeType", selectedNodeType);
 		if (!selectedNodeType) {
-			// 返回默认设置面板
+			// Return default settings panel
 			return {
 				icon: Play,
 				iconBackgroundColor: "bg-red-400",
@@ -86,7 +86,7 @@ const NodePanel: React.FC<NodePanelProps> = ({
 			return nodePanelConfig;
 		}
 
-		// 如果节点类型不在映射表中，返回默认面板
+		// If node type is not in mapping table, return default panel
 		return {
 			icon: Play,
 			iconBackgroundColor: "bg-red-400",
@@ -110,11 +110,11 @@ const NodePanel: React.FC<NodePanelProps> = ({
 
 	return (
 		<BasePanel
-			key={selectedNodeId} // 使用selectedNodeId作为key，强制重新渲染
+			key={selectedNodeId} // Use selectedNodeId as key to force re-render
 			id={selectedNodeId}
 			settingPanel={currentPanelConfig}
 			setSelectedNodeId={setSelectedNodeId}
-			tradeMode="backtest" // 默认交易模式
+			tradeMode="backtest" // Default trading mode
 		>
 			<div>
 				{selectedNodeId ? (

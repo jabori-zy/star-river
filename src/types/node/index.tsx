@@ -41,18 +41,18 @@ export const getNodeTypeName = (nodeType: NodeType, t: TFunction): string => {
 	}
 };
 
-// 节点类型对应的边框颜色（16进制）
+// Node type corresponding border color (hexadecimal)
 export const NodeDefaultColorsMap: Record<NodeType, string> = {
-	[NodeType.StartNode]: "#10b981", // 绿色 - 起始节点
-	[NodeType.KlineNode]: "#3b82f6", // 蓝色 - K线节点
-	[NodeType.IndicatorNode]: "#8b5cf6", // 紫色 - 指标节点
-	[NodeType.IfElseNode]: "#f59e0b", // 橙色 - 条件节点
-	[NodeType.FuturesOrderNode]: "#0f766e", // 红色 - 期货订单节点
-	[NodeType.PositionNode]: "#ec4899", // 粉色 - 持仓管理节点
-	[NodeType.VariableNode]: "#06b6d4", // 青色 - 变量节点
+	[NodeType.StartNode]: "#10b981", // Green - Start node
+	[NodeType.KlineNode]: "#3b82f6", // Blue - Kline node
+	[NodeType.IndicatorNode]: "#8b5cf6", // Purple - Indicator node
+	[NodeType.IfElseNode]: "#f59e0b", // Orange - Conditional node
+	[NodeType.FuturesOrderNode]: "#0f766e", // Red - Futures order node
+	[NodeType.PositionNode]: "#ec4899", // Pink - Position management node
+	[NodeType.VariableNode]: "#06b6d4", // Cyan - Variable node
 };
 
-// 获取节点类型对应的边框颜色
+// Get the border color corresponding to the node type
 export const getNodeDefaultColor = (nodeType: NodeType): string => {
 	return NodeDefaultColorsMap[nodeType];
 };
@@ -113,12 +113,12 @@ export const getNodeDefaultOutputHandleId = (
 };
 
 export const isDefaultInputHandleId = (handleId: string) => {
-	// 默认输入出口的handleId格式为：${id}_default_input
+	// Default input handle id format: ${id}_default_input
 	return handleId.endsWith("_default_input");
 };
 
 export const isDefaultOutputHandleId = (handleId: string) => {
-	// 默认输入出口的handleId格式为：${id}_default_output
+	// Default output handle id format: ${id}_default_output
 	return handleId.endsWith("_default_output");
 };
 
@@ -135,7 +135,7 @@ export type NodeDataBase = {
 	};
 };
 
-// 所有节点的数据类型的联合类型
+// Union type of all node data types
 export type NodeData =
 	| StartNodeData
 	| KlineNodeData
@@ -152,7 +152,7 @@ export type StrategyFlowNode =
 	| PositionNode
 	| VariableNode;
 
-// 节点类型守卫
+// Node type guards
 export const isStartNode = (node: StrategyFlowNode): node is StartNode => {
 	return node.type === NodeType.StartNode;
 };

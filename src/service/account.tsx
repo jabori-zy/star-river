@@ -12,7 +12,7 @@ const API_VERSION = "api/v1";
 
 const getApiUrl = () => `${getApiBaseUrl()}/${API_VERSION}/${ROUTER}`;
 
-// MT5账户数据转换
+// MT5 account data transformation
 function transformMT5Account(item: any): MT5Account {
 	return {
 		id: item.id,
@@ -33,7 +33,7 @@ function transformMT5Account(item: any): MT5Account {
 	};
 }
 
-// Binance账户数据转换
+// Binance account data transformation
 function transformBinanceAccount(item: any): BinanceAccount {
 	return {
 		id: item.id,
@@ -50,7 +50,7 @@ function transformBinanceAccount(item: any): BinanceAccount {
 	};
 }
 
-// OKX账户数据转换
+// OKX account data transformation
 // function transformOKXAccount(item: any): OKXAccount {
 // 	return {
 // 		id: item.id,
@@ -70,12 +70,12 @@ function transformBinanceAccount(item: any): BinanceAccount {
 // 	};
 // }
 
-// 根据交易所，获取账户配置数据
+// Get account configuration data based on exchange
 export async function getAccountConfigs(
 	exchange: string | null,
 ): Promise<MT5Account[] | BinanceAccount[] | OKXAccount[] | Account[]> {
 	try {
-		// 获取接口数据 - 如果exchange为null，则获取所有配置
+		// Get API data - if exchange is null, get all configurations
 		const API_URL = getApiUrl();
 		const url = exchange
 			? `${API_URL}/config?exchange=${exchange}`
@@ -84,10 +84,10 @@ export async function getAccountConfigs(
 		const response = await axios.get(url);
 		const accountConfigs = response.data.data || [];
 
-		// 如果没有指定交易所，返回Account类型的所有配置（包含特有字段）
+		// If no exchange specified, return all configurations as Account type (including specific fields)
 		if (!exchange) {
 			const allAccounts: Account[] = accountConfigs.map((item: any) => {
-				// 根据exchange字段判断类型并转换
+				// Determine type and transform based on exchange field
 				switch (item.exchange) {
 					case "metatrader5":
 						return transformMT5Account(item);
@@ -96,7 +96,7 @@ export async function getAccountConfigs(
 					// case "okx":
 					// 	return transformOKXAccount(item);
 					default:
-						// 未知类型，返回基础账户信息
+						// Unknown type, return basic account info
 						return {
 							id: item.id,
 							accountName: item.account_name,
@@ -107,40 +107,40 @@ export async function getAccountConfigs(
 						} as Account;
 				}
 			});
-			console.log("获取到的所有账户配置:", allAccounts);
+			console.log("Retrieved all account configurations:", allAccounts);
 			return allAccounts;
 		}
 
-		// 根据不同的交易所类型进行转换
+		// Transform based on different exchange types
 		switch (exchange) {
 			case "metatrader5": {
 				const mt5Accounts = accountConfigs.map(transformMT5Account);
-				console.log("获取到的MT5账户配置:", mt5Accounts);
+				console.log("Retrieved MT5 account configurations:", mt5Accounts);
 				return mt5Accounts;
 			}
 
 			case "binance": {
 				const binanceAccounts = accountConfigs.map(transformBinanceAccount);
-				console.log("获取到的Binance账户配置:", binanceAccounts);
+				console.log("Retrieved Binance account configurations:", binanceAccounts);
 				return binanceAccounts;
 			}
 
 			// case "okx":
 			// 	const okxAccounts = accountConfigs.map(transformOKXAccount);
-			// 	console.log("获取到的OKX账户配置:", okxAccounts);
+			// 	console.log("Retrieved OKX account configurations:", okxAccounts);
 			// 	return okxAccounts;
 
 			default:
-				console.warn(`未知的交易所类型: ${exchange}`);
+				console.warn(`Unknown exchange type: ${exchange}`);
 				return [];
 		}
 	} catch (error) {
-		console.error(`获取${exchange || "所有"}账户数据失败:`, error);
+		console.error(`Failed to fetch ${exchange || "all"} account data:`, error);
 		return [];
 	}
 }
 
-// 启动MT5终端
+// Start MT5 terminal
 export async function startMt5Terminal(accountId: number) {
 	const requestBody = {
 		account_id: accountId,
@@ -152,15 +152,15 @@ export async function startMt5Terminal(accountId: number) {
 		);
 		return data;
 	} catch (error) {
-		console.error("启动MT5终端失败:", error);
+		console.error("Failed to start MT5 terminal:", error);
 		return {
 			success: false,
-			message: "启动MT5终端失败",
+			message: "Failed to start MT5 terminal",
 		};
 	}
 }
 
-// 添加账户配置
+// Add account configuration
 export async function addAccountConfig(
 	account_name: string,
 	exchange: string,
@@ -172,25 +172,25 @@ export async function addAccountConfig(
 			exchange: exchange,
 			account_config: accountConfig,
 		};
-		console.log("添加账户配置请求体:", requestBody);
+		console.log("Add account configuration request body:", requestBody);
 		const { data } = await axios.post(`${getApiUrl()}/config`, requestBody);
-		// console.log("添加账户配置成功:", data)
+		// console.log("Add account configuration success:", data)
 		return data;
 	} catch (error) {
-		console.error("添加账户配置失败:", error);
+		console.error("Failed to add account configuration:", error);
 	}
 }
 
-// 删除账户配置
+// Delete account configuration
 export async function deleteAccountConfig(accountId: number) {
 	try {
 		const { data } = await axios.delete(`${getApiUrl()}/config/${accountId}`);
 		return data;
 	} catch (error) {
-		console.error("删除账户配置失败:", error);
+		console.error("Failed to delete account configuration:", error);
 		return {
 			success: false,
-			message: "删除账户配置失败",
+			message: "Failed to delete account configuration",
 		};
 	}
 }

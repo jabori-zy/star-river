@@ -6,12 +6,12 @@ export type { VirtualOrder } from "./virtual-order";
 export type OrderId = number;
 
 export enum OrderType {
-	LIMIT = "LIMIT", // 限价单
-	MARKET = "MARKET", // 市价单
-	STOP_LIMIT = "STOP_LIMIT", // 止损限价单
-	STOP_MARKET = "STOP_MARKET", // 止损市价单
-	TAKE_PROFIT_MARKET = "TAKE_PROFIT_MARKET", // 止盈市价单
-	TAKE_PROFIT_LIMIT = "TAKE_PROFIT_LIMIT", // 止盈限价单
+	LIMIT = "LIMIT", // Limit order
+	MARKET = "MARKET", // Market order
+	STOP_LIMIT = "STOP_LIMIT", // Stop limit order
+	STOP_MARKET = "STOP_MARKET", // Stop market order
+	TAKE_PROFIT_MARKET = "TAKE_PROFIT_MARKET", // Take profit market order
+	TAKE_PROFIT_LIMIT = "TAKE_PROFIT_LIMIT", // Take profit limit order
 }
 
 export const getOrderTypeLabel = (type: OrderType, t: TFunction): string => {
@@ -39,13 +39,13 @@ export const getTpSlTypeLabel = (
 };
 
 export enum SpotOrderSide {
-	BUY = "BUY", // 买入
-	SELL = "SELL", // 卖出
+	BUY = "BUY", // Buy
+	SELL = "SELL", // Sell
 }
 
 export enum FuturesOrderSide {
-	LONG = "LONG", // 做多
-	SHORT = "SHORT", // 做空
+	LONG = "LONG", // Long
+	SHORT = "SHORT", // Short
 }
 
 export const getFuturesOrderSideLabel = (
@@ -68,14 +68,14 @@ export const getFuturesOrderSideColor = (side: FuturesOrderSide): string => {
 };
 
 export enum OrderStatus {
-	CREATED = "CREATED", // 已创建
-	PLACED = "PLACED", // 已挂单
-	PARTIAL = "PARTIAL", // 部分成交
-	FILLED = "FILLED", // 已执行
-	CANCELED = "CANCELED", // 已取消
-	EXPIRED = "EXPIRED", // 已过期
-	REJECTED = "REJECTED", // 已拒绝
-	ERROR = "ERROR", // 错误
+	CREATED = "CREATED", // Created
+	PLACED = "PLACED", // Placed
+	PARTIAL = "PARTIAL", // Partially filled
+	FILLED = "FILLED", // Filled
+	CANCELED = "CANCELED", // Canceled
+	EXPIRED = "EXPIRED", // Expired
+	REJECTED = "REJECTED", // Rejected
+	ERROR = "ERROR", // Error
 }
 
 export const getOrderStatusLabel = (

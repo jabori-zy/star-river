@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 interface BasePanelHeaderProps {
 	id: string;
 	title: string;
-	setTitle: (title: string) => void; // 修改标题
+	setTitle: (title: string) => void; // Modify title
 	icon: IconName;
 	iconBackgroundColor: string;
 	isEditingTitle: boolean;
@@ -26,30 +26,30 @@ const BasePanelHeader: React.FC<BasePanelHeaderProps> = ({
 	onClosePanel,
 }) => {
 	return (
-		// flex 弹性盒子布局
-		// justify-between 两端对齐
-		// items-center 垂直居中
-		// p-2 内边距
+		// flex - flexbox layout
+		// justify-between - space between elements
+		// items-center - vertical center alignment
+		// p-2 - padding
 		<div className="flex justify-between items-center">
-			{/* 标题区域 */}
-			{/* 
-                flex-1 占据剩余空间
-                flex 弹性盒子布局
-                items-center 垂直居中
-                border-b 下边框
-                border-gray-100 边框颜色
-                pb-2 下内边距
-                mr-2 右外边距，与按钮保持距离
-                bg-red-100 背景颜色
+			{/* Title area */}
+			{/*
+                flex-1 - occupy remaining space
+                flex - flexbox layout
+                items-center - vertical center alignment
+                border-b - bottom border
+                border-gray-100 - border color
+                pb-2 - bottom padding
+                mr-2 - right margin, maintain distance from button
+                bg-red-100 - background color
             */}
 			<div className="flex-1 flex items-center border-gray-100 mr-2 ">
-				{/* 图标 */}
+				{/* Icon */}
 				{icon && (
-					// p-1 内边距
-					// rounded-sm 圆角
-					// flex-shrink-0 效果是，如果内容超出，不收缩
-					// bg-red-400 背景颜色
-					// mr-2 右外边距
+					// p-1 - padding
+					// rounded-sm - rounded corners
+					// flex-shrink-0 - effect is, if content overflows, don't shrink
+					// bg-red-400 - background color
+					// mr-2 - right margin
 					<div
 						className="p-1 mr-2 rounded-sm flex-shrink-0"
 						style={{ backgroundColor: iconBackgroundColor }}
@@ -60,16 +60,16 @@ const BasePanelHeader: React.FC<BasePanelHeaderProps> = ({
 						/>
 					</div>
 				)}
-				{/* 标题 */}
+				{/* Title */}
 				{isEditingTitle ? (
 					<Input
 						value={title}
 						onChange={(e) => setTitle(e.target.value)}
 						className="h-8 text-sm flex-1"
-						placeholder="输入策略名称"
+						placeholder="Enter strategy name"
 						autoFocus
 						onBlur={() => {
-							// 如果标题为空，设置默认值
+							// If title is empty, set default value
 							if (!title.trim()) {
 								setTitle(`${id}`);
 							}
@@ -77,7 +77,7 @@ const BasePanelHeader: React.FC<BasePanelHeaderProps> = ({
 						}}
 						onKeyDown={(e) => {
 							if (e.key === "Enter") {
-								// 如果标题为空，设置默认值
+								// If title is empty, set default value
 								if (!title.trim()) {
 									setTitle(`${id}`);
 								}
@@ -88,8 +88,8 @@ const BasePanelHeader: React.FC<BasePanelHeaderProps> = ({
 						}}
 					/>
 				) : (
-					// leading-8 行高
-					// py-1 上下内边距
+					// leading-8 - line height
+					// py-1 - vertical padding
 					<h3
 						className="text-md font-bold text-gray-800 leading-8 py-1"
 						onDoubleClick={() => setIsEditingTitle(true)}
@@ -99,9 +99,9 @@ const BasePanelHeader: React.FC<BasePanelHeaderProps> = ({
 				)}
 			</div>
 
-			{/* 
-                flex-shrink-0 防止按钮被压缩
-                hover:bg-gray-100 鼠标悬停背景色
+			{/*
+                flex-shrink-0 - prevent button from being compressed
+                hover:bg-gray-100 - background color on hover
             */}
 			<Button
 				variant="ghost"

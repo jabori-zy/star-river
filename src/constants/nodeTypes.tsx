@@ -1,10 +1,10 @@
-import FuturesOrderNode from "@/components/flow/node/futures-order-node/node"; // 期货订单节点
+import FuturesOrderNode from "@/components/flow/node/futures-order-node/node"; // Futures order node
 import IfElseNode from "@/components/flow/node/if-else-node/node";
-import IndicatorNode from "@/components/flow/node/indicator-node/node"; // 指标节点
-import KlineNode from "@/components/flow/node/kline-node/node"; // 实时数据节点
-import PositionNode from "@/components/flow/node/position-node/node"; // 持仓管理节点
-import StartNode from "@/components/flow/node/start-node"; // 开始节点
-import VariableNode from "@/components/flow/node/variable-node/node"; // 变量节点
+import IndicatorNode from "@/components/flow/node/indicator-node/node"; // Indicator node
+import KlineNode from "@/components/flow/node/kline-node/node"; // Real-time data node
+import PositionNode from "@/components/flow/node/position-node/node"; // Position management node
+import StartNode from "@/components/flow/node/start-node"; // Start node
+import VariableNode from "@/components/flow/node/variable-node/node"; // Variable node
 
 export const nodeTypes = {
 	startNode: StartNode,

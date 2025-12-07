@@ -1,7 +1,6 @@
-// 指标配置统一导出文件
 // Unified export file for all indicator configurations
 
-// 重叠指标 (Overlap Studies) - 16个指标
+// Overlap Studies - 16 indicators
 export * from "./overlap";
 
 import type {
@@ -23,7 +22,7 @@ import type {
 	WMAConfigType,
 } from "./overlap";
 
-// 动量指标 (Momentum Indicators) - 30个指标
+// Momentum Indicators - 30 indicators
 export * from "./momentum";
 
 import type {
@@ -59,12 +58,12 @@ import type {
 	WILLRConfigType,
 } from "./momentum";
 
-// 成交量指标 (Volume Indicators) - 3个指标
+// Volume Indicators - 3 indicators
 export * from "./volume";
 
 import type { ADConfigType, ADOSCConfigType, OBVConfigType } from "./volume";
 
-// 波动性指标 (Volatility Indicators) - 3个指标
+// Volatility Indicators - 3 indicators
 export * from "./volatility";
 
 import type {
@@ -73,7 +72,7 @@ import type {
 	TRANGEConfigType,
 } from "./volatility";
 
-// 周期指标 (Cycle Indicators) - 5个指标
+// Cycle Indicators - 5 indicators
 export * from "./cycle";
 
 import type {
@@ -84,7 +83,7 @@ import type {
 	HtTrendmodeConfigType,
 } from "./cycle";
 
-// 价格变换指标 (Price Transform Indicators) - 4个指标
+// Price Transform Indicators - 4 indicators
 export * from "./price_transform";
 
 import type {
@@ -94,7 +93,7 @@ import type {
 	WCLPRICEConfigType,
 } from "./price_transform";
 
-// K线形态识别指标 (Pattern Recognition Indicators) - 61个指标
+// Pattern Recognition Indicators - 61 indicators
 export * from "./pattern_recognition";
 
 import type {
@@ -161,9 +160,9 @@ import type {
 	CDLXSIDEGAP3METHODSConfigType,
 } from "./pattern_recognition";
 
-// 指标配置联合类型 (All Indicator Configuration Union Type)
+// All Indicator Configuration Union Type
 export type IndicatorConfigType =
-	// 重叠指标 (16个)
+	// Overlap Studies (16 indicators)
 	| BBANDSConfigType
 	| DEMAConfigType
 	| EMAConfigType
@@ -180,7 +179,7 @@ export type IndicatorConfigType =
 	| TEMAConfigType
 	| TRIMAConfigType
 	| WMAConfigType
-	// 动量指标 (30个)
+	// Momentum Indicators (30 indicators)
 	| ADXConfigType
 	| ADXRConfigType
 	| APOConfigType
@@ -211,26 +210,26 @@ export type IndicatorConfigType =
 	| TRIXConfigType
 	| ULTOSCConfigType
 	| WILLRConfigType
-	// 成交量指标 (3个)
+	// Volume Indicators (3 indicators)
 	| ADConfigType
 	| ADOSCConfigType
 	| OBVConfigType
-	// 波动性指标 (3个)
+	// Volatility Indicators (3 indicators)
 	| ATRConfigType
 	| NATRConfigType
 	| TRANGEConfigType
-	// 周期指标 (5个)
+	// Cycle Indicators (5 indicators)
 	| HtDcperiodConfigType
 	| HtDcphaseConfigType
 	| HtPhasorConfigType
 	| HtSineConfigType
 	| HtTrendmodeConfigType
-	// 价格变换指标 (4个)
+	// Price Transform Indicators (4 indicators)
 	| AVGPRICEConfigType
 	| MEDPRICEConfigType
 	| TYPPRICEConfigType
 	| WCLPRICEConfigType
-	// K线形态识别指标 (61个)
+	// Pattern Recognition Indicators (61 indicators)
 	| CDL2CROWSConfigType
 	| CDL3BLACKCROWSConfigType
 	| CDL3INSIDEConfigType

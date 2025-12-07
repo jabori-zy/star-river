@@ -2,22 +2,22 @@ import type { TFunction } from "i18next";
 
 export type { VirtualPosition } from "./virtual-position";
 
-// 仓位id
+// Position id
 export type PositionId = string;
 
 export enum PositionSide {
-	Long = "Long", // 多头
-	Short = "Short", // 空头
+	Long = "Long", // Long
+	Short = "Short", // Short
 }
 
 export enum PositionState {
-	Open = "Open", // 开仓
-	Close = "Close", // 平仓
-	PartiallyClosed = "PartiallyClosed", // 部分平仓
-	ForceClosed = "ForceClosed", // 强制平仓
+	Open = "Open", // Open position
+	Close = "Close", // Close position
+	PartiallyClosed = "PartiallyClosed", // Partially closed
+	ForceClosed = "ForceClosed", // Force closed
 }
 
-// 仓位方向文本
+// Position side text
 export const getPositionSideDisplayName = (
 	side: PositionSide,
 	t: TFunction,
@@ -32,7 +32,7 @@ export const getPositionSideDisplayName = (
 	}
 };
 
-// 仓位状态文本
+// Position state text
 export const getPositionStateDisplayName = (
 	state: PositionState,
 	t: TFunction,

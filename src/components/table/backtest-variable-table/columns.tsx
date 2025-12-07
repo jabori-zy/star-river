@@ -15,7 +15,7 @@ import {
 } from "@/types/variable";
 import { formatTimeWithTimezone } from "@/utils/date-format";
 
-// 渲染变量值
+// Render variable value
 const renderValue = (
 	v: string | number | boolean | string[] | null,
 	varValueType: VariableValueType,
@@ -36,7 +36,7 @@ const getVar = (e: VariableEvent) =>
 const getVarTypeLabel = (e: VariableEvent) =>
 	isCustomVariableUpdateEvent(e) ? "custom" : "system";
 
-// 格式化操作值（数字固定2位小数）
+// Format operation value (numbers fixed to 2 decimal places)
 const formatOperationValue = (v: unknown): string => {
 	if (v === null || v === undefined) return "";
 	if (typeof v === "number") return v.toFixed(2);
@@ -45,7 +45,7 @@ const formatOperationValue = (v: unknown): string => {
 	return String(v);
 };
 
-// 格式化操作显示
+// Format operation display
 const formatOperationDisplay = (event: VariableEvent, t: TFunction): string => {
 	if (!isCustomVariableUpdateEvent(event)) return "";
 
@@ -80,7 +80,7 @@ const formatOperationDisplay = (event: VariableEvent, t: TFunction): string => {
 	}
 };
 
-// 列定义（顺序已按要求）：类型，变量类型，节点名称，显示名，变量名，symbol，初始值，操作，当前值
+// Column definition (in required order): type, variable type, node name, display name, variable name, symbol, initial value, operation, current value
 export const createStrategyVariableColumns = (
 	isCompactMode: boolean,
 	t: TFunction,

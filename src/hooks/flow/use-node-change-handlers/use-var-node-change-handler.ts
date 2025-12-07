@@ -52,7 +52,7 @@ export const useVarNodeChangeHandler = () => {
 		[],
 	);
 
-	// 更新指定 VariableNode 的下游 If/Else 节点
+	// Update downstream If/Else nodes for specified VariableNode
 	const updateDownstreamIfElseNodes = useCallback(
 		(varNodeId: string, nodes: Node[], edges: Edge[]): Node[] => {
 			const varNode = nodes.find((node) => node.id === varNodeId);
@@ -90,7 +90,7 @@ export const useVarNodeChangeHandler = () => {
 		[],
 	);
 
-	// 同步系统变量自定义名称
+	// Sync system variable custom names
 	const syncSystemVariableNames = useCallback(
 		(
 			nodes: Node[],
@@ -105,11 +105,11 @@ export const useVarNodeChangeHandler = () => {
 				return { updatedNodes: nodes, affectedNodeIds: [] };
 			}
 
-			// 收集变更节点中所有系统变量的自定义名称映射
+			// Collect custom name mappings for all system variables in the changed node
 			const systemVarNameMap = new Map<string, string>();
 			const changedNodeData = changedNode.data as VariableNodeData;
 
-			// 从各个配置中提取系统变量的自定义名称
+			// Extract custom names of system variables from each config
 			const configs = [
 				...(changedNodeData.backtestConfig?.variableConfigs || []),
 				...(changedNodeData.liveConfig?.variableConfigs || []),
@@ -125,15 +125,15 @@ export const useVarNodeChangeHandler = () => {
 				}
 			}
 
-			// 如果没有需要同步的系统变量，直接返回
+			// If no system variables need to be synced, return directly
 			if (systemVarNameMap.size === 0) {
 				return { updatedNodes: nodes, affectedNodeIds: [] };
 			}
 
-			// 收集所有被更新的 VariableNode ID
+			// Collect all updated VariableNode IDs
 			const affectedNodeIds: string[] = [];
 
-			// 遍历所有 VariableNode 并更新
+			// Iterate through all VariableNodes and update
 			const syncedNodes = nodes.map((node) => {
 				if (
 					node.type !== NodeType.VariableNode ||
@@ -145,7 +145,7 @@ export const useVarNodeChangeHandler = () => {
 				const nodeData = node.data as VariableNodeData;
 				let hasUpdate = false;
 
-				// 更新 backtestConfig
+				// Update backtestConfig
 				const updatedBacktestConfig = updateConfigWithSystemVarNames(
 					nodeData.backtestConfig?.variableConfigs,
 					systemVarNameMap,
@@ -154,7 +154,7 @@ export const useVarNodeChangeHandler = () => {
 					hasUpdate = true;
 				}
 
-				// 更新 liveConfig
+				// Update liveConfig
 				const updatedLiveConfig = updateConfigWithSystemVarNames(
 					nodeData.liveConfig?.variableConfigs,
 					systemVarNameMap,
@@ -163,7 +163,7 @@ export const useVarNodeChangeHandler = () => {
 					hasUpdate = true;
 				}
 
-				// 更新 simulateConfig
+				// Update simulateConfig
 				const updatedSimulateConfig = updateConfigWithSystemVarNames(
 					nodeData.simulateConfig?.variableConfigs,
 					systemVarNameMap,
@@ -172,7 +172,7 @@ export const useVarNodeChangeHandler = () => {
 					hasUpdate = true;
 				}
 
-				// 如果有更新，返回新的节点数据并记录节点 ID
+				// If updated, return new node data and record node ID
 				if (hasUpdate) {
 					affectedNodeIds.push(node.id);
 					return {
@@ -204,7 +204,7 @@ export const useVarNodeChangeHandler = () => {
 				return node;
 			});
 
-			// 对于所有被更新的 VariableNode，同步更新其连接的 If/Else 节点
+			// For all updated VariableNodes, sync update their connected If/Else nodes
 			let finalNodes = syncedNodes;
 			for (const affectedNodeId of affectedNodeIds) {
 				finalNodes = updateDownstreamIfElseNodes(
@@ -239,7 +239,7 @@ export const useVarNodeChangeHandler = () => {
 				}
 			}
 
-			// 同步系统变量自定义名称到其他节点，并更新它们的下游 If/Else 节点
+			// Sync system variable custom names to other nodes and update their downstream If/Else nodes
 			const { updatedNodes: syncedNodes, affectedNodeIds } =
 				syncSystemVariableNames(updatedNodes, varNodeId, edges);
 			if (syncedNodes !== updatedNodes || affectedNodeIds.length > 0) {
@@ -277,7 +277,7 @@ const updateIfElseNode = (
 			const rightVariable = isVariable(condition.right)
 				? condition.right
 				: null;
-			// 左变量是否需要清空或更新
+			// Check if left variable needs to be cleared or updated
 			if (
 				shouldClearVariable(
 					leftVariable,
@@ -289,7 +289,7 @@ const updateIfElseNode = (
 				needsUpdate = true;
 				break;
 			}
-			// 右变量是否需要清空或更新
+			// Check if right variable needs to be cleared or updated
 			if (
 				shouldClearVariable(
 					rightVariable,
@@ -364,11 +364,11 @@ const updateIfElseNode = (
 };
 
 /**
- * 检查变量是否需要清空
- * @param variable 要检查的变量
- * @param klineNodeId K线节点ID
- * @param klineNodeSymbolIds K线节点有效的symbol配置ID列表
- * @returns 是否需要清空该变量
+ * Check if variable needs to be cleared
+ * @param variable Variable to check
+ * @param klineNodeId Kline node ID
+ * @param klineNodeSymbolIds Valid symbol config ID list of kline node
+ * @returns Whether the variable needs to be cleared
  */
 const shouldClearVariable = (
 	variable: Variable | null,
@@ -382,11 +382,11 @@ const shouldClearVariable = (
 };
 
 /**
- * 检查变量是否需要更新。如果变量配置ID在变量节点有效的变量配置ID列表中，则需要更新该变量。
- * @param variable 要检查的变量
- * @param varNodeId 变量节点ID
- * @param varNodeVariableConfigsIds 变量节点有效的变量配置ID列表
- * @returns 是否需要更新该变量
+ * Check if variable needs to be updated. If the variable's config ID is in the valid variable config ID list of the variable node, the variable needs to be updated.
+ * @param variable Variable to check
+ * @param varNodeId Variable node ID
+ * @param varNodeVariableConfigsIds Valid variable config ID list of variable node
+ * @returns Whether the variable needs to be updated
  */
 const shouldUpdateVariable = (
 	variable: Variable | null,
@@ -400,11 +400,11 @@ const shouldUpdateVariable = (
 };
 
 /**
- * 更新变量的 variable 字段，如果变量属于指定的变量节点且配置存在
- * @param variable 要更新的变量
- * @param varNodeId 变量节点ID
- * @param varNodeVariableConfigs 变量节点的配置列表
- * @returns 更新后的变量或原变量
+ * Update the variable field of a variable if it belongs to the specified variable node and the config exists
+ * @param variable Variable to update
+ * @param varNodeId Variable node ID
+ * @param varNodeVariableConfigs Variable node's config list
+ * @returns Updated variable or original variable
  */
 const updateVariable = (
 	variable: Variable | null,
@@ -415,7 +415,7 @@ const updateVariable = (
 		return variable;
 	}
 
-	// 查找对应的变量配置
+	// Find the corresponding variable config
 	const matchingConfig = varNodeVariableConfigs.find(
 		(config) => config.configId === variable.varConfigId,
 	);
@@ -424,7 +424,7 @@ const updateVariable = (
 		return variable;
 	}
 
-	// 更新变量的 variable 字段
+	// Update the variable's variable field
 	return {
 		...variable,
 		varName: matchingConfig.varName,
@@ -443,10 +443,10 @@ const isVariable = (
 };
 
 /**
- * 更新配置列表中的系统变量自定义名称
- * @param configs 配置列表
- * @param systemVarNameMap 系统变量名称映射
- * @returns 更新后的配置列表和是否有更新的标志
+ * Update custom names of system variables in the config list
+ * @param configs Config list
+ * @param systemVarNameMap System variable name mapping
+ * @returns Updated config list and a flag indicating if there was an update
  */
 const updateConfigWithSystemVarNames = (
 	configs: VariableConfig[] | undefined,
@@ -458,7 +458,7 @@ const updateConfigWithSystemVarNames = (
 
 	let hasUpdate = false;
 	const updatedConfigs = configs.map((config) => {
-		// 只更新 GET 操作的系统变量
+		// Only update system variables with GET operation
 		if (config.varOperation === "get" && config.varType === "system") {
 			const customName = systemVarNameMap.get(config.varName);
 			if (customName && customName !== config.varDisplayName) {

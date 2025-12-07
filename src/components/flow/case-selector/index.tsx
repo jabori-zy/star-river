@@ -5,7 +5,7 @@ import { ButtonGroup } from "@/components/ui/button-group";
 import type { CaseItem } from "@/types/node/if-else-node";
 import { NodeType } from "@/types/node/index";
 import type { ConditionTrigger } from "@/types/node/variable-node";
-// Case 数据结构，与 getIfElseNodeCases 返回值匹配
+// Case data structure, matching getIfElseNodeCases return value
 export interface CaseItemInfo {
 	nodeId: string;
 	nodeName: string;
@@ -28,7 +28,7 @@ const CaseSelector: React.FC<CaseSelectorProps> = ({
 	const [localNodeId, setLocalNodeId] = useState<string>("");
 	const [caseString, setCaseString] = useState<string>("");
 
-	// 生成 case 选项的 value 格式：triggerType|caseId|outputHandleId (对于 case) 或 triggerType||outputHandleId (对于 else)
+	// Generate case option value format: triggerType|caseId|outputHandleId (for case) or triggerType||outputHandleId (for else)
 	const generateCaseOptionValue = useCallback(
 		(
 			triggerType: "case" | "else",
@@ -43,7 +43,7 @@ const CaseSelector: React.FC<CaseSelectorProps> = ({
 		[],
 	);
 
-	// 同步节点选择
+	// Sync node selection
 	useEffect(() => {
 		if (selectedTriggerCase) {
 			setLocalNodeId(selectedTriggerCase.fromNodeId);
@@ -52,7 +52,7 @@ const CaseSelector: React.FC<CaseSelectorProps> = ({
 		}
 	}, [selectedTriggerCase]);
 
-	// 同步 case 选择
+	// Sync case selection
 	useEffect(() => {
 		if (!selectedTriggerCase) {
 			setCaseString("");
@@ -76,16 +76,16 @@ const CaseSelector: React.FC<CaseSelectorProps> = ({
 		}
 	}, [selectedTriggerCase, generateCaseOptionValue]);
 
-	// 处理节点选择
+	// Handle node selection
 	const handleNodeChange = (nodeId: string) => {
 		setLocalNodeId(nodeId);
-		setCaseString(""); // 清空 case 选择
+		setCaseString(""); // Clear case selection
 
-		// 清空触发配置
+		// Clear trigger configuration
 		onTriggerCaseChange(null);
 	};
 
-	// 处理 case 选择
+	// Handle case selection
 	const handleCaseChange = (caseValue: string) => {
 		const [triggerType, caseIdStr, outputHandleId] = caseValue.split("|");
 
@@ -108,7 +108,7 @@ const CaseSelector: React.FC<CaseSelectorProps> = ({
 			};
 			onTriggerCaseChange(triggerCase);
 		} else {
-			// else 分支
+			// else branch
 			const triggerCase: ConditionTrigger = {
 				triggerType: "else",
 				fromNodeType: NodeType.IfElseNode,
@@ -120,14 +120,14 @@ const CaseSelector: React.FC<CaseSelectorProps> = ({
 		}
 	};
 
-	// 获取当前选中节点的所有 case 列表（包含 case 和 else）
+	// Get all case list for currently selected node (including case and else)
 	const getSelectedNodeCases = () => {
 		return caseList
 			.filter((item) => item.nodeId === localNodeId)
 			.map((item) => item.caseItem);
 	};
 
-	// 生成 case 选项标签
+	// Generate case option label
 	const getCaseLabel = (caseItem: CaseItem | string) => {
 		if (typeof caseItem === "string" && caseItem === "else") {
 			return "Else";
@@ -135,7 +135,7 @@ const CaseSelector: React.FC<CaseSelectorProps> = ({
 		return `Case ${(caseItem as CaseItem).caseId}`;
 	};
 
-	// 获取去重后的节点列表（用于节点选择器）
+	// Get deduplicated node list (for node selector)
 	const getUniqueNodeList = () => {
 		const nodeMap = new Map<string, { nodeId: string; nodeName: string }>();
 
@@ -154,15 +154,15 @@ const CaseSelector: React.FC<CaseSelectorProps> = ({
 	const uniqueNodeList = getUniqueNodeList();
 	const hasNoNodes = uniqueNodeList.length === 0;
 
-	// 生成节点选项
+	// Generate node options
 	const nodeOptions = uniqueNodeList.map((node) => ({
 		value: node.nodeId,
 		label: node.nodeName,
 	}));
 
-	// 生成 case 选项（包含所有 case 和 else）
+	// Generate case options (including all case and else)
 	const caseOptions = getSelectedNodeCases().map((caseItem) => {
-		// 处理 else 分支
+		// Handle else branch
 		if (typeof caseItem === "string" && caseItem === "else") {
 			const elseOutputHandleId = localNodeId
 				? `${localNodeId}_output_else`
@@ -172,7 +172,7 @@ const CaseSelector: React.FC<CaseSelectorProps> = ({
 				label: getCaseLabel(caseItem),
 			};
 		}
-		// 处理 case 分支
+		// Handle case branch
 		const caseData = caseItem as CaseItem;
 		return {
 			value: generateCaseOptionValue(
@@ -186,7 +186,7 @@ const CaseSelector: React.FC<CaseSelectorProps> = ({
 
 	return (
 		<ButtonGroup className="w-full">
-			{/* 节点选择器 */}
+			{/* Node selector */}
 			<SelectInDialog
 				value={localNodeId}
 				onValueChange={handleNodeChange}
@@ -200,7 +200,7 @@ const CaseSelector: React.FC<CaseSelectorProps> = ({
 				className="h-8 text-xs font-normal min-w-20 flex-1"
 			/>
 
-			{/* Case 选择器 */}
+			{/* Case selector */}
 			<SelectInDialog
 				value={caseString}
 				onValueChange={handleCaseChange}

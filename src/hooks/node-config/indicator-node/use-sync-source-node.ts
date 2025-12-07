@@ -8,15 +8,15 @@ import type { KlineNodeData, SelectedSymbol } from "@/types/node/kline-node";
 import { useBacktestConfig } from "./use-update-backtest-config";
 
 /**
- * 同步指标节点与源 Kline 节点的 Symbol 配置
+ * Sync indicator node with source Kline node's Symbol configuration
  *
- * 职责：
- * 1. 监听源节点连接变化
- * 2. 验证连接规则（只能有一个源节点）
- * 3. 自动同步 Kline 节点的 Symbol 到 Indicator 节点
+ * Responsibilities:
+ * 1. Listen to source node connection changes
+ * 2. Validate connection rules (only one source node allowed)
+ * 3. Automatically sync Kline node's Symbol to Indicator node
  *
- * @param id - 指标节点 ID
- * @param currentNodeData - 当前节点数据（从外部传入，避免重复获取）
+ * @param id - Indicator node ID
+ * @param currentNodeData - Current node data (passed from external to avoid duplicate fetching)
  */
 export const useSyncSourceNode = ({
 	id,
@@ -27,34 +27,34 @@ export const useSyncSourceNode = ({
 }) => {
 	const { updateSelectedSymbol } = useBacktestConfig({ id });
 
-	// 获取当前节点的输入连接
+	// Get current node's input connections
 	const connections = useNodeConnections({ id, handleType: "target" });
 	const sourceNodes = useNodesData<StrategyFlowNode>(
 		connections.map((connection) => connection.source),
 	);
 
 	useEffect(() => {
-		// 规则1: 指标节点只能有一个源节点
+		// Rule 1: Indicator node can only have one source node
 		if (sourceNodes.length > 1) {
 			toast.error("indicator node only has one source node");
 			return;
 		}
 
-		// 规则2: 断开连接时清空选中的 symbol
+		// Rule 2: Clear selected symbol when disconnected
 		if (sourceNodes.length === 0) {
 			updateSelectedSymbol(null);
 			return;
 		}
 
-		// 规则3: 只能连接 Kline 节点
+		// Rule 3: Can only connect to Kline node
 		if (sourceNodes.length === 1) {
 			if (!isKlineNode(sourceNodes[0])) {
-				// 静默处理：如果源节点不是 Kline 节点，不做任何操作
+				// Silent handling: If source node is not a Kline node, do nothing
 				// toast.error("indicator node only has been connected by kline node");
 				return;
 			}
 
-			// 同步 Kline 节点的 Symbol 配置
+			// Sync Kline node's Symbol configuration
 			syncSymbolFromKlineNode(
 				sourceNodes[0].data as KlineNodeData,
 				currentNodeData,
@@ -65,54 +65,54 @@ export const useSyncSourceNode = ({
 };
 
 /**
- * 从 Kline 节点同步 Symbol 到 Indicator 节点
+ * Sync Symbol from Kline node to Indicator node
  *
- * 同步规则：
- * 1. 如果 Kline 节点没有 Symbol 配置，清空 Indicator 节点的选中
- * 2. 如果 Indicator 节点没有选中 Symbol，不做任何操作
- * 3. 如果 Indicator 节点的 Symbol 在 Kline 节点中不存在，清空选中
- * 4. 如果 Symbol 的 symbol 或 interval 发生变化，更新选中
+ * Sync rules:
+ * 1. If Kline node has no Symbol configuration, clear Indicator node's selection
+ * 2. If Indicator node has no selected Symbol, do nothing
+ * 3. If Indicator node's Symbol doesn't exist in Kline node, clear selection
+ * 4. If Symbol's symbol or interval changes, update selection
  *
- * @param klineNodeData - Kline 节点数据
- * @param indicatorNodeData - Indicator 节点数据
- * @param updateSelectedSymbol - 更新 Symbol 的回调函数
+ * @param klineNodeData - Kline node data
+ * @param indicatorNodeData - Indicator node data
+ * @param updateSelectedSymbol - Callback function to update Symbol
  */
 function syncSymbolFromKlineNode(
 	klineNodeData: KlineNodeData,
 	indicatorNodeData: IndicatorNodeData,
 	updateSelectedSymbol: (symbol: SelectedSymbol | null) => void,
 ) {
-	// 获取当前指标节点选中的 symbol
+	// Get currently selected symbol of indicator node
 	const selectedSymbol =
 		indicatorNodeData?.backtestConfig?.exchangeModeConfig?.selectedSymbol;
 
-	// 如果指标节点没有选中 symbol，不需要同步
+	// If indicator node has no selected symbol, no need to sync
 	if (!selectedSymbol) {
 		return;
 	}
 
-	// 获取 Kline 节点的 symbol 配置
+	// Get Kline node's symbol configuration
 	const klineNodeSymbols =
 		klineNodeData.backtestConfig?.exchangeModeConfig?.selectedSymbols;
 
-	// 如果 Kline 节点没有 symbol 配置，清空指标节点的选中
+	// If Kline node has no symbol configuration, clear indicator node's selection
 	if (!klineNodeSymbols || klineNodeSymbols.length === 0) {
 		updateSelectedSymbol(null);
 		return;
 	}
 
-	// 查找匹配的 symbol（通过 configId 匹配）
+	// Find matching symbol (match by configId)
 	const matchingSymbol = klineNodeSymbols.find(
 		(symbol) => symbol.configId === selectedSymbol.configId,
 	);
 
-	// 如果找不到匹配的 symbol，清空选中
+	// If no matching symbol found, clear selection
 	if (!matchingSymbol) {
 		updateSelectedSymbol(null);
 		return;
 	}
 
-	// 如果 symbol 或 interval 发生变化，更新选中
+	// If symbol or interval changes, update selection
 	if (
 		matchingSymbol.symbol !== selectedSymbol.symbol ||
 		matchingSymbol.interval !== selectedSymbol.interval
@@ -120,5 +120,5 @@ function syncSymbolFromKlineNode(
 		updateSelectedSymbol(matchingSymbol);
 	}
 
-	// 如果 symbol 和 interval 都没有变化，不做任何操作
+	// If both symbol and interval haven't changed, do nothing
 }

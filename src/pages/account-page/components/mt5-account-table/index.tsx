@@ -62,7 +62,7 @@ interface MT5AccountTableProps {
 	title?: string;
 }
 
-// MT5账户表格
+// MT5 account table
 export function MT5AccountTable({
 	tableData: initialTableData,
 	title = "MT5账户",
@@ -71,7 +71,7 @@ export function MT5AccountTable({
 		() => initialTableData,
 	);
 
-	// 当initialTableData变化时更新tableData
+	// Update tableData when initialTableData changes
 	React.useEffect(() => {
 		setTableData(initialTableData);
 	}, [initialTableData]);
@@ -86,28 +86,28 @@ export function MT5AccountTable({
 		pageSize: 10,
 	});
 
-	// 生成唯一ID用于DndContext
+	// Generate unique ID for DndContext
 	const dndId = React.useId();
 
-	// 配置传感器，添加激活约束以避免误触
+	// Configure sensors with activation constraints to prevent accidental triggering
 	const sensors = useSensors(
 		useSensor(MouseSensor, {
-			// 鼠标拖动需要移动一定距离才激活
+			// Mouse drag requires moving a certain distance to activate
 			activationConstraint: {
-				distance: 10, // 需要移动10像素才能开始拖动
+				distance: 10, // Need to move 10 pixels to start dragging
 			},
 		}),
 		useSensor(TouchSensor, {
-			// 触摸拖动需要长按才激活
+			// Touch drag requires long press to activate
 			activationConstraint: {
-				delay: 250, // 需要按住250毫秒才能开始拖动
-				tolerance: 5, // 在等待期间允许5像素的移动容差
+				delay: 250, // Need to hold for 250 milliseconds to start dragging
+				tolerance: 5, // Allow 5 pixels of movement tolerance during waiting period
 			},
 		}),
 		useSensor(KeyboardSensor, {}),
 	);
 
-	// 获取所有数据的ID列表
+	// Get list of all data IDs
 	const dataIds = React.useMemo<UniqueIdentifier[]>(
 		() => tableData.map((item) => item.id),
 		[tableData],
@@ -135,7 +135,7 @@ export function MT5AccountTable({
 		getFacetedUniqueValues: getFacetedUniqueValues(),
 	});
 
-	// 处理拖拽结束
+	// Handle drag end
 	function handleDragEnd(event: DragEndEvent) {
 		const { active, over } = event;
 		if (active && over && active.id !== over.id) {
@@ -147,7 +147,7 @@ export function MT5AccountTable({
 		}
 	}
 
-	// 总页数
+	// Total page count
 	const pageCount = table.getPageCount();
 
 	return (
@@ -268,7 +268,7 @@ export function MT5AccountTable({
 								<ChevronLeftIcon />
 							</Button>
 							<div className="flex items-center gap-2">
-								{/* 页码按钮显示逻辑 - 最多显示5个页码 */}
+								{/* Page button display logic - show up to 5 page numbers */}
 								{pageCount <= 10 ? (
 									Array.from({ length: pageCount }, (_, i) => (
 										<Button
@@ -286,20 +286,20 @@ export function MT5AccountTable({
 									))
 								) : (
 									<>
-										{/* 页码较多时只显示5个页码 */}
+										{/* When there are many pages, only show 5 page numbers */}
 										{[...Array(Math.min(5, pageCount))].map((_, idx) => {
 											let pageIdx: number;
 											const currentPage = table.getState().pagination.pageIndex;
 
-											// 计算要显示的页码
+											// Calculate which page numbers to display
 											if (currentPage < 3) {
-												// 当前页靠前时显示前5页
+												// When current page is near the beginning, show first 5 pages
 												pageIdx = idx;
 											} else if (currentPage > pageCount - 4) {
-												// 当前页靠后时显示后5页
+												// When current page is near the end, show last 5 pages
 												pageIdx = pageCount - 5 + idx;
 											} else {
-												// 当前页居中时显示当前页为中间的2页
+												// When current page is in the middle, show current page in the center with 2 pages on each side
 												pageIdx = currentPage - 2 + idx;
 											}
 

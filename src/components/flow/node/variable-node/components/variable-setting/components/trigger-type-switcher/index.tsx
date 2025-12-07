@@ -29,16 +29,16 @@ import TimerConfigComponent from "./timer-config";
 interface TriggerTypeSwitcherProps {
 	triggerType: TriggerType;
 	onTriggerTypeChange: (value: TriggerType) => void;
-	availableTriggers?: TriggerType[]; // 可选：指定可用的触发类型，不指定则显示全部
+	availableTriggers?: TriggerType[]; // Optional: specify available trigger types, show all if not specified
 	idPrefix?: string;
-	// Condition 触发相关
+	// Condition trigger related
 	caseItemList?: CaseItemInfo[];
 	selectedTriggerCase?: ConditionTrigger | null;
 	onTriggerCaseChange?: (triggerCase: ConditionTrigger | null) => void;
-	// Timer 触发相关
+	// Timer trigger related
 	timerConfig?: TimerTrigger;
 	onTimerConfigChange?: (config: TimerTrigger) => void;
-	// Dataflow 触发相关
+	// Dataflow trigger related
 	expireDuration?: { unit: TimerUnit; duration: number };
 	errorPolicy?: Partial<Record<DataflowErrorType, DataflowErrorPolicy>>;
 	replaceValueType?: VariableValueType;
@@ -74,17 +74,17 @@ const TriggerTypeSwitcher: React.FC<TriggerTypeSwitcherProps> = ({
 	onErrorPolicyChange,
 	onDataflowValidationChange,
 }) => {
-	// 如果指定了 availableTriggers，则只显示指定的触发类型；否则显示全部
+	// If availableTriggers is specified, only show specified trigger types; otherwise show all
 	const displayTypes = availableTriggers || TRIGGER_TYPES;
 	const { t } = useTranslation();
 	const { tradingMode } = useTradingModeStore();
 
-	// 判断是否在 backtest 模式下
+	// Check if in backtest mode
 	const isBacktestMode = tradingMode === TradeMode.BACKTEST;
 
 	return (
 		<div className="space-y-3">
-			{/* 触发类型选择器 */}
+			{/* Trigger type selector */}
 			<div className="space-y-1">
 				<Label className="text-sm font-medium">
 					{t("variableNode.triggerType")}
@@ -96,7 +96,7 @@ const TriggerTypeSwitcher: React.FC<TriggerTypeSwitcherProps> = ({
 							const IconComponent = typeInfo.icon;
 							const triggerId = `${idPrefix}-${type}-trigger`;
 
-							// 判断 Timer 触发器是否应该被禁用
+							// Check if Timer trigger should be disabled
 							const isTimerDisabled = type === "timer" && isBacktestMode;
 
 							const checkboxContent = (
@@ -127,7 +127,7 @@ const TriggerTypeSwitcher: React.FC<TriggerTypeSwitcherProps> = ({
 								</div>
 							);
 
-							// 如果是禁用的 Timer，添加 Tooltip
+							// If it's disabled Timer, add Tooltip
 							if (isTimerDisabled) {
 								return (
 									<Tooltip key={type}>
@@ -149,7 +149,7 @@ const TriggerTypeSwitcher: React.FC<TriggerTypeSwitcherProps> = ({
 				</div>
 			</div>
 
-			{/* Condition 触发配置 */}
+			{/* Condition trigger config */}
 			{triggerType === "condition" && onTriggerCaseChange && (
 				<div className="space-y-2">
 					<Label className="text-sm font-medium pointer-events-none">
@@ -163,7 +163,7 @@ const TriggerTypeSwitcher: React.FC<TriggerTypeSwitcherProps> = ({
 				</div>
 			)}
 
-			{/* Timer 触发配置 */}
+			{/* Timer trigger config */}
 			{triggerType === "timer" && timerConfig && onTimerConfigChange && (
 				<div className="rounded-md border border-gray-200 p-3">
 					<TimerConfigComponent
@@ -173,7 +173,7 @@ const TriggerTypeSwitcher: React.FC<TriggerTypeSwitcherProps> = ({
 				</div>
 			)}
 
-			{/* Dataflow 触发配置 */}
+			{/* Dataflow trigger config */}
 			{triggerType === "dataflow" &&
 				expireDuration &&
 				errorPolicy &&

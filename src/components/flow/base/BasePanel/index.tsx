@@ -20,11 +20,11 @@ import TradeModeSwitcher, {
 } from "./trade-mode-switcher";
 
 interface BasePanelProps extends PanelProps {
-	id: string; // 节点id
+	id: string; // Node id
 	setSelectedNodeId: (id: string | undefined) => void;
-	children: ReactElement; // 面板内容
-	tradeMode: string; // 交易模式
-	settingPanel: SettingPanelProps; // 设置面板
+	children: ReactElement; // Panel content
+	tradeMode: string; // Trading mode
+	settingPanel: SettingPanelProps; // Settings panel
 }
 
 const BasePanel: React.FC<BasePanelProps> = ({
@@ -33,37 +33,37 @@ const BasePanel: React.FC<BasePanelProps> = ({
 	settingPanel,
 }) => {
 	const panelRef = useRef<HTMLDivElement>(null);
-	// 获取ReactFlow实例
+	// Get ReactFlow instance
 	const { updateNodeData, setNodes, getNode } = useReactFlow();
 	const node = getNode(id);
 	const nodeData = node?.data as NodeData;
 	const nodeType = node?.type;
 	const nodeConfig = nodeData?.nodeConfig;
-	// 面板标题
+	// Panel title
 	const [panelTitle, setPanelTitle] = useState(
 		nodeData?.nodeName || "未命名节点",
 	);
 
-	// 是否显示面板
+	// Whether to show panel
 	const [isShow, setIsShow] = useState(true);
 
-	// 是否在编辑标题
+	// Whether editing title
 	const [isEditingTitle, setIsEditingTitle] = useState(false);
 
-	// 监听data.nodeName变化，更新面板标题
+	// Listen for data.nodeName changes, update panel title
 	useEffect(() => {
-		// 只有在不是编辑状态时才同步外部数据变化
+		// Only sync external data changes when not in edit mode
 		if (!isEditingTitle) {
 			setPanelTitle(nodeData?.nodeName || "未命名节点");
 		}
 	}, [nodeData, isEditingTitle]);
 
-	// 自定义的标题更新函数，同时更新节点数据
+	// Custom title update function, also updates node data
 	const handleSetTitle = useCallback(
 		(newTitle: string) => {
 			setPanelTitle(newTitle);
-			// 允许空值在编辑过程中存在，但保存时如果为空则设为默认值
-			// 注意：这里直接保存用户输入的值，包括空字符串
+			// Allow empty values during editing, but set to default if empty when saving
+			// Note: This directly saves user input values, including empty strings
 			updateNodeData(id || "", {
 				nodeName: newTitle,
 			});
@@ -71,7 +71,7 @@ const BasePanel: React.FC<BasePanelProps> = ({
 		[id, updateNodeData],
 	);
 
-	// 关闭面板处理函数
+	// Close panel handler function
 	const handleClosePanel = useCallback(() => {
 		setNodes((nodes) =>
 			nodes.map((node) => ({
@@ -83,7 +83,7 @@ const BasePanel: React.FC<BasePanelProps> = ({
 		setSelectedNodeId(undefined);
 	}, [id, setNodes, setSelectedNodeId]);
 
-	// 面板宽度状态
+	// Panel width state
 	const panelWidthRef = useRef(400);
 	const startXRef = useRef(0);
 	const startWidthRef = useRef(0);
@@ -96,11 +96,11 @@ const BasePanel: React.FC<BasePanelProps> = ({
 		}
 	}, []);
 
-	// 最小和最大宽度
+	// Minimum and maximum width
 	const MIN_WIDTH = 375;
 	const MAX_WIDTH = 600;
 
-	// 开始拖拽缩放
+	// Start drag resize
 	const handleResizeMove = useCallback(
 		(e: MouseEvent) => {
 			if (!isResizingRef.current) return;
@@ -154,10 +154,10 @@ const BasePanel: React.FC<BasePanelProps> = ({
 	}, [applyPanelWidth]);
 
 	return (
-		// 是否显示面板
+		// Whether to show panel
 		id &&
 		isShow && (
-			// 面板容器
+			// Panel container
 			<div
 				ref={panelRef}
 				className="absolute right-4 top-4 bottom-4 z-50 flex flex-col bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden"
@@ -165,22 +165,22 @@ const BasePanel: React.FC<BasePanelProps> = ({
 					width: `${panelWidthRef.current}px`,
 				}}
 			>
-				{/* 左侧拖拽区域 */}
+				{/* Left drag area */}
 				<div
 					className="absolute left-0 top-0 w-2 h-full flex items-center justify-center group"
 					style={{
 						zIndex: 10,
 					}}
 				>
-					{/* 拖拽图标 */}
-					{/* 
-                    opacity-0 透明度为0
-                    group-hover:opacity-100 悬停时透明度为100
-                    transition-opacity 过渡效果
-                    cursor-ew-resize 鼠标样式为可拖拽
-                    p-1 内边距
-                    rounded 圆角
-                    bg-gray-100 背景颜色
+					{/* Drag icon */}
+					{/*
+                    opacity-0 - opacity is 0
+                    group-hover:opacity-100 - opacity is 100 on hover
+                    transition-opacity - transition effect
+                    cursor-ew-resize - cursor style for draggable
+                    p-1 - padding
+                    rounded - rounded corners
+                    bg-gray-100 - background color
                     */}
 					<div
 						className="flex items-center w-10 h-20 opacity-0 group-hover:opacity-100 transition-opacity cursor-ew-resize p-1 rounded bg-gray-100 hover:bg-gray-400"
@@ -190,7 +190,7 @@ const BasePanel: React.FC<BasePanelProps> = ({
 					</div>
 				</div>
 
-				{/* 标题区域 - 固定高度 */}
+				{/* Title area - fixed height */}
 				<div className="flex-shrink-0 p-2 pb-0">
 					{nodeConfig && (
 						<BasePanelHeader
@@ -211,7 +211,7 @@ const BasePanel: React.FC<BasePanelProps> = ({
 					)}
 				</div>
 
-				{/* 交易模式切换器 - 弹性高度 */}
+				{/* Trade mode switcher - flexible height */}
 				<div className="flex-1 min-h-0 p-2 pt-4">
 					<TradeModeSwitcher id={id} settingPanel={settingPanel} />
 				</div>

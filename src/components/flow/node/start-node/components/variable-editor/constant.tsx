@@ -5,7 +5,7 @@ import {
 	VariableValueType,
 } from "@/types/variable";
 
-// 变量类型显示名称映射（存储多语言 key）
+// Variable type display name mapping (stores i18n keys)
 const VARIABLE_TYPE_LABELS: Record<VariableValueType, string> = {
 	[VariableValueType.NUMBER]: "strategy.variable.number",
 	[VariableValueType.STRING]: "strategy.variable.string",
@@ -15,7 +15,7 @@ const VARIABLE_TYPE_LABELS: Record<VariableValueType, string> = {
 	[VariableValueType.PERCENTAGE]: "strategy.variable.percentage",
 };
 
-// 变量类型选项配置（接收翻译函数）
+// Variable type option configuration (receives translation function)
 export const getVariableTypeOptions = (t: TFunction) => {
 	return Object.values(VariableValueType).map((type) => {
 		const IconComponent = getVariableValueTypeIcon(type);

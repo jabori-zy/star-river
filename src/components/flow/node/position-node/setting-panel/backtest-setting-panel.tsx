@@ -20,7 +20,7 @@ import { getOutputHandleIds } from "../utils";
 
 const PositionNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id }) => {
 	const { t } = useTranslation();
-	// 获取开始节点数据
+	// Get start node data
 	const { getStartNodeData, getTargetNodeIds } = useStrategyWorkflow();
 	const startNodeData = getStartNodeData();
 	const accountList =
@@ -41,7 +41,7 @@ const PositionNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id }) => {
 	const [selectedAccount, setSelectedAccount] =
 		useState<SelectedAccount | null>(backtestConfig?.selectedAccount || null);
 
-	// 确认删除对话框状态
+	// Confirm delete dialog state
 	const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
 	const [pendingDeleteConfig, setPendingDeleteConfig] =
 		useState<PositionOperationConfig | null>(null);
@@ -91,7 +91,7 @@ const PositionNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id }) => {
 		performDelete(index);
 	};
 
-	// 执行删除
+	// Perform delete
 	const performDelete = (index?: number) => {
 		const targetIndex =
 			index !== undefined
@@ -106,7 +106,7 @@ const PositionNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id }) => {
 
 		const configToDelete = operationConfigs[targetIndex];
 
-		// 删除边：inputHandleId + 所有 outputHandleIds
+		// Delete edges: inputHandleId + all outputHandleIds
 		const inputHandleId = configToDelete.inputHandleId;
 		const outputHandleIds = configToDelete.outputHandleIds || [];
 		const edges = getEdges();
@@ -117,10 +117,10 @@ const PositionNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id }) => {
 		);
 		setEdges(remainingEdges);
 
-		// 删除配置
+		// Delete config
 		removePositionOperation(targetIndex);
 
-		// 清理状态
+		// Clean up state
 		setPendingDeleteConfig(null);
 		setIsConfirmDialogOpen(false);
 		setPendingDeleteData(null);
@@ -196,7 +196,7 @@ const PositionNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id }) => {
 				)}
 			</div>
 
-			{/* 确认删除对话框 */}
+			{/* Confirm delete dialog */}
 			<NodeOpConfirmDialog
 				isOpen={isConfirmDialogOpen}
 				onOpenChange={setIsConfirmDialogOpen}

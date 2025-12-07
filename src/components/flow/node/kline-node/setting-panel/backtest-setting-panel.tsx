@@ -23,20 +23,20 @@ const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id }) => {
 	const accountList =
 		startNodeData?.backtestConfig?.exchangeModeConfig?.selectedAccounts || [];
 
-	// ✅ 使用新版本 hook 管理回测配置
+	// ✅ Use new version hook to manage backtest config
 	const { backtestConfig, updateSelectedAccount, updateSelectedSymbols } =
 		useBacktestConfig({ id });
 
 	const selectedAccount = backtestConfig?.exchangeModeConfig?.selectedAccount;
 	const timeRange = backtestConfig?.exchangeModeConfig?.timeRange;
 
-	// 获取代币列表和支持的K线周期（在父组件统一获取，避免子组件重复请求）
+	// Get symbol list and supported kline intervals (fetched at parent to avoid duplicate requests in child components)
 	const { data: symbolList = [] } = useSymbolList(selectedAccount?.id ?? 0);
 	const { data: supportKlineInterval = [] } = useSupportKlineInterval(
 		selectedAccount?.id ?? 0,
 	);
 
-	// 处理数据源选择（回测模式下选择的是交易所数据源）
+	// Handle data source selection (exchange data source in backtest mode)
 	const handleDataSourceChange = (selectedAccount: SelectedAccount) => {
 		updateSelectedAccount({
 			id: selectedAccount.id,
@@ -46,9 +46,9 @@ const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id }) => {
 		});
 	};
 
-	// 处理连接状态变化（TanStack Query 会自动处理缓存刷新，无需手动触发）
+	// Handle connection status change (TanStack Query handles cache refresh automatically, no manual trigger needed)
 	const handleConnectionStatusChange = (_status: ExchangeStatus) => {
-		// TanStack Query 会根据 accountId 变化自动重新获取数据
+		// TanStack Query automatically refetches data based on accountId changes
 	};
 
 	return (
@@ -91,7 +91,7 @@ const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id }) => {
 					<div className="space-y-4">
 						<div className="space-y-1">
 							<Label htmlFor="file-upload" className="text-xs">
-								上传K线数据文件
+								Upload Kline Data File
 							</Label>
 							<FileUpload
 								maxSize={20 * 1024 * 1024} // 20MB
@@ -101,14 +101,14 @@ const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id }) => {
 								}}
 								dropAreaHeight="h-24"
 								customText={{
-									title: "上传数据文件",
-									description: "拖放或点击上传",
-									emptyState: "支持CSV或Excel格式的K线数据文件",
+									title: "Upload Data File",
+									description: "Drag and drop or click to upload",
+									emptyState: "Supports CSV or Excel format kline data files",
 								}}
 							/>
 						</div>
 						<div className="text-xs text-muted-foreground">
-							支持CSV或Excel格式的K线数据文件，需包含时间戳、开盘价、最高价、最低价、收盘价和成交量
+							Supports CSV or Excel format kline data files, must include timestamp, open price, high price, low price, close price, and volume
 						</div>
 					</div>
 				)}

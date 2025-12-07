@@ -43,12 +43,12 @@ const NumberTypeOpEditor: React.FC<NumberTypeOpEditorProps> = ({
 	const conditionTrigger = getConditionTriggerConfig({ triggerConfig });
 	const timerTrigger = getTimerTriggerConfig({ triggerConfig });
 
-	// 使用本地状态管理数字输入
+	// Use local state to manage number input
 	const [localValue, setLocalValue] = useState<string>(updateValue);
 	const [isFocused, setIsFocused] = useState(false);
 
 	useEffect(() => {
-		// 只有在组件不处于焦点状态时才更新本地值,避免用户输入时被覆盖
+		// Only update local value when component is not focused, to avoid overwriting user input
 		if (!isFocused) {
 			setLocalValue(updateValue);
 		}
@@ -58,7 +58,7 @@ const NumberTypeOpEditor: React.FC<NumberTypeOpEditorProps> = ({
 		const inputValue = e.target.value;
 		setLocalValue(inputValue);
 
-		// 如果输入不为空且是有效数字,立即通知父组件
+		// If input is not empty and is a valid number, notify parent component immediately
 		if (inputValue !== "" && !Number.isNaN(Number(inputValue))) {
 			onUpdateValueChange(inputValue);
 		}
@@ -67,16 +67,16 @@ const NumberTypeOpEditor: React.FC<NumberTypeOpEditorProps> = ({
 	const handleBlur = () => {
 		setIsFocused(false);
 
-		// 失去焦点时处理输入值
+		// Handle input value on blur
 		if (localValue === "") {
-			// 如果输入为空,默认设置为0
+			// If input is empty, default to 0
 			setLocalValue("0");
 			onUpdateValueChange("0");
 		} else if (isNaN(Number(localValue))) {
-			// 如果输入无效,重置为原始值
+			// If input is invalid, reset to original value
 			setLocalValue(updateValue);
 		} else {
-			// 确保数值同步到父组件
+			// Ensure value is synced to parent component
 			const numValue = Number(localValue);
 			if (numValue.toString() !== updateValue) {
 				onUpdateValueChange(numValue.toString());
@@ -90,25 +90,25 @@ const NumberTypeOpEditor: React.FC<NumberTypeOpEditorProps> = ({
 
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
 		if (e.key === "Enter") {
-			// 阻止默认行为,模拟失去焦点
+			// Prevent default behavior, simulate blur
 			e.preventDefault();
 			(e.target as HTMLInputElement).blur();
 		}
 		if (e.key === "Escape") {
-			// 阻止默认行为,重置值并失去焦点
+			// Prevent default behavior, reset value and blur
 			e.preventDefault();
 			setLocalValue(updateValue);
 			(e.target as HTMLInputElement).blur();
 		}
 	};
 
-	// 判断是否应该显示提示文案
+	// Determine whether to show hint text
 	const shouldShowHint = () => {
-		// 条件触发模式:必须选择了触发条件
+		// Condition trigger mode: must have selected a trigger condition
 		if (effectiveTriggerType === "condition" && !conditionTrigger) {
 			return false;
 		}
-		// 必须有值
+		// Must have a value
 		return !!updateValue;
 	};
 

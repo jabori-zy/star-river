@@ -2,24 +2,24 @@ import type HighchartsReact from "highcharts-react-official";
 import { useEffect } from "react";
 
 interface ChartResizeOptions {
-	width?: number | string; // 可以是数字或百分比字符串
-	height?: number | string; // 可以是数字或百分比字符串
-	useReflow?: boolean; // 是否使用reflow方法
+	width?: number | string; // Can be a number or percentage string
+	height?: number | string; // Can be a number or percentage string
+	useReflow?: boolean; // Whether to use reflow method
 }
 
-// 将值转换为数字
+// Convert value to number
 const toNumber = (
 	value: number | string | undefined,
 	defaultValue?: number,
 ): number | undefined => {
 	if (value === undefined) return defaultValue;
 	if (typeof value === "number") return value;
-	// 尝试转换字符串为数字
+	// Attempt to convert string to number
 	const parsed = parseFloat(value);
-	return isNaN(parsed) ? defaultValue : parsed;
+	return Number.isNaN(parsed) ? defaultValue : parsed;
 };
 
-// 图表自适应钩子函数
+// Chart responsive resize hook function
 const useChartResize = (
 	chartRef: React.RefObject<HighchartsReact.RefObject | null>,
 	options?: ChartResizeOptions,
@@ -29,9 +29,9 @@ const useChartResize = (
 			const chart = chartRef.current?.chart;
 			if (!chart) return;
 
-			// 如果提供了尺寸选项，则使用setSize方法
+			// If size options are provided, use setSize method
 			if (options?.width !== undefined || options?.height !== undefined) {
-				// 获取容器当前宽度和高度
+				// Get container's current width and height
 				const container = chart.container;
 				const defaultWidth = container ? container.clientWidth : undefined;
 				const defaultHeight = container ? container.clientHeight : undefined;
@@ -39,16 +39,16 @@ const useChartResize = (
 				chart.setSize(
 					toNumber(options.width, defaultWidth),
 					// toNumber(options.height, defaultHeight),
-					// false // 禁用动画
+					// false // Disable animation
 				);
 			}
-			// 如果没有指定选项或明确设置useReflow为true，则使用reflow方法
+			// If no options are specified or useReflow is explicitly set to true, use reflow method
 			else if (!options || options.useReflow) {
 				chart.reflow();
 			}
 		};
 
-		// 初始调用一次以确保尺寸正确
+		// Initial call once to ensure correct sizing
 		handleResize();
 
 		window.addEventListener("resize", handleResize);

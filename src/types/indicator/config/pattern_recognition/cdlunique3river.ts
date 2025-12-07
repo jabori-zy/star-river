@@ -9,7 +9,7 @@ import {
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
 const CDLUNIQUE3RIVERConfigSchema = z.object({
-	// CDLUNIQUE3RIVER 没有参数
+	// CDLUNIQUE3RIVER has no parameters
 });
 
 export type CDLUNIQUE3RIVERConfigType = z.infer<
@@ -18,7 +18,7 @@ export type CDLUNIQUE3RIVERConfigType = z.infer<
 
 function buildCDLUNIQUE3RIVERConfig(_params: Map<string, string>): unknown {
 	return {
-		// CDLUNIQUE3RIVER 不需要任何参数
+		// CDLUNIQUE3RIVER doesn't need any parameters
 	};
 }
 
@@ -29,7 +29,7 @@ export const CDLUNIQUE3RIVERConfig: IndicatorConfig<CDLUNIQUE3RIVERConfigType> =
 		displayName: "CDLUNIQUE3RIVER",
 		description: "Unique 3 River",
 		params: {
-			// CDLUNIQUE3RIVER 没有参数
+			// CDLUNIQUE3RIVER has no parameters
 		},
 		indicatorValueConfig: {
 			timestamp: { label: "timestamp", value: 0, legendShowName: "ts" },

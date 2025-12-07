@@ -25,35 +25,35 @@ const ComparisonSymbolSelector: React.FC<ComparisonSymbolSelectorProps> = ({
 	const [localComparisonSymbol, setLocalComparisonSymbol] =
 		useState<ComparisonSymbol>(comparisonSymbol);
 	const { t } = useTranslation();
-	// 使用 ref 跟踪上一次的左变量类型
+	// Use ref to track the previous left variable type
 	const prevLeftVarValueType = useRef<VariableValueType | null | undefined>(
 		undefined,
 	);
 
-	// 当传入的comparisonSymbol发生变化时，同步更新本地状态
+	// Synchronize local state when the incoming comparisonSymbol changes
 	useEffect(() => {
 		setLocalComparisonSymbol(comparisonSymbol);
 	}, [comparisonSymbol]);
 
-	// 根据左变量类型获取可用的比较运算符
+	// Get available comparison operators based on left variable type
 	const availableSymbols = leftVarValueType
 		? getAvailableComparisonSymbols(leftVarValueType)
 		: Object.values(ComparisonSymbol);
 
-	// 当左变量类型改变时，自动填充或切换运算符
+	// Auto-fill or switch operator when left variable type changes
 	useEffect(() => {
-		// 检查左变量类型是否发生了变化
+		// Check if left variable type has changed
 		const hasVarTypeChanged = prevLeftVarValueType.current !== leftVarValueType;
 
 		if (leftVarValueType && hasVarTypeChanged) {
-			// 更新 ref
+			// Update ref
 			prevLeftVarValueType.current = leftVarValueType;
 
 			const isCurrentSymbolAvailable =
 				localComparisonSymbol &&
 				availableSymbols.includes(localComparisonSymbol);
 
-			// 如果当前运算符不可用或为空，自动切换到第一个可用运算符
+			// If current operator is not available or empty, auto-switch to first available operator
 			if (!isCurrentSymbolAvailable) {
 				const firstAvailable = availableSymbols[0];
 				if (firstAvailable) {
@@ -63,11 +63,11 @@ const ComparisonSymbolSelector: React.FC<ComparisonSymbolSelectorProps> = ({
 			}
 		}
 
-		// 首次渲染时也更新 ref
+		// Also update ref on first render
 		if (prevLeftVarValueType.current === undefined && leftVarValueType) {
 			prevLeftVarValueType.current = leftVarValueType;
 
-			// 如果初始状态没有选中的运算符，设置第一个
+			// If no operator is selected in initial state, set the first one
 			if (!localComparisonSymbol && availableSymbols.length > 0) {
 				const firstAvailable = availableSymbols[0];
 				setLocalComparisonSymbol(firstAvailable);

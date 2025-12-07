@@ -3,17 +3,17 @@ export type { VirtualTransaction } from "./virtual-transaction";
 export type TransactionId = number;
 
 // export enum TransactionType {
-// 	Open = "OPEN", // 开仓
-// 	Close = "CLOSE", // 平仓
+// 	Open = "OPEN", // Open position
+// 	Close = "CLOSE", // Close position
 // }
 
-// 交易方向
+// Transaction direction
 export enum TransactionSide {
-	Long = "Long", // 多头
-	Short = "Short", // 空头
+	Long = "Long", // Long position
+	Short = "Short", // Short position
 }
 
-// 获取交易方向样式
+// Get transaction direction style
 export const getTransactionSideStyle = (side: TransactionSide): string => {
 	switch (side) {
 		case TransactionSide.Long:
@@ -25,7 +25,7 @@ export const getTransactionSideStyle = (side: TransactionSide): string => {
 	}
 };
 
-// 获取交易方向文本
+// Get transaction direction text
 export const getTransactionSideText = (
 	side: TransactionSide,
 	t: (key: string) => string,

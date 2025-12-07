@@ -7,26 +7,26 @@ import type {
 } from "@/types/node/variable-node";
 
 /**
- * 提示生成器参数类型
+ * Hint generator parameter types
  */
 export interface HintGeneratorParams {
-	// 翻译
+	// Translation
 	t: (key: string, options?: { [key: string]: string }) => string;
 	language?: string;
 
-	// 变量信息
+	// Variable information
 	variableDisplayName?: string;
 
-	// 操作类型
+	// Operation type
 	varOperation: VariableOperation;
 	operationType?: UpdateVarValueOperation;
 
-	// 值信息
+	// Value information
 	value?: string;
 	selectedValues?: string[];
 	symbol?: string;
 
-	// 触发配置
+	// Trigger configuration
 	conditionTrigger?: ConditionTrigger | null;
 	timerTrigger?: TimerTrigger;
 	dataflowTrigger?: DataFlowTrigger | null;

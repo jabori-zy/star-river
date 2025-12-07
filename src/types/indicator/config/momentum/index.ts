@@ -1,91 +1,91 @@
-// 动量指标 (Momentum Indicators)
+// Momentum Indicators
 
-// 1. ADX - 平均方向性指数
+// 1. ADX - Average Directional Index
 export { ADXConfig, type ADXConfigType } from "./adx";
 
-// 2. ADXR - 平均方向性指数评级
+// 2. ADXR - Average Directional Index Rating
 export { ADXRConfig, type ADXRConfigType } from "./adxr";
 
-// 3. APO - 绝对价格振荡器
+// 3. APO - Absolute Price Oscillator
 export { APOConfig, type APOConfigType } from "./apo";
 
-// 4. AROON - 阿隆指标
+// 4. AROON - Aroon Indicator
 export { AROONConfig, type AROONConfigType } from "./aroon";
 
-// 5. AROONOSC - 阿隆振荡器
+// 5. AROONOSC - Aroon Oscillator
 export { AROONOSCConfig, type AROONOSCConfigType } from "./aroonosc";
 
-// 6. BOP - 平衡力量
+// 6. BOP - Balance of Power
 export { BOPConfig, type BOPConfigType } from "./bop";
 
-// 7. CCI - 商品通道指数
+// 7. CCI - Commodity Channel Index
 export { CCIConfig, type CCIConfigType } from "./cci";
 
-// 8. CMO - 钱德动量振荡器
+// 8. CMO - Chande Momentum Oscillator
 export { CMOConfig, type CMOConfigType } from "./cmo";
 
-// 9. DX - 方向性指数
+// 9. DX - Directional Movement Index
 export { DXConfig, type DXConfigType } from "./dx";
 
-// 10. MACD - 平滑异同移动平均线
+// 10. MACD - Moving Average Convergence Divergence
 export { MACDConfig, type MACDConfigType } from "./macd";
 
-// 11. MACDEXT - 可控MA类型的MACD
+// 11. MACDEXT - MACD with Controllable MA Type
 export { MACDEXTConfig, type MACDEXTConfigType } from "./macdext";
 
-// 12. MACDFIX - 12/26固定MACD
+// 12. MACDFIX - MACD Fixed 12/26
 export { MACDFIXConfig, type MACDFIXConfigType } from "./macdfix";
 
-// 13. MFI - 资金流量指数
+// 13. MFI - Money Flow Index
 export { MFIConfig, type MFIConfigType } from "./mfi";
 
-// 14. MINUS_DI - 负方向性指标
+// 14. MINUS_DI - Minus Directional Indicator
 export { MinusDiConfig, type MinusDiConfigType } from "./minus-di";
 
-// 15. MINUS_DM - 负方向性运动
+// 15. MINUS_DM - Minus Directional Movement
 export { MinusDmConfig, type MinusDmConfigType } from "./minus-dm";
 
-// 16. MOM - 动量
+// 16. MOM - Momentum
 export { MOMConfig, type MOMConfigType } from "./mom";
 
-// 17. PLUS_DI - 正方向性指标
+// 17. PLUS_DI - Plus Directional Indicator
 export { PlusDiConfig, type PlusDiConfigType } from "./plus-di";
 
-// 18. PLUS_DM - 正方向性运动
+// 18. PLUS_DM - Plus Directional Movement
 export { PlusDmConfig, type PlusDmConfigType } from "./plus-dm";
 
-// 19. PPO - 百分比价格振荡器
+// 19. PPO - Percentage Price Oscillator
 export { PPOConfig, type PPOConfigType } from "./ppo";
 
-// 20. ROC - 变化率
+// 20. ROC - Rate of Change
 export { ROCConfig, type ROCConfigType } from "./roc";
 
-// 21. ROCP - 变化率百分比
+// 21. ROCP - Rate of Change Percentage
 export { ROCPConfig, type ROCPConfigType } from "./rocp";
 
-// 22. ROCR - 变化率比率
+// 22. ROCR - Rate of Change Ratio
 export { ROCRConfig, type ROCRConfigType } from "./rocr";
 
-// 23. ROCR100 - 变化率比率100比例
+// 23. ROCR100 - Rate of Change Ratio 100 Scale
 export { ROCR100Config, type ROCR100ConfigType } from "./rocr100";
 
-// 24. RSI - 相对强弱指数
+// 24. RSI - Relative Strength Index
 export { RSIConfig, type RSIConfigType } from "./rsi";
 
-// 25. STOCH - 随机指标
+// 25. STOCH - Stochastic Oscillator
 export { STOCHConfig, type STOCHConfigType } from "./stoch";
 
-// 26. STOCHF - 快速随机指标
+// 26. STOCHF - Stochastic Fast
 export { STOCHFConfig, type STOCHFConfigType } from "./stochf";
 
-// 27. STOCHRSI - 随机相对强弱指数
+// 27. STOCHRSI - Stochastic Relative Strength Index
 export { STOCHRSIConfig, type STOCHRSIConfigType } from "./stochrsi";
 
-// 28. TRIX - 三重指数平滑平均的变化率
+// 28. TRIX - Triple Exponential Average Rate of Change
 export { TRIXConfig, type TRIXConfigType } from "./trix";
 
-// 29. ULTOSC - 终极振荡器
+// 29. ULTOSC - Ultimate Oscillator
 export { ULTOSCConfig, type ULTOSCConfigType } from "./ultosc";
 
-// 30. WILLR - 威廉指标
+// 30. WILLR - Williams %R
 export { WILLRConfig, type WILLRConfigType } from "./willr";

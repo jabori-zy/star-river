@@ -7,7 +7,7 @@ import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-s
 
 interface KlineLegendProps {
 	klineSeriesData: KlineLegendData | null;
-	chartId: number; // 图表ID，用于获取对应的store
+	chartId: number; // Chart ID for getting corresponding store
 	className?: string;
 }
 
@@ -16,7 +16,7 @@ const KlineLegend: React.FC<KlineLegendProps> = ({
 	chartId,
 	className = "",
 }) => {
-	// 使用当前图表的可见性状态管理
+	// Use current chart's visibility state management
 	const { getKlineVisibility, toggleKlineVisibility } =
 		useBacktestChartConfigStore();
 
@@ -24,18 +24,18 @@ const KlineLegend: React.FC<KlineLegendProps> = ({
 	// 	return null;
 	// }
 
-	// 获取当前K线的可见性状态
+	// Get current kline visibility state
 	const isVisible = getKlineVisibility(chartId);
 
-	// 追踪每个字段值的最大字符长度 (用于自适应宽度)
+	// Track maximum character length for each field value (for adaptive width)
 	const maxLengthsRef = useRef<Record<string, number>>({});
 
-	// 重置机制：当 chartId 变化时，重置最大长度
+	// Reset mechanism: reset max length when chartId changes
 	useEffect(() => {
 		maxLengthsRef.current = {};
 	}, [chartId]);
 
-	// 在渲染阶段同步更新最大长度，避免闪烁
+	// Synchronously update max length during render phase to avoid flickering
 	if (klineSeriesData) {
 		const fields = ["open", "high", "low", "close", "change"] as const;
 		fields.forEach((field) => {
@@ -50,14 +50,14 @@ const KlineLegend: React.FC<KlineLegendProps> = ({
 		});
 	}
 
-	// 获取指定字段的最大宽度（使用 ch 单位）
+	// Get maximum width for specified field (using ch units)
 	const getMaxWidth = (field: string): string => {
 		const maxLength = maxLengthsRef.current[field];
-		// 至少保持 6ch 的最小宽度，加上 0.5ch 的缓冲
+		// Keep minimum width of 6ch, plus 0.5ch buffer
 		return `${Math.max(maxLength || 6, 6) + 0.5}ch`;
 	};
 
-	// 处理可见性切换
+	// Handle visibility toggle
 	const handleVisibilityToggle = (e: React.MouseEvent) => {
 		e.stopPropagation();
 		toggleKlineVisibility(chartId);
@@ -68,7 +68,7 @@ const KlineLegend: React.FC<KlineLegendProps> = ({
 			className={`absolute top-0 left-0 z-10 hover:cursor-pointer hover:bg-gray-100 px-2 py-1 rounded-sm group ${className}`}
 		>
 			<div className="flex flex-wrap gap-2 text-xs items-center whitespace-pre">
-				{/* 显示时间
+				{/* Display time
                 {klineSeriesData.timeString && (
                     <span className="font-medium text-gray-700">
                         {klineSeriesData.timeString}
@@ -141,7 +141,7 @@ const KlineLegend: React.FC<KlineLegendProps> = ({
 					</span>
 				)}
 
-				{/* 操作图标 - 仅鼠标悬浮可见 */}
+				{/* Action icons - only visible on hover */}
 				<div className="flex gap-1 ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
 					<Button
 						variant="outline"
@@ -151,7 +151,7 @@ const KlineLegend: React.FC<KlineLegendProps> = ({
 								? "hover:bg-blue-50 hover:border-blue-400"
 								: "hover:bg-gray-50 hover:border-gray-400 bg-gray-100"
 						}`}
-						title={isVisible ? "隐藏K线" : "显示K线"}
+						title={isVisible ? "Hide Kline" : "Show Kline"}
 						onClick={handleVisibilityToggle}
 					>
 						{isVisible ? (
@@ -164,10 +164,10 @@ const KlineLegend: React.FC<KlineLegendProps> = ({
 						variant="outline"
 						size="sm"
 						className="h-6 w-6 p-0 border-gray-300 bg-white hover:bg-yellow-50 hover:border-yellow-400"
-						title="快速操作"
+						title="Quick Action"
 						onClick={(e) => {
 							e.stopPropagation();
-							// TODO: 实现快速操作功能
+							// TODO: Implement quick action functionality
 						}}
 					>
 						<Bolt size={12} className="text-yellow-600" />

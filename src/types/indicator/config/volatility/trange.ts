@@ -8,21 +8,21 @@ import {
 } from "@/types/indicator/indicator-config";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
-// TRANGE 指标配置的 Zod schema
+// Zod schema for TRANGE indicator configuration
 const TRANGEConfigSchema = z.object({
 	timePeriod: z.number().int().positive(),
 });
 
 export type TRANGEConfigType = z.infer<typeof TRANGEConfigSchema>;
 
-// TRANGE指标的参数映射函数
+// Parameter mapping function for TRANGE indicator
 function buildTRANGEConfig(): unknown {
 	return {
 		timePeriod: 14,
 	};
 }
 
-// TRANGE指标配置实现
+// TRANGE indicator configuration implementation
 export const TRANGEConfig: IndicatorConfig<TRANGEConfigType> = {
 	category: IndicatorCategory.VOLATILITY,
 	type: IndicatorType.TRANGE,
@@ -59,7 +59,7 @@ export const TRANGEConfig: IndicatorConfig<TRANGEConfigType> = {
 			timePeriod: 14,
 		};
 
-		// 使用 Zod 验证配置
+		// Validate configuration using Zod
 		const validatedConfig = TRANGEConfigSchema.parse(config);
 		return validatedConfig;
 	},
@@ -68,7 +68,7 @@ export const TRANGEConfig: IndicatorConfig<TRANGEConfigType> = {
 		return getIndicatorValues(this.indicatorValueConfig);
 	},
 
-	// 使用通用解析函数
+	// Use generic parsing function
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
 		IndicatorType.TRANGE,
 		TRANGEConfigSchema,

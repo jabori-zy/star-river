@@ -35,7 +35,7 @@ export default function SymbolListDialog({
 	>([]);
 	const [loading, setLoading] = useState(false);
 
-	// 获取可用的kline数据
+	// Get available kline data
 	const fetchKlineOptions = useCallback(async () => {
 		setLoading(true);
 		try {
@@ -48,7 +48,7 @@ export default function SymbolListDialog({
 					| IndicatorKey;
 			});
 
-			// 过滤出kline选项
+			// Filter out kline options
 			const options: { key: string; data: KlineKey }[] = [];
 			Object.entries(parsedKeyMap).forEach(([key, value]) => {
 				if (key.startsWith("kline|")) {
@@ -67,20 +67,20 @@ export default function SymbolListDialog({
 		}
 	}, [strategyId]);
 
-	// 当dialog打开时获取kline数据
+	// Get kline data when dialog opens
 	useEffect(() => {
 		if (open) {
 			fetchKlineOptions();
 		}
 	}, [open, fetchKlineOptions]);
 
-	// 处理kline选择
+	// Handle kline selection
 	const handleKlineSelect = (klineCacheKeyStr: string) => {
 		onKlineSelect(klineCacheKeyStr);
 		onOpenChange(false);
 	};
 
-	// 渲染kline项目
+	// Render kline item
 	const renderKlineItem = (klineCacheKey: KlineKey) => (
 		<div className="flex items-center gap-2">
 			<Badge variant="outline">{klineCacheKey.exchange}</Badge>

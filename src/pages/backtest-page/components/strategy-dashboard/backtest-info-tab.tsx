@@ -78,7 +78,7 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 		const transactionRecordRef = useRef<TransactionRecordRef>(null);
 		const variableRef = useRef<StrategyVariableRef>(null);
 		const benchmarkRef = useRef<StrategyBenchmarkRef>(null);
-		// 暴露清空订单记录和持仓记录的方法
+		// Expose methods for clearing order records and position records
 		useImperativeHandle(
 			ref,
 			() => ({
@@ -104,10 +104,10 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 			[],
 		);
 
-		// 处理tab切换，当从统计图表tab切换到其他tab时清空store数据
+		// Handle tab switching, clear store data when switching from stats chart tab to other tabs
 		const handleTabChange = useCallback(
 			(value: string) => {
-				// 如果当前是profit tab且要切换到其他tab，清空统计图表store
+				// If currently on profit tab and switching to another tab, clear stats chart store
 				if (activeTab === "profit" && value !== "profit") {
 					cleanupBacktestStatsChartStore(strategyId);
 				}
@@ -117,9 +117,9 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 			[activeTab, strategyId, onTabChange],
 		);
 
-		// 处理收起dashboard
+		// Handle collapse dashboard
 		const handleCollapse = () => {
-			onCollapseDashboard?.(); // 收起dashboard
+			onCollapseDashboard?.(); // Collapse dashboard
 		};
 
 		return (
@@ -129,11 +129,11 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 				onValueChange={handleTabChange}
 				className="w-full h-full flex flex-col"
 			>
-				{/* 固定在顶部的头部 */}
+				{/* Header fixed at the top */}
 				<div
 					className={`grid grid-cols-3 items-center p-2 bg-white ${isDashboardExpanded ? "border-b" : ""}`}
 				>
-					{/* 左侧：Tab组件和收起按钮 */}
+					{/* Left side: Tab components and collapse button */}
 					<div className="flex items-center gap-2 justify-self-start min-w-0">
 						<TabsList className="grid grid-cols-7 gap-1">
 							<TabsTrigger
@@ -201,25 +201,25 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 							</TabsTrigger>
 						</TabsList>
 
-						{/* 收起按钮 */}
+						{/* Collapse button */}
 						{isDashboardExpanded && (
 							<Button
 								variant="ghost"
 								onClick={handleCollapse}
 								className="flex items-center justify-center p-1 rounded-md hover:bg-gray-100 transition-colors flex-shrink-0"
-								title="收起面板"
+								title="Collapse panel"
 							>
 								<ChevronDown className="h-4 w-4 text-muted-foreground" />
 							</Button>
 						)}
 					</div>
 
-					{/* 中央：播放控制组件 - 真正居中 */}
+					{/* Center: Playback control component - truly centered */}
 					<div className="flex justify-center">
 						<StrategyControl onStop={onStop} />
 					</div>
 
-					{/* 右侧：图表管理组件 */}
+					{/* Right side: Chart management component */}
 					<div className="flex justify-end">
 						<ChartManageButton
 							onAddChart={addChart}
@@ -231,11 +231,11 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 					</div>
 				</div>
 
-				{/* 可滚动的内容区域 */}
+				{/* Scrollable content area */}
 				{isDashboardExpanded && activeTab && (
 					<div
 						className="flex-1 overflow-y-auto"
-						style={{ scrollbarGutter: "stable" }} // 这里会造成右侧边距放大，造成左右边距不一致
+						style={{ scrollbarGutter: "stable" }} // This will cause the right margin to enlarge, resulting in inconsistent left and right margins
 					>
 						<TabsContent value="performance" className=" mx-2 h-200">
 							<StrategyStats strategyId={strategyId} />

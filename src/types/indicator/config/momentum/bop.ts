@@ -8,17 +8,17 @@ import {
 } from "@/types/indicator/indicator-config";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 
-// BOP 指标配置的 Zod schema (无参数)
+// BOP indicator configuration Zod schema (no parameters)
 const BOPConfigSchema = z.object({});
 
 export type BOPConfigType = z.infer<typeof BOPConfigSchema>;
 
-// BOP指标的参数映射函数 (无参数)
+// BOP indicator parameter mapping function (no parameters)
 function buildBOPConfig(): unknown {
 	return {};
 }
 
-// BOP指标配置实现
+// BOP indicator configuration implementation
 export const BOPConfig: IndicatorConfig<BOPConfigType> = {
 	category: IndicatorCategory.MOMENTUM,
 	type: IndicatorType.BOP,
@@ -43,7 +43,7 @@ export const BOPConfig: IndicatorConfig<BOPConfigType> = {
 	},
 
 	getDefaultConfig(): BOPConfigType {
-		// BOP指标无参数，返回空对象
+		// BOP indicator has no parameters, return empty object
 		const validatedConfig = BOPConfigSchema.parse({});
 		return validatedConfig;
 	},
@@ -52,7 +52,7 @@ export const BOPConfig: IndicatorConfig<BOPConfigType> = {
 		return getIndicatorValues(this.indicatorValueConfig);
 	},
 
-	// 使用通用解析函数
+	// Use common parsing function
 	parseIndicatorConfigFromKeyStr: createParseIndicatorConfigFromKeyStr(
 		IndicatorType.BOP,
 		BOPConfigSchema,
@@ -72,9 +72,9 @@ export const BOPConfig: IndicatorConfig<BOPConfigType> = {
 	// 	seriesName: string,
 	// 	indicatorKey: IndicatorKey,
 	// ): string | undefined {
-	// 	// 如果指标类型为BOP，则返回BOP-seriesName
+	// 	// If indicator type is BOP, return BOP-seriesName
 	// 	if (indicatorKey.indicatorType === IndicatorType.BOP) {
-	// 		// 找到名称相同的seriesConfig
+	// 		// Find seriesConfig with matching name
 	// 		const seriseConfig = this.chartConfig.seriesConfigs.find(
 	// 			(config) => config.name === seriesName,
 	// 		);

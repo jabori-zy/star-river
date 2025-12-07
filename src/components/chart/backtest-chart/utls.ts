@@ -12,7 +12,7 @@ import type { VirtualOrder } from "@/types/order";
 import { FuturesOrderSide, OrderType } from "@/types/order";
 import type { VirtualPosition } from "@/types/position";
 
-//一个虚拟订单转换为多个marker，为了换行
+// Convert a virtual order to multiple markers for line breaks
 export function virtualOrderToMarker(
 	virtualOrder: VirtualOrder,
 ): OrderMarker[] {
@@ -35,7 +35,7 @@ export function virtualOrderToMarker(
 	const shape =
 		virtualOrder.orderSide === FuturesOrderSide.LONG ? "arrowUp" : "arrowDown";
 
-	// 第一行，用于显示操作+量
+	// First line, used to display operation + quantity
 	const marker1: OrderMarker = {
 		time: timestampInSeconds,
 		position,
@@ -44,7 +44,7 @@ export function virtualOrderToMarker(
 		text,
 	};
 
-	// 第二行，用于显示价格
+	// Second line, used to display price
 	// const marker2: OrderMarker = {
 	//     time: timestampInSeconds,
 	//     position,
@@ -54,7 +54,7 @@ export function virtualOrderToMarker(
 	//     size: 0,
 	// };
 
-	// 显示节点id
+	// Display node ID
 	// const marker3: OrderMarker = {
 	//     time: timestampInSeconds,
 	//     position: "belowBar",
@@ -70,7 +70,7 @@ export function virtualOrderToMarker(
 	return markers;
 }
 
-// 虚拟订单转换为开仓价格线
+// Convert virtual position to open position price line
 export function virtualPositionToOpenPositionPriceLine(
 	virtualPosition: VirtualPosition,
 ): OpenPositionPriceLine {
@@ -166,47 +166,47 @@ export function virtualOrderToLimitOrderPriceLine(
 }
 
 /**
- * 将本地日历时间对齐到 UTC 轴：chartMs = getTime() - offsetMs（原生Date）或 toMillis() + offset*60*1000（Luxon DateTime）。
- * 适用于"图表只认 UTC，但希望本地 00:00 在 UTC 轴显示为 00:00"的场景。
+ * Align local calendar time to UTC axis: chartMs = getTime() - offsetMs (native Date) or toMillis() + offset*60*1000 (Luxon DateTime).
+ * Suitable for scenarios where "the chart only recognizes UTC, but want local 00:00 to display as 00:00 on the UTC axis".
  */
 export const getChartAlignedUtcTimestamp = (
 	input: DateTime | string,
 ): number => {
 	const datetime = input instanceof DateTime ? input : DateTime.fromISO(input);
-	// Luxon DateTime：使用加法，因为 toMillis() 已经是本地时间对应的UTC时间戳
+	// Luxon DateTime: use addition because toMillis() is already the UTC timestamp corresponding to local time
 	const offsetMs = datetime.offset * 60 * 1000;
 	return Math.floor(datetime.toMillis() + offsetMs) / 1000;
 };
 
 /**
- * 将图表时间戳（秒）转换回后端格式的 DateTime 字符串（逆操作）。
- * 这是 getChartAlignedUtcTimestamp 的逆方法。
+ * Convert chart timestamp (seconds) back to backend format DateTime string (reverse operation).
+ * This is the reverse method of getChartAlignedUtcTimestamp.
  *
- * @param chartTimestamp - 图表中的时间戳（秒）
- * @returns 后端格式的 DateTime 字符串（如 "2025-09-30T16:00:00Z"）
+ * @param chartTimestamp - Timestamp in the chart (seconds)
+ * @returns DateTime string in backend format (e.g., "2025-09-30T16:00:00Z")
  *
  * @example
- * const chartTimestamp = 1727712000; // 从图表获取的时间戳
+ * const chartTimestamp = 1727712000; // Timestamp obtained from chart
  * const dateTimeString = getDateTimeFromChartTimestamp(chartTimestamp);
- * // 返回: "2025-09-30T16:00:00.000Z"
+ * // Returns: "2025-09-30T16:00:00.000Z"
  */
 export const getDateTimeFromChartTimestamp = (
 	chartTimestamp: number,
 ): string | null => {
-	// 1. 将秒转换为毫秒
+	// 1. Convert seconds to milliseconds
 	const chartMs = chartTimestamp * 1000;
 
-	// 2. 获取当前本地时区的偏移量（分钟）
-	// 注意：这里假设转换时使用的时区与原始转换时一致
+	// 2. Get current local timezone offset (minutes)
+	// Note: assumes the timezone used during conversion is consistent with the original conversion
 	const localDateTime = DateTime.local();
 	const offsetMs = localDateTime.offset * 60 * 1000;
 
-	// 3. 逆操作：减去偏移量，还原原始的 UTC 毫秒时间戳
+	// 3. Reverse operation: subtract offset to restore original UTC milliseconds timestamp
 	const originalMs = chartMs - offsetMs;
 
-	// 4. 从毫秒创建 DateTime 对象，并转换为 ISO 8601 格式（UTC）
+	// 4. Create DateTime object from milliseconds and convert to ISO 8601 format (UTC)
 	const datetime = DateTime.fromMillis(originalMs, { zone: "utc" });
 
-	// 5. 返回 ISO 格式字符串（与后端格式一致）
+	// 5. Return ISO format string (consistent with backend format)
 	return datetime.toISO();
 };
