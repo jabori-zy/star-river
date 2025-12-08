@@ -11,9 +11,9 @@
 		"start": "vite",
 		"lint": "eslint .",
 		"preview": "vite preview",
-		"build": "vite build && electron-builder",
-		"build:mac": "vite build && electron-builder --mac",
-		"build:win": "vite build && electron-builder --win",
+		"build": "node scripts/build.cjs",
+		"build:mac": "node scripts/build.cjs --mac",
+		"build:win": "node scripts/build.cjs --win",
 		"gen-i18n": "node src/i18n/gen-i18n.cjs",
 		"check": "npx biome check --write",
 		"update-backend": "node scripts/update-backend.cjs"
