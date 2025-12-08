@@ -21,6 +21,7 @@
 	"build": {
 		"appId": "com.jabori.starriver",
 		"productName": "Star River",
+		"artifactName": "StarRiver-${version}-${arch}-${os}.${ext}",
 		"publish": {
 			"provider": "github",
 			"owner": "jabori-zy",
