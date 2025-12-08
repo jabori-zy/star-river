@@ -50,7 +50,10 @@
 				"zip"
 			],
 			"icon": "build/icons/icon.icns",
-			"category": "public.app-category.finance"
+			"category": "public.app-category.finance",
+			"identity": null,
+			"hardenedRuntime": false,
+			"gatekeeperAssess": false
 		},
 		"win": {
 			"target": [
