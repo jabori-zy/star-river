@@ -5,12 +5,16 @@
  *   npm run update-backend -- --tag v1.0.0
  *   npm run update-backend -- -t v1.0.0
  *
- * The tag version must match the version in package.json
+ * The script reads backend version from backend.version.json:
+ * - If tag contains "-" (e.g., v0.1.0-beta.2), uses "beta" version
+ * - Otherwise uses "stable" version
  */
 
 const https = require("node:https");
 const fs = require("node:fs");
 const path = require("node:path");
+
+const projectRoot = path.resolve(__dirname, "..");
 
 // Configuration
 const CONFIG = {
@@ -46,10 +50,21 @@ function parseArgs() {
 
 // Get version from package.json
 function getPackageVersion() {
-  const projectRoot = path.resolve(__dirname, "..");
   const packageJsonPath = path.join(projectRoot, "package.json");
   const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf-8"));
   return packageJson.version;
+}
+
+// Get backend version from backend.version.json
+function getBackendVersion(isBeta) {
+  const versionFilePath = path.join(projectRoot, "backend.version.json");
+  const versionConfig = JSON.parse(fs.readFileSync(versionFilePath, "utf-8"));
+  return isBeta ? versionConfig.beta : versionConfig.stable;
+}
+
+// Check if tag is beta version
+function isBetaTag(tag) {
+  return tag.includes("-");
 }
 
 // Validate tag format: v1.0.0 or v1.0.0-beta
@@ -66,7 +81,6 @@ function validateVersionMatch(tag, packageVersion) {
   const basePackageVersion = packageVersion.replace(/-.*$/, "");
   return tagVersion === basePackageVersion;
 }
-
 
 // Download file with redirect support
 function downloadFile(url, destPath) {
@@ -158,11 +172,15 @@ async function main() {
     process.exit(1);
   }
 
-  console.log(`\nUpdating backend binary from release: ${tag}`);
+  // Determine backend version based on tag type
+  const isBeta = isBetaTag(tag);
+  const backendVersion = getBackendVersion(isBeta);
+
+  console.log(`\nFrontend tag: ${tag} (${isBeta ? "beta" : "stable"})`);
+  console.log(`Backend version: ${backendVersion}`);
   console.log(`Package version: ${packageVersion}`);
   console.log(`Repository: ${CONFIG.repo}\n`);
 
-  const projectRoot = path.resolve(__dirname, "..");
   const resourcesDir = path.join(projectRoot, "resources");
 
   // Clean platform directories before download
@@ -177,7 +195,7 @@ async function main() {
   // Download for each platform
   for (const [platform, config] of Object.entries(CONFIG.platforms)) {
     const platformDir = path.join(resourcesDir, platform);
-    const sourceFileName = config.getSourceFileName(tag);
+    const sourceFileName = config.getSourceFileName(backendVersion);
     const targetPath = path.join(platformDir, config.targetFileName);
 
     console.log(`[${platform}]`);
@@ -188,7 +206,7 @@ async function main() {
     }
 
     // Build download URL
-    const downloadUrl = `https://github.com/${CONFIG.repo}/releases/download/${tag}/${sourceFileName}`;
+    const downloadUrl = `https://github.com/${CONFIG.repo}/releases/download/${backendVersion}/${sourceFileName}`;
     console.log(`  URL: ${downloadUrl}`);
 
     try {
