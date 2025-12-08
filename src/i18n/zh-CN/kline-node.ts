@@ -1,0 +1,29 @@
+const translation = {
+	dataSource: "数据源",
+	symbol: "交易对",
+	timeRange: "时间范围",
+	addSymbol: "点击 + 添加交易对",
+	selectDataSource: "请选择数据源",
+	noSymbol: "未配置交易对",
+	noDataSource: "未配置数据源",
+	noTimeRange: "未配置时间范围",
+	startTime: "开始时间",
+	endTime: "结束时间",
+	kline: "K线",
+	symbolDialog: {
+		addTitle: "添加交易对",
+		editTitle: "编辑交易对",
+		addDescription: "添加交易对和时间间隔获取K线数据",
+		editDescription: "编辑交易对和时间间隔获取K线数据",
+		notConnected: "未连接",
+		symbol: "交易对",
+		interval: "时间间隔",
+		placeholder: "选择交易对",
+		searchPlaceholder: "搜索交易对",
+		emptyMessage: "未找到交易对",
+		errorMessage: "交易对不能为空",
+		intervalPlaceholder: "选择时间间隔",
+	},
+};
+
+export default translation;

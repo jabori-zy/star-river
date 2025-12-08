@@ -1,0 +1,44 @@
+/* Column Resizer Styles */
+.resizer {
+	position: absolute;
+	right: 0;
+	top: 0;
+	height: 100%;
+	width: 5px;
+	background: rgba(68, 66, 66, 0.1);
+	cursor: col-resize;
+	user-select: none;
+	touch-action: none;
+	opacity: 0;
+	transition: opacity 0.2s ease;
+}
+
+.resizer:hover {
+	opacity: 1;
+	background: rgba(84, 87, 93, 0.5);
+}
+
+.resizer.isResizing {
+	opacity: 1;
+	background: rgb(84, 87, 93, 0.5);
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+	.resizer {
+		background: rgba(255, 255, 255, 0.15);
+	}
+
+	.resizer:hover {
+		background: rgba(59, 130, 246, 0.6);
+	}
+
+	.resizer.isResizing {
+		background: rgb(59, 130, 246);
+	}
+}
+
+/* Show resizer on header hover */
+th:hover .resizer {
+	opacity: 0.7;
+}

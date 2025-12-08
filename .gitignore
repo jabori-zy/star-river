@@ -1,0 +1,17 @@
+node_modules
+.env
+.cursor
+.vscode
+.idea
+.claude
+
+dist
+backup
+CLAUDE.md
+.claude
+AGENTS.md
+backup
+resources/darwin
+resources/win32
+# macOS metadata
+.DS_Store
