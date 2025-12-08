@@ -48,24 +48,37 @@ jobs:
             echo "version=${{ github.ref_name }}" >> $GITHUB_OUTPUT
           fi
 
-      - name: Validate version match
+      - name: Validate and update version
         shell: bash
         run: |
           TAG_VERSION="${{ steps.tag.outputs.version }}"
           # Extract base version from tag (v0.1.0-beta.2 -> 0.1.0)
           TAG_BASE_VERSION=$(echo "$TAG_VERSION" | sed 's/^v//' | sed 's/-.*//')
+          # Extract full version from tag (v0.1.0-beta.2 -> 0.1.0-beta.2)
+          TAG_FULL_VERSION=$(echo "$TAG_VERSION" | sed 's/^v//')
           # Get version from package.json and extract base version
           PKG_VERSION=$(node -p "require('./package.json').version")
           PKG_BASE_VERSION=$(echo "$PKG_VERSION" | sed 's/-.*//')
 
-          echo "Tag version: $TAG_VERSION (base: $TAG_BASE_VERSION)"
+          echo "Tag version: $TAG_VERSION (base: $TAG_BASE_VERSION, full: $TAG_FULL_VERSION)"
           echo "Package version: $PKG_VERSION (base: $PKG_BASE_VERSION)"
 
+          # Validate base version match
           if [ "$TAG_BASE_VERSION" != "$PKG_BASE_VERSION" ]; then
             echo "Error: Tag base version ($TAG_BASE_VERSION) does not match package.json base version ($PKG_BASE_VERSION)"
             exit 1
           fi
           echo "Version validation passed!"
+
+          # Update package.json version with tag version
+          echo "Updating package.json version to: $TAG_FULL_VERSION"
+          node -e "
+            const fs = require('fs');
+            const pkg = JSON.parse(fs.readFileSync('package.json', 'utf-8'));
+            pkg.version = '$TAG_FULL_VERSION';
+            fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+          "
+          echo "Updated package.json version: $(node -p "require('./package.json').version")"
 
       - name: Download backend binary
         run: npm run update-backend -- --tag ${{ steps.tag.outputs.version }}

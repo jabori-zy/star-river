@@ -69,6 +69,13 @@ const configureUpdater = () => {
 	autoUpdater.autoDownload = false;
 	autoUpdater.autoInstallOnAppQuit = true;
 
+	// Allow prerelease updates only if current version is prerelease
+	// e.g., 0.1.0-beta.2 users can receive beta updates
+	// e.g., 0.1.0 users only receive stable updates
+	const appVersion = app.getVersion();
+	const isPrerelease = appVersion.includes("-");
+	autoUpdater.allowPrerelease = isPrerelease;
+
 	autoUpdater.logger = require("electron-log");
 	autoUpdater.logger.transports.file.level = "info";
 };
