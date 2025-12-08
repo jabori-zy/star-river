@@ -8,6 +8,7 @@
  * The script reads backend version from backend.version.json:
  * - If tag contains "-" (e.g., v0.1.0-beta.2), uses "beta" version
  * - Otherwise uses "stable" version
+ * 
  */
 
 const https = require("node:https");
