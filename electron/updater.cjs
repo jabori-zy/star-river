@@ -150,7 +150,7 @@ const setupUpdaterEvents = () => {
 	});
 
 	autoUpdater.on("update-not-available", (info) => {
-		console.log("Update not available, current version is latest");
+		console.log(`Current version ${info.version} is the latest`);
 		sendStatusToWindow("updater:not-available", {
 			version: info.version,
 		});
