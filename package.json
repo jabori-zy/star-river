@@ -24,7 +24,7 @@
 		"publish": {
 			"provider": "github",
 			"owner": "jabori-zy",
-			"repo": "star-river-app"
+			"repo": "star-river"
 		},
 		"directories": {
 			"output": "dist",
