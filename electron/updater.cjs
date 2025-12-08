@@ -164,10 +164,18 @@ const setupUpdaterEvents = () => {
 			transferred: progress.transferred,
 			total: progress.total,
 		});
+		// 在任务栏/Dock显示原生进度条
+		if (mainWindow && !mainWindow.isDestroyed()) {
+			mainWindow.setProgressBar(progress.percent / 100);
+		}
 	});
 
 	autoUpdater.on("update-downloaded", (info) => {
 		console.log("Update downloaded:", info.version);
+		// 清除进度条
+		if (mainWindow && !mainWindow.isDestroyed()) {
+			mainWindow.setProgressBar(-1);
+		}
 		sendStatusToWindow("updater:downloaded", {
 			version: info.version,
 		});
@@ -176,6 +184,10 @@ const setupUpdaterEvents = () => {
 
 	autoUpdater.on("error", (err) => {
 		console.error("Update error:", err.message);
+		// 出错时清除进度条
+		if (mainWindow && !mainWindow.isDestroyed()) {
+			mainWindow.setProgressBar(-1);
+		}
 		sendStatusToWindow("updater:error", {
 			message: err.message,
 		});
