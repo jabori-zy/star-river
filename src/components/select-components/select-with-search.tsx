@@ -13,22 +13,24 @@ import {
 import { Popover, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
-// Non-portal PopoverContent to avoid focus conflicts in Dialog
-const DialogPopoverContent: React.FC<
+// PopoverContent with Portal to ensure dropdown floats above content
+const SelectPopoverContent: React.FC<
 	React.ComponentProps<typeof PopoverPrimitive.Content>
-> = ({ className, children, side = "bottom", sideOffset = 0, ...props }) => {
+> = ({ className, children, side = "bottom", sideOffset = 4, ...props }) => {
 	return (
-		<PopoverPrimitive.Content
-			side={side}
-			sideOffset={sideOffset}
-			className={cn(
-				"z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-0 text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
-				className,
-			)}
-			{...props}
-		>
-			{children}
-		</PopoverPrimitive.Content>
+		<PopoverPrimitive.Portal>
+			<PopoverPrimitive.Content
+				side={side}
+				sideOffset={sideOffset}
+				className={cn(
+					"z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-0 text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+					className,
+				)}
+				{...props}
+			>
+				{children}
+			</PopoverPrimitive.Content>
+		</PopoverPrimitive.Portal>
 	);
 };
 
@@ -116,7 +118,7 @@ export const SelectWithSearch: React.FC<SelectWithSearchProps> = ({
 					<ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
 				</Button>
 			</PopoverTrigger>
-			<DialogPopoverContent className="w-[var(--radix-popover-trigger-width)]">
+			<SelectPopoverContent className="w-[var(--radix-popover-trigger-width)]">
 				<Command shouldFilter={false}>
 					<CommandInput
 						placeholder={searchPlaceholder}
@@ -150,7 +152,7 @@ export const SelectWithSearch: React.FC<SelectWithSearchProps> = ({
 						)}
 					</CommandList>
 				</Command>
-			</DialogPopoverContent>
+			</SelectPopoverContent>
 		</Popover>
 	);
 };

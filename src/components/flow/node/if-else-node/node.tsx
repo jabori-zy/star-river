@@ -57,7 +57,7 @@ const IfElseNode: React.FC<NodeProps<IfElseNodeType>> = ({ id, selected }) => {
 				currentNodeData?.nodeConfig?.iconBackgroundColor ||
 				getNodeDefaultColor(NodeType.IfElseNode)
 			}
-			borderColor={
+			selectedBorderColor={
 				currentNodeData?.nodeConfig?.borderColor ||
 				getNodeDefaultColor(NodeType.IfElseNode)
 			}

@@ -1,11 +1,16 @@
 import type { TFunction } from "i18next";
 import type { IconName } from "lucide-react/dynamic";
+import { z } from "zod";
 import type { IfElseNode, IfElseNodeData } from "./if-else-node";
 import type { IndicatorNode, IndicatorNodeData } from "./indicator-node";
 import type { KlineNode, KlineNodeData } from "./kline-node";
 import type { PositionNode, PositionNodeData } from "./position-node";
 import type { StartNode, StartNodeData } from "./start-node";
 import type { VariableNode, VariableNodeData } from "./variable-node";
+import type { OperationGroup, OperationGroupData } from "./group/operation-group";
+import type { OperationStartNode, OperationStartNodeData } from "./group/operation-group/operation-start-node";
+import type { OperationEndNode, OperationEndNodeData } from "./group/operation-group/operation-end-node";
+import type { OperationNode, OperationNodeData } from "./operation-node";
 
 export type NodeId = string;
 export type NodeName = string;
@@ -18,6 +23,11 @@ export enum NodeType {
 	FuturesOrderNode = "futuresOrderNode",
 	PositionNode = "positionNode",
 	VariableNode = "variableNode",
+	OperationGroup = "operationGroup", // operation group: to group operation nodes
+	OperationStartNode = "operationStartNode", // operation start node
+	OperationEndNode = "operationEndNode", // operation end node
+	OperationNode = "operationNode", // operation node
+	// LogicGroup = "logicGroup",
 }
 
 export const getNodeTypeName = (nodeType: NodeType, t: TFunction): string => {
@@ -36,6 +46,14 @@ export const getNodeTypeName = (nodeType: NodeType, t: TFunction): string => {
 			return t("node.positionNode");
 		case NodeType.VariableNode:
 			return t("node.variableNode");
+		case NodeType.OperationGroup:
+			return t("node.operationGroup");
+		case NodeType.OperationStartNode:
+			return t("node.operationStartNode");
+		case NodeType.OperationEndNode:
+			return t("node.operationEndNode");
+		case NodeType.OperationNode:
+			return t("node.operationNode");
 		default:
 			return "";
 	}
@@ -50,6 +68,10 @@ export const NodeDefaultColorsMap: Record<NodeType, string> = {
 	[NodeType.FuturesOrderNode]: "#0f766e", // Red - Futures order node
 	[NodeType.PositionNode]: "#ec4899", // Pink - Position management node
 	[NodeType.VariableNode]: "#06b6d4", // Cyan - Variable node
+	[NodeType.OperationGroup]: "#a21caf", // Fuchsia - Operation group
+	[NodeType.OperationStartNode]: "#7c3aed", // Violet - Operation start node
+	[NodeType.OperationEndNode]: "#dc2626", // Red - Operation end node
+	[NodeType.OperationNode]: "#ea580c", // Orange - Operation node
 };
 
 // Get the border color corresponding to the node type
@@ -65,6 +87,10 @@ export const NodeIconsMap: Record<NodeType, IconName> = {
 	[NodeType.FuturesOrderNode]: "shopping-cart",
 	[NodeType.PositionNode]: "wallet",
 	[NodeType.VariableNode]: "variable",
+	[NodeType.OperationGroup]: "group",
+	[NodeType.OperationStartNode]: "play",
+	[NodeType.OperationEndNode]: "play",
+	[NodeType.OperationNode]: "square-function",
 };
 
 export const getNodeIconName = (nodeType: NodeType): IconName => {
@@ -87,6 +113,12 @@ export const getNodeDefaultInputHandleId = (id: NodeId, nodeType: NodeType) => {
 			return `${id}_default_input`;
 		case NodeType.StartNode:
 			return `${id}_default_input`;
+		case NodeType.OperationStartNode:
+			return `${id}_default_input`;
+		case NodeType.OperationEndNode:
+			return `${id}_default_input`;
+		case NodeType.OperationNode:
+			return `${id}_default_input`;
 	}
 };
 
@@ -108,6 +140,12 @@ export const getNodeDefaultOutputHandleId = (
 		case NodeType.KlineNode:
 			return `${id}_default_output`;
 		case NodeType.StartNode:
+			return `${id}_default_output`;
+		case NodeType.OperationStartNode:
+			return `${id}_default_output`;
+		case NodeType.OperationEndNode:
+			return `${id}_default_output`;
+		case NodeType.OperationNode:
 			return `${id}_default_output`;
 	}
 };
@@ -135,6 +173,23 @@ export type NodeDataBase = {
 	};
 };
 
+// Node config schema (Zod version)
+export const NodeConfigSchema = z.object({
+	iconName: z.string(), // lucide-react icon name (e.g., "chart-candlestick")
+	borderColor: z.string(),
+	iconBackgroundColor: z.string(),
+	handleColor: z.string(),
+	isHovered: z.boolean().optional(),
+});
+
+// Node data base schema (Zod version)
+export const NodeDataBaseSchema = z.object({
+	strategyId: z.number(),
+	strategyName: z.string(),
+	nodeName: z.string(),
+	nodeConfig: NodeConfigSchema,
+});
+
 // Union type of all node data types
 export type NodeData =
 	| StartNodeData
@@ -142,7 +197,11 @@ export type NodeData =
 	| IndicatorNodeData
 	| IfElseNodeData
 	| PositionNodeData
-	| VariableNodeData;
+	| VariableNodeData
+	| OperationGroupData
+	| OperationStartNodeData
+	| OperationEndNodeData
+	| OperationNodeData;
 
 export type StrategyFlowNode =
 	| StartNode
@@ -150,7 +209,11 @@ export type StrategyFlowNode =
 	| IndicatorNode
 	| IfElseNode
 	| PositionNode
-	| VariableNode;
+	| VariableNode
+	| OperationGroup
+	| OperationStartNode
+	| OperationEndNode
+	| OperationNode;
 
 // Node type guards
 export const isStartNode = (node: StrategyFlowNode): node is StartNode => {

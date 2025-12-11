@@ -82,7 +82,7 @@ const KlineNode: React.FC<NodeProps<KlineNodeType>> = ({ id, selected }) => {
 				currentNodeData?.nodeConfig?.iconBackgroundColor ||
 				getNodeDefaultColor(NodeType.KlineNode)
 			}
-			borderColor={
+			selectedBorderColor={
 				currentNodeData?.nodeConfig?.borderColor ||
 				getNodeDefaultColor(NodeType.KlineNode)
 			}

@@ -13,16 +13,17 @@ import {
 	type OnBeforeDelete,
 	type OnConnect,
 	type OnEdgesChange,
+	type OnNodeDrag,
 	// type OnEdgesDelete,
 	type OnNodesChange,
 	type OnNodesDelete,
 	ReactFlow,
 	useEdgesState,
 	useNodesState,
+	useReactFlow,
 } from "@xyflow/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import "@xyflow/react/dist/style.css";
-import { useReactFlow } from "@xyflow/react";
 import { isEqual, omit } from "lodash-es";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -39,9 +40,13 @@ import { createDefaultKlineNodeData } from "@/hooks/node-config/kline-node";
 import { createDefaultPositionNodeData } from "@/hooks/node-config/position-node";
 import { createDefaultStartNodeData } from "@/hooks/node-config/start-node";
 import { createDefaultVariableNodeData } from "@/hooks/node-config/variable-node";
+import { createDefaultOperationGroupNodeData } from "@/hooks/node-config/operation-group";
+import { createDefaultOperationStartNodeData } from "@/hooks/node-config/operation-start-node";
+import { createDefaultOperationNodeData } from "@/hooks/node-config/operation-node";
 import { useDndNodeStore } from "@/store/use-dnd-node-store";
 import { NodeType } from "@/types/node";
 import type { Strategy } from "@/types/strategy";
+import type { OperationGroupData } from "@/types/node/group/operation-group";
 
 interface StrategyFlowProps {
 	strategy: Strategy;
@@ -56,7 +61,7 @@ export default function StrategyFlow({
 	const [edges, setEdges] = useEdgesState<Edge>([]);
 	// Currently dragging node
 	const { dragNodeItem, setDragNodeItem} = useDndNodeStore();
-	const { screenToFlowPosition, getNodeConnections, updateNodeData } =
+	const { screenToFlowPosition, getNodeConnections, updateNodeData, getIntersectingNodes } =
 		useReactFlow();
 	const { t } = useTranslation();
 	const { checkIsValidConnection } = useStrategyWorkflow();
@@ -171,11 +176,60 @@ export default function StrategyFlow({
 							t,
 						);
 						break;
+					case NodeType.OperationGroup:
+						defaultNodeData = createDefaultOperationGroupNodeData(
+							strategy.id,
+							strategy.name,
+							t,
+						);
+						break;
+					case NodeType.OperationStartNode:
+						defaultNodeData = createDefaultOperationStartNodeData(
+							strategy.id,
+							strategy.name,
+							t,
+						);
+						break;
+					case NodeType.OperationNode:
+						defaultNodeData = createDefaultOperationNodeData(
+							strategy.id,
+							strategy.name,
+							t,
+						);
+						break;
 					default:
 						defaultNodeData = {};
 						break;
 				}
 				console.log("defaultNodeData", defaultNodeData);
+
+				if (dragNodeItem.nodeType === NodeType.OperationGroup) {
+					const newNode = {
+						id: uniqueId,
+						type: dragNodeItem.nodeType,
+						position,
+						data: defaultNodeData,
+					};
+					const operationStartNodeData = createDefaultOperationStartNodeData(
+						strategy.id,
+						strategy.name,
+						t,
+					);
+
+
+					const random = Math.random().toString(36).substring(2, 9);
+					const operationStartNode = {
+						id: `operation_start_node_${random}`,
+						type: NodeType.OperationStartNode,
+						position: { x: 40, y: 60 },  // Fixed position relative to group's top-left corner
+						data: operationStartNodeData,
+						draggable: false,
+						selectable: false,
+						parentId: uniqueId,
+						extent: 'parent' as const,
+					};
+					return currentNodes.concat(newNode, operationStartNode);
+				}
 
 				const newNode = {
 					id: uniqueId,
@@ -247,6 +301,123 @@ export default function StrategyFlow({
 		[setEdges, onSaveStatusChange],
 	);
 
+	const onNodeDrag: OnNodeDrag = useCallback((_event: React.MouseEvent, node: Node, _draggedNodes: Node[]) => {
+		// If the node already has a parent, skip group detection
+		if (node.parentId) return;
+
+		// Get intersecting nodes using React Flow's built-in hook
+		const intersectingNodes = getIntersectingNodes(node);
+		// Filter out collapsed groups - only consider expanded groups for hover effect
+		const intersectingGroupIds = intersectingNodes
+			.filter((n) => {
+				if (n.type !== NodeType.OperationGroup) return false;
+				const groupData = n.data as OperationGroupData;
+				return !groupData?.isCollapsed;
+			})
+			.map((n) => n.id);
+
+		// Find all expanded OperationGroup nodes (excluding the dragged node itself)
+		const groupNodes = nodes.filter(
+			(n) => {
+				if (n.type !== NodeType.OperationGroup || n.id === node.id) return false;
+				const groupData = n.data as OperationGroupData;
+				return !groupData?.isCollapsed;
+			}
+		);
+
+		// Update isHovered state for each group node
+		for (const groupNode of groupNodes) {
+			const groupData = groupNode.data as OperationGroupData;
+			const isOverlapping = intersectingGroupIds.includes(groupNode.id);
+
+			if (groupData?.nodeConfig) {
+				const currentIsHovered = groupData.nodeConfig.isHovered;
+				if (isOverlapping && !currentIsHovered) {
+					updateNodeData(groupNode.id, {
+						nodeConfig: {
+							...groupData.nodeConfig,
+							isHovered: true,
+						},
+					});
+				} else if (!isOverlapping && currentIsHovered) {
+					updateNodeData(groupNode.id, {
+						nodeConfig: {
+							...groupData.nodeConfig,
+							isHovered: false,
+						},
+					});
+				}
+			}
+		}
+	}, [nodes, updateNodeData, getIntersectingNodes]);
+
+	const onNodeDragStop: OnNodeDrag = useCallback((_event: React.MouseEvent, draggedNode: Node, _draggedNodes: Node[]) => {
+		// If the node already has a parent, skip group detection
+		if (draggedNode.parentId) return;
+
+		// Get intersecting nodes using React Flow's built-in hook
+		const intersectingNodes = getIntersectingNodes(draggedNode);
+
+		// Find all OperationGroup nodes (excluding the dragged node itself)
+		const groupNodes = nodes.filter(
+			(n) => n.type === NodeType.OperationGroup && n.id !== draggedNode.id
+		);
+
+		// Find the first intersecting expanded group node (skip collapsed groups)
+		const targetGroupNode = intersectingNodes.find((n) => {
+			if (n.type !== NodeType.OperationGroup) return false;
+			const groupData = n.data as OperationGroupData;
+			return !groupData?.isCollapsed;
+		}) || null;
+
+		// Reset isHovered state for all group nodes
+		for (const groupNode of groupNodes) {
+			const groupData = groupNode.data as OperationGroupData;
+			if (groupData?.nodeConfig?.isHovered) {
+				updateNodeData(groupNode.id, {
+					nodeConfig: {
+						...groupData.nodeConfig,
+						isHovered: false,
+					},
+				});
+			}
+		}
+
+		// If overlapping with an expanded group, add the dragged node to that group
+		if (targetGroupNode) {
+			const targetGroupId = targetGroupNode.id;
+
+			// Calculate the relative position within the group
+			const relativePosition = {
+				x: draggedNode.position.x - targetGroupNode.position.x,
+				y: draggedNode.position.y - targetGroupNode.position.y,
+			};
+
+			setNodes((nds) => {
+				// Update the dragged node with parent info
+				const updatedNodes = nds.map((n) => {
+					if (n.id === draggedNode.id) {
+						return {
+							...n,
+							position: relativePosition,
+							parentId: targetGroupId,
+							extent: 'parent' as const,
+						};
+					}
+					return n;
+				});
+
+				// Sort nodes: parent nodes must come before their children
+				// Nodes without parentId come first, then nodes with parentId
+				return updatedNodes.sort((a, b) => {
+					const aHasParent = a.parentId ? 1 : 0;
+					const bHasParent = b.parentId ? 1 : 0;
+					return aHasParent - bHasParent;
+				});
+			});
+		}
+	}, [nodes, updateNodeData, setNodes, getIntersectingNodes]);
+
 	// When connecting nodes, onConnect event will be triggered
 	const onConnect: OnConnect = useCallback(
 		(conn: Connection) => {
@@ -270,6 +441,7 @@ export default function StrategyFlow({
 	);
 
 	const onNodeClick: NodeMouseHandler = useCallback((_event, node) => {
+		if (node.selectable === false) return;
 		setSelectedNodeId(node.id);
 	}, []);
 
@@ -375,10 +547,10 @@ export default function StrategyFlow({
 	);
 
 	// Add useEffect to monitor edges changes
-	// useEffect(() => {
-	// console.log("Current nodes:", nodes);
+	useEffect(() => {
+	console.log("Current nodes:", nodes);
 	// console.log("Current edges:", edges);
-	// }, [nodes, edges]);
+	}, [nodes, edges]);
 
 	return (
 		<div className="flex-1 h-full w-full overflow-x-auto">
@@ -388,6 +560,8 @@ export default function StrategyFlow({
 				edges={edges}
 				onNodesChange={onNodesChange}
 				onNodeClick={onNodeClick}
+				onNodeDrag={onNodeDrag}
+				onNodeDragStop={onNodeDragStop}
 				onNodesDelete={handleNodeDelete}
 				onEdgesChange={onEdgesChange}
 				onNodeMouseEnter={onNodeMouseEnter}
@@ -405,6 +579,7 @@ export default function StrategyFlow({
 				//   onConnectEnd={onConnectEnd}
 				fitView
 				fitViewOptions={{ padding: 0.1 }}
+				selectNodesOnDrag={false}
 				style={{ backgroundColor: "#F7F9FB", height: "100%" }}
 			>
 				{process.env.NODE_ENV === "development" && (

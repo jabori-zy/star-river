@@ -69,7 +69,7 @@ const IndicatorNode: React.FC<NodeProps<IndicatorNodeType>> = ({
 				currentNodeData?.nodeConfig?.iconBackgroundColor ||
 				getNodeDefaultColor(NodeType.IndicatorNode)
 			}
-			borderColor={
+			selectedBorderColor={
 				currentNodeData?.nodeConfig?.borderColor ||
 				getNodeDefaultColor(NodeType.IndicatorNode)
 			}

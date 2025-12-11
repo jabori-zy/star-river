@@ -1,4 +1,5 @@
 import { Handle, type HandleProps } from "@xyflow/react";
+import { cn } from "@/lib/utils";
 
 export interface BaseHandleProps extends HandleProps {
 	connectLimit?: number; // Connection limit: 0 = no limit, 1 = only one connection, 2 = only two connections
@@ -28,7 +29,7 @@ const BaseHandle: React.FC<BaseHandleProps> = ({
 	const maskPosition =
 		type === "source" ? "!right-[-1.25px]" : "!left-[-1.25px]";
 
-	const handleClassName = `!w-2.5 !h-3.5 ${maskPosition} ${heightPositionClassName} !rounded-none !z-[-5] ${className}`;
+	const handleClassName = cn("!w-2.5 !h-3.5 !rounded-none !z-[-5]", maskPosition, heightPositionClassName, className);
 
 	return (
 		<Handle

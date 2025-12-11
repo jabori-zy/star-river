@@ -11,6 +11,10 @@ const translation = {
 	positionNode: "Position Node",
 	startNode: "Start Node",
 	ifElseNode: "If-Else Node",
+	operationGroup: "Operation Group",
+	operationNode: "Operation Node",
+	operationStartNode: "Operation Start Node",
+	operationEndNode: "Operation End Node",
 };
 
 export default translation;

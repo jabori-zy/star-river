@@ -16,8 +16,9 @@ const NodeSupportConnectionMap: Record<NodeType, NodeType[]> = {
 		NodeType.IndicatorNode,
 		NodeType.IfElseNode,
 		NodeType.VariableNode,
+		NodeType.OperationGroup,
 	],
-	[NodeType.IndicatorNode]: [NodeType.IfElseNode, NodeType.VariableNode],
+	[NodeType.IndicatorNode]: [NodeType.IfElseNode, NodeType.VariableNode, NodeType.OperationGroup],
 	[NodeType.IfElseNode]: [
 		NodeType.FuturesOrderNode,
 		NodeType.VariableNode,
@@ -31,6 +32,10 @@ const NodeSupportConnectionMap: Record<NodeType, NodeType[]> = {
 	],
 	[NodeType.PositionNode]: [NodeType.IfElseNode, NodeType.VariableNode],
 	[NodeType.VariableNode]: [NodeType.IfElseNode, NodeType.VariableNode],
+	[NodeType.OperationGroup]: [NodeType.IfElseNode, NodeType.VariableNode],
+	[NodeType.OperationStartNode]: [NodeType.OperationNode],
+	[NodeType.OperationNode]: [NodeType.OperationNode, NodeType.OperationEndNode],
+	[NodeType.OperationEndNode]: [],
 };
 
 // Node connection limit - defines the maximum number of incoming connections for each node type (-1 means unlimited)
@@ -42,6 +47,10 @@ const NodeSupportConnectionLimit: Record<NodeType, number> = {
 	[NodeType.FuturesOrderNode]: -1, // -1 means unlimited
 	[NodeType.PositionNode]: -1, // -1 means unlimited
 	[NodeType.VariableNode]: -1, // -1 means unlimited
+	[NodeType.OperationGroup]: -1, // -1 means unlimited
+	[NodeType.OperationStartNode]: -1, // -1 means unlimited
+	[NodeType.OperationNode]: -1, // -1 means unlimited
+	[NodeType.OperationEndNode]: -1, // -1 means unlimited
 };
 
 /**

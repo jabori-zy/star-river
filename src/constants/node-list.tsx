@@ -51,6 +51,20 @@ export const nodeList = [
 				nodeIconBackgroundColor: getNodeDefaultColor(NodeType.VariableNode),
 				nodeDescription: "变量节点",
 			} as NodeItemProps,
+			{
+				nodeId: "node_group",
+				nodeType: NodeType.OperationGroup,
+				nodeIcon: getNodeIconName(NodeType.OperationGroup),
+				nodeIconBackgroundColor: getNodeDefaultColor(NodeType.OperationGroup),
+				nodeDescription: "操作节点组",
+			} as NodeItemProps,
+			{
+				nodeId: "operation_node",
+				nodeType: NodeType.OperationNode,
+				nodeIcon: getNodeIconName(NodeType.OperationNode),
+				nodeIconBackgroundColor: getNodeDefaultColor(NodeType.OperationNode),
+				nodeDescription: "操作节点",
+			} as NodeItemProps,
 		],
 	},
 ];

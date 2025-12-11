@@ -7,6 +7,7 @@ import SettingPage from "../pages/setting-page";
 import StrategyListPage from "../pages/strategy-list-page";
 import StrategyPage from "../pages/strategy-page";
 import TestLogShowPage from "../pages/test-page/test-log-show";
+import TestOperationConfigerPage from "../pages/test-page/test-operation-configer";
 import TestStrategyPerformanceReportPage from "../pages/test-page/test-strategy-performance-report-page";
 import TestTablePage from "../pages/test-page/test-table";
 
@@ -46,6 +47,10 @@ const router = createHashRouter([
 			{
 				path: "test-table",
 				element: <TestTablePage />,
+			},
+			{
+				path: "test-operation-configer",
+				element: <TestOperationConfigerPage />,
 			},
 		],
 	},

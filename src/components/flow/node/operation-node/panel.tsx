@@ -1,0 +1,301 @@
+import type React from "react";
+import { useState, useEffect } from "react";
+
+import { Separator } from "@/components/ui/separator";
+import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
+import {
+	InputTypeSelector,
+	OperationSelector,
+	InputConfigComponent,
+	WindowConfig,
+	FillingMethodSelector,
+	OutputConfig,
+} from "@/components/flow/node/operation-node/components";
+import { useUpdateOpNodeConfig } from "@/hooks/node-config/operation-node/update-op-node-config";
+import { getOperationMeta } from "@/types/operation/operation-meta";
+import type { Operation, InputArrayType } from "@/types/operation";
+import { useReactFlow } from "@xyflow/react";
+import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
+import { NodeType } from "@/types/node";
+import type { OperationGroupData } from "@/types/node/group/operation-group";
+import type { OperationNodeData } from "@/types/node/operation-node";
+import type { InputOption } from "@/components/flow/node/operation-node/components/input-config";
+
+export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
+	const {
+		inputArrayType,
+		operation,
+		outputConfig,
+		windowConfig,
+		fillingMethod,
+		setInputArrayType,
+		setOperation,
+		setUnaryInput,
+		setBinaryInput1,
+		setBinaryInput2,
+		setNaryInputs,
+		getUnaryInput,
+		getBinaryInput1,
+		getBinaryInput2,
+		getNaryInputs,
+		setOutputConfig,
+		setWindowConfig,
+		setFillingMethod,
+		clearInputConfig,
+	} = useUpdateOpNodeConfig({ id });
+
+	// Default values if node data is not available
+	const currentInputArrayType = inputArrayType ?? "Unary";
+	console.log("currentInputArrayType", currentInputArrayType);
+	const currentOperation = operation ?? { type: "Mean" };
+	const currentWindowConfig = windowConfig ?? { windowSize: 20, windowType: "rolling" as const };
+	const currentFillingMethod = fillingMethod ?? "FFill";
+	
+	// State to store input options
+	const [inputOptions, setInputOptions] = useState<InputOption[]>([]);
+
+	// get source nodes
+	const { getSourceNodes } = useStrategyWorkflow();
+	const { getNodes } = useReactFlow();
+
+	// Compute source nodes and parent data outside useEffect
+	const sourceNodes = getSourceNodes(id);
+	const parentNodeId = getNodes().find((node) => node.id === id)?.parentId;
+	const parentNodeData = parentNodeId
+		? getNodes().find((node) => node.id === parentNodeId)?.data as OperationGroupData
+		: null;
+
+	useEffect(() => {
+		console.log("sourceNodes", sourceNodes);
+		if (!parentNodeData || !sourceNodes || sourceNodes.length === 0) return;
+
+		const options: InputOption[] = [];
+
+		sourceNodes.forEach((node) => {
+			// Source is OperationStartNode - get inputConfigs from parent group
+			if (node.type === NodeType.OperationStartNode) {
+				const inputConfigs = parentNodeData?.inputConfigs ?? [];
+				inputConfigs.forEach((config) => {
+					if (config.type === "Series") {
+						options.push({
+							inputType: "Series",
+							configId: config.configId,
+							fromNodeId: node.id,
+							fromNodeName: node.data?.nodeName ?? "Operation Start",
+							fromHandleId: config.outputHandleId,
+							fromNodeType: NodeType.OperationStartNode,
+							inputDisplayName: config.seriesDisplayName,
+						});
+					} else {
+						// Scalar type
+						options.push({
+							inputType: "Scalar",
+							configId: config.configId,
+							fromNodeId: node.id,
+							fromNodeName: node.data?.nodeName ?? "Operation Start",
+							fromHandleId: config.outputHandleId,
+							fromNodeType: NodeType.OperationStartNode,
+							inputDisplayName: config.scalarDisplayName,
+							inputValue: config.scalarValue,
+						});
+					}
+				});
+			}
+			// Source is another OperationNode - get outputConfig
+			else if (node.type === NodeType.OperationNode) {
+				const opNodeData = node.data as OperationNodeData;
+				const outputCfg = opNodeData?.outputConfig;
+				if (outputCfg) {
+					if (outputCfg.type === "Series") {
+						options.push({
+							inputType: "Series",
+							configId: outputCfg.seriesId,
+							fromNodeId: node.id,
+							fromNodeName: opNodeData?.nodeName ?? "Operation Node",
+							fromHandleId: outputCfg.outputHandleId,
+							fromNodeType: NodeType.OperationNode,
+							inputDisplayName: outputCfg.seriesDisplayName,
+						});
+					} else {
+						// Scalar output
+						options.push({
+							inputType: "Scalar",
+							configId: outputCfg.scalarId,
+							fromNodeId: node.id,
+							fromNodeName: opNodeData?.nodeName ?? "Operation Node",
+							fromHandleId: outputCfg.outputHandleId,
+							fromNodeType: NodeType.OperationNode,
+							inputDisplayName: outputCfg.scalarDisplayName,
+						});
+					}
+				}
+			}
+		});
+
+		setInputOptions(options);
+
+	}, [sourceNodes, parentNodeData]);
+
+	// Get output display name from outputConfig or metadata
+	const getOutputDisplayName = () => {
+		if (outputConfig) {
+			return outputConfig.type === "Series"
+				? outputConfig.seriesDisplayName
+				: outputConfig.scalarDisplayName;
+		}
+		const meta = getOperationMeta(currentOperation.type, currentInputArrayType);
+		return meta?.defaultOutputDisplayName ?? currentOperation.type;
+	};
+
+	// Handle input type change
+	const handleInputTypeChange = (type: InputArrayType) => {
+		setInputArrayType(type);
+		// Reset input config
+		clearInputConfig();
+		// Reset operation to default for new type
+		let newOperation: Operation;
+		if (type === "Unary") {
+			newOperation = { type: "Mean" };
+		} else if (type === "Binary") {
+			newOperation = { type: "Add" };
+		} else {
+			newOperation = { type: "Sum" };
+		}
+		setOperation(newOperation);
+		// Reset output config with default display name
+		const meta = getOperationMeta(newOperation.type, type);
+		const outputType = meta?.output ?? "Series";
+		const displayName = meta?.defaultOutputDisplayName ?? newOperation.type;
+		if (outputType === "Series") {
+			setOutputConfig({
+				type: "Series",
+				seriesId: 1,
+				outputHandleId: `${id}_default_output_1`,
+				seriesDisplayName: displayName,
+			});
+		} else {
+			setOutputConfig({
+				type: "Scalar",
+				scalarId: 1,
+				outputHandleId: `${id}_default_output_1`,
+				scalarDisplayName: displayName,
+			});
+		}
+	};
+
+	// Handle operation change
+	const handleOperationChange = (op: Operation) => {
+		setOperation(op);
+		// Update output config with new default display name
+		const meta = getOperationMeta(op.type, currentInputArrayType);
+		const outputType = meta?.output ?? "Series";
+		const displayName = meta?.defaultOutputDisplayName ?? op.type;
+		if (outputType === "Series") {
+			setOutputConfig({
+				type: "Series",
+				seriesId: outputConfig?.type === "Series" ? outputConfig.seriesId : 1,
+				seriesDisplayName: displayName,
+				outputHandleId: `${id}_default_output_1`,
+			});
+		} else {
+			setOutputConfig({
+				type: "Scalar",
+				scalarId: outputConfig?.type === "Scalar" ? outputConfig.scalarId : 1,
+				scalarDisplayName: displayName,
+				outputHandleId: `${id}_default_output_1`,
+			});
+		}
+	};
+
+	// Handle output display name change
+	const handleOutputDisplayNameChange = (displayName: string) => {
+		const meta = getOperationMeta(currentOperation.type, currentInputArrayType);
+		const outputType = meta?.output ?? "Series";
+		if (outputType === "Series") {
+			setOutputConfig({
+				type: "Series",
+				seriesId: outputConfig?.type === "Series" ? outputConfig.seriesId : 1,
+				seriesDisplayName: displayName,
+				outputHandleId: `${id}_default_output_1`,
+			});
+		} else {
+			setOutputConfig({
+				type: "Scalar",
+				scalarId: outputConfig?.type === "Scalar" ? outputConfig.scalarId : 1,
+				scalarDisplayName: displayName,
+				outputHandleId: `${id}_default_output_1`,
+			});
+		}
+	};
+
+
+	return (
+		<div className="h-full overflow-y-auto bg-white p-4">
+			<div className="flex flex-col gap-4">
+				{/* Input Type */}
+				<InputTypeSelector
+					value={currentInputArrayType}
+					onChange={handleInputTypeChange}
+				/>
+
+
+				<Separator />
+
+				{/* Operation */}
+				<OperationSelector
+					inputArrayType={currentInputArrayType}
+					operation={currentOperation}
+					onChange={handleOperationChange}
+					inputCount={currentInputArrayType === "Nary" ? getNaryInputs().length : undefined}
+				/>
+
+				<Separator />
+
+				{/* Input Config */}
+				<InputConfigComponent
+					inputArrayType={currentInputArrayType}
+					inputConfig={getUnaryInput()}
+					input1={getBinaryInput1()}
+					input2={getBinaryInput2()}
+					inputs={getNaryInputs()}
+					seriesOptions={inputOptions}
+					supportScalarInput={getOperationMeta(currentOperation.type, currentInputArrayType)?.supportScalarInput ?? true}
+					onChange={setUnaryInput}
+					onChangeInput1={setBinaryInput1}
+					onChangeInput2={setBinaryInput2}
+					onChangeInputs={setNaryInputs}
+				/>
+
+				<Separator />
+
+				{/* Output Config */}
+				<OutputConfig
+					operationType={currentOperation.type}
+					inputArrayType={currentInputArrayType}
+					displayName={getOutputDisplayName()}
+					onDisplayNameChange={handleOutputDisplayNameChange}
+				/>
+
+				
+
+				<Separator />
+
+				{/* Window Config */}
+				<WindowConfig
+					windowConfig={currentWindowConfig}
+					onChange={setWindowConfig}
+				/>
+
+				<Separator />
+
+				{/* Filling Method */}
+				<FillingMethodSelector
+					value={currentFillingMethod}
+					onChange={setFillingMethod}
+				/>
+			</div>
+		</div>
+	);
+};
+
+export default OperationNodePanel;

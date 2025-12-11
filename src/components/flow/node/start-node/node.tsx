@@ -60,7 +60,7 @@ const StartNode: React.FC<NodeProps<StartNodeType>> = ({
 				startNodeData?.nodeConfig?.iconBackgroundColor ||
 				getNodeDefaultColor(NodeType.StartNode)
 			}
-			borderColor={
+			selectedBorderColor={
 				startNodeData?.nodeConfig?.borderColor ||
 				getNodeDefaultColor(NodeType.StartNode)
 			}

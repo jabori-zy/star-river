@@ -5,6 +5,9 @@ import KlineNode from "@/components/flow/node/kline-node/node"; // Real-time dat
 import PositionNode from "@/components/flow/node/position-node/node"; // Position management node
 import StartNode from "@/components/flow/node/start-node"; // Start node
 import VariableNode from "@/components/flow/node/variable-node/node"; // Variable node
+import OperationGroup from "@/components/flow/node/operation-group/node";
+import OperationStartNode from "@/components/flow/node/operation-start-node/node";
+import OperationNode from "@/components/flow/node/operation-node/node";
 
 export const nodeTypes = {
 	startNode: StartNode,
@@ -14,4 +17,7 @@ export const nodeTypes = {
 	futuresOrderNode: FuturesOrderNode,
 	positionNode: PositionNode,
 	variableNode: VariableNode,
+	operationGroup: OperationGroup,
+	operationStartNode: OperationStartNode,
+	operationNode: OperationNode,
 };

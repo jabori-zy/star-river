@@ -7,6 +7,8 @@ import KlineNodeSettingPanel from "../node/kline-node/setting-panel";
 import { PositionNodeSettingPanel } from "../node/position-node";
 import StartNodeSettingPanel from "../node/start-node/setting-panel";
 import { VariableNodeSettingPanel } from "../node/variable-node";
+import OperationGroupSettingPanel from "../node/operation-group";
+import OperationNodeSettingPanel from "../node/operation-node";
 
 /**
  * Panel component mapping table - similar to dify's PanelComponentMap
@@ -20,4 +22,6 @@ export const PanelComponentMap: Partial<Record<NodeType, SettingPanelProps>> = {
 	[NodeType.FuturesOrderNode]: FuturesOrderNodeSettingPanel,
 	[NodeType.PositionNode]: PositionNodeSettingPanel,
 	[NodeType.VariableNode]: VariableNodeSettingPanel,
+	[NodeType.OperationGroup]: OperationGroupSettingPanel,
+	[NodeType.OperationNode]: OperationNodeSettingPanel,
 };

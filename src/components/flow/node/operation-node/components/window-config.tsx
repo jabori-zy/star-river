@@ -1,0 +1,118 @@
+import type React from "react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
+import type { WindowConfig as WindowConfigType } from "@/types/operation";
+
+interface WindowConfigProps {
+	windowConfig: WindowConfigType;
+	onChange: (config: WindowConfigType) => void;
+	minSize?: number;
+	maxSize?: number;
+	className?: string;
+}
+
+export const WindowConfig: React.FC<WindowConfigProps> = ({
+	windowConfig,
+	onChange,
+	minSize = 1,
+	maxSize = 200,
+	className,
+}) => {
+	// Get current size value based on window type
+	const currentSize =
+		windowConfig.windowType === "rolling"
+			? windowConfig.windowSize
+			: windowConfig.initialWindowSize;
+
+	const handleTypeChange = (windowType: "rolling" | "expanding") => {
+		// Convert between rolling and expanding config
+		if (windowType === "rolling") {
+			onChange({
+				windowType: "rolling",
+				windowSize: currentSize,
+			});
+		} else {
+			onChange({
+				windowType: "expanding",
+				initialWindowSize: currentSize,
+			});
+		}
+	};
+
+	const handleSizeChange = (size: number) => {
+		if (windowConfig.windowType === "rolling") {
+			onChange({
+				windowType: "rolling",
+				windowSize: size,
+			});
+		} else {
+			onChange({
+				windowType: "expanding",
+				initialWindowSize: size,
+			});
+		}
+	};
+
+	return (
+		<div className={cn("space-y-4", className)}>
+			<Label className="text-sm font-medium">Window</Label>
+
+			{/* Window Type */}
+			<div className="space-y-2">
+				<Label className="text-xs text-muted-foreground">Window Type</Label>
+				<RadioGroup
+					value={windowConfig.windowType}
+					onValueChange={(val) => handleTypeChange(val as "rolling" | "expanding")}
+					className="flex gap-4"
+				>
+					<div className="flex items-center space-x-2">
+						<RadioGroupItem value="rolling" id="window-type-rolling" />
+						<Label htmlFor="window-type-rolling" className="text-sm font-normal cursor-pointer">
+							Rolling
+						</Label>
+					</div>
+					<div className="flex items-center space-x-2">
+						<RadioGroupItem value="expanding" id="window-type-expanding" />
+						<Label htmlFor="window-type-expanding" className="text-sm font-normal cursor-pointer">
+							Expanding
+						</Label>
+					</div>
+				</RadioGroup>
+			</div>
+
+			{/* Window Size */}
+			<div className="space-y-2">
+				<div className="flex items-center justify-between">
+					<Label className="text-xs text-muted-foreground">
+						{windowConfig.windowType === "expanding" ? "Initial Window Size" : "Window Size"}
+					</Label>
+					<Input
+						type="number"
+						value={currentSize}
+						onChange={(e) => handleSizeChange(Number(e.target.value))}
+						min={minSize}
+						max={maxSize}
+						className="w-20 h-8 text-sm text-right"
+					/>
+				</div>
+				<Slider
+					value={[currentSize]}
+					onValueChange={(values) => handleSizeChange(values[0])}
+					min={minSize}
+					max={maxSize}
+					step={1}
+					className="w-full"
+				/>
+				<div className="flex justify-between text-xs text-muted-foreground">
+					<span>{minSize}</span>
+					<span>{maxSize}</span>
+				</div>
+			</div>
+		</div>
+	);
+};
+
+export default WindowConfig;
