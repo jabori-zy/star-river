@@ -3,12 +3,12 @@ import { produce } from "immer";
 import { useCallback } from "react";
 import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 import type {
-	OperationConfig,
+	OperationInputConfig,
 	OperationGroupData,
-	InputScalarValueConfig,
-	InputSeriesConfig,
-	InputScalarConfig,
-	OutputConfig,
+	OperationInputScalarValueConfig,
+	OperationInputSeriesConfig,
+	OperationInputScalarConfig,
+	OperationOutputConfig,
 	OutputSeriesConfig,
 	OutputScalarConfig,
 } from "@/types/node/group/operation-group";
@@ -26,24 +26,24 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 
 	// Filter configs by type
 	const seriesConfigs = operationConfigs.filter(
-		(config): config is InputSeriesConfig => config.type === "Series",
+		(config): config is OperationInputSeriesConfig => config.type === "Series",
 	);
 
 	// All scalar configs (both Value and Node source)
 	const scalarConfigs = operationConfigs.filter(
-		(config): config is InputScalarValueConfig | InputScalarConfig =>
+		(config): config is OperationInputScalarValueConfig | OperationInputScalarConfig =>
 			config.type === "Scalar",
 	);
 
 	// Scalar configs from direct value input
 	const scalarValueConfigs = operationConfigs.filter(
-		(config): config is InputScalarValueConfig =>
+		(config): config is OperationInputScalarValueConfig =>
 			config.type === "Scalar" && config.source === "Value",
 	);
 
 	// Scalar configs from upstream node
 	const scalarNodeConfigs = operationConfigs.filter(
-		(config): config is InputScalarConfig =>
+		(config): config is OperationInputScalarConfig =>
 			config.type === "Scalar" && config.source === "Node",
 	);
 
@@ -51,7 +51,7 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 	 * Generic update function: use Immer to simplify nested updates
 	 */
 	const updateOperationConfigs = useCallback(
-		(updater: (draft: OperationConfig[]) => void) => {
+		(updater: (draft: OperationInputConfig[]) => void) => {
 			const currentConfigs = operationConfigs;
 			const newConfigs = produce(currentConfigs, updater);
 			updateNodeData(id, { inputConfigs: newConfigs });
@@ -78,7 +78,7 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 	 * Set all operation configs
 	 */
 	const setOperationConfigs = useCallback(
-		(configs: OperationConfig[]) => {
+		(configs: OperationInputConfig[]) => {
 			updateNodeData(id, { inputConfigs: configs });
 		},
 		[id, updateNodeData],
@@ -112,7 +112,7 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 	 * Set all series configs (replaces only series configs, keeps scalar configs)
 	 */
 	const setSeriesConfigs = useCallback(
-		(configs: InputSeriesConfig[]) => {
+		(configs: OperationInputSeriesConfig[]) => {
 			updateNodeData(id, { inputConfigs: [...scalarConfigs, ...configs] });
 		},
 		[id, updateNodeData, scalarConfigs],
@@ -122,9 +122,9 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 	 * Add a new series config
 	 */
 	const addSeriesConfig = useCallback(
-		(seriesConfig: Omit<InputSeriesConfig, "configId" | "outputHandleId">) => {
+		(seriesConfig: Omit<OperationInputSeriesConfig, "configId" | "outputHandleId">) => {
 			updateOperationConfigs((draft) => {
-				const newConfig: InputSeriesConfig = {
+				const newConfig: OperationInputSeriesConfig = {
 					...seriesConfig,
 					configId: getNextConfigId(),
 				};
@@ -138,7 +138,7 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 	 * Update a series config by index (within series configs only)
 	 */
 	const updateSeriesConfig = useCallback(
-		(index: number, seriesConfig: InputSeriesConfig) => {
+		(index: number, seriesConfig: OperationInputSeriesConfig) => {
 			if (index >= 0 && index < seriesConfigs.length) {
 				const targetConfigId = seriesConfigs[index].configId;
 				updateOperationConfigs((draft) => {
@@ -158,13 +158,13 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 	 * Update a series config by configId
 	 */
 	const updateSeriesConfigById = useCallback(
-		(configId: number, updates: Partial<InputSeriesConfig>) => {
+		(configId: number, updates: Partial<OperationInputSeriesConfig>) => {
 			updateOperationConfigs((draft) => {
 				const index = draft.findIndex(
 					(c) => c.configId === configId && c.type === "Series",
 				);
 				if (index !== -1) {
-					draft[index] = { ...draft[index], ...updates } as InputSeriesConfig;
+					draft[index] = { ...draft[index], ...updates } as OperationInputSeriesConfig;
 				}
 			});
 		},
@@ -224,7 +224,7 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 	 * Set all scalar configs (replaces only scalar configs, keeps series configs)
 	 */
 	const setScalarConfigs = useCallback(
-		(configs: InputScalarValueConfig[]) => {
+		(configs: OperationInputScalarValueConfig[]) => {
 			updateNodeData(id, { inputConfigs: [...seriesConfigs, ...configs] });
 		},
 		[id, updateNodeData, seriesConfigs],
@@ -234,9 +234,9 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 	 * Add a new scalar config
 	 */
 	const addScalarConfig = useCallback(
-		(scalarConfig: Omit<InputScalarValueConfig, "configId">) => {
+		(scalarConfig: Omit<OperationInputScalarValueConfig, "configId">) => {
 			updateOperationConfigs((draft) => {
-				const newConfig: InputScalarValueConfig = {
+				const newConfig: OperationInputScalarValueConfig = {
 					...scalarConfig,
 					configId: getNextConfigId(),
 				};
@@ -250,7 +250,7 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 	 * Update a scalar config by index (within scalar configs only)
 	 */
 	const updateScalarConfig = useCallback(
-		(index: number, scalarConfig: InputScalarValueConfig) => {
+		(index: number, scalarConfig: OperationInputScalarValueConfig) => {
 			if (index >= 0 && index < scalarConfigs.length) {
 				const targetConfigId = scalarConfigs[index].configId;
 				updateOperationConfigs((draft) => {
@@ -270,13 +270,13 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 	 * Update a scalar config by configId
 	 */
 	const updateScalarConfigById = useCallback(
-		(configId: number, updates: Partial<InputScalarValueConfig>) => {
+		(configId: number, updates: Partial<OperationInputScalarValueConfig>) => {
 			updateOperationConfigs((draft) => {
 				const index = draft.findIndex(
 					(c) => c.configId === configId && c.type === "Scalar",
 				);
 				if (index !== -1) {
-					draft[index] = { ...draft[index], ...updates } as InputScalarValueConfig;
+					draft[index] = { ...draft[index], ...updates } as OperationInputScalarValueConfig;
 				}
 			});
 		},
@@ -346,9 +346,9 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 	 * Add a new scalar node config (from upstream node)
 	 */
 	const addScalarNodeConfig = useCallback(
-		(config: Omit<InputScalarConfig, "configId">) => {
+		(config: Omit<OperationInputScalarConfig, "configId">) => {
 			updateOperationConfigs((draft) => {
-				const newConfig: InputScalarConfig = {
+				const newConfig: OperationInputScalarConfig = {
 					...config,
 					configId: getNextConfigId(),
 				};
@@ -362,13 +362,13 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 	 * Update a scalar node config by configId
 	 */
 	const updateScalarNodeConfigById = useCallback(
-		(configId: number, updates: Partial<InputScalarConfig>) => {
+		(configId: number, updates: Partial<OperationInputScalarConfig>) => {
 			updateOperationConfigs((draft) => {
 				const index = draft.findIndex(
 					(c) => c.configId === configId && c.type === "Scalar" && c.source === "Node",
 				);
 				if (index !== -1) {
-					draft[index] = { ...draft[index], ...updates } as InputScalarConfig;
+					draft[index] = { ...draft[index], ...updates } as OperationInputScalarConfig;
 				}
 			});
 		},
@@ -417,7 +417,7 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 	 * Generic update function for output configs
 	 */
 	const updateOutputConfigs = useCallback(
-		(updater: (draft: OutputConfig[]) => void) => {
+		(updater: (draft: OperationOutputConfig[]) => void) => {
 			const currentConfigs = outputConfigs;
 			const newConfigs = produce(currentConfigs, updater);
 			updateNodeData(id, { outputConfigs: newConfigs });
@@ -439,7 +439,7 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 	 * Set all output configs
 	 */
 	const setOutputConfigs = useCallback(
-		(configs: OutputConfig[]) => {
+		(configs: OperationOutputConfig[]) => {
 			updateNodeData(id, { outputConfigs: configs });
 		},
 		[id, updateNodeData],
@@ -485,11 +485,11 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 	 * Update an output config by configId
 	 */
 	const updateOutputConfigById = useCallback(
-		(configId: number, updates: Partial<OutputConfig>) => {
+		(configId: number, updates: Partial<OperationOutputConfig>) => {
 			updateOutputConfigs((draft) => {
 				const index = draft.findIndex((c) => c.configId === configId);
 				if (index !== -1) {
-					draft[index] = { ...draft[index], ...updates } as OutputConfig;
+					draft[index] = { ...draft[index], ...updates } as OperationOutputConfig;
 				}
 			});
 		},

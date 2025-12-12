@@ -15,10 +15,12 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import type {
-	InputScalarValueConfig,
-	InputScalarConfig,
-	InputSeriesConfig,
+import {
+	isScalarOutput,
+	isSeriesOutput,
+	type OperationInputScalarValueConfig,
+	type OperationInputScalarConfig,
+	type OperationInputSeriesConfig,
 } from "@/types/node/group/operation-group";
 import type { VariableConfig } from "@/types/node/variable-node";
 import { VariableValueType } from "@/types/variable";
@@ -42,15 +44,33 @@ export const InputConfigItem: React.FC<InputConfigItemProps> = ({
 	const isScalarFromNode = isScalar && config.source === "Node";
 
 	// Filter node list by node type
-	// Scalar mode: only show VariableNode
+	// Scalar mode: show VariableNode and OperationGroup (only if has Scalar outputs)
 	const scalarNodeList = useMemo(
-		() => variableItemList.filter((item) => item.nodeType === NodeType.VariableNode),
+		() => variableItemList.filter((item) => {
+			if (item.nodeType === NodeType.VariableNode) {
+				return true;
+			}
+			if (item.nodeType === NodeType.OperationGroup) {
+				// Check if OperationGroup has any Scalar type outputs
+				return item.variables.some((v) => isScalarOutput(v));
+			}
+			return false;
+		}),
 		[variableItemList],
 	);
 
-	// Series mode: exclude VariableNode (show IndicatorNode, KlineNode, etc.)
+	// Series mode: exclude VariableNode, and for OperationGroup only include if has Series outputs
 	const seriesNodeList = useMemo(
-		() => variableItemList.filter((item) => item.nodeType !== NodeType.VariableNode),
+		() => variableItemList.filter((item) => {
+			if (item.nodeType === NodeType.VariableNode) {
+				return false;
+			}
+			if (item.nodeType === NodeType.OperationGroup) {
+				// Check if OperationGroup has any Series type outputs
+				return item.variables.some((v) => isSeriesOutput(v));
+			}
+			return true;
+		}),
 		[variableItemList],
 	);
 
@@ -61,7 +81,7 @@ export const InputConfigItem: React.FC<InputConfigItemProps> = ({
 
 	// Local state for scalar value input (only for custom scalar)
 	const [localScalarValue, setLocalScalarValue] = useState(
-		isCustomScalar ? (config as InputScalarValueConfig).scalarValue.toString() : "0",
+		isCustomScalar ? (config as OperationInputScalarValueConfig).scalarValue.toString() : "0",
 	);
 
 	// Track if the name field has been touched (for validation)
@@ -72,12 +92,12 @@ export const InputConfigItem: React.FC<InputConfigItemProps> = ({
 
 	// Get display name based on config type
 	const configDisplayName = isScalar
-		? (config as InputScalarValueConfig).scalarDisplayName
-		: (config as InputSeriesConfig).seriesDisplayName;
+		? (config as OperationInputScalarValueConfig).scalarDisplayName
+		: (config as OperationInputSeriesConfig).seriesDisplayName;
 
 	// Get scalar value (only valid for custom Scalar type with source: Value)
 	const configScalarValue = isCustomScalar
-		? (config as InputScalarValueConfig).scalarValue
+		? (config as OperationInputScalarValueConfig).scalarValue
 		: 0;
 
 	// Sync local state when config changes from outside
@@ -109,6 +129,7 @@ export const InputConfigItem: React.FC<InputConfigItemProps> = ({
 
 	// Get variables for selected node (for Series type or Scalar from Node)
 	// For VariableNode, only NUMBER type variables are allowed
+	// For OperationGroup, filter by Series/Scalar type based on current config type
 	const getSelectedNodeVariables = useCallback(
 		(nodeId: string) => {
 			const selectedNode = variableItemList.find(
@@ -124,18 +145,27 @@ export const InputConfigItem: React.FC<InputConfigItemProps> = ({
 				});
 			}
 
+			// If the node is an OperationGroup, filter by Series/Scalar type
+			if (selectedNode.nodeType === NodeType.OperationGroup) {
+				return selectedNode.variables.filter((variable) => {
+					// If current config is Scalar, only show Scalar outputs
+					// If current config is Series, only show Series outputs
+					return isScalar ? isScalarOutput(variable) : isSeriesOutput(variable);
+				});
+			}
+
 			return selectedNode.variables;
 		},
-		[variableItemList],
+		[variableItemList, isScalar],
 	);
 
 	// Get current fromNodeId based on config type
 	const getCurrentFromNodeId = useCallback(() => {
 		if (config.type === "Series") {
-			return (config as InputSeriesConfig).fromNodeId;
+			return (config as OperationInputSeriesConfig).fromNodeId;
 		}
 		if (isScalarFromNode) {
-			return (config as InputScalarConfig).fromNodeId;
+			return (config as OperationInputScalarConfig).fromNodeId;
 		}
 		return "";
 	}, [config, isScalarFromNode]);
@@ -168,8 +198,8 @@ export const InputConfigItem: React.FC<InputConfigItemProps> = ({
 	const handleDisplayNameBlur = () => {
 		setIsInputName(true);
 		const currentDisplayName = isScalar
-			? (config as InputScalarValueConfig).scalarDisplayName
-			: (config as InputSeriesConfig).seriesDisplayName;
+			? (config as OperationInputScalarValueConfig).scalarDisplayName
+			: (config as OperationInputSeriesConfig).seriesDisplayName;
 		if (localDisplayName !== currentDisplayName) {
 			onDisplayNameBlur(config.configId, localDisplayName);
 		}
@@ -179,7 +209,7 @@ export const InputConfigItem: React.FC<InputConfigItemProps> = ({
 	const handleScalarValueBlur = () => {
 		if (!isCustomScalar) return;
 		const numValue = Number.parseFloat(localScalarValue);
-		if (!Number.isNaN(numValue) && numValue !== (config as InputScalarValueConfig).scalarValue) {
+		if (!Number.isNaN(numValue) && numValue !== (config as OperationInputScalarValueConfig).scalarValue) {
 			onScalarValueChange(config.configId, numValue);
 		}
 	};
@@ -208,7 +238,7 @@ export const InputConfigItem: React.FC<InputConfigItemProps> = ({
 	// Get current variable value for selector (for Series type or Scalar from Node)
 	const currentVariableValue = useMemo(() => {
 		if (config.type === "Series") {
-			const seriesConfig = config as InputSeriesConfig;
+			const seriesConfig = config as OperationInputSeriesConfig;
 			if (seriesConfig.fromHandleId && seriesConfig.fromSeriesName) {
 				return generateOptionValue(
 					seriesConfig.fromNodeId,
@@ -219,7 +249,7 @@ export const InputConfigItem: React.FC<InputConfigItemProps> = ({
 			}
 		}
 		if (isScalarFromNode) {
-			const scalarNodeConfig = config as InputScalarConfig;
+			const scalarNodeConfig = config as OperationInputScalarConfig;
 			if (scalarNodeConfig.fromHandleId && scalarNodeConfig.fromScalarName) {
 				return generateOptionValue(
 					scalarNodeConfig.fromNodeId,
@@ -418,7 +448,7 @@ export const InputConfigItem: React.FC<InputConfigItemProps> = ({
 					<ButtonGroup className="w-full">
 						{/* Node selector - exclude VariableNode for Series */}
 						<Select
-							value={(config as InputSeriesConfig).fromNodeId}
+							value={(config as OperationInputSeriesConfig).fromNodeId}
 							onValueChange={handleNodeChange}
 						>
 							<SelectTrigger
@@ -456,12 +486,12 @@ export const InputConfigItem: React.FC<InputConfigItemProps> = ({
 						<Select
 							value={currentVariableValue}
 							onValueChange={handleVariableChange}
-							disabled={!(config as InputSeriesConfig).fromNodeId}
+							disabled={!(config as OperationInputSeriesConfig).fromNodeId}
 						>
 							<SelectTrigger
 								className={cn(
 									"h-8 text-xs font-normal min-w-24 flex-1 bg-white hover:bg-gray-100 border-gray-300 transition-colors",
-									!(config as InputSeriesConfig).fromNodeId &&
+									!(config as OperationInputSeriesConfig).fromNodeId &&
 										"opacity-50 cursor-not-allowed hover:bg-white",
 								)}
 							>

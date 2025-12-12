@@ -1,4 +1,4 @@
-import type { OutputConfig } from "@/types/node/group/operation-group";
+import type { OperationOutputConfig } from "@/types/node/group/operation-group";
 
 // Output option from source OperationNode
 export interface OutputOption {
@@ -11,7 +11,7 @@ export interface OutputOption {
 
 // Single output config item props
 export interface OutputConfigItemProps {
-	config: OutputConfig;
+	config: OperationOutputConfig;
 	availableOutputs: OutputOption[];
 	usedSourceIds: Set<string>; // Already used source IDs (nodeId|handleId)
 	onSelectSource: (configId: number, option: OutputOption) => void;
@@ -22,7 +22,7 @@ export interface OutputConfigItemProps {
 // Main OutputConfiger component props
 export interface OutputConfigerProps {
 	availableOutputs: OutputOption[];
-	outputConfigs: OutputConfig[];
+	outputConfigs: OperationOutputConfig[];
 	onAddConfig: () => void;
 	onSelectSource: (configId: number, option: OutputOption) => void;
 	onUpdateDisplayName: (configId: number, displayName: string) => void;

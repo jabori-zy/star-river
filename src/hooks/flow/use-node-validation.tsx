@@ -32,9 +32,9 @@ const NodeSupportConnectionMap: Record<NodeType, NodeType[]> = {
 	],
 	[NodeType.PositionNode]: [NodeType.IfElseNode, NodeType.VariableNode],
 	[NodeType.VariableNode]: [NodeType.IfElseNode, NodeType.VariableNode, NodeType.OperationGroup],
-	[NodeType.OperationGroup]: [NodeType.IfElseNode, NodeType.VariableNode],
-	[NodeType.OperationStartNode]: [NodeType.OperationNode],
-	[NodeType.OperationNode]: [NodeType.OperationNode, NodeType.OperationEndNode],
+	[NodeType.OperationGroup]: [NodeType.IfElseNode, NodeType.VariableNode, NodeType.OperationEndNode, NodeType.OperationGroup, NodeType.OperationNode],
+	[NodeType.OperationStartNode]: [NodeType.OperationNode, NodeType.OperationGroup],
+	[NodeType.OperationNode]: [NodeType.OperationNode, NodeType.OperationEndNode, NodeType.OperationGroup],
 	[NodeType.OperationEndNode]: [],
 };
 

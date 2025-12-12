@@ -16,14 +16,20 @@ import type {
 	VariableConfig,
 } from "@/types/node/variable-node";
 import {
+	isScalarOutput,
+	isSeriesOutput,
+	type OperationOutputConfig,
+} from "@/types/node/group/operation-group";
+import {
 	getVariableValueTypeIcon,
 	getVariableValueTypeIconColor,
 	VariableValueType,
 } from "@/types/variable";
+import { cn } from "@/lib/utils";
 
 // Type guards
 export const isSelectedIndicator = (
-	variable: SelectedIndicator | SelectedSymbol | VariableConfig,
+	variable: SelectedIndicator | SelectedSymbol | VariableConfig | OperationOutputConfig,
 ): variable is SelectedIndicator => {
 	return (
 		"value" in variable && "configId" in variable && "indicatorType" in variable
@@ -31,7 +37,7 @@ export const isSelectedIndicator = (
 };
 
 export const isSelectedSymbol = (
-	variable: SelectedIndicator | SelectedSymbol | VariableConfig,
+	variable: SelectedIndicator | SelectedSymbol | VariableConfig | OperationOutputConfig,
 ): variable is SelectedSymbol => {
 	return (
 		"symbol" in variable && "interval" in variable && "configId" in variable
@@ -39,7 +45,7 @@ export const isSelectedSymbol = (
 };
 
 export const isVariableConfig = (
-	variable: SelectedIndicator | SelectedSymbol | VariableConfig,
+	variable: SelectedIndicator | SelectedSymbol | VariableConfig | OperationOutputConfig,
 ): variable is VariableConfig => {
 	return (
 		"varOperation" in variable &&
@@ -47,8 +53,14 @@ export const isVariableConfig = (
 	);
 };
 
+export const isOperationOutputConfig = (
+	variable: SelectedIndicator | SelectedSymbol | VariableConfig | OperationOutputConfig,
+): variable is OperationOutputConfig => {
+	return isSeriesOutput(variable) || isScalarOutput(variable);
+};
+
 interface RenderVariableOptionsParams {
-	variables: (SelectedIndicator | SelectedSymbol | VariableConfig)[];
+	variables: (SelectedIndicator | SelectedSymbol | VariableConfig | OperationOutputConfig)[];
 	localNodeId: string;
 	generateOptionValue: (
 		nodeId: string,
@@ -94,6 +106,10 @@ export const renderVariableOptions = ({
 			if (isVariableConfig(v)) {
 				return v.varValueType === whitelistValueType;
 			}
+			// OperationGroup outputs are NUMBER type (both Series and Scalar)
+			if (isOperationOutputConfig(v)) {
+				return whitelistValueType === VariableValueType.NUMBER;
+			}
 			return false;
 		});
 	}
@@ -108,6 +124,10 @@ export const renderVariableOptions = ({
 			// Variable nodes filtered by their specific type
 			if (isVariableConfig(v)) {
 				return v.varValueType !== blacklistValueType;
+			}
+			// OperationGroup outputs are NUMBER type (both Series and Scalar)
+			if (isOperationOutputConfig(v)) {
+				return blacklistValueType !== VariableValueType.NUMBER;
 			}
 			return true;
 		});
@@ -134,6 +154,11 @@ export const renderVariableOptions = ({
 					if (isVariableConfig(v)) {
 						return String(v.varName) === excludeVarName;
 					}
+					// For OperationGroup outputs, check display name
+					if (isOperationOutputConfig(v)) {
+						const displayName = v.type === "Series" ? v.seriesDisplayName : v.scalarDisplayName;
+						return displayName === excludeVarName;
+					}
 					return false;
 				})();
 
@@ -150,6 +175,9 @@ export const renderVariableOptions = ({
 	const variableConfigs = filteredVariables.filter((v) =>
 		isVariableConfig(v),
 	) as GetVariableConfig[];
+	const operationOutputs = filteredVariables.filter((v) =>
+		isOperationOutputConfig(v),
+	) as OperationOutputConfig[];
 
 	const result: React.ReactNode[] = [];
 
@@ -397,6 +425,45 @@ export const renderVariableOptions = ({
 		result.push(
 			<SelectGroup key="variable_group">{variableItems}</SelectGroup>,
 		);
+	}
+
+	// Render OperationGroup output options
+	if (operationOutputs.length > 0) {
+		operationOutputs.forEach((output) => {
+			const displayName = output.type === "Series"
+				? output.seriesDisplayName
+				: output.scalarDisplayName;
+
+			result.push(
+				<SelectItem
+					className="text-xs font-normal py-2 px-3"
+					key={`${output.outputHandleId}_${displayName}`}
+					value={generateOptionValue(
+						localNodeId,
+						output.outputHandleId,
+						output.configId,
+						displayName,
+					)}
+				>
+					<div className="flex items-center w-full gap-2">
+						<span className="text-xs text-gray-900 font-medium truncate">
+							{displayName}
+						</span>
+						<Badge
+							variant="outline"
+							className={cn(
+								"text-[10px] px-1.5 py-0",
+								output.type === "Scalar"
+									? "border-blue-500 text-blue-400"
+									: "border-orange-500 text-orange-400",
+							)}
+						>
+							{output.type}
+						</Badge>
+					</div>
+				</SelectItem>,
+			);
+		});
 	}
 
 	return result;

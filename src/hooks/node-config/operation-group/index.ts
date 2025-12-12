@@ -22,6 +22,7 @@ export const createDefaultOperationGroupNodeData = (
 			isHovered: false,
 		},
 		inputConfigs: [],
+		outputConfigs: [],
 		isCollapsed: false,
 	};
 };

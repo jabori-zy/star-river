@@ -119,6 +119,8 @@ export const getNodeDefaultInputHandleId = (id: NodeId, nodeType: NodeType) => {
 			return `${id}_default_input`;
 		case NodeType.OperationNode:
 			return `${id}_default_input`;
+		case NodeType.OperationGroup:
+			return `${id}_default_input`;
 	}
 };
 
@@ -146,6 +148,8 @@ export const getNodeDefaultOutputHandleId = (
 		case NodeType.OperationEndNode:
 			return `${id}_default_output`;
 		case NodeType.OperationNode:
+			return `${id}_default_output`;
+		case NodeType.OperationGroup:
 			return `${id}_default_output`;
 	}
 };

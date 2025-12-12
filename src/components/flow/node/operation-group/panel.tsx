@@ -7,9 +7,9 @@ import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 import { useUpdateOpGroupConfig } from "@/hooks/node-config/operation-group";
 import { NodeType } from "@/types/node";
 import type {
-	InputScalarValueConfig,
-	InputScalarConfig,
-	InputSeriesConfig,
+	OperationInputScalarValueConfig,
+	OperationInputScalarConfig,
+	OperationInputSeriesConfig,
 } from "@/types/node/group/operation-group";
 import type { ScalarSource } from "./components/input-configer";
 import type { OperationNodeData } from "@/types/node/operation-node";
@@ -18,7 +18,6 @@ import { OperationConfiger } from "./components/input-configer";
 import { OutputConfiger, type OutputOption } from "./components/output-configer";
 
 export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
-	console.log("id", id);
 	const { getConnectedNodeVariables } = useStrategyWorkflow();
 	const { getNodes } = useReactFlow();
 
@@ -227,7 +226,7 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 
 				if (source === "Value") {
 					// Convert to custom scalar value
-					const newConfig: InputScalarValueConfig = {
+					const newConfig: OperationInputScalarValueConfig = {
 						type: "Scalar",
 						source: "Value",
 						configId: config.configId,
@@ -237,7 +236,7 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 					return newConfig;
 				}
 				// Convert to scalar from node
-				const newConfig: InputScalarConfig = {
+				const newConfig: OperationInputScalarConfig = {
 					type: "Scalar",
 					source: "Node",
 					configId: config.configId,
@@ -272,7 +271,7 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 
 				if (newType === "Scalar") {
 					// Convert to Scalar (default to custom value input)
-					const newScalarConfig: InputScalarValueConfig = {
+					const newScalarConfig: OperationInputScalarValueConfig = {
 						type: "Scalar",
 						source: "Value",
 						configId: config.configId,
@@ -288,7 +287,7 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 					return newScalarConfig;
 				}
 				// Convert to Series
-				const newSeriesConfig: InputSeriesConfig = {
+				const newSeriesConfig: OperationInputSeriesConfig = {
 					type: "Series",
 					configId: config.configId,
 					seriesDisplayName:

@@ -12,13 +12,15 @@ import type {
 	VariableNodeData,
 } from "@/types/node/variable-node";
 import { TradeMode } from "@/types/strategy";
+import type { OperationGroupData } from "@/types/node/group/operation-group";
+import type { OperationOutputConfig } from "@/types/node/group/operation-group";
 
 // Define variable item type for storing node variable information
 export interface VariableItem {
 	nodeId: string;
 	nodeName: string;
 	nodeType: NodeType;
-	variables: (SelectedIndicator | SelectedSymbol | VariableConfig)[]; // Can contain data from indicator nodes, kline nodes, and variable nodes
+	variables: (SelectedIndicator | SelectedSymbol | VariableConfig | OperationOutputConfig)[]; // Can contain data from indicator nodes, kline nodes, and variable nodes
 }
 
 /**
@@ -42,16 +44,20 @@ const useNodeVariables = () => {
 			nodeId: string,
 			nodeName: string,
 			nodeType: NodeType,
-			variable: SelectedIndicator | SelectedSymbol | VariableConfig,
+			variable: SelectedIndicator | SelectedSymbol | VariableConfig | OperationOutputConfig,
 		) => {
 			// Find if a variable item with the same node ID already exists
 			const existingItem = variableList.find((item) => item.nodeId === nodeId);
 
 			if (existingItem) {
-				// Check if a variable with the same outputHandleId already exists to avoid duplicates
-				const existingVariable = existingItem.variables.find(
-					(v) => v.outputHandleId === variable.outputHandleId,
-				);
+				// Check if a variable already exists to avoid duplicates
+				// For OperationGroup, use configId since all outputs share the same outputHandleId
+				const existingVariable = existingItem.variables.find((v) => {
+					if (nodeType === NodeType.OperationGroup) {
+						return v.configId === variable.configId;
+					}
+					return v.outputHandleId === variable.outputHandleId;
+				});
 				if (!existingVariable) {
 					existingItem.variables.push(variable);
 				}
@@ -205,6 +211,18 @@ const useNodeVariables = () => {
 							);
 						}
 					}
+				} else if (nodeType === NodeType.OperationGroup) {
+					// Handle operation group node (only has default output)
+					const operationGroupNodeData = node.data as OperationGroupData;
+					operationGroupNodeData.outputConfigs.forEach((outputConfig: OperationOutputConfig) => {
+						addOrUpdateVariableItem(
+							tempVariableItemList,
+							node.id,
+							operationGroupNodeData.nodeName,
+							NodeType.OperationGroup,
+							outputConfig,
+						);
+					});
 				}
 			}
 
