@@ -3,7 +3,6 @@ import { z } from "zod";
 import { UnaryOperationSchema } from "./unary";
 import { BinaryOperationSchema } from "./binary";
 import { NaryOperationSchema } from "./n-ary";
-import { NodeType } from "@/types/node";
 
 // Re-export from split files
 export {
@@ -30,96 +29,34 @@ export const InputArrayTypeSchema = z.enum(["Unary", "Binary", "Nary"]);
 export type InputArrayType = z.infer<typeof InputArrayTypeSchema>;
 
 
-// ============ Input Config ============
+// ============ Re-export Input/Output Config from operation-node ============
+// These configs are defined in operation-node.ts to avoid circular dependencies
 
-export const InputSeriesConfigSchema = z.object({
-    type: z.literal("Series"),
-    seriesId: z.number(),
-    seriesDisplayName: z.string(),
-    fromNodeType: z.nativeEnum(NodeType),
-    fromNodeId: z.string(),
-    fromNodeName: z.string(),
-    fromHandleId: z.string(),
-});
-
-export type InputSeriesConfig = z.infer<typeof InputSeriesConfigSchema>;
-
-export const InputScalarConfigSchema = z.object({
-    type: z.literal("Scalar"),
-    source: z.literal("Node"),
-    scalarId: z.number(),
-    scalarDisplayName: z.string(),
-    scalarValue: z.number(),
-    fromNodeType: z.nativeEnum(NodeType),
-    fromNodeId: z.string(),
-    fromNodeName: z.string(),
-    fromHandleId: z.string(),
-});
-export type InputScalarConfig = z.infer<typeof InputScalarConfigSchema>;
-
-
-export const InputScalarValueConfigSchema = z.object({
-    type: z.literal("Scalar"),
-    source: z.literal("Value"),
-    scalarValue: z.number(),
-    
-});
-
-
-export const InputConfigSchema = z.union([
+export {
+    // Input configs
     InputSeriesConfigSchema,
+    type InputSeriesConfig,
     InputScalarConfigSchema,
+    type InputScalarConfig,
     InputScalarValueConfigSchema,
-]);
-export type InputConfig = z.infer<typeof InputConfigSchema>;
-
-// ============ Unary Input Config ============
-export const UnaryInputConfigSchema = z.object({
-    type: z.literal("Unary"),
-    input: InputSeriesConfigSchema,
-});
-export type UnaryInputConfig = z.infer<typeof UnaryInputConfigSchema>;
-
-// ============ Binary Input Config ============
-export const BinaryInputConfigSchema = z.object({
-    type: z.literal("Binary"),
-    input1: InputConfigSchema.nullable(),
-    input2: InputConfigSchema.nullable(),
-});
-
-export type BinaryInputConfig = z.infer<typeof BinaryInputConfigSchema>;
-
-// ============ Nary Input Config ============
-export const NaryInputConfigSchema = z.object({
-    type: z.literal("Nary"),
-    inputs: z.array(InputSeriesConfigSchema),
-});
-
-export type NaryInputConfig = z.infer<typeof NaryInputConfigSchema>;
-
-
-
-// output config
-export const OutputSeriesConfigSchema = z.object({
-    type: z.literal("Series"),
-    outputHandleId: z.string(),
-    seriesDisplayName: z.string(),
-});
-
-export type OutputSeriesConfig = z.infer<typeof OutputSeriesConfigSchema>;
-
-export const OutputScalarConfigSchema = z.object({
-    type: z.literal("Scalar"),
-    outputHandleId: z.string(),
-    scalarDisplayName: z.string(),
-});
-export type OutputScalarConfig = z.infer<typeof OutputScalarConfigSchema>;
-
-export const OutputConfigSchema = z.union([
+    type InputScalarValueConfig,
+    InputConfigSchema,
+    type InputConfig,
+    UnaryInputConfigSchema,
+    type UnaryInputConfig,
+    BinaryInputConfigSchema,
+    type BinaryInputConfig,
+    NaryInputConfigSchema,
+    type NaryInputConfig,
+    // Output configs
     OutputSeriesConfigSchema,
+    type OutputSeriesConfig,
     OutputScalarConfigSchema,
-]);
-export type OutputConfig = z.infer<typeof OutputConfigSchema>;
+    type OutputScalarConfig,
+    OutputConfigSchema,
+    type OutputConfig,
+} from "@/types/node/operation-node";
+
 
 // ============ Combined Operation Schema ============
 

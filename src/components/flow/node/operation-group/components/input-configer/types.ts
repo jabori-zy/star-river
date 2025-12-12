@@ -1,0 +1,45 @@
+import type { VariableItem } from "@/hooks/flow/use-strategy-workflow";
+import type { OperationConfig } from "@/types/node/group/operation-group";
+
+export type ConfigType = "Series" | "Scalar";
+export type ScalarSource = "Value" | "Node";
+
+// Single config item props
+export interface InputConfigItemProps {
+	variableItemList: VariableItem[];
+	config: OperationConfig;
+	onDisplayNameBlur: (configId: number, displayName: string) => void;
+	onNodeChange: (configId: number, nodeId: string) => void;
+	onVariableChange: (
+		configId: number,
+		nodeId: string,
+		handleId: string,
+		varName: string,
+		varDisplayName: string,
+	) => void;
+	onScalarValueChange: (configId: number, value: number) => void;
+	onTypeChange: (configId: number, newType: ConfigType) => void;
+	onScalarSourceChange: (configId: number, source: ScalarSource) => void;
+	onDelete: (configId: number) => void;
+}
+
+// Main operation configer component props
+export interface OperationConfigerProps {
+	variableItemList: VariableItem[];
+	operationConfigs: OperationConfig[];
+	onAddConfig: () => void;
+	onUpdateDisplayName: (configId: number, displayName: string) => void;
+	onUpdateNode: (configId: number, nodeId: string) => void;
+	onUpdateVariable: (
+		configId: number,
+		nodeId: string,
+		handleId: string,
+		varName: string,
+		varDisplayName: string,
+	) => void;
+	onUpdateScalarValue: (configId: number, value: number) => void;
+	onTypeChange: (configId: number, newType: ConfigType) => void;
+	onScalarSourceChange: (configId: number, source: ScalarSource) => void;
+	onRemoveConfig: (configId: number) => void;
+	className?: string;
+}

@@ -23,13 +23,13 @@ export const UnaryInput: React.FC<UnaryInputProps> = ({
 	onChange,
 	className,
 }) => {
-	// Generate unique key for each option
+	// Generate unique key for each option using configId
 	const getOptionKey = (option: InputOption) =>
-		`${option.fromNodeId}-${option.fromHandleId}`;
+		`${option.fromNodeId}-${option.configId}`;
 
 	// Get current selected value
 	const currentValue = inputConfig
-		? `${inputConfig.fromNodeId}-${inputConfig.fromHandleId}`
+		? `${inputConfig.fromNodeId}-${inputConfig.configId}`
 		: "";
 
 
@@ -41,7 +41,7 @@ export const UnaryInput: React.FC<UnaryInputProps> = ({
 			if (selectedOption.inputType === "Series") {
 				onChange({
 					type: "Series",
-					seriesId: selectedOption.configId,
+					configId: selectedOption.configId,
 					seriesDisplayName: selectedOption.inputDisplayName,
 					fromNodeType: selectedOption.fromNodeType,
 					fromNodeId: selectedOption.fromNodeId,

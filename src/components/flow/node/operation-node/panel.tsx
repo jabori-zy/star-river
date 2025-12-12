@@ -78,6 +78,7 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 				inputConfigs.forEach((config) => {
 					if (config.type === "Series") {
 						options.push({
+							configId: config.configId,
 							inputType: "Series",
 							fromNodeId: node.id,
 							fromNodeName: node.data?.nodeName ?? "Operation Start",
@@ -88,6 +89,7 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 					} else {
 						// Scalar type
 						options.push({
+							configId: config.configId,
 							inputType: "Scalar",
 							fromNodeId: node.id,
 							fromNodeName: node.data?.nodeName ?? "Operation Start",
@@ -106,6 +108,7 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 				if (outputCfg) {
 					if (outputCfg.type === "Series") {
 						options.push({
+							configId: outputCfg.configId,
 							inputType: "Series",
 							fromNodeId: node.id,
 							fromNodeName: opNodeData?.nodeName,
@@ -116,6 +119,7 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 					} else {
 						// Scalar output
 						options.push({
+							configId: outputCfg.configId,
 							inputType: "Scalar",
 							fromNodeId: node.id,
 							fromNodeName: opNodeData?.nodeName,
@@ -165,12 +169,14 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 		if (outputType === "Series") {
 			setOutputConfig({
 				type: "Series",
+				configId: 0,
 				outputHandleId: `${id}_default_output`,
 				seriesDisplayName: displayName,
 			});
 		} else {
 			setOutputConfig({
 				type: "Scalar",
+				configId: 0,
 				outputHandleId: `${id}_default_output`,
 				scalarDisplayName: displayName,
 			});
@@ -187,6 +193,7 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 		if (outputType === "Series") {
 			setOutputConfig({
 				type: "Series",
+				configId: 0,
 				seriesDisplayName: displayName,
 				outputHandleId: `${id}_default_output`,
 			});
@@ -194,6 +201,7 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 			setOutputConfig({
 				type: "Scalar",
 				scalarDisplayName: displayName,
+				configId: 0,
 				outputHandleId: `${id}_default_output`,
 			});
 		}
@@ -206,6 +214,7 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 		if (outputType === "Series") {
 			setOutputConfig({
 				type: "Series",
+				configId: 0,
 				seriesDisplayName: displayName,
 				outputHandleId: `${id}_default_output`,
 			});
@@ -213,6 +222,7 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 			setOutputConfig({
 				type: "Scalar",
 				scalarDisplayName: displayName,
+				configId: 0,
 				outputHandleId: `${id}_default_output`,
 			});
 		}

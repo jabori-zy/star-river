@@ -49,9 +49,9 @@ export const NaryInput: React.FC<NaryInputProps> = ({
 		}
 	}, [inputs.length, inputKeys]);
 
-	// Generate unique key for each option
+	// Generate unique key for each option using configId
 	const getOptionKey = (option: InputOption) =>
-		`${option.fromNodeId}-${option.fromHandleId}`;
+		`${option.fromNodeId}-${option.configId}`;
 
 	// Filter to show only Series options for Nary input
 	const seriesOnlyOptions = seriesOptions.filter(
@@ -67,7 +67,7 @@ export const NaryInput: React.FC<NaryInputProps> = ({
 			const newInputs = [...inputs];
 			newInputs[index] = {
 				type: "Series",
-				seriesId: selectedOption.configId,
+				configId: selectedOption.configId,
 				seriesDisplayName: selectedOption.inputDisplayName,
 				fromNodeType: selectedOption.fromNodeType,
 				fromNodeId: selectedOption.fromNodeId,
@@ -82,7 +82,7 @@ export const NaryInput: React.FC<NaryInputProps> = ({
 	const handleAddInput = () => {
 		const newInput: InputSeriesConfig = {
 			type: "Series",
-			seriesId: inputs.length + 1,
+			configId: inputs.length + 1,
 			seriesDisplayName: "",
 			fromNodeType: "klineNode" as NodeType,
 			fromNodeId: "",
@@ -110,7 +110,7 @@ export const NaryInput: React.FC<NaryInputProps> = ({
 			<div className="space-y-2">
 				{inputs.map((input, index) => {
 					const currentValue = input.fromNodeId
-						? `${input.fromNodeId}-${input.fromHandleId}`
+						? `${input.fromNodeId}-${input.configId}`
 						: "";
 
 					return (

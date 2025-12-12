@@ -11,6 +11,7 @@ import { NodeType } from "@/types/node";
 
 // Input option type for dropdown
 export interface InputOption {
+	configId: number;
 	inputType: "Series" | "Scalar";
 	fromNodeId: string;
 	fromNodeName: string;

@@ -46,18 +46,18 @@ const InputSelector: React.FC<{
 		? inputOptions
 		: inputOptions.filter((opt) => opt.inputType === "Series");
 
-	// Generate unique key for each option
+	// Generate unique key for each option using configId
 	const getOptionKey = (option: InputOption) =>
-		`${option.fromNodeId}-${option.fromHandleId}`;
+		`${option.fromNodeId}-${option.configId}`;
 
 	// Get current selected value
 	const getCurrentValue = () => {
 		if (!inputConfig) return "";
 		if (inputConfig.type === "Series") {
-			return `${inputConfig.fromNodeId}-${inputConfig.fromHandleId}`;
+			return `${inputConfig.fromNodeId}-${inputConfig.configId}`;
 		}
 		if (inputConfig.type === "Scalar" && inputConfig.source === "Node") {
-			return `${inputConfig.fromNodeId}-${inputConfig.fromHandleId}`;
+			return `${inputConfig.fromNodeId}-${inputConfig.configId}`;
 		}
 		return "";
 	};
@@ -70,7 +70,7 @@ const InputSelector: React.FC<{
 			if (selectedOption.inputType === "Series") {
 				onChange({
 					type: "Series",
-					seriesId: selectedOption.configId,
+					configId: selectedOption.configId,
 					seriesDisplayName: selectedOption.inputDisplayName,
 					fromNodeType: selectedOption.fromNodeType,
 					fromNodeId: selectedOption.fromNodeId,
@@ -82,7 +82,7 @@ const InputSelector: React.FC<{
 				onChange({
 					type: "Scalar",
 					source: "Node",
-					scalarId: selectedOption.configId,
+					configId: selectedOption.configId,
 					scalarDisplayName: selectedOption.inputDisplayName,
 					scalarValue: selectedOption.inputValue ?? 0,
 					fromNodeType: selectedOption.fromNodeType,

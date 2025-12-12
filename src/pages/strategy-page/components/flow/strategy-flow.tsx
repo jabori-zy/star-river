@@ -572,10 +572,10 @@ export default function StrategyFlow({
 	);
 
 	// Add useEffect to monitor edges changes
-	// useEffect(() => {
-	// // console.log("Current nodes:", nodes);
-	// // console.log("Current edges:", edges);
-	// }, [nodes]);
+	useEffect(() => {
+	console.log("Current nodes:", nodes);
+	// console.log("Current edges:", edges);
+	}, [nodes]);
 
 	return (
 		<div className="flex-1 h-full w-full overflow-x-auto">
