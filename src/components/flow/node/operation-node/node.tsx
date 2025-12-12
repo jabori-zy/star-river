@@ -1,4 +1,5 @@
-import type { NodeProps } from "@xyflow/react";
+import { type NodeProps, NodeToolbar, useReactFlow } from "@xyflow/react";
+import { useCallback } from "react";
 
 import type { OperationNode as OperationNodeType, OperationNodeData } from "@/types/node/operation-node";
 import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
@@ -13,8 +14,10 @@ import type { IconName } from "lucide-react/dynamic";
 const OperationNode: React.FC<NodeProps<OperationNodeType>> = ({
 	id,
 	selected,
+	parentId,
 }) => {
 	const { getNodeData } = useStrategyWorkflow();
+	const { setNodes, getNode } = useReactFlow();
 	const operationNodeData = getNodeData(id) as OperationNodeData;
 	const nodeName = operationNodeData.nodeName || "Operation Node";
     const handleColor =
@@ -37,23 +40,58 @@ const OperationNode: React.FC<NodeProps<OperationNodeType>> = ({
 		handleColor: handleColor,
         className: "!w-1.5 !h-3.5 !right-[-3px]",
 	};
-	
 
+	const handleDetach = useCallback(() => {
+		const parentNode = parentId ? getNode(parentId) : null;
 
+		setNodes((nodes) =>
+			nodes.map((node) => {
+				if (node.id === id) {
+					const globalPosition = parentNode
+						? {
+								x: node.position.x + parentNode.position.x,
+								y: node.position.y + parentNode.position.y,
+							}
+						: node.position;
+
+					return {
+						...node,
+						parentId: undefined,
+						extent: undefined,
+						position: globalPosition,
+					};
+				}
+				return node;
+			}),
+		);
+	}, [id, parentId, setNodes, getNode]);
 
     return (
-        <BaseNode
-            id={id}
-            nodeName={nodeName}
-            iconName={operationNodeData.nodeConfig.iconName as IconName}
-            iconBackgroundColor={operationNodeData.nodeConfig.iconBackgroundColor}
-            selectedBorderColor={operationNodeData.nodeConfig.borderColor}
-            selected={selected}
-            isHovered={operationNodeData.nodeConfig.isHovered}
-            defaultInputHandle={defaultInputHandle}
-            defaultOutputHandle={defaultOutputHandle}
-        >
-        </BaseNode>
+        <>
+            <NodeToolbar isVisible={selected && !!parentId} position={Position.Top} align="start">
+                    <div className="flex gap-1 bg-white rounded-md shadow-md border border-gray-200 p-1">
+                        <button
+                            type="button"
+                            className="px-2 py-1 text-xs hover:bg-gray-100 rounded"
+                            onClick={handleDetach}
+                        >
+                            Detach
+                        </button>
+                    </div>
+            </NodeToolbar>
+            <BaseNode
+                id={id}
+                nodeName={nodeName}
+                iconName={operationNodeData.nodeConfig.iconName as IconName}
+                iconBackgroundColor={operationNodeData.nodeConfig.iconBackgroundColor}
+                selectedBorderColor={operationNodeData.nodeConfig.borderColor}
+                selected={selected}
+                isHovered={operationNodeData.nodeConfig.isHovered}
+                defaultInputHandle={defaultInputHandle}
+                defaultOutputHandle={defaultOutputHandle}
+            >
+            </BaseNode>
+        </>
     );
 };
 
