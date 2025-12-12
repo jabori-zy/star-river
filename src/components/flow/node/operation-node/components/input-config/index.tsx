@@ -2,16 +2,16 @@ import type React from "react";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { Variable, ArrowRight } from "lucide-react";
 import type { InputArrayType, InputConfig, InputSeriesConfig } from "@/types/operation";
 import { UnaryInput } from "./unary-input";
 import { BinaryInput } from "./binary-input";
 import { NaryInput } from "./nary-input";
-import type { NodeType } from "@/types/node";
+import { NodeType } from "@/types/node";
 
 // Input option type for dropdown
 export interface InputOption {
 	inputType: "Series" | "Scalar";
-	configId: number;
 	fromNodeId: string;
 	fromNodeName: string;
 	fromHandleId: string;
@@ -20,11 +20,23 @@ export interface InputOption {
 	inputValue?: number;
 }
 
+// Get icon based on node type
+const getNodeTypeIcon = (nodeType: NodeType) => {
+	if (nodeType === NodeType.OperationStartNode) {
+		return <Variable className="h-3.5 w-3.5 text-purple-500" />;
+	}
+	if (nodeType === NodeType.OperationNode) {
+		return <ArrowRight className="h-3.5 w-3.5 text-green-500" />;
+	}
+	return null;
+};
+
 // Shared component for rendering input options in dropdown
 export const InputOptionDisplay: React.FC<{ option: InputOption }> = ({
 	option,
 }) => (
 	<div className="flex items-center gap-2">
+		{getNodeTypeIcon(option.fromNodeType)}
 		<span>{option.inputDisplayName}</span>
 		<Badge variant="outline" className={cn("text-[10px] px-1.5 py-0 ", option.inputType === "Series" ? "border-orange-500 text-orange-400" : "border-blue-500 text-blue-400")}>
 			{option.inputType}

@@ -1,31 +1,31 @@
 import type { NodeProps } from "@xyflow/react";
 import { useEffect } from "react";
-import type { OperationStartNode as OperationStartNodeType, OperationStartNodeData } from "@/types/node/group/operation-group/operation-start-node";
+import type { OperationEndNode as OperationEndNodeType, OperationEndNodeData } from "@/types/node/group/operation-group/operation-end-node";
 import BaseNode from "@/components/flow/base/BaseNode";
 import BaseHandle from "@/components/flow/base/BaseHandle";
 import { Position } from "@xyflow/react";
-import { getNodeDefaultColor, getNodeDefaultOutputHandleId } from "@/types/node/index";
+import { getNodeDefaultColor, getNodeDefaultInputHandleId } from "@/types/node/index";
 import { NodeType } from "@/types/node/index";
-import { House } from "lucide-react";
+import {MoveRight} from "lucide-react";
 import { useNodesData, useReactFlow } from "@xyflow/react";
 import type { StrategyFlowNode } from "@/types/node/index";
 import type { OperationGroupData } from "@/types/node/group/operation-group";
 
 
 
-const OperationStartNode: React.FC<NodeProps<OperationStartNodeType>> = ({
+const OperationEndNode: React.FC<NodeProps<OperationEndNodeType>> = ({
 	id,
 	selected,
     parentId
 }) => {
 
     const { updateNodeData } = useReactFlow();
-    const operationStartNodeData = useNodesData<StrategyFlowNode>(id)?.data as OperationStartNodeData;
+    const operationEndNodeData = useNodesData<StrategyFlowNode>(id)?.data as OperationEndNodeData;
 
     const parentNodeData = useNodesData<StrategyFlowNode>(parentId ?? "")?.data as OperationGroupData | undefined;
 	const nodeName = parentNodeData?.nodeName ?? "";
     const handleColor =
-		operationStartNodeData?.nodeConfig?.handleColor ||
+		operationEndNodeData?.nodeConfig?.handleColor ||
 		getNodeDefaultColor(NodeType.OperationStartNode);
 
     useEffect(() => {
@@ -42,27 +42,27 @@ const OperationStartNode: React.FC<NodeProps<OperationStartNodeType>> = ({
         <BaseNode
             id={id}
             nodeName={nodeName}
-            iconName={operationStartNodeData.nodeConfig.iconName}
-            iconBackgroundColor={operationStartNodeData.nodeConfig.iconBackgroundColor}
-            selectedBorderColor={operationStartNodeData.nodeConfig.borderColor}
+            iconName={operationEndNodeData.nodeConfig.iconName}
+            iconBackgroundColor={operationEndNodeData.nodeConfig.iconBackgroundColor}
+            selectedBorderColor={operationEndNodeData.nodeConfig.borderColor}
             selected={selected}
-            isHovered={operationStartNodeData.nodeConfig.isHovered}
+            isHovered={operationEndNodeData.nodeConfig.isHovered}
             className="!w-16 !h-16 !min-w-0 !min-h-0 !p-0 flex items-center justify-center"
             showTitle={false}
         >
             <div className="flex items-center justify-center rounded-full p-2" style={{ backgroundColor: handleColor }}>
-                <House className="w-6 h-6 text-white" />
+                <MoveRight className="w-6 h-6 text-white" />
             </div>
             <BaseHandle
-				id={getNodeDefaultOutputHandleId(id, NodeType.OperationStartNode)}
-				type="source"
-				position={Position.Right}
+				id={getNodeDefaultInputHandleId(id, NodeType.OperationEndNode)}
+				type="target"
+				position={Position.Left}
 				handleColor={handleColor}
 				heightPositionClassName="!top-1/2 !-translate-y-[2px]"
-				className="!right-[-1px]"
+				className="!left-[-1px]"
 			/>
         </BaseNode>
     );
 };
 
-export default OperationStartNode;
+export default OperationEndNode;

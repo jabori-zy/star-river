@@ -282,7 +282,6 @@ const EditDialog: React.FC<EditDialogProps> = ({
 		key: string,
 		param: { label: string; defaultValue: unknown; required: boolean },
 	) => {
-		console.log(param);
 		const { label, defaultValue, required } = param;
 		const value = (
 			formData[key] !== undefined ? formData[key] : defaultValue || ""

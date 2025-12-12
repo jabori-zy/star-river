@@ -102,7 +102,6 @@ export type NaryInputConfig = z.infer<typeof NaryInputConfigSchema>;
 // output config
 export const OutputSeriesConfigSchema = z.object({
     type: z.literal("Series"),
-    seriesId: z.number(),
     outputHandleId: z.string(),
     seriesDisplayName: z.string(),
 });
@@ -111,7 +110,6 @@ export type OutputSeriesConfig = z.infer<typeof OutputSeriesConfigSchema>;
 
 export const OutputScalarConfigSchema = z.object({
     type: z.literal("Scalar"),
-    scalarId: z.number(),
     outputHandleId: z.string(),
     scalarDisplayName: z.string(),
 });

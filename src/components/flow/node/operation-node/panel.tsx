@@ -79,7 +79,6 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 					if (config.type === "Series") {
 						options.push({
 							inputType: "Series",
-							configId: config.configId,
 							fromNodeId: node.id,
 							fromNodeName: node.data?.nodeName ?? "Operation Start",
 							fromHandleId: config.outputHandleId,
@@ -90,7 +89,6 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 						// Scalar type
 						options.push({
 							inputType: "Scalar",
-							configId: config.configId,
 							fromNodeId: node.id,
 							fromNodeName: node.data?.nodeName ?? "Operation Start",
 							fromHandleId: config.outputHandleId,
@@ -109,9 +107,8 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 					if (outputCfg.type === "Series") {
 						options.push({
 							inputType: "Series",
-							configId: outputCfg.seriesId,
 							fromNodeId: node.id,
-							fromNodeName: opNodeData?.nodeName ?? "Operation Node",
+							fromNodeName: opNodeData?.nodeName,
 							fromHandleId: outputCfg.outputHandleId,
 							fromNodeType: NodeType.OperationNode,
 							inputDisplayName: outputCfg.seriesDisplayName,
@@ -120,9 +117,8 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 						// Scalar output
 						options.push({
 							inputType: "Scalar",
-							configId: outputCfg.scalarId,
 							fromNodeId: node.id,
-							fromNodeName: opNodeData?.nodeName ?? "Operation Node",
+							fromNodeName: opNodeData?.nodeName,
 							fromHandleId: outputCfg.outputHandleId,
 							fromNodeType: NodeType.OperationNode,
 							inputDisplayName: outputCfg.scalarDisplayName,
@@ -169,15 +165,13 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 		if (outputType === "Series") {
 			setOutputConfig({
 				type: "Series",
-				seriesId: 1,
-				outputHandleId: `${id}_default_output_1`,
+				outputHandleId: `${id}_default_output`,
 				seriesDisplayName: displayName,
 			});
 		} else {
 			setOutputConfig({
 				type: "Scalar",
-				scalarId: 1,
-				outputHandleId: `${id}_default_output_1`,
+				outputHandleId: `${id}_default_output`,
 				scalarDisplayName: displayName,
 			});
 		}
@@ -193,16 +187,14 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 		if (outputType === "Series") {
 			setOutputConfig({
 				type: "Series",
-				seriesId: outputConfig?.type === "Series" ? outputConfig.seriesId : 1,
 				seriesDisplayName: displayName,
-				outputHandleId: `${id}_default_output_1`,
+				outputHandleId: `${id}_default_output`,
 			});
 		} else {
 			setOutputConfig({
 				type: "Scalar",
-				scalarId: outputConfig?.type === "Scalar" ? outputConfig.scalarId : 1,
 				scalarDisplayName: displayName,
-				outputHandleId: `${id}_default_output_1`,
+				outputHandleId: `${id}_default_output`,
 			});
 		}
 	};
@@ -214,16 +206,14 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 		if (outputType === "Series") {
 			setOutputConfig({
 				type: "Series",
-				seriesId: outputConfig?.type === "Series" ? outputConfig.seriesId : 1,
 				seriesDisplayName: displayName,
-				outputHandleId: `${id}_default_output_1`,
+				outputHandleId: `${id}_default_output`,
 			});
 		} else {
 			setOutputConfig({
 				type: "Scalar",
-				scalarId: outputConfig?.type === "Scalar" ? outputConfig.scalarId : 1,
 				scalarDisplayName: displayName,
-				outputHandleId: `${id}_default_output_1`,
+				outputHandleId: `${id}_default_output`,
 			});
 		}
 	};

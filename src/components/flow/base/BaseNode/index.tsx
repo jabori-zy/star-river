@@ -83,7 +83,7 @@ const BaseNode: React.FC<BaseNodeProps> = ({
 			<div
 				className={cn(
 					"bg-white rounded-lg transition-all duration-200 relative cursor-pointer",
-					canResize ? "min-w-42 min-h-50 w-full h-full" : "min-w-42 min-h-26 max-w-[400px] w-fit",
+					canResize ? "min-w-56 min-h-50 w-full h-full" : "min-w-42 min-h-26 max-w-[400px] w-fit",
 					shadowClass,
 					className,
 				)}

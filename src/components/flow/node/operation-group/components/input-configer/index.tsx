@@ -25,7 +25,7 @@ import type {
 type ConfigType = "Series" | "Scalar";
 
 // Single config item props
-interface OperationConfigItemProps {
+interface InputConfigItemProps {
 	variableItemList: VariableItem[];
 	config: OperationConfig;
 	onDisplayNameBlur: (configId: number, displayName: string) => void;
@@ -42,7 +42,7 @@ interface OperationConfigItemProps {
 	onDelete: (configId: number) => void;
 }
 
-const OperationConfigItem: React.FC<OperationConfigItemProps> = ({
+const InputConfigItem: React.FC<InputConfigItemProps> = ({
 	variableItemList,
 	config,
 	onDisplayNameBlur,
@@ -395,7 +395,7 @@ export const OperationConfiger: React.FC<OperationConfigerProps> = ({
 			{/* Config list */}
 			<div className="flex flex-col gap-3">
 				{configs.map((config) => (
-					<OperationConfigItem
+					<InputConfigItem
 						key={config.configId}
 						variableItemList={variableItemList}
 						config={config}

@@ -1,16 +1,21 @@
-import { useNodeConnections } from "@xyflow/react";
+import { useNodeConnections, useReactFlow } from "@xyflow/react";
 import type React from "react";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
+import { Separator } from "@/components/ui/separator";
 import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 import { useUpdateOpGroupConfig } from "@/hooks/node-config/operation-group";
 import { NodeType } from "@/types/node";
 import type { ScalarConfig, SeriesConfig } from "@/types/node/group/operation-group";
+import type { OperationNodeData } from "@/types/node/operation-node";
 import { TradeMode } from "@/types/strategy";
-import { OperationConfiger } from "./components/series-configer";
+import { OperationConfiger } from "./components/input-configer";
+import { OutputConfiger, type OutputOption } from "./components/output-configer";
 
 export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
+	console.log("id", id);
 	const { getConnectedNodeVariables } = useStrategyWorkflow();
+	const { getNodes } = useReactFlow();
 
 	// Get all incoming connections to this node
 	const connections = useNodeConnections({ id, handleType: "target" });
@@ -20,6 +25,50 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 		connections,
 		TradeMode.BACKTEST,
 	);
+
+	// Find EndNode ID within this group
+	const childEndNodeId = useMemo(() => {
+		return getNodes().find(
+			(node) => node.parentId === id && node.type === NodeType.OperationEndNode,
+		)?.id ?? "";
+	}, [getNodes, id]);
+
+	// Use useNodeConnections to reactively listen to EndNode's connections
+	// Use `childEndNodeId || id` as fallback to ensure hook always has valid ID
+	// When panel switches, id may change to another node before component unmounts
+	const endNodeConnections = useNodeConnections({
+		id: childEndNodeId || id,
+		handleType: "target",
+	});
+
+	// Compute available output options from nodes connected to EndNode
+	const availableOutputOptions = useMemo(() => {
+		if (!childEndNodeId) return [];
+
+		const options: OutputOption[] = [];
+		for (const conn of endNodeConnections) {
+			const sourceNode = getNodes().find((n) => n.id === conn.source);
+			if (sourceNode?.type === NodeType.OperationNode) {
+				const nodeData = sourceNode.data as OperationNodeData;
+				const outputConfig = nodeData?.outputConfig;
+				if (outputConfig) {
+					options.push({
+						sourceNodeId: sourceNode.id,
+						sourceNodeName: nodeData.nodeName ?? "Operation Node",
+						outputType: outputConfig.type,
+						sourceHandleId: outputConfig.outputHandleId,
+						displayName:
+							outputConfig.type === "Series"
+								? outputConfig.seriesDisplayName
+								: outputConfig.scalarDisplayName,
+					});
+				}
+			}
+		}
+
+		return options;
+	}, [childEndNodeId, endNodeConnections, getNodes]);
+	
 
 	// Get configs and update functions from hook
 	const {
@@ -31,6 +80,12 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 		updateScalarValue,
 		removeOperationConfigById,
 		setOperationConfigs,
+		// Output configs
+		outputConfigs,
+		setOutputConfigs,
+		addOutputSeriesConfig,
+		updateOutputDisplayName,
+		removeOutputConfigById,
 	} = useUpdateOpGroupConfig({ id });
 
 	// Handle add new config (default to Series type)
@@ -172,8 +227,73 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 		[operationConfigs, setOperationConfigs],
 	);
 
+	// Handle add output config (empty config, user will select source later)
+	const handleAddOutputConfig = useCallback(() => {
+		addOutputSeriesConfig({
+			type: "Series",
+			seriesDisplayName: "",
+			sourceNodeId: "",
+			sourceNodeName: "",
+			sourceHandleId: "",
+		});
+	}, [addOutputSeriesConfig]);
+
+	// Handle select source for output config
+	const handleSelectOutputSource = useCallback(
+		(configId: number, option: OutputOption) => {
+			// Find current config and update it with new source info
+			const currentConfig = outputConfigs.find((c) => c.configId === configId);
+			if (!currentConfig) return;
+
+			// Create new config with correct type based on source
+			const newConfigs = outputConfigs.map((config) => {
+				if (config.configId !== configId) return config;
+
+				if (option.outputType === "Series") {
+					return {
+						type: "Series" as const,
+						configId: config.configId,
+						outputHandleId: config.outputHandleId,
+						seriesDisplayName: option.displayName,
+						sourceNodeId: option.sourceNodeId,
+						sourceNodeName: option.sourceNodeName,
+						sourceHandleId: option.sourceHandleId,
+					};
+				}
+				return {
+					type: "Scalar" as const,
+					configId: config.configId,
+					outputHandleId: config.outputHandleId,
+					scalarDisplayName: option.displayName,
+					sourceNodeId: option.sourceNodeId,
+					sourceNodeName: option.sourceNodeName,
+					sourceHandleId: option.sourceHandleId,
+				};
+			});
+
+			setOutputConfigs(newConfigs);
+		},
+		[outputConfigs, setOutputConfigs],
+	);
+
+	// Handle update output display name
+	const handleUpdateOutputDisplayName = useCallback(
+		(configId: number, displayName: string) => {
+			updateOutputDisplayName(configId, displayName);
+		},
+		[updateOutputDisplayName],
+	);
+
+	// Handle remove output config
+	const handleRemoveOutputConfig = useCallback(
+		(configId: number) => {
+			removeOutputConfigById(configId);
+		},
+		[removeOutputConfigById],
+	);
+
 	return (
-		<div className="h-full overflow-y-auto bg-white p-4">
+		<div className="h-full overflow-y-auto bg-white p-4 space-y-4">
 			<OperationConfiger
 				variableItemList={variableItemList}
 				operationConfigs={operationConfigs}
@@ -184,6 +304,17 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 				onUpdateScalarValue={handleScalarValueChange}
 				onTypeChange={handleTypeChange}
 				onRemoveConfig={removeOperationConfigById}
+			/>
+
+			<Separator />
+
+			<OutputConfiger
+				availableOutputs={availableOutputOptions}
+				outputConfigs={outputConfigs}
+				onAddConfig={handleAddOutputConfig}
+				onSelectSource={handleSelectOutputSource}
+				onUpdateDisplayName={handleUpdateOutputDisplayName}
+				onRemoveConfig={handleRemoveOutputConfig}
 			/>
 		</div>
 	);

@@ -8,6 +8,7 @@ import VariableNode from "@/components/flow/node/variable-node/node"; // Variabl
 import OperationGroup from "@/components/flow/node/operation-group/node";
 import OperationStartNode from "@/components/flow/node/operation-start-node/node";
 import OperationNode from "@/components/flow/node/operation-node/node";
+import OperationEndNode from "@/components/flow/node/operation-end-node/node";
 
 export const nodeTypes = {
 	startNode: StartNode,
@@ -19,5 +20,6 @@ export const nodeTypes = {
 	variableNode: VariableNode,
 	operationGroup: OperationGroup,
 	operationStartNode: OperationStartNode,
+	operationEndNode: OperationEndNode,
 	operationNode: OperationNode,
 };

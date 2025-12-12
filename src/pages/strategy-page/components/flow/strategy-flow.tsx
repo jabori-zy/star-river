@@ -43,6 +43,7 @@ import { createDefaultVariableNodeData } from "@/hooks/node-config/variable-node
 import { createDefaultOperationGroupNodeData } from "@/hooks/node-config/operation-group";
 import { createDefaultOperationStartNodeData } from "@/hooks/node-config/operation-start-node";
 import { createDefaultOperationNodeData } from "@/hooks/node-config/operation-node";
+import { createDefaultOperationEndNodeData } from "@/hooks/node-config/operation-end-node";
 import { useDndNodeStore } from "@/store/use-dnd-node-store";
 import { NodeType } from "@/types/node";
 import type { Strategy } from "@/types/strategy";
@@ -190,6 +191,13 @@ export default function StrategyFlow({
 							t,
 						);
 						break;
+					case NodeType.OperationEndNode:
+						defaultNodeData = createDefaultOperationEndNodeData(
+							strategy.id,
+							strategy.name,
+							t,
+						);
+						break;
 					case NodeType.OperationNode:
 						defaultNodeData = createDefaultOperationNodeData(
 							strategy.id,
@@ -215,6 +223,11 @@ export default function StrategyFlow({
 						strategy.name,
 						t,
 					);
+					const operationEndNodeData = createDefaultOperationEndNodeData(
+						strategy.id,
+						strategy.name,
+						t,
+					);
 
 
 					const random = Math.random().toString(36).substring(2, 9);
@@ -223,12 +236,24 @@ export default function StrategyFlow({
 						type: NodeType.OperationStartNode,
 						position: { x: 40, y: 60 },  // Fixed position relative to group's top-left corner
 						data: operationStartNodeData,
-						draggable: false,
+						draggable: true,
 						selectable: false,
 						parentId: uniqueId,
 						extent: 'parent' as const,
 					};
-					return currentNodes.concat(newNode, operationStartNode);
+
+					const random1= Math.random().toString(36).substring(2, 9);
+					const operationEndNode = {
+						id: `operation_end_node_${random1}`,
+						type: NodeType.OperationEndNode,
+						position: { x: 120, y: 60 },  // Fixed position relative to group's top-left corner
+						data: operationEndNodeData,
+						draggable: true,
+						selectable: false,
+						parentId: uniqueId,
+						extent: 'parent' as const,
+					};
+					return currentNodes.concat(newNode, operationStartNode, operationEndNode);
 				}
 
 				const newNode = {
@@ -547,10 +572,10 @@ export default function StrategyFlow({
 	);
 
 	// Add useEffect to monitor edges changes
-	useEffect(() => {
-	console.log("Current nodes:", nodes);
-	// console.log("Current edges:", edges);
-	}, [nodes, edges]);
+	// useEffect(() => {
+	// // console.log("Current nodes:", nodes);
+	// // console.log("Current edges:", edges);
+	// }, [nodes]);
 
 	return (
 		<div className="flex-1 h-full w-full overflow-x-auto">

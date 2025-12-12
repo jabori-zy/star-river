@@ -31,16 +31,53 @@ export const ScalarConfigSchema = z.object({
 export type ScalarConfig = z.infer<typeof ScalarConfigSchema>;
 
 // Union type for operation configs
-export const OperationConfigSchema = z.discriminatedUnion("type", [
+export const InputConfigSchema = z.discriminatedUnion("type", [
     SeriesConfigSchema,
     ScalarConfigSchema,
 ]);
 
-export type OperationConfig = z.infer<typeof OperationConfigSchema>;
+
+// output config
+export const OutputSeriesConfigSchema = z.object({
+    type: z.literal("Series"),
+    configId: z.number(),
+    outputHandleId: z.string(),
+    seriesDisplayName: z.string(),
+    // Source info (from OperationNode connected to EndNode)
+    sourceNodeId: z.string(),
+    sourceNodeName: z.string(),
+    sourceHandleId: z.string(),
+});
+
+export type OutputSeriesConfig = z.infer<typeof OutputSeriesConfigSchema>;
+
+export const OutputScalarConfigSchema = z.object({
+    type: z.literal("Scalar"),
+    configId: z.number(),
+    outputHandleId: z.string(),
+    scalarDisplayName: z.string(),
+    // Source info (from OperationNode connected to EndNode)
+    sourceNodeId: z.string(),
+    sourceNodeName: z.string(),
+    sourceHandleId: z.string(),
+});
+export type OutputScalarConfig = z.infer<typeof OutputScalarConfigSchema>;
+
+export const OutputConfigSchema = z.union([
+    OutputSeriesConfigSchema,
+    OutputScalarConfigSchema,
+]);
+export type OutputConfig = z.infer<typeof OutputConfigSchema>;
+
+
+
+
+export type OperationConfig = z.infer<typeof InputConfigSchema>;
 
 // Operation group data schema
 export const OperationGroupDataSchema = NodeDataBaseSchema.extend({
-    inputConfigs: z.array(OperationConfigSchema),
+    inputConfigs: z.array(InputConfigSchema),
+    outputConfigs: z.array(OutputConfigSchema),
     isCollapsed: z.boolean().default(false),
     expandedWidth: z.number().optional(),
     expandedHeight: z.number().optional(),

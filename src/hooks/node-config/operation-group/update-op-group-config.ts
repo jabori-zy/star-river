@@ -7,6 +7,9 @@ import type {
 	OperationGroupData,
 	ScalarConfig,
 	SeriesConfig,
+	OutputConfig,
+	OutputSeriesConfig,
+	OutputScalarConfig,
 } from "@/types/node/group/operation-group";
 
 interface UseUpdateOpGroupConfigProps {
@@ -50,8 +53,8 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 	}, [operationConfigs]);
 
 	const getOutputHandleId = useCallback(() => {
-		return `${id}_default_output_${getNextConfigId()}`;
-	}, [id, getNextConfigId]);
+		return `${id}_default_output`;
+	}, [id]);
 
 	// ==================== Generic Operation Config Updates ====================
 
@@ -322,6 +325,135 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 		updateNodeData(id, { inputConfigs: seriesConfigs });
 	}, [id, updateNodeData, seriesConfigs]);
 
+	// ==================== Output Config Updates ====================
+
+	const outputConfigs = nodeData?.outputConfigs ?? [];
+
+	/**
+	 * Generic update function for output configs
+	 */
+	const updateOutputConfigs = useCallback(
+		(updater: (draft: OutputConfig[]) => void) => {
+			const currentConfigs = outputConfigs;
+			const newConfigs = produce(currentConfigs, updater);
+			updateNodeData(id, { outputConfigs: newConfigs });
+		},
+		[outputConfigs, id, updateNodeData],
+	);
+
+	/**
+	 * Generate next output config ID
+	 */
+	const getNextOutputConfigId = useCallback(() => {
+		return outputConfigs.length > 0
+			? Math.max(...outputConfigs.map((c) => c.configId)) + 1
+			: 1;
+	}, [outputConfigs]);
+
+
+	/**
+	 * Set all output configs
+	 */
+	const setOutputConfigs = useCallback(
+		(configs: OutputConfig[]) => {
+			updateNodeData(id, { outputConfigs: configs });
+		},
+		[id, updateNodeData],
+	);
+
+	/**
+	 * Add a new output series config
+	 */
+	const addOutputSeriesConfig = useCallback(
+		(config: Omit<OutputSeriesConfig, "configId" | "outputHandleId">) => {
+			const configId = getNextOutputConfigId();
+			updateOutputConfigs((draft) => {
+				const newConfig: OutputSeriesConfig = {
+					...config,
+					configId,
+					outputHandleId: getOutputHandleId(),
+				};
+				draft.push(newConfig);
+			});
+		},
+		[updateOutputConfigs, getNextOutputConfigId, getOutputHandleId],
+	);
+
+	/**
+	 * Add a new output scalar config
+	 */
+	const addOutputScalarConfig = useCallback(
+		(config: Omit<OutputScalarConfig, "configId" | "outputHandleId">) => {
+			const configId = getNextOutputConfigId();
+			updateOutputConfigs((draft) => {
+				const newConfig: OutputScalarConfig = {
+					...config,
+					configId,
+					outputHandleId: getOutputHandleId(),
+				};
+				draft.push(newConfig);
+			});
+		},
+		[updateOutputConfigs, getNextOutputConfigId, getOutputHandleId],
+	);
+
+	/**
+	 * Update an output config by configId
+	 */
+	const updateOutputConfigById = useCallback(
+		(configId: number, updates: Partial<OutputConfig>) => {
+			updateOutputConfigs((draft) => {
+				const index = draft.findIndex((c) => c.configId === configId);
+				if (index !== -1) {
+					draft[index] = { ...draft[index], ...updates } as OutputConfig;
+				}
+			});
+		},
+		[updateOutputConfigs],
+	);
+
+	/**
+	 * Remove an output config by configId
+	 */
+	const removeOutputConfigById = useCallback(
+		(configId: number) => {
+			updateOutputConfigs((draft) => {
+				const index = draft.findIndex((c) => c.configId === configId);
+				if (index !== -1) {
+					draft.splice(index, 1);
+				}
+			});
+		},
+		[updateOutputConfigs],
+	);
+
+	/**
+	 * Update output display name
+	 */
+	const updateOutputDisplayName = useCallback(
+		(configId: number, displayName: string) => {
+			updateOutputConfigs((draft) => {
+				const index = draft.findIndex((c) => c.configId === configId);
+				if (index !== -1) {
+					const config = draft[index];
+					if (config.type === "Series") {
+						(config as OutputSeriesConfig).seriesDisplayName = displayName;
+					} else {
+						(config as OutputScalarConfig).scalarDisplayName = displayName;
+					}
+				}
+			});
+		},
+		[updateOutputConfigs],
+	);
+
+	/**
+	 * Clear all output configs
+	 */
+	const clearOutputConfigs = useCallback(() => {
+		updateNodeData(id, { outputConfigs: [] });
+	}, [id, updateNodeData]);
+
 	return {
 		// All configs
 		operationConfigs,
@@ -351,5 +483,15 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 		updateScalarDisplayName,
 		updateScalarValue,
 		clearScalarConfigs,
+
+		// Output configs
+		outputConfigs,
+		setOutputConfigs,
+		addOutputSeriesConfig,
+		addOutputScalarConfig,
+		updateOutputConfigById,
+		removeOutputConfigById,
+		updateOutputDisplayName,
+		clearOutputConfigs,
 	};
 };
