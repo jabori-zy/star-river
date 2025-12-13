@@ -1,7 +1,7 @@
-import { type NodeProps, NodeResizer } from "@xyflow/react";
+import { type NodeProps, NodeResizer, NodeToolbar, Position, useReactFlow } from "@xyflow/react";
 import { DynamicIcon, type IconName } from "lucide-react/dynamic";
 import type React from "react";
-import type { ReactNode } from "react";
+import { useCallback, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import BaseHandle, { type BaseHandleProps } from "../BaseHandle";
 
@@ -57,6 +57,16 @@ const BaseNode: React.FC<BaseNodeProps> = ({
 	showTitle = true, // Whether to show title
 	...props
 }) => {
+	const { getNode } = useReactFlow();
+
+	// Copy node data to clipboard (dev mode only)
+	const handleCopyData = useCallback(() => {
+		const node = getNode(id);
+		if (node?.data) {
+			navigator.clipboard.writeText(JSON.stringify(node.data, null, 2));
+		}
+	}, [id, getNode]);
+
 	// Determine border style and color based on selected state
 	const borderStyle = selected
 		? { borderColor: selectedBorderColor, borderWidth: "2px" }
@@ -71,6 +81,21 @@ const BaseNode: React.FC<BaseNodeProps> = ({
 
 	return (
 		<>
+			{/* Dev mode toolbar for debugging */}
+			{import.meta.env.DEV && (
+				<NodeToolbar isVisible={selected} position={Position.Bottom} align="start">
+					<div className="flex gap-1 bg-white rounded-md shadow-md border border-gray-200 p-1">
+						<button
+							type="button"
+							className="px-2 py-1 text-xs hover:bg-gray-100 rounded"
+							onClick={handleCopyData}
+						>
+							Copy Data
+						</button>
+					</div>
+				</NodeToolbar>
+			)}
+
 			{/* NodeResizer for resizable nodes */}
 			{canResize && (
 				<NodeResizer

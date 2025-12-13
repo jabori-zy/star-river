@@ -1,9 +1,3 @@
-import { z } from "zod";
-
-import { UnaryOperationSchema } from "./unary";
-import { BinaryOperationSchema } from "./binary";
-import { NaryOperationSchema } from "./n-ary";
-
 // Re-export from split files
 export {
     UnaryOperationSchema,
@@ -23,16 +17,26 @@ export {
     NaryOperationTypes,
 } from "./n-ary";
 
-// ============ Input Array Type ============
-
-export const InputArrayTypeSchema = z.enum(["Unary", "Binary", "Nary"]);
-export type InputArrayType = z.infer<typeof InputArrayTypeSchema>;
-
-
-// ============ Re-export Input/Output Config from operation-node ============
-// These configs are defined in operation-node.ts to avoid circular dependencies
+// ============ Re-export from operation-node ============
+// These are defined in operation-node.ts to avoid circular dependencies
 
 export {
+    // Input Array Type
+    InputArrayTypeSchema,
+    type InputArrayType,
+    // Operation
+    OperationSchema,
+    type Operation,
+    // Window Config
+    RollingWindowConfigSchema,
+    type RollingWindowConfig,
+    ExpandingWindowConfigSchema,
+    type ExpandingWindowConfig,
+    WindowConfigSchema,
+    type WindowConfig,
+    // Filling Method
+    FillingMethodSchema,
+    type FillingMethod,
     // Input configs
     InputSeriesConfigSchema,
     type InputSeriesConfig,
@@ -40,6 +44,8 @@ export {
     type InputScalarConfig,
     InputScalarValueConfigSchema,
     type InputScalarValueConfig,
+    InputGroupScalarValueConfigSchema,
+    type InputGroupScalarValueConfig,
     InputConfigSchema,
     type InputConfig,
     UnaryInputConfigSchema,
@@ -48,6 +54,11 @@ export {
     type BinaryInputConfig,
     NaryInputConfigSchema,
     type NaryInputConfig,
+    // Input type guards
+    isSeriesInput,
+    isScalarInput,
+    isScalarValueInput,
+    isGroupScalarValueInput,
     // Output configs
     OutputSeriesConfigSchema,
     type OutputSeriesConfig,
@@ -55,50 +66,10 @@ export {
     type OutputScalarConfig,
     OutputConfigSchema,
     type OutputConfig,
+    // Output type guards
+    isSeriesOutput,
+    isScalarOutput,
 } from "@/types/node/operation-node";
-
-
-// ============ Combined Operation Schema ============
-
-export const OperationSchema = z.union([
-    UnaryOperationSchema,
-    BinaryOperationSchema,
-    NaryOperationSchema,
-]);
-export type Operation = z.infer<typeof OperationSchema>;
-
-// ============ Window Config ============
-
-// Rolling Window Config
-export const RollingWindowConfigSchema = z.object({
-    windowType: z.literal("rolling"),
-    windowSize: z.number().int().min(1),
-});
-export type RollingWindowConfig = z.infer<typeof RollingWindowConfigSchema>;
-
-// Expanding Window Config
-export const ExpandingWindowConfigSchema = z.object({
-    windowType: z.literal("expanding"),
-    initialWindowSize: z.number().int().min(1),
-});
-export type ExpandingWindowConfig = z.infer<typeof ExpandingWindowConfigSchema>;
-
-// Union Type
-export const WindowConfigSchema = z.discriminatedUnion("windowType", [
-    RollingWindowConfigSchema,
-    ExpandingWindowConfigSchema,
-]);
-export type WindowConfig = z.infer<typeof WindowConfigSchema>;
-
-// ============ Filling Method ============
-
-export const FillingMethodSchema = z.enum([
-    "FFill", // forward fill
-    "BFill", // backward fill
-    "Zero", // zero fill
-    "Mean", // mean fill
-]);
-export type FillingMethod = z.infer<typeof FillingMethodSchema>;
 
 // ============ Helper Functions ============
 

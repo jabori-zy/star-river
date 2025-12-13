@@ -10,15 +10,27 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
-import type { InputConfig } from "@/types/operation";
+import type {
+	InputConfig,
+	InputSeriesConfig,
+	InputScalarConfig,
+	InputScalarValueConfig,
+	InputGroupScalarValueConfig,
+} from "@/types/operation";
+import {
+	isSeriesInput,
+	isScalarInput,
+	isScalarValueInput,
+	isGroupScalarValueInput,
+} from "@/types/operation";
 import { type InputOption, InputOptionDisplay } from "./index";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CircleAlert } from "lucide-react";
 
 interface BinaryInputProps {
 	input1: InputConfig | null;
 	input2: InputConfig | null;
-	seriesOptions: InputOption[];
+	inputOptions: InputOption[];
 	onChangeInput1: (config: InputConfig | null) => void;
 	onChangeInput2: (config: InputConfig | null) => void;
 	supportScalarInput?: boolean;
@@ -32,14 +44,28 @@ const InputSelector: React.FC<{
 	inputOptions: InputOption[];
 	onChange: (config: InputConfig | null) => void;
 	supportScalarInput?: boolean;
-}> = ({ label, inputConfig, inputOptions, onChange, supportScalarInput = true }) => {
-	// Track if user wants to use scalar value instead of series
-	const [useScalarValue, setUseScalarValue] = useState(
-		inputConfig?.type === "Scalar" && inputConfig.source === "Value",
+	configId: number;
+}> = ({ label, inputConfig, inputOptions, onChange, supportScalarInput = true, configId }) => {
+	// Track if user wants to use custom scalar value
+	const [useCustomScalar, setUseCustomScalar] = useState(
+		inputConfig !== null && isScalarValueInput(inputConfig),
 	);
-	const [scalarValue, setScalarValue] = useState(
-		inputConfig?.type === "Scalar" ? inputConfig.scalarValue?.toString() : "0",
-	);
+	const [scalarValue, setScalarValue] = useState(() => {
+		if (inputConfig && isScalarValueInput(inputConfig)) {
+			return inputConfig.scalarValue.toString();
+		}
+		return "0";
+	});
+
+	// Sync state when inputConfig changes externally
+	useEffect(() => {
+		if (inputConfig && isScalarValueInput(inputConfig)) {
+			setUseCustomScalar(true);
+			setScalarValue(inputConfig.scalarValue.toString());
+		} else {
+			setUseCustomScalar(false);
+		}
+	}, [inputConfig]);
 
 	// Filter options based on supportScalarInput
 	const filteredOptions = supportScalarInput
@@ -48,17 +74,22 @@ const InputSelector: React.FC<{
 
 	// Generate unique key for each option using configId
 	const getOptionKey = (option: InputOption) =>
-		`${option.fromNodeId}-${option.configId}`;
+		`${option.fromNodeId}-${option.configId}-${option.inputType}`;
 
-	// Get current selected value
-	const getCurrentValue = () => {
+	// Get current selected value based on input type
+	const getCurrentValue = (): string => {
 		if (!inputConfig) return "";
-		if (inputConfig.type === "Series") {
-			return `${inputConfig.fromNodeId}-${inputConfig.configId}`;
+
+		if (isSeriesInput(inputConfig)) {
+			return `${inputConfig.fromNodeId}-${inputConfig.fromSeriesConfigId}-Series`;
 		}
-		if (inputConfig.type === "Scalar" && inputConfig.source === "Node") {
-			return `${inputConfig.fromNodeId}-${inputConfig.configId}`;
+		if (isScalarInput(inputConfig)) {
+			return `${inputConfig.fromNodeId}-${inputConfig.fromScalarConfigId}-Scalar`;
 		}
+		if (isGroupScalarValueInput(inputConfig)) {
+			return `${inputConfig.fromNodeId}-${inputConfig.fromScalarConfigId}-CustomScalarValue`;
+		}
+		// isScalarValueInput - custom value, no selection
 		return "";
 	};
 
@@ -66,44 +97,70 @@ const InputSelector: React.FC<{
 		const selectedOption = filteredOptions.find(
 			(opt) => getOptionKey(opt) === value,
 		);
-		if (selectedOption) {
-			if (selectedOption.inputType === "Series") {
-				onChange({
-					type: "Series",
-					configId: selectedOption.configId,
-					seriesDisplayName: selectedOption.inputDisplayName,
-					fromNodeType: selectedOption.fromNodeType,
-					fromNodeId: selectedOption.fromNodeId,
-					fromNodeName: selectedOption.fromNodeName,
-					fromHandleId: selectedOption.fromHandleId,
-				});
-			} else {
-				// Scalar from node
-				onChange({
-					type: "Scalar",
-					source: "Node",
-					configId: selectedOption.configId,
-					scalarDisplayName: selectedOption.inputDisplayName,
-					scalarValue: selectedOption.inputValue ?? 0,
-					fromNodeType: selectedOption.fromNodeType,
-					fromNodeId: selectedOption.fromNodeId,
-					fromNodeName: selectedOption.fromNodeName,
-					fromHandleId: selectedOption.fromHandleId,
-				});
-			}
+		if (!selectedOption) return;
+
+		if (selectedOption.inputType === "Series") {
+			const config: InputSeriesConfig = {
+				type: "Series",
+				source: "Group",
+				configId,
+				seriesDisplayName: selectedOption.inputDisplayName,
+				fromNodeType: selectedOption.fromNodeType,
+				fromNodeId: selectedOption.fromNodeId,
+				fromNodeName: selectedOption.fromNodeName,
+				fromHandleId: selectedOption.fromHandleId,
+				fromSeriesConfigId: selectedOption.configId,
+				fromSeriesName: selectedOption.inputName ?? selectedOption.inputDisplayName,
+				fromSeriesDisplayName: selectedOption.inputDisplayName,
+			};
+			onChange(config);
+		} else if (selectedOption.inputType === "Scalar") {
+			const config: InputScalarConfig = {
+				type: "Scalar",
+				source: "Group",
+				configId,
+				scalarDisplayName: selectedOption.inputDisplayName,
+				fromNodeType: selectedOption.fromNodeType,
+				fromNodeId: selectedOption.fromNodeId,
+				fromNodeName: selectedOption.fromNodeName,
+				fromHandleId: selectedOption.fromHandleId,
+				fromScalarConfigId: selectedOption.configId,
+				fromScalarName: selectedOption.inputName ?? selectedOption.inputDisplayName,
+				fromScalarDisplayName: selectedOption.inputDisplayName,
+			};
+			onChange(config);
+		} else if (selectedOption.inputType === "CustomScalarValue") {
+			// CustomScalarValue from upstream (OperationStartNode)
+			const config: InputGroupScalarValueConfig = {
+				type: "CustomScalarValue",
+				source: "Group",
+				configId,
+				scalarDisplayName: selectedOption.inputDisplayName,
+				fromNodeType: selectedOption.fromNodeType,
+				fromNodeId: selectedOption.fromNodeId,
+				fromNodeName: selectedOption.fromNodeName,
+				fromHandleId: selectedOption.fromHandleId,
+				fromScalarConfigId: selectedOption.configId,
+				fromScalarDisplayName: selectedOption.inputDisplayName,
+				fromScalarValue: selectedOption.inputValue ?? 0,
+			};
+			onChange(config);
 		}
 	};
 
-	const handleScalarValueChange = (checked: boolean) => {
-		setUseScalarValue(checked);
+	const handleCustomScalarChange = (checked: boolean) => {
+		setUseCustomScalar(checked);
 		if (checked) {
-			// Switch to scalar value input
+			// Switch to custom scalar value input
 			const numValue = Number.parseFloat(scalarValue) || 0;
-			onChange({
-				type: "Scalar",
-				source: "Value",
+			const config: InputScalarValueConfig = {
+				type: "CustomScalarValue",
+				source: null,
+				configId,
+				scalarDisplayName: `Scalar ${configId}`,
 				scalarValue: numValue,
-			});
+			};
+			onChange(config);
 		} else {
 			// Clear selection
 			onChange(null);
@@ -116,11 +173,14 @@ const InputSelector: React.FC<{
 
 	const handleScalarInputBlur = () => {
 		const numValue = Number.parseFloat(scalarValue) || 0;
-		onChange({
-			type: "Scalar",
-			source: "Value",
+		const config: InputScalarValueConfig = {
+			type: "CustomScalarValue",
+			source: null,
+			configId,
+			scalarDisplayName: `Scalar ${configId}`,
 			scalarValue: numValue,
-		});
+		};
+		onChange(config);
 	};
 
 	return (
@@ -131,8 +191,8 @@ const InputSelector: React.FC<{
 					<div className="flex items-center gap-1.5">
 						<Checkbox
 							id={`scalar-toggle-${label}`}
-							checked={useScalarValue}
-							onCheckedChange={handleScalarValueChange}
+							checked={useCustomScalar}
+							onCheckedChange={handleCustomScalarChange}
 							className="h-3.5 w-3.5"
 						/>
 						<Label
@@ -145,7 +205,7 @@ const InputSelector: React.FC<{
 				)}
 			</div>
 
-			{useScalarValue ? (
+			{useCustomScalar ? (
 				<Input
 					type="number"
 					value={scalarValue}
@@ -188,10 +248,16 @@ const InputSelector: React.FC<{
 	);
 };
 
+// Check if input is any scalar type
+const isAnyScalarType = (input: InputConfig | null): boolean => {
+	if (!input) return false;
+	return isScalarInput(input) || isScalarValueInput(input) || isGroupScalarValueInput(input);
+};
+
 export const BinaryInput: React.FC<BinaryInputProps> = ({
 	input1,
 	input2,
-	seriesOptions,
+	inputOptions,
 	onChangeInput1,
 	onChangeInput2,
 	supportScalarInput = true,
@@ -199,8 +265,8 @@ export const BinaryInput: React.FC<BinaryInputProps> = ({
 }) => {
 	// Check if exactly one input is scalar (the other is series)
 	const hasOneScalarInput =
-		(input1?.type === "Scalar" && input2?.type === "Series") ||
-		(input1?.type === "Series" && input2?.type === "Scalar");
+		(isAnyScalarType(input1) && isSeriesInput(input2)) ||
+		(isSeriesInput(input1) && isAnyScalarType(input2));
 
 	return (
 		<>
@@ -208,16 +274,18 @@ export const BinaryInput: React.FC<BinaryInputProps> = ({
 				<InputSelector
 					label="Input 1"
 					inputConfig={input1}
-					inputOptions={seriesOptions}
+					inputOptions={inputOptions}
 					onChange={onChangeInput1}
 					supportScalarInput={supportScalarInput}
+					configId={1}
 				/>
 				<InputSelector
 					label="Input 2"
 					inputConfig={input2}
-					inputOptions={seriesOptions}
+					inputOptions={inputOptions}
 					onChange={onChangeInput2}
 					supportScalarInput={supportScalarInput}
+					configId={2}
 				/>
 			</div>
 			{hasOneScalarInput && (

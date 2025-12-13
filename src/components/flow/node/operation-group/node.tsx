@@ -26,9 +26,10 @@ const OperationGroup: React.FC<NodeProps<OperationGroupType>> = ({
 	selected,
 	width,
 	height,
+	parentId,
 }) => {
 	const { getNodeData } = useStrategyWorkflow();
-	const { setNodes, updateNodeData, updateNode } = useReactFlow();
+	const { setNodes, updateNodeData, updateNode, getInternalNode } = useReactFlow();
 	const operationGroupData = getNodeData(id) as OperationGroupData;
 	const nodeName = operationGroupData.nodeName || "Operation Group";
 	const isCollapsed = operationGroupData.isCollapsed ?? false;
@@ -51,6 +52,29 @@ const OperationGroup: React.FC<NodeProps<OperationGroupType>> = ({
 		handleColor: handleColor,
 		className: "!w-1.5 !h-3.5 !right-[-3px]",
 	};
+
+	// Detach from parent group
+	const handleDetach = useCallback(() => {
+		// Get the absolute position of current node using internal node
+		const currentInternalNode = getInternalNode(id);
+		const absolutePosition = currentInternalNode?.internals.positionAbsolute;
+
+		if (!absolutePosition) return;
+
+		setNodes((nodes) =>
+			nodes.map((node) => {
+				if (node.id === id) {
+					return {
+						...node,
+						parentId: undefined,
+						extent: undefined,
+						position: absolutePosition,
+					};
+				}
+				return node;
+			}),
+		);
+	}, [id, setNodes, getInternalNode]);
 
 	// Toggle collapse state and hide/show child nodes
 	const handleToggleCollapse = useCallback(
@@ -91,15 +115,75 @@ const OperationGroup: React.FC<NodeProps<OperationGroupType>> = ({
 				}
 			}
 
-			// Hide/show all child nodes (nodes with parentId === id)
-			setNodes((nodes) =>
-				nodes.map((node) => {
-					if (node.parentId === id) {
-						return { ...node, hidden: collapse };
+			// Hide/show all descendant nodes (including nested children)
+			setNodes((nodes) => {
+				// Get all descendant IDs recursively
+				const getDescendantIds = (parentId: string): Set<string> => {
+					const descendants = new Set<string>();
+					for (const node of nodes) {
+						if (node.parentId === parentId) {
+							descendants.add(node.id);
+							// Recursively get descendants of this node
+							const childDescendants = getDescendantIds(node.id);
+							for (const childId of childDescendants) {
+								descendants.add(childId);
+							}
+						}
+					}
+					return descendants;
+				};
+
+				const descendantIds = getDescendantIds(id);
+
+				return nodes.map((node) => {
+					// Handle direct children and all descendants
+					if (descendantIds.has(node.id)) {
+						if (collapse) {
+							// When collapsing, hide all descendants
+							// Also collapse nested groups and store their dimensions
+							if (node.type === NodeType.OperationGroup) {
+								const groupData = node.data as OperationGroupData;
+								if (!groupData.isCollapsed) {
+									return {
+										...node,
+										hidden: true,
+										data: {
+											...groupData,
+											isCollapsed: true,
+											expandedWidth: node.width,
+											expandedHeight: node.height,
+										},
+										width: COLLAPSED_WIDTH,
+										height: COLLAPSED_HEIGHT,
+										style: {
+											...node.style,
+											width: `${COLLAPSED_WIDTH}px`,
+											height: `${COLLAPSED_HEIGHT}px`,
+											minWidth: `${COLLAPSED_WIDTH}px`,
+											minHeight: `${COLLAPSED_HEIGHT}px`,
+										},
+									};
+								}
+							}
+							return { ...node, hidden: true };
+						}
+						// When expanding, only show direct children (not nested collapsed group's children)
+						if (node.parentId === id) {
+							return { ...node, hidden: false };
+						}
+						// For nested nodes, keep them hidden if their parent group is collapsed
+						const parentNode = nodes.find((n) => n.id === node.parentId);
+						if (parentNode?.type === NodeType.OperationGroup) {
+							const parentData = parentNode.data as OperationGroupData;
+							if (parentData.isCollapsed) {
+								return { ...node, hidden: true };
+							}
+						}
+						return { ...node, hidden: false };
 					}
 					return node;
-				}),
-			);
+				});
+			});
 		},
 		[id, setNodes, updateNodeData, updateNode, width, height, operationGroupData],
 	);
@@ -108,6 +192,15 @@ const OperationGroup: React.FC<NodeProps<OperationGroupType>> = ({
 		<>
 			<NodeToolbar isVisible={selected} position={Position.Top} align="start">
 				<div className="flex gap-1 bg-white rounded-md shadow-md border border-gray-200 p-1">
+					{parentId && (
+						<button
+							type="button"
+							className="px-2 py-1 text-xs hover:bg-gray-100 rounded"
+							onClick={handleDetach}
+						>
+							Detach
+						</button>
+					)}
 					<button
 						type="button"
 						className="px-2 py-1 text-xs hover:bg-gray-100 rounded"

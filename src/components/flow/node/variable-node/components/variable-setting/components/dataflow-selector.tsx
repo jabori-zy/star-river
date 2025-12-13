@@ -24,6 +24,7 @@ import {
 	generateStringHint,
 	generateTimeHint,
 } from "../../../hint-generators";
+import type { OperationOutputConfig, OperationInputConfig } from "@/types/node/group/operation-group";
 
 interface DataFlowSelectorProps {
 	variableItemList: VariableItem[];
@@ -52,13 +53,13 @@ interface DataFlowSelectorProps {
 
 // Type guards - used to determine variable types
 const isVariableConfig = (
-	variable: SelectedIndicator | SelectedSymbol | VariableConfig,
+	variable: SelectedIndicator | SelectedSymbol | VariableConfig | OperationOutputConfig | OperationInputConfig,
 ): variable is VariableConfig => {
 	return "varOperation" in variable;
 };
 
 const isSelectedIndicator = (
-	variable: SelectedIndicator | SelectedSymbol | VariableConfig,
+	variable: SelectedIndicator | SelectedSymbol | VariableConfig | OperationOutputConfig | OperationInputConfig,
 ): variable is SelectedIndicator => {
 	return (
 		"value" in variable && "configId" in variable && "indicatorType" in variable
@@ -66,7 +67,7 @@ const isSelectedIndicator = (
 };
 
 const isSelectedSymbol = (
-	variable: SelectedIndicator | SelectedSymbol | VariableConfig,
+	variable: SelectedIndicator | SelectedSymbol | VariableConfig | OperationOutputConfig | OperationInputConfig,
 ): variable is SelectedSymbol => {
 	return (
 		"symbol" in variable && "interval" in variable && "configId" in variable
@@ -155,7 +156,7 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 			(item) => item.nodeId === nodeId,
 		);
 		const selectedVar = selectedNode?.variables.find(
-			(v) => v.outputHandleId === outputHandleId,
+			(v) => 'outputHandleId' in v && v.outputHandleId === outputHandleId,
 		);
 
 		let variableId = 0;
@@ -271,7 +272,7 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 
 		// Get variable config ID and variable type
 		const selectedVar = selectedNode.variables.find(
-			(v) => v.outputHandleId === selectedHandleId,
+			(v) => 'outputHandleId' in v && v.outputHandleId === selectedHandleId,
 		);
 		if (!selectedVar) {
 			return null;

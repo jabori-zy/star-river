@@ -46,7 +46,6 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 
 	// Default values if node data is not available
 	const currentInputArrayType = inputArrayType ?? "Unary";
-	console.log("currentInputArrayType", currentInputArrayType);
 	const currentOperation = operation ?? { type: "Mean" };
 	const currentWindowConfig = windowConfig ?? { windowSize: 20, windowType: "rolling" as const };
 	const currentFillingMethod = fillingMethod ?? "FFill";
@@ -66,7 +65,6 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 		: null;
 
 	useEffect(() => {
-		console.log("sourceNodes", sourceNodes);
 		if (!parentNodeData || !sourceNodes || sourceNodes.length === 0) return;
 
 		const options: InputOption[] = [];
@@ -81,22 +79,38 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 							configId: config.configId,
 							inputType: "Series",
 							fromNodeId: node.id,
-							fromNodeName: node.data?.nodeName ?? "Operation Start",
-							fromHandleId: config.outputHandleId,
+							fromNodeName: node.data?.nodeName,
+							fromHandleId: `${node.id}_default_output`,
 							fromNodeType: NodeType.OperationStartNode,
 							inputDisplayName: config.seriesDisplayName,
+							inputName: config.seriesDisplayName,
 						});
-					} else {
-						// Scalar type
+					} else if (config.type === "Scalar") {
+						// Scalar type with variable name from source
 						options.push({
 							configId: config.configId,
 							inputType: "Scalar",
 							fromNodeId: node.id,
-							fromNodeName: node.data?.nodeName ?? "Operation Start",
-							fromHandleId: config.outputHandleId,
+							fromHandleId: `${node.id}_default_output`,
+							fromNodeName: node.data?.nodeName,
 							fromNodeType: NodeType.OperationStartNode,
 							inputDisplayName: config.scalarDisplayName,
-							inputValue: config.scalarValue,
+							inputName: config.fromScalarName,
+						});
+					} else if (config.type === "CustomScalarValue") {
+						// CustomScalarValue - self-defined or from parent group
+						const inputValue = config.source === null
+							? config.scalarValue
+							: config.fromScalarValue;
+						options.push({
+							configId: config.configId,
+							inputType: "CustomScalarValue",
+							fromNodeId: node.id,
+							fromHandleId: `${node.id}_default_output`,
+							fromNodeName: node.data?.nodeName,
+							fromNodeType: NodeType.OperationStartNode,
+							inputDisplayName: config.scalarDisplayName,
+							inputValue: inputValue,
 						});
 					}
 				});
@@ -115,6 +129,7 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 							fromHandleId: outputCfg.outputHandleId,
 							fromNodeType: NodeType.OperationNode,
 							inputDisplayName: outputCfg.seriesDisplayName,
+							inputName: outputCfg.seriesDisplayName,
 						});
 					} else {
 						// Scalar output
@@ -126,9 +141,43 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 							fromHandleId: outputCfg.outputHandleId,
 							fromNodeType: NodeType.OperationNode,
 							inputDisplayName: outputCfg.scalarDisplayName,
+							inputName: outputCfg.scalarDisplayName,
 						});
 					}
 				}
+			}
+			// Source is child OperationGroup - get outputConfigs
+			else if (node.type === NodeType.OperationGroup) {
+				const groupData = node.data as OperationGroupData;
+				const outputConfigs = groupData?.outputConfigs ?? [];
+
+				// Add each output from the child group as an input option
+				outputConfigs.forEach((outputCfg) => {
+					if (outputCfg.type === "Series") {
+						options.push({
+							configId: outputCfg.configId,
+							inputType: "Series",
+							fromNodeId: node.id,
+							fromNodeName: groupData?.nodeName,
+							fromHandleId: outputCfg.outputHandleId,
+							fromNodeType: NodeType.OperationGroup,
+							inputDisplayName: outputCfg.seriesDisplayName,
+							inputName: outputCfg.seriesDisplayName,
+						});
+					} else {
+						// Scalar output
+						options.push({
+							configId: outputCfg.configId,
+							inputType: "Scalar",
+							fromNodeId: node.id,
+							fromNodeName: groupData?.nodeName,
+							fromHandleId: outputCfg.outputHandleId,
+							fromNodeType: NodeType.OperationGroup,
+							inputDisplayName: outputCfg.scalarDisplayName,
+							inputName: outputCfg.scalarDisplayName,
+						});
+					}
+				});
 			}
 		});
 
@@ -258,7 +307,7 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 					input1={getBinaryInput1()}
 					input2={getBinaryInput2()}
 					inputs={getNaryInputs()}
-					seriesOptions={inputOptions}
+					inputOptions={inputOptions}
 					supportScalarInput={getOperationMeta(currentOperation.type, currentInputArrayType)?.supportScalarInput ?? true}
 					onChange={setUnaryInput}
 					onChangeInput1={setBinaryInput1}

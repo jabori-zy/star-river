@@ -17,7 +17,7 @@ const OperationNode: React.FC<NodeProps<OperationNodeType>> = ({
 	parentId,
 }) => {
 	const { getNodeData } = useStrategyWorkflow();
-	const { setNodes, getNode } = useReactFlow();
+	const { setNodes, getInternalNode } = useReactFlow();
 	const operationNodeData = getNodeData(id) as OperationNodeData;
 	const nodeName = operationNodeData.nodeName || "Operation Node";
     const handleColor =
@@ -42,29 +42,26 @@ const OperationNode: React.FC<NodeProps<OperationNodeType>> = ({
 	};
 
 	const handleDetach = useCallback(() => {
-		const parentNode = parentId ? getNode(parentId) : null;
+		// Get the absolute position of current node using internal node
+		const currentInternalNode = getInternalNode(id);
+		const absolutePosition = currentInternalNode?.internals.positionAbsolute;
+
+		if (!absolutePosition) return;
 
 		setNodes((nodes) =>
 			nodes.map((node) => {
 				if (node.id === id) {
-					const globalPosition = parentNode
-						? {
-								x: node.position.x + parentNode.position.x,
-								y: node.position.y + parentNode.position.y,
-							}
-						: node.position;
-
 					return {
 						...node,
 						parentId: undefined,
 						extent: undefined,
-						position: globalPosition,
+						position: absolutePosition,
 					};
 				}
 				return node;
 			}),
 		);
-	}, [id, parentId, setNodes, getNode]);
+	}, [id, setNodes, getInternalNode]);
 
     return (
         <>

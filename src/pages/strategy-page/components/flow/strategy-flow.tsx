@@ -54,6 +54,66 @@ interface StrategyFlowProps {
 	onSaveStatusChange: (saveStatus: "saved" | "unsaved" | "saving") => void;
 }
 
+/**
+ * Topological sort for nodes to ensure parent nodes come before their children.
+ * For nested groups, a node must appear after all its ancestors.
+ * Sort by depth: nodes with fewer ancestors come first.
+ */
+function sortNodesTopologically(nodes: Node[]): Node[] {
+	const nodeMap = new Map(nodes.map((n) => [n.id, n]));
+
+	// Get the depth of a node (how many ancestors it has)
+	function getDepth(node: Node): number {
+		let depth = 0;
+		let current = node;
+		while (current.parentId) {
+			depth++;
+			const parent = nodeMap.get(current.parentId);
+			if (!parent) break;
+			current = parent;
+		}
+		return depth;
+	}
+
+	// Sort by depth (nodes with fewer ancestors come first)
+	return [...nodes].sort((a, b) => getDepth(a) - getDepth(b));
+}
+
+/**
+ * Get all descendant node IDs of a given node (children, grandchildren, etc.)
+ */
+function getDescendantIds(nodeId: string, nodes: Node[]): Set<string> {
+	const descendants = new Set<string>();
+
+	function collectDescendants(parentId: string) {
+		for (const node of nodes) {
+			if (node.parentId === parentId && !descendants.has(node.id)) {
+				descendants.add(node.id);
+				// Recursively collect descendants of this node
+				collectDescendants(node.id);
+			}
+		}
+	}
+
+	collectDescendants(nodeId);
+	return descendants;
+}
+
+/**
+ * Get the depth of a node (how many ancestors it has)
+ */
+function getNodeDepth(node: Node, nodeMap: Map<string, Node>): number {
+	let depth = 0;
+	let current = node;
+	while (current.parentId) {
+		depth++;
+		const parent = nodeMap.get(current.parentId);
+		if (!parent) break;
+		current = parent;
+	}
+	return depth;
+}
+
 export default function StrategyFlow({
 	strategy,
 	onSaveStatusChange,
@@ -62,7 +122,7 @@ export default function StrategyFlow({
 	const [edges, setEdges] = useEdgesState<Edge>([]);
 	// Currently dragging node
 	const { dragNodeItem, setDragNodeItem} = useDndNodeStore();
-	const { screenToFlowPosition, getNodeConnections, updateNodeData, getIntersectingNodes } =
+	const { screenToFlowPosition, getNodeConnections, updateNodeData, getIntersectingNodes, getInternalNode } =
 		useReactFlow();
 	const { t } = useTranslation();
 	const { checkIsValidConnection } = useStrategyWorkflow();
@@ -236,8 +296,8 @@ export default function StrategyFlow({
 						type: NodeType.OperationStartNode,
 						position: { x: 40, y: 60 },  // Fixed position relative to group's top-left corner
 						data: operationStartNodeData,
-						draggable: true,
-						selectable: false,
+						// draggable: true,
+						// selectable: false,
 						parentId: uniqueId,
 						extent: 'parent' as const,
 					};
@@ -248,8 +308,8 @@ export default function StrategyFlow({
 						type: NodeType.OperationEndNode,
 						position: { x: 120, y: 60 },  // Fixed position relative to group's top-left corner
 						data: operationEndNodeData,
-						draggable: true,
-						selectable: false,
+						// draggable: true,
+						// selectable: false,
 						parentId: uniqueId,
 						extent: 'parent' as const,
 					};
@@ -330,41 +390,62 @@ export default function StrategyFlow({
 		// If the node already has a parent, skip group detection
 		if (node.parentId) return;
 
+		// Get all descendant IDs of the dragged node (to exclude them from intersection detection)
+		const descendantIds = getDescendantIds(node.id, nodes);
+
+		// Build node map for depth calculation
+		const nodeMap = new Map(nodes.map((n) => [n.id, n]));
+
 		// Get intersecting nodes using React Flow's built-in hook
 		const intersectingNodes = getIntersectingNodes(node);
-		// Filter out collapsed groups - only consider expanded groups for hover effect
-		const intersectingGroupIds = intersectingNodes
-			.filter((n) => {
-				if (n.type !== NodeType.OperationGroup) return false;
-				const groupData = n.data as OperationGroupData;
-				return !groupData?.isCollapsed;
-			})
-			.map((n) => n.id);
 
-		// Find all expanded OperationGroup nodes (excluding the dragged node itself)
+		// Filter out collapsed groups and descendants - only consider expanded groups for hover effect
+		const intersectingGroups = intersectingNodes.filter((n) => {
+			if (n.type !== NodeType.OperationGroup) return false;
+			// Exclude descendants of the dragged node
+			if (descendantIds.has(n.id)) return false;
+			const groupData = n.data as OperationGroupData;
+			return !groupData?.isCollapsed;
+		});
+
+		// Find the deepest intersecting group (the one we should highlight)
+		let deepestGroupId: string | null = null;
+		let maxDepth = -1;
+		for (const group of intersectingGroups) {
+			const depth = getNodeDepth(group, nodeMap);
+			if (depth > maxDepth) {
+				maxDepth = depth;
+				deepestGroupId = group.id;
+			}
+		}
+
+		// Find all expanded OperationGroup nodes (excluding the dragged node itself and its descendants)
 		const groupNodes = nodes.filter(
 			(n) => {
 				if (n.type !== NodeType.OperationGroup || n.id === node.id) return false;
+				// Exclude descendants of the dragged node
+				if (descendantIds.has(n.id)) return false;
 				const groupData = n.data as OperationGroupData;
 				return !groupData?.isCollapsed;
 			}
 		);
 
 		// Update isHovered state for each group node
+		// Only the deepest intersecting group should be highlighted
 		for (const groupNode of groupNodes) {
 			const groupData = groupNode.data as OperationGroupData;
-			const isOverlapping = intersectingGroupIds.includes(groupNode.id);
+			const shouldBeHovered = groupNode.id === deepestGroupId;
 
 			if (groupData?.nodeConfig) {
 				const currentIsHovered = groupData.nodeConfig.isHovered;
-				if (isOverlapping && !currentIsHovered) {
+				if (shouldBeHovered && !currentIsHovered) {
 					updateNodeData(groupNode.id, {
 						nodeConfig: {
 							...groupData.nodeConfig,
 							isHovered: true,
 						},
 					});
-				} else if (!isOverlapping && currentIsHovered) {
+				} else if (!shouldBeHovered && currentIsHovered) {
 					updateNodeData(groupNode.id, {
 						nodeConfig: {
 							...groupData.nodeConfig,
@@ -380,20 +461,52 @@ export default function StrategyFlow({
 		// If the node already has a parent, skip group detection
 		if (draggedNode.parentId) return;
 
+		// Only allow operation-related nodes to be added to OperationGroup
+		const allowedNodeTypes = [
+			NodeType.OperationStartNode,
+			NodeType.OperationEndNode,
+			NodeType.OperationNode,
+			NodeType.OperationGroup,
+		];
+
+		// Get all descendant IDs of the dragged node (to exclude them from intersection detection)
+		const descendantIds = getDescendantIds(draggedNode.id, nodes);
+
+		// Build node map for depth calculation
+		const nodeMap = new Map(nodes.map((n) => [n.id, n]));
+
 		// Get intersecting nodes using React Flow's built-in hook
 		const intersectingNodes = getIntersectingNodes(draggedNode);
 
-		// Find all OperationGroup nodes (excluding the dragged node itself)
+		// Find all OperationGroup nodes (excluding the dragged node itself and its descendants)
 		const groupNodes = nodes.filter(
-			(n) => n.type === NodeType.OperationGroup && n.id !== draggedNode.id
+			(n) => {
+				if (n.type !== NodeType.OperationGroup || n.id === draggedNode.id) return false;
+				// Exclude descendants of the dragged node
+				return !descendantIds.has(n.id);
+			}
 		);
 
-		// Find the first intersecting expanded group node (skip collapsed groups)
-		const targetGroupNode = intersectingNodes.find((n) => {
+		// Find all intersecting expanded group nodes (skip collapsed groups and descendants)
+		const intersectingGroups = intersectingNodes.filter((n) => {
 			if (n.type !== NodeType.OperationGroup) return false;
+			// Exclude descendants of the dragged node
+			if (descendantIds.has(n.id)) return false;
 			const groupData = n.data as OperationGroupData;
 			return !groupData?.isCollapsed;
-		}) || null;
+		});
+
+		// Select the deepest group (the one with the most ancestors) as the target
+		// This ensures that when dragging into nested groups, we select the innermost group
+		let targetGroupNode: Node | null = null;
+		let maxDepth = -1;
+		for (const group of intersectingGroups) {
+			const depth = getNodeDepth(group, nodeMap);
+			if (depth > maxDepth) {
+				maxDepth = depth;
+				targetGroupNode = group;
+			}
+		}
 
 		// Reset isHovered state for all group nodes
 		for (const groupNode of groupNodes) {
@@ -408,14 +521,23 @@ export default function StrategyFlow({
 			}
 		}
 
+		// Check if the dragged node type is allowed to be added to the group
+		if (targetGroupNode && !allowedNodeTypes.includes(draggedNode.type as NodeType)) {
+			toast.warning(`${draggedNode.type} is not supported to be added to Operation Group.`);
+			return;
+		}
+
 		// If overlapping with an expanded group, add the dragged node to that group
 		if (targetGroupNode) {
 			const targetGroupId = targetGroupNode.id;
 
-			// Calculate the relative position within the group
+			// Get absolute position of target group using internal node
+			const targetInternalNode = getInternalNode(targetGroupId);
+			const targetAbsolutePosition = targetInternalNode?.internals.positionAbsolute ?? targetGroupNode.position;
+
 			const relativePosition = {
-				x: draggedNode.position.x - targetGroupNode.position.x,
-				y: draggedNode.position.y - targetGroupNode.position.y,
+				x: draggedNode.position.x - targetAbsolutePosition.x,
+				y: draggedNode.position.y - targetAbsolutePosition.y,
 			};
 
 			setNodes((nds) => {
@@ -432,16 +554,12 @@ export default function StrategyFlow({
 					return n;
 				});
 
-				// Sort nodes: parent nodes must come before their children
-				// Nodes without parentId come first, then nodes with parentId
-				return updatedNodes.sort((a, b) => {
-					const aHasParent = a.parentId ? 1 : 0;
-					const bHasParent = b.parentId ? 1 : 0;
-					return aHasParent - bHasParent;
-				});
+				// Topological sort: ensure parent nodes come before their children
+				// For nested groups, a node must appear after all its ancestors
+				return sortNodesTopologically(updatedNodes);
 			});
 		}
-	}, [nodes, updateNodeData, setNodes, getIntersectingNodes]);
+	}, [nodes, updateNodeData, setNodes, getIntersectingNodes, getInternalNode]);
 
 	// When connecting nodes, onConnect event will be triggered
 	const onConnect: OnConnect = useCallback(
@@ -573,9 +691,9 @@ export default function StrategyFlow({
 
 	// Add useEffect to monitor edges changes
 	// useEffect(() => {
-	// // console.log("Current nodes:", nodes);
-	// console.log("Current edges:", edges);
-	// }, [edges]);
+	// console.log("Current nodes:", nodes);
+	// // console.log("Current edges:", edges);
+	// }, [nodes]);
 
 	return (
 		<div className="flex-1 h-full w-full overflow-x-auto">

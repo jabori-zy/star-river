@@ -13,18 +13,18 @@ import { cn } from "@/lib/utils";
 import { Plus, X } from "lucide-react";
 import type { InputSeriesConfig } from "@/types/operation";
 import { type InputOption, InputOptionDisplay } from "./index";
-import type { NodeType } from "@/types/node";
+import { NodeType } from "@/types/node";
 
 interface NaryInputProps {
 	inputs: InputSeriesConfig[];
-	seriesOptions: InputOption[];
+	inputOptions: InputOption[];
 	onChange: (inputs: InputSeriesConfig[]) => void;
 	className?: string;
 }
 
 export const NaryInput: React.FC<NaryInputProps> = ({
 	inputs,
-	seriesOptions,
+	inputOptions,
 	onChange,
 	className,
 }) => {
@@ -49,14 +49,14 @@ export const NaryInput: React.FC<NaryInputProps> = ({
 		}
 	}, [inputs.length, inputKeys]);
 
+	// Filter to show only Series options for Nary input
+	const seriesOnlyOptions = inputOptions.filter(
+		(opt) => opt.inputType === "Series",
+	);
+
 	// Generate unique key for each option using configId
 	const getOptionKey = (option: InputOption) =>
 		`${option.fromNodeId}-${option.configId}`;
-
-	// Filter to show only Series options for Nary input
-	const seriesOnlyOptions = seriesOptions.filter(
-		(opt) => opt.inputType === "Series",
-	);
 
 	// Handle series change for a specific input
 	const handleSeriesChange = (index: number, value: string) => {
@@ -67,12 +67,16 @@ export const NaryInput: React.FC<NaryInputProps> = ({
 			const newInputs = [...inputs];
 			newInputs[index] = {
 				type: "Series",
-				configId: selectedOption.configId,
+				source: "Group",
+				configId: inputs[index]?.configId ?? Date.now(),
 				seriesDisplayName: selectedOption.inputDisplayName,
 				fromNodeType: selectedOption.fromNodeType,
 				fromNodeId: selectedOption.fromNodeId,
 				fromNodeName: selectedOption.fromNodeName,
 				fromHandleId: selectedOption.fromHandleId,
+				fromSeriesConfigId: selectedOption.configId,
+				fromSeriesName: selectedOption.inputName ?? selectedOption.inputDisplayName,
+				fromSeriesDisplayName: selectedOption.inputDisplayName,
 			};
 			onChange(newInputs);
 		}
@@ -82,12 +86,16 @@ export const NaryInput: React.FC<NaryInputProps> = ({
 	const handleAddInput = () => {
 		const newInput: InputSeriesConfig = {
 			type: "Series",
-			configId: inputs.length + 1,
+			source: "Group",
+			configId: Date.now(),
 			seriesDisplayName: "",
-			fromNodeType: "klineNode" as NodeType,
+			fromNodeType: NodeType.OperationStartNode,
 			fromNodeId: "",
 			fromNodeName: "",
 			fromHandleId: "",
+			fromSeriesConfigId: 0,
+			fromSeriesName: "",
+			fromSeriesDisplayName: "",
 		};
 		// Add new key for the new input
 		setInputKeys([...inputKeys, keyCounterRef.current++]);
@@ -110,7 +118,7 @@ export const NaryInput: React.FC<NaryInputProps> = ({
 			<div className="space-y-2">
 				{inputs.map((input, index) => {
 					const currentValue = input.fromNodeId
-						? `${input.fromNodeId}-${input.configId}`
+						? `${input.fromNodeId}-${input.fromSeriesConfigId}`
 						: "";
 
 					return (

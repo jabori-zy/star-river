@@ -13,14 +13,14 @@ import type {
 } from "@/types/node/variable-node";
 import { TradeMode } from "@/types/strategy";
 import type { OperationGroupData } from "@/types/node/group/operation-group";
-import type { OperationOutputConfig } from "@/types/node/group/operation-group";
+import type { OperationOutputConfig, OperationInputConfig } from "@/types/node/group/operation-group";
 
 // Define variable item type for storing node variable information
 export interface VariableItem {
 	nodeId: string;
 	nodeName: string;
 	nodeType: NodeType;
-	variables: (SelectedIndicator | SelectedSymbol | VariableConfig | OperationOutputConfig)[]; // Can contain data from indicator nodes, kline nodes, and variable nodes
+	variables: (SelectedIndicator | SelectedSymbol | VariableConfig | OperationOutputConfig | OperationInputConfig)[]; // Can contain data from indicator nodes, kline nodes, and variable nodes
 }
 
 /**
@@ -44,19 +44,20 @@ const useNodeVariables = () => {
 			nodeId: string,
 			nodeName: string,
 			nodeType: NodeType,
-			variable: SelectedIndicator | SelectedSymbol | VariableConfig | OperationOutputConfig,
+			variable: SelectedIndicator | SelectedSymbol | VariableConfig | OperationOutputConfig | OperationInputConfig,
 		) => {
 			// Find if a variable item with the same node ID already exists
 			const existingItem = variableList.find((item) => item.nodeId === nodeId);
 
 			if (existingItem) {
 				// Check if a variable already exists to avoid duplicates
-				// For OperationGroup, use configId since all outputs share the same outputHandleId
+				// For OperationGroup output and OperationStartNode input, use configId for comparison
+				// since inputConfigs don't have outputHandleId property
 				const existingVariable = existingItem.variables.find((v) => {
-					if (nodeType === NodeType.OperationGroup) {
+					if (nodeType === NodeType.OperationGroup || nodeType === NodeType.OperationStartNode) {
 						return v.configId === variable.configId;
 					}
-					return v.outputHandleId === variable.outputHandleId;
+					return 'outputHandleId' in v && 'outputHandleId' in variable && v.outputHandleId === variable.outputHandleId;
 				});
 				if (!existingVariable) {
 					existingItem.variables.push(variable);
@@ -221,6 +222,21 @@ const useNodeVariables = () => {
 							operationGroupNodeData.nodeName,
 							NodeType.OperationGroup,
 							outputConfig,
+						);
+					});
+				}
+				else if (nodeType === NodeType.OperationStartNode) {
+					if (!node.parentId) continue;
+					const parentNode = getNode(node.parentId);
+					if (!parentNode) continue;
+					const parentNodeData = parentNode.data as OperationGroupData;
+					parentNodeData.inputConfigs.forEach((inputConfig: OperationInputConfig) => {
+						addOrUpdateVariableItem(
+							tempVariableItemList,
+							node.id,
+							parentNodeData.nodeName,
+							NodeType.OperationStartNode,
+							inputConfig,
 						);
 					});
 				}

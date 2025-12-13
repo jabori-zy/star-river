@@ -1,8 +1,8 @@
 import type { VariableItem } from "@/hooks/flow/use-strategy-workflow";
 import type { OperationInputConfig } from "@/types/node/group/operation-group";
 
-export type ConfigType = "Series" | "Scalar";
-export type ScalarSource = "Value" | "Node";
+export type ConfigType = "Series" | "Scalar" | "CustomScalarValue";
+export type ScalarSource = "Value" | "Node" | "Group";
 
 // Single config item props
 export interface InputConfigItemProps {
@@ -16,6 +16,8 @@ export interface InputConfigItemProps {
 		handleId: string,
 		varName: string,
 		varDisplayName: string,
+		varConfigId: number,
+		varType?: string,
 	) => void;
 	onScalarValueChange: (configId: number, value: number) => void;
 	onTypeChange: (configId: number, newType: ConfigType) => void;
@@ -36,6 +38,8 @@ export interface OperationConfigerProps {
 		handleId: string,
 		varName: string,
 		varDisplayName: string,
+		varConfigId: number,
+		varType?: string,
 	) => void;
 	onUpdateScalarValue: (configId: number, value: number) => void;
 	onTypeChange: (configId: number, newType: ConfigType) => void;

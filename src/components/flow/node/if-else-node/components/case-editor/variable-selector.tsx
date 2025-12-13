@@ -173,7 +173,7 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 			(item) => item.nodeId === nodeId,
 		);
 		const selectedVar = selectedNode?.variables.find(
-			(v) => v.outputHandleId === outputHandleId,
+			(v) => 'outputHandleId' in v && v.outputHandleId === outputHandleId,
 		);
 
 		let variableId = 0;

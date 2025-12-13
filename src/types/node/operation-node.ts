@@ -1,55 +1,143 @@
 import { z } from "zod";
-import {
-    InputArrayTypeSchema,
-    OperationSchema,
-    WindowConfigSchema,
-    FillingMethodSchema,
-} from "@/types/operation";
 import { NodeDataBaseSchema, NodeType } from "@/types/node";
 import type { Node } from "@xyflow/react";
+// Import operation schemas from individual files to avoid circular dependency
+import { UnaryOperationSchema } from "@/types/operation/unary";
+import { BinaryOperationSchema } from "@/types/operation/binary";
+import { NaryOperationSchema } from "@/types/operation/n-ary";
+
+// ============ Input Array Type ============
+// Defined here to avoid circular dependency with @/types/operation
+
+export const InputArrayTypeSchema = z.enum(["Unary", "Binary", "Nary"]);
+export type InputArrayType = z.infer<typeof InputArrayTypeSchema>;
+
+// ============ Combined Operation Schema ============
+
+export const OperationSchema = z.union([
+    UnaryOperationSchema,
+    BinaryOperationSchema,
+    NaryOperationSchema,
+]);
+export type Operation = z.infer<typeof OperationSchema>;
+
+// ============ Window Config ============
+
+export const RollingWindowConfigSchema = z.object({
+    windowType: z.literal("rolling"),
+    windowSize: z.number().int().min(1),
+});
+export type RollingWindowConfig = z.infer<typeof RollingWindowConfigSchema>;
+
+export const ExpandingWindowConfigSchema = z.object({
+    windowType: z.literal("expanding"),
+    initialWindowSize: z.number().int().min(1),
+});
+export type ExpandingWindowConfig = z.infer<typeof ExpandingWindowConfigSchema>;
+
+export const WindowConfigSchema = z.discriminatedUnion("windowType", [
+    RollingWindowConfigSchema,
+    ExpandingWindowConfigSchema,
+]);
+export type WindowConfig = z.infer<typeof WindowConfigSchema>;
+
+// ============ Filling Method ============
+
+export const FillingMethodSchema = z.enum([
+    "FFill", // forward fill
+    "BFill", // backward fill
+    "Zero", // zero fill
+    "Mean", // mean fill
+]);
+export type FillingMethod = z.infer<typeof FillingMethodSchema>;
 
 // ============ Input Config ============
+// OperationNode only exists inside a Group, so source is always "Group"
 
+// Series input from OperationStartNode or other OperationNode
 export const InputSeriesConfigSchema = z.object({
     type: z.literal("Series"),
+    source: z.literal("Group"),
     configId: z.number(),
     seriesDisplayName: z.string(),
     fromNodeType: z.nativeEnum(NodeType),
     fromNodeId: z.string(),
     fromNodeName: z.string(),
     fromHandleId: z.string(),
+    fromSeriesConfigId: z.number(),
+    fromSeriesName: z.string(),
+    fromSeriesDisplayName: z.string(),
 });
 
 export type InputSeriesConfig = z.infer<typeof InputSeriesConfigSchema>;
 
+// Scalar input from OperationStartNode or other OperationNode - with variable name
 export const InputScalarConfigSchema = z.object({
     type: z.literal("Scalar"),
-    source: z.literal("Node"),
+    source: z.literal("Group"),
     configId: z.number(),
     scalarDisplayName: z.string(),
-    scalarValue: z.number(),
     fromNodeType: z.nativeEnum(NodeType),
     fromNodeId: z.string(),
     fromNodeName: z.string(),
     fromHandleId: z.string(),
+    fromScalarConfigId: z.number(),
+    fromScalarName: z.string(),
+    fromScalarDisplayName: z.string(),
 });
 export type InputScalarConfig = z.infer<typeof InputScalarConfigSchema>;
 
-
+// Self-defined custom scalar value (no source)
 export const InputScalarValueConfigSchema = z.object({
-    type: z.literal("Scalar"),
-    source: z.literal("Value"),
+    type: z.literal("CustomScalarValue"),
+    source: z.null(),
+    configId: z.number(),
+    scalarDisplayName: z.string(),
     scalarValue: z.number(),
 });
 export type InputScalarValueConfig = z.infer<typeof InputScalarValueConfigSchema>;
 
+// Custom scalar value from OperationStartNode (parent Group's input)
+export const InputGroupScalarValueConfigSchema = z.object({
+    type: z.literal("CustomScalarValue"),
+    source: z.literal("Group"),
+    configId: z.number(),
+    scalarDisplayName: z.string(),
+    fromNodeType: z.nativeEnum(NodeType),
+    fromNodeId: z.string(),
+    fromNodeName: z.string(),
+    fromHandleId: z.string(),
+    fromScalarConfigId: z.number(),
+    fromScalarDisplayName: z.string(),
+    fromScalarValue: z.number(),
+});
+export type InputGroupScalarValueConfig = z.infer<typeof InputGroupScalarValueConfigSchema>;
 
+// Union type for all input configs
 export const InputConfigSchema = z.union([
     InputSeriesConfigSchema,
     InputScalarConfigSchema,
     InputScalarValueConfigSchema,
+    InputGroupScalarValueConfigSchema,
 ]);
 export type InputConfig = z.infer<typeof InputConfigSchema>;
+
+// Type guards for input configs
+export const isSeriesInput = (config: unknown): config is InputSeriesConfig => {
+    return InputSeriesConfigSchema.safeParse(config).success;
+};
+
+export const isScalarInput = (config: unknown): config is InputScalarConfig => {
+    return InputScalarConfigSchema.safeParse(config).success;
+};
+
+export const isScalarValueInput = (config: unknown): config is InputScalarValueConfig => {
+    return InputScalarValueConfigSchema.safeParse(config).success;
+};
+
+export const isGroupScalarValueInput = (config: unknown): config is InputGroupScalarValueConfig => {
+    return InputGroupScalarValueConfigSchema.safeParse(config).success;
+};
 
 // ============ Unary Input Config ============
 export const UnaryInputConfigSchema = z.object({
@@ -100,6 +188,15 @@ export const OutputConfigSchema = z.union([
     OutputScalarConfigSchema,
 ]);
 export type OutputConfig = z.infer<typeof OutputConfigSchema>;
+
+// Type guards for output configs
+export const isSeriesOutput = (config: unknown): config is OutputSeriesConfig => {
+    return OutputSeriesConfigSchema.safeParse(config).success;
+};
+
+export const isScalarOutput = (config: unknown): config is OutputScalarConfig => {
+    return OutputScalarConfigSchema.safeParse(config).success;
+};
 
 
 // ============ Operation Node ============

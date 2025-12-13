@@ -18,7 +18,12 @@ import type {
 import {
 	isScalarOutput,
 	isSeriesOutput,
+	isSeriesInput,
+	isScalarInput,
+	isScalarValueInput,
+	isGroupScalarValueInput,
 	type OperationOutputConfig,
+	type OperationInputConfig,
 } from "@/types/node/group/operation-group";
 import {
 	getVariableValueTypeIcon,
@@ -26,10 +31,11 @@ import {
 	VariableValueType,
 } from "@/types/variable";
 import { cn } from "@/lib/utils";
+import type { TFunction } from "i18next";
 
 // Type guards
 export const isSelectedIndicator = (
-	variable: SelectedIndicator | SelectedSymbol | VariableConfig | OperationOutputConfig,
+	variable: SelectedIndicator | SelectedSymbol | VariableConfig | OperationOutputConfig | OperationInputConfig,
 ): variable is SelectedIndicator => {
 	return (
 		"value" in variable && "configId" in variable && "indicatorType" in variable
@@ -37,7 +43,7 @@ export const isSelectedIndicator = (
 };
 
 export const isSelectedSymbol = (
-	variable: SelectedIndicator | SelectedSymbol | VariableConfig | OperationOutputConfig,
+	variable: SelectedIndicator | SelectedSymbol | VariableConfig | OperationOutputConfig | OperationInputConfig,
 ): variable is SelectedSymbol => {
 	return (
 		"symbol" in variable && "interval" in variable && "configId" in variable
@@ -45,7 +51,7 @@ export const isSelectedSymbol = (
 };
 
 export const isVariableConfig = (
-	variable: SelectedIndicator | SelectedSymbol | VariableConfig | OperationOutputConfig,
+	variable: SelectedIndicator | SelectedSymbol | VariableConfig | OperationOutputConfig | OperationInputConfig,
 ): variable is VariableConfig => {
 	return (
 		"varOperation" in variable &&
@@ -54,21 +60,29 @@ export const isVariableConfig = (
 };
 
 export const isOperationOutputConfig = (
-	variable: SelectedIndicator | SelectedSymbol | VariableConfig | OperationOutputConfig,
+	variable: SelectedIndicator | SelectedSymbol | VariableConfig | OperationOutputConfig | OperationInputConfig,
 ): variable is OperationOutputConfig => {
 	return isSeriesOutput(variable) || isScalarOutput(variable);
 };
 
+export const isOperationInputConfig = (
+	variable: SelectedIndicator | SelectedSymbol | VariableConfig | OperationOutputConfig | OperationInputConfig,
+): variable is OperationInputConfig => {
+	return isSeriesInput(variable) || isScalarInput(variable) || isScalarValueInput(variable) || isGroupScalarValueInput(variable);
+};
+
 interface RenderVariableOptionsParams {
-	variables: (SelectedIndicator | SelectedSymbol | VariableConfig | OperationOutputConfig)[];
+	variables: (SelectedIndicator | SelectedSymbol | VariableConfig | OperationOutputConfig | OperationInputConfig)[];
 	localNodeId: string;
 	generateOptionValue: (
 		nodeId: string,
 		handleId: string,
 		variable: string | number,
 		variableName?: string | null,
+		configId?: number,
+		varType?: string,
 	) => string;
-	t: (key: string) => string;
+	t: TFunction;
 	whitelistValueType?: VariableValueType | null; // Optional: whitelist - only keep specified type
 	blacklistValueType?: VariableValueType | null; // Optional: blacklist - exclude specified type
 	excludeVariable?: {
@@ -138,7 +152,7 @@ export const renderVariableOptions = ({
 		filteredVariables = filteredVariables.filter((v) => {
 			// Check if this is the variable to exclude
 			const shouldExclude =
-				v.outputHandleId === excludeVariable.outputHandleId &&
+				'outputHandleId' in v && 'outputHandleId' in excludeVariable && v.outputHandleId === excludeVariable.outputHandleId &&
 				(() => {
 					const excludeVarName = String(excludeVariable.varName);
 					// For indicator nodes, check if it's the same variable field
@@ -178,6 +192,9 @@ export const renderVariableOptions = ({
 	const operationOutputs = filteredVariables.filter((v) =>
 		isOperationOutputConfig(v),
 	) as OperationOutputConfig[];
+	const operationInputs = filteredVariables.filter((v) =>
+		isSeriesInput(v) || isScalarInput(v) || isScalarValueInput(v) || isGroupScalarValueInput(v),
+	) as OperationInputConfig[];
 
 	const result: React.ReactNode[] = [];
 
@@ -224,6 +241,7 @@ export const renderVariableOptions = ({
 								variable.outputHandleId,
 								varName,
 								t(`indicator.indicatorValueField.${varName}`),
+								variable.configId,
 							)}
 						>
 							<div className="flex items-center w-full gap-1">
@@ -321,6 +339,7 @@ export const renderVariableOptions = ({
 								variable.outputHandleId,
 								field,
 								t(`market.klineValueField.${field}`),
+								variable.configId,
 							)}
 						>
 							<div className="flex items-center w-full gap-1">
@@ -400,6 +419,7 @@ export const renderVariableOptions = ({
 						variable.outputHandleId,
 						variable.varName,
 						variable.varDisplayName,
+						variable.configId,
 					)}
 				>
 					<div className="flex items-center w-full gap-1">
@@ -441,8 +461,10 @@ export const renderVariableOptions = ({
 					value={generateOptionValue(
 						localNodeId,
 						output.outputHandleId,
-						output.configId,
 						displayName,
+						displayName,
+						output.configId,
+						output.type,
 					)}
 				>
 					<div className="flex items-center w-full gap-2">
@@ -460,6 +482,112 @@ export const renderVariableOptions = ({
 						>
 							{output.type}
 						</Badge>
+					</div>
+				</SelectItem>,
+			);
+		});
+	}
+
+	// Render OperationGroup input options (from OperationStartNode)
+	if (operationInputs.length > 0) {
+		// Add separator if there are previous items
+		if (result.length > 0) {
+			result.push(
+				<SelectSeparator key="separator_operation_input" className="my-1" />,
+			);
+		}
+		// console.log("🔍 operationInputs", operationInputs);
+
+		operationInputs.forEach((input) => {
+			const displayName = input.type === "Series"
+				? input.seriesDisplayName
+				: input.scalarDisplayName;
+
+			// Determine if this is a scalar type (includes both "Scalar" and "CustomScalarValue")
+			const isScalarType = input.type === "Scalar" || input.type === "CustomScalarValue";
+
+			// Get scalar value for CustomScalarValue types
+			const getScalarValue = () => {
+				if (input.type === "CustomScalarValue") {
+					if (input.source === null) {
+						return input.scalarValue;
+					}
+					// source === "Group"
+					return input.fromScalarValue;
+				}
+				return 0;
+			};
+
+			// Generate option value based on input type
+			const getOptionValue = () => {
+				if (input.type === "Series") {
+					return generateOptionValue(
+						localNodeId,
+						`${localNodeId}_default_output`,
+						displayName,
+						displayName,
+						input.configId,
+						"Series",
+					);
+				}
+				if (input.type === "Scalar") {
+					// Scalar with variable name (from Node or Group)
+					return generateOptionValue(
+						localNodeId,
+						`${localNodeId}_default_output`,
+						input.fromScalarName,
+						displayName,
+						input.configId,
+						"Scalar",
+					);
+				}
+				if (input.type === "CustomScalarValue") {
+					// CustomScalarValue (self-defined or from parent Group)
+					const scalarValue = getScalarValue();
+					return generateOptionValue(
+						localNodeId,
+						`${localNodeId}_default_output`,
+						scalarValue,
+						displayName,
+						input.configId,
+						"CustomScalarValue",
+					);
+				}
+				return "";
+			};
+
+			// Get badge label
+			const getBadgeLabel = () => {
+				if (input.type === "Series") return "Series";
+				return "Scalar";
+			};
+
+			result.push(
+				<SelectItem
+					className="text-xs font-normal py-2 px-3"
+					key={`input_${input.configId}_${displayName}`}
+					value={getOptionValue()}
+				>
+					<div className="flex items-center w-full gap-2">
+						<span className="text-xs text-gray-900 font-medium truncate">
+							{displayName}
+						</span>
+						<Badge
+							variant="outline"
+							className={cn(
+								"text-[10px] px-1.5 py-0",
+								isScalarType
+									? "border-blue-500 text-blue-400"
+									: "border-orange-500 text-orange-400",
+							)}
+						>
+							{getBadgeLabel()}
+						</Badge>
+						{input.type === "CustomScalarValue" && (
+							<span className="text-xs text-gray-900 font-medium truncate">
+								({getScalarValue()})
+							</span>
+						)}
 					</div>
 				</SelectItem>,
 			);

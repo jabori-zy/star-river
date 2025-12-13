@@ -12,57 +12,56 @@ import { type InputOption, InputOptionDisplay } from "./index";
 
 interface UnaryInputProps {
 	inputConfig: InputSeriesConfig | null;
-	seriesOptions: InputOption[];
+	inputOptions: InputOption[];
 	onChange: (config: InputSeriesConfig | null) => void;
 	className?: string;
 }
 
 export const UnaryInput: React.FC<UnaryInputProps> = ({
 	inputConfig,
-	seriesOptions,
+	inputOptions,
 	onChange,
 	className,
 }) => {
+	// Filter to show only Series options for Unary input
+	const seriesOnlyOptions = inputOptions.filter(
+		(opt) => opt.inputType === "Series",
+	);
+
 	// Generate unique key for each option using configId
 	const getOptionKey = (option: InputOption) =>
 		`${option.fromNodeId}-${option.configId}`;
 
 	// Get current selected value
 	const currentValue = inputConfig
-		? `${inputConfig.fromNodeId}-${inputConfig.configId}`
+		? `${inputConfig.fromNodeId}-${inputConfig.fromSeriesConfigId}`
 		: "";
 
-
 	const handleInputChange = (value: string) => {
-		const selectedOption = seriesOptions.find(
+		const selectedOption = seriesOnlyOptions.find(
 			(opt) => getOptionKey(opt) === value,
 		);
-		if (selectedOption) {
-			if (selectedOption.inputType === "Series") {
-				onChange({
-					type: "Series",
-					configId: selectedOption.configId,
-					seriesDisplayName: selectedOption.inputDisplayName,
-					fromNodeType: selectedOption.fromNodeType,
-					fromNodeId: selectedOption.fromNodeId,
-					fromNodeName: selectedOption.fromNodeName,
-					fromHandleId: selectedOption.fromHandleId,
-				});
-			}
-			// Note: Unary operations typically only accept Series input
+		if (selectedOption && selectedOption.inputType === "Series") {
+			onChange({
+				type: "Series",
+				source: "Group",
+				configId: inputConfig?.configId ?? Date.now(),
+				seriesDisplayName: selectedOption.inputDisplayName,
+				fromNodeType: selectedOption.fromNodeType,
+				fromNodeId: selectedOption.fromNodeId,
+				fromNodeName: selectedOption.fromNodeName,
+				fromHandleId: selectedOption.fromHandleId,
+				fromSeriesConfigId: selectedOption.configId,
+				fromSeriesName: selectedOption.inputName ?? selectedOption.inputDisplayName,
+				fromSeriesDisplayName: selectedOption.inputDisplayName,
+			});
 		}
 	};
-
-	// Filter to show only Series options for Unary input
-	const seriesOnlyOptions = seriesOptions.filter(
-		(opt) => opt.inputType === "Series",
-	);
 
 	return (
 		<div className={cn("space-y-3", className)}>
 			{/* Source Series Select */}
 			<div className="space-y-1">
-				{/* <Label className="text-xs text-muted-foreground">Source Series</Label> */}
 				<Select value={currentValue} onValueChange={handleInputChange}>
 					<SelectTrigger className="w-full">
 						<SelectValue placeholder="Select source series" />
