@@ -52,9 +52,6 @@ export const InputConfigItem: React.FC<InputConfigItemProps> = ({
 	// Scalar with variable name from parent Group
 	const isScalarFromGroup = config.type === "Scalar" && config.source === "Group";
 
-	// Any scalar that has a source (Node or Group)
-	const isScalarWithSource = isScalarFromNode || isScalarFromGroup || isGroupCustomScalar;
-
 	// Filter node list by node type
 	// Scalar mode: show VariableNode and OperationGroup (only if has Scalar outputs)
 	const scalarNodeList = useMemo(

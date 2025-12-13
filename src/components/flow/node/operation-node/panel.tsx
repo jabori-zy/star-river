@@ -1,5 +1,5 @@
 import type React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 import { Separator } from "@/components/ui/separator";
 import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
@@ -13,13 +13,24 @@ import {
 } from "@/components/flow/node/operation-node/components";
 import { useUpdateOpNodeConfig } from "@/hooks/node-config/operation-node/update-op-node-config";
 import { getOperationMeta } from "@/types/operation/operation-meta";
-import type { Operation, InputArrayType } from "@/types/operation";
+import type { Operation, InputArrayType, InputConfig } from "@/types/operation";
+import {
+	isScalarInput,
+	isScalarValueInput,
+	isGroupScalarValueInput,
+} from "@/types/operation";
 import { useReactFlow } from "@xyflow/react";
 import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 import { NodeType } from "@/types/node";
 import type { OperationGroupData } from "@/types/node/group/operation-group";
 import type { OperationNodeData } from "@/types/node/operation-node";
 import type { InputOption } from "@/components/flow/node/operation-node/components/input-config";
+
+// Check if input is any scalar type
+const isAnyScalarType = (input: InputConfig | null | undefined): boolean => {
+	if (!input) return false;
+	return isScalarInput(input) || isScalarValueInput(input) || isGroupScalarValueInput(input);
+};
 
 export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 	const {
@@ -185,6 +196,44 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 
 	}, [sourceNodes, parentNodeData]);
 
+	// Update output type when binary inputs change (both scalar -> scalar output)
+	const binaryInput1 = getBinaryInput1();
+	const binaryInput2 = getBinaryInput2();
+
+	useEffect(() => {
+		if (currentInputArrayType !== "Binary") return;
+
+		const meta = getOperationMeta(currentOperation.type, currentInputArrayType);
+		if (!meta?.supportScalarInput) return;
+
+		const bothAreScalar = isAnyScalarType(binaryInput1) && isAnyScalarType(binaryInput2);
+		const currentOutputType = outputConfig?.type ?? "Series";
+		const expectedOutputType = bothAreScalar ? "Scalar" : (meta.output ?? "Series");
+
+		// Only update if type changed
+		if (currentOutputType !== expectedOutputType) {
+			const displayName = outputConfig?.type === "Series"
+				? outputConfig.seriesDisplayName
+				: outputConfig?.scalarDisplayName ?? meta.defaultOutputDisplayName ?? currentOperation.type;
+
+			if (expectedOutputType === "Scalar") {
+				setOutputConfig({
+					type: "Scalar",
+					configId: 0,
+					scalarDisplayName: displayName,
+					outputHandleId: `${id}_default_output`,
+				});
+			} else {
+				setOutputConfig({
+					type: "Series",
+					configId: 0,
+					seriesDisplayName: displayName,
+					outputHandleId: `${id}_default_output`,
+				});
+			}
+		}
+	}, [binaryInput1, binaryInput2, currentInputArrayType, currentOperation.type, id, outputConfig, setOutputConfig]);
+
 	// Get output display name from outputConfig or metadata
 	const getOutputDisplayName = () => {
 		if (outputConfig) {
@@ -256,10 +305,26 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 		}
 	};
 
+	// Determine output type considering binary inputs
+	const getEffectiveOutputType = useCallback((): "Series" | "Scalar" => {
+		const meta = getOperationMeta(currentOperation.type, currentInputArrayType);
+		const baseOutputType = meta?.output ?? "Series";
+
+		// For Binary operations with supportScalarInput=true, if both inputs are scalar, output is scalar
+		if (currentInputArrayType === "Binary" && meta?.supportScalarInput) {
+			const input1 = getBinaryInput1();
+			const input2 = getBinaryInput2();
+			if (isAnyScalarType(input1) && isAnyScalarType(input2)) {
+				return "Scalar";
+			}
+		}
+
+		return baseOutputType;
+	}, [currentOperation.type, currentInputArrayType, getBinaryInput1, getBinaryInput2]);
+
 	// Handle output display name change
 	const handleOutputDisplayNameChange = (displayName: string) => {
-		const meta = getOperationMeta(currentOperation.type, currentInputArrayType);
-		const outputType = meta?.output ?? "Series";
+		const outputType = getEffectiveOutputType();
 		if (outputType === "Series") {
 			setOutputConfig({
 				type: "Series",
@@ -323,6 +388,8 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 					inputArrayType={currentInputArrayType}
 					displayName={getOutputDisplayName()}
 					onDisplayNameChange={handleOutputDisplayNameChange}
+					binaryInput1={getBinaryInput1()}
+					binaryInput2={getBinaryInput2()}
 				/>
 
 				

@@ -296,8 +296,8 @@ export default function StrategyFlow({
 						type: NodeType.OperationStartNode,
 						position: { x: 40, y: 60 },  // Fixed position relative to group's top-left corner
 						data: operationStartNodeData,
-						// draggable: true,
-						// selectable: false,
+						draggable: true,
+						selectable: false,
 						parentId: uniqueId,
 						extent: 'parent' as const,
 					};
@@ -308,8 +308,8 @@ export default function StrategyFlow({
 						type: NodeType.OperationEndNode,
 						position: { x: 120, y: 60 },  // Fixed position relative to group's top-left corner
 						data: operationEndNodeData,
-						// draggable: true,
-						// selectable: false,
+						draggable: true,
+						selectable: false,
 						parentId: uniqueId,
 						extent: 'parent' as const,
 					};
