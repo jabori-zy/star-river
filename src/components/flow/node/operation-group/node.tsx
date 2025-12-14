@@ -1,6 +1,7 @@
 import type { NodeProps } from "@xyflow/react";
-import { NodeToolbar, Position, useReactFlow } from "@xyflow/react";
+import { NodeToolbar, Position, useReactFlow, useStore, getConnectedEdges } from "@xyflow/react";
 import { useCallback } from "react";
+import ConfirmBox from "@/components/confirm-box";
 
 import type {
 	OperationGroup as OperationGroupType,
@@ -30,7 +31,7 @@ const OperationGroup: React.FC<NodeProps<OperationGroupType>> = ({
 	parentId,
 }) => {
 	const { getNodeData } = useStrategyWorkflow();
-	const { setNodes, updateNodeData, updateNode, getInternalNode } = useReactFlow();
+	const { setNodes, setEdges, getNodes, getEdges, updateNodeData, updateNode, getInternalNode } = useReactFlow();
 	const operationGroupData = getNodeData(id) as OperationGroupData;
 	const nodeName = operationGroupData.nodeName || "Operation Group";
 	const isCollapsed = operationGroupData.isCollapsed ?? false;
@@ -65,6 +66,16 @@ const OperationGroup: React.FC<NodeProps<OperationGroupType>> = ({
 
 		if (!absolutePosition) return;
 
+		// Get current node and find all connected edges
+		const currentNode = getNodes().find((n) => n.id === id);
+		if (currentNode) {
+			const connectedEdges = getConnectedEdges([currentNode], getEdges());
+			const connectedEdgeIds = new Set(connectedEdges.map((e) => e.id));
+
+			// Remove all connected edges
+			setEdges((edges) => edges.filter((e) => !connectedEdgeIds.has(e.id)));
+		}
+
 		setNodes((nodes) =>
 			nodes.map((node) => {
 				if (node.id === id) {
@@ -78,7 +89,25 @@ const OperationGroup: React.FC<NodeProps<OperationGroupType>> = ({
 				return node;
 			}),
 		);
-	}, [id, setNodes, getInternalNode]);
+	}, [id, setNodes, setEdges, getNodes, getEdges, getInternalNode]);
+
+	// Get the number of connected edges for current node (reactive to edge changes)
+	const connectedEdgeCount = useStore((state) => {
+		const currentNode = state.nodes.find((n) => n.id === id);
+		if (!currentNode) return 0;
+		return getConnectedEdges([currentNode], state.edges).length;
+	});
+
+	// Detach button component
+	const detachButton = (
+		<button
+			type="button"
+			className="px-2 py-1 text-xs hover:bg-gray-100 rounded"
+			onClick={connectedEdgeCount === 0 ? handleDetach : undefined}
+		>
+			Detach
+		</button>
+	);
 
 	// Toggle collapse state and hide/show child nodes
 	const handleToggleCollapse = useCallback(
@@ -197,13 +226,19 @@ const OperationGroup: React.FC<NodeProps<OperationGroupType>> = ({
 			<NodeToolbar isVisible={selected} position={Position.Top} align="start">
 				<div className="flex gap-1 bg-white rounded-md shadow-md border border-gray-200 p-1">
 					{parentId && (
-						<button
-							type="button"
-							className="px-2 py-1 text-xs hover:bg-gray-100 rounded"
-							onClick={handleDetach}
-						>
-							Detach
-						</button>
+						connectedEdgeCount > 0 ? (
+							<ConfirmBox
+								title="Detach Node"
+								description="This node has connections. Detaching will remove all connected edges. Are you sure?"
+								confirmText="Detach"
+								cancelText="Cancel"
+								onConfirm={handleDetach}
+							>
+								{detachButton}
+							</ConfirmBox>
+						) : (
+							detachButton
+						)
 					)}
 					<button
 						type="button"

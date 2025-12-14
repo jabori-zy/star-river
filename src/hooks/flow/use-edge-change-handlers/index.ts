@@ -3,12 +3,10 @@ import { useReactFlow } from "@xyflow/react";
 import { useCallback } from "react";
 import { NodeType } from "@/types/node/index";
 import { useIndicatorNodeEdgeHandler } from "./use-indicator-node-edge-handler";
-import { useKlineNodeEdgeHandler } from "./use-kline-node-edge-handler";
 import { useVarNodeEdgeHandler } from "./use-var-node-edge-handler";
 
 const useEdgeChangeHandlers = () => {
 	const { getNodes } = useReactFlow();
-	const { handleKlineNodeEdgeRemoved } = useKlineNodeEdgeHandler();
 	const { handleIndicatorNodeEdgeRemoved } = useIndicatorNodeEdgeHandler();
 	const { handleVarNodeEdgeRemoved } = useVarNodeEdgeHandler();
 
@@ -120,7 +118,6 @@ const useEdgeChangeHandlers = () => {
 		},
 		[
 			getNodes,
-			handleKlineNodeEdgeRemoved,
 			handleIndicatorNodeEdgeRemoved,
 			handleVarNodeEdgeRemoved,
 		],

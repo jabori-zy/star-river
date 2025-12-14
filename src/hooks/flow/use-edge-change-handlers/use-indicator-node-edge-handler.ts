@@ -10,7 +10,6 @@ export const useIndicatorNodeEdgeHandler = () => {
 			//1. Find targetNode
 			const targetNode = nodes.find((node) => node.id === deletedEdge.target);
 			const sourceHandleId = deletedEdge.sourceHandle;
-			console.log("sourceHandleId", sourceHandleId);
 			// Corresponding indicator configuration ID in indicatorNode
 			const indicatorNodeData = indicatorNode.data as IndicatorNodeData;
 

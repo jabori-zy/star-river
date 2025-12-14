@@ -326,6 +326,55 @@ function syncScalarInputFromOperationGroup(
 	return scalarInput;
 }
 
+// ============ Clear Input From Fields ============
+
+/**
+ * Clear Series input's "from" fields when edge is disconnected
+ */
+function clearSeriesInputFromFields(seriesInput: InputSeriesConfig): InputSeriesConfig {
+	return {
+		...seriesInput,
+		fromNodeId: "",
+		fromNodeName: "",
+		fromHandleId: "",
+		fromSeriesConfigId: 0,
+		fromSeriesName: "",
+		fromSeriesDisplayName: "",
+	};
+}
+
+/**
+ * Clear Scalar input's "from" fields when edge is disconnected
+ */
+function clearScalarInputFromFields(scalarInput: InputScalarConfig): InputScalarConfig {
+	return {
+		...scalarInput,
+		fromNodeId: "",
+		fromNodeName: "",
+		fromHandleId: "",
+		fromScalarConfigId: 0,
+		fromScalarName: "",
+		fromScalarDisplayName: "",
+	};
+}
+
+/**
+ * Clear GroupScalarValue input's "from" fields when edge is disconnected
+ */
+function clearGroupScalarValueInputFromFields(
+	groupScalarInput: InputGroupScalarValueConfig,
+): InputGroupScalarValueConfig {
+	return {
+		...groupScalarInput,
+		fromNodeId: "",
+		fromNodeName: "",
+		fromHandleId: "",
+		fromScalarConfigId: 0,
+		fromScalarDisplayName: "",
+		fromScalarValue: 0,
+	};
+}
+
 // ============ Process Single Input ============
 
 /**
@@ -478,6 +527,11 @@ export const useSyncSourceNode = ({ id }: { id: string }) => {
 	// Get upstream connections
 	const connections = useNodeConnections({ id, handleType: "target" });
 
+	// Get current connected source node IDs for checking edge disconnection
+	const connectedSourceNodeIds = useMemo(() => {
+		return new Set(connections.map((conn) => conn.source));
+	}, [connections]);
+
 	// Get all connected source OperationNodes data
 	const sourceOperationNodeIds = useMemo(() => {
 		return connections
@@ -502,24 +556,56 @@ export const useSyncSourceNode = ({ id }: { id: string }) => {
 
 	const sourceOperationGroupsData = useNodesData<OperationGroup>(sourceOperationGroupIds);
 
-	// Sync effect for parent Group's inputConfigs
+	// Sync effect for parent Group's inputConfigs and StartNode disconnection
 	// biome-ignore lint/correctness/useExhaustiveDependencies: nodeData is intentionally omitted to prevent infinite loops
 	useEffect(() => {
-		if (!nodeData?.inputConfig || !parentGroupData?.inputConfigs || !startNodeId) {
+		if (!nodeData?.inputConfig) {
 			return;
 		}
 
-		const groupInputConfigs = parentGroupData.inputConfigs;
+		const groupInputConfigs = parentGroupData?.inputConfigs ?? [];
 		const currentInputConfig = nodeData.inputConfig;
 		let hasChanges = false;
 		let newInputConfig: OperationInputConfig | null = null;
 
+		// Helper to process input from StartNode with disconnection check
+		const processFromStartNodeWithDisconnectionCheck = (
+			input: InputConfig | null,
+		): InputConfig | null => {
+			if (!input) return null;
+
+			// InputScalarValueConfig (source: null) is self-defined, no need to sync
+			if ("scalarValue" in input && input.source === null) {
+				return input;
+			}
+
+			// Check if input is from OperationStartNode (source: "Group")
+			if ("source" in input && input.source === "Group" && "fromNodeId" in input && input.fromNodeId) {
+				// Check if StartNode is still connected
+				if (!startNodeId || !connectedSourceNodeIds.has(input.fromNodeId)) {
+					// StartNode disconnected, clear the "from" fields but keep the config
+					if (isSeriesInput(input)) {
+						return clearSeriesInputFromFields(input);
+					}
+					if (isScalarInput(input)) {
+						return clearScalarInputFromFields(input);
+					}
+					if (isGroupScalarValueInput(input)) {
+						return clearGroupScalarValueInputFromFields(input);
+					}
+				}
+
+				// StartNode is connected, process normally
+				if (startNodeId) {
+					return processInputFromStartNode(input, groupInputConfigs, startNodeId);
+				}
+			}
+
+			return input;
+		};
+
 		if (currentInputConfig.type === "Unary") {
-			const syncedInput = processInputFromStartNode(
-				currentInputConfig.input,
-				groupInputConfigs,
-				startNodeId,
-			);
+			const syncedInput = processFromStartNodeWithDisconnectionCheck(currentInputConfig.input);
 
 			if (syncedInput !== currentInputConfig.input) {
 				hasChanges = true;
@@ -530,16 +616,8 @@ export const useSyncSourceNode = ({ id }: { id: string }) => {
 				}
 			}
 		} else if (currentInputConfig.type === "Binary") {
-			const syncedInput1 = processInputFromStartNode(
-				currentInputConfig.input1,
-				groupInputConfigs,
-				startNodeId,
-			);
-			const syncedInput2 = processInputFromStartNode(
-				currentInputConfig.input2,
-				groupInputConfigs,
-				startNodeId,
-			);
+			const syncedInput1 = processFromStartNodeWithDisconnectionCheck(currentInputConfig.input1);
+			const syncedInput2 = processFromStartNodeWithDisconnectionCheck(currentInputConfig.input2);
 
 			if (
 				syncedInput1 !== currentInputConfig.input1 ||
@@ -554,7 +632,7 @@ export const useSyncSourceNode = ({ id }: { id: string }) => {
 			}
 		} else if (currentInputConfig.type === "Nary") {
 			const syncedInputs = currentInputConfig.inputs.map((input) => {
-				const synced = processInputFromStartNode(input, groupInputConfigs, startNodeId);
+				const synced = processFromStartNodeWithDisconnectionCheck(input);
 				return synced && isSeriesInput(synced) ? synced : null;
 			});
 
@@ -576,12 +654,12 @@ export const useSyncSourceNode = ({ id }: { id: string }) => {
 		if (hasChanges) {
 			updateNodeData(id, { inputConfig: newInputConfig });
 		}
-	}, [parentGroupData?.inputConfigs, startNodeId, id, updateNodeData]);
+	}, [parentGroupData?.inputConfigs, startNodeId, connectedSourceNodeIds, id, updateNodeData]);
 
-	// Sync effect for upstream OperationNode's outputConfig
+	// Sync effect for upstream OperationNode's outputConfig and edge disconnection
 	// biome-ignore lint/correctness/useExhaustiveDependencies: nodeData is intentionally omitted to prevent infinite loops
 	useEffect(() => {
-		if (!nodeData?.inputConfig || sourceOperationNodesData.length === 0) {
+		if (!nodeData?.inputConfig) {
 			return;
 		}
 
@@ -609,7 +687,18 @@ export const useSyncSourceNode = ({ id }: { id: string }) => {
 
 			// Check if input is from one of the source OperationNodes
 			if ("fromNodeId" in input && "fromNodeType" in input) {
-				if (input.fromNodeType === NodeType.OperationNode) {
+				if (input.fromNodeType === NodeType.OperationNode && input.fromNodeId) {
+					// Check if source node is still connected (edge not deleted)
+					if (!connectedSourceNodeIds.has(input.fromNodeId)) {
+						// Edge has been deleted, clear the "from" fields but keep the config
+						if (isSeriesInput(input)) {
+							return clearSeriesInputFromFields(input);
+						}
+						if (isScalarInput(input)) {
+							return clearScalarInputFromFields(input);
+						}
+					}
+
 					const sourceOutputConfig = sourceOutputConfigMap.get(input.fromNodeId);
 					// Only process if we have this source node's data
 					if (sourceOutputConfigMap.has(input.fromNodeId)) {
@@ -671,12 +760,12 @@ export const useSyncSourceNode = ({ id }: { id: string }) => {
 		if (hasChanges) {
 			updateNodeData(id, { inputConfig: newInputConfig });
 		}
-	}, [sourceOperationNodesData, id, updateNodeData]);
+	}, [sourceOperationNodesData, connectedSourceNodeIds, id, updateNodeData]);
 
-	// Sync effect for upstream OperationGroup's outputConfigs
+	// Sync effect for upstream OperationGroup's outputConfigs and edge disconnection
 	// biome-ignore lint/correctness/useExhaustiveDependencies: nodeData is intentionally omitted to prevent infinite loops
 	useEffect(() => {
-		if (!nodeData?.inputConfig || sourceOperationGroupsData.length === 0) {
+		if (!nodeData?.inputConfig) {
 			return;
 		}
 
@@ -704,7 +793,18 @@ export const useSyncSourceNode = ({ id }: { id: string }) => {
 
 			// Check if input is from one of the source OperationGroups
 			if ("fromNodeId" in input && "fromNodeType" in input) {
-				if (input.fromNodeType === NodeType.OperationGroup) {
+				if (input.fromNodeType === NodeType.OperationGroup && input.fromNodeId) {
+					// Check if source group is still connected (edge not deleted)
+					if (!connectedSourceNodeIds.has(input.fromNodeId)) {
+						// Edge has been deleted, clear the "from" fields but keep the config
+						if (isSeriesInput(input)) {
+							return clearSeriesInputFromFields(input);
+						}
+						if (isScalarInput(input)) {
+							return clearScalarInputFromFields(input);
+						}
+					}
+
 					const sourceOutputConfigs = sourceOutputConfigsMap.get(input.fromNodeId);
 					// Only process if we have this source group's data
 					if (sourceOutputConfigsMap.has(input.fromNodeId)) {
@@ -766,5 +866,5 @@ export const useSyncSourceNode = ({ id }: { id: string }) => {
 		if (hasChanges) {
 			updateNodeData(id, { inputConfig: newInputConfig });
 		}
-	}, [sourceOperationGroupsData, id, updateNodeData]);
+	}, [sourceOperationGroupsData, connectedSourceNodeIds, id, updateNodeData]);
 };

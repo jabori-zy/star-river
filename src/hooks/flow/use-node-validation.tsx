@@ -6,7 +6,8 @@ import {
 	type Node,
 	useReactFlow,
 } from "@xyflow/react";
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
+import { toast } from "sonner";
 import { NodeType } from "@/types/node/index";
 
 // Node connection support map - defines which node types each node type can connect to
@@ -53,6 +54,13 @@ const NodeSupportConnectionLimit: Record<NodeType, number> = {
 	[NodeType.OperationEndNode]: -1, // -1 means unlimited
 };
 
+// Node types that must be inside a group and can only connect within the same group
+const GroupInternalNodeTypes: NodeType[] = [
+	NodeType.OperationStartNode,
+	NodeType.OperationNode,
+	NodeType.OperationEndNode,
+];
+
 /**
  * Detect if a circular connection will be formed
  * Uses depth-first search (DFS) to traverse from the target node downward and check if the source node can be reached
@@ -89,9 +97,15 @@ const hasCycle = (
 /**
  * Hook for node connection validation
  */
+// Throttle duration for toast warnings (5 seconds)
+const TOAST_THROTTLE_MS = 5000;
+
 const useNodeValidation = () => {
 	// Get ReactFlow nodes and connections information
 	const { getNode, getNodeConnections, getNodes, getEdges } = useReactFlow();
+
+	// Track last toast time for throttling
+	const lastGroupToastTimeRef = useRef<number>(0);
 
 	/**
 	 * Check if connection is valid
@@ -124,6 +138,53 @@ const useNodeValidation = () => {
 				!supportedConnections.includes(targetNode.type as NodeType)
 			) {
 				return false;
+			}
+
+			// Check if nodes are group internal nodes that require same parent
+			const isSourceGroupInternal = GroupInternalNodeTypes.includes(
+				sourceNode.type as NodeType,
+			);
+			const isTargetGroupInternal = GroupInternalNodeTypes.includes(
+				targetNode.type as NodeType,
+			);
+
+			// If either node is a group internal node, they must have the same parentId
+			if (isSourceGroupInternal || isTargetGroupInternal) {
+				// Both must have parentId and they must be the same
+				if (
+					!sourceNode.parentId ||
+					!targetNode.parentId ||
+					sourceNode.parentId !== targetNode.parentId
+				) {
+					// Show throttled toast warning
+					const now = Date.now();
+					if (now - lastGroupToastTimeRef.current > TOAST_THROTTLE_MS) {
+						lastGroupToastTimeRef.current = now;
+						toast.warning(
+							"Only same group's Operation Node can be connected",
+						);
+					}
+					return false;
+				}
+			}
+
+			// If source is a nested OperationGroup (has parentId), it can only connect to nodes within the same parent group
+			if (
+				sourceNode.type === NodeType.OperationGroup &&
+				sourceNode.parentId
+			) {
+				// Target must also have the same parentId
+				if (sourceNode.parentId !== targetNode.parentId) {
+					// Show throttled toast warning
+					const now = Date.now();
+					if (now - lastGroupToastTimeRef.current > TOAST_THROTTLE_MS) {
+						lastGroupToastTimeRef.current = now;
+						toast.warning(
+							"Only same group's Operation Node can be connected",
+						);
+					}
+					return false;
+				}
 			}
 
 			// Check target node's connection limit

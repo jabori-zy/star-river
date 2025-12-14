@@ -27,7 +27,6 @@ import { useUpdateOpGroupConfig } from "./use-update-op-group-config";
  * @param klineNodeData - Kline node data
  * @param seriesConfig - Series config to sync
  * @param updateSeriesConfigById - Callback to update Series config
- * @param removeSeriesConfigById - Callback to remove Series config
  */
 function syncSeriesFromKlineNode(
 	klineNodeData: KlineNodeData,
@@ -36,7 +35,6 @@ function syncSeriesFromKlineNode(
 		configId: number,
 		updates: Partial<OperationInputSeriesConfig>,
 	) => void,
-	removeSeriesConfigById: (configId: number) => void,
 ) {
 	// Skip incomplete configs - user hasn't selected a variable yet
 	if (!seriesConfig.fromSeriesConfigId || seriesConfig.fromSeriesConfigId === 0) {
@@ -555,7 +553,6 @@ export const useSyncSourceNode = ({
 	const { getNodes } = useReactFlow();
 	const {
 		updateSeriesConfigById,
-		removeSeriesConfigById,
 		updateScalarNodeConfigById,
 		updateScalarGroupConfigById,
 		updateGroupScalarValueConfigById,
@@ -594,32 +591,61 @@ export const useSyncSourceNode = ({
 	// 6. Get upstream OperationGroups' data using useNodesData for reactivity
 	const upstreamOperationGroupsData = useNodesData<OperationGroup>(upstreamOperationGroupIds);
 
-	// useEffect to listen source node changes ONLY
-	// biome-ignore lint/correctness/useExhaustiveDependencies: currentNodeData is intentionally omitted to prevent infinite loops. This effect should only run when sourceNodes change.
+	// Get current connected source node IDs for checking edge disconnection
+	const connectedSourceNodeIds = useMemo(() => {
+		return new Set(connections.map((conn) => conn.source));
+	}, [connections]);
+
+	// useEffect to listen source node and connection changes
+	// biome-ignore lint/correctness/useExhaustiveDependencies: currentNodeData is intentionally omitted to prevent infinite loops. This effect should only run when sourceNodes or connections change.
 	useEffect(() => {
-		// Filter Series configs from upstream nodes (source=Node)
+		// Filter Series configs from upstream nodes (source=Node, excluding OperationGroup which is handled separately)
 		const seriesFromNodes =
 			currentNodeData.inputConfigs?.filter(
 				(config): config is OperationInputSeriesConfig =>
-					config.type === "Series" && config.source === "Node",
+					config.type === "Series" &&
+					config.source === "Node" &&
+					config.fromNodeType !== NodeType.OperationGroup,
 			) ?? [];
 
-		// Filter Scalar configs from upstream nodes (source=Node)
+		// Filter Scalar configs from upstream nodes (source=Node, excluding OperationGroup which is handled separately)
 		const scalarFromNodes =
 			currentNodeData.inputConfigs?.filter(
 				(config): config is OperationInputScalarConfig =>
-					config.type === "Scalar" && config.source === "Node",
+					config.type === "Scalar" &&
+					config.source === "Node" &&
+					config.fromNodeType !== NodeType.OperationGroup,
 			) ?? [];
 
 		// Process Series configs
 		for (const seriesConfig of seriesFromNodes) {
+			// Skip incomplete configs - user hasn't selected a variable yet
+			if (!seriesConfig.fromNodeId) {
+				continue;
+			}
+
+			// Check if source node is still connected (edge not deleted)
+			if (!connectedSourceNodeIds.has(seriesConfig.fromNodeId)) {
+				// Edge has been deleted, clear the "from" fields
+				updateSeriesConfigById(seriesConfig.configId, {
+					fromNodeId: "",
+					fromNodeName: "",
+					fromNodeType: seriesConfig.fromNodeType,
+					fromHandleId: "",
+					fromSeriesConfigId: 0,
+					fromSeriesName: "",
+					fromSeriesDisplayName: "",
+				});
+				continue;
+			}
+
 			// Find corresponding source node
 			const sourceNode = sourceNodes.find(
 				(node) => node?.id === seriesConfig.fromNodeId,
 			);
 
 			if (!sourceNode) {
-				// Source node doesn't exist, skip
+				// Source node data not available yet, skip
 				continue;
 			}
 
@@ -629,7 +655,6 @@ export const useSyncSourceNode = ({
 					sourceNode.data as KlineNodeData,
 					seriesConfig,
 					updateSeriesConfigById,
-					removeSeriesConfigById,
 				);
 			}
 
@@ -645,13 +670,33 @@ export const useSyncSourceNode = ({
 
 		// Process Scalar configs
 		for (const scalarConfig of scalarFromNodes) {
+			// Skip incomplete configs - user hasn't selected a variable yet
+			if (!scalarConfig.fromNodeId) {
+				continue;
+			}
+
+			// Check if source node is still connected (edge not deleted)
+			if (!connectedSourceNodeIds.has(scalarConfig.fromNodeId)) {
+				// Edge has been deleted, clear the "from" fields
+				updateScalarNodeConfigById(scalarConfig.configId, {
+					fromNodeId: "",
+					fromNodeName: "",
+					fromNodeType: scalarConfig.fromNodeType,
+					fromHandleId: "",
+					fromScalarConfigId: 0,
+					fromScalarName: "",
+					fromScalarDisplayName: "",
+				});
+				continue;
+			}
+
 			// Find corresponding source node
 			const sourceNode = sourceNodes.find(
 				(node) => node?.id === scalarConfig.fromNodeId,
 			);
 
 			if (!sourceNode) {
-				// Source node doesn't exist, skip
+				// Source node data not available yet, skip
 				continue;
 			}
 
@@ -664,7 +709,7 @@ export const useSyncSourceNode = ({
 				);
 			}
 		}
-	}, [sourceNodes, id, updateSeriesConfigById, removeSeriesConfigById, updateScalarNodeConfigById]);
+	}, [sourceNodes, connectedSourceNodeIds, id, updateSeriesConfigById, updateScalarNodeConfigById]);
 
 	// 5. useEffect to listen parent Group's inputConfigs changes (for child Groups with source="Group")
 	// biome-ignore lint/correctness/useExhaustiveDependencies: currentNodeData is intentionally omitted to prevent infinite loops. This effect should only run when parentGroupData changes.
@@ -728,20 +773,6 @@ export const useSyncSourceNode = ({
 	// useEffect to listen upstream OperationGroup's outputConfigs changes (peer groups)
 	// biome-ignore lint/correctness/useExhaustiveDependencies: currentNodeData is intentionally omitted to prevent infinite loops
 	useEffect(() => {
-		// Skip if no upstream OperationGroups
-		if (upstreamOperationGroupsData.length === 0) {
-			return;
-		}
-
-		// Build a map of source group ID -> outputConfigs
-		const sourceOutputConfigsMap = new Map<string, OperationOutputConfig[]>();
-		for (const sourceGroup of upstreamOperationGroupsData) {
-			if (sourceGroup?.data) {
-				const groupData = sourceGroup.data;
-				sourceOutputConfigsMap.set(sourceGroup.id, groupData.outputConfigs ?? []);
-			}
-		}
-
 		// Filter configs that come from upstream OperationGroups (source="Node", fromNodeType=OperationGroup)
 		const seriesFromUpstreamGroups =
 			currentNodeData.inputConfigs?.filter(
@@ -759,8 +790,37 @@ export const useSyncSourceNode = ({
 					config.fromNodeType === NodeType.OperationGroup,
 			) ?? [];
 
+		// Build a map of source group ID -> outputConfigs
+		const sourceOutputConfigsMap = new Map<string, OperationOutputConfig[]>();
+		for (const sourceGroup of upstreamOperationGroupsData) {
+			if (sourceGroup?.data) {
+				const groupData = sourceGroup.data;
+				sourceOutputConfigsMap.set(sourceGroup.id, groupData.outputConfigs ?? []);
+			}
+		}
+
 		// Process Series configs from upstream OperationGroups
 		for (const seriesConfig of seriesFromUpstreamGroups) {
+			// Skip incomplete configs
+			if (!seriesConfig.fromNodeId) {
+				continue;
+			}
+
+			// Check if source OperationGroup is still connected (edge not deleted)
+			if (!connectedSourceNodeIds.has(seriesConfig.fromNodeId)) {
+				// Edge has been deleted, clear the "from" fields
+				updateSeriesConfigById(seriesConfig.configId, {
+					fromNodeId: "",
+					fromNodeName: "",
+					fromNodeType: seriesConfig.fromNodeType,
+					fromHandleId: "",
+					fromSeriesConfigId: 0,
+					fromSeriesName: "",
+					fromSeriesDisplayName: "",
+				});
+				continue;
+			}
+
 			const upstreamOutputConfigs = sourceOutputConfigsMap.get(seriesConfig.fromNodeId);
 			if (upstreamOutputConfigs) {
 				syncSeriesFromUpstreamGroup(
@@ -773,6 +833,26 @@ export const useSyncSourceNode = ({
 
 		// Process Scalar configs from upstream OperationGroups
 		for (const scalarConfig of scalarFromUpstreamGroups) {
+			// Skip incomplete configs
+			if (!scalarConfig.fromNodeId) {
+				continue;
+			}
+
+			// Check if source OperationGroup is still connected (edge not deleted)
+			if (!connectedSourceNodeIds.has(scalarConfig.fromNodeId)) {
+				// Edge has been deleted, clear the "from" fields
+				updateScalarNodeConfigById(scalarConfig.configId, {
+					fromNodeId: "",
+					fromNodeName: "",
+					fromNodeType: scalarConfig.fromNodeType,
+					fromHandleId: "",
+					fromScalarConfigId: 0,
+					fromScalarName: "",
+					fromScalarDisplayName: "",
+				});
+				continue;
+			}
+
 			const upstreamOutputConfigs = sourceOutputConfigsMap.get(scalarConfig.fromNodeId);
 			if (upstreamOutputConfigs) {
 				syncScalarFromUpstreamGroup(
@@ -782,5 +862,5 @@ export const useSyncSourceNode = ({
 				);
 			}
 		}
-	}, [upstreamOperationGroupsData, id, updateSeriesConfigById, updateScalarNodeConfigById]);
+	}, [upstreamOperationGroupsData, connectedSourceNodeIds, id, updateSeriesConfigById, updateScalarNodeConfigById]);
 };

@@ -1,4 +1,4 @@
-import { type NodeProps, NodeToolbar, useReactFlow } from "@xyflow/react";
+import { type NodeProps, NodeToolbar, useReactFlow, useStore, getConnectedEdges } from "@xyflow/react";
 import { useCallback } from "react";
 
 import type { OperationNode as OperationNodeType, OperationNodeData } from "@/types/node/operation-node";
@@ -10,6 +10,7 @@ import { Position } from "@xyflow/react";
 import { getNodeDefaultColor, getNodeDefaultInputHandleId, getNodeDefaultOutputHandleId } from "@/types/node/index";
 import { NodeType } from "@/types/node/index";
 import type { IconName } from "lucide-react/dynamic";
+import ConfirmBox from "@/components/confirm-box";
 
 
 const OperationNode: React.FC<NodeProps<OperationNodeType>> = ({
@@ -18,7 +19,7 @@ const OperationNode: React.FC<NodeProps<OperationNodeType>> = ({
 	parentId,
 }) => {
 	const { getNodeData } = useStrategyWorkflow();
-	const { setNodes, getInternalNode } = useReactFlow();
+	const { setNodes, setEdges, getNodes, getEdges, getInternalNode } = useReactFlow();
 	const operationNodeData = getNodeData(id) as OperationNodeData;
 
 	// Sync inputs when parent Group's inputConfigs change
@@ -52,6 +53,16 @@ const OperationNode: React.FC<NodeProps<OperationNodeType>> = ({
 
 		if (!absolutePosition) return;
 
+		// Get current node and find all connected edges
+		const currentNode = getNodes().find((n) => n.id === id);
+		if (currentNode) {
+			const connectedEdges = getConnectedEdges([currentNode], getEdges());
+			const connectedEdgeIds = new Set(connectedEdges.map((e) => e.id));
+
+			// Remove all connected edges
+			setEdges((edges) => edges.filter((e) => !connectedEdgeIds.has(e.id)));
+		}
+
 		setNodes((nodes) =>
 			nodes.map((node) => {
 				if (node.id === id) {
@@ -65,19 +76,43 @@ const OperationNode: React.FC<NodeProps<OperationNodeType>> = ({
 				return node;
 			}),
 		);
-	}, [id, setNodes, getInternalNode]);
+	}, [id, setNodes, setEdges, getNodes, getEdges, getInternalNode]);
+
+	// Get the number of connected edges for current node (reactive to edge changes)
+	const connectedEdgeCount = useStore((state) => {
+		const currentNode = state.nodes.find((n) => n.id === id);
+		if (!currentNode) return 0;
+		return getConnectedEdges([currentNode], state.edges).length;
+	});
+
+	// Detach button component
+	const detachButton = (
+		<button
+			type="button"
+			className="px-2 py-1 text-xs hover:bg-gray-100 rounded"
+			onClick={connectedEdgeCount === 0 ? handleDetach : undefined}
+		>
+			Detach
+		</button>
+	);
 
     return (
         <>
             <NodeToolbar isVisible={selected && !!parentId} position={Position.Top} align="start">
                     <div className="flex gap-1 bg-white rounded-md shadow-md border border-gray-200 p-1">
-                        <button
-                            type="button"
-                            className="px-2 py-1 text-xs hover:bg-gray-100 rounded"
-                            onClick={handleDetach}
-                        >
-                            Detach
-                        </button>
+                        {connectedEdgeCount > 0 ? (
+							<ConfirmBox
+								title="Detach Node"
+								description="This node has connections. Detaching will remove all connected edges. Are you sure?"
+								confirmText="Detach"
+								cancelText="Cancel"
+								onConfirm={handleDetach}
+							>
+								{detachButton}
+							</ConfirmBox>
+						) : (
+							detachButton
+						)}
                     </div>
             </NodeToolbar>
             <BaseNode
