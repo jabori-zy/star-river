@@ -18,6 +18,7 @@ import {
 	NodeType,
 } from "@/types/node/index";
 import type { IconName } from "lucide-react/dynamic";
+import GroupShow from "./components/group-show";
 
 // Collapsed node dimensions
 const COLLAPSED_WIDTH = 180;
@@ -263,7 +264,11 @@ const OperationGroup: React.FC<NodeProps<OperationGroupType>> = ({
 				canResize={!isCollapsed}
 				defaultInputHandle={defaultInputHandle}
 				defaultOutputHandle={defaultOutputHandle}
-			/>
+			>
+				{isCollapsed && (
+					<GroupShow data={operationGroupData} />
+				)}
+			</BaseNode>
 		</>
 	);
 };

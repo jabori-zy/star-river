@@ -11,6 +11,7 @@ import { getNodeDefaultColor, getNodeDefaultInputHandleId, getNodeDefaultOutputH
 import { NodeType } from "@/types/node/index";
 import type { IconName } from "lucide-react/dynamic";
 import ConfirmBox from "@/components/confirm-box";
+import NodeShow from "./components/node-show";
 
 
 const OperationNode: React.FC<NodeProps<OperationNodeType>> = ({
@@ -126,6 +127,7 @@ const OperationNode: React.FC<NodeProps<OperationNodeType>> = ({
                 defaultInputHandle={defaultInputHandle}
                 defaultOutputHandle={defaultOutputHandle}
             >
+                <NodeShow data={operationNodeData} />
             </BaseNode>
         </>
     );

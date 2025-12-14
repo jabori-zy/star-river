@@ -8,6 +8,10 @@ import { UnaryInput } from "./unary-input";
 import { BinaryInput } from "./binary-input";
 import { NaryInput } from "./nary-input";
 import { NodeType } from "@/types/node";
+import {
+	getInputTypeBadgeStyle,
+	getInputTypeBadgeLabel,
+} from "../../operation-node-utils";
 
 // Input option type for dropdown
 // Represents available input sources from upstream nodes
@@ -36,21 +40,6 @@ const getNodeTypeIcon = (nodeType: NodeType) => {
 	return null;
 };
 
-// Get badge style based on input type
-const getInputTypeBadgeStyle = (inputType: "Series" | "Scalar" | "CustomScalarValue") => {
-	if (inputType === "Series") {
-		return "border-orange-500 text-orange-400";
-	}
-	return "border-blue-500 text-blue-400";
-};
-
-// Get badge label - CustomScalarValue displays as "Scalar"
-const getInputTypeBadgeLabel = (inputType: "Series" | "Scalar" | "CustomScalarValue") => {
-	if (inputType === "CustomScalarValue") {
-		return "Scalar";
-	}
-	return inputType;
-};
 
 // Shared component for rendering input options in dropdown
 export const InputOptionDisplay: React.FC<{ option: InputOption }> = ({
