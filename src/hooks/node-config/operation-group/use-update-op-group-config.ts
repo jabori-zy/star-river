@@ -12,6 +12,8 @@ import type {
 	OperationOutputConfig,
 	OutputSeriesConfig,
 	OutputScalarConfig,
+	WindowConfig,
+	FillingMethod,
 } from "@/types/node/group/operation-group";
 
 interface UseUpdateOpGroupConfigProps {
@@ -684,6 +686,34 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 		updateNodeData(id, { outputConfigs: [] });
 	}, [id, updateNodeData]);
 
+	// ==================== Window Config ====================
+
+	const inputWindow = nodeData?.inputWindow;
+
+	/**
+	 * Set input window config
+	 */
+	const setInputWindow = useCallback(
+		(config: WindowConfig) => {
+			updateNodeData(id, { inputWindow: config });
+		},
+		[id, updateNodeData],
+	);
+
+	// ==================== Filling Method ====================
+
+	const fillingMethod = nodeData?.fillingMethod;
+
+	/**
+	 * Set filling method
+	 */
+	const setFillingMethod = useCallback(
+		(method: FillingMethod) => {
+			updateNodeData(id, { fillingMethod: method });
+		},
+		[id, updateNodeData],
+	);
+
 	return {
 		// All configs
 		operationConfigs,
@@ -750,5 +780,13 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 		removeOutputConfigById,
 		updateOutputName,
 		clearOutputConfigs,
+
+		// Window config
+		inputWindow,
+		setInputWindow,
+
+		// Filling method
+		fillingMethod,
+		setFillingMethod,
 	};
 };

@@ -23,33 +23,33 @@ export type Operation = z.infer<typeof OperationSchema>;
 
 // ============ Window Config ============
 
-export const RollingWindowConfigSchema = z.object({
-    windowType: z.literal("rolling"),
-    windowSize: z.number().int().min(1),
-});
-export type RollingWindowConfig = z.infer<typeof RollingWindowConfigSchema>;
+// export const RollingWindowConfigSchema = z.object({
+//     windowType: z.literal("rolling"),
+//     windowSize: z.number().int().min(1),
+// });
+// export type RollingWindowConfig = z.infer<typeof RollingWindowConfigSchema>;
 
-export const ExpandingWindowConfigSchema = z.object({
-    windowType: z.literal("expanding"),
-    initialWindowSize: z.number().int().min(1),
-});
-export type ExpandingWindowConfig = z.infer<typeof ExpandingWindowConfigSchema>;
+// export const ExpandingWindowConfigSchema = z.object({
+//     windowType: z.literal("expanding"),
+//     initialWindowSize: z.number().int().min(1),
+// });
+// export type ExpandingWindowConfig = z.infer<typeof ExpandingWindowConfigSchema>;
 
-export const WindowConfigSchema = z.discriminatedUnion("windowType", [
-    RollingWindowConfigSchema,
-    ExpandingWindowConfigSchema,
-]);
-export type WindowConfig = z.infer<typeof WindowConfigSchema>;
+// export const WindowConfigSchema = z.discriminatedUnion("windowType", [
+//     RollingWindowConfigSchema,
+//     ExpandingWindowConfigSchema,
+// ]);
+// export type WindowConfig = z.infer<typeof WindowConfigSchema>;
 
-// ============ Filling Method ============
+// // ============ Filling Method ============
 
-export const FillingMethodSchema = z.enum([
-    "FFill", // forward fill
-    "BFill", // backward fill
-    "Zero", // zero fill
-    "Mean", // mean fill
-]);
-export type FillingMethod = z.infer<typeof FillingMethodSchema>;
+// export const FillingMethodSchema = z.enum([
+//     "FFill", // forward fill
+//     "BFill", // backward fill
+//     "Zero", // zero fill
+//     "Mean", // mean fill
+// ]);
+// export type FillingMethod = z.infer<typeof FillingMethodSchema>;
 
 // ============ Input Config ============
 // OperationNode only exists inside a Group, so source is always "Group"
@@ -166,7 +166,7 @@ export const OutputSeriesConfigSchema = z.object({
     type: z.literal("Series"),
     configId: z.number(),
     outputHandleId: z.string(),
-    seriesDisplayName: z.string(),
+    outputName: z.string(),
 });
 
 export type OutputSeriesConfig = z.infer<typeof OutputSeriesConfigSchema>;
@@ -175,7 +175,7 @@ export const OutputScalarConfigSchema = z.object({
     type: z.literal("Scalar"),
     configId: z.number(),
     outputHandleId: z.string(),
-    scalarDisplayName: z.string(),
+    outputName: z.string(),
 });
 export type OutputScalarConfig = z.infer<typeof OutputScalarConfigSchema>;
 
@@ -210,8 +210,8 @@ export const OperationNodeDataSchema = NodeDataBaseSchema.extend({
     operation: OperationSchema,
     inputConfig: OperationInputConfigSchema.nullable(),
     outputConfig: OutputConfigSchema.nullable(),
-    windowConfig: WindowConfigSchema,
-    fillingMethod: FillingMethodSchema,
+    // windowConfig: WindowConfigSchema,
+    // fillingMethod: FillingMethodSchema,
 });
 
 export type OperationNodeData = z.infer<typeof OperationNodeDataSchema>;

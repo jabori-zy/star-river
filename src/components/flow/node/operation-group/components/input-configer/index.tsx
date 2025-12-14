@@ -2,11 +2,11 @@ import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { InputConfigItem } from "./input-config-item";
-import type { OperationConfigerProps } from "./types";
+import type { InputConfigerProps } from "./types";
 
-export const OperationConfiger: React.FC<OperationConfigerProps> = ({
+export const InputConfiger: React.FC<InputConfigerProps> = ({
 	variableItemList = [],
-	operationConfigs = [],
+	inputConfigs: operationConfigs = [],
 	onAddConfig,
 	onUpdateDisplayName,
 	onUpdateNode,
@@ -58,22 +58,35 @@ export const OperationConfiger: React.FC<OperationConfigerProps> = ({
 			{configs.length === 0 && (
 				<div className="flex flex-col items-center justify-center py-8 text-gray-400 border-2 border-dashed border-gray-200 rounded-lg">
 					<p className="text-sm">No input parameters</p>
-					<p className="text-xs mt-1">Click to add parameter</p>
+					<p className="text-xs mt-1">Click + to add parameter</p>
 				</div>
+			)}
+
+			{/* Add button at bottom */}
+			{configs.length > 0 && (
+				<Button
+					variant="outline"
+					size="sm"
+					className="w-full text-xs gap-1 text-purple-600 border-purple-300 hover:bg-purple-50 border-dashed"
+					onClick={onAddConfig}
+				>
+					<Plus className="h-4 w-4" />
+					Add input config
+				</Button>
 			)}
 		</div>
 	);
 };
 
 // Keep backward compatibility export
-export const SeriesConfiger = OperationConfiger;
+export const SeriesConfiger = InputConfiger;
 
-export default OperationConfiger;
+export default InputConfiger;
 
 // Re-export types
 export type {
 	ConfigType,
 	ScalarSource,
 	InputConfigItemProps,
-	OperationConfigerProps,
+	InputConfigerProps as OperationConfigerProps,
 } from "./types";

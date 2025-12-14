@@ -17,8 +17,11 @@ import type {
 import type { ScalarSource } from "./components/input-configer";
 import type { OperationNodeData } from "@/types/node/operation-node";
 import { TradeMode } from "@/types/strategy";
-import { OperationConfiger } from "./components/input-configer";
+import { InputConfiger } from "./components/input-configer";
 import { OutputConfiger, type OutputOption } from "./components/output-configer";
+import { WindowConfig } from "./components/window-config";
+import { FillingMethodSelector } from "./components/filling-method-selector";
+import { Label } from "@/components/ui/label";
 
 export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 	const { getConnectedNodeVariables } = useStrategyWorkflow();
@@ -68,10 +71,7 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 						sourceNodeName: nodeData.nodeName ?? "Operation Node",
 						outputType: outputConfig.type,
 						sourceHandleId: outputConfig.outputHandleId,
-						displayName:
-							outputConfig.type === "Series"
-								? outputConfig.seriesDisplayName
-								: outputConfig.scalarDisplayName,
+						displayName: outputConfig.outputName,
 					});
 				}
 			} else if (sourceNode?.type === NodeType.OperationGroup) {
@@ -118,6 +118,12 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 		addOutputSeriesConfig,
 		updateOutputName,
 		removeOutputConfigById,
+		// Window config
+		inputWindow,
+		setInputWindow,
+		// Filling method
+		fillingMethod,
+		setFillingMethod,
 	} = useUpdateOpGroupConfig({ id });
 
 	// Handle add new config (default to Series type)
@@ -481,11 +487,22 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 		[removeOutputConfigById],
 	);
 
+	// Check if this is a child group (has parentId pointing to an OperationGroup)
+	const isChildGroup = useMemo(() => {
+		const currentNode = getNodes().find((n) => n.id === id);
+		if (currentNode?.parentId) {
+			const parentNode = getNodes().find((n) => n.id === currentNode.parentId);
+			return parentNode?.type === NodeType.OperationGroup;
+		}
+		return false;
+	}, [id, getNodes]);
+
 	return (
 		<div className="h-full overflow-y-auto bg-white p-4 space-y-4">
-			<OperationConfiger
+			{/* Input Parameters */}
+			<InputConfiger
 				variableItemList={variableItemList}
-				operationConfigs={operationConfigs}
+				inputConfigs={operationConfigs}
 				onAddConfig={handleAddConfig}
 				onUpdateDisplayName={handleUpdateInputName}
 				onUpdateNode={handleNodeChange}
@@ -498,6 +515,34 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 
 			<Separator />
 
+			{/* Input Window Config */}
+			{inputWindow && (
+				<div className="space-y-2">
+					<Label className="text-sm font-medium">Input Window</Label>
+					<div className="border rounded-md p-2">
+						<WindowConfig
+							windowConfig={inputWindow}
+							onChange={setInputWindow}
+							disabled={isChildGroup}
+							disabledMessage="Input window size is controlled by parent group."
+						/>
+					</div>
+				</div>
+			)}
+
+			<Separator />
+
+			{/* Filling Method */}
+			{fillingMethod && (
+				<FillingMethodSelector
+					value={fillingMethod}
+					onChange={setFillingMethod}
+				/>
+			)}
+
+			<Separator />
+
+			{/* Output Parameters */}
 			<OutputConfiger
 				availableOutputs={availableOutputOptions}
 				outputConfigs={outputConfigs}

@@ -26,9 +26,9 @@ export interface InputConfigItemProps {
 }
 
 // Main operation configer component props
-export interface OperationConfigerProps {
+export interface InputConfigerProps {
 	variableItemList: VariableItem[];
-	operationConfigs: OperationInputConfig[];
+	inputConfigs: OperationInputConfig[];
 	onAddConfig: () => void;
 	onUpdateDisplayName: (configId: number, displayName: string) => void;
 	onUpdateNode: (configId: number, nodeId: string) => void;

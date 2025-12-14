@@ -7,8 +7,6 @@ import {
 	InputTypeSelector,
 	OperationSelector,
 	InputConfigComponent,
-	WindowConfig,
-	FillingMethodSelector,
 	OutputConfig,
 } from "@/components/flow/node/operation-node/components";
 import { useUpdateOpNodeConfig } from "@/hooks/node-config/operation-node/update-op-node-config";
@@ -37,8 +35,6 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 		inputArrayType,
 		operation,
 		outputConfig,
-		windowConfig,
-		fillingMethod,
 		setInputArrayType,
 		setOperation,
 		setUnaryInput,
@@ -50,16 +46,12 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 		getBinaryInput2,
 		getNaryInputs,
 		setOutputConfig,
-		setWindowConfig,
-		setFillingMethod,
 		clearInputConfig,
 	} = useUpdateOpNodeConfig({ id });
 
 	// Default values if node data is not available
 	const currentInputArrayType = inputArrayType ?? "Unary";
 	const currentOperation = operation ?? { type: "Mean" };
-	const currentWindowConfig = windowConfig ?? { windowSize: 20, windowType: "rolling" as const };
-	const currentFillingMethod = fillingMethod ?? "FFill";
 	
 	// State to store input options
 	const [inputOptions, setInputOptions] = useState<InputOption[]>([]);
@@ -139,8 +131,8 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 							fromNodeName: opNodeData?.nodeName,
 							fromHandleId: outputCfg.outputHandleId,
 							fromNodeType: NodeType.OperationNode,
-							inputDisplayName: outputCfg.seriesDisplayName,
-							inputName: outputCfg.seriesDisplayName,
+							inputDisplayName: outputCfg.outputName,
+							inputName: outputCfg.outputName,
 						});
 					} else {
 						// Scalar output
@@ -151,8 +143,8 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 							fromNodeName: opNodeData?.nodeName,
 							fromHandleId: outputCfg.outputHandleId,
 							fromNodeType: NodeType.OperationNode,
-							inputDisplayName: outputCfg.scalarDisplayName,
-							inputName: outputCfg.scalarDisplayName,
+							inputDisplayName: outputCfg.outputName,
+							inputName: outputCfg.outputName,
 						});
 					}
 				}
@@ -198,22 +190,20 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 
 		// Only update if type changed
 		if (currentOutputType !== expectedOutputType) {
-			const displayName = outputConfig?.type === "Series"
-				? outputConfig.seriesDisplayName
-				: outputConfig?.scalarDisplayName ?? meta.defaultOutputDisplayName ?? currentOperation.type;
+			const displayName = outputConfig?.outputName ?? meta.defaultOutputDisplayName ?? currentOperation.type;
 
 			if (expectedOutputType === "Scalar") {
 				setOutputConfig({
 					type: "Scalar",
 					configId: 0,
-					scalarDisplayName: displayName,
+					outputName: displayName,
 					outputHandleId: `${id}_default_output`,
 				});
 			} else {
 				setOutputConfig({
 					type: "Series",
 					configId: 0,
-					seriesDisplayName: displayName,
+					outputName: displayName,
 					outputHandleId: `${id}_default_output`,
 				});
 			}
@@ -223,9 +213,7 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 	// Get output display name from outputConfig or metadata
 	const getOutputDisplayName = () => {
 		if (outputConfig) {
-			return outputConfig.type === "Series"
-				? outputConfig.seriesDisplayName
-				: outputConfig.scalarDisplayName;
+			return outputConfig.outputName;
 		}
 		const meta = getOperationMeta(currentOperation.type, currentInputArrayType);
 		return meta?.defaultOutputDisplayName ?? currentOperation.type;
@@ -255,14 +243,14 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 				type: "Series",
 				configId: 0,
 				outputHandleId: `${id}_default_output`,
-				seriesDisplayName: displayName,
+				outputName: displayName,
 			});
 		} else {
 			setOutputConfig({
 				type: "Scalar",
 				configId: 0,
 				outputHandleId: `${id}_default_output`,
-				scalarDisplayName: displayName,
+				outputName: displayName,
 			});
 		}
 	};
@@ -278,13 +266,13 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 			setOutputConfig({
 				type: "Series",
 				configId: 0,
-				seriesDisplayName: displayName,
+				outputName: displayName,
 				outputHandleId: `${id}_default_output`,
 			});
 		} else {
 			setOutputConfig({
 				type: "Scalar",
-				scalarDisplayName: displayName,
+				outputName: displayName,
 				configId: 0,
 				outputHandleId: `${id}_default_output`,
 			});
@@ -315,13 +303,13 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 			setOutputConfig({
 				type: "Series",
 				configId: 0,
-				seriesDisplayName: displayName,
+				outputName: displayName,
 				outputHandleId: `${id}_default_output`,
 			});
 		} else {
 			setOutputConfig({
 				type: "Scalar",
-				scalarDisplayName: displayName,
+				outputName: displayName,
 				configId: 0,
 				outputHandleId: `${id}_default_output`,
 			});
@@ -376,24 +364,6 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 					onDisplayNameChange={handleOutputDisplayNameChange}
 					binaryInput1={getBinaryInput1()}
 					binaryInput2={getBinaryInput2()}
-				/>
-
-				
-
-				<Separator />
-
-				{/* Window Config */}
-				<WindowConfig
-					windowConfig={currentWindowConfig}
-					onChange={setWindowConfig}
-				/>
-
-				<Separator />
-
-				{/* Filling Method */}
-				<FillingMethodSelector
-					value={currentFillingMethod}
-					onChange={setFillingMethod}
 				/>
 			</div>
 		</div>

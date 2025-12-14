@@ -1,7 +1,7 @@
 import type React from "react";
-import { ArrowDown, ArrowRight } from "lucide-react";
+import { ArrowDown, ArrowRight, RulerDimensionLine, BetweenVerticalStart, Settings2 } from "lucide-react";
 import { Label } from "@/components/ui/label";
-import type { OperationGroupData } from "@/types/node/group/operation-group";
+import type { OperationGroupData, WindowConfig, FillingMethod } from "@/types/node/group/operation-group";
 import { InputConfigItem } from "./input-config-item";
 import { OutputConfigItem } from "./output-config-item";
 
@@ -9,11 +9,65 @@ interface GroupShowProps {
 	data: OperationGroupData;
 }
 
+// Get window config display text
+const getWindowDisplayText = (windowConfig: WindowConfig): string => {
+	if (windowConfig.windowType === "rolling") {
+		return `Rolling: ${windowConfig.windowSize}`;
+	}
+	return `Expanding: ${windowConfig.initialWindowSize}`;
+};
+
+// Get filling method display text
+const getFillingMethodDisplayText = (method: FillingMethod): string => {
+	const methodMap: Record<FillingMethod, string> = {
+		FFill: "Forward Fill",
+		BFill: "Backward Fill",
+		Zero: "Zero Fill",
+		Mean: "Mean Fill",
+	};
+	return methodMap[method] || method;
+};
+
+// Window and Filling section
+const WindowFillingSection: React.FC<{
+	inputWindow: WindowConfig;
+	fillingMethod: FillingMethod;
+}> = ({ inputWindow, fillingMethod }) => {
+	return (
+		<div className="space-y-1">
+			<div className="flex items-center gap-2">
+				<Settings2 className="w-3.5 h-3.5 text-purple-500" />
+				<Label className="text-sm font-bold text-muted-foreground">
+					Settings
+				</Label>
+			</div>
+			<div className="flex flex-col gap-1.5 bg-gray-100 p-2 rounded-md">
+				<div className="flex items-center gap-2 text-xs text-muted-foreground">
+					<RulerDimensionLine className="w-3 h-3" />
+					<span>Window: {getWindowDisplayText(inputWindow)}</span>
+				</div>
+				<div className="flex items-center gap-2 text-xs text-muted-foreground">
+					<BetweenVerticalStart className="w-3 h-3" />
+					<span>{getFillingMethodDisplayText(fillingMethod)}</span>
+				</div>
+			</div>
+		</div>
+	);
+};
+
 const GroupShow: React.FC<GroupShowProps> = ({ data }) => {
-	const { inputConfigs, outputConfigs } = data;
+	const { inputConfigs, outputConfigs, inputWindow, fillingMethod } = data;
 
 	return (
 		<div className="space-y-3">
+			{/* Window and Filling Settings */}
+			{inputWindow && fillingMethod && (
+				<WindowFillingSection
+					inputWindow={inputWindow}
+					fillingMethod={fillingMethod}
+				/>
+			)}
+
 			{/* Input Section */}
 			<div className="space-y-1">
 				<div className="flex items-center gap-2">

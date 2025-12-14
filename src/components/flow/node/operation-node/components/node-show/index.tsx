@@ -1,5 +1,5 @@
 import type React from "react";
-import { SquareFunction, ArrowDown, ArrowRight, RulerDimensionLine, BetweenVerticalStart, SquareAsterisk } from "lucide-react";
+import { SquareFunction, ArrowDown, ArrowRight, SquareAsterisk } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -7,8 +7,6 @@ import type {
 	OperationNodeData,
 	InputConfig,
 	OutputConfig,
-	WindowConfig,
-	FillingMethod,
 	BinaryInputConfig,
 	NaryInputConfig,
 	UnaryInputConfig,
@@ -32,26 +30,6 @@ interface NodeShowProps {
 // Get operation display name
 const getOperationDisplayName = (operation: { type: string }): string => {
 	return operation.type;
-};
-
-
-// Get window config display text
-const getWindowDisplayText = (windowConfig: WindowConfig): string => {
-	if (windowConfig.windowType === "rolling") {
-		return `Rolling: ${windowConfig.windowSize}`;
-	}
-	return `Expanding: ${windowConfig.initialWindowSize}`;
-};
-
-// Get filling method display text
-const getFillingMethodDisplayText = (method: FillingMethod): string => {
-	const methodMap: Record<FillingMethod, string> = {
-		FFill: "Forward Fill",
-		BFill: "Backward Fill",
-		Zero: "Zero Fill",
-		Mean: "Mean Fill",
-	};
-	return methodMap[method] || method;
 };
 
 // Get input config display name
@@ -137,14 +115,6 @@ const OperationSection: React.FC<{ data: OperationNodeData }> = ({ data }) => {
 						{getOperationDisplayName(data.operation)}
 					</span>
 				</div>
-				<div className="flex items-center gap-2 text-xs text-muted-foreground">
-					<RulerDimensionLine className="w-3 h-3" />
-					<span>{getWindowDisplayText(data.windowConfig)}</span>
-				</div>
-				<div className="flex items-center gap-2 text-xs text-muted-foreground">
-					<BetweenVerticalStart className="w-3 h-3" />
-					<span>{getFillingMethodDisplayText(data.fillingMethod)}</span>
-				</div>
 			</div>
 		</div>
 	);
@@ -157,7 +127,9 @@ const InputSection: React.FC<{
 	const renderInputContent = () => {
 		if (!inputConfig) {
 			return (
-				<span className="text-sm text-red-500">Not Configured</span>
+				<div className="bg-gray-100 p-2 rounded-md">
+					<span className="text-sm text-red-500">Not Configured</span>
+				</div>
 			);
 		}
 
@@ -252,9 +224,7 @@ const OutputSection: React.FC<{
 				<div className="bg-gray-100 p-2 rounded-md">
 					<div className="flex items-center justify-between">
 						<span className="text-sm">
-							{outputConfig.type === "Series"
-								? outputConfig.seriesDisplayName
-								: outputConfig.scalarDisplayName}
+							{outputConfig.outputName}
 						</span>
 						<Badge
 							variant="outline"

@@ -108,7 +108,6 @@ export const mockFilledConfig = {
 	inputConfig: {
 		type: "Series" as const,
 		seriesId: 1,
-		seriesDisplayName: "Close Price",
 		fromNodeType: NodeType.KlineNode,
 		fromNodeId: "kline-1",
 		fromNodeName: "BTC/USDT KLine",
@@ -120,7 +119,7 @@ export const mockFilledConfig = {
 	outputConfig: {
 		type: "Series" as const,
 		seriesId: 1,
-		seriesDisplayName: "EMA(20)",
+		outputName: "EMA(20)",
 	},
 	windowConfig: {
 		windowType: "rolling",

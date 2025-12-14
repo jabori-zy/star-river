@@ -177,11 +177,11 @@ function syncSeriesInputFromOperationNode(
 	}
 
 	// Check if display name changed
-	if (seriesInput.fromSeriesDisplayName !== sourceOutputConfig.seriesDisplayName) {
+	if (seriesInput.fromSeriesDisplayName !== sourceOutputConfig.outputName) {
 		return {
 			...seriesInput,
-			fromSeriesDisplayName: sourceOutputConfig.seriesDisplayName,
-			fromSeriesName: sourceOutputConfig.seriesDisplayName,
+			fromSeriesDisplayName: sourceOutputConfig.outputName,
+			fromSeriesName: sourceOutputConfig.outputName,
 		};
 	}
 
@@ -210,11 +210,11 @@ function syncScalarInputFromOperationNode(
 	}
 
 	// Check if display name changed
-	if (scalarInput.fromScalarDisplayName !== sourceOutputConfig.scalarDisplayName) {
+	if (scalarInput.fromScalarDisplayName !== sourceOutputConfig.outputName) {
 		return {
 			...scalarInput,
-			fromScalarDisplayName: sourceOutputConfig.scalarDisplayName,
-			fromScalarName: sourceOutputConfig.scalarDisplayName,
+			fromScalarDisplayName: sourceOutputConfig.outputName,
+			fromScalarName: sourceOutputConfig.outputName,
 		};
 	}
 

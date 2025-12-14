@@ -32,21 +32,11 @@ export const createDefaultOperationNodeData = (
 		inputArrayType: defaultInputArrayType,
 		operation: defaultOperation,
 		inputConfig: null,
-		outputConfig: outputType === "Series"
-			? {
-				type: "Series",
+		outputConfig:  {
+				type: outputType,
+				configId: 0,
 				outputHandleId: "default_output",
-				seriesDisplayName: displayName,
-			}
-			: {
-				type: "Scalar",
-				outputHandleId: "default_output",
-				scalarDisplayName: displayName,
+				outputName: displayName,
 			},
-		windowConfig: {
-			windowSize: 10,
-			windowType: "rolling",
-		},
-		fillingMethod: "FFill",
 	};
 };

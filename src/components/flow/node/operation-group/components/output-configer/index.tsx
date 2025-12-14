@@ -66,6 +66,19 @@ export const OutputConfiger: React.FC<OutputConfigerProps> = ({
 					<p className="text-xs mt-1">Click + to add output</p>
 				</div>
 			)}
+
+			{/* Add button at bottom */}
+			{configs.length > 0 && (
+				<Button
+					variant="outline"
+					size="sm"
+					className="w-full text-xs gap-1 text-green-600 border-green-300 hover:bg-green-50 border-dashed"
+					onClick={onAddConfig}
+				>
+					<Plus className="h-4 w-4" />
+					Add output config
+				</Button>
+			)}
 		</div>
 	);
 };

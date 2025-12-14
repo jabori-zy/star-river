@@ -27,16 +27,6 @@ export {
     // Operation
     OperationSchema,
     type Operation,
-    // Window Config
-    RollingWindowConfigSchema,
-    type RollingWindowConfig,
-    ExpandingWindowConfigSchema,
-    type ExpandingWindowConfig,
-    WindowConfigSchema,
-    type WindowConfig,
-    // Filling Method
-    FillingMethodSchema,
-    type FillingMethod,
     // Input configs
     InputSeriesConfigSchema,
     type InputSeriesConfig,

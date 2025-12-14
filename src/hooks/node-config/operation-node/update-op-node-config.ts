@@ -13,8 +13,6 @@ import type {
 	OutputConfig,
 	OutputSeriesConfig,
 	OutputScalarConfig,
-	WindowConfig,
-	FillingMethod,
 } from "@/types/operation";
 import {
 	isSeriesInput,
@@ -368,11 +366,11 @@ export const useUpdateOpNodeConfig = ({ id }: UseUpdateOpNodeConfigProps) => {
 
 			if (isSeriesOutput(config)) {
 				updateNodeData(id, {
-					outputConfig: { ...config, seriesDisplayName: displayName },
+					outputConfig: { ...config, outputName: displayName },
 				});
 			} else if (isScalarOutput(config)) {
 				updateNodeData(id, {
-					outputConfig: { ...config, scalarDisplayName: displayName },
+					outputConfig: { ...config, outputName: displayName },
 				});
 			}
 		},
@@ -409,91 +407,13 @@ export const useUpdateOpNodeConfig = ({ id }: UseUpdateOpNodeConfigProps) => {
 		const config = nodeData?.outputConfig;
 		if (!config) return "";
 		if (isSeriesOutput(config)) {
-			return config.seriesDisplayName;
+			return config.outputName;
 		}
 		if (isScalarOutput(config)) {
-			return config.scalarDisplayName;
+			return config.outputName;
 		}
 		return "";
 	}, [nodeData?.outputConfig]);
-
-	// ==================== Window Config ====================
-
-	/**
-	 * Set window config
-	 */
-	const setWindowConfig = useCallback(
-		(windowConfig: WindowConfig) => {
-			updateNodeData(id, { windowConfig });
-		},
-		[id, updateNodeData],
-	);
-
-	/**
-	 * Update window size (handles both rolling and expanding types)
-	 */
-	const setWindowSize = useCallback(
-		(size: number) => {
-			if (!nodeData?.windowConfig) return;
-			if (nodeData.windowConfig.windowType === "rolling") {
-				updateNodeData(id, {
-					windowConfig: { windowType: "rolling", windowSize: size },
-				});
-			} else {
-				updateNodeData(id, {
-					windowConfig: { windowType: "expanding", initialWindowSize: size },
-				});
-			}
-		},
-		[id, nodeData?.windowConfig, updateNodeData],
-	);
-
-	/**
-	 * Update window type (rolling or expanding), converting field names
-	 */
-	const setWindowType = useCallback(
-		(windowType: "rolling" | "expanding") => {
-			if (!nodeData?.windowConfig) return;
-			// Get current size value
-			const currentSize =
-				nodeData.windowConfig.windowType === "rolling"
-					? nodeData.windowConfig.windowSize
-					: nodeData.windowConfig.initialWindowSize;
-			// Create new config with converted field name
-			if (windowType === "rolling") {
-				updateNodeData(id, {
-					windowConfig: { windowType: "rolling", windowSize: currentSize },
-				});
-			} else {
-				updateNodeData(id, {
-					windowConfig: { windowType: "expanding", initialWindowSize: currentSize },
-				});
-			}
-		},
-		[id, nodeData?.windowConfig, updateNodeData],
-	);
-
-	/**
-	 * Get current window size
-	 */
-	const getWindowSize = useMemo((): number => {
-		if (!nodeData?.windowConfig) return 0;
-		return nodeData.windowConfig.windowType === "rolling"
-			? nodeData.windowConfig.windowSize
-			: nodeData.windowConfig.initialWindowSize;
-	}, [nodeData?.windowConfig]);
-
-	// ==================== Filling Method ====================
-
-	/**
-	 * Set filling method
-	 */
-	const setFillingMethod = useCallback(
-		(fillingMethod: FillingMethod) => {
-			updateNodeData(id, { fillingMethod });
-		},
-		[id, updateNodeData],
-	);
 
 	return {
 		// Data
@@ -502,8 +422,6 @@ export const useUpdateOpNodeConfig = ({ id }: UseUpdateOpNodeConfigProps) => {
 		operation: nodeData?.operation,
 		inputConfig: nodeData?.inputConfig,
 		outputConfig: nodeData?.outputConfig,
-		windowConfig: nodeData?.windowConfig,
-		fillingMethod: nodeData?.fillingMethod,
 
 		// Input Array Type
 		setInputArrayType,
@@ -547,14 +465,5 @@ export const useUpdateOpNodeConfig = ({ id }: UseUpdateOpNodeConfigProps) => {
 		isOutputSeries,
 		isOutputScalar,
 		getOutputDisplayName,
-
-		// Window Config
-		setWindowConfig,
-		setWindowSize,
-		setWindowType,
-		getWindowSize,
-
-		// Filling Method
-		setFillingMethod,
 	};
 };

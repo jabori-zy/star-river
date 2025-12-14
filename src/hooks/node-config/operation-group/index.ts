@@ -23,6 +23,11 @@ export const createDefaultOperationGroupNodeData = (
 		},
 		inputConfigs: [],
 		outputConfigs: [],
+		inputWindow: {
+			windowType: "rolling",
+			windowSize: 20,
+		},
+		fillingMethod: "FFill",
 		isCollapsed: false,
 	};
 };

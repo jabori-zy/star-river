@@ -138,10 +138,42 @@ export const isScalarOutput = (config: unknown): config is OutputScalarConfig =>
     return OutputScalarConfigSchema.safeParse(config).success;
 };
 
+
+export const RollingWindowConfigSchema = z.object({
+    windowType: z.literal("rolling"),
+    windowSize: z.number().int().min(1),
+});
+export type RollingWindowConfig = z.infer<typeof RollingWindowConfigSchema>;
+
+export const ExpandingWindowConfigSchema = z.object({
+    windowType: z.literal("expanding"),
+    initialWindowSize: z.number().int().min(1),
+});
+export type ExpandingWindowConfig = z.infer<typeof ExpandingWindowConfigSchema>;
+
+
+export const WindowConfigSchema = z.discriminatedUnion("windowType", [
+    RollingWindowConfigSchema,
+    ExpandingWindowConfigSchema,
+]);
+export type WindowConfig = z.infer<typeof WindowConfigSchema>;
+
+// ============ Filling Method ============
+
+export const FillingMethodSchema = z.enum([
+    "FFill", // forward fill
+    "BFill", // backward fill
+    "Zero", // zero fill
+    "Mean", // mean fill
+]);
+export type FillingMethod = z.infer<typeof FillingMethodSchema>;
+
 // Operation group data schema
 export const OperationGroupDataSchema = NodeDataBaseSchema.extend({
     inputConfigs: z.array(OperationInputConfigSchema),
     outputConfigs: z.array(OperationOutputConfigSchema),
+    inputWindow: WindowConfigSchema,
+    fillingMethod: FillingMethodSchema,
     isCollapsed: z.boolean().default(false),
     expandedWidth: z.number().optional(),
     expandedHeight: z.number().optional(),
