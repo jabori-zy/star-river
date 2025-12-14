@@ -104,7 +104,6 @@ const InputSelector: React.FC<{
 				type: "Series",
 				source: "Group",
 				configId,
-				seriesDisplayName: selectedOption.inputDisplayName,
 				fromNodeType: selectedOption.fromNodeType,
 				fromNodeId: selectedOption.fromNodeId,
 				fromNodeName: selectedOption.fromNodeName,
@@ -119,7 +118,6 @@ const InputSelector: React.FC<{
 				type: "Scalar",
 				source: "Group",
 				configId,
-				scalarDisplayName: selectedOption.inputDisplayName,
 				fromNodeType: selectedOption.fromNodeType,
 				fromNodeId: selectedOption.fromNodeId,
 				fromNodeName: selectedOption.fromNodeName,
@@ -135,7 +133,6 @@ const InputSelector: React.FC<{
 				type: "CustomScalarValue",
 				source: "Group",
 				configId,
-				scalarDisplayName: selectedOption.inputDisplayName,
 				fromNodeType: selectedOption.fromNodeType,
 				fromNodeId: selectedOption.fromNodeId,
 				fromNodeName: selectedOption.fromNodeName,
@@ -157,7 +154,6 @@ const InputSelector: React.FC<{
 				type: "CustomScalarValue",
 				source: null,
 				configId,
-				scalarDisplayName: `Scalar ${configId}`,
 				scalarValue: numValue,
 			};
 			onChange(config);
@@ -177,7 +173,6 @@ const InputSelector: React.FC<{
 			type: "CustomScalarValue",
 			source: null,
 			configId,
-			scalarDisplayName: `Scalar ${configId}`,
 			scalarValue: numValue,
 		};
 		onChange(config);

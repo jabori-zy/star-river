@@ -170,8 +170,7 @@ export const renderVariableOptions = ({
 					}
 					// For OperationGroup outputs, check display name
 					if (isOperationOutputConfig(v)) {
-						const displayName = v.type === "Series" ? v.seriesDisplayName : v.scalarDisplayName;
-						return displayName === excludeVarName;
+						return v.outputName === excludeVarName;
 					}
 					return false;
 				})();
@@ -450,9 +449,7 @@ export const renderVariableOptions = ({
 	// Render OperationGroup output options
 	if (operationOutputs.length > 0) {
 		operationOutputs.forEach((output) => {
-			const displayName = output.type === "Series"
-				? output.seriesDisplayName
-				: output.scalarDisplayName;
+			const displayName = output.outputName;
 
 			result.push(
 				<SelectItem
@@ -499,9 +496,7 @@ export const renderVariableOptions = ({
 		// console.log("🔍 operationInputs", operationInputs);
 
 		operationInputs.forEach((input) => {
-			const displayName = input.type === "Series"
-				? input.seriesDisplayName
-				: input.scalarDisplayName;
+			const displayName = input.inputName;
 
 			// Determine if this is a scalar type (includes both "Scalar" and "CustomScalarValue")
 			const isScalarType = input.type === "Scalar" || input.type === "CustomScalarValue";

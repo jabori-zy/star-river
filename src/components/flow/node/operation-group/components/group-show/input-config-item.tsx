@@ -42,16 +42,16 @@ const getInputBadgeType = (config: OperationInputConfig): InputBadgeType => {
 // Get display name from config
 const getDisplayName = (config: OperationInputConfig): string => {
 	if (isSeriesInput(config)) {
-		return config.seriesDisplayName;
+		return config.inputName;
 	}
 	if (isScalarInput(config)) {
-		return config.scalarDisplayName;
+		return config.inputName;
 	}
 	if (isScalarValueInput(config)) {
-		return String(config.scalarValue);
+		return config.inputName;
 	}
 	if (isGroupScalarValueInput(config)) {
-		return String(config.fromScalarValue);
+		return config.inputName;
 	}
 	return "Unknown";
 };

@@ -65,11 +65,10 @@ function syncSeriesInputFromGroup(
 		return null;
 	}
 
-	if (seriesInput.fromSeriesDisplayName !== matchingConfig.seriesDisplayName) {
+	if (seriesInput.fromSeriesDisplayName !== matchingConfig.inputName) {
 		return {
 			...seriesInput,
-			fromSeriesDisplayName: matchingConfig.seriesDisplayName,
-			seriesDisplayName: matchingConfig.seriesDisplayName,
+			fromSeriesDisplayName: matchingConfig.inputName,
 		};
 	}
 
@@ -100,11 +99,10 @@ function syncScalarInputFromGroup(
 		return null;
 	}
 
-	if (scalarInput.fromScalarDisplayName !== matchingConfig.scalarDisplayName) {
+	if (scalarInput.fromScalarDisplayName !== matchingConfig.inputName) {
 		return {
 			...scalarInput,
-			fromScalarDisplayName: matchingConfig.scalarDisplayName,
-			scalarDisplayName: matchingConfig.scalarDisplayName,
+			fromScalarDisplayName: matchingConfig.inputName,
 			fromScalarName: matchingConfig.fromScalarName,
 		};
 	}
@@ -141,14 +139,13 @@ function syncGroupScalarValueInputFromGroup(
 		: matchingConfig.fromScalarValue;
 
 	const needsUpdate =
-		groupScalarInput.fromScalarDisplayName !== matchingConfig.scalarDisplayName ||
+		groupScalarInput.fromScalarDisplayName !== matchingConfig.inputName ||
 		groupScalarInput.fromScalarValue !== scalarValue;
 
 	if (needsUpdate) {
 		return {
 			...groupScalarInput,
-			fromScalarDisplayName: matchingConfig.scalarDisplayName,
-			scalarDisplayName: matchingConfig.scalarDisplayName,
+			fromScalarDisplayName: matchingConfig.inputName,
 			fromScalarValue: scalarValue,
 		};
 	}
@@ -184,7 +181,6 @@ function syncSeriesInputFromOperationNode(
 		return {
 			...seriesInput,
 			fromSeriesDisplayName: sourceOutputConfig.seriesDisplayName,
-			seriesDisplayName: sourceOutputConfig.seriesDisplayName,
 			fromSeriesName: sourceOutputConfig.seriesDisplayName,
 		};
 	}
@@ -218,7 +214,6 @@ function syncScalarInputFromOperationNode(
 		return {
 			...scalarInput,
 			fromScalarDisplayName: sourceOutputConfig.scalarDisplayName,
-			scalarDisplayName: sourceOutputConfig.scalarDisplayName,
 			fromScalarName: sourceOutputConfig.scalarDisplayName,
 		};
 	}
@@ -270,12 +265,11 @@ function syncSeriesInputFromOperationGroup(
 	}
 
 	// Check if display name changed
-	if (seriesInput.fromSeriesDisplayName !== matchingConfig.seriesDisplayName) {
+	if (seriesInput.fromSeriesDisplayName !== matchingConfig.outputName) {
 		return {
 			...seriesInput,
-			fromSeriesDisplayName: matchingConfig.seriesDisplayName,
-			seriesDisplayName: matchingConfig.seriesDisplayName,
-			fromSeriesName: matchingConfig.seriesDisplayName,
+			fromSeriesDisplayName: matchingConfig.outputName,
+			fromSeriesName: matchingConfig.outputName,
 		};
 	}
 
@@ -314,12 +308,11 @@ function syncScalarInputFromOperationGroup(
 	}
 
 	// Check if display name changed
-	if (scalarInput.fromScalarDisplayName !== matchingConfig.scalarDisplayName) {
+	if (scalarInput.fromScalarDisplayName !== matchingConfig.outputName) {
 		return {
 			...scalarInput,
-			fromScalarDisplayName: matchingConfig.scalarDisplayName,
-			scalarDisplayName: matchingConfig.scalarDisplayName,
-			fromScalarName: matchingConfig.scalarDisplayName,
+			fromScalarDisplayName: matchingConfig.outputName,
+			fromScalarName: matchingConfig.outputName,
 		};
 	}
 

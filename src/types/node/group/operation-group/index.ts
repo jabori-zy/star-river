@@ -7,7 +7,7 @@ export const OperationInputSeriesConfigSchema = z.object({
     type: z.literal("Series"),
     source: z.union([z.literal("Node"), z.literal("Group")]),
     configId: z.number(),
-    seriesDisplayName: z.string(),
+    inputName: z.string(),
     fromNodeType: z.nativeEnum(NodeType),
     fromNodeId: z.string(),
     fromNodeName: z.string(),
@@ -25,7 +25,7 @@ export const OperationInputScalarValueConfigSchema = z.object({
     type: z.literal("CustomScalarValue"),
     source: z.null(),
     configId: z.number(),
-    scalarDisplayName: z.string(),
+    inputName: z.string(),
     scalarValue: z.number()
 });
 
@@ -35,14 +35,14 @@ export const OperationInputGroupScalarValueConfigSchema = z.object({
     type: z.literal("CustomScalarValue"),
     source: z.literal("Group"),
     configId: z.number(),
-    scalarDisplayName: z.string(),
+    inputName: z.string(),
     fromNodeType: z.nativeEnum(NodeType),
     fromNodeId: z.string(),
     fromNodeName: z.string(),
     fromHandleId: z.string(),
     fromScalarConfigId: z.number(),
     fromScalarDisplayName: z.string(),
-    fromScalarValue:z.number(),
+    fromScalarValue: z.number(),
 });
 
 export type OperationInputGroupScalarValueConfig = z.infer<typeof OperationInputGroupScalarValueConfigSchema>;
@@ -52,7 +52,7 @@ export const OperationInputScalarConfigSchema = z.object({
     type: z.literal("Scalar"),
     source: z.union([z.literal("Node"), z.literal("Group")]),
     configId: z.number(),
-    scalarDisplayName: z.string(),
+    inputName: z.string(),
     fromNodeType: z.nativeEnum(NodeType),
     fromNodeId: z.string(),
     fromNodeName: z.string(),
@@ -99,7 +99,7 @@ export const OutputSeriesConfigSchema = z.object({
     type: z.literal("Series"),
     configId: z.number(),
     outputHandleId: z.string(),
-    seriesDisplayName: z.string(),
+    outputName: z.string(),
     sourceNodeId: z.string(),
     sourceNodeName: z.string(),
     sourceHandleId: z.string(),
@@ -111,7 +111,7 @@ export const OutputScalarConfigSchema = z.object({
     type: z.literal("Scalar"),
     configId: z.number(),
     outputHandleId: z.string(),
-    scalarDisplayName: z.string(),
+    outputName: z.string(),
     // Source info (from OperationNode connected to EndNode)
     sourceNodeId: z.string(),
     sourceNodeName: z.string(),

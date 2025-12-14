@@ -95,9 +95,7 @@ export const InputConfigItem: React.FC<InputConfigItemProps> = ({
 	);
 
 	// Local state for display name input (only save on blur)
-	const [localDisplayName, setLocalDisplayName] = useState(
-		isScalarType ? config.scalarDisplayName : config.seriesDisplayName,
-	);
+	const [localDisplayName, setLocalDisplayName] = useState(config.inputName);
 
 	// Local state for scalar value input (only for custom scalar)
 	const [localScalarValue, setLocalScalarValue] = useState(
@@ -113,9 +111,7 @@ export const InputConfigItem: React.FC<InputConfigItemProps> = ({
 	const isNameEmpty = localDisplayName.trim() === "";
 
 	// Get display name based on config type
-	const configDisplayName = isScalarType
-		? config.scalarDisplayName
-		: (config as OperationInputSeriesConfig).seriesDisplayName;
+	const configDisplayName = config.inputName;
 
 	// Get scalar value (for custom Scalar or Group custom scalar)
 	const configScalarValue = useMemo(() => {
@@ -236,13 +232,10 @@ export const InputConfigItem: React.FC<InputConfigItemProps> = ({
 	// Handle display name blur - save to node data
 	const handleDisplayNameBlur = useCallback(() => {
 		setIsInputName(true);
-		const currentDisplayName = isScalarType
-			? config.scalarDisplayName
-			: (config as OperationInputSeriesConfig).seriesDisplayName;
-		if (localDisplayName !== currentDisplayName) {
+		if (localDisplayName !== config.inputName) {
 			onDisplayNameBlur(config.configId, localDisplayName);
 		}
-	}, [config, isScalarType, localDisplayName, onDisplayNameBlur]);
+	}, [config.configId, config.inputName, localDisplayName, onDisplayNameBlur]);
 
 	// Handle scalar value blur (only for custom scalar)
 	const handleScalarValueBlur = useCallback(() => {

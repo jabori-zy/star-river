@@ -215,11 +215,11 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 	);
 
 	/**
-	 * Update series display name
+	 * Update series input name
 	 */
-	const updateSeriesDisplayName = useCallback(
-		(configId: number, displayName: string) => {
-			updateSeriesConfigById(configId, { seriesDisplayName: displayName });
+	const updateSeriesInputName = useCallback(
+		(configId: number, inputName: string) => {
+			updateSeriesConfigById(configId, { inputName });
 		},
 		[updateSeriesConfigById],
 	);
@@ -327,11 +327,11 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 	);
 
 	/**
-	 * Update scalar display name
+	 * Update scalar input name
 	 */
-	const updateScalarDisplayName = useCallback(
-		(configId: number, displayName: string) => {
-			updateScalarConfigById(configId, { scalarDisplayName: displayName });
+	const updateScalarInputName = useCallback(
+		(configId: number, inputName: string) => {
+			updateScalarConfigById(configId, { inputName });
 		},
 		[updateScalarConfigById],
 	);
@@ -406,11 +406,11 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 	);
 
 	/**
-	 * Update scalar node display name
+	 * Update scalar node input name
 	 */
-	const updateScalarNodeDisplayName = useCallback(
-		(configId: number, displayName: string) => {
-			updateScalarNodeConfigById(configId, { scalarDisplayName: displayName });
+	const updateScalarNodeInputName = useCallback(
+		(configId: number, inputName: string) => {
+			updateScalarNodeConfigById(configId, { inputName });
 		},
 		[updateScalarNodeConfigById],
 	);
@@ -475,11 +475,11 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 	);
 
 	/**
-	 * Update group scalar value display name
+	 * Update group scalar value input name
 	 */
-	const updateGroupScalarValueDisplayName = useCallback(
-		(configId: number, displayName: string) => {
-			updateGroupScalarValueConfigById(configId, { scalarDisplayName: displayName });
+	const updateGroupScalarValueInputName = useCallback(
+		(configId: number, inputName: string) => {
+			updateGroupScalarValueConfigById(configId, { inputName });
 		},
 		[updateGroupScalarValueConfigById],
 	);
@@ -544,11 +544,11 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 	);
 
 	/**
-	 * Update scalar group display name
+	 * Update scalar group input name
 	 */
-	const updateScalarGroupDisplayName = useCallback(
-		(configId: number, displayName: string) => {
-			updateScalarGroupConfigById(configId, { scalarDisplayName: displayName });
+	const updateScalarGroupInputName = useCallback(
+		(configId: number, inputName: string) => {
+			updateScalarGroupConfigById(configId, { inputName });
 		},
 		[updateScalarGroupConfigById],
 	);
@@ -663,19 +663,14 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 	);
 
 	/**
-	 * Update output display name
+	 * Update output name
 	 */
-	const updateOutputDisplayName = useCallback(
-		(configId: number, displayName: string) => {
+	const updateOutputName = useCallback(
+		(configId: number, outputName: string) => {
 			updateOutputConfigs((draft) => {
 				const index = draft.findIndex((c) => c.configId === configId);
 				if (index !== -1) {
-					const config = draft[index];
-					if (config.type === "Series") {
-						(config as OutputSeriesConfig).seriesDisplayName = displayName;
-					} else {
-						(config as OutputScalarConfig).scalarDisplayName = displayName;
-					}
+					draft[index].outputName = outputName;
 				}
 			});
 		},
@@ -704,7 +699,7 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 		updateSeriesConfigById,
 		removeSeriesConfig,
 		removeSeriesConfigById,
-		updateSeriesDisplayName,
+		updateSeriesInputName,
 		clearSeriesConfigs,
 
 		// All scalar configs (both Value and Node source)
@@ -718,7 +713,7 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 		updateScalarConfigById,
 		removeScalarConfig,
 		removeScalarConfigById,
-		updateScalarDisplayName,
+		updateScalarInputName,
 		updateScalarValue,
 		clearScalarValueConfigs,
 
@@ -727,7 +722,7 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 		addScalarNodeConfig,
 		updateScalarNodeConfigById,
 		removeScalarNodeConfigById,
-		updateScalarNodeDisplayName,
+		updateScalarNodeInputName,
 		clearScalarNodeConfigs,
 
 		// Group scalar value configs (CustomScalarValue from parent Group)
@@ -735,7 +730,7 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 		addGroupScalarValueConfig,
 		updateGroupScalarValueConfigById,
 		removeGroupScalarValueConfigById,
-		updateGroupScalarValueDisplayName,
+		updateGroupScalarValueInputName,
 		clearGroupScalarValueConfigs,
 
 		// Scalar group configs (Scalar with variable name from parent Group)
@@ -743,7 +738,7 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 		addScalarGroupConfig,
 		updateScalarGroupConfigById,
 		removeScalarGroupConfigById,
-		updateScalarGroupDisplayName,
+		updateScalarGroupInputName,
 		clearScalarGroupConfigs,
 
 		// Output configs
@@ -753,7 +748,7 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 		addOutputScalarConfig,
 		updateOutputConfigById,
 		removeOutputConfigById,
-		updateOutputDisplayName,
+		updateOutputName,
 		clearOutputConfigs,
 	};
 };

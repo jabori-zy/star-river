@@ -57,10 +57,10 @@ const getFillingMethodDisplayText = (method: FillingMethod): string => {
 // Get input config display name
 const getInputDisplayName = (input: InputConfig): string => {
 	if (isSeriesInput(input)) {
-		return input.seriesDisplayName || input.fromSeriesDisplayName;
+		return input.fromSeriesDisplayName;
 	}
 	if (isScalarInput(input)) {
-		return input.scalarDisplayName || input.fromScalarDisplayName;
+		return input.fromScalarDisplayName;
 	}
 	if (isScalarValueInput(input)) {
 		return String(input.scalarValue);

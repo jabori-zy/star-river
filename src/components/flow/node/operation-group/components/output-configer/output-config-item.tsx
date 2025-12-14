@@ -26,9 +26,7 @@ export const OutputConfigItem: React.FC<OutputConfigItemProps> = ({
 	const hasSource = config.sourceNodeId !== "";
 
 	// Get display name based on config type
-	const configDisplayName = isScalar
-		? config.scalarDisplayName
-		: config.seriesDisplayName;
+	const configDisplayName = config.outputName;
 
 	// Local state for display name input
 	const [localDisplayName, setLocalDisplayName] = useState(configDisplayName);

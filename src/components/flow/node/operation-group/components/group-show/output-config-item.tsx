@@ -25,13 +25,7 @@ const getOutputBadgeType = (config: OperationOutputConfig): OutputBadgeType => {
 
 // Get display name from config
 const getDisplayName = (config: OperationOutputConfig): string => {
-	if (isSeriesOutput(config)) {
-		return config.seriesDisplayName;
-	}
-	if (isScalarOutput(config)) {
-		return config.scalarDisplayName;
-	}
-	return "Unknown";
+	return config.outputName;
 };
 
 // Get source node name from config

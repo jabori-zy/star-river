@@ -59,7 +59,6 @@ export const InputSeriesConfigSchema = z.object({
     type: z.literal("Series"),
     source: z.literal("Group"),
     configId: z.number(),
-    seriesDisplayName: z.string(),
     fromNodeType: z.nativeEnum(NodeType),
     fromNodeId: z.string(),
     fromNodeName: z.string(),
@@ -76,7 +75,6 @@ export const InputScalarConfigSchema = z.object({
     type: z.literal("Scalar"),
     source: z.literal("Group"),
     configId: z.number(),
-    scalarDisplayName: z.string(),
     fromNodeType: z.nativeEnum(NodeType),
     fromNodeId: z.string(),
     fromNodeName: z.string(),
@@ -92,7 +90,6 @@ export const InputScalarValueConfigSchema = z.object({
     type: z.literal("CustomScalarValue"),
     source: z.null(),
     configId: z.number(),
-    scalarDisplayName: z.string(),
     scalarValue: z.number(),
 });
 export type InputScalarValueConfig = z.infer<typeof InputScalarValueConfigSchema>;
@@ -102,7 +99,6 @@ export const InputGroupScalarValueConfigSchema = z.object({
     type: z.literal("CustomScalarValue"),
     source: z.literal("Group"),
     configId: z.number(),
-    scalarDisplayName: z.string(),
     fromNodeType: z.nativeEnum(NodeType),
     fromNodeId: z.string(),
     fromNodeName: z.string(),

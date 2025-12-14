@@ -240,11 +240,11 @@ function syncSeriesFromParentGroup(
 	}
 
 	// Update display name if changed
-	if (seriesConfig.fromSeriesDisplayName !== matchingConfig.seriesDisplayName) {
+	if (seriesConfig.fromSeriesDisplayName !== matchingConfig.inputName) {
 		updateSeriesConfigById(seriesConfig.configId, {
-			fromSeriesDisplayName: matchingConfig.seriesDisplayName,
-			fromSeriesName: matchingConfig.seriesDisplayName,
-			seriesDisplayName: matchingConfig.seriesDisplayName,
+			fromSeriesDisplayName: matchingConfig.inputName,
+			fromSeriesName: matchingConfig.inputName,
+			inputName: matchingConfig.inputName,
 		});
 	}
 }
@@ -305,10 +305,10 @@ function syncScalarFromParentGroup(
 	}
 
 	// Update display name if changed
-	if (scalarConfig.fromScalarDisplayName !== matchingConfig.scalarDisplayName) {
+	if (scalarConfig.fromScalarDisplayName !== matchingConfig.inputName) {
 		updateScalarGroupConfigById(scalarConfig.configId, {
-			fromScalarDisplayName: matchingConfig.scalarDisplayName,
-			scalarDisplayName: matchingConfig.scalarDisplayName,
+			fromScalarDisplayName: matchingConfig.inputName,
+			inputName: matchingConfig.inputName,
 			fromScalarName: matchingConfig.fromScalarName,
 		});
 	}
@@ -376,13 +376,13 @@ function syncGroupScalarValueFromParentGroup(
 
 	// Check if update is needed
 	const needsUpdate =
-		groupScalarConfig.fromScalarDisplayName !== matchingConfig.scalarDisplayName ||
+		groupScalarConfig.fromScalarDisplayName !== matchingConfig.inputName ||
 		groupScalarConfig.fromScalarValue !== scalarValue;
 
 	if (needsUpdate) {
 		updateGroupScalarValueConfigById(groupScalarConfig.configId, {
-			fromScalarDisplayName: matchingConfig.scalarDisplayName,
-			scalarDisplayName: matchingConfig.scalarDisplayName,
+			fromScalarDisplayName: matchingConfig.inputName,
+			inputName: matchingConfig.inputName,
 			fromScalarValue: scalarValue,
 		});
 	}
@@ -455,11 +455,11 @@ function syncSeriesFromUpstreamGroup(
 		return;
 	}
 
-	// Update "from" fields if changed (do NOT update seriesDisplayName - that's owned by this node)
-	if (seriesConfig.fromSeriesDisplayName !== matchingConfig.seriesDisplayName) {
+	// Update "from" fields if changed (do NOT update inputName - that's owned by this node)
+	if (seriesConfig.fromSeriesDisplayName !== matchingConfig.outputName) {
 		updateSeriesConfigById(seriesConfig.configId, {
-			fromSeriesDisplayName: matchingConfig.seriesDisplayName,
-			fromSeriesName: matchingConfig.seriesDisplayName,
+			fromSeriesDisplayName: matchingConfig.outputName,
+			fromSeriesName: matchingConfig.outputName,
 		});
 	}
 }
@@ -519,11 +519,11 @@ function syncScalarFromUpstreamGroup(
 		return;
 	}
 
-	// Update "from" fields if changed (do NOT update scalarDisplayName - that's owned by this node)
-	if (scalarConfig.fromScalarDisplayName !== matchingConfig.scalarDisplayName) {
+	// Update "from" fields if changed (do NOT update inputName - that's owned by this node)
+	if (scalarConfig.fromScalarDisplayName !== matchingConfig.outputName) {
 		updateScalarNodeConfigById(scalarConfig.configId, {
-			fromScalarDisplayName: matchingConfig.scalarDisplayName,
-			fromScalarName: matchingConfig.scalarDisplayName,
+			fromScalarDisplayName: matchingConfig.outputName,
+			fromScalarName: matchingConfig.outputName,
 		});
 	}
 }

@@ -86,10 +86,7 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 						sourceNodeName: groupData.nodeName,
 						outputType: outputConfig.type,
 						sourceHandleId: outputConfig.outputHandleId,
-						displayName:
-							outputConfig.type === "Series"
-								? outputConfig.seriesDisplayName
-								: outputConfig.scalarDisplayName,
+						displayName: outputConfig.outputName,
 					});
 				}
 			}
@@ -103,11 +100,11 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 	const {
 		operationConfigs,
 		addSeriesConfig,
-		updateSeriesDisplayName,
-		updateScalarDisplayName,
-		updateScalarNodeDisplayName,
-		updateScalarGroupDisplayName,
-		updateGroupScalarValueDisplayName,
+		updateSeriesInputName,
+		updateScalarInputName,
+		updateScalarNodeInputName,
+		updateScalarGroupInputName,
+		updateGroupScalarValueInputName,
 		updateSeriesConfigById,
 		updateScalarValue,
 		updateScalarNodeConfigById,
@@ -119,7 +116,7 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 		outputConfigs,
 		setOutputConfigs,
 		addOutputSeriesConfig,
-		updateOutputDisplayName,
+		updateOutputName,
 		removeOutputConfigById,
 	} = useUpdateOpGroupConfig({ id });
 
@@ -128,7 +125,7 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 		addSeriesConfig({
 			type: "Series",
 			source: "Node",
-			seriesDisplayName: "",
+			inputName: "",
 			fromNodeType: NodeType.KlineNode,
 			fromNodeId: "",
 			fromNodeName: "",
@@ -139,29 +136,29 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 		});
 	}, [addSeriesConfig]);
 
-	// Handle display name update (for both Series and Scalar)
-	const handleUpdateDisplayName = useCallback(
-		(configId: number, displayName: string) => {
+	// Handle input name update (for both Series and Scalar)
+	const handleUpdateInputName = useCallback(
+		(configId: number, inputName: string) => {
 			const config = operationConfigs.find((c) => c.configId === configId);
 			if (!config) return;
 
 			if (config.type === "Series") {
-				updateSeriesDisplayName(configId, displayName);
+				updateSeriesInputName(configId, inputName);
 			} else if (config.type === "Scalar" && config.source === "Node") {
 				// Scalar from upstream Node
-				updateScalarNodeDisplayName(configId, displayName);
+				updateScalarNodeInputName(configId, inputName);
 			} else if (config.type === "Scalar" && config.source === "Group") {
 				// Scalar from parent Group
-				updateScalarGroupDisplayName(configId, displayName);
+				updateScalarGroupInputName(configId, inputName);
 			} else if (config.type === "CustomScalarValue" && config.source === "Group") {
 				// Custom scalar value from parent Group
-				updateGroupScalarValueDisplayName(configId, displayName);
+				updateGroupScalarValueInputName(configId, inputName);
 			} else {
 				// CustomScalarValue with source: null (self-defined)
-				updateScalarDisplayName(configId, displayName);
+				updateScalarInputName(configId, inputName);
 			}
 		},
-		[operationConfigs, updateSeriesDisplayName, updateScalarDisplayName, updateScalarNodeDisplayName, updateScalarGroupDisplayName, updateGroupScalarValueDisplayName],
+		[operationConfigs, updateSeriesInputName, updateScalarInputName, updateScalarNodeInputName, updateScalarGroupInputName, updateGroupScalarValueInputName],
 	);
 
 	// Handle node selection change (for Series type or Scalar from Node/Group)
@@ -273,12 +270,12 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 			} else if (varType === "CustomScalarValue") {
 				// Selected variable is CustomScalarValue from parent Group
 				// Need to convert current config to OperationInputGroupScalarValueConfig
-				const currentDisplayName = config.scalarDisplayName;
+				const currentInputName = config.inputName;
 				const newConfig: OperationInputGroupScalarValueConfig = {
 					type: "CustomScalarValue",
 					source: "Group",
 					configId: config.configId,
-					scalarDisplayName: currentDisplayName,
+					inputName: currentInputName,
 					fromNodeType: selectedNode.nodeType,
 					fromNodeId: nodeId,
 					fromNodeName: selectedNode.nodeName,
@@ -295,12 +292,12 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 			} else if (varType === "Scalar" || config.type === "Scalar") {
 				// Scalar with variable name
 				// Need to replace the entire config to change source
-				const currentDisplayName = config.scalarDisplayName;
+				const currentInputName = config.inputName;
 				const newConfig: OperationInputScalarConfig = {
 					type: "Scalar",
 					source: isFromGroup ? "Group" : "Node",
 					configId: config.configId,
-					scalarDisplayName: currentDisplayName,
+					inputName: currentInputName,
 					fromNodeType: selectedNode.nodeType,
 					fromNodeId: nodeId,
 					fromNodeName: selectedNode.nodeName,
@@ -326,12 +323,9 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 		[updateScalarValue],
 	);
 
-	// Helper to get display name from any config type
-	const getScalarDisplayName = useCallback((config: OperationInputConfig): string => {
-		if (config.type === "Series") {
-			return config.seriesDisplayName;
-		}
-		return config.scalarDisplayName;
+	// Helper to get input name from any config type
+	const getInputName = useCallback((config: OperationInputConfig): string => {
+		return config.inputName;
 	}, []);
 
 	// Handle scalar source change (Value <-> Node)
@@ -348,7 +342,7 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 			const newConfigs = operationConfigs.map((config) => {
 				if (config.configId !== configId) return config;
 
-				const displayName = getScalarDisplayName(config);
+				const inputName = getInputName(config);
 
 				if (source === "Value") {
 					// Convert to custom scalar value (self-defined)
@@ -356,7 +350,7 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 						type: "CustomScalarValue",
 						source: null,
 						configId: config.configId,
-						scalarDisplayName: displayName,
+						inputName,
 						scalarValue: config.type === "CustomScalarValue" && config.source === null
 							? config.scalarValue
 							: 0,
@@ -368,7 +362,7 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 					type: "Scalar",
 					source: "Node",
 					configId: config.configId,
-					scalarDisplayName: displayName,
+					inputName,
 					fromNodeType: NodeType.KlineNode,
 					fromNodeId: "",
 					fromNodeName: "",
@@ -382,7 +376,7 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 
 			setOperationConfigs(newConfigs);
 		},
-		[operationConfigs, setOperationConfigs, getScalarDisplayName],
+		[operationConfigs, setOperationConfigs, getInputName],
 	);
 
 	// Handle type change (Series <-> Scalar)
@@ -403,10 +397,7 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 						type: "CustomScalarValue",
 						source: null,
 						configId: config.configId,
-						scalarDisplayName:
-							config.type === "Series"
-								? config.seriesDisplayName
-								: config.scalarDisplayName,
+						inputName: config.inputName,
 						scalarValue:
 							config.type === "CustomScalarValue" && config.source === null
 								? config.scalarValue
@@ -419,7 +410,7 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 					type: "Series",
 					source: "Node",
 					configId: config.configId,
-					seriesDisplayName: getScalarDisplayName(config),
+					inputName: getInputName(config),
 					fromNodeType: NodeType.KlineNode,
 					fromNodeId: "",
 					fromNodeName: "",
@@ -433,14 +424,14 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 
 			setOperationConfigs(newConfigs);
 		},
-		[operationConfigs, setOperationConfigs, getScalarDisplayName],
+		[operationConfigs, setOperationConfigs, getInputName],
 	);
 
 	// Handle add output config (empty config, user will select source later)
 	const handleAddOutputConfig = useCallback(() => {
 		addOutputSeriesConfig({
 			type: "Series",
-			seriesDisplayName: "",
+			outputName: "",
 			sourceNodeId: "",
 			sourceNodeName: "",
 			sourceHandleId: "",
@@ -458,22 +449,11 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 			const newConfigs = outputConfigs.map((config) => {
 				if (config.configId !== configId) return config;
 
-				if (option.outputType === "Series") {
-					return {
-						type: "Series" as const,
-						configId: config.configId,
-						outputHandleId: config.outputHandleId,
-						seriesDisplayName: option.displayName,
-						sourceNodeId: option.sourceNodeId,
-						sourceNodeName: option.sourceNodeName,
-						sourceHandleId: option.sourceHandleId,
-					};
-				}
 				return {
-					type: "Scalar" as const,
+					type: option.outputType as "Series" | "Scalar",
 					configId: config.configId,
 					outputHandleId: config.outputHandleId,
-					scalarDisplayName: option.displayName,
+					outputName: option.displayName,
 					sourceNodeId: option.sourceNodeId,
 					sourceNodeName: option.sourceNodeName,
 					sourceHandleId: option.sourceHandleId,
@@ -485,12 +465,12 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 		[outputConfigs, setOutputConfigs],
 	);
 
-	// Handle update output display name
-	const handleUpdateOutputDisplayName = useCallback(
-		(configId: number, displayName: string) => {
-			updateOutputDisplayName(configId, displayName);
+	// Handle update output name
+	const handleUpdateOutputName = useCallback(
+		(configId: number, outputName: string) => {
+			updateOutputName(configId, outputName);
 		},
-		[updateOutputDisplayName],
+		[updateOutputName],
 	);
 
 	// Handle remove output config
@@ -507,7 +487,7 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 				variableItemList={variableItemList}
 				operationConfigs={operationConfigs}
 				onAddConfig={handleAddConfig}
-				onUpdateDisplayName={handleUpdateDisplayName}
+				onUpdateDisplayName={handleUpdateInputName}
 				onUpdateNode={handleNodeChange}
 				onUpdateVariable={handleVariableChange}
 				onUpdateScalarValue={handleScalarValueChange}
@@ -523,7 +503,7 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 				outputConfigs={outputConfigs}
 				onAddConfig={handleAddOutputConfig}
 				onSelectSource={handleSelectOutputSource}
-				onUpdateDisplayName={handleUpdateOutputDisplayName}
+				onUpdateDisplayName={handleUpdateOutputName}
 				onRemoveConfig={handleRemoveOutputConfig}
 			/>
 		</div>

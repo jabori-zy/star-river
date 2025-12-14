@@ -93,8 +93,8 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 							fromNodeName: node.data?.nodeName,
 							fromHandleId: `${node.id}_default_output`,
 							fromNodeType: NodeType.OperationStartNode,
-							inputDisplayName: config.seriesDisplayName,
-							inputName: config.seriesDisplayName,
+							inputDisplayName: config.inputName,
+							inputName: config.inputName,
 						});
 					} else if (config.type === "Scalar") {
 						// Scalar type with variable name from source
@@ -105,7 +105,7 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 							fromHandleId: `${node.id}_default_output`,
 							fromNodeName: node.data?.nodeName,
 							fromNodeType: NodeType.OperationStartNode,
-							inputDisplayName: config.scalarDisplayName,
+							inputDisplayName: config.inputName,
 							inputName: config.fromScalarName,
 						});
 					} else if (config.type === "CustomScalarValue") {
@@ -120,7 +120,7 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 							fromHandleId: `${node.id}_default_output`,
 							fromNodeName: node.data?.nodeName,
 							fromNodeType: NodeType.OperationStartNode,
-							inputDisplayName: config.scalarDisplayName,
+							inputDisplayName: config.inputName,
 							inputValue: inputValue,
 						});
 					}
@@ -164,30 +164,16 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 
 				// Add each output from the child group as an input option
 				outputConfigs.forEach((outputCfg) => {
-					if (outputCfg.type === "Series") {
-						options.push({
-							configId: outputCfg.configId,
-							inputType: "Series",
-							fromNodeId: node.id,
-							fromNodeName: groupData?.nodeName,
-							fromHandleId: outputCfg.outputHandleId,
-							fromNodeType: NodeType.OperationGroup,
-							inputDisplayName: outputCfg.seriesDisplayName,
-							inputName: outputCfg.seriesDisplayName,
-						});
-					} else {
-						// Scalar output
-						options.push({
-							configId: outputCfg.configId,
-							inputType: "Scalar",
-							fromNodeId: node.id,
-							fromNodeName: groupData?.nodeName,
-							fromHandleId: outputCfg.outputHandleId,
-							fromNodeType: NodeType.OperationGroup,
-							inputDisplayName: outputCfg.scalarDisplayName,
-							inputName: outputCfg.scalarDisplayName,
-						});
-					}
+					options.push({
+						configId: outputCfg.configId,
+						inputType: outputCfg.type,
+						fromNodeId: node.id,
+						fromNodeName: groupData?.nodeName,
+						fromHandleId: outputCfg.outputHandleId,
+						fromNodeType: NodeType.OperationGroup,
+						inputDisplayName: outputCfg.outputName,
+						inputName: outputCfg.outputName,
+					});
 				});
 			}
 		});

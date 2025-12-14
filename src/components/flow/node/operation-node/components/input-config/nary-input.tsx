@@ -76,7 +76,6 @@ export const NaryInput: React.FC<NaryInputProps> = ({
 				source: "Group",
 				// Keep existing configId or generate new one based on max + 1
 				configId: inputs[index]?.configId ?? getNextConfigId(),
-				seriesDisplayName: selectedOption.inputDisplayName,
 				fromNodeType: selectedOption.fromNodeType,
 				fromNodeId: selectedOption.fromNodeId,
 				fromNodeName: selectedOption.fromNodeName,
@@ -96,7 +95,6 @@ export const NaryInput: React.FC<NaryInputProps> = ({
 			source: "Group",
 			// Use incremental ID: max(existing IDs) + 1
 			configId: getNextConfigId(),
-			seriesDisplayName: "",
 			fromNodeType: NodeType.OperationStartNode,
 			fromNodeId: "",
 			fromNodeName: "",
