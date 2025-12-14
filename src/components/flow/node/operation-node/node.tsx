@@ -3,6 +3,7 @@ import { useCallback } from "react";
 
 import type { OperationNode as OperationNodeType, OperationNodeData } from "@/types/node/operation-node";
 import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
+import { useSyncSourceNode } from "@/hooks/node-config/operation-node";
 import BaseNode from "@/components/flow/base/BaseNode";
 import type { BaseHandleProps } from "@/components/flow/base/BaseHandle";
 import { Position } from "@xyflow/react";
@@ -19,6 +20,9 @@ const OperationNode: React.FC<NodeProps<OperationNodeType>> = ({
 	const { getNodeData } = useStrategyWorkflow();
 	const { setNodes, getInternalNode } = useReactFlow();
 	const operationNodeData = getNodeData(id) as OperationNodeData;
+
+	// Sync inputs when parent Group's inputConfigs change
+	useSyncSourceNode({ id });
 	const nodeName = operationNodeData.nodeName || "Operation Node";
     const handleColor =
 		operationNodeData?.nodeConfig?.handleColor ||

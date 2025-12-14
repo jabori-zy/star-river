@@ -33,6 +33,7 @@ export const useSyncSourceNode = ({
 		connections.map((connection) => connection.source),
 	);
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: currentNodeData is intentionally omitted to prevent infinite loops. This effect should only run when sourceNodes change.
 	useEffect(() => {
 		// Rule 1: Indicator node can only have one source node
 		if (sourceNodes.length > 1) {

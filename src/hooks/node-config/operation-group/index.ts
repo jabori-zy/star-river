@@ -28,4 +28,5 @@ export const createDefaultOperationGroupNodeData = (
 };
 
 // Re-export hooks
-export { useUpdateOpGroupConfig } from "./update-op-group-config";
+export { useUpdateOpGroupConfig } from "./use-update-op-group-config";
+export { useSyncSourceNode } from "./use-sync-source-node";

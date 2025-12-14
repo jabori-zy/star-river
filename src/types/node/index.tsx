@@ -229,7 +229,7 @@ export const isKlineNode = (
 	return node.type === NodeType.KlineNode;
 };
 export const isIndicatorNode = (
-	node: StrategyFlowNode,
+	node: StrategyFlowNode | Pick<StrategyFlowNode, "type">,
 ): node is IndicatorNode => {
 	return node.type === NodeType.IndicatorNode;
 };

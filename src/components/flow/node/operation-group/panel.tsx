@@ -105,6 +105,9 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 		addSeriesConfig,
 		updateSeriesDisplayName,
 		updateScalarDisplayName,
+		updateScalarNodeDisplayName,
+		updateScalarGroupDisplayName,
+		updateGroupScalarValueDisplayName,
 		updateSeriesConfigById,
 		updateScalarValue,
 		updateScalarNodeConfigById,
@@ -144,11 +147,21 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 
 			if (config.type === "Series") {
 				updateSeriesDisplayName(configId, displayName);
+			} else if (config.type === "Scalar" && config.source === "Node") {
+				// Scalar from upstream Node
+				updateScalarNodeDisplayName(configId, displayName);
+			} else if (config.type === "Scalar" && config.source === "Group") {
+				// Scalar from parent Group
+				updateScalarGroupDisplayName(configId, displayName);
+			} else if (config.type === "CustomScalarValue" && config.source === "Group") {
+				// Custom scalar value from parent Group
+				updateGroupScalarValueDisplayName(configId, displayName);
 			} else {
+				// CustomScalarValue with source: null (self-defined)
 				updateScalarDisplayName(configId, displayName);
 			}
 		},
-		[operationConfigs, updateSeriesDisplayName, updateScalarDisplayName],
+		[operationConfigs, updateSeriesDisplayName, updateScalarDisplayName, updateScalarNodeDisplayName, updateScalarGroupDisplayName, updateGroupScalarValueDisplayName],
 	);
 
 	// Handle node selection change (for Series type or Scalar from Node/Group)

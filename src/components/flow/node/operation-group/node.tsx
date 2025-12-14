@@ -7,6 +7,7 @@ import type {
 	OperationGroupData,
 } from "@/types/node/group/operation-group";
 import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
+import { useSyncSourceNode } from "@/hooks/node-config/operation-group";
 import BaseNode from "@/components/flow/base/BaseNode";
 import type { BaseHandleProps } from "@/components/flow/base/BaseHandle";
 import {
@@ -33,6 +34,9 @@ const OperationGroup: React.FC<NodeProps<OperationGroupType>> = ({
 	const operationGroupData = getNodeData(id) as OperationGroupData;
 	const nodeName = operationGroupData.nodeName || "Operation Group";
 	const isCollapsed = operationGroupData.isCollapsed ?? false;
+
+	// Sync source node configurations (e.g., Kline Symbol changes)
+	useSyncSourceNode({ id, currentNodeData: operationGroupData });
 	const handleColor =
 		operationGroupData?.nodeConfig?.handleColor ||
 		getNodeDefaultColor(NodeType.OperationGroup);

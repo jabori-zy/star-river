@@ -45,7 +45,8 @@ export const UnaryInput: React.FC<UnaryInputProps> = ({
 			onChange({
 				type: "Series",
 				source: "Group",
-				configId: inputConfig?.configId ?? Date.now(),
+				// Unary input always has configId 1
+				configId: inputConfig?.configId ?? 1,
 				seriesDisplayName: selectedOption.inputDisplayName,
 				fromNodeType: selectedOption.fromNodeType,
 				fromNodeId: selectedOption.fromNodeId,

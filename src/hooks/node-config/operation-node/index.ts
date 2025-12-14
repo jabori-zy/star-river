@@ -3,6 +3,9 @@ import type { OperationNodeData } from "@/types/node/operation-node";
 import { getNodeDefaultColor, getNodeIconName, NodeType } from "@/types/node";
 import { getOperationMeta } from "@/types/operation/operation-meta";
 
+export { useUpdateOpNodeConfig } from "./update-op-node-config";
+export { useSyncSourceNode } from "./use-sync-source-node";
+
 export const createDefaultOperationNodeData = (
 	strategyId: number,
 	strategyName: string,

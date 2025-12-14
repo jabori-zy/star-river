@@ -58,6 +58,12 @@ export const NaryInput: React.FC<NaryInputProps> = ({
 	const getOptionKey = (option: InputOption) =>
 		`${option.fromNodeId}-${option.configId}`;
 
+	// Generate next config ID based on existing inputs
+	const getNextConfigId = () => {
+		if (inputs.length === 0) return 1;
+		return Math.max(...inputs.map((input) => input.configId)) + 1;
+	};
+
 	// Handle series change for a specific input
 	const handleSeriesChange = (index: number, value: string) => {
 		const selectedOption = seriesOnlyOptions.find(
@@ -68,7 +74,8 @@ export const NaryInput: React.FC<NaryInputProps> = ({
 			newInputs[index] = {
 				type: "Series",
 				source: "Group",
-				configId: inputs[index]?.configId ?? Date.now(),
+				// Keep existing configId or generate new one based on max + 1
+				configId: inputs[index]?.configId ?? getNextConfigId(),
 				seriesDisplayName: selectedOption.inputDisplayName,
 				fromNodeType: selectedOption.fromNodeType,
 				fromNodeId: selectedOption.fromNodeId,
@@ -87,7 +94,8 @@ export const NaryInput: React.FC<NaryInputProps> = ({
 		const newInput: InputSeriesConfig = {
 			type: "Series",
 			source: "Group",
-			configId: Date.now(),
+			// Use incremental ID: max(existing IDs) + 1
+			configId: getNextConfigId(),
 			seriesDisplayName: "",
 			fromNodeType: NodeType.OperationStartNode,
 			fromNodeId: "",
