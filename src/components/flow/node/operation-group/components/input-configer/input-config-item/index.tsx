@@ -13,6 +13,10 @@ import {
 	type OperationInputScalarConfig,
 	type OperationInputSeriesConfig,
 } from "@/types/node/group/operation-group";
+import {
+	isSeriesOutput as isOperationNodeSeriesOutput,
+	isScalarOutput as isOperationNodeScalarOutput,
+} from "@/types/node/operation-node";
 import type { VariableConfig } from "@/types/node/variable-node";
 import { VariableValueType } from "@/types/variable";
 import { NodeType } from "@/types/node";
@@ -53,7 +57,7 @@ export const InputConfigItem: React.FC<InputConfigItemProps> = ({
 	const isScalarFromGroup = config.type === "Scalar" && config.source === "Group";
 
 	// Filter node list by node type
-	// Scalar mode: show VariableNode and OperationGroup (only if has Scalar outputs)
+	// Scalar mode: show VariableNode, OperationGroup, and OperationNode (only if has Scalar outputs)
 	const scalarNodeList = useMemo(
 		() =>
 			variableItemList.filter((item) => {
@@ -62,6 +66,9 @@ export const InputConfigItem: React.FC<InputConfigItemProps> = ({
 				}
 				if (item.nodeType === NodeType.OperationGroup) {
 					return item.variables.some((v) => isScalarOutput(v));
+				}
+				if (item.nodeType === NodeType.OperationNode) {
+					return item.variables.some((v) => isOperationNodeScalarOutput(v));
 				}
 				if (item.nodeType === NodeType.OperationStartNode) {
 					// Include nodes that have scalar inputs (with variable name) or custom scalar values
@@ -76,7 +83,7 @@ export const InputConfigItem: React.FC<InputConfigItemProps> = ({
 		[variableItemList],
 	);
 
-	// Series mode: exclude VariableNode, and for OperationGroup only include if has Series outputs
+	// Series mode: exclude VariableNode, and for OperationGroup/OperationNode only include if has Series outputs
 	const seriesNodeList = useMemo(
 		() =>
 			variableItemList.filter((item) => {
@@ -85,6 +92,9 @@ export const InputConfigItem: React.FC<InputConfigItemProps> = ({
 				}
 				if (item.nodeType === NodeType.OperationGroup) {
 					return item.variables.some((v) => isSeriesOutput(v));
+				}
+				if (item.nodeType === NodeType.OperationNode) {
+					return item.variables.some((v) => isOperationNodeSeriesOutput(v));
 				}
 				if (item.nodeType === NodeType.OperationStartNode) {
 					return item.variables.some((v) => isSeriesInput(v));
@@ -176,6 +186,12 @@ export const InputConfigItem: React.FC<InputConfigItemProps> = ({
 			if (selectedNode.nodeType === NodeType.OperationGroup) {
 				return selectedNode.variables.filter((variable) => {
 					return isScalarType ? isScalarOutput(variable) : isSeriesOutput(variable);
+				});
+			}
+			// If the node is an OperationNode, filter by Series/Scalar type
+			if (selectedNode.nodeType === NodeType.OperationNode) {
+				return selectedNode.variables.filter((variable) => {
+					return isScalarType ? isOperationNodeScalarOutput(variable) : isOperationNodeSeriesOutput(variable);
 				});
 			}
 			if (selectedNode.nodeType === NodeType.OperationStartNode) {
@@ -288,15 +304,16 @@ export const InputConfigItem: React.FC<InputConfigItemProps> = ({
 	);
 
 	// Get current variable value for selector (for Series type or Scalar from Node/Group)
-	// Only pass varType for OperationGroup/OperationStartNode sources, not for regular nodes
+	// Only pass varType for OperationGroup/OperationStartNode/OperationNode sources, not for regular nodes
 	const currentVariableValue = useMemo(() => {
 		if (config.type === "Series") {
 			const seriesConfig = config as OperationInputSeriesConfig;
 			console.log("🔍 seriesConfig", seriesConfig);
 			if (seriesConfig.fromHandleId && seriesConfig.fromSeriesName) {
-				// Only pass varType for OperationGroup/OperationStartNode
+				// Only pass varType for OperationGroup/OperationStartNode/OperationNode
 				const needVarType = seriesConfig.fromNodeType === NodeType.OperationGroup ||
-					seriesConfig.fromNodeType === NodeType.OperationStartNode;
+					seriesConfig.fromNodeType === NodeType.OperationStartNode ||
+					seriesConfig.fromNodeType === NodeType.OperationNode;
 				return generateOptionValue(
 					seriesConfig.fromNodeId,
 					seriesConfig.fromHandleId,
@@ -311,9 +328,10 @@ export const InputConfigItem: React.FC<InputConfigItemProps> = ({
 			const scalarNodeConfig = config as OperationInputScalarConfig;
 			console.log("🔍 scalarNodeConfig", scalarNodeConfig);
 			if (scalarNodeConfig.fromHandleId && scalarNodeConfig.fromScalarName) {
-				// Only pass varType for OperationGroup/OperationStartNode
+				// Only pass varType for OperationGroup/OperationStartNode/OperationNode
 				const needVarType = scalarNodeConfig.fromNodeType === NodeType.OperationGroup ||
-					scalarNodeConfig.fromNodeType === NodeType.OperationStartNode;
+					scalarNodeConfig.fromNodeType === NodeType.OperationStartNode ||
+					scalarNodeConfig.fromNodeType === NodeType.OperationNode;
 				return generateOptionValue(
 					scalarNodeConfig.fromNodeId,
 					scalarNodeConfig.fromHandleId,

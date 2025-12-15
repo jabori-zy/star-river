@@ -1,6 +1,12 @@
 import type React from "react";
-import { ArrowDown, ArrowRight, RulerDimensionLine, BetweenVerticalStart, Settings2 } from "lucide-react";
+import { ArrowDown, ArrowRight, RulerDimensionLine, BetweenVerticalStart, Settings2, CircleAlert } from "lucide-react";
 import { Label } from "@/components/ui/label";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 import type { OperationGroupData, WindowConfig, FillingMethod } from "@/types/node/group/operation-group";
 import { InputConfigItem } from "./input-config-item";
 import { OutputConfigItem } from "./output-config-item";
@@ -56,10 +62,27 @@ const WindowFillingSection: React.FC<{
 };
 
 const GroupShow: React.FC<GroupShowProps> = ({ data }) => {
-	const { inputConfigs, outputConfigs, inputWindow, fillingMethod } = data;
+	const { inputConfigs, outputConfigs, inputWindow, fillingMethod, isChildGroup } = data;
 
 	return (
 		<div className="space-y-3">
+			{/* Nested indicator for child groups */}
+			{isChildGroup && (
+				<TooltipProvider>
+					<Tooltip>
+						<TooltipTrigger>
+							<div className="flex items-center text-xs text-muted-foreground">
+								<CircleAlert className="w-4 h-4 text-yellow-500" />
+								<span className="ml-2">Nested</span>
+							</div>
+						</TooltipTrigger>
+						<TooltipContent>
+							<p>This group is nested inside another operation group</p>
+						</TooltipContent>
+					</Tooltip>
+				</TooltipProvider>
+			)}
+
 			{/* Window and Filling Settings */}
 			{inputWindow && fillingMethod && (
 				<WindowFillingSection

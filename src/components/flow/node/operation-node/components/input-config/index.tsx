@@ -2,15 +2,16 @@ import type React from "react";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { Variable, ArrowRight } from "lucide-react";
+import { House, ArrowRight, Group } from "lucide-react";
 import type { InputArrayType, InputConfig, InputSeriesConfig } from "@/types/operation";
 import { UnaryInput } from "./unary-input";
 import { BinaryInput } from "./binary-input";
 import { NaryInput } from "./nary-input";
-import { NodeType } from "@/types/node";
+import type { NodeType } from "@/types/node";
 import {
 	getInputTypeBadgeStyle,
 	getInputTypeBadgeLabel,
+	getNodeTypeIconConfig,
 } from "../../operation-node-utils";
 
 // Input option type for dropdown
@@ -31,13 +32,19 @@ export interface InputOption {
 
 // Get icon based on node type
 const getNodeTypeIcon = (nodeType: NodeType) => {
-	if (nodeType === NodeType.OperationStartNode) {
-		return <Variable className="h-3.5 w-3.5 text-purple-500" />;
+	const config = getNodeTypeIconConfig(nodeType);
+	if (!config) return null;
+
+	switch (config.iconName) {
+		case "House":
+			return <House className={config.className} />;
+		case "ArrowRight":
+			return <ArrowRight className={config.className} />;
+		case "Group":
+			return <Group className={config.className} />;
+		default:
+			return null;
 	}
-	if (nodeType === NodeType.OperationNode) {
-		return <ArrowRight className="h-3.5 w-3.5 text-green-500" />;
-	}
-	return null;
 };
 
 

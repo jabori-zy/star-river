@@ -10,6 +10,7 @@ import {MoveRight} from "lucide-react";
 import { useNodesData, useReactFlow } from "@xyflow/react";
 import type { StrategyFlowNode } from "@/types/node/index";
 import type { OperationGroupData } from "@/types/node/group/operation-group";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 
 
@@ -50,9 +51,14 @@ const OperationEndNode: React.FC<NodeProps<OperationEndNodeType>> = ({
             className="!w-16 !h-16 !min-w-0 !min-h-0 !p-0 flex items-center justify-center"
             showTitle={false}
         >
-            <div className="flex items-center justify-center rounded-full p-2" style={{ backgroundColor: handleColor }}>
-                <MoveRight className="w-6 h-6 text-white" />
-            </div>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <div className="flex items-center justify-center rounded-full p-2" style={{ backgroundColor: handleColor }}>
+                        <MoveRight className="w-6 h-6 text-white" />
+                    </div>
+                </TooltipTrigger>
+                <TooltipContent>End</TooltipContent>
+            </Tooltip>
             <BaseHandle
 				id={getNodeDefaultInputHandleId(id, NodeType.OperationEndNode)}
 				type="target"

@@ -68,9 +68,9 @@ export const OutputConfig: React.FC<OutputConfigProps> = ({
 			<div className="space-y-2">
 				<Label className="text-xs text-muted-foreground">Output Name</Label>
 				<Input
-					value={displayName}
+					value={displayName ?? ""}
 					onChange={(e) => onDisplayNameChange(e.target.value)}
-					placeholder="Enter output name"
+					placeholder="Input output name"
 					className="w-full"
 				/>
 			</div>

@@ -46,9 +46,14 @@ function findGroupInputConfig(
 function syncSeriesInputFromGroup(
 	seriesInput: InputSeriesConfig,
 	groupInputConfigs: GroupInputConfig[],
+	parentNodeName?: string,
 ): InputSeriesConfig | null {
 	// Skip incomplete configs
 	if (!seriesInput.fromSeriesConfigId || seriesInput.fromSeriesConfigId === 0) {
+		// Still check if node name needs sync
+		if (parentNodeName && seriesInput.fromNodeName !== parentNodeName) {
+			return { ...seriesInput, fromNodeName: parentNodeName };
+		}
 		return seriesInput;
 	}
 
@@ -65,10 +70,15 @@ function syncSeriesInputFromGroup(
 		return null;
 	}
 
-	if (seriesInput.fromSeriesDisplayName !== matchingConfig.inputName) {
+	const needsUpdate =
+		seriesInput.fromSeriesDisplayName !== matchingConfig.inputName ||
+		(parentNodeName && seriesInput.fromNodeName !== parentNodeName);
+
+	if (needsUpdate) {
 		return {
 			...seriesInput,
 			fromSeriesDisplayName: matchingConfig.inputName,
+			...(parentNodeName && { fromNodeName: parentNodeName }),
 		};
 	}
 
@@ -81,8 +91,13 @@ function syncSeriesInputFromGroup(
 function syncScalarInputFromGroup(
 	scalarInput: InputScalarConfig,
 	groupInputConfigs: GroupInputConfig[],
+	parentNodeName?: string,
 ): InputScalarConfig | null {
 	if (!scalarInput.fromScalarConfigId || scalarInput.fromScalarConfigId === 0) {
+		// Still check if node name needs sync
+		if (parentNodeName && scalarInput.fromNodeName !== parentNodeName) {
+			return { ...scalarInput, fromNodeName: parentNodeName };
+		}
 		return scalarInput;
 	}
 
@@ -99,11 +114,16 @@ function syncScalarInputFromGroup(
 		return null;
 	}
 
-	if (scalarInput.fromScalarDisplayName !== matchingConfig.inputName) {
+	const needsUpdate =
+		scalarInput.fromScalarDisplayName !== matchingConfig.inputName ||
+		(parentNodeName && scalarInput.fromNodeName !== parentNodeName);
+
+	if (needsUpdate) {
 		return {
 			...scalarInput,
 			fromScalarDisplayName: matchingConfig.inputName,
 			fromScalarName: matchingConfig.fromScalarName,
+			...(parentNodeName && { fromNodeName: parentNodeName }),
 		};
 	}
 
@@ -116,8 +136,13 @@ function syncScalarInputFromGroup(
 function syncGroupScalarValueInputFromGroup(
 	groupScalarInput: InputGroupScalarValueConfig,
 	groupInputConfigs: GroupInputConfig[],
+	parentNodeName?: string,
 ): InputGroupScalarValueConfig | null {
 	if (!groupScalarInput.fromScalarConfigId || groupScalarInput.fromScalarConfigId === 0) {
+		// Still check if node name needs sync
+		if (parentNodeName && groupScalarInput.fromNodeName !== parentNodeName) {
+			return { ...groupScalarInput, fromNodeName: parentNodeName };
+		}
 		return groupScalarInput;
 	}
 
@@ -140,13 +165,15 @@ function syncGroupScalarValueInputFromGroup(
 
 	const needsUpdate =
 		groupScalarInput.fromScalarDisplayName !== matchingConfig.inputName ||
-		groupScalarInput.fromScalarValue !== scalarValue;
+		groupScalarInput.fromScalarValue !== scalarValue ||
+		(parentNodeName && groupScalarInput.fromNodeName !== parentNodeName);
 
 	if (needsUpdate) {
 		return {
 			...groupScalarInput,
 			fromScalarDisplayName: matchingConfig.inputName,
 			fromScalarValue: scalarValue,
+			...(parentNodeName && { fromNodeName: parentNodeName }),
 		};
 	}
 
@@ -161,10 +188,12 @@ function syncGroupScalarValueInputFromGroup(
  * Sync rules:
  * 1. If source node's outputConfig is deleted or changed to Scalar, clear the input
  * 2. If display name changes, update the input config
+ * 3. If source node name changes, update fromNodeName
  */
 function syncSeriesInputFromOperationNode(
 	seriesInput: InputSeriesConfig,
 	sourceOutputConfig: OutputConfig | null,
+	sourceNodeName?: string,
 ): InputSeriesConfig | null {
 	if (!sourceOutputConfig) {
 		// Output config deleted
@@ -176,12 +205,17 @@ function syncSeriesInputFromOperationNode(
 		return null;
 	}
 
-	// Check if display name changed
-	if (seriesInput.fromSeriesDisplayName !== sourceOutputConfig.outputName) {
+	// Check if display name or node name changed
+	const needsUpdate =
+		seriesInput.fromSeriesDisplayName !== sourceOutputConfig.outputName ||
+		(sourceNodeName && seriesInput.fromNodeName !== sourceNodeName);
+
+	if (needsUpdate) {
 		return {
 			...seriesInput,
 			fromSeriesDisplayName: sourceOutputConfig.outputName,
 			fromSeriesName: sourceOutputConfig.outputName,
+			...(sourceNodeName && { fromNodeName: sourceNodeName }),
 		};
 	}
 
@@ -194,10 +228,12 @@ function syncSeriesInputFromOperationNode(
  * Sync rules:
  * 1. If source node's outputConfig is deleted or changed to Series, clear the input
  * 2. If display name changes, update the input config
+ * 3. If source node name changes, update fromNodeName
  */
 function syncScalarInputFromOperationNode(
 	scalarInput: InputScalarConfig,
 	sourceOutputConfig: OutputConfig | null,
+	sourceNodeName?: string,
 ): InputScalarConfig | null {
 	if (!sourceOutputConfig) {
 		// Output config deleted
@@ -209,12 +245,17 @@ function syncScalarInputFromOperationNode(
 		return null;
 	}
 
-	// Check if display name changed
-	if (scalarInput.fromScalarDisplayName !== sourceOutputConfig.outputName) {
+	// Check if display name or node name changed
+	const needsUpdate =
+		scalarInput.fromScalarDisplayName !== sourceOutputConfig.outputName ||
+		(sourceNodeName && scalarInput.fromNodeName !== sourceNodeName);
+
+	if (needsUpdate) {
 		return {
 			...scalarInput,
 			fromScalarDisplayName: sourceOutputConfig.outputName,
 			fromScalarName: sourceOutputConfig.outputName,
+			...(sourceNodeName && { fromNodeName: sourceNodeName }),
 		};
 	}
 
@@ -239,13 +280,19 @@ function findGroupOutputConfig(
  * Sync rules:
  * 1. If source group's output config is deleted or changed to Scalar, clear the input
  * 2. If display name changes, update the input config
+ * 3. If source node name changes, update fromNodeName
  */
 function syncSeriesInputFromOperationGroup(
 	seriesInput: InputSeriesConfig,
 	groupOutputConfigs: GroupOutputConfig[],
+	sourceNodeName?: string,
 ): InputSeriesConfig | null {
 	// Skip incomplete configs
 	if (!seriesInput.fromSeriesConfigId || seriesInput.fromSeriesConfigId === 0) {
+		// Still check if node name needs sync
+		if (sourceNodeName && seriesInput.fromNodeName !== sourceNodeName) {
+			return { ...seriesInput, fromNodeName: sourceNodeName };
+		}
 		return seriesInput;
 	}
 
@@ -264,12 +311,17 @@ function syncSeriesInputFromOperationGroup(
 		return null;
 	}
 
-	// Check if display name changed
-	if (seriesInput.fromSeriesDisplayName !== matchingConfig.outputName) {
+	// Check if display name or node name changed
+	const needsUpdate =
+		seriesInput.fromSeriesDisplayName !== matchingConfig.outputName ||
+		(sourceNodeName && seriesInput.fromNodeName !== sourceNodeName);
+
+	if (needsUpdate) {
 		return {
 			...seriesInput,
 			fromSeriesDisplayName: matchingConfig.outputName,
 			fromSeriesName: matchingConfig.outputName,
+			...(sourceNodeName && { fromNodeName: sourceNodeName }),
 		};
 	}
 
@@ -282,13 +334,19 @@ function syncSeriesInputFromOperationGroup(
  * Sync rules:
  * 1. If source group's output config is deleted or changed to Series, clear the input
  * 2. If display name changes, update the input config
+ * 3. If source node name changes, update fromNodeName
  */
 function syncScalarInputFromOperationGroup(
 	scalarInput: InputScalarConfig,
 	groupOutputConfigs: GroupOutputConfig[],
+	sourceNodeName?: string,
 ): InputScalarConfig | null {
 	// Skip incomplete configs
 	if (!scalarInput.fromScalarConfigId || scalarInput.fromScalarConfigId === 0) {
+		// Still check if node name needs sync
+		if (sourceNodeName && scalarInput.fromNodeName !== sourceNodeName) {
+			return { ...scalarInput, fromNodeName: sourceNodeName };
+		}
 		return scalarInput;
 	}
 
@@ -307,12 +365,17 @@ function syncScalarInputFromOperationGroup(
 		return null;
 	}
 
-	// Check if display name changed
-	if (scalarInput.fromScalarDisplayName !== matchingConfig.outputName) {
+	// Check if display name or node name changed
+	const needsUpdate =
+		scalarInput.fromScalarDisplayName !== matchingConfig.outputName ||
+		(sourceNodeName && scalarInput.fromNodeName !== sourceNodeName);
+
+	if (needsUpdate) {
 		return {
 			...scalarInput,
 			fromScalarDisplayName: matchingConfig.outputName,
 			fromScalarName: matchingConfig.outputName,
+			...(sourceNodeName && { fromNodeName: sourceNodeName }),
 		};
 	}
 
@@ -377,6 +440,7 @@ function processInputFromStartNode(
 	input: InputConfig | null,
 	groupInputConfigs: GroupInputConfig[],
 	startNodeId: string,
+	parentNodeName?: string,
 ): InputConfig | null {
 	if (!input) return null;
 
@@ -391,15 +455,15 @@ function processInputFromStartNode(
 	}
 
 	if (isSeriesInput(input)) {
-		return syncSeriesInputFromGroup(input, groupInputConfigs);
+		return syncSeriesInputFromGroup(input, groupInputConfigs, parentNodeName);
 	}
 
 	if (isScalarInput(input)) {
-		return syncScalarInputFromGroup(input, groupInputConfigs);
+		return syncScalarInputFromGroup(input, groupInputConfigs, parentNodeName);
 	}
 
 	if (isGroupScalarValueInput(input)) {
-		return syncGroupScalarValueInputFromGroup(input, groupInputConfigs);
+		return syncGroupScalarValueInputFromGroup(input, groupInputConfigs, parentNodeName);
 	}
 
 	return input;
@@ -412,6 +476,7 @@ function processInputFromOperationNode(
 	input: InputConfig | null,
 	sourceNodeId: string,
 	sourceOutputConfig: OutputConfig | null,
+	sourceNodeName?: string,
 ): InputConfig | null {
 	if (!input) return null;
 
@@ -426,11 +491,11 @@ function processInputFromOperationNode(
 	}
 
 	if (isSeriesInput(input)) {
-		return syncSeriesInputFromOperationNode(input, sourceOutputConfig);
+		return syncSeriesInputFromOperationNode(input, sourceOutputConfig, sourceNodeName);
 	}
 
 	if (isScalarInput(input)) {
-		return syncScalarInputFromOperationNode(input, sourceOutputConfig);
+		return syncScalarInputFromOperationNode(input, sourceOutputConfig, sourceNodeName);
 	}
 
 	// GroupScalarValueInput cannot come from OperationNode
@@ -444,6 +509,7 @@ function processInputFromOperationGroup(
 	input: InputConfig | null,
 	sourceNodeId: string,
 	groupOutputConfigs: GroupOutputConfig[],
+	sourceNodeName?: string,
 ): InputConfig | null {
 	if (!input) return null;
 
@@ -458,11 +524,11 @@ function processInputFromOperationGroup(
 	}
 
 	if (isSeriesInput(input)) {
-		return syncSeriesInputFromOperationGroup(input, groupOutputConfigs);
+		return syncSeriesInputFromOperationGroup(input, groupOutputConfigs, sourceNodeName);
 	}
 
 	if (isScalarInput(input)) {
-		return syncScalarInputFromOperationGroup(input, groupOutputConfigs);
+		return syncScalarInputFromOperationGroup(input, groupOutputConfigs, sourceNodeName);
 	}
 
 	// GroupScalarValueInput cannot come from OperationGroup
@@ -557,6 +623,7 @@ export const useSyncSourceNode = ({ id }: { id: string }) => {
 		}
 
 		const groupInputConfigs = parentGroupData?.inputConfigs ?? [];
+		const parentNodeName = parentGroupData?.nodeName ?? "";
 		const currentInputConfig = nodeData.inputConfig;
 		let hasChanges = false;
 		let newInputConfig: OperationInputConfig | null = null;
@@ -590,7 +657,7 @@ export const useSyncSourceNode = ({ id }: { id: string }) => {
 
 				// StartNode is connected, process normally
 				if (startNodeId) {
-					return processInputFromStartNode(input, groupInputConfigs, startNodeId);
+					return processInputFromStartNode(input, groupInputConfigs, startNodeId, parentNodeName);
 				}
 			}
 
@@ -647,7 +714,7 @@ export const useSyncSourceNode = ({ id }: { id: string }) => {
 		if (hasChanges) {
 			updateNodeData(id, { inputConfig: newInputConfig });
 		}
-	}, [parentGroupData?.inputConfigs, startNodeId, connectedSourceNodeIds, id, updateNodeData]);
+	}, [parentGroupData?.inputConfigs, parentGroupData?.nodeName, startNodeId, connectedSourceNodeIds, id, updateNodeData]);
 
 	// Sync effect for upstream OperationNode's outputConfig and edge disconnection
 	// biome-ignore lint/correctness/useExhaustiveDependencies: nodeData is intentionally omitted to prevent infinite loops
@@ -656,12 +723,14 @@ export const useSyncSourceNode = ({ id }: { id: string }) => {
 			return;
 		}
 
-		// Build a map of source node ID -> outputConfig
+		// Build maps for source node data
 		const sourceOutputConfigMap = new Map<string, OutputConfig | null>();
+		const sourceNodeNameMap = new Map<string, string>();
 		for (const sourceNode of sourceOperationNodesData) {
 			if (sourceNode?.data) {
 				const opNodeData = sourceNode.data as OperationNodeData;
 				sourceOutputConfigMap.set(sourceNode.id, opNodeData.outputConfig ?? null);
+				sourceNodeNameMap.set(sourceNode.id, opNodeData.nodeName ?? "");
 			}
 		}
 
@@ -693,9 +762,10 @@ export const useSyncSourceNode = ({ id }: { id: string }) => {
 					}
 
 					const sourceOutputConfig = sourceOutputConfigMap.get(input.fromNodeId);
+					const sourceNodeName = sourceNodeNameMap.get(input.fromNodeId);
 					// Only process if we have this source node's data
 					if (sourceOutputConfigMap.has(input.fromNodeId)) {
-						return processInputFromOperationNode(input, input.fromNodeId, sourceOutputConfig ?? null);
+						return processInputFromOperationNode(input, input.fromNodeId, sourceOutputConfig ?? null, sourceNodeName);
 					}
 				}
 			}
@@ -762,12 +832,14 @@ export const useSyncSourceNode = ({ id }: { id: string }) => {
 			return;
 		}
 
-		// Build a map of source group ID -> outputConfigs
+		// Build maps for source group data
 		const sourceOutputConfigsMap = new Map<string, GroupOutputConfig[]>();
+		const sourceNodeNameMap = new Map<string, string>();
 		for (const sourceGroup of sourceOperationGroupsData) {
 			if (sourceGroup?.data) {
 				const groupData = sourceGroup.data as OperationGroupData;
 				sourceOutputConfigsMap.set(sourceGroup.id, groupData.outputConfigs ?? []);
+				sourceNodeNameMap.set(sourceGroup.id, groupData.nodeName ?? "");
 			}
 		}
 
@@ -799,9 +871,10 @@ export const useSyncSourceNode = ({ id }: { id: string }) => {
 					}
 
 					const sourceOutputConfigs = sourceOutputConfigsMap.get(input.fromNodeId);
+					const sourceNodeName = sourceNodeNameMap.get(input.fromNodeId);
 					// Only process if we have this source group's data
 					if (sourceOutputConfigsMap.has(input.fromNodeId)) {
-						return processInputFromOperationGroup(input, input.fromNodeId, sourceOutputConfigs ?? []);
+						return processInputFromOperationGroup(input, input.fromNodeId, sourceOutputConfigs ?? [], sourceNodeName);
 					}
 				}
 			}

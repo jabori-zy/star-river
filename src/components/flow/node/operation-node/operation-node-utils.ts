@@ -1,7 +1,28 @@
 import type { InputArrayType } from "@/types/node/operation-node";
+import { NodeType } from "@/types/node";
 
 // Input type for badge display
 export type InputBadgeType = "Series" | "Scalar" | "CustomScalarValue";
+
+// Icon config for node types
+export interface NodeTypeIconConfig {
+	iconName: "House" | "ArrowRight" | "Group";
+	className: string;
+}
+
+// Get icon config based on node type
+export const getNodeTypeIconConfig = (nodeType: NodeType): NodeTypeIconConfig | null => {
+	switch (nodeType) {
+		case NodeType.OperationStartNode:
+			return { iconName: "House", className: "h-3.5 w-3.5 text-purple-500" };
+		case NodeType.OperationNode:
+			return { iconName: "ArrowRight", className: "h-3.5 w-3.5 text-orange-500" };
+		case NodeType.OperationGroup:
+			return { iconName: "Group", className: "h-3.5 w-3.5 text-green-500" };
+		default:
+			return null;
+	}
+};
 
 // Get badge style based on input type
 export const getInputTypeBadgeStyle = (inputType: InputBadgeType): string => {

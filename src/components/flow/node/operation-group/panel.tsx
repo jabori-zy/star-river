@@ -337,7 +337,6 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 	// Handle scalar source change (Value <-> Node)
 	const handleScalarSourceChange = useCallback(
 		(configId: number, source: ScalarSource) => {
-			console.log("🔍 handleScalarSourceChange", configId, source);
 			const currentConfig = operationConfigs.find(
 				(c) => c.configId === configId,
 			);

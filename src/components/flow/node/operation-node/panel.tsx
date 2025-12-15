@@ -210,13 +210,12 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 		}
 	}, [binaryInput1, binaryInput2, currentInputArrayType, currentOperation.type, id, outputConfig, setOutputConfig]);
 
-	// Get output display name from outputConfig or metadata
+	// Get output display name from outputConfig, return empty string if not configured
 	const getOutputDisplayName = () => {
 		if (outputConfig) {
 			return outputConfig.outputName;
 		}
-		const meta = getOperationMeta(currentOperation.type, currentInputArrayType);
-		return meta?.defaultOutputDisplayName ?? currentOperation.type;
+		return "";
 	};
 
 	// Handle input type change
@@ -234,23 +233,24 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 			newOperation = { type: "Sum" };
 		}
 		setOperation(newOperation);
-		// Reset output config with default display name
+		// Reset output config type if needed, but preserve existing outputName
 		const meta = getOperationMeta(newOperation.type, type);
 		const outputType = meta?.output ?? "Series";
-		const displayName = meta?.defaultOutputDisplayName ?? newOperation.type;
+		// Keep existing outputName if available, otherwise leave empty for user to fill
+		const existingOutputName = outputConfig?.outputName ?? "";
 		if (outputType === "Series") {
 			setOutputConfig({
 				type: "Series",
 				configId: 0,
 				outputHandleId: `${id}_default_output`,
-				outputName: displayName,
+				outputName: existingOutputName,
 			});
 		} else {
 			setOutputConfig({
 				type: "Scalar",
 				configId: 0,
 				outputHandleId: `${id}_default_output`,
-				outputName: displayName,
+				outputName: existingOutputName,
 			});
 		}
 	};
@@ -258,21 +258,22 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 	// Handle operation change
 	const handleOperationChange = (op: Operation) => {
 		setOperation(op);
-		// Update output config with new default display name
+		// Update output config type if needed, but preserve existing outputName
 		const meta = getOperationMeta(op.type, currentInputArrayType);
 		const outputType = meta?.output ?? "Series";
-		const displayName = meta?.defaultOutputDisplayName ?? op.type;
+		// Keep existing outputName if available, otherwise leave empty for user to fill
+		const existingOutputName = outputConfig?.outputName ?? "";
 		if (outputType === "Series") {
 			setOutputConfig({
 				type: "Series",
 				configId: 0,
-				outputName: displayName,
+				outputName: existingOutputName,
 				outputHandleId: `${id}_default_output`,
 			});
 		} else {
 			setOutputConfig({
 				type: "Scalar",
-				outputName: displayName,
+				outputName: existingOutputName,
 				configId: 0,
 				outputHandleId: `${id}_default_output`,
 			});

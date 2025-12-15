@@ -48,6 +48,23 @@ import { useDndNodeStore } from "@/store/use-dnd-node-store";
 import { NodeType } from "@/types/node";
 import type { Strategy } from "@/types/strategy";
 import type { OperationGroupData } from "@/types/node/group/operation-group";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
+// Pending nest operation info for OperationGroup confirmation
+interface PendingNestOperation {
+	draggedNode: Node;
+	targetGroupId: string;
+	relativePosition: { x: number; y: number };
+}
 
 interface StrategyFlowProps {
 	strategy: Strategy;
@@ -130,6 +147,9 @@ export default function StrategyFlow({
 	const [selectedNodeId, setSelectedNodeId] = useState<string | undefined>(
 		undefined,
 	);
+
+	// State for OperationGroup nesting confirmation dialog
+	const [pendingNestOperation, setPendingNestOperation] = useState<PendingNestOperation | null>(null);
 
 	// Create a unique key for forcing re-render, includes strategy ID and trading mode
 	const flowKey = useMemo(() => {
@@ -322,7 +342,7 @@ export default function StrategyFlow({
 					position,
 					data: defaultNodeData,
 				};
-				console.log("newNode", newNode);
+				// console.log("newNode", newNode);
 
 				return currentNodes.concat(newNode);
 			});
@@ -540,6 +560,17 @@ export default function StrategyFlow({
 				y: draggedNode.position.y - targetAbsolutePosition.y,
 			};
 
+			// If dragged node is OperationGroup, show confirmation dialog before nesting
+			if (draggedNode.type === NodeType.OperationGroup) {
+				setPendingNestOperation({
+					draggedNode,
+					targetGroupId,
+					relativePosition,
+				});
+				return;
+			}
+
+			// For other node types, directly perform nesting
 			setNodes((nds) => {
 				// Update the dragged node with parent info
 				const updatedNodes = nds.map((n) => {
@@ -599,6 +630,40 @@ export default function StrategyFlow({
 
 	const onPaneClick = useCallback((_event: React.MouseEvent) => {
 		setSelectedNodeId(undefined);
+	}, []);
+
+	// Handle confirm nesting OperationGroup
+	const handleConfirmNestOperation = useCallback(() => {
+		if (!pendingNestOperation) return;
+
+		const { draggedNode, targetGroupId, relativePosition } = pendingNestOperation;
+
+		setNodes((nds) => {
+			const updatedNodes = nds.map((n) => {
+				if (n.id === draggedNode.id) {
+					// If the dragged node is an OperationGroup, set isChildGroup to true
+					const updatedData = draggedNode.type === NodeType.OperationGroup
+						? { ...n.data, isChildGroup: true }
+						: n.data;
+					return {
+						...n,
+						position: relativePosition,
+						parentId: targetGroupId,
+						extent: 'parent' as const,
+						data: updatedData,
+					};
+				}
+				return n;
+			});
+			return sortNodesTopologically(updatedNodes);
+		});
+
+		setPendingNestOperation(null);
+	}, [pendingNestOperation, setNodes]);
+
+	// Handle cancel nesting OperationGroup
+	const handleCancelNestOperation = useCallback(() => {
+		setPendingNestOperation(null);
 	}, []);
 
 	const onBeforeDeleteNode: OnBeforeDelete = useCallback(
@@ -743,6 +808,33 @@ export default function StrategyFlow({
 				{/* Node control panel */}
 				<ControlPanel />
 			</ReactFlow>
+
+			{/* Confirmation dialog for nesting OperationGroup */}
+			<AlertDialog
+				open={pendingNestOperation !== null}
+				onOpenChange={(open) => {
+					if (!open) {
+						handleCancelNestOperation();
+					}
+				}}
+			>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>Confirm Nest Operation Group</AlertDialogTitle>
+						<AlertDialogDescription>
+							Are you sure you want to nest this operation group into the target operation group?
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel onClick={handleCancelNestOperation}>
+							Cancel
+						</AlertDialogCancel>
+						<AlertDialogAction onClick={handleConfirmNestOperation}>
+							Confirm
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 		</div>
 	);
 }

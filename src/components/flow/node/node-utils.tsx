@@ -26,6 +26,11 @@ import {
 	type OperationInputConfig,
 } from "@/types/node/group/operation-group";
 import {
+	isSeriesOutput as isOperationNodeSeriesOutput,
+	isScalarOutput as isOperationNodeScalarOutput,
+	type OutputConfig as OperationNodeOutputConfig,
+} from "@/types/node/operation-node";
+import {
 	getVariableValueTypeIcon,
 	getVariableValueTypeIconColor,
 	VariableValueType,
@@ -33,9 +38,12 @@ import {
 import { cn } from "@/lib/utils";
 import type { TFunction } from "i18next";
 
+// Combined variable type
+type AnyVariable = SelectedIndicator | SelectedSymbol | VariableConfig | OperationOutputConfig | OperationInputConfig | OperationNodeOutputConfig;
+
 // Type guards
 export const isSelectedIndicator = (
-	variable: SelectedIndicator | SelectedSymbol | VariableConfig | OperationOutputConfig | OperationInputConfig,
+	variable: AnyVariable,
 ): variable is SelectedIndicator => {
 	return (
 		"value" in variable && "configId" in variable && "indicatorType" in variable
@@ -43,7 +51,7 @@ export const isSelectedIndicator = (
 };
 
 export const isSelectedSymbol = (
-	variable: SelectedIndicator | SelectedSymbol | VariableConfig | OperationOutputConfig | OperationInputConfig,
+	variable: AnyVariable,
 ): variable is SelectedSymbol => {
 	return (
 		"symbol" in variable && "interval" in variable && "configId" in variable
@@ -51,7 +59,7 @@ export const isSelectedSymbol = (
 };
 
 export const isVariableConfig = (
-	variable: SelectedIndicator | SelectedSymbol | VariableConfig | OperationOutputConfig | OperationInputConfig,
+	variable: AnyVariable,
 ): variable is VariableConfig => {
 	return (
 		"varOperation" in variable &&
@@ -60,19 +68,25 @@ export const isVariableConfig = (
 };
 
 export const isOperationOutputConfig = (
-	variable: SelectedIndicator | SelectedSymbol | VariableConfig | OperationOutputConfig | OperationInputConfig,
+	variable: AnyVariable,
 ): variable is OperationOutputConfig => {
 	return isSeriesOutput(variable) || isScalarOutput(variable);
 };
 
+export const isOperationNodeOutputConfig = (
+	variable: AnyVariable,
+): variable is OperationNodeOutputConfig => {
+	return isOperationNodeSeriesOutput(variable) || isOperationNodeScalarOutput(variable);
+};
+
 export const isOperationInputConfig = (
-	variable: SelectedIndicator | SelectedSymbol | VariableConfig | OperationOutputConfig | OperationInputConfig,
+	variable: AnyVariable,
 ): variable is OperationInputConfig => {
 	return isSeriesInput(variable) || isScalarInput(variable) || isScalarValueInput(variable) || isGroupScalarValueInput(variable);
 };
 
 interface RenderVariableOptionsParams {
-	variables: (SelectedIndicator | SelectedSymbol | VariableConfig | OperationOutputConfig | OperationInputConfig)[];
+	variables: AnyVariable[];
 	localNodeId: string;
 	generateOptionValue: (
 		nodeId: string,
@@ -120,8 +134,8 @@ export const renderVariableOptions = ({
 			if (isVariableConfig(v)) {
 				return v.varValueType === whitelistValueType;
 			}
-			// OperationGroup outputs are NUMBER type (both Series and Scalar)
-			if (isOperationOutputConfig(v)) {
+			// OperationGroup and OperationNode outputs are NUMBER type (both Series and Scalar)
+			if (isOperationOutputConfig(v) || isOperationNodeOutputConfig(v)) {
 				return whitelistValueType === VariableValueType.NUMBER;
 			}
 			return false;
@@ -139,8 +153,8 @@ export const renderVariableOptions = ({
 			if (isVariableConfig(v)) {
 				return v.varValueType !== blacklistValueType;
 			}
-			// OperationGroup outputs are NUMBER type (both Series and Scalar)
-			if (isOperationOutputConfig(v)) {
+			// OperationGroup and OperationNode outputs are NUMBER type (both Series and Scalar)
+			if (isOperationOutputConfig(v) || isOperationNodeOutputConfig(v)) {
 				return blacklistValueType !== VariableValueType.NUMBER;
 			}
 			return true;
@@ -172,6 +186,10 @@ export const renderVariableOptions = ({
 					if (isOperationOutputConfig(v)) {
 						return v.outputName === excludeVarName;
 					}
+					// For OperationNode outputs, check display name
+					if (isOperationNodeOutputConfig(v)) {
+						return v.outputName === excludeVarName;
+					}
 					return false;
 				})();
 
@@ -191,6 +209,9 @@ export const renderVariableOptions = ({
 	const operationOutputs = filteredVariables.filter((v) =>
 		isOperationOutputConfig(v),
 	) as OperationOutputConfig[];
+	const operationNodeOutputs = filteredVariables.filter((v) =>
+		isOperationNodeOutputConfig(v),
+	) as OperationNodeOutputConfig[];
 	const operationInputs = filteredVariables.filter((v) =>
 		isSeriesInput(v) || isScalarInput(v) || isScalarValueInput(v) || isGroupScalarValueInput(v),
 	) as OperationInputConfig[];
@@ -455,6 +476,45 @@ export const renderVariableOptions = ({
 				<SelectItem
 					className="text-xs font-normal py-2 px-3"
 					key={`${output.outputHandleId}_${displayName}`}
+					value={generateOptionValue(
+						localNodeId,
+						output.outputHandleId,
+						displayName,
+						displayName,
+						output.configId,
+						output.type,
+					)}
+				>
+					<div className="flex items-center w-full gap-2">
+						<span className="text-xs text-gray-900 font-medium truncate">
+							{displayName}
+						</span>
+						<Badge
+							variant="outline"
+							className={cn(
+								"text-[10px] px-1.5 py-0",
+								output.type === "Scalar"
+									? "border-blue-500 text-blue-400"
+									: "border-orange-500 text-orange-400",
+							)}
+						>
+							{output.type}
+						</Badge>
+					</div>
+				</SelectItem>,
+			);
+		});
+	}
+
+	// Render OperationNode output options
+	if (operationNodeOutputs.length > 0) {
+		operationNodeOutputs.forEach((output) => {
+			const displayName = output.outputName;
+
+			result.push(
+				<SelectItem
+					className="text-xs font-normal py-2 px-3"
+					key={`op_node_${output.outputHandleId}_${displayName}`}
 					value={generateOptionValue(
 						localNodeId,
 						output.outputHandleId,

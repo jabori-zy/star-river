@@ -649,6 +649,14 @@ export const useSyncSourceNode = ({
 				continue;
 			}
 
+			// Sync node name if changed
+			const sourceNodeName = sourceNode.data?.nodeName ?? "";
+			if (seriesConfig.fromNodeName !== sourceNodeName && sourceNodeName !== "") {
+				updateSeriesConfigById(seriesConfig.configId, {
+					fromNodeName: sourceNodeName,
+				});
+			}
+
 			// Process Kline nodes
 			if (isKlineNode(sourceNode)) {
 				syncSeriesFromKlineNode(
@@ -700,6 +708,14 @@ export const useSyncSourceNode = ({
 				continue;
 			}
 
+			// Sync node name if changed
+			const sourceNodeName = sourceNode.data?.nodeName ?? "";
+			if (scalarConfig.fromNodeName !== sourceNodeName && sourceNodeName !== "") {
+				updateScalarNodeConfigById(scalarConfig.configId, {
+					fromNodeName: sourceNodeName,
+				});
+			}
+
 			// Process Variable nodes
 			if (sourceNode.type === NodeType.VariableNode) {
 				syncScalarFromVariableNode(
@@ -720,6 +736,7 @@ export const useSyncSourceNode = ({
 		}
 
 		const parentInputConfigs = parentGroupData.inputConfigs;
+		const parentNodeName = parentGroupData.nodeName ?? "";
 
 		// Filter Series configs from parent Group (source="Group")
 		const seriesFromGroup =
@@ -744,6 +761,12 @@ export const useSyncSourceNode = ({
 
 		// Process Series configs from parent Group
 		for (const seriesConfig of seriesFromGroup) {
+			// Sync parent node name if changed
+			if (seriesConfig.fromNodeName !== parentNodeName && parentNodeName !== "") {
+				updateSeriesConfigById(seriesConfig.configId, {
+					fromNodeName: parentNodeName,
+				});
+			}
 			syncSeriesFromParentGroup(
 				seriesConfig,
 				parentInputConfigs,
@@ -753,6 +776,12 @@ export const useSyncSourceNode = ({
 
 		// Process Scalar configs from parent Group
 		for (const scalarConfig of scalarFromGroup) {
+			// Sync parent node name if changed
+			if (scalarConfig.fromNodeName !== parentNodeName && parentNodeName !== "") {
+				updateScalarGroupConfigById(scalarConfig.configId, {
+					fromNodeName: parentNodeName,
+				});
+			}
 			syncScalarFromParentGroup(
 				scalarConfig,
 				parentInputConfigs,
@@ -762,13 +791,19 @@ export const useSyncSourceNode = ({
 
 		// Process GroupScalarValue configs from parent Group
 		for (const groupScalarConfig of groupScalarFromGroup) {
+			// Sync parent node name if changed
+			if (groupScalarConfig.fromNodeName !== parentNodeName && parentNodeName !== "") {
+				updateGroupScalarValueConfigById(groupScalarConfig.configId, {
+					fromNodeName: parentNodeName,
+				});
+			}
 			syncGroupScalarValueFromParentGroup(
 				groupScalarConfig,
 				parentInputConfigs,
 				updateGroupScalarValueConfigById,
 			);
 		}
-	}, [parentGroupData?.inputConfigs, parentNodeId, id, updateSeriesConfigById, updateScalarGroupConfigById, updateGroupScalarValueConfigById]);
+	}, [parentGroupData?.inputConfigs, parentGroupData?.nodeName, parentNodeId, id, updateSeriesConfigById, updateScalarGroupConfigById, updateGroupScalarValueConfigById]);
 
 	// useEffect to listen upstream OperationGroup's outputConfigs changes (peer groups)
 	// biome-ignore lint/correctness/useExhaustiveDependencies: currentNodeData is intentionally omitted to prevent infinite loops
@@ -790,12 +825,14 @@ export const useSyncSourceNode = ({
 					config.fromNodeType === NodeType.OperationGroup,
 			) ?? [];
 
-		// Build a map of source group ID -> outputConfigs
+		// Build maps for source group data
 		const sourceOutputConfigsMap = new Map<string, OperationOutputConfig[]>();
+		const sourceNodeNameMap = new Map<string, string>();
 		for (const sourceGroup of upstreamOperationGroupsData) {
 			if (sourceGroup?.data) {
 				const groupData = sourceGroup.data;
 				sourceOutputConfigsMap.set(sourceGroup.id, groupData.outputConfigs ?? []);
+				sourceNodeNameMap.set(sourceGroup.id, groupData.nodeName ?? "");
 			}
 		}
 
@@ -819,6 +856,14 @@ export const useSyncSourceNode = ({
 					fromSeriesDisplayName: "",
 				});
 				continue;
+			}
+
+			// Sync node name if changed
+			const sourceNodeName = sourceNodeNameMap.get(seriesConfig.fromNodeId);
+			if (sourceNodeName !== undefined && seriesConfig.fromNodeName !== sourceNodeName && sourceNodeName !== "") {
+				updateSeriesConfigById(seriesConfig.configId, {
+					fromNodeName: sourceNodeName,
+				});
 			}
 
 			const upstreamOutputConfigs = sourceOutputConfigsMap.get(seriesConfig.fromNodeId);
@@ -851,6 +896,14 @@ export const useSyncSourceNode = ({
 					fromScalarDisplayName: "",
 				});
 				continue;
+			}
+
+			// Sync node name if changed
+			const sourceNodeName = sourceNodeNameMap.get(scalarConfig.fromNodeId);
+			if (sourceNodeName !== undefined && scalarConfig.fromNodeName !== sourceNodeName && sourceNodeName !== "") {
+				updateScalarNodeConfigById(scalarConfig.configId, {
+					fromNodeName: sourceNodeName,
+				});
 			}
 
 			const upstreamOutputConfigs = sourceOutputConfigsMap.get(scalarConfig.fromNodeId);

@@ -1,7 +1,6 @@
 import type { TFunction } from "i18next";
 import type { OperationNodeData } from "@/types/node/operation-node";
 import { getNodeDefaultColor, getNodeIconName, NodeType } from "@/types/node";
-import { getOperationMeta } from "@/types/operation/operation-meta";
 
 export { useUpdateOpNodeConfig } from "./update-op-node-config";
 export { useSyncSourceNode } from "./use-sync-source-node";
@@ -14,9 +13,6 @@ export const createDefaultOperationNodeData = (
 	// Default operation is Mean with Unary input
 	const defaultOperation = { type: "Mean" as const };
 	const defaultInputArrayType = "Unary" as const;
-	const meta = getOperationMeta(defaultOperation.type, defaultInputArrayType);
-	const outputType = meta?.output ?? "Series";
-	const displayName = meta?.defaultOutputDisplayName ?? defaultOperation.type;
 
 	return {
 		strategyId,
@@ -32,11 +28,6 @@ export const createDefaultOperationNodeData = (
 		inputArrayType: defaultInputArrayType,
 		operation: defaultOperation,
 		inputConfig: null,
-		outputConfig:  {
-				type: outputType,
-				configId: 0,
-				outputHandleId: "default_output",
-				outputName: displayName,
-			},
+		outputConfig:  null,
 	};
 };

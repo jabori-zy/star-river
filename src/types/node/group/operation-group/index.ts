@@ -170,6 +170,7 @@ export type FillingMethod = z.infer<typeof FillingMethodSchema>;
 
 // Operation group data schema
 export const OperationGroupDataSchema = NodeDataBaseSchema.extend({
+    isChildGroup: z.boolean().default(false),
     inputConfigs: z.array(OperationInputConfigSchema),
     outputConfigs: z.array(OperationOutputConfigSchema),
     inputWindow: WindowConfigSchema,

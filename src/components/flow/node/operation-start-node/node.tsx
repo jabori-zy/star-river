@@ -9,6 +9,7 @@ import { NodeType } from "@/types/node/index";
 import { House } from "lucide-react";
 import { useNodesData, useReactFlow } from "@xyflow/react";
 import type { StrategyFlowNode } from "@/types/node/index";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 // import type { OperationGroupData } from "@/types/node/group/operation-group";
 
 
@@ -51,9 +52,14 @@ const OperationStartNode: React.FC<NodeProps<OperationStartNodeType>> = ({
             className="!w-16 !h-16 !min-w-0 !min-h-0 !p-0 flex items-center justify-center"
             showTitle={false}
         >
-            <div className="flex items-center justify-center rounded-full p-2" style={{ backgroundColor: handleColor }}>
-                <House className="w-6 h-6 text-white" />
-            </div>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <div className="flex items-center justify-center rounded-full p-2" style={{ backgroundColor: handleColor }}>
+                        <House className="w-6 h-6 text-white" />
+                    </div>
+                </TooltipTrigger>
+                <TooltipContent>Start</TooltipContent>
+            </Tooltip>
             <BaseHandle
 				id={getNodeDefaultOutputHandleId(id, NodeType.OperationStartNode)}
 				type="source"
