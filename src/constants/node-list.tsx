@@ -52,7 +52,7 @@ export const nodeList = [
 				nodeDescription: "变量节点",
 			} as NodeItemProps,
 			{
-				nodeId: "node_group",
+				nodeId: "operation_group",
 				nodeType: NodeType.OperationGroup,
 				nodeIcon: getNodeIconName(NodeType.OperationGroup),
 				nodeIconBackgroundColor: getNodeDefaultColor(NodeType.OperationGroup),

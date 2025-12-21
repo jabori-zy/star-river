@@ -5,15 +5,16 @@ import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 import type {
 	OperationInputConfig,
 	OperationGroupData,
-	OperationInputScalarValueConfig,
-	OperationInputGroupScalarValueConfig,
+	OperationCustomScalarValueConfig,
+	OperationParentGroupScalarValueConfig,
 	OperationInputSeriesConfig,
 	OperationInputScalarConfig,
 	OperationOutputConfig,
-	OutputSeriesConfig,
-	OutputScalarConfig,
+	OperationOutputSeriesConfig,
+	OperationOutputScalarConfig,
 	WindowConfig,
 	FillingMethod,
+	InputSource,
 } from "@/types/node/group/operation-group";
 
 interface UseUpdateOpGroupConfigProps {
@@ -32,34 +33,46 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 		(config): config is OperationInputSeriesConfig => config.type === "Series",
 	);
 
-	// All scalar configs (Scalar from Node/Group, CustomScalarValue from self/Group)
+	// All scalar configs (Scalar from any source, CustomScalarValue from self/ParentGroup)
 	const scalarConfigs = operationConfigs.filter(
-		(config): config is OperationInputScalarValueConfig | OperationInputGroupScalarValueConfig | OperationInputScalarConfig =>
+		(config): config is OperationCustomScalarValueConfig | OperationParentGroupScalarValueConfig | OperationInputScalarConfig =>
 			config.type === "Scalar" || config.type === "CustomScalarValue",
 	);
 
 	// Custom scalar value configs (self-defined value, source: null)
 	const scalarValueConfigs = operationConfigs.filter(
-		(config): config is OperationInputScalarValueConfig =>
+		(config): config is OperationCustomScalarValueConfig =>
 			config.type === "CustomScalarValue" && config.source === null,
 	);
 
-	// Custom scalar value configs from parent Group
-	const groupScalarValueConfigs = operationConfigs.filter(
-		(config): config is OperationInputGroupScalarValueConfig =>
-			config.type === "CustomScalarValue" && config.source === "Group",
+	// Custom scalar value configs from parent Group (source: ParentGroup)
+	const parentGroupScalarValueConfigs = operationConfigs.filter(
+		(config): config is OperationParentGroupScalarValueConfig =>
+			config.type === "CustomScalarValue" && config.source === "ParentGroup",
 	);
 
-	// Scalar configs from upstream node (has variable name)
-	const scalarNodeConfigs = operationConfigs.filter(
+	// Scalar configs from outer node (KlineNode, IndicatorNode, VariableNode)
+	const scalarOuterNodeConfigs = operationConfigs.filter(
 		(config): config is OperationInputScalarConfig =>
-			config.type === "Scalar" && config.source === "Node",
+			config.type === "Scalar" && config.source === "OuterNode",
+	);
+
+	// Scalar configs from OperationNode
+	const scalarOperationNodeConfigs = operationConfigs.filter(
+		(config): config is OperationInputScalarConfig =>
+			config.type === "Scalar" && config.source === "OperationNode",
 	);
 
 	// Scalar configs from parent Group (has variable name)
-	const scalarGroupConfigs = operationConfigs.filter(
+	const scalarParentGroupConfigs = operationConfigs.filter(
 		(config): config is OperationInputScalarConfig =>
-			config.type === "Scalar" && config.source === "Group",
+			config.type === "Scalar" && config.source === "ParentGroup",
+	);
+
+	// Scalar configs from child OperationGroup
+	const scalarChildGroupConfigs = operationConfigs.filter(
+		(config): config is OperationInputScalarConfig =>
+			config.type === "Scalar" && config.source === "ChildGroup",
 	);
 
 	/**
@@ -233,25 +246,28 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 		updateNodeData(id, { inputConfigs: scalarConfigs });
 	}, [id, updateNodeData, scalarConfigs]);
 
-	// ==================== Scalar Config Updates ====================
+	// ==================== Scalar Value Config Updates (self-defined) ====================
 
 	/**
-	 * Set all scalar configs (replaces only scalar configs, keeps series configs)
+	 * Set all scalar value configs (replaces only scalar value configs, keeps others)
 	 */
-	const setScalarConfigs = useCallback(
-		(configs: OperationInputScalarValueConfig[]) => {
-			updateNodeData(id, { inputConfigs: [...seriesConfigs, ...configs] });
+	const setScalarValueConfigs = useCallback(
+		(configs: OperationCustomScalarValueConfig[]) => {
+			const otherConfigs = operationConfigs.filter(
+				(c) => !(c.type === "CustomScalarValue" && c.source === null)
+			);
+			updateNodeData(id, { inputConfigs: [...otherConfigs, ...configs] });
 		},
-		[id, updateNodeData, seriesConfigs],
+		[id, updateNodeData, operationConfigs],
 	);
 
 	/**
-	 * Add a new scalar config
+	 * Add a new scalar value config (self-defined)
 	 */
-	const addScalarConfig = useCallback(
-		(scalarConfig: Omit<OperationInputScalarValueConfig, "configId">) => {
+	const addScalarValueConfig = useCallback(
+		(scalarConfig: Omit<OperationCustomScalarValueConfig, "configId">) => {
 			updateOperationConfigs((draft) => {
-				const newConfig: OperationInputScalarValueConfig = {
+				const newConfig: OperationCustomScalarValueConfig = {
 					...scalarConfig,
 					configId: getNextConfigId(),
 				};
@@ -262,36 +278,16 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 	);
 
 	/**
-	 * Update a scalar config by index (within scalar configs only)
+	 * Update a scalar value config by configId
 	 */
-	const updateScalarConfig = useCallback(
-		(index: number, scalarConfig: OperationInputScalarValueConfig) => {
-			if (index >= 0 && index < scalarConfigs.length) {
-				const targetConfigId = scalarConfigs[index].configId;
-				updateOperationConfigs((draft) => {
-					const globalIndex = draft.findIndex(
-						(c) => c.configId === targetConfigId,
-					);
-					if (globalIndex !== -1) {
-						draft[globalIndex] = scalarConfig;
-					}
-				});
-			}
-		},
-		[updateOperationConfigs, scalarConfigs],
-	);
-
-	/**
-	 * Update a scalar config by configId
-	 */
-	const updateScalarConfigById = useCallback(
-		(configId: number, updates: Partial<OperationInputScalarValueConfig>) => {
+	const updateScalarValueConfigById = useCallback(
+		(configId: number, updates: Partial<OperationCustomScalarValueConfig>) => {
 			updateOperationConfigs((draft) => {
 				const index = draft.findIndex(
 					(c) => c.configId === configId && c.type === "CustomScalarValue" && c.source === null,
 				);
 				if (index !== -1) {
-					draft[index] = { ...draft[index], ...updates } as OperationInputScalarValueConfig;
+					draft[index] = { ...draft[index], ...updates } as OperationCustomScalarValueConfig;
 				}
 			});
 		},
@@ -299,22 +295,9 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 	);
 
 	/**
-	 * Remove a scalar config by index (within scalar configs only)
+	 * Remove a scalar value config by configId
 	 */
-	const removeScalarConfig = useCallback(
-		(index: number) => {
-			if (index >= 0 && index < scalarConfigs.length) {
-				const targetConfigId = scalarConfigs[index].configId;
-				removeOperationConfigById(targetConfigId);
-			}
-		},
-		[scalarConfigs, removeOperationConfigById],
-	);
-
-	/**
-	 * Remove a scalar config by configId
-	 */
-	const removeScalarConfigById = useCallback(
+	const removeScalarValueConfigById = useCallback(
 		(configId: number) => {
 			updateOperationConfigs((draft) => {
 				const index = draft.findIndex(
@@ -329,13 +312,13 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 	);
 
 	/**
-	 * Update scalar input name
+	 * Update scalar input name (for self-defined scalar value)
 	 */
 	const updateScalarInputName = useCallback(
 		(configId: number, inputName: string) => {
-			updateScalarConfigById(configId, { inputName });
+			updateScalarValueConfigById(configId, { inputName });
 		},
-		[updateScalarConfigById],
+		[updateScalarValueConfigById],
 	);
 
 	/**
@@ -343,224 +326,196 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 	 */
 	const updateScalarValue = useCallback(
 		(configId: number, value: number) => {
-			updateScalarConfigById(configId, { scalarValue: value });
+			updateScalarValueConfigById(configId, { scalarValue: value });
+		},
+		[updateScalarValueConfigById],
+	);
+
+	/**
+	 * Clear all scalar value configs
+	 */
+	const clearScalarValueConfigs = useCallback(() => {
+		const otherConfigs = operationConfigs.filter(
+			(c) => !(c.type === "CustomScalarValue" && c.source === null)
+		);
+		updateNodeData(id, { inputConfigs: otherConfigs });
+	}, [id, updateNodeData, operationConfigs]);
+
+	// ==================== Parent Group Scalar Value Config Updates ====================
+
+	/**
+	 * Add a new parent group scalar value config
+	 */
+	const addParentGroupScalarValueConfig = useCallback(
+		(config: Omit<OperationParentGroupScalarValueConfig, "configId">) => {
+			updateOperationConfigs((draft) => {
+				const newConfig: OperationParentGroupScalarValueConfig = {
+					...config,
+					configId: getNextConfigId(),
+				};
+				draft.push(newConfig);
+			});
+		},
+		[updateOperationConfigs, getNextConfigId],
+	);
+
+	/**
+	 * Update a parent group scalar value config by configId
+	 */
+	const updateParentGroupScalarValueConfigById = useCallback(
+		(configId: number, updates: Partial<OperationParentGroupScalarValueConfig>) => {
+			updateOperationConfigs((draft) => {
+				const index = draft.findIndex(
+					(c) => c.configId === configId && c.type === "CustomScalarValue" && c.source === "ParentGroup",
+				);
+				if (index !== -1) {
+					draft[index] = { ...draft[index], ...updates } as OperationParentGroupScalarValueConfig;
+				}
+			});
+		},
+		[updateOperationConfigs],
+	);
+
+	/**
+	 * Remove a parent group scalar value config by configId
+	 */
+	const removeParentGroupScalarValueConfigById = useCallback(
+		(configId: number) => {
+			updateOperationConfigs((draft) => {
+				const index = draft.findIndex(
+					(c) => c.configId === configId && c.type === "CustomScalarValue" && c.source === "ParentGroup",
+				);
+				if (index !== -1) {
+					draft.splice(index, 1);
+				}
+			});
+		},
+		[updateOperationConfigs],
+	);
+
+	/**
+	 * Update parent group scalar value input name
+	 */
+	const updateParentGroupScalarValueInputName = useCallback(
+		(configId: number, inputName: string) => {
+			updateParentGroupScalarValueConfigById(configId, { inputName });
+		},
+		[updateParentGroupScalarValueConfigById],
+	);
+
+	/**
+	 * Clear all parent group scalar value configs
+	 */
+	const clearParentGroupScalarValueConfigs = useCallback(() => {
+		const otherConfigs = operationConfigs.filter(
+			(c) => !(c.type === "CustomScalarValue" && c.source === "ParentGroup")
+		);
+		updateNodeData(id, { inputConfigs: otherConfigs });
+	}, [id, updateNodeData, operationConfigs]);
+
+	// ==================== Scalar Config Updates (by source) ====================
+
+	/**
+	 * Add a new scalar config with specified source
+	 */
+	const addScalarConfig = useCallback(
+		(config: Omit<OperationInputScalarConfig, "configId">) => {
+			updateOperationConfigs((draft) => {
+				const newConfig: OperationInputScalarConfig = {
+					...config,
+					configId: getNextConfigId(),
+				};
+				draft.push(newConfig);
+			});
+		},
+		[updateOperationConfigs, getNextConfigId],
+	);
+
+	/**
+	 * Update a scalar config by configId and source
+	 */
+	const updateScalarConfigById = useCallback(
+		(configId: number, source: InputSource, updates: Partial<OperationInputScalarConfig>) => {
+			updateOperationConfigs((draft) => {
+				const index = draft.findIndex(
+					(c) => c.configId === configId && c.type === "Scalar" && c.source === source,
+				);
+				if (index !== -1) {
+					draft[index] = { ...draft[index], ...updates } as OperationInputScalarConfig;
+				}
+			});
+		},
+		[updateOperationConfigs],
+	);
+
+	/**
+	 * Remove a scalar config by configId and source
+	 */
+	const removeScalarConfigById = useCallback(
+		(configId: number, source: InputSource) => {
+			updateOperationConfigs((draft) => {
+				const index = draft.findIndex(
+					(c) => c.configId === configId && c.type === "Scalar" && c.source === source,
+				);
+				if (index !== -1) {
+					draft.splice(index, 1);
+				}
+			});
+		},
+		[updateOperationConfigs],
+	);
+
+	// Convenience methods for specific sources
+
+	/**
+	 * Update scalar config from outer node
+	 */
+	const updateScalarOuterNodeConfigById = useCallback(
+		(configId: number, updates: Partial<OperationInputScalarConfig>) => {
+			updateScalarConfigById(configId, "OuterNode", updates);
 		},
 		[updateScalarConfigById],
 	);
 
 	/**
-	 * Clear all scalar value configs (keeps series and scalar node configs)
+	 * Update scalar config from OperationNode
 	 */
-	const clearScalarValueConfigs = useCallback(() => {
-		updateNodeData(id, { inputConfigs: [...seriesConfigs, ...scalarNodeConfigs] });
-	}, [id, updateNodeData, seriesConfigs, scalarNodeConfigs]);
-
-	// ==================== Scalar Node Config Updates ====================
-
-	/**
-	 * Add a new scalar node config (from upstream node)
-	 */
-	const addScalarNodeConfig = useCallback(
-		(config: Omit<OperationInputScalarConfig, "configId">) => {
-			updateOperationConfigs((draft) => {
-				const newConfig: OperationInputScalarConfig = {
-					...config,
-					configId: getNextConfigId(),
-				};
-				draft.push(newConfig);
-			});
-		},
-		[updateOperationConfigs, getNextConfigId],
-	);
-
-	/**
-	 * Update a scalar node config by configId
-	 */
-	const updateScalarNodeConfigById = useCallback(
+	const updateScalarOperationNodeConfigById = useCallback(
 		(configId: number, updates: Partial<OperationInputScalarConfig>) => {
-			updateOperationConfigs((draft) => {
-				const index = draft.findIndex(
-					(c) => c.configId === configId && c.type === "Scalar" && c.source === "Node",
-				);
-				if (index !== -1) {
-					draft[index] = { ...draft[index], ...updates } as OperationInputScalarConfig;
-				}
-			});
+			updateScalarConfigById(configId, "OperationNode", updates);
 		},
-		[updateOperationConfigs],
+		[updateScalarConfigById],
 	);
 
 	/**
-	 * Remove a scalar node config by configId
+	 * Update scalar config from parent group
 	 */
-	const removeScalarNodeConfigById = useCallback(
-		(configId: number) => {
-			updateOperationConfigs((draft) => {
-				const index = draft.findIndex(
-					(c) => c.configId === configId && c.type === "Scalar" && c.source === "Node",
-				);
-				if (index !== -1) {
-					draft.splice(index, 1);
-				}
-			});
-		},
-		[updateOperationConfigs],
-	);
-
-	/**
-	 * Update scalar node input name
-	 */
-	const updateScalarNodeInputName = useCallback(
-		(configId: number, inputName: string) => {
-			updateScalarNodeConfigById(configId, { inputName });
-		},
-		[updateScalarNodeConfigById],
-	);
-
-	/**
-	 * Clear all scalar node configs (keeps series and scalar value configs)
-	 */
-	const clearScalarNodeConfigs = useCallback(() => {
-		updateNodeData(id, { inputConfigs: [...seriesConfigs, ...scalarValueConfigs, ...groupScalarValueConfigs] });
-	}, [id, updateNodeData, seriesConfigs, scalarValueConfigs, groupScalarValueConfigs]);
-
-	// ==================== Group Scalar Value Config Updates ====================
-
-	/**
-	 * Add a new group scalar value config (from parent Group's custom scalar)
-	 */
-	const addGroupScalarValueConfig = useCallback(
-		(config: Omit<OperationInputGroupScalarValueConfig, "configId">) => {
-			updateOperationConfigs((draft) => {
-				const newConfig: OperationInputGroupScalarValueConfig = {
-					...config,
-					configId: getNextConfigId(),
-				};
-				draft.push(newConfig);
-			});
-		},
-		[updateOperationConfigs, getNextConfigId],
-	);
-
-	/**
-	 * Update a group scalar value config by configId
-	 */
-	const updateGroupScalarValueConfigById = useCallback(
-		(configId: number, updates: Partial<OperationInputGroupScalarValueConfig>) => {
-			updateOperationConfigs((draft) => {
-				const index = draft.findIndex(
-					(c) => c.configId === configId && c.type === "CustomScalarValue" && c.source === "Group",
-				);
-				if (index !== -1) {
-					draft[index] = { ...draft[index], ...updates } as OperationInputGroupScalarValueConfig;
-				}
-			});
-		},
-		[updateOperationConfigs],
-	);
-
-	/**
-	 * Remove a group scalar value config by configId
-	 */
-	const removeGroupScalarValueConfigById = useCallback(
-		(configId: number) => {
-			updateOperationConfigs((draft) => {
-				const index = draft.findIndex(
-					(c) => c.configId === configId && c.type === "CustomScalarValue" && c.source === "Group",
-				);
-				if (index !== -1) {
-					draft.splice(index, 1);
-				}
-			});
-		},
-		[updateOperationConfigs],
-	);
-
-	/**
-	 * Update group scalar value input name
-	 */
-	const updateGroupScalarValueInputName = useCallback(
-		(configId: number, inputName: string) => {
-			updateGroupScalarValueConfigById(configId, { inputName });
-		},
-		[updateGroupScalarValueConfigById],
-	);
-
-	/**
-	 * Clear all group scalar value configs
-	 */
-	const clearGroupScalarValueConfigs = useCallback(() => {
-		updateNodeData(id, { inputConfigs: [...seriesConfigs, ...scalarValueConfigs, ...scalarNodeConfigs, ...scalarGroupConfigs] });
-	}, [id, updateNodeData, seriesConfigs, scalarValueConfigs, scalarNodeConfigs, scalarGroupConfigs]);
-
-	// ==================== Scalar Group Config Updates ====================
-
-	/**
-	 * Add a new scalar group config (from parent Group's scalar with variable name)
-	 */
-	const addScalarGroupConfig = useCallback(
-		(config: Omit<OperationInputScalarConfig, "configId">) => {
-			updateOperationConfigs((draft) => {
-				const newConfig: OperationInputScalarConfig = {
-					...config,
-					configId: getNextConfigId(),
-				};
-				draft.push(newConfig);
-			});
-		},
-		[updateOperationConfigs, getNextConfigId],
-	);
-
-	/**
-	 * Update a scalar group config by configId
-	 */
-	const updateScalarGroupConfigById = useCallback(
+	const updateScalarParentGroupConfigById = useCallback(
 		(configId: number, updates: Partial<OperationInputScalarConfig>) => {
-			updateOperationConfigs((draft) => {
-				const index = draft.findIndex(
-					(c) => c.configId === configId && c.type === "Scalar" && c.source === "Group",
-				);
-				if (index !== -1) {
-					draft[index] = { ...draft[index], ...updates } as OperationInputScalarConfig;
-				}
-			});
+			updateScalarConfigById(configId, "ParentGroup", updates);
 		},
-		[updateOperationConfigs],
+		[updateScalarConfigById],
 	);
 
 	/**
-	 * Remove a scalar group config by configId
+	 * Update scalar config from child group
 	 */
-	const removeScalarGroupConfigById = useCallback(
-		(configId: number) => {
-			updateOperationConfigs((draft) => {
-				const index = draft.findIndex(
-					(c) => c.configId === configId && c.type === "Scalar" && c.source === "Group",
-				);
-				if (index !== -1) {
-					draft.splice(index, 1);
-				}
-			});
+	const updateScalarChildGroupConfigById = useCallback(
+		(configId: number, updates: Partial<OperationInputScalarConfig>) => {
+			updateScalarConfigById(configId, "ChildGroup", updates);
 		},
-		[updateOperationConfigs],
+		[updateScalarConfigById],
 	);
 
 	/**
-	 * Update scalar group input name
+	 * Update scalar input name by source
 	 */
-	const updateScalarGroupInputName = useCallback(
-		(configId: number, inputName: string) => {
-			updateScalarGroupConfigById(configId, { inputName });
+	const updateScalarConfigInputName = useCallback(
+		(configId: number, source: InputSource, inputName: string) => {
+			updateScalarConfigById(configId, source, { inputName });
 		},
-		[updateScalarGroupConfigById],
+		[updateScalarConfigById],
 	);
-
-	/**
-	 * Clear all scalar group configs
-	 */
-	const clearScalarGroupConfigs = useCallback(() => {
-		updateNodeData(id, { inputConfigs: [...seriesConfigs, ...scalarValueConfigs, ...scalarNodeConfigs, ...groupScalarValueConfigs] });
-	}, [id, updateNodeData, seriesConfigs, scalarValueConfigs, scalarNodeConfigs, groupScalarValueConfigs]);
 
 	// ==================== Output Config Updates ====================
 
@@ -602,10 +557,10 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 	 * Add a new output series config
 	 */
 	const addOutputSeriesConfig = useCallback(
-		(config: Omit<OutputSeriesConfig, "configId" | "outputHandleId">) => {
+		(config: Omit<OperationOutputSeriesConfig, "configId" | "outputHandleId">) => {
 			const configId = getNextOutputConfigId();
 			updateOutputConfigs((draft) => {
-				const newConfig: OutputSeriesConfig = {
+				const newConfig: OperationOutputSeriesConfig = {
 					...config,
 					configId,
 					outputHandleId: getOutputHandleId(),
@@ -620,10 +575,10 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 	 * Add a new output scalar config
 	 */
 	const addOutputScalarConfig = useCallback(
-		(config: Omit<OutputScalarConfig, "configId" | "outputHandleId">) => {
+		(config: Omit<OperationOutputScalarConfig, "configId" | "outputHandleId">) => {
 			const configId = getNextOutputConfigId();
 			updateOutputConfigs((draft) => {
-				const newConfig: OutputScalarConfig = {
+				const newConfig: OperationOutputScalarConfig = {
 					...config,
 					configId,
 					outputHandleId: getOutputHandleId(),
@@ -732,44 +687,44 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 		updateSeriesInputName,
 		clearSeriesConfigs,
 
-		// All scalar configs (both Value and Node source)
+		// All scalar configs (combined)
 		scalarConfigs,
 
-		// Scalar value configs (source: Value)
+		// Scalar value configs (self-defined, source: null)
 		scalarValueConfigs,
-		setScalarConfigs,
-		addScalarConfig,
-		updateScalarConfig,
-		updateScalarConfigById,
-		removeScalarConfig,
-		removeScalarConfigById,
+		setScalarValueConfigs,
+		addScalarValueConfig,
+		updateScalarValueConfigById,
+		removeScalarValueConfigById,
 		updateScalarInputName,
 		updateScalarValue,
 		clearScalarValueConfigs,
 
-		// Scalar node configs (source: Node)
-		scalarNodeConfigs,
-		addScalarNodeConfig,
-		updateScalarNodeConfigById,
-		removeScalarNodeConfigById,
-		updateScalarNodeInputName,
-		clearScalarNodeConfigs,
+		// Parent group scalar value configs (CustomScalarValue, source: ParentGroup)
+		parentGroupScalarValueConfigs,
+		addParentGroupScalarValueConfig,
+		updateParentGroupScalarValueConfigById,
+		removeParentGroupScalarValueConfigById,
+		updateParentGroupScalarValueInputName,
+		clearParentGroupScalarValueConfigs,
 
-		// Group scalar value configs (CustomScalarValue from parent Group)
-		groupScalarValueConfigs,
-		addGroupScalarValueConfig,
-		updateGroupScalarValueConfigById,
-		removeGroupScalarValueConfigById,
-		updateGroupScalarValueInputName,
-		clearGroupScalarValueConfigs,
+		// Scalar configs by source
+		scalarOuterNodeConfigs,
+		scalarOperationNodeConfigs,
+		scalarParentGroupConfigs,
+		scalarChildGroupConfigs,
 
-		// Scalar group configs (Scalar with variable name from parent Group)
-		scalarGroupConfigs,
-		addScalarGroupConfig,
-		updateScalarGroupConfigById,
-		removeScalarGroupConfigById,
-		updateScalarGroupInputName,
-		clearScalarGroupConfigs,
+		// Generic scalar config operations
+		addScalarConfig,
+		updateScalarConfigById,
+		removeScalarConfigById,
+		updateScalarConfigInputName,
+
+		// Convenience methods for specific sources
+		updateScalarOuterNodeConfigById,
+		updateScalarOperationNodeConfigById,
+		updateScalarParentGroupConfigById,
+		updateScalarChildGroupConfigById,
 
 		// Output configs
 		outputConfigs,

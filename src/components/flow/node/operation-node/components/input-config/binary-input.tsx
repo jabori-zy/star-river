@@ -15,13 +15,13 @@ import type {
 	InputSeriesConfig,
 	InputScalarConfig,
 	InputScalarValueConfig,
-	InputGroupScalarValueConfig,
+	InputParentGroupScalarValueConfig,
 } from "@/types/operation";
 import {
 	isSeriesInput,
 	isScalarInput,
 	isScalarValueInput,
-	isGroupScalarValueInput,
+	isParentGroupScalarValueInput,
 } from "@/types/operation";
 import { type InputOption, InputOptionDisplay } from "./index";
 import { useState, useEffect } from "react";
@@ -86,7 +86,7 @@ const InputSelector: React.FC<{
 		if (isScalarInput(inputConfig)) {
 			return `${inputConfig.fromNodeId}-${inputConfig.fromScalarConfigId}-Scalar`;
 		}
-		if (isGroupScalarValueInput(inputConfig)) {
+		if (isParentGroupScalarValueInput(inputConfig)) {
 			return `${inputConfig.fromNodeId}-${inputConfig.fromScalarConfigId}-CustomScalarValue`;
 		}
 		// isScalarValueInput - custom value, no selection
@@ -99,10 +99,13 @@ const InputSelector: React.FC<{
 		);
 		if (!selectedOption) return;
 
+		// Use sourceType directly from the selected option
+		const source = selectedOption.sourceType;
+
 		if (selectedOption.inputType === "Series") {
 			const config: InputSeriesConfig = {
 				type: "Series",
-				source: "Group",
+				source,
 				configId,
 				fromNodeType: selectedOption.fromNodeType,
 				fromNodeId: selectedOption.fromNodeId,
@@ -116,7 +119,7 @@ const InputSelector: React.FC<{
 		} else if (selectedOption.inputType === "Scalar") {
 			const config: InputScalarConfig = {
 				type: "Scalar",
-				source: "Group",
+				source,
 				configId,
 				fromNodeType: selectedOption.fromNodeType,
 				fromNodeId: selectedOption.fromNodeId,
@@ -128,10 +131,10 @@ const InputSelector: React.FC<{
 			};
 			onChange(config);
 		} else if (selectedOption.inputType === "CustomScalarValue") {
-			// CustomScalarValue from upstream (OperationStartNode)
-			const config: InputGroupScalarValueConfig = {
+			// CustomScalarValue from upstream (OperationStartNode) - always "ParentGroup"
+			const config: InputParentGroupScalarValueConfig = {
 				type: "CustomScalarValue",
-				source: "Group",
+				source: "ParentGroup",
 				configId,
 				fromNodeType: selectedOption.fromNodeType,
 				fromNodeId: selectedOption.fromNodeId,
@@ -246,7 +249,7 @@ const InputSelector: React.FC<{
 // Check if input is any scalar type
 const isAnyScalarType = (input: InputConfig | null): boolean => {
 	if (!input) return false;
-	return isScalarInput(input) || isScalarValueInput(input) || isGroupScalarValueInput(input);
+	return isScalarInput(input) || isScalarValueInput(input) || isParentGroupScalarValueInput(input);
 };
 
 export const BinaryInput: React.FC<BinaryInputProps> = ({

@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import type { WindowConfig as WindowConfigType } from "@/types/operation";
+import type { WindowConfig as WindowConfigType } from "@/types/node/group/operation-group";
 
 interface WindowConfigProps {
 	windowConfig: WindowConfigType;

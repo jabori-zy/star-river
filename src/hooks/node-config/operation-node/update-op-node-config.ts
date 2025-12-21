@@ -9,7 +9,7 @@ import type {
 	InputSeriesConfig,
 	InputScalarConfig,
 	InputScalarValueConfig,
-	InputGroupScalarValueConfig,
+	InputParentGroupScalarValueConfig,
 	OutputConfig,
 	OutputSeriesConfig,
 	OutputScalarConfig,
@@ -18,7 +18,7 @@ import {
 	isSeriesInput,
 	isScalarInput,
 	isScalarValueInput,
-	isGroupScalarValueInput,
+	isParentGroupScalarValueInput,
 	isSeriesOutput,
 	isScalarOutput,
 } from "@/types/operation";
@@ -297,17 +297,17 @@ export const useUpdateOpNodeConfig = ({ id }: UseUpdateOpNodeConfigProps) => {
 	}, [nodeData?.inputConfig]);
 
 	/**
-	 * Get all group custom scalar value inputs (type: "CustomScalarValue", source: "Group")
+	 * Get all parent group custom scalar value inputs (type: "CustomScalarValue", source: "ParentGroup")
 	 */
-	const getGroupScalarValueInputs = useMemo((): InputGroupScalarValueConfig[] => {
+	const getParentGroupScalarValueInputs = useMemo((): InputParentGroupScalarValueConfig[] => {
 		const config = nodeData?.inputConfig;
 		if (!config || config.type !== "Binary") return [];
 
-		const result: InputGroupScalarValueConfig[] = [];
-		if (config.input1 && isGroupScalarValueInput(config.input1)) {
+		const result: InputParentGroupScalarValueConfig[] = [];
+		if (config.input1 && isParentGroupScalarValueInput(config.input1)) {
 			result.push(config.input1);
 		}
-		if (config.input2 && isGroupScalarValueInput(config.input2)) {
+		if (config.input2 && isParentGroupScalarValueInput(config.input2)) {
 			result.push(config.input2);
 		}
 		return result;
@@ -316,9 +316,9 @@ export const useUpdateOpNodeConfig = ({ id }: UseUpdateOpNodeConfigProps) => {
 	/**
 	 * Get all scalar-type inputs (Scalar + CustomScalarValue)
 	 */
-	const getAllScalarInputs = useMemo((): (InputScalarConfig | InputScalarValueConfig | InputGroupScalarValueConfig)[] => {
-		return [...getScalarInputs, ...getScalarValueInputs, ...getGroupScalarValueInputs];
-	}, [getScalarInputs, getScalarValueInputs, getGroupScalarValueInputs]);
+	const getAllScalarInputs = useMemo((): (InputScalarConfig | InputScalarValueConfig | InputParentGroupScalarValueConfig)[] => {
+		return [...getScalarInputs, ...getScalarValueInputs, ...getParentGroupScalarValueInputs];
+	}, [getScalarInputs, getScalarValueInputs, getParentGroupScalarValueInputs]);
 
 	// ==================== Output Config ====================
 
@@ -451,7 +451,7 @@ export const useUpdateOpNodeConfig = ({ id }: UseUpdateOpNodeConfigProps) => {
 		getSeriesInputs,
 		getScalarInputs,
 		getScalarValueInputs,
-		getGroupScalarValueInputs,
+		getParentGroupScalarValueInputs,
 		getAllScalarInputs,
 
 		// Output Config

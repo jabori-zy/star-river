@@ -20,8 +20,6 @@ interface WindowConfigProps {
 	minSize?: number;
 	maxSize?: number;
 	limitInfo?: WindowSizeLimitInfo | null;
-	disabled?: boolean;
-	disabledMessage?: string;
 	className?: string;
 }
 
@@ -31,8 +29,6 @@ export const WindowConfig: React.FC<WindowConfigProps> = ({
 	minSize = 1,
 	maxSize = 200,
 	limitInfo,
-	disabled = false,
-	disabledMessage,
 	className,
 }) => {
 	// Get current size value based on window type
@@ -71,7 +67,7 @@ export const WindowConfig: React.FC<WindowConfigProps> = ({
 	};
 
 	return (
-		<div className={cn("space-y-4", disabled && "opacity-60", className)}>
+		<div className={cn("space-y-4", className)}>
 			{/* <Label className="text-sm font-medium">Window</Label> */}
 
 			{/* Window Type */}
@@ -81,17 +77,16 @@ export const WindowConfig: React.FC<WindowConfigProps> = ({
 					value={windowConfig.windowType}
 					onValueChange={(val) => handleTypeChange(val as "rolling" | "expanding")}
 					className="flex gap-4"
-					disabled={disabled}
 				>
 					<div className="flex items-center space-x-2">
-						<RadioGroupItem value="rolling" id="window-type-rolling" disabled={disabled} />
-						<Label htmlFor="window-type-rolling" className={cn("text-sm font-normal", disabled ? "cursor-not-allowed" : "cursor-pointer")}>
+						<RadioGroupItem value="rolling" id="window-type-rolling" />
+						<Label htmlFor="window-type-rolling" className="text-sm font-normal cursor-pointer">
 							Rolling
 						</Label>
 					</div>
 					<div className="flex items-center space-x-2">
-						<RadioGroupItem value="expanding" id="window-type-expanding" disabled={disabled} />
-						<Label htmlFor="window-type-expanding" className={cn("text-sm font-normal", disabled ? "cursor-not-allowed" : "cursor-pointer")}>
+						<RadioGroupItem value="expanding" id="window-type-expanding" />
+						<Label htmlFor="window-type-expanding" className="text-sm font-normal cursor-pointer">
 							Expanding
 						</Label>
 					</div>
@@ -111,7 +106,6 @@ export const WindowConfig: React.FC<WindowConfigProps> = ({
 						min={minSize}
 						max={maxSize}
 						className="w-20 h-8 text-sm text-right"
-						disabled={disabled}
 					/>
 				</div>
 				<Slider
@@ -121,21 +115,13 @@ export const WindowConfig: React.FC<WindowConfigProps> = ({
 					max={maxSize}
 					step={1}
 					className="w-full"
-					disabled={disabled}
 				/>
 				<div className="flex justify-between text-xs text-muted-foreground">
 					<span>{minSize}</span>
 					<span>{maxSize}</span>
 				</div>
-				{/* Disabled message for child groups */}
-				{disabled && disabledMessage && (
-					<p className="text-xs text-muted-foreground mt-2 flex items-start gap-1">
-						<CircleAlert className="h-3.5 w-3.5 flex-shrink-0 mt-0.5" />
-						<span>{disabledMessage}</span>
-					</p>
-				)}
-				{/* Limit warning (only show when not disabled) */}
-				{!disabled && limitInfo && (
+				{/* Limit warning */}
+				{limitInfo && (
 					<p className="text-xs text-yellow-600 mt-2 flex items-start gap-1">
 						<CircleAlert className="h-3.5 w-3.5 flex-shrink-0 mt-0.5" />
 						{limitInfo.limitType === "parent-input" ? (

@@ -6,7 +6,9 @@ export interface OutputOption {
 	sourceNodeName: string;
 	outputType: "Series" | "Scalar";
 	sourceHandleId: string;
+	sourceOutputConfigId: number; // configId from source node's output config
 	displayName: string;
+	sourceName: string; // sourceSeriesName for Series, sourceScalarName for Scalar
 }
 
 // Single output config item props

@@ -42,9 +42,11 @@ export const UnaryInput: React.FC<UnaryInputProps> = ({
 			(opt) => getOptionKey(opt) === value,
 		);
 		if (selectedOption && selectedOption.inputType === "Series") {
+			// Use sourceType directly from the selected option
+			const source = selectedOption.sourceType;
 			onChange({
 				type: "Series",
-				source: "Group",
+				source,
 				// Unary input always has configId 1
 				configId: inputConfig?.configId ?? 1,
 				fromNodeType: selectedOption.fromNodeType,

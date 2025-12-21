@@ -53,16 +53,16 @@ export const OutputConfigItem: React.FC<OutputConfigItemProps> = ({
 	// Handle source selection
 	const handleSourceChange = (value: string) => {
 		const option = availableOutputs.find(
-			(o) => `${o.sourceNodeId}|${o.sourceHandleId}` === value,
+			(o) => `${o.sourceNodeId}|${o.sourceHandleId}|${o.sourceOutputConfigId}` === value,
 		);
 		if (option) {
 			onSelectSource(config.configId, option);
 		}
 	};
 
-	// Current selected value for dropdown
+	// Current selected value for dropdown (use sourceOutputConfigId as part of key)
 	const currentSourceValue = hasSource
-		? `${config.sourceNodeId}|${config.sourceHandleId}`
+		? `${config.sourceNodeId}|${config.sourceHandleId}|${config.sourceOutputConfigId}`
 		: "";
 
 	return (
@@ -98,7 +98,7 @@ export const OutputConfigItem: React.FC<OutputConfigItemProps> = ({
 							</div>
 						) : (
 							availableOutputs.map((option) => {
-								const optionKey = `${option.sourceNodeId}|${option.sourceHandleId}`;
+								const optionKey = `${option.sourceNodeId}|${option.sourceHandleId}|${option.sourceOutputConfigId}`;
 								const isUsed =
 									usedSourceIds.has(optionKey) && optionKey !== currentSourceValue;
 

@@ -3,7 +3,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { House, ArrowRight, Group } from "lucide-react";
-import type { InputArrayType, InputConfig, InputSeriesConfig } from "@/types/operation";
+import type { InputArrayType, InputConfig, InputSeriesConfig, InputSource } from "@/types/operation";
 import { UnaryInput } from "./unary-input";
 import { BinaryInput } from "./binary-input";
 import { NaryInput } from "./nary-input";
@@ -24,6 +24,11 @@ export interface InputOption {
 	fromHandleId: string;
 	fromNodeType: NodeType;
 	inputDisplayName: string;
+	// Source type for the input config
+	// "OperationNode" - from sibling OperationNode
+	// "ParentGroup" - from parent Group (via OperationStartNode)
+	// "ChildGroup" - from child OperationGroup
+	sourceType: InputSource;
 	// For Scalar type - the variable name from source
 	inputName?: string;
 	// For CustomScalarValue type - the actual value

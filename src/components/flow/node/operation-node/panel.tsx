@@ -1,5 +1,5 @@
 import type React from "react";
-import { useState, useEffect, useCallback } from "react";
+import { useMemo, useEffect, useCallback, useRef } from "react";
 
 import { Separator } from "@/components/ui/separator";
 import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
@@ -10,24 +10,24 @@ import {
 	OutputConfig,
 } from "@/components/flow/node/operation-node/components";
 import { useUpdateOpNodeConfig } from "@/hooks/node-config/operation-node/update-op-node-config";
-import { getOperationMeta } from "@/types/operation/operation-meta";
+import { getOperationMeta, getDefaultOperation } from "@/types/operation/operation-meta";
 import type { Operation, InputArrayType, InputConfig } from "@/types/operation";
 import {
 	isScalarInput,
 	isScalarValueInput,
-	isGroupScalarValueInput,
+	isParentGroupScalarValueInput,
 } from "@/types/operation";
-import { useReactFlow } from "@xyflow/react";
+import { useReactFlow, useNodesData } from "@xyflow/react";
 import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 import { NodeType } from "@/types/node";
-import type { OperationGroupData } from "@/types/node/group/operation-group";
+import type { OperationGroup, OperationGroupData } from "@/types/node/group/operation-group";
 import type { OperationNodeData } from "@/types/node/operation-node";
 import type { InputOption } from "@/components/flow/node/operation-node/components/input-config";
 
 // Check if input is any scalar type
 const isAnyScalarType = (input: InputConfig | null | undefined): boolean => {
 	if (!input) return false;
-	return isScalarInput(input) || isScalarValueInput(input) || isGroupScalarValueInput(input);
+	return isScalarInput(input) || isScalarValueInput(input) || isParentGroupScalarValueInput(input);
 };
 
 export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
@@ -51,10 +51,7 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 
 	// Default values if node data is not available
 	const currentInputArrayType = inputArrayType ?? "Unary";
-	const currentOperation = operation ?? { type: "Mean" };
-	
-	// State to store input options
-	const [inputOptions, setInputOptions] = useState<InputOption[]>([]);
+	const currentOperation = operation ?? { type: "AggMean", inputType: "Unary" as const, category: "Aggregation" as const };
 
 	// get source nodes
 	const { getSourceNodes } = useStrategyWorkflow();
@@ -63,17 +60,28 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 	// Compute source nodes and parent data outside useEffect
 	const sourceNodes = getSourceNodes(id);
 	const parentNodeId = getNodes().find((node) => node.id === id)?.parentId;
-	const parentNodeData = parentNodeId
-		? getNodes().find((node) => node.id === parentNodeId)?.data as OperationGroupData
-		: null;
 
-	useEffect(() => {
-		if (!parentNodeData || !sourceNodes || sourceNodes.length === 0) return;
+	// Use useNodesData for reactive parent node data (avoid stale data during re-renders)
+	const parentNodesData = useNodesData<OperationGroup>(
+		parentNodeId ? [parentNodeId] : [],
+	);
+	const parentNodeData = parentNodesData[0]?.data;
+	// Cache last valid inputOptions to prevent clearing when parentNodeData is temporarily undefined
+	const inputOptionsRef = useRef<InputOption[]>([]);
+
+	// Use useMemo instead of useState + useEffect to compute inputOptions
+	// This prevents the options from being cleared when parentNodeData is temporarily null during re-renders
+	const inputOptions = useMemo(() => {
+		// Return cached value if parentNodeData is temporarily unavailable
+		if (!parentNodeData || !sourceNodes || sourceNodes.length === 0) {
+			return inputOptionsRef.current;
+		}
 
 		const options: InputOption[] = [];
 
 		sourceNodes.forEach((node) => {
 			// Source is OperationStartNode - get inputConfigs from parent group
+			// Use parent Group's info for fromNodeId/fromNodeName/fromNodeType
 			if (node.type === NodeType.OperationStartNode) {
 				const inputConfigs = parentNodeData?.inputConfigs ?? [];
 				inputConfigs.forEach((config) => {
@@ -81,24 +89,26 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 						options.push({
 							configId: config.configId,
 							inputType: "Series",
-							fromNodeId: node.id,
-							fromNodeName: node.data?.nodeName,
+							fromNodeId: parentNodeId ?? "",
+							fromNodeName: parentNodeData?.nodeName ?? "",
 							fromHandleId: `${node.id}_default_output`,
-							fromNodeType: NodeType.OperationStartNode,
+							fromNodeType: NodeType.OperationGroup,
 							inputDisplayName: config.inputName,
 							inputName: config.inputName,
+							sourceType: "ParentGroup",
 						});
 					} else if (config.type === "Scalar") {
 						// Scalar type with variable name from source
 						options.push({
 							configId: config.configId,
 							inputType: "Scalar",
-							fromNodeId: node.id,
+							fromNodeId: parentNodeId ?? "",
 							fromHandleId: `${node.id}_default_output`,
-							fromNodeName: node.data?.nodeName,
-							fromNodeType: NodeType.OperationStartNode,
+							fromNodeName: parentNodeData?.nodeName ?? "",
+							fromNodeType: NodeType.OperationGroup,
 							inputDisplayName: config.inputName,
 							inputName: config.fromScalarName,
+							sourceType: "ParentGroup",
 						});
 					} else if (config.type === "CustomScalarValue") {
 						// CustomScalarValue - self-defined or from parent group
@@ -108,12 +118,13 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 						options.push({
 							configId: config.configId,
 							inputType: "CustomScalarValue",
-							fromNodeId: node.id,
+							fromNodeId: parentNodeId ?? "",
 							fromHandleId: `${node.id}_default_output`,
-							fromNodeName: node.data?.nodeName,
-							fromNodeType: NodeType.OperationStartNode,
+							fromNodeName: parentNodeData?.nodeName ?? "",
+							fromNodeType: NodeType.OperationGroup,
 							inputDisplayName: config.inputName,
 							inputValue: inputValue,
+							sourceType: "ParentGroup",
 						});
 					}
 				});
@@ -133,6 +144,7 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 							fromNodeType: NodeType.OperationNode,
 							inputDisplayName: outputCfg.outputName,
 							inputName: outputCfg.outputName,
+							sourceType: "OperationNode",
 						});
 					} else {
 						// Scalar output
@@ -145,6 +157,7 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 							fromNodeType: NodeType.OperationNode,
 							inputDisplayName: outputCfg.outputName,
 							inputName: outputCfg.outputName,
+							sourceType: "OperationNode",
 						});
 					}
 				}
@@ -165,14 +178,16 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 						fromNodeType: NodeType.OperationGroup,
 						inputDisplayName: outputCfg.outputName,
 						inputName: outputCfg.outputName,
+						sourceType: "ChildGroup",
 					});
 				});
 			}
 		});
 
-		setInputOptions(options);
-
-	}, [sourceNodes, parentNodeData]);
+		// Cache the valid options
+		inputOptionsRef.current = options;
+		return options;
+	}, [sourceNodes, parentNodeId, parentNodeData]);
 
 	// Update output type when binary inputs change (both scalar -> scalar output)
 	const binaryInput1 = getBinaryInput1();
@@ -223,15 +238,9 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 		setInputArrayType(type);
 		// Reset input config
 		clearInputConfig();
-		// Reset operation to default for new type
-		let newOperation: Operation;
-		if (type === "Unary") {
-			newOperation = { type: "Mean" };
-		} else if (type === "Binary") {
-			newOperation = { type: "Add" };
-		} else {
-			newOperation = { type: "Sum" };
-		}
+		// Reset operation to default for new type (uses getDefaultOperation to include category)
+		const defaultOpType = type === "Unary" ? "AggMean" : type === "Binary" ? "Add" : "Sum";
+		const newOperation = getDefaultOperation(defaultOpType, type);
 		setOperation(newOperation);
 		// Reset output config type if needed, but preserve existing outputName
 		const meta = getOperationMeta(newOperation.type, type);

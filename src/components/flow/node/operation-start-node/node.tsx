@@ -10,22 +10,21 @@ import { House } from "lucide-react";
 import { useNodesData, useReactFlow } from "@xyflow/react";
 import type { StrategyFlowNode } from "@/types/node/index";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-// import type { OperationGroupData } from "@/types/node/group/operation-group";
+import type { OperationGroupData } from "@/types/node/group/operation-group";
 
 
 
 const OperationStartNode: React.FC<NodeProps<OperationStartNodeType>> = ({
 	id,
 	selected,
-    // parentId
+    parentId
 }) => {
 
     const { updateNodeData } = useReactFlow();
     const operationStartNodeData = useNodesData<StrategyFlowNode>(id)?.data as OperationStartNodeData;
 
-    // const parentNodeData = useNodesData<StrategyFlowNode>(parentId ?? "")?.data as OperationGroupData | undefined;
-	// const nodeName = parentNodeData?.nodeName ?? "";
-	const nodeName = operationStartNodeData?.nodeName ?? "";
+    const parentNodeData = useNodesData<StrategyFlowNode>(parentId ?? "")?.data as OperationGroupData | undefined;
+	const nodeName = `${parentNodeData?.nodeName} Start Node`;
     const handleColor =
 		operationStartNodeData?.nodeConfig?.handleColor ||
 		getNodeDefaultColor(NodeType.OperationStartNode);

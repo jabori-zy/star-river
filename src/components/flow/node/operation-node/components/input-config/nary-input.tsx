@@ -70,10 +70,12 @@ export const NaryInput: React.FC<NaryInputProps> = ({
 			(opt) => getOptionKey(opt) === value,
 		);
 		if (selectedOption) {
+			// Use sourceType directly from the selected option
+			const source = selectedOption.sourceType;
 			const newInputs = [...inputs];
 			newInputs[index] = {
 				type: "Series",
-				source: "Group",
+				source,
 				// Keep existing configId or generate new one based on max + 1
 				configId: inputs[index]?.configId ?? getNextConfigId(),
 				fromNodeType: selectedOption.fromNodeType,
@@ -92,10 +94,10 @@ export const NaryInput: React.FC<NaryInputProps> = ({
 	const handleAddInput = () => {
 		const newInput: InputSeriesConfig = {
 			type: "Series",
-			source: "Group",
+			source: "ParentGroup", // Default source, will be updated when user selects an option
 			// Use incremental ID: max(existing IDs) + 1
 			configId: getNextConfigId(),
-			fromNodeType: NodeType.OperationStartNode,
+			fromNodeType: NodeType.OperationGroup,
 			fromNodeId: "",
 			fromNodeName: "",
 			fromHandleId: "",

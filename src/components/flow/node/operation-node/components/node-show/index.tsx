@@ -1,6 +1,6 @@
 import type React from "react";
 import { useState } from "react";
-import { SquareFunction, ChevronDown, ChevronRight, House, ArrowRight, Group } from "lucide-react";
+import { SquareFunction, ChevronDown, ChevronRight, House, ArrowRight, Group, ChartColumnStacked } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -21,7 +21,7 @@ import {
 	isSeriesInput,
 	isScalarInput,
 	isScalarValueInput,
-	isGroupScalarValueInput,
+	isParentGroupScalarValueInput,
 } from "@/types/node/operation-node";
 import type { NodeType } from "@/types/node";
 import {
@@ -30,14 +30,50 @@ import {
 	getNodeTypeIconConfig,
 	type InputBadgeType,
 } from "../../operation-node-utils";
+import { getOperationMeta } from "@/types/operation/operation-meta";
+import type { InputArrayType } from "@/types/operation";
 
 interface NodeShowProps {
 	data: OperationNodeData;
 }
 
-// Get operation display name
-const getOperationDisplayName = (operation: { type: string }): string => {
-	return operation.type;
+// Get category text color based on category type
+const getCategoryTextColor = (category?: string): string => {
+	switch (category) {
+		// Unary categories
+		case "Aggregation":
+			return "text-blue-600";
+		case "Transformation":
+			return "text-green-600";
+		case "Window":
+			return "text-purple-600";
+		// Binary categories
+		case "Arithmetic":
+			return "text-orange-600";
+		case "Statistical":
+			return "text-cyan-600";
+		// Nary categories
+		case "Horizontal":
+			return "text-amber-600";
+		case "Weighted":
+			return "text-rose-600";
+		case "Rank":
+			return "text-indigo-600";
+		default:
+			return "text-gray-600";
+	}
+};
+
+// Get operation display info from metadata
+const getOperationDisplayInfo = (
+	operationType: string,
+	inputArrayType: InputArrayType,
+): { label: string; category?: string } => {
+	const meta = getOperationMeta(operationType, inputArrayType);
+	return {
+		label: meta?.label ?? operationType,
+		category: meta?.category,
+	};
 };
 
 // Get input config display name
@@ -51,7 +87,7 @@ const getInputDisplayName = (input: InputConfig): string => {
 	if (isScalarValueInput(input)) {
 		return String(input.scalarValue);
 	}
-	if (isGroupScalarValueInput(input)) {
+	if (isParentGroupScalarValueInput(input)) {
 		return String(input.fromScalarValue);
 	}
 	return "Unknown";
@@ -65,7 +101,7 @@ const getInputSourceInfo = (input: InputConfig): string | null => {
 	if (isScalarInput(input)) {
 		return input.fromNodeName;
 	}
-	if (isGroupScalarValueInput(input)) {
+	if (isParentGroupScalarValueInput(input)) {
 		return input.fromNodeName;
 	}
 	return null;
@@ -84,7 +120,7 @@ const getInputBadgeType = (input: InputConfig): InputBadgeType => {
 
 // Get input from node type
 const getInputFromNodeType = (input: InputConfig): NodeType | null => {
-	if (isSeriesInput(input) || isScalarInput(input) || isGroupScalarValueInput(input)) {
+	if (isSeriesInput(input) || isScalarInput(input) || isParentGroupScalarValueInput(input)) {
 		return input.fromNodeType;
 	}
 	return null;
@@ -137,21 +173,29 @@ const InputItem: React.FC<{ input: InputConfig }> = ({ input }) => {
 
 // Operation section
 const OperationSection: React.FC<{ data: OperationNodeData }> = ({ data }) => {
+	const inputArrayType = data.inputConfig?.type ?? "Unary";
+	const { label, category } = getOperationDisplayInfo(data.operation.type, inputArrayType);
+
 	return (
 		<div className="space-y-1">
 			<div className="flex items-center gap-2">
-				{/* <SquareAsterisk className="w-3.5 h-3.5 text-purple-500" /> */}
 				<Label className="text-sm font-bold text-muted-foreground">
 					Operation
 				</Label>
 			</div>
-			<div className="flex flex-col gap-1.5 bg-gray-100 p-2 rounded-md">
+			<div className="flex flex-col gap-1 bg-gray-100 p-2 rounded-md">
 				<div className="flex items-center gap-2">
 					<SquareFunction className="w-4 h-4 text-muted-foreground" />
-					<span className="text-sm font-medium">
-						{getOperationDisplayName(data.operation)}
-					</span>
+					<span className="text-sm font-medium">{label}</span>
 				</div>
+				{category && (
+					<div className="flex items-center gap-2">
+						<ChartColumnStacked className="w-4 h-4 text-muted-foreground" />
+						<span className={cn("text-xs", getCategoryTextColor(category))}>
+							{category}
+						</span>
+					</div>
+				)}
 			</div>
 		</div>
 	);
@@ -301,7 +345,7 @@ const OutputSection: React.FC<{
 				<CollapsibleContent className="mt-1">
 					{outputConfig ? (
 						<div className="bg-gray-100 p-2 rounded-md">
-							<div className="flex items-center justify-between">
+							<div className="flex items-center justify-between gap-4">
 								<span className="text-sm">
 									{outputConfig.outputName}
 								</span>

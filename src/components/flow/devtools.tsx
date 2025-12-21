@@ -94,7 +94,11 @@ export function ChangeLogger({ limit = 20 }: ChangeLoggerProps) {
 	);
 }
 
-export function NodeInspector() {
+type NodeInspectorProps = {
+	showOnlyId?: boolean;
+};
+
+export function NodeInspector({ showOnlyId = false }: NodeInspectorProps) {
 	const { getInternalNode } = useReactFlow();
 	const nodes = useNodes();
 
@@ -120,6 +124,7 @@ export function NodeInspector() {
 							width={node.measured?.width ?? 0}
 							height={node.measured?.height ?? 0}
 							data={node.data}
+							showOnlyId={showOnlyId}
 						/>
 					);
 				})}
@@ -137,6 +142,7 @@ type NodeInfoProps = {
 	width?: number;
 	height?: number;
 	data: Record<string, unknown>;
+	showOnlyId?: boolean;
 };
 
 function NodeInfo({
@@ -148,10 +154,26 @@ function NodeInfo({
 	width,
 	height,
 	data,
+	showOnlyId = false,
 }: NodeInfoProps) {
 	if (!width || !height) return null;
 
 	const absoluteTransform = `translate(${absPosition.x}px, ${absPosition.y + height}px)`;
+
+	if (showOnlyId) {
+		return (
+			<div
+				style={{
+					position: "absolute",
+					transform: absoluteTransform,
+				}}
+				className="text-xs"
+			>
+				<div>id: {id}</div>
+			</div>
+		);
+	}
+
 	const formattedPosition = `${position.x.toFixed(1)}, ${position.y.toFixed(1)}`;
 	const formattedDimensions = `${width} × ${height}`;
 	const selectionStatus = selected ? "Selected" : "Not Selected";
@@ -188,7 +210,7 @@ type DevToolsToggleProps = {
 
 function DevToolsToggle({ tools }: DevToolsToggleProps) {
 	return (
-		<Panel position="top-left" className="bg-card p-1 border rounded shadow-sm">
+		<Panel position="top-left" className="bg-card p-0.5 border rounded shadow-sm">
 			<ToggleGroup type="multiple">
 				{tools.map(({ active, setActive, label, value }) => (
 					<ToggleGroupItem
@@ -196,7 +218,7 @@ function DevToolsToggle({ tools }: DevToolsToggleProps) {
 						value={value}
 						onClick={() => setActive((prev) => !prev)}
 						aria-pressed={active}
-						className="bg-card text-card-foreground transition-colors duration-300 hover:bg-secondary hover:text-secondary-foreground"
+						className="bg-card text-card-foreground transition-colors duration-300 hover:bg-secondary hover:text-secondary-foreground text-xs px-2 py-1 h-7"
 					>
 						{label}
 					</ToggleGroupItem>
@@ -207,11 +229,18 @@ function DevToolsToggle({ tools }: DevToolsToggleProps) {
 }
 
 export function DevTools() {
+	const [showNodeIdActive, setShowNodeIdActive] = useState(false);
 	const [nodeInspectorActive, setNodeInspectorActive] = useState(false);
 	const [changeLoggerActive, setChangeLoggerActive] = useState(false);
 	const [viewportLoggerActive, setViewportLoggerActive] = useState(false);
 
 	const tools = [
+		{
+			active: showNodeIdActive,
+			setActive: setShowNodeIdActive,
+			label: "Show Node ID",
+			value: "show-node-id",
+		},
 		{
 			active: nodeInspectorActive,
 			setActive: setNodeInspectorActive,
@@ -244,6 +273,8 @@ export function DevTools() {
 					<ChangeLogger />
 				</Panel>
 			)}
+
+			{showNodeIdActive && <NodeInspector showOnlyId />}
 
 			{nodeInspectorActive && <NodeInspector />}
 

@@ -7,14 +7,14 @@ import type { InputArrayType, InputConfig } from "@/types/operation";
 import {
 	isScalarInput,
 	isScalarValueInput,
-	isGroupScalarValueInput,
+	isParentGroupScalarValueInput,
 } from "@/types/operation";
 import { getOperationMeta } from "@/types/operation/operation-meta";
 
 // Check if input is any scalar type (Scalar, CustomScalarValue from self, or CustomScalarValue from Group)
 const isAnyScalarType = (input: InputConfig | null | undefined): boolean => {
 	if (!input) return false;
-	return isScalarInput(input) || isScalarValueInput(input) || isGroupScalarValueInput(input);
+	return isScalarInput(input) || isScalarValueInput(input) || isParentGroupScalarValueInput(input);
 };
 
 interface OutputConfigProps {

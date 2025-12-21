@@ -232,11 +232,12 @@ const useNodeVariables = () => {
 					if (!parentNode) continue;
 					const parentNodeData = parentNode.data as OperationGroupData;
 					parentNodeData.inputConfigs.forEach((inputConfig: OperationInputConfig) => {
+						// Use parent Group's info for nodeId/nodeName/nodeType
 						addOrUpdateVariableItem(
 							tempVariableItemList,
-							node.id,
+							parentNode.id,
 							parentNodeData.nodeName,
-							NodeType.OperationStartNode,
+							NodeType.OperationGroup,
 							inputConfig,
 						);
 					});

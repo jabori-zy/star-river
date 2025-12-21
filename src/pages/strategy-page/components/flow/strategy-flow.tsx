@@ -643,7 +643,7 @@ export default function StrategyFlow({
 				if (n.id === draggedNode.id) {
 					// If the dragged node is an OperationGroup, set isChildGroup to true
 					const updatedData = draggedNode.type === NodeType.OperationGroup
-						? { ...n.data, isChildGroup: true }
+						? { ...n.data, isChildGroup: true, inputWindow: null }
 						: n.data;
 					return {
 						...n,

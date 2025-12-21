@@ -3,6 +3,7 @@ import { useMemo, useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 import { SelectWithSearch } from "@/components/select-components/select-with-search";
 import { cn } from "@/lib/utils";
 import { CircleAlert } from "lucide-react";
@@ -12,6 +13,7 @@ import {
 	getDefaultOperation,
 	operationMetaMap,
 	type ParamMeta,
+	type OperationMeta,
 } from "@/types/operation/operation-meta";
 
 interface OperationSelectorProps {
@@ -22,9 +24,37 @@ interface OperationSelectorProps {
 	className?: string;
 }
 
-// Get available operations based on input array type
-const getOperationOptions = (inputArrayType: InputArrayType): string[] => {
-	return Object.keys(operationMetaMap[inputArrayType] ?? {});
+// Get category badge style based on category type
+const getCategoryBadgeStyle = (category?: string): string => {
+	switch (category) {
+		// Unary categories
+		case "Aggregation":
+			return "bg-blue-100 text-blue-700 border-blue-200";
+		case "Transformation":
+			return "bg-green-100 text-green-700 border-green-200";
+		case "Window":
+			return "bg-purple-100 text-purple-700 border-purple-200";
+		// Binary categories
+		case "Arithmetic":
+			return "bg-orange-100 text-orange-700 border-orange-200";
+		case "Statistical":
+			return "bg-cyan-100 text-cyan-700 border-cyan-200";
+		// Nary categories
+		case "Horizontal":
+			return "bg-amber-100 text-amber-700 border-amber-200";
+		case "Weighted":
+			return "bg-rose-100 text-rose-700 border-rose-200";
+		case "Rank":
+			return "bg-indigo-100 text-indigo-700 border-indigo-200";
+		default:
+			return "bg-gray-100 text-gray-700 border-gray-200";
+	}
+};
+
+// Get available operations with metadata based on input array type
+const getOperationOptionsWithMeta = (inputArrayType: InputArrayType): OperationMeta[] => {
+	const metaMap = operationMetaMap[inputArrayType] ?? {};
+	return Object.values(metaMap);
 };
 
 // Weights input component - uses internal state to allow free text editing
@@ -208,16 +238,32 @@ export const OperationSelector: React.FC<OperationSelectorProps> = ({
 	inputCount,
 	className,
 }) => {
-	const operationOptions = getOperationOptions(inputArrayType);
+	const operationOptionsWithMeta = getOperationOptionsWithMeta(inputArrayType);
 
-	// Convert to SelectWithSearch options format
+	// Convert to SelectWithSearch options format with label and category badge
 	const selectOptions = useMemo(
 		() =>
-			operationOptions.map((op) => ({
-				value: op,
-				label: op,
+			operationOptionsWithMeta.map((meta) => ({
+				value: meta.type,
+				label: (
+					<div className="flex items-center justify-between w-full gap-2">
+						<span className="truncate">{meta.label}</span>
+						{meta.category && (
+							<Badge
+								variant="outline"
+								className={cn(
+									"text-[10px] px-1.5 py-0 h-4 flex-shrink-0",
+									getCategoryBadgeStyle(meta.category),
+								)}
+							>
+								{meta.category}
+							</Badge>
+						)}
+					</div>
+				),
+				searchText: meta.label, // Use label for search
 			})),
-		[operationOptions],
+		[operationOptionsWithMeta],
 	);
 
 	const handleOperationTypeChange = (type: string) => {

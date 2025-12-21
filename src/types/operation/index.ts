@@ -27,6 +27,9 @@ export {
     // Operation
     OperationSchema,
     type Operation,
+    // Input Source
+    InputSourceSchema,
+    type InputSource,
     // Input configs
     InputSeriesConfigSchema,
     type InputSeriesConfig,
@@ -34,7 +37,10 @@ export {
     type InputScalarConfig,
     InputScalarValueConfigSchema,
     type InputScalarValueConfig,
-    InputGroupScalarValueConfigSchema,
+    InputParentGroupScalarValueConfigSchema,
+    type InputParentGroupScalarValueConfig,
+    // Backward compatibility alias
+    InputParentGroupScalarValueConfigSchema as InputGroupScalarValueConfigSchema,
     type InputGroupScalarValueConfig,
     InputConfigSchema,
     type InputConfig,
@@ -48,7 +54,7 @@ export {
     isSeriesInput,
     isScalarInput,
     isScalarValueInput,
-    isGroupScalarValueInput,
+    isParentGroupScalarValueInput,
     // Output configs
     OutputSeriesConfigSchema,
     type OutputSeriesConfig,
@@ -60,10 +66,3 @@ export {
     isSeriesOutput,
     isScalarOutput,
 } from "@/types/node/operation-node";
-
-// ============ Helper Functions ============
-
-// Check if operation requires params
-export const operationRequiresParams = (type: string): boolean => {
-    return ["Quantile", "Power", "Rank", "TopN", "BottomN"].includes(type);
-};

@@ -7,9 +7,9 @@ import {
 	isSeriesInput,
 	isScalarInput,
 	isScalarValueInput,
-	isGroupScalarValueInput,
-	type OperationInputScalarValueConfig,
-	type OperationInputGroupScalarValueConfig,
+	isParentGroupScalarValueInput,
+	type OperationCustomScalarValueConfig,
+	type OperationParentGroupScalarValueConfig,
 	type OperationInputScalarConfig,
 	type OperationInputSeriesConfig,
 } from "@/types/node/group/operation-group";
@@ -48,13 +48,14 @@ export const InputConfigItem: React.FC<InputConfigItemProps> = ({
 	const isCustomScalar = config.type === "CustomScalarValue" && config.source === null;
 
 	// Custom scalar value from parent Group
-	const isGroupCustomScalar = config.type === "CustomScalarValue" && config.source === "Group";
+	const isGroupCustomScalar = config.type === "CustomScalarValue" && config.source === "ParentGroup";
 
-	// Scalar with variable name from upstream Node
-	const isScalarFromNode = config.type === "Scalar" && config.source === "Node";
+	// Scalar with variable name from any source except ParentGroup (for CustomScalarValue)
+	// This includes OuterNode, OperationNode, ChildGroup
+	const isScalarFromNode = config.type === "Scalar" && config.source !== "ParentGroup";
 
 	// Scalar with variable name from parent Group
-	const isScalarFromGroup = config.type === "Scalar" && config.source === "Group";
+	const isScalarFromGroup = config.type === "Scalar" && config.source === "ParentGroup";
 
 	// Filter node list by node type
 	// Scalar mode: show VariableNode, OperationGroup, and OperationNode (only if has Scalar outputs)
@@ -65,7 +66,13 @@ export const InputConfigItem: React.FC<InputConfigItemProps> = ({
 					return true;
 				}
 				if (item.nodeType === NodeType.OperationGroup) {
-					return item.variables.some((v) => isScalarOutput(v));
+					// Check both output (from child OperationGroup) and input (from parent Group via OperationStartNode)
+					return (
+						item.variables.some((v) => isScalarOutput(v)) ||
+						item.variables.some((v) => isScalarInput(v)) ||
+						item.variables.some((v) => isScalarValueInput(v)) ||
+						item.variables.some((v) => isParentGroupScalarValueInput(v))
+					);
 				}
 				if (item.nodeType === NodeType.OperationNode) {
 					return item.variables.some((v) => isOperationNodeScalarOutput(v));
@@ -74,7 +81,7 @@ export const InputConfigItem: React.FC<InputConfigItemProps> = ({
 					// Include nodes that have scalar inputs (with variable name) or custom scalar values
 					return (
 						item.variables.some((v) => isScalarValueInput(v)) ||
-						item.variables.some((v) => isGroupScalarValueInput(v)) ||
+						item.variables.some((v) => isParentGroupScalarValueInput(v)) ||
 						item.variables.some((v) => isScalarInput(v))
 					);
 				}
@@ -91,7 +98,8 @@ export const InputConfigItem: React.FC<InputConfigItemProps> = ({
 					return false;
 				}
 				if (item.nodeType === NodeType.OperationGroup) {
-					return item.variables.some((v) => isSeriesOutput(v));
+					// Check both output (from child OperationGroup) and input (from parent Group via OperationStartNode)
+					return item.variables.some((v) => isSeriesOutput(v)) || item.variables.some((v) => isSeriesInput(v));
 				}
 				if (item.nodeType === NodeType.OperationNode) {
 					return item.variables.some((v) => isOperationNodeSeriesOutput(v));
@@ -110,7 +118,7 @@ export const InputConfigItem: React.FC<InputConfigItemProps> = ({
 	// Local state for scalar value input (only for custom scalar)
 	const [localScalarValue, setLocalScalarValue] = useState(
 		isCustomScalar
-			? (config as OperationInputScalarValueConfig).scalarValue.toString()
+			? (config as OperationCustomScalarValueConfig).scalarValue.toString()
 			: "0",
 	);
 
@@ -126,10 +134,10 @@ export const InputConfigItem: React.FC<InputConfigItemProps> = ({
 	// Get scalar value (for custom Scalar or Group custom scalar)
 	const configScalarValue = useMemo(() => {
 		if (isCustomScalar) {
-			return (config as OperationInputScalarValueConfig).scalarValue;
+			return (config as OperationCustomScalarValueConfig).scalarValue;
 		}
 		if (isGroupCustomScalar) {
-			return (config as OperationInputGroupScalarValueConfig).fromScalarValue;
+			return (config as OperationParentGroupScalarValueConfig).fromScalarValue;
 		}
 		return 0;
 	}, [config, isCustomScalar, isGroupCustomScalar]);
@@ -183,9 +191,13 @@ export const InputConfigItem: React.FC<InputConfigItemProps> = ({
 			}
 
 			// If the node is an OperationGroup, filter by Series/Scalar type
+			// Check both output (from child OperationGroup) and input (from parent Group via OperationStartNode)
 			if (selectedNode.nodeType === NodeType.OperationGroup) {
 				return selectedNode.variables.filter((variable) => {
-					return isScalarType ? isScalarOutput(variable) : isSeriesOutput(variable);
+					if (isScalarType) {
+						return isScalarOutput(variable) || isScalarInput(variable) || isScalarValueInput(variable) || isParentGroupScalarValueInput(variable);
+					}
+					return isSeriesOutput(variable) || isSeriesInput(variable);
 				});
 			}
 			// If the node is an OperationNode, filter by Series/Scalar type
@@ -197,7 +209,7 @@ export const InputConfigItem: React.FC<InputConfigItemProps> = ({
 			if (selectedNode.nodeType === NodeType.OperationStartNode) {
 				return selectedNode.variables.filter((variable) => {
 					return isScalarType
-						? isScalarInput(variable) || isScalarValueInput(variable) || isGroupScalarValueInput(variable)
+						? isScalarInput(variable) || isScalarValueInput(variable) || isParentGroupScalarValueInput(variable)
 						: isSeriesInput(variable);
 				});
 			}
@@ -216,7 +228,7 @@ export const InputConfigItem: React.FC<InputConfigItemProps> = ({
 			return (config as OperationInputScalarConfig).fromNodeId;
 		}
 		if (isGroupCustomScalar) {
-			return (config as OperationInputGroupScalarValueConfig).fromNodeId;
+			return (config as OperationParentGroupScalarValueConfig).fromNodeId;
 		}
 		return "";
 	}, [config, isScalarFromNode, isScalarFromGroup, isGroupCustomScalar]);
@@ -259,7 +271,7 @@ export const InputConfigItem: React.FC<InputConfigItemProps> = ({
 		const numValue = Number.parseFloat(localScalarValue);
 		if (
 			!Number.isNaN(numValue) &&
-			numValue !== (config as OperationInputScalarValueConfig).scalarValue
+			numValue !== (config as OperationCustomScalarValueConfig).scalarValue
 		) {
 			onScalarValueChange(config.configId, numValue);
 		}
@@ -308,7 +320,7 @@ export const InputConfigItem: React.FC<InputConfigItemProps> = ({
 	const currentVariableValue = useMemo(() => {
 		if (config.type === "Series") {
 			const seriesConfig = config as OperationInputSeriesConfig;
-			console.log("🔍 seriesConfig", seriesConfig);
+			// console.log("🔍 seriesConfig", seriesConfig);
 			if (seriesConfig.fromHandleId && seriesConfig.fromSeriesName) {
 				// Only pass varType for OperationGroup/OperationStartNode/OperationNode
 				const needVarType = seriesConfig.fromNodeType === NodeType.OperationGroup ||
@@ -326,7 +338,7 @@ export const InputConfigItem: React.FC<InputConfigItemProps> = ({
 		}
 		if (isScalarFromNode || isScalarFromGroup) {
 			const scalarNodeConfig = config as OperationInputScalarConfig;
-			console.log("🔍 scalarNodeConfig", scalarNodeConfig);
+			// console.log("🔍 scalarNodeConfig", scalarNodeConfig);
 			if (scalarNodeConfig.fromHandleId && scalarNodeConfig.fromScalarName) {
 				// Only pass varType for OperationGroup/OperationStartNode/OperationNode
 				const needVarType = scalarNodeConfig.fromNodeType === NodeType.OperationGroup ||
@@ -343,10 +355,10 @@ export const InputConfigItem: React.FC<InputConfigItemProps> = ({
 			}
 		}
 		if (isGroupCustomScalar) {
-			const groupScalarConfig = config as OperationInputGroupScalarValueConfig;
+			const groupScalarConfig = config as OperationParentGroupScalarValueConfig;
 			console.log("🔍 groupScalarConfig", groupScalarConfig);
 			if (groupScalarConfig.fromHandleId) {
-				// GroupCustomScalar always comes from OperationStartNode, so always pass varType
+				// GroupCustomScalar always comes from parent OperationGroup (via OperationStartNode), so always pass varType
 				return generateOptionValue(
 					groupScalarConfig.fromNodeId,
 					groupScalarConfig.fromHandleId,

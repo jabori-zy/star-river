@@ -17,11 +17,12 @@ export const OutputConfiger: React.FC<OutputConfigerProps> = ({
 	const configs = outputConfigs ?? [];
 
 	// Calculate used source IDs (sources that are already configured)
+	// Use nodeId|handleId|configId as unique key to distinguish outputs with same handleId
 	const usedSourceIds = useMemo(() => {
 		const ids = new Set<string>();
 		for (const config of configs) {
 			if (config.sourceNodeId) {
-				ids.add(`${config.sourceNodeId}|${config.sourceHandleId}`);
+				ids.add(`${config.sourceNodeId}|${config.sourceHandleId}|${config.sourceOutputConfigId}`);
 			}
 		}
 		return ids;

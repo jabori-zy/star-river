@@ -24,10 +24,10 @@ const OperationEndNode: React.FC<NodeProps<OperationEndNodeType>> = ({
     const operationEndNodeData = useNodesData<StrategyFlowNode>(id)?.data as OperationEndNodeData;
 
     const parentNodeData = useNodesData<StrategyFlowNode>(parentId ?? "")?.data as OperationGroupData | undefined;
-	const nodeName = parentNodeData?.nodeName ?? "";
+	const nodeName = `${parentNodeData?.nodeName} End Node`;
     const handleColor =
 		operationEndNodeData?.nodeConfig?.handleColor ||
-		getNodeDefaultColor(NodeType.OperationStartNode);
+		getNodeDefaultColor(NodeType.OperationEndNode);
 
     useEffect(() => {
         if (!nodeName) return;
