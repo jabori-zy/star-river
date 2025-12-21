@@ -614,7 +614,7 @@ function syncFromChildGroups(ctx: SyncFromChildGroupsContext): void {
 		}
 	}
 
-	// Process Series configs
+	// Process Series configs (inputConfigs)
 	for (const seriesConfig of seriesFromChildGroups) {
 		if (!seriesConfig.fromNodeId) continue;
 
@@ -636,7 +636,7 @@ function syncFromChildGroups(ctx: SyncFromChildGroupsContext): void {
 		}
 	}
 
-	// Process Scalar configs
+	// Process Scalar configs (inputConfigs)
 	for (const scalarConfig of scalarFromChildGroups) {
 		if (!scalarConfig.fromNodeId) continue;
 
@@ -662,12 +662,13 @@ function syncFromChildGroups(ctx: SyncFromChildGroupsContext): void {
 // ============ Main Hook ============
 
 /**
- * Sync OperationGroup inputs with source nodes
+ * Sync OperationGroup inputs and outputs with source nodes
  *
  * This hook monitors and syncs:
  * 1. Outer nodes (Kline, Indicator, Variable) - source: "OuterNode"
  * 2. Parent Group's inputConfigs (via OperationStartNode) - source: "ParentGroup"
  * 3. Upstream (child) OperationGroup's outputConfigs - source: "ChildGroup"
+ * 4. Nested child OperationGroup's outputName -> parent's outputConfigs (sourceSeriesName/sourceScalarName)
  *
  * @param id - OperationGroup node ID
  * @param currentNodeData - Current node data
@@ -686,6 +687,7 @@ export const useSyncSourceNode = ({
 		updateScalarParentGroupConfigById,
 		updateScalarChildGroupConfigById,
 		updateParentGroupScalarValueConfigById,
+		updateOutputConfigById,
 	} = useUpdateOpGroupConfig({ id });
 
 	// Get current Group's input connections
@@ -708,7 +710,7 @@ export const useSyncSourceNode = ({
 	);
 	const parentGroupData = parentNodesData[0]?.data;
 
-	// Get all connected upstream OperationGroup IDs (peer groups, not parent)
+	// Get all connected upstream OperationGroup IDs (peer groups connected via edges)
 	const upstreamOperationGroupIds = useMemo(() => {
 		return connections
 			.map((conn) => conn.source)
@@ -720,6 +722,33 @@ export const useSyncSourceNode = ({
 
 	// Get upstream OperationGroups' data using useNodesData for reactivity
 	const upstreamOperationGroupsData = useNodesData<OperationGroup>(upstreamOperationGroupIds);
+
+	// Find EndNode ID within this group (similar to panel.tsx)
+	const childEndNodeId = useMemo(() => {
+		return getNodes().find(
+			(node) => node.parentId === id && node.type === NodeType.OperationEndNode,
+		)?.id ?? "";
+	}, [getNodes, id]);
+
+	// Get EndNode's incoming connections to find nested child groups
+	const endNodeConnections = useNodeConnections({
+		id: childEndNodeId || id,
+		handleType: "target",
+	});
+
+	// Get nested child OperationGroup IDs from EndNode connections
+	const nestedChildGroupIds = useMemo(() => {
+		if (!childEndNodeId) return [];
+		return endNodeConnections
+			.map((conn) => conn.source)
+			.filter((sourceId) => {
+				const sourceNode = getNodes().find((n) => n.id === sourceId);
+				return sourceNode?.type === NodeType.OperationGroup;
+			});
+	}, [childEndNodeId, endNodeConnections, getNodes]);
+
+	// Get nested child OperationGroups' data using useNodesData for reactivity
+	const nestedChildGroupsData = useNodesData<OperationGroup>(nestedChildGroupIds);
 
 	// Get current connected source node IDs for checking edge disconnection
 	const connectedSourceNodeIds = useMemo(() => {
@@ -752,7 +781,7 @@ export const useSyncSourceNode = ({
 		});
 	}, [parentGroupData?.inputConfigs, parentGroupData?.nodeName, parentNodeId, updateSeriesConfigById, updateScalarParentGroupConfigById, updateParentGroupScalarValueConfigById]);
 
-	// Sync effect for upstream (child) OperationGroups
+	// Sync effect for upstream (child) OperationGroups (connected via edges)
 	// biome-ignore lint/correctness/useExhaustiveDependencies: currentNodeData changes should trigger sync
 	useEffect(() => {
 		syncFromChildGroups({
@@ -763,4 +792,65 @@ export const useSyncSourceNode = ({
 			updateScalarChildGroupConfigById,
 		});
 	}, [upstreamOperationGroupsData, connectedSourceNodeIds, updateSeriesConfigById, updateScalarChildGroupConfigById]);
+
+	// Sync effect for nested child OperationGroups (connected to EndNode)
+	// When nested child group's outputName changes, update parent's outputConfigs
+	// biome-ignore lint/correctness/useExhaustiveDependencies: currentNodeData changes should trigger sync
+	useEffect(() => {
+		const currentOutputConfigs = currentNodeData.outputConfigs ?? [];
+		if (currentOutputConfigs.length === 0 || nestedChildGroupsData.length === 0) {
+			return;
+		}
+
+		// Build map of nested child group output configs
+		const childOutputConfigsMap = new Map<string, OperationOutputConfig[]>();
+		const childNodeNameMap = new Map<string, string>();
+		for (const childGroup of nestedChildGroupsData) {
+			if (childGroup?.data) {
+				const groupData = childGroup.data as OperationGroupData;
+				childOutputConfigsMap.set(childGroup.id, groupData.outputConfigs ?? []);
+				childNodeNameMap.set(childGroup.id, groupData.nodeName ?? "");
+			}
+		}
+
+		// Sync outputConfigs that reference nested child groups
+		for (const outputConfig of currentOutputConfigs) {
+			const sourceNodeId = outputConfig.sourceNodeId;
+			if (!sourceNodeId) continue;
+
+			// Check if source is a nested child OperationGroup
+			const childGroupOutputConfigs = childOutputConfigsMap.get(sourceNodeId);
+			if (!childGroupOutputConfigs) continue;
+
+			// Find matching output config in child group by sourceOutputConfigId
+			const matchingChildOutput = childGroupOutputConfigs.find(
+				(config) => config.configId === outputConfig.sourceOutputConfigId,
+			);
+
+			if (!matchingChildOutput) continue;
+
+			// Sync sourceSeriesName or sourceScalarName based on type
+			if (outputConfig.type === "Series" && matchingChildOutput.type === "Series") {
+				if (outputConfig.sourceSeriesName !== matchingChildOutput.outputName) {
+					updateOutputConfigById(outputConfig.configId, {
+						sourceSeriesName: matchingChildOutput.outputName,
+					});
+				}
+			} else if (outputConfig.type === "Scalar" && matchingChildOutput.type === "Scalar") {
+				if (outputConfig.sourceScalarName !== matchingChildOutput.outputName) {
+					updateOutputConfigById(outputConfig.configId, {
+						sourceScalarName: matchingChildOutput.outputName,
+					});
+				}
+			}
+
+			// Sync sourceNodeName if changed
+			const childNodeName = childNodeNameMap.get(sourceNodeId);
+			if (childNodeName !== undefined && outputConfig.sourceNodeName !== childNodeName && childNodeName !== "") {
+				updateOutputConfigById(outputConfig.configId, {
+					sourceNodeName: childNodeName,
+				});
+			}
+		}
+	}, [nestedChildGroupsData, updateOutputConfigById]);
 };
