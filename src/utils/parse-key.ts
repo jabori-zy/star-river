@@ -1,6 +1,6 @@
 import { parseIndicatorConfig } from "@/types/indicator/indicator-config";
 import type { IndicatorType } from "../types/indicator";
-import type { IndicatorKey, Key, KlineKey } from "../types/symbol-key";
+import type { IndicatorKey, Key, KlineKey, OperationKey } from "../types/symbol-key";
 
 /**
  * Parse cache key string into corresponding type
@@ -42,7 +42,16 @@ export function parseKey(keyStr: string): Key {
 			startTime: parts[5],
 			endTime: parts[6],
 		} as IndicatorKey;
-	} else {
+	} 
+	// operation|node_group_olzbhnj|SMA
+	else if (type === "operation") {
+		return {
+			type: "operation",
+			nodeId: parts[1],
+			name: parts[2],
+		} as OperationKey;
+	}
+	else {
 		throw new Error(`Unsupported cache key type: ${type}`);
 	}
 }

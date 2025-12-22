@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useReactFlow } from "@xyflow/react";
 import { renderVariableOptions } from "@/components/flow/node/node-utils";
 import {
 	isScalarOutput,
@@ -18,6 +19,8 @@ import {
 	isScalarOutput as isOperationNodeScalarOutput,
 } from "@/types/node/operation-node";
 import type { VariableConfig } from "@/types/node/variable-node";
+import type { SelectedSymbol } from "@/types/node/kline-node";
+import type { IndicatorNodeData } from "@/types/node/indicator-node";
 import { VariableValueType } from "@/types/variable";
 import { NodeType } from "@/types/node";
 import type { InputConfigItemProps } from "../types";
@@ -30,6 +33,7 @@ import { SeriesSection } from "./components/series-section";
 export const InputConfigItem: React.FC<InputConfigItemProps> = ({
 	variableItemList,
 	config,
+	filterInterval,
 	onDisplayNameBlur,
 	onNodeChange,
 	onVariableChange,
@@ -39,6 +43,7 @@ export const InputConfigItem: React.FC<InputConfigItemProps> = ({
 	onDelete,
 }) => {
 	const { t } = useTranslation();
+	const { getNodes } = useReactFlow();
 
 	// Type flags for different config types
 	// isScalarType: includes both "Scalar" (with variable name) and "CustomScalarValue" (value only)
@@ -91,25 +96,60 @@ export const InputConfigItem: React.FC<InputConfigItemProps> = ({
 	);
 
 	// Series mode: exclude VariableNode, and for OperationGroup/OperationNode only include if has Series outputs
+	// Also filter KlineNode variables by interval if filterInterval is set
+	// For IndicatorNode, filter entire node if its interval doesn't match filterInterval
 	const seriesNodeList = useMemo(
 		() =>
-			variableItemList.filter((item) => {
-				if (item.nodeType === NodeType.VariableNode) {
-					return false;
-				}
-				if (item.nodeType === NodeType.OperationGroup) {
-					// Check both output (from child OperationGroup) and input (from parent Group via OperationStartNode)
-					return item.variables.some((v) => isSeriesOutput(v)) || item.variables.some((v) => isSeriesInput(v));
-				}
-				if (item.nodeType === NodeType.OperationNode) {
-					return item.variables.some((v) => isOperationNodeSeriesOutput(v));
-				}
-				if (item.nodeType === NodeType.OperationStartNode) {
-					return item.variables.some((v) => isSeriesInput(v));
-				}
-				return true;
-			}),
-		[variableItemList],
+			variableItemList
+				.filter((item) => {
+					if (item.nodeType === NodeType.VariableNode) {
+						return false;
+					}
+					if (item.nodeType === NodeType.OperationGroup) {
+						// Check both output (from child OperationGroup) and input (from parent Group via OperationStartNode)
+						return item.variables.some((v) => isSeriesOutput(v)) || item.variables.some((v) => isSeriesInput(v));
+					}
+					if (item.nodeType === NodeType.OperationNode) {
+						return item.variables.some((v) => isOperationNodeSeriesOutput(v));
+					}
+					if (item.nodeType === NodeType.OperationStartNode) {
+						return item.variables.some((v) => isSeriesInput(v));
+					}
+					// For KlineNode, check if it has any variables matching filterInterval
+					if (item.nodeType === NodeType.KlineNode && filterInterval !== null) {
+						return item.variables.some((v) => {
+							const symbol = v as SelectedSymbol;
+							return symbol.interval === filterInterval;
+						});
+					}
+					// For IndicatorNode, check if its interval matches filterInterval
+					if (item.nodeType === NodeType.IndicatorNode && filterInterval !== null) {
+						const indicatorNode = getNodes().find((n) => n.id === item.nodeId);
+						if (indicatorNode) {
+							const indicatorData = indicatorNode.data as IndicatorNodeData;
+							const selectedSymbol = indicatorData?.backtestConfig?.exchangeModeConfig?.selectedSymbol;
+							// If no selectedSymbol or interval doesn't match, filter out entire node
+							if (!selectedSymbol?.interval || selectedSymbol.interval !== filterInterval) {
+								return false;
+							}
+						}
+					}
+					return true;
+				})
+				.map((item) => {
+					// For KlineNode with filterInterval set, filter its variables
+					if (item.nodeType === NodeType.KlineNode && filterInterval !== null) {
+						return {
+							...item,
+							variables: item.variables.filter((v) => {
+								const symbol = v as SelectedSymbol;
+								return symbol.interval === filterInterval;
+							}),
+						};
+					}
+					return item;
+				}),
+		[variableItemList, filterInterval, getNodes],
 	);
 
 	// Local state for display name input (only save on blur)
@@ -214,9 +254,17 @@ export const InputConfigItem: React.FC<InputConfigItemProps> = ({
 				});
 			}
 
+			// For KlineNode, filter by interval if filterInterval is set
+			if (selectedNode.nodeType === NodeType.KlineNode && filterInterval !== null) {
+				return selectedNode.variables.filter((variable) => {
+					const symbol = variable as SelectedSymbol;
+					return symbol.interval === filterInterval;
+				});
+			}
+
 			return selectedNode.variables;
 		},
-		[variableItemList, isScalarType],
+		[variableItemList, isScalarType, filterInterval],
 	);
 
 	// Get current fromNodeId based on config type

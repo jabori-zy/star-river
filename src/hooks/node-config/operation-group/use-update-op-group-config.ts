@@ -669,6 +669,34 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 		[id, updateNodeData],
 	);
 
+	// ==================== Group Output Name ====================
+
+	const groupOutputName = nodeData?.groupOutputName ?? "";
+
+	/**
+	 * Set group output name
+	 */
+	const setGroupOutputName = useCallback(
+		(name: string) => {
+			updateNodeData(id, { groupOutputName: name });
+		},
+		[id, updateNodeData],
+	);
+
+	// ==================== Input Interval ====================
+
+	const inputInterval = nodeData?.inputInterval ?? null;
+
+	/**
+	 * Set input interval
+	 */
+	const setInputInterval = useCallback(
+		(interval: string | null) => {
+			updateNodeData(id, { inputInterval: interval });
+		},
+		[id, updateNodeData],
+	);
+
 	return {
 		// All configs
 		operationConfigs,
@@ -743,5 +771,13 @@ export const useUpdateOpGroupConfig = ({ id }: UseUpdateOpGroupConfigProps) => {
 		// Filling method
 		fillingMethod,
 		setFillingMethod,
+
+		// Group output name
+		groupOutputName,
+		setGroupOutputName,
+
+		// Input interval
+		inputInterval,
+		setInputInterval,
 	};
 };

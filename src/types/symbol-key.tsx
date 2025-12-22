@@ -1,7 +1,7 @@
 import type { IndicatorType } from "./indicator";
 import type { IndicatorConfigType } from "./indicator/config";
 
-export type Key = KlineKey | IndicatorKey;
+export type Key = KlineKey | IndicatorKey | OperationKey;
 
 export type KeyStr = KlineKeyStr | IndicatorKeyStr;
 
@@ -28,3 +28,9 @@ export type IndicatorKey = {
 	startTime?: string;
 	endTime?: string;
 };
+
+export type OperationKey = {
+	type: "operation";
+	nodeId: string;
+	name: string;
+}

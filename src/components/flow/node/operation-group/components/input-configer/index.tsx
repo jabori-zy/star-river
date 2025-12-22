@@ -1,12 +1,14 @@
-import { Plus } from "lucide-react";
+import { Plus, CircleAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { getKlineIntervalLabel } from "@/types/kline";
 import { InputConfigItem } from "./input-config-item";
 import type { InputConfigerProps } from "./types";
 
 export const InputConfiger: React.FC<InputConfigerProps> = ({
 	variableItemList = [],
 	inputConfigs: operationConfigs = [],
+	filterInterval,
 	onAddConfig,
 	onUpdateDisplayName,
 	onUpdateNode,
@@ -20,7 +22,7 @@ export const InputConfiger: React.FC<InputConfigerProps> = ({
 	const configs = operationConfigs ?? [];
 
 	return (
-		<div className={cn("flex flex-col gap-4", className)}>
+		<div className={cn("flex flex-col gap-2", className)}>
 			{/* Header */}
 			<div className="flex items-center justify-between">
 				<h3 className="text-sm font-semibold text-gray-700">
@@ -36,6 +38,14 @@ export const InputConfiger: React.FC<InputConfigerProps> = ({
 				</Button>
 			</div>
 
+			{/* Series Interval hint */}
+			{filterInterval && (
+				<div className="flex items-center text-xs text-muted-foreground">
+					<CircleAlert className="w-4 h-4 text-yellow-500" />
+					<span className="ml-2 text-yellow-600">Series Interval: {getKlineIntervalLabel(filterInterval) || filterInterval}</span>
+				</div>
+			)}
+
 			{/* Config list */}
 			<div className="flex flex-col gap-3">
 				{configs.map((config) => (
@@ -43,6 +53,7 @@ export const InputConfiger: React.FC<InputConfigerProps> = ({
 						key={config.configId}
 						variableItemList={variableItemList}
 						config={config}
+						filterInterval={filterInterval}
 						onDisplayNameBlur={onUpdateDisplayName}
 						onNodeChange={onUpdateNode}
 						onVariableChange={onUpdateVariable}

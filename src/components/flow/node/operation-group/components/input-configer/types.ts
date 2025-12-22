@@ -8,6 +8,7 @@ export type ScalarSource = "Value" | "Node" | "Group";
 export interface InputConfigItemProps {
 	variableItemList: VariableItem[];
 	config: OperationInputConfig;
+	filterInterval: string | null;
 	onDisplayNameBlur: (configId: number, displayName: string) => void;
 	onNodeChange: (configId: number, nodeId: string) => void;
 	onVariableChange: (
@@ -29,6 +30,7 @@ export interface InputConfigItemProps {
 export interface InputConfigerProps {
 	variableItemList: VariableItem[];
 	inputConfigs: OperationInputConfig[];
+	filterInterval: string | null;
 	onAddConfig: () => void;
 	onUpdateDisplayName: (configId: number, displayName: string) => void;
 	onUpdateNode: (configId: number, nodeId: string) => void;

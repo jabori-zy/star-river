@@ -107,7 +107,7 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 							fromNodeName: parentNodeData?.nodeName ?? "",
 							fromNodeType: NodeType.OperationGroup,
 							inputDisplayName: config.inputName,
-							inputName: config.fromScalarName,
+							inputName: config.inputName,
 							sourceType: "ParentGroup",
 						});
 					} else if (config.type === "CustomScalarValue") {

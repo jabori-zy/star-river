@@ -21,7 +21,9 @@ export const createDefaultOperationGroupNodeData = (
 			handleColor: getNodeDefaultColor(NodeType.OperationGroup),
 			isHovered: false,
 		},
+		groupOutputName: t("node.operationGroup"),
 		isChildGroup: false,
+		inputInterval: null,
 		inputConfigs: [],
 		outputConfigs: [],
 		inputWindow: {

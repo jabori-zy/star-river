@@ -19,11 +19,14 @@ import type {
 import { isFromParentGroup } from "@/types/node/group/operation-group";
 import type { ScalarSource } from "./components/input-configer";
 import type { OperationNodeData } from "@/types/node/operation-node";
+import type { KlineNodeData } from "@/types/node/kline-node";
+import type { IndicatorNodeData } from "@/types/node/indicator-node";
 import { TradeMode } from "@/types/strategy";
 import { InputConfiger } from "./components/input-configer";
 import { OutputConfiger, type OutputOption } from "./components/output-configer";
 import { WindowConfig } from "./components/window-config";
 import { FillingMethodSelector } from "./components/filling-method-selector";
+import { OutputNameInput } from "./components/output_name_input";
 import { Label } from "@/components/ui/label";
 
 export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
@@ -131,6 +134,12 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 		// Filling method
 		fillingMethod,
 		setFillingMethod,
+		// Group output name
+		groupOutputName,
+		setGroupOutputName,
+		// Input interval
+		inputInterval,
+		setInputInterval,
 	} = useUpdateOpGroupConfig({ id });
 
 	// Handle add new config (default to Series type)
@@ -200,6 +209,20 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 
 			const preliminarySource = getPreliminarySource();
 
+			// Extract interval from IndicatorNode if applicable
+			// IndicatorNode has a single selectedSymbol for all indicators
+			if (selectedNode.nodeType === NodeType.IndicatorNode) {
+				const indicatorNode = getNodes().find((n) => n.id === nodeId);
+				if (indicatorNode) {
+					const indicatorData = indicatorNode.data as IndicatorNodeData;
+					const selectedSymbol = indicatorData?.backtestConfig?.exchangeModeConfig?.selectedSymbol;
+					if (selectedSymbol?.interval) {
+						setInputInterval(selectedSymbol.interval);
+						console.log("🔍 Set inputInterval from IndicatorNode:", selectedSymbol.interval);
+					}
+				}
+			}
+
 			if (config.type === "Series") {
 				updateSeriesConfigById(configId, {
 					source: preliminarySource,
@@ -246,7 +269,7 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 				});
 			}
 		},
-		[operationConfigs, variableItemList, updateSeriesConfigById, updateParentGroupScalarValueConfigById, setOperationConfigs],
+		[operationConfigs, variableItemList, updateSeriesConfigById, updateParentGroupScalarValueConfigById, setOperationConfigs, getNodes, setInputInterval],
 	);
 
 	// Handle variable selection change (for Series type or Scalar from any source)
@@ -303,6 +326,21 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 				sourceType,
 				currentConfigType: config.type,
 			});
+
+			// Extract interval from KlineNode if applicable
+			if (selectedNode.nodeType === NodeType.KlineNode) {
+				const klineNode = getNodes().find((n) => n.id === nodeId);
+				if (klineNode) {
+					const klineData = klineNode.data as KlineNodeData;
+					const selectedSymbols = klineData?.backtestConfig?.exchangeModeConfig?.selectedSymbols ?? [];
+					// Find the symbol config matching varConfigId
+					const symbolConfig = selectedSymbols.find((s) => s.configId === varConfigId);
+					if (symbolConfig?.interval) {
+						setInputInterval(symbolConfig.interval);
+						console.log("🔍 Set inputInterval from KlineNode:", symbolConfig.interval);
+					}
+				}
+			}
 
 			// Handle based on selected variable type (varType)
 			if (varType === "Series" || config.type === "Series") {
@@ -361,7 +399,7 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 				setOperationConfigs(newConfigs);
 			}
 		},
-		[operationConfigs, variableItemList, updateSeriesConfigById, setOperationConfigs],
+		[operationConfigs, variableItemList, updateSeriesConfigById, setOperationConfigs, getNodes, setInputInterval],
 	);
 
 	// Handle scalar value change
@@ -547,6 +585,25 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 		[removeOutputConfigById],
 	);
 
+	// Handle remove input config with interval cleanup
+	const handleRemoveInputConfig = useCallback(
+		(configId: number) => {
+			// First remove the config
+			removeOperationConfigById(configId);
+
+			// Check if there are any remaining Series configs after removal
+			const remainingSeriesConfigs = operationConfigs.filter(
+				(c) => c.configId !== configId && c.type === "Series"
+			);
+
+			// If no Series configs remain, reset inputInterval to null
+			if (remainingSeriesConfigs.length === 0) {
+				setInputInterval(null);
+			}
+		},
+		[operationConfigs, removeOperationConfigById, setInputInterval],
+	);
+
 	// Check if this is a child group (has parentId pointing to an OperationGroup)
 	const isChildGroup = useMemo(() => {
 		const currentNode = getNodes().find((n) => n.id === id);
@@ -559,10 +616,21 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 
 	return (
 		<div className="h-full overflow-y-auto bg-white p-4 space-y-4">
+			{/* Output Name - Only show for non-child groups */}
+			{!isChildGroup && (
+				<OutputNameInput
+					value={groupOutputName}
+					onChange={setGroupOutputName}
+				/>
+			)}
+
+			<Separator />
+
 			{/* Input Parameters */}
 			<InputConfiger
 				variableItemList={variableItemList}
 				inputConfigs={operationConfigs}
+				filterInterval={inputInterval}
 				onAddConfig={handleAddConfig}
 				onUpdateDisplayName={handleUpdateInputName}
 				onUpdateNode={handleNodeChange}
@@ -570,7 +638,7 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 				onUpdateScalarValue={handleScalarValueChange}
 				onTypeChange={handleTypeChange}
 				onScalarSourceChange={handleScalarSourceChange}
-				onRemoveConfig={removeOperationConfigById}
+				onRemoveConfig={handleRemoveInputConfig}
 			/>
 
 			<Separator />
