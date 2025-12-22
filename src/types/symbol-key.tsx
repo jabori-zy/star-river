@@ -32,5 +32,6 @@ export type IndicatorKey = {
 export type OperationKey = {
 	type: "operation";
 	nodeId: string;
+	interval: string;
 	name: string;
 }

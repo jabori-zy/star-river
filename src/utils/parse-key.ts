@@ -45,11 +45,13 @@ export function parseKey(keyStr: string): Key {
 	} 
 	// operation|node_group_olzbhnj|SMA
 	else if (type === "operation") {
-		return {
+		const operationKey: OperationKey = {
 			type: "operation",
 			nodeId: parts[1],
-			name: parts[2],
-		} as OperationKey;
+			interval: parts[2],
+			name: parts[3],
+		};
+		return operationKey;
 	}
 	else {
 		throw new Error(`Unsupported cache key type: ${type}`);
