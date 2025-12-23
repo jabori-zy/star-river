@@ -1,7 +1,10 @@
-import { useEffect } from "react";
-import { useIndicatorLegend } from "@/hooks/chart/backtest-chart";
-import { useBacktestChartStore } from "./backtest-chart-store";
+import { useEffect, useMemo } from "react";
+import { useIndicatorLegend } from "@/components/chart/backtest-chart/hooks";
+import { useBacktestChartStore } from "../backtest-chart-store";
 import { IndicatorLegend } from "./indicator-legend";
+
+// Stable empty object reference to avoid infinite loop caused by || {}
+const EMPTY_SERIES_MAP: Record<string, unknown> = {};
 
 // Extract main chart indicator legend component to avoid recreation during render
 interface MainChartIndicatorLegendProps {
@@ -25,7 +28,12 @@ const MainChartIndicatorLegend = ({
 	});
 
 	const { chartRef, indicatorSeriesRef } = useBacktestChartStore(chartId);
-	const indicatorSeriesMap = indicatorSeriesRef[indicatorKeyStr] || {};
+
+	// Use stable reference to avoid infinite loop
+	const indicatorSeriesMap = useMemo(
+		() => indicatorSeriesRef[indicatorKeyStr] ?? EMPTY_SERIES_MAP,
+		[indicatorSeriesRef, indicatorKeyStr],
+	);
 
 	// Subscribe to main chart mouse events, subscribe immediately when chart reference is ready
 	useEffect(() => {
@@ -37,7 +45,7 @@ const MainChartIndicatorLegend = ({
 		return () => {
 			chartRef.unsubscribeCrosshairMove(onCrosshairMove);
 		};
-	}, [chartRef, indicatorKeyStr, onCrosshairMove]);
+	}, [chartRef, onCrosshairMove]);
 
 	// Indicator data change subscription, wait for indicator series to be ready before subscribing
 	useEffect(() => {

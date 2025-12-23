@@ -1,9 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-import { useIndicatorLegend } from "@/hooks/chart/backtest-chart/use-indicator-legend";
+import { useIndicatorLegend } from "@/components/chart/backtest-chart/hooks/use-indicator-legend";
 import type { IndicatorKeyStr } from "@/types/symbol-key";
-import { useBacktestChartStore } from "./backtest-chart-store";
+import { useBacktestChartStore } from "../backtest-chart-store";
 import { IndicatorLegend } from "./indicator-legend";
+
+// Stable empty object reference to avoid infinite loop caused by || {}
+const EMPTY_SERIES_MAP: Record<string, unknown> = {};
 
 interface SubchartIndicatorLegendProps {
 	chartId: number;
@@ -22,15 +25,19 @@ export function SubchartIndicatorLegend({
 		null,
 	);
 	const {
-		getSubChartPaneRef,
+		getIndicatorSubChartPaneRef,
 		getPaneVersion,
-		getSubChartPaneHtmlElementRef,
-		subChartPaneHtmlElementRef,
+		getIndicatorSubChartPaneHtmlElementRef,
+		indicatorSubChartPaneHtmlElementRef,
 		chartRef,
 		indicatorSeriesRef,
 	} = useBacktestChartStore(chartId);
 
-	const indicatorSeriesMap = indicatorSeriesRef[indicatorKeyStr] || {};
+	// Use stable reference to avoid infinite loop
+	const indicatorSeriesMap = useMemo(
+		() => indicatorSeriesRef[indicatorKeyStr] ?? EMPTY_SERIES_MAP,
+		[indicatorSeriesRef, indicatorKeyStr],
+	);
 
 	// Get current pane version number to listen for pane changes
 	const paneVersion = getPaneVersion();
@@ -43,6 +50,7 @@ export function SubchartIndicatorLegend({
 		});
 
 	// Delay subscribing to chart events to ensure chart is fully initialized
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation> we don't need to re-run this effect when indicatorKeyStr changes
 	useEffect(() => {
 		if (!chartRef || !onCrosshairMove) {
 			return;
@@ -80,10 +88,10 @@ export function SubchartIndicatorLegend({
 	useEffect(() => {
 		// Version number changes when pane is deleted, triggering container recreation
 		void paneVersion; // Reference paneVersion to eliminate ESLint warning
-		void subChartPaneHtmlElementRef; // Reference subChartPaneHtmlElementRef to eliminate ESLint warning
+		void indicatorSubChartPaneHtmlElementRef; // Reference indicatorSubChartPaneHtmlElementRef to eliminate ESLint warning
 
 		const createPortalContainer = () => {
-			const paneRef = getSubChartPaneRef(indicatorKeyStr);
+			const paneRef = getIndicatorSubChartPaneRef(indicatorKeyStr);
 
 			if (!paneRef) {
 				// If pane is not ready yet, retry later
@@ -92,8 +100,8 @@ export function SubchartIndicatorLegend({
 			}
 
 			setTimeout(() => {
-				// console.log("subChartPaneHtmlElementRef", subChartPaneHtmlElementRef);
-				const htmlElement = getSubChartPaneHtmlElementRef(indicatorKeyStr);
+				// console.log("indicatorSubChartPaneHtmlElementRef", indicatorSubChartPaneHtmlElementRef);
+				const htmlElement = getIndicatorSubChartPaneHtmlElementRef(indicatorKeyStr);
 				if (!htmlElement) {
 					// console.warn(`Cannot get subchart HTML element: ${indicatorKeyStr}`);
 					return;
@@ -147,10 +155,10 @@ export function SubchartIndicatorLegend({
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [
 		indicatorKeyStr,
-		getSubChartPaneRef,
+		getIndicatorSubChartPaneRef,
 		paneVersion,
-		getSubChartPaneHtmlElementRef,
-		subChartPaneHtmlElementRef,
+		getIndicatorSubChartPaneHtmlElementRef,
+		indicatorSubChartPaneHtmlElementRef,
 	]); // Depend on paneVersion, container will be recreated when pane is deleted
 
 	// Use Portal for rendering, simple and direct

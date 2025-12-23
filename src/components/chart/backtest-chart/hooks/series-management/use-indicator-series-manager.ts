@@ -33,11 +33,11 @@ export const useIndicatorSeriesManager = ({
 		getIndicatorSeriesRef,
 		setIndicatorSeriesRef,
 		deleteIndicatorSeriesRef,
-		getSubChartPaneRef,
-		setSubChartPaneRef,
-		deleteSubChartPaneRef,
+		getIndicatorSubChartPaneRef,
+		setIndicatorSubChartPaneRef,
+		deleteIndicatorSubChartPaneRef,
 		incrementPaneVersion,
-		addSubChartPaneHtmlElementRef,
+		addIndicatorSubChartPaneHtmlElementRef,
 		initIndicatorData,
 		subscribe,
 	} = useBacktestChartStore(chartConfig.id);
@@ -45,6 +45,7 @@ export const useIndicatorSeriesManager = ({
 	// Add series
 	const addSeries = useCallback(async () => {
 		const chart = getChartRef();
+		console.log("chartConfig", chartConfig);
 		if (chart) {
 			// To simplify logic, initialize all indicator data
 			const indicatorsNeedingData = chartConfig.indicatorChartConfigs.filter(
@@ -100,14 +101,14 @@ export const useIndicatorSeriesManager = ({
 				}
 				// If indicator is a subchart indicator, not deleted, and there's no paneRef in store, add pane
 				else if (!config.isInMainChart && !config.isDelete) {
-					const subChartPane = getSubChartPaneRef(config.indicatorKeyStr);
+					const subChartPane = getIndicatorSubChartPaneRef(config.indicatorKeyStr);
 					if (!subChartPane) {
 						const newPane = chart.addPane(false);
-						setSubChartPaneRef(config.indicatorKeyStr, newPane);
+						setIndicatorSubChartPaneRef(config.indicatorKeyStr, newPane);
 						setTimeout(() => {
 							const htmlElement = newPane.getHTMLElement();
 							if (htmlElement) {
-								addSubChartPaneHtmlElementRef(
+								addIndicatorSubChartPaneHtmlElementRef(
 									config.indicatorKeyStr,
 									htmlElement,
 								);
@@ -133,18 +134,22 @@ export const useIndicatorSeriesManager = ({
 					}
 				}
 			});
+
+			// Increment pane version to force legend components to re-render
+			incrementPaneVersion();
 		}
 	}, [
 		strategyId,
 		chartConfig,
 		getChartRef,
-		getSubChartPaneRef,
+		getIndicatorSubChartPaneRef,
 		getIndicatorSeriesRef,
 		setIndicatorSeriesRef,
 		initIndicatorData,
-		setSubChartPaneRef,
+		setIndicatorSubChartPaneRef,
 		subscribe,
-		addSubChartPaneHtmlElementRef,
+		addIndicatorSubChartPaneHtmlElementRef,
+		incrementPaneVersion,
 	]);
 
 	// Delete indicator series
@@ -168,7 +173,7 @@ export const useIndicatorSeriesManager = ({
 				}
 				// If it's a subchart indicator, remove pane
 				else if (!config.isInMainChart && config.isDelete) {
-					const subChartPane = getSubChartPaneRef(config.indicatorKeyStr);
+					const subChartPane = getIndicatorSubChartPaneRef(config.indicatorKeyStr);
 					if (subChartPane) {
 						const removedPaneIndex = subChartPane.paneIndex();
 
@@ -184,7 +189,7 @@ export const useIndicatorSeriesManager = ({
 						const updatedPanes = chart.panes();
 						allSubChartConfigs.forEach((subConfig) => {
 							if (subConfig.indicatorKeyStr !== config.indicatorKeyStr) {
-								const currentPaneRef = getSubChartPaneRef(
+								const currentPaneRef = getIndicatorSubChartPaneRef(
 									subConfig.indicatorKeyStr,
 								);
 								if (
@@ -197,12 +202,12 @@ export const useIndicatorSeriesManager = ({
 									if (newPane) {
 										const newHtmlElement = newPane.getHTMLElement();
 										if (newHtmlElement) {
-											addSubChartPaneHtmlElementRef(
+											addIndicatorSubChartPaneHtmlElementRef(
 												subConfig.indicatorKeyStr,
 												newHtmlElement,
 											);
 										}
-										setSubChartPaneRef(subConfig.indicatorKeyStr, newPane);
+										setIndicatorSubChartPaneRef(subConfig.indicatorKeyStr, newPane);
 									}
 								}
 							}
@@ -212,7 +217,9 @@ export const useIndicatorSeriesManager = ({
 						incrementPaneVersion();
 					}
 					// Delete paneApi from store
-					deleteSubChartPaneRef(config.indicatorKeyStr);
+					deleteIndicatorSubChartPaneRef(config.indicatorKeyStr);
+					// 🔑 Also delete seriesRef from store (series are destroyed when pane is removed)
+					deleteIndicatorSeriesRef(config.indicatorKeyStr);
 				}
 			});
 		}
@@ -220,12 +227,12 @@ export const useIndicatorSeriesManager = ({
 		getChartRef,
 		chartConfig.indicatorChartConfigs,
 		getIndicatorSeriesRef,
-		getSubChartPaneRef,
+		getIndicatorSubChartPaneRef,
 		deleteIndicatorSeriesRef,
-		deleteSubChartPaneRef,
-		setSubChartPaneRef,
+		deleteIndicatorSubChartPaneRef,
+		setIndicatorSubChartPaneRef,
 		incrementPaneVersion,
-		addSubChartPaneHtmlElementRef,
+		addIndicatorSubChartPaneHtmlElementRef,
 	]);
 
 	return { addSeries, deleteSeries };

@@ -1,5 +1,4 @@
 import type {
-	CandlestickData,
 	ChartOptions,
 	DataChangedScope,
 	DeepPartial,
@@ -9,9 +8,9 @@ import type {
 import { createChart, createSeriesMarkers } from "lightweight-charts";
 import { useCallback } from "react";
 import { useBacktestChartStore } from "@/components/chart/backtest-chart/backtest-chart-store";
-import type { IndicatorChartConfig } from "@/types/chart";
+import type { IndicatorChartConfig, OperationChartConfig } from "@/types/chart";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
-import { addIndicatorSeries, addKlineSeries } from "../utils/add-chart-series";
+import { addIndicatorSeries, addKlineSeries, addOperationSeries } from "../utils/add-chart-series";
 
 interface UseChartInitializationProps {
 	strategyId: number;
@@ -28,10 +27,13 @@ interface UseChartInitializationReturn {
 		chart: IChartApi,
 		configs: IndicatorChartConfig[],
 	) => void;
+	createOperationSeries: (
+		chart: IChartApi,
+		configs: OperationChartConfig[],
+	) => void;
 }
 
 export const useChartInitialization = ({
-	strategyId,
 	chartConfig,
 	chartContainerRef,
 	chartOptions,
@@ -44,13 +46,16 @@ export const useChartInitialization = ({
 		setKlineKeyStr,
 		setKlineSeriesRef,
 		setIndicatorSeriesRef,
-		setSubChartPaneRef,
+		setIndicatorSubChartPaneRef,
 		setOrderMarkerSeriesRef,
 		getOrderMarkers,
 		getPositionPriceLine,
 		getOrderPriceLine: getLimitOrderPriceLine,
 		initObserverSubscriptions,
-		addSubChartPaneHtmlElementRef,
+		addIndicatorSubChartPaneHtmlElementRef,
+		setOperationSeriesRef,
+		setOperationSubChartPaneRef,
+		addOperationSubChartPaneHtmlElementRef,
 	} = useBacktestChartStore(chartConfig.id, chartConfig);
 
 	/**
@@ -68,6 +73,7 @@ export const useChartInitialization = ({
 	 * 2. Ensure container DOM element truly exists in the document
 	 * 3. Work with container reference monitoring mechanism to cleanup old instances when container becomes invalid
 	 */
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation> This is a critical fix for the issue where the first chart becomes blank when adding multiple charts
 	const initializeBacktestChart = useCallback(() => {
 		// Get existing chart instance reference
 		const existingChart = getChartRef();
@@ -122,6 +128,8 @@ export const useChartInitialization = ({
 
 			// Create indicator series
 			createIndicatorSeries(chart, chartConfig.indicatorChartConfigs);
+			// Create operation series
+			createOperationSeries(chart, chartConfig.operationChartConfigs);
 
 			// 🔑 Only add crosshair event listener for K-line legend
 			chart.subscribeCrosshairMove(onCrosshairMove);
@@ -147,8 +155,11 @@ export const useChartInitialization = ({
 		getPositionPriceLine,
 		getLimitOrderPriceLine,
 		setIndicatorSeriesRef,
-		setSubChartPaneRef,
-		addSubChartPaneHtmlElementRef,
+		setIndicatorSubChartPaneRef,
+		addIndicatorSubChartPaneHtmlElementRef,
+		setOperationSeriesRef,
+		setOperationSubChartPaneRef,
+		addOperationSubChartPaneHtmlElementRef,
 	]);
 
 	// Create indicator series
@@ -178,13 +189,13 @@ export const useChartInitialization = ({
 				else {
 					// Create subchart Pane
 					const subChartPane = chart.addPane(false);
-					setSubChartPaneRef(config.indicatorKeyStr, subChartPane);
+					setIndicatorSubChartPaneRef(config.indicatorKeyStr, subChartPane);
 
 					// Use setTimeout to delay getting HTML element because pane is not fully instantiated yet
 					setTimeout(() => {
 						const htmlElement = subChartPane.getHTMLElement();
 						if (htmlElement) {
-							addSubChartPaneHtmlElementRef(
+							addIndicatorSubChartPaneHtmlElementRef(
 								config.indicatorKeyStr,
 								htmlElement,
 							);
@@ -209,10 +220,71 @@ export const useChartInitialization = ({
 				}
 			});
 		},
-		[setIndicatorSeriesRef, setSubChartPaneRef, addSubChartPaneHtmlElementRef],
+		[setIndicatorSeriesRef, setIndicatorSubChartPaneRef, addIndicatorSubChartPaneHtmlElementRef],
 	);
 
-	return { initializeBacktestChart, createIndicatorSeries };
+	// Create operation series
+	const createOperationSeries = useCallback(
+		(chart: IChartApi, operationChartConfigs: OperationChartConfig[]) => {
+			operationChartConfigs.forEach((config) => {
+				if (config.isDelete) {
+					return;
+				}
+				if (config.isInMainChart) {
+					config.seriesConfigs.forEach((seriesConfig) => {
+						const mainChartOperationSeries = addOperationSeries(
+							chart,
+							config,
+							seriesConfig,
+						);
+						if (mainChartOperationSeries) {
+							setOperationSeriesRef(
+								config.operationKeyStr,
+								seriesConfig.outputSeriesKey,
+								mainChartOperationSeries,
+							);
+						}
+					});
+				}
+				// Create subchart operations
+				else {
+					// Create subchart Pane
+					const subChartPane = chart.addPane(false);
+					setOperationSubChartPaneRef(config.operationKeyStr, subChartPane);
+
+					// Use setTimeout to delay getting HTML element because pane is not fully instantiated yet
+					setTimeout(() => {
+						const htmlElement = subChartPane.getHTMLElement();
+						if (htmlElement) {
+							addOperationSubChartPaneHtmlElementRef(
+								config.operationKeyStr,
+								htmlElement,
+							);
+						}
+					}, 100);
+
+					// Create subchart operations
+					config.seriesConfigs.forEach((seriesConfig) => {
+						const subChartOperationSeries = addOperationSeries(
+							subChartPane,
+							config,
+							seriesConfig,
+						);
+						if (subChartOperationSeries) {
+							setOperationSeriesRef(
+								config.operationKeyStr,
+								seriesConfig.outputSeriesKey,
+								subChartOperationSeries,
+							);
+						}
+					});
+				}
+			});
+		},
+		[setOperationSeriesRef, setOperationSubChartPaneRef, addOperationSubChartPaneHtmlElementRef],
+	);
+
+	return { initializeBacktestChart, createIndicatorSeries, createOperationSeries };
 };
 
 export type { UseChartInitializationProps, UseChartInitializationReturn };

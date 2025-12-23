@@ -14,6 +14,7 @@ import type { BaseEventProps } from "./index";
 export type BacktestStrategyEvent =
 	| KlineUpdateEvent
 	| IndicatorUpdateEvent
+	| OperationGroupLatestResultUpdateEvent
 	| VirtualOrderEvent
 	| VirtualPositionEvent
 	| VirtualTransactionEvent
@@ -31,7 +32,11 @@ export type IndicatorUpdateEvent = BaseEventProps & {
 	indicatorKey: KeyStr;
 	indicatorValue: Record<string, number | string>;
 };
-
+// operation-group-latest-result-update-event
+export type OperationGroupLatestResultUpdateEvent = BaseEventProps & {
+	operationKey: KeyStr;
+	result: Record<string, number>;
+};
 export type VirtualOrderEvent = BaseEventProps & {
 	futuresOrder: VirtualOrder;
 };

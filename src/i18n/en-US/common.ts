@@ -60,6 +60,8 @@ const translation = {
 	createTime: "Create Time",
 	success: "Success",
 	failed: "Failed",
+	loading: "Loading...",
+	error: "Error",
 };
 
 export default translation;

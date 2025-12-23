@@ -3,11 +3,13 @@ import type { IndicatorConfigType } from "./indicator/config";
 
 export type Key = KlineKey | IndicatorKey | OperationKey;
 
-export type KeyStr = KlineKeyStr | IndicatorKeyStr;
+export type KeyStr = KlineKeyStr | IndicatorKeyStr | OperationKeyStr;
 
 export type KlineKeyStr = string;
 
 export type IndicatorKeyStr = string;
+
+export type OperationKeyStr = string;
 
 export type KlineKey = {
 	type: "kline";

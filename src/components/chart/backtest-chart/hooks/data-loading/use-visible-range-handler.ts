@@ -5,6 +5,7 @@ import { getDateTimeFromChartTimestamp } from "@/components/chart/backtest-chart
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import { useIndicatorDataLoader } from "./use-indicator-data-loader";
 import { useKlineDataLoader } from "./use-kline-data-loader";
+import { useOperationResultLoader } from "./use-operation-result-loader";
 
 interface UseVisibleRangeHandlerProps {
 	strategyId: number;
@@ -30,6 +31,7 @@ export const useVisibleRangeHandler = ({
 		getChartRef,
 		getKlineSeriesRef,
 		getIndicatorSeriesRef,
+		getOperationSeriesRef,
 		getKlineKeyStr,
 		setVisibleLogicalRange,
 	} = useBacktestChartStore(chartConfig.id);
@@ -39,6 +41,10 @@ export const useVisibleRangeHandler = ({
 		chartId: chartConfig.id,
 	});
 	const { loadIndicatorHistory } = useIndicatorDataLoader({
+		strategyId,
+		chartConfig,
+	});
+	const { loadOperationHistory } = useOperationResultLoader({
 		strategyId,
 		chartConfig,
 	});
@@ -143,6 +149,50 @@ export const useVisibleRangeHandler = ({
 					}
 				});
 			}
+
+			// Handle operation data
+			const operationsNeedingData = chartConfig.operationChartConfigs.filter(
+				(config) => !config.isDelete,
+			);
+
+			if (operationsNeedingData.length > 0) {
+				operationsNeedingData.forEach((config) => {
+					let firstOperationDateTime = "";
+
+					for (const seriesConfig of config.seriesConfigs) {
+						const operationSeriesRef = getOperationSeriesRef(
+							config.operationKeyStr,
+							seriesConfig.outputSeriesKey,
+						);
+						if (operationSeriesRef) {
+							const firstData = operationSeriesRef.data()[0];
+							if (firstData) {
+								const firstDataTime = getDateTimeFromChartTimestamp(
+									firstData.time as number,
+								);
+								if (firstDataTime) {
+									firstOperationDateTime = firstDataTime;
+									break; // Exit immediately after finding the first valid time
+								}
+							}
+						}
+					}
+
+					if (firstOperationDateTime) {
+						// Get 100 data points before the operation
+						loadOperationHistory(
+							config.operationKeyStr,
+							firstOperationDateTime,
+							config.seriesConfigs,
+						).catch((error) => {
+							console.error(
+								`Error loading historical data for operation ${config.operationKeyStr}:`,
+								error,
+							);
+						});
+					}
+				});
+			}
 		};
 
 		// Subscribe to visible range changes
@@ -159,13 +209,16 @@ export const useVisibleRangeHandler = ({
 	}, [
 		isInitialized,
 		chartConfig.indicatorChartConfigs,
+		chartConfig.operationChartConfigs,
 		getChartRef,
 		getKlineSeriesRef,
 		getIndicatorSeriesRef,
+		getOperationSeriesRef,
 		getKlineKeyStr,
 		setVisibleLogicalRange,
 		loadKlineHistory,
 		loadIndicatorHistory,
+		loadOperationHistory,
 	]);
 };
 

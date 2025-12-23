@@ -11,6 +11,7 @@ import { useVisibleRangeHandler } from "./data-loading";
 import {
 	useIndicatorSeriesManager,
 	useKlineSeriesManager,
+	useOperationSeriesManager,
 	useSeriesConfigManager,
 } from "./series-management";
 import { type KlineLegendData, useKlineLegend } from "./use-kline-legend";
@@ -85,6 +86,14 @@ export const useBacktestChart = ({
 		chartConfig,
 	});
 
+	const {
+		addSeries: addOperationSeries,
+		deleteSeries: deleteOperationSeries,
+	} = useOperationSeriesManager({
+		strategyId,
+		chartConfig,
+	});
+
 	const { changeSeriesConfig } = useSeriesConfigManager({ chartConfig });
 
 	// Data loading
@@ -101,9 +110,14 @@ export const useBacktestChart = ({
 			// Switch K-line
 			changeKline();
 
-			// Add series (async operation)
+			// Add indicator series (async operation)
 			addSeries().catch((error) => {
-				console.error("Error adding series:", error);
+				console.error("Error adding indicator series:", error);
+			});
+
+			// Add operation series (async operation)
+			addOperationSeries().catch((error) => {
+				console.error("Error adding operation series:", error);
 			});
 
 			// Modify series configuration
@@ -111,8 +125,19 @@ export const useBacktestChart = ({
 
 			// Delete indicator series
 			deleteSeries();
+
+			// Delete operation series
+			deleteOperationSeries();
 		}
-	}, [chartConfig, addSeries, changeSeriesConfig, deleteSeries, changeKline]);
+	}, [
+		chartConfig,
+		addSeries,
+		addOperationSeries,
+		changeSeriesConfig,
+		deleteSeries,
+		deleteOperationSeries,
+		changeKline,
+	]);
 
 	return {
 		klineLegendData,

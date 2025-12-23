@@ -11,11 +11,12 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
-import type { SeriesConfig } from "@/types/chart";
-import type { IndicatorKeyStr } from "@/types/symbol-key";
+import type { OperationSeriesConfig } from "@/types/chart";
+import type { OperationKeyStr } from "@/types/symbol-key";
+import { parseSeriesName } from "./operation-legend-utils";
 
-// Indicator chart preset colors
-const INDICATOR_PRESET_COLORS = [
+// Operation chart preset colors
+const OPERATION_PRESET_COLORS = [
 	"#2196F3", // Blue - Main trend line
 	"#FF6B6B", // Red - Sell signal
 	"#4ECDC4", // Cyan - Buy signal
@@ -28,45 +29,45 @@ const INDICATOR_PRESET_COLORS = [
 	"#BB8FCE", // Light purple - Neutral signal
 ];
 
-interface IndicatorLegendEditDialogProps {
+interface OperationLegendEditDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	chartId: number;
-	indicatorKeyStr: IndicatorKeyStr;
+	operationKeyStr: OperationKeyStr;
 }
 
-export function IndicatorLegendEditDialog({
+export function OperationLegendEditDialog({
 	open,
 	onOpenChange,
 	chartId,
-	indicatorKeyStr,
-}: IndicatorLegendEditDialogProps) {
+	operationKeyStr,
+}: OperationLegendEditDialogProps) {
 	const { getChartConfig, setChartConfig } = useBacktestChartConfigStore();
 	const chartConfig = useBacktestChartConfigStore((state) => state.chartConfig);
 	const [originalSeriesConfigs, setOriginalSeriesConfigs] = useState<
-		SeriesConfig[]
+		OperationSeriesConfig[]
 	>([]);
-	const [tempSeriesConfigs, setTempSeriesConfigs] = useState<SeriesConfig[]>(
+	const [tempSeriesConfigs, setTempSeriesConfigs] = useState<OperationSeriesConfig[]>(
 		[],
 	);
 
-	// Get current indicator's seriesConfigs
+	// Get current operation's seriesConfigs
 	useEffect(() => {
 		if (open) {
 			const chart = getChartConfig(chartId);
 			if (chart) {
-				const indicatorConfig = chart.indicatorChartConfigs.find(
+				const operationConfig = chart.operationChartConfigs?.find(
 					(config) =>
-						config.indicatorKeyStr === indicatorKeyStr && !config.isDelete,
+						config.operationKeyStr === operationKeyStr && !config.isDelete,
 				);
-				if (indicatorConfig) {
-					const configs = [...indicatorConfig.seriesConfigs];
+				if (operationConfig) {
+					const configs = [...operationConfig.seriesConfigs];
 					setOriginalSeriesConfigs(configs);
 					setTempSeriesConfigs(configs);
 				}
 			}
 		}
-	}, [open, chartId, indicatorKeyStr, getChartConfig]);
+	}, [open, chartId, operationKeyStr, getChartConfig]);
 
 	// Update temporary series config color (not saved in real-time)
 	const updateTempSeriesColor = (index: number, color: string) => {
@@ -83,9 +84,9 @@ export function IndicatorLegendEditDialog({
 				chart.id === chartId
 					? {
 							...chart,
-							indicatorChartConfigs: chart.indicatorChartConfigs.map(
+							operationChartConfigs: (chart.operationChartConfigs || []).map(
 								(config) =>
-									config.indicatorKeyStr === indicatorKeyStr
+									config.operationKeyStr === operationKeyStr
 										? { ...config, seriesConfigs: tempSeriesConfigs }
 										: config,
 							),
@@ -107,19 +108,19 @@ export function IndicatorLegendEditDialog({
 		<Dialog open={open} onOpenChange={onOpenChange} modal={false}>
 			<DialogContent className="sm:max-w-[350px]">
 				<DialogHeader>
-					<DialogTitle>Edit Indicator Config</DialogTitle>
-					<DialogDescription>Modify indicator series color configuration</DialogDescription>
+					<DialogTitle>Edit Operation Config</DialogTitle>
+					<DialogDescription>Modify operation series color configuration</DialogDescription>
 				</DialogHeader>
 
 				<div className="space-y-3 py-4">
 					{tempSeriesConfigs.map((series, index) => (
 						<div
-							key={`${series.name}-${series.indicatorValueKey}-${index}`}
+							key={`${series.name}-${series.outputSeriesKey}-${index}`}
 							className="flex items-center justify-between"
 						>
 							{/* Series name */}
 							<Label className="text-sm font-medium text-gray-700">
-								{series.name}
+								{parseSeriesName(series.name)}
 							</Label>
 
 							{/* Color picker */}
@@ -132,7 +133,7 @@ export function IndicatorLegendEditDialog({
 									}
 									showAlpha={true}
 									showPresets={true}
-									presetColors={INDICATOR_PRESET_COLORS}
+									presetColors={OPERATION_PRESET_COLORS}
 									className="w-full"
 								/>
 							</div>

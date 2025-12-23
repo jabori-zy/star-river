@@ -6,6 +6,7 @@ import type {
 	CustomVariableUpdateEvent,
 	IndicatorUpdateEvent,
 	KlineUpdateEvent,
+	OperationGroupLatestResultUpdateEvent,
 	PlayFinishedEvent,
 	SystemVariableUpdateEvent,
 	VirtualOrderEvent,
@@ -47,6 +48,7 @@ class BacktestStrategyDataObservableService {
 	private destroy$ = new Subject<void>();
 	private klineDataSubject = new Subject<KlineUpdateEvent>();
 	private indicatorDataSubject = new Subject<IndicatorUpdateEvent>();
+	private operationGroupLatestResultDataSubject = new Subject<OperationGroupLatestResultUpdateEvent>();
 	private orderDataSubject = new Subject<VirtualOrderEvent>();
 	private positionDataSubject = new Subject<VirtualPositionEvent>();
 	private statsDataSubject = new Subject<BacktestStrategyStatsUpdateEvent>();
@@ -358,6 +360,51 @@ class BacktestStrategyDataObservableService {
 			.asObservable()
 			.pipe(takeUntil(this.destroy$), share());
 	}
+
+	/**
+	 * Create operation group latest result data stream Observable
+	 * @param enabled Whether to enable connection
+	 * @returns Observable stream of operation group latest result data updates
+	 */
+	createOperationGroupLatestResultStream(
+		enabled: boolean = true,
+	): Observable<OperationGroupLatestResultUpdateEvent> {
+		if (!enabled) {
+			this.disconnect();
+			return new Observable((subscriber) => {
+				subscriber.complete();
+			});
+		}
+
+		if (this.eventSource && this.eventSource.readyState === EventSource.OPEN) {
+			return this.operationGroupLatestResultDataSubject
+				.asObservable()
+				.pipe(takeUntil(this.destroy$), share());
+		}
+
+		this.connect();
+
+		return this.operationGroupLatestResultDataSubject
+			.asObservable()
+			.pipe(takeUntil(this.destroy$), share());
+	}
+
+	/**
+	 * Create filtered operation group latest result data stream for specific operation key
+	 * @param keyStr Operation key
+	 * @param enabled Whether to enable
+	 * @returns Filtered operation group latest result data stream
+	 */
+	createOperationGroupLatestResultStreamFromKey(
+		keyStr: KeyStr,
+		enabled: boolean = true,
+	): Observable<Record<string, number>> {
+		return this.createOperationGroupLatestResultStream(enabled).pipe(
+			filter((event) => event.operationKey === keyStr),
+			map((event) => event.result),
+			share(),
+		);
+	}
 	/**
 	 * Establish SSE connection
 	 */
@@ -425,6 +472,23 @@ class BacktestStrategyDataObservableService {
 				// Use raw indicator event directly, datetime remains as string type
 				// console.log("Send indicator data to Observable stream:", indicatorEvent);
 				this.indicatorDataSubject.next(indicatorEvent);
+			}
+
+			// Handle operation group latest result update event
+			if (strategyEvent.event === "operation-group-latest-result-update-event") {
+				// Type-safe event construction
+				const operationEvent: OperationGroupLatestResultUpdateEvent = {
+					channel: strategyEvent.channel,
+					event: strategyEvent.event,
+					datetime: strategyEvent.datetime,
+					cycleId: strategyEvent.cycleId,
+					nodeId: strategyEvent.nodeId,
+					nodeName: strategyEvent.nodeName,
+					outputHandleId: strategyEvent.outputHandleId,
+					operationKey: strategyEvent.operationKey,
+					result: strategyEvent.result[0],
+				};
+				this.operationGroupLatestResultDataSubject.next(operationEvent);
 			}
 
 			// Handle order filled event
@@ -546,6 +610,7 @@ class BacktestStrategyDataObservableService {
 		this.disconnect();
 		this.klineDataSubject.complete();
 		this.indicatorDataSubject.complete();
+		this.operationGroupLatestResultDataSubject.complete();
 		this.orderDataSubject.complete();
 		this.connectionState$.complete();
 	}
@@ -581,6 +646,19 @@ export const createIndicatorStreamFromKey = (
 	enabled: boolean = true,
 ) =>
 	backtestStrategyDataObservableService.createIndicatorStreamFromKey(
+		keyStr,
+		enabled,
+	);
+
+// Operation related
+export const createOperationGroupLatestResultStream = (enabled: boolean = true) =>
+	backtestStrategyDataObservableService.createOperationGroupLatestResultStream(enabled);
+
+export const createOperationGroupLatestResultStreamFromKey = (
+	keyStr: KeyStr,
+	enabled: boolean = true,
+) =>
+	backtestStrategyDataObservableService.createOperationGroupLatestResultStreamFromKey(
 		keyStr,
 		enabled,
 	);

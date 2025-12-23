@@ -1,3 +1,4 @@
+import { produce } from "immer";
 import { toast } from "sonner";
 import { create } from "zustand";
 import {
@@ -5,7 +6,11 @@ import {
 	getStrategyCacheKeys,
 	updateBacktestStrategyChartConfig,
 } from "@/service/strategy";
-import type { IndicatorChartConfig, LayoutMode } from "@/types/chart";
+import type {
+	IndicatorChartConfig,
+	LayoutMode,
+	OperationChartConfig,
+} from "@/types/chart";
 import type {
 	BacktestChartConfig,
 	BacktestStrategyChartConfig,
@@ -15,6 +20,8 @@ import type {
 	IndicatorKeyStr,
 	KlineKey,
 	KlineKeyStr,
+	OperationKey,
+	OperationKeyStr,
 } from "@/types/symbol-key";
 import { parseKey } from "@/utils/parse-key";
 
@@ -54,35 +61,49 @@ interface BacktestChartConfigState {
 		chartId: number,
 		indicatorChartConfig: IndicatorChartConfig,
 	) => void;
-
 	removeIndicator: (chartId: number, indicatorKeyStr: IndicatorKeyStr) => void;
-
 	changeKline: (chartId: number, klineKeyStr: KlineKeyStr) => void;
-
 	toggleIndicatorVisibility: (
 		chartId: number,
 		indicatorKeyStr: IndicatorKeyStr,
 	) => void;
-
 	getIndicatorVisibility: (
 		chartId: number,
 		indicatorKeyStr: IndicatorKeyStr,
 	) => boolean;
 
+	// Operation management
+	addOperation: (
+		chartId: number,
+		operationChartConfig: OperationChartConfig,
+	) => void;
+	removeOperation: (chartId: number, operationKeyStr: OperationKeyStr) => void;
+	toggleOperationVisibility: (
+		chartId: number,
+		operationKeyStr: OperationKeyStr,
+	) => void;
+	getOperationVisibility: (
+		chartId: number,
+		operationKeyStr: OperationKeyStr,
+	) => boolean;
+
+	// Kline visibility
 	toggleKlineVisibility: (chartId: number) => void;
 	getKlineVisibility: (chartId: number) => boolean;
 
 	// Helper methods
-	getKeys: () => Promise<Record<string, KlineKey | IndicatorKey>>;
+	getKeys: () => Promise<
+		Record<string, KlineKey | IndicatorKey | OperationKey>
+	>;
 	getChartById: (chartId: number) => BacktestChartConfig | undefined;
-	_updateChart: (
-		chartId: number,
-		chartUpdater: (chart: BacktestChartConfig) => BacktestChartConfig,
+	_updateChartConfig: (
+		updater: (draft: BacktestStrategyChartConfig) => void,
 	) => void;
 	_validateAndFixChartConfig: (
 		chartConfig: BacktestStrategyChartConfig,
 		klineKeys: string[],
 		indicatorKeys: string[],
+		operationKeys: string[],
 	) => BacktestStrategyChartConfig;
 	reset: () => void;
 }
@@ -110,8 +131,12 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 		setConfigLoaded: (configLoaded) => set({ configLoaded }),
 
 		getChartConfig: (chartId) => {
-			const { chartConfig } = get();
-			return chartConfig.charts.find((chart) => chart.id === chartId);
+			return get().chartConfig.charts.find((chart) => chart.id === chartId);
+		},
+
+		// Generic chart config update function using immer
+		_updateChartConfig: (updater) => {
+			set({ chartConfig: produce(get().chartConfig, updater) });
 		},
 
 		// Get strategy cache keys
@@ -121,13 +146,17 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 
 			try {
 				const keys = await getStrategyCacheKeys(strategyId);
-				const parsedKeyMap: Record<string, KlineKey | IndicatorKey> = {};
+				const parsedKeyMap: Record<
+					string,
+					KlineKey | IndicatorKey | OperationKey
+				> = {};
 
-				keys.forEach((keyString) => {
+				for (const keyString of keys) {
 					parsedKeyMap[keyString] = parseKey(keyString) as
 						| KlineKey
-						| IndicatorKey;
-				});
+						| IndicatorKey
+						| OperationKey;
+				}
 
 				return parsedKeyMap;
 			} catch (error) {
@@ -143,14 +172,11 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 			try {
 				const cacheKeys = await getKeys();
 				if (cacheKeys && Object.keys(cacheKeys).length > 0) {
-					// Filter out kline keys
-					const klineKeys = Object.keys(cacheKeys).filter((key) => {
-						const parsedKey = cacheKeys[key];
-						return parsedKey.type === "kline";
-					});
+					const klineKeys = Object.keys(cacheKeys).filter(
+						(key) => cacheKeys[key].type === "kline",
+					);
 
 					if (klineKeys.length > 0) {
-						// Create default chart using first kline key
 						const firstKlineKey = klineKeys[0];
 						const klineData = cacheKeys[firstKlineKey] as KlineKey;
 						const defaultChart: BacktestChartConfig = {
@@ -162,6 +188,7 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 								downColor: "#0000FF",
 							},
 							indicatorChartConfigs: [],
+							operationChartConfigs: [],
 						};
 
 						console.log("Creating default chart:", defaultChart);
@@ -175,23 +202,11 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 					}
 				}
 
-				// No available kline key, use empty config
 				console.log("No available data, using empty config");
-				set({
-					chartConfig: {
-						charts: [],
-						layout: "vertical",
-					},
-				});
+				set({ chartConfig: { charts: [], layout: "vertical" } });
 			} catch (error) {
 				console.error("Failed to create default chart:", error);
-				// Use empty config when creation fails
-				set({
-					chartConfig: {
-						charts: [],
-						layout: "vertical",
-					},
-				});
+				set({ chartConfig: { charts: [], layout: "vertical" } });
 			}
 		},
 
@@ -200,64 +215,51 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 			try {
 				set({ isLoading: true, strategyId });
 				const chartConfig = await getBacktestStrategyChartConfig(strategyId);
-
 				const keys = await get().getKeys();
-				// console.log("Retrieved cache keys:", keys);
 
-				// Check if cache keys are empty
 				if (keys && Object.keys(keys).length > 0) {
-					// Separate kline and indicator keys in one loop
 					const klineKeys: string[] = [];
 					const indicatorKeys: string[] = [];
+					const operationKeys: string[] = [];
 
-					Object.keys(keys).forEach((k) => {
+					for (const k of Object.keys(keys)) {
 						const parsedKey = keys[k];
 						if (parsedKey.type === "kline") {
 							klineKeys.push(k);
 						} else if (parsedKey.type === "indicator") {
 							indicatorKeys.push(k);
+						} else if (parsedKey.type === "operation") {
+							operationKeys.push(k);
 						}
-					});
+					}
 
-					// If chartConfig is not empty, validate and fix
 					if (chartConfig) {
-						// Check if backend returned config is valid
-						// Does it have charts field, and is charts field an array, and is charts field length greater than 0
 						const hasValidConfig =
 							chartConfig.charts &&
 							Array.isArray(chartConfig.charts) &&
 							chartConfig.charts.length > 0;
-						// console.log("Is backend returned chart config valid:", hasValidConfig);
 
 						if (hasValidConfig) {
-							// Use backend config, validate and fix config
-							const { _validateAndFixChartConfig } = get();
-							const validatedConfig = _validateAndFixChartConfig(
+							const validatedConfig = get()._validateAndFixChartConfig(
 								chartConfig,
 								klineKeys,
 								indicatorKeys,
+								operationKeys,
 							);
-							// console.log("Validated and fixed chart config: ", validatedConfig);
 							set({ chartConfig: validatedConfig });
 						}
 					} else {
-						// Backend config is invalid (null, empty array or non-existent), create default chart
-						const { createDefaultChart } = get();
-						await createDefaultChart();
+						await get().createDefaultChart();
 					}
 				} else {
-					// Backend config is invalid (null, empty array or non-existent), create default chart
-					const { createDefaultChart } = get();
-					await createDefaultChart();
+					await get().createDefaultChart();
 				}
 				set({ configLoaded: true });
 			} catch (error) {
 				console.error("Failed to get chart config:", error);
 				set({ configLoaded: true });
-				// Try to create default chart when loading fails
 				try {
-					const { createDefaultChart } = get();
-					await createDefaultChart();
+					await get().createDefaultChart();
 				} catch (defaultError) {
 					console.error("Failed to create default chart as well:", defaultError);
 				}
@@ -277,16 +279,17 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 
 			try {
 				set({ isSaving: true });
-				// Before saving, remove indicators with isDelete true from indicatorChartConfigs in chartConfig
-				const updatedChartConfig = {
-					...chartConfig,
-					charts: chartConfig.charts.map((chart) => ({
-						...chart,
-						indicatorChartConfigs: chart.indicatorChartConfigs.filter(
+				// Before saving, remove indicators and operations with isDelete true
+				const updatedChartConfig = produce(chartConfig, (draft) => {
+					for (const chart of draft.charts) {
+						chart.indicatorChartConfigs = chart.indicatorChartConfigs.filter(
 							(config) => !config.isDelete,
-						),
-					})),
-				};
+						);
+						chart.operationChartConfigs = chart.operationChartConfigs.filter(
+							(config) => !config.isDelete,
+						);
+					}
+				});
 				await updateBacktestStrategyChartConfig(strategyId, updatedChartConfig);
 				toast.success("Chart config saved successfully");
 			} catch (error) {
@@ -302,118 +305,72 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 
 		// Add chart
 		addChart: (klineKeyStr) => {
-			const { chartConfig } = get();
-			const maxChartId = Math.max(
-				...chartConfig.charts.map((chart) => chart.id),
-				0,
-			);
-
 			const klineKey = parseKey(klineKeyStr) as KlineKey;
-			const newChart: BacktestChartConfig = {
-				id: maxChartId + 1,
-				chartName: `${klineKey.symbol} ${klineKey.interval}`,
-				klineChartConfig: {
-					klineKeyStr: klineKeyStr,
-					upColor: "#FF0000",
-					downColor: "#0000FF",
-				},
-				indicatorChartConfigs: [],
-			};
 
-			set({
-				chartConfig: {
-					...chartConfig,
-					charts: [...chartConfig.charts, newChart],
-				},
+			get()._updateChartConfig((draft) => {
+				const maxChartId = Math.max(...draft.charts.map((c) => c.id), 0);
+				draft.charts.push({
+					id: maxChartId + 1,
+					chartName: `${klineKey.symbol} ${klineKey.interval}`,
+					klineChartConfig: {
+						klineKeyStr,
+						upColor: "#FF0000",
+						downColor: "#0000FF",
+					},
+					indicatorChartConfigs: [],
+					operationChartConfigs: [],
+				});
 			});
 			console.log("Current chart config: ", get().chartConfig);
 		},
 
 		// Delete chart
 		deleteChart: (chartId) => {
-			const { chartConfig } = get();
+			const { chartConfig, _updateChartConfig } = get();
 
-			// Check if this is the last chart
 			if (chartConfig.charts.length === 1) {
 				toast.error("At least one chart must be kept");
 				return;
 			}
 
-			set({
-				chartConfig: {
-					...chartConfig,
-					charts: chartConfig.charts.filter((chart) => chart.id !== chartId),
-				},
+			_updateChartConfig((draft) => {
+				const index = draft.charts.findIndex((c) => c.id === chartId);
+				if (index !== -1) {
+					draft.charts.splice(index, 1);
+				}
 			});
 		},
 
 		// Update chart
 		updateChart: (chartId, klineCacheKeyStr, chartName) => {
-			const { chartConfig } = get();
-
-			set({
-				chartConfig: {
-					...chartConfig,
-					charts: chartConfig.charts.map((chart) =>
-						chart.id === chartId
-							? {
-									...chart,
-									chartName,
-									klineChartConfig: {
-										...chart.klineChartConfig,
-										klineKeyStr: klineCacheKeyStr,
-									},
-								}
-							: chart,
-					),
-				},
+			get()._updateChartConfig((draft) => {
+				const chart = draft.charts.find((c) => c.id === chartId);
+				if (chart) {
+					chart.chartName = chartName;
+					chart.klineChartConfig.klineKeyStr = klineCacheKeyStr;
+				}
 			});
 		},
 
 		// Update layout mode
 		updateLayout: (layout) => {
-			const { chartConfig } = get();
-			set({
-				chartConfig: {
-					...chartConfig,
-					layout,
-				},
-			});
-		},
-
-		// Generic chart update function
-		_updateChart: (
-			chartId: number,
-			chartUpdater: (chart: BacktestChartConfig) => BacktestChartConfig,
-		) => {
-			const { chartConfig } = get();
-			set({
-				chartConfig: {
-					...chartConfig,
-					charts: chartConfig.charts.map((chart) =>
-						chart.id === chartId ? chartUpdater(chart) : chart,
-					),
-				},
+			get()._updateChartConfig((draft) => {
+				draft.layout = layout;
 			});
 		},
 
 		// Add indicator
 		addIndicator: (chartId, indicatorChartConfig) => {
-			const indicatorKey = parseKey(
-				indicatorChartConfig.indicatorKeyStr,
-			) as IndicatorKey;
-			const { chartConfig, _updateChart } = get();
+			const { chartConfig, _updateChartConfig } = get();
+			const targetChart = chartConfig.charts.find((c) => c.id === chartId);
 
-			// Check if target chart exists
-			const targetChart = chartConfig.charts.find(
-				(chart) => chart.id === chartId,
-			);
 			if (!targetChart) {
 				console.warn(`Chart ID ${chartId} does not exist`);
 				return;
 			}
 
 			const { indicatorKeyStr } = indicatorChartConfig;
+			const indicatorKey = parseKey(indicatorKeyStr) as IndicatorKey;
 			const indicatorName = indicatorKey.indicatorType.toUpperCase();
 
 			// Check if indicator already exists and is not deleted
@@ -433,161 +390,135 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 					config.indicatorKeyStr === indicatorKeyStr && config.isDelete,
 			);
 
-			if (deletedIndicator) {
-				// Restore deleted indicator
-				_updateChart(chartId, (chart) => ({
-					...chart,
-					indicatorChartConfigs: chart.indicatorChartConfigs.map((config) =>
-						config.indicatorKeyStr === indicatorKeyStr
-							? { ...config, isDelete: false }
-							: config,
-					),
-				}));
-			} else {
-				// Add new indicator
-				_updateChart(chartId, (chart) => ({
-					...chart,
-					indicatorChartConfigs: [
-						...chart.indicatorChartConfigs,
-						indicatorChartConfig,
-					],
-				}));
-			}
+			_updateChartConfig((draft) => {
+				const chart = draft.charts.find((c) => c.id === chartId);
+				if (!chart) return;
+
+				if (deletedIndicator) {
+					// Restore deleted indicator
+					const config = chart.indicatorChartConfigs.find(
+						(c) => c.indicatorKeyStr === indicatorKeyStr,
+					);
+					if (config) config.isDelete = false;
+				} else {
+					// Add new indicator
+					chart.indicatorChartConfigs.push(indicatorChartConfig);
+				}
+			});
 
 			toast.success(`${indicatorName} added successfully`, { duration: 2000 });
 		},
 
 		// Remove indicator
 		removeIndicator: (chartId, indicatorKeyStr) => {
-			const { _updateChart } = get();
+			get()._updateChartConfig((draft) => {
+				const chart = draft.charts.find((c) => c.id === chartId);
+				if (!chart) return;
 
-			// Soft delete: only set isDelete to true, don't remove from array
-			_updateChart(chartId, (chart) => ({
-				...chart,
-				indicatorChartConfigs: chart.indicatorChartConfigs.map((config) =>
-					config.indicatorKeyStr === indicatorKeyStr
-						? { ...config, isDelete: true }
-						: config,
-				),
-			}));
+				const config = chart.indicatorChartConfigs.find(
+					(c) => c.indicatorKeyStr === indicatorKeyStr,
+				);
+				if (config) config.isDelete = true;
+			});
 			console.log("Current chart config: ", get().chartConfig);
 		},
 
-		// Switch kline, when switching kline, all indicators of the chart corresponding to chartId need to be deleted (soft delete)
-		// The chart title corresponding to chartId also needs to be modified
+		// Switch kline
 		changeKline: (chartId, klineKeyStr) => {
-			const { chartConfig } = get();
-			// Delete all indicators
-			chartConfig.charts.forEach((chart) => {
-				if (chart.id === chartId) {
-					chart.indicatorChartConfigs = chart.indicatorChartConfigs.map(
-						(config) => ({ ...config, isDelete: true }),
-					);
-				}
-			});
 			const klineKey = parseKey(klineKeyStr) as KlineKey;
-			set({
-				chartConfig: {
-					...chartConfig,
-					charts: chartConfig.charts.map((chart) =>
-						chart.id === chartId
-							? {
-									...chart,
-									klineChartConfig: { ...chart.klineChartConfig, klineKeyStr },
-									chartName: `${klineKey.symbol} ${klineKey.interval}`,
-								}
-							: chart,
-					),
-				},
+
+			get()._updateChartConfig((draft) => {
+				const chart = draft.charts.find((c) => c.id === chartId);
+				if (!chart) return;
+
+				// Soft delete all indicators and operations
+				for (const config of chart.indicatorChartConfigs) {
+					config.isDelete = true;
+				}
+				for (const config of chart.operationChartConfigs) {
+					config.isDelete = true;
+				}
+
+				// Update kline and chart name
+				chart.klineChartConfig.klineKeyStr = klineKeyStr;
+				chart.chartName = `${klineKey.symbol} ${klineKey.interval}`;
 			});
 			console.log("Current chart config: ", get().chartConfig);
 		},
 
 		// Get chart by ID
 		getChartById: (chartId) => {
-			const { chartConfig } = get();
-			return chartConfig.charts.find((chart) => chart.id === chartId);
+			return get().chartConfig.charts.find((chart) => chart.id === chartId);
 		},
 
 		// Validate and fix chart config
-		_validateAndFixChartConfig: (chartConfig, klineKeys, indicatorKeys) => {
-			const updatedCharts = chartConfig.charts.map((chart) => {
-				const klineChartKey = chart.klineChartConfig.klineKeyStr;
+		_validateAndFixChartConfig: (
+			chartConfig,
+			klineKeys,
+			indicatorKeys,
+			operationKeys,
+		) => {
+			return produce(chartConfig, (draft) => {
+				for (const chart of draft.charts) {
+					const klineChartKey = chart.klineChartConfig.klineKeyStr;
 
-				// Create new chart config object
-				const updatedChart = { ...chart };
+					// Fix invalid kline key
+					if (!klineKeys.includes(klineChartKey)) {
+						if (klineKeys.length === 0) {
+							console.warn("klineKeys is empty, cannot fix missing klineKey");
+						} else {
+							const klineKey = parseKey(klineKeys[0]) as KlineKey;
+							chart.chartName = `${klineKey.symbol} ${klineKey.interval}`;
+							chart.klineChartConfig.klineKeyStr = klineKeys[0];
+						}
+					}
 
-				// Check if klineChartKey is in klineKeys
-				// If not, replace the chart's key with the first one in klineKeys
-				if (!klineKeys.includes(klineChartKey)) {
-					if (klineKeys.length === 0) {
-						console.warn("klineKeys is empty, cannot fix missing klineKey");
-					} else {
-						const klineKey = parseKey(klineKeys[0]) as KlineKey;
-						updatedChart.chartName = `${klineKey.symbol} ${klineKey.interval}`;
-						updatedChart.klineChartConfig = {
-							...chart.klineChartConfig,
-							klineKeyStr: klineKeys[0],
-						};
+					// Mark invalid indicators as deleted
+					for (const indicator of chart.indicatorChartConfigs) {
+						if (!indicatorKeys.includes(indicator.indicatorKeyStr)) {
+							indicator.isDelete = true;
+						}
+					}
+
+					// Mark invalid operations as deleted
+					for (const operation of chart.operationChartConfigs) {
+						if (!operationKeys.includes(operation.operationKeyStr)) {
+							operation.isDelete = true;
+						}
 					}
 				}
 
-				// Process indicator config
-				updatedChart.indicatorChartConfigs = chart.indicatorChartConfigs.map(
-					(indicator_chart) => {
-						const indicatorChartKey = indicator_chart.indicatorKeyStr;
-						// Check if indicatorChartKey is in indicatorKeys
-						if (!indicatorKeys.includes(indicatorChartKey)) {
-							// If not, delete this indicator
-							return { ...indicator_chart, isDelete: true };
-						}
-						return indicator_chart;
-					},
-				);
-
-				return updatedChart;
+				if (!draft.layout) {
+					draft.layout = "vertical";
+				}
 			});
-
-			return {
-				charts: updatedCharts,
-				layout: chartConfig.layout || "vertical",
-			};
 		},
 
+		// Toggle kline visibility
 		toggleKlineVisibility: (chartId) => {
-			const { chartConfig } = get();
-			const targetChart = chartConfig.charts.find(
-				(chart) => chart.id === chartId,
+			const targetChart = get().chartConfig.charts.find(
+				(c) => c.id === chartId,
 			);
 			if (!targetChart) {
 				console.warn(`Chart ID ${chartId} does not exist`);
 				return;
 			}
 
-			const updatedKlineChartConfig = {
-				...targetChart.klineChartConfig,
-				visible:
-					targetChart.klineChartConfig.visible === undefined
-						? false
-						: !targetChart.klineChartConfig.visible,
-			};
+			get()._updateChartConfig((draft) => {
+				const chart = draft.charts.find((c) => c.id === chartId);
+				if (!chart) return;
 
-			set({
-				chartConfig: {
-					...chartConfig,
-					charts: chartConfig.charts.map((chart) =>
-						chart.id === chartId
-							? { ...chart, klineChartConfig: updatedKlineChartConfig }
-							: chart,
-					),
-				},
+				chart.klineChartConfig.visible =
+					chart.klineChartConfig.visible === undefined
+						? false
+						: !chart.klineChartConfig.visible;
 			});
 		},
 
+		// Get kline visibility
 		getKlineVisibility: (chartId) => {
-			const { chartConfig } = get();
-			const targetChart = chartConfig.charts.find(
-				(chart) => chart.id === chartId,
+			const targetChart = get().chartConfig.charts.find(
+				(c) => c.id === chartId,
 			);
 			if (!targetChart) {
 				console.warn(`Chart ID ${chartId} does not exist`);
@@ -600,75 +531,184 @@ export const useBacktestChartConfigStore = create<BacktestChartConfigState>(
 			);
 		},
 
+		// Toggle indicator visibility
 		toggleIndicatorVisibility: (chartId, indicatorKeyStr) => {
-			const { chartConfig } = get();
-			const targetChart = chartConfig.charts.find(
-				(chart) => chart.id === chartId,
+			const targetChart = get().chartConfig.charts.find(
+				(c) => c.id === chartId,
 			);
 			if (!targetChart) {
 				console.warn(`Chart ID ${chartId} does not exist`);
 				return;
 			}
 
-			const indicatorChartConfig = targetChart.indicatorChartConfigs.find(
-				(config) => config.indicatorKeyStr === indicatorKeyStr,
+			const indicatorConfig = targetChart.indicatorChartConfigs.find(
+				(c) => c.indicatorKeyStr === indicatorKeyStr,
 			);
-
-			if (!indicatorChartConfig) {
+			if (!indicatorConfig) {
 				console.warn(`Indicator ${indicatorKeyStr} does not exist`);
 				return;
 			}
 
-			const updatedIndicatorChartConfig = {
-				...indicatorChartConfig,
-				visible:
-					indicatorChartConfig.visible === undefined
-						? false
-						: !indicatorChartConfig.visible, // If visible is undefined, default to not showing
-			};
+			get()._updateChartConfig((draft) => {
+				const chart = draft.charts.find((c) => c.id === chartId);
+				if (!chart) return;
 
-			set({
-				chartConfig: {
-					...chartConfig,
-					charts: chartConfig.charts.map((chart) =>
-						chart.id === chartId
-							? {
-									...chart,
-									indicatorChartConfigs: chart.indicatorChartConfigs.map(
-										(config) =>
-											config.indicatorKeyStr === indicatorKeyStr
-												? updatedIndicatorChartConfig
-												: config,
-									),
-								}
-							: chart,
-					),
-				},
+				const config = chart.indicatorChartConfigs.find(
+					(c) => c.indicatorKeyStr === indicatorKeyStr,
+				);
+				if (config) {
+					config.visible =
+						config.visible === undefined ? false : !config.visible;
+				}
 			});
 		},
 
+		// Get indicator visibility
 		getIndicatorVisibility: (chartId, indicatorKeyStr) => {
-			const { chartConfig } = get();
-			const targetChart = chartConfig.charts.find(
-				(chart) => chart.id === chartId,
+			const targetChart = get().chartConfig.charts.find(
+				(c) => c.id === chartId,
 			);
 			if (!targetChart) {
 				console.warn(`Chart ID ${chartId} does not exist`);
 				return false;
 			}
 
-			const indicatorChartConfig = targetChart.indicatorChartConfigs.find(
-				(config) => config.indicatorKeyStr === indicatorKeyStr,
+			const indicatorConfig = targetChart.indicatorChartConfigs.find(
+				(c) => c.indicatorKeyStr === indicatorKeyStr,
 			);
-
-			if (!indicatorChartConfig) {
+			if (!indicatorConfig) {
 				console.warn(`Indicator ${indicatorKeyStr} does not exist`);
 				return false;
 			}
 
 			return (
-				indicatorChartConfig.visible === true ||
-				indicatorChartConfig.visible === undefined
+				indicatorConfig.visible === true ||
+				indicatorConfig.visible === undefined
+			);
+		},
+
+		// Add operation
+		addOperation: (chartId, operationChartConfig) => {
+			const { chartConfig, _updateChartConfig } = get();
+			const targetChart = chartConfig.charts.find((c) => c.id === chartId);
+
+			if (!targetChart) {
+				console.warn(`Chart ID ${chartId} does not exist`);
+				return;
+			}
+
+			const { operationKeyStr } = operationChartConfig;
+			const operationKey = parseKey(operationKeyStr) as OperationKey;
+			const operationName = operationKey.name.toUpperCase();
+
+			// Check if operation already exists and is not deleted
+			const existingOperation = targetChart.operationChartConfigs.find(
+				(config) =>
+					config.operationKeyStr === operationKeyStr && !config.isDelete,
+			);
+
+			if (existingOperation) {
+				toast.warning(`${operationName} already exists`, { duration: 2000 });
+				return;
+			}
+
+			// Check if a deleted operation with the same name exists
+			const deletedOperation = targetChart.operationChartConfigs.find(
+				(config) =>
+					config.operationKeyStr === operationKeyStr && config.isDelete,
+			);
+
+			_updateChartConfig((draft) => {
+				const chart = draft.charts.find((c) => c.id === chartId);
+				if (!chart) return;
+
+				if (deletedOperation) {
+					// Restore deleted operation and update with new config
+					const config = chart.operationChartConfigs.find(
+						(c) => c.operationKeyStr === operationKeyStr,
+					);
+					if (config) {
+						config.isDelete = false;
+						config.isInMainChart = operationChartConfig.isInMainChart;
+						config.visible = operationChartConfig.visible;
+						config.seriesConfigs = operationChartConfig.seriesConfigs;
+					}
+				} else {
+					// Add new operation
+					chart.operationChartConfigs.push(operationChartConfig);
+				}
+			});
+
+			toast.success(`${operationName} added successfully`, { duration: 2000 });
+		},
+
+		// Remove operation
+		removeOperation: (chartId, operationKeyStr) => {
+			get()._updateChartConfig((draft) => {
+				const chart = draft.charts.find((c) => c.id === chartId);
+				if (!chart) return;
+
+				const config = chart.operationChartConfigs.find(
+					(c) => c.operationKeyStr === operationKeyStr,
+				);
+				if (config) config.isDelete = true;
+			});
+			console.log("Current chart config: ", get().chartConfig);
+		},
+
+		// Toggle operation visibility
+		toggleOperationVisibility: (chartId, operationKeyStr) => {
+			const targetChart = get().chartConfig.charts.find(
+				(c) => c.id === chartId,
+			);
+			if (!targetChart) {
+				console.warn(`Chart ID ${chartId} does not exist`);
+				return;
+			}
+
+			const operationConfig = targetChart.operationChartConfigs.find(
+				(c) => c.operationKeyStr === operationKeyStr,
+			);
+			if (!operationConfig) {
+				console.warn(`Operation ${operationKeyStr} does not exist`);
+				return;
+			}
+
+			get()._updateChartConfig((draft) => {
+				const chart = draft.charts.find((c) => c.id === chartId);
+				if (!chart) return;
+
+				const config = chart.operationChartConfigs.find(
+					(c) => c.operationKeyStr === operationKeyStr,
+				);
+				if (config) {
+					config.visible =
+						config.visible === undefined ? false : !config.visible;
+				}
+			});
+		},
+
+		// Get operation visibility
+		getOperationVisibility: (chartId, operationKeyStr) => {
+			const targetChart = get().chartConfig.charts.find(
+				(c) => c.id === chartId,
+			);
+			if (!targetChart) {
+				console.warn(`Chart ID ${chartId} does not exist`);
+				return false;
+			}
+
+			const operationConfig = targetChart.operationChartConfigs.find(
+				(c) => c.operationKeyStr === operationKeyStr,
+			);
+			if (!operationConfig) {
+				console.warn(`Operation ${operationKeyStr} does not exist`);
+				return false;
+			}
+
+			return (
+				operationConfig.visible === true ||
+				operationConfig.visible === undefined
 			);
 		},
 

@@ -21,31 +21,18 @@ import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import type { Kline } from "@/types/kline";
 import type { VirtualOrder } from "@/types/order";
 import type { VirtualPosition } from "@/types/position";
-import type { IndicatorKeyStr, KeyStr, KlineKeyStr } from "@/types/symbol-key";
+import type { IndicatorKeyStr, KeyStr, KlineKeyStr, OperationKeyStr } from "@/types/symbol-key";
 
 // ==================== Data Slice Types ====================
 export interface DataSlice {
 	klineKeyStr: KlineKeyStr | null;
-	// klineData: CandlestickData[];
-	// indicatorData: Record<
-	// 	IndicatorKeyStr,
-	// 	Record<keyof IndicatorValueConfig, SingleValueData[]>
-	// >;
+
 	isDataInitialized: boolean;
 
 	visibleLogicalRange: LogicalRange | null; // Visible logical range
 
 	setKlineKeyStr: (klineKeyStr: KlineKeyStr) => void;
 	getKlineKeyStr: () => KlineKeyStr | null;
-	// setKlineData: (data: CandlestickData[]) => void;
-	// getKlineData: () => CandlestickData[];
-	// deleteKlineData: () => void;
-	// setIndicatorData: (
-	// 	keyStr: KeyStr,
-	// 	data: Record<keyof IndicatorValueConfig, SingleValueData[]>,
-	// ) => void;
-	// getIndicatorData: (indicatorKeyStr: IndicatorKeyStr) => Record<keyof IndicatorValueConfig, SingleValueData[]>;
-	// deleteIndicatorData: (indicatorKeyStr: IndicatorKeyStr) => void;
 	getIsDataInitialized: () => boolean;
 	setIsDataInitialized: (initialized: boolean) => void;
 	// getLastKline: (keyStr: KeyStr) => CandlestickData | SingleValueData | null;
@@ -65,9 +52,18 @@ export interface RefsSlice {
 			ISeriesApi<"Line"> | ISeriesApi<"Area"> | ISeriesApi<"Histogram"> | null
 		>
 	>;
+	operationSeriesRef: Record<
+		OperationKeyStr,
+		Record<
+			string,
+			ISeriesApi<"Line"> | ISeriesApi<"Area"> | ISeriesApi<"Histogram"> | null
+		>
+	>;
 	orderMarkerSeriesRef: ISeriesMarkersPluginApi<Time> | null;
-	subChartPaneRef: Record<IndicatorKeyStr, IPaneApi<Time> | null>;
-	subChartPaneHtmlElementRef: Record<IndicatorKeyStr, HTMLElement | null>;
+	indicatorSubChartPaneRef: Record<IndicatorKeyStr, IPaneApi<Time> | null>;
+	indicatorSubChartPaneHtmlElementRef: Record<IndicatorKeyStr, HTMLElement | null>;
+	operationSubChartPaneRef: Record<OperationKeyStr, IPaneApi<Time> | null>;
+	operationSubChartPaneHtmlElementRef: Record<OperationKeyStr, HTMLElement | null>;
 	paneVersion: number;
 
 	setChartRef: (chart: IChartApi | null) => void;
@@ -91,23 +87,54 @@ export interface RefsSlice {
 		ISeriesApi<"Line"> | ISeriesApi<"Area"> | ISeriesApi<"Histogram"> | null
 	>;
 	deleteIndicatorSeriesRef: (indicatorKeyStr: IndicatorKeyStr) => void;
+	setOperationSeriesRef: (
+		operationKeyStr: OperationKeyStr,
+		outputSeriesKey: string,
+		ref: ISeriesApi<"Line"> | ISeriesApi<"Area"> | ISeriesApi<"Histogram">,
+	) => void;
+	getOperationSeriesRef: (
+		operationKeyStr: OperationKeyStr,
+		outputSeriesKey: string,
+	) => ISeriesApi<"Line"> | ISeriesApi<"Area"> | ISeriesApi<"Histogram"> | null;
+	getOperationAllSeriesRef: (
+		operationKeyStr: OperationKeyStr,
+	) => Record<
+		string,
+		ISeriesApi<"Line"> | ISeriesApi<"Area"> | ISeriesApi<"Histogram"> | null
+	>;
+	deleteOperationSeriesRef: (operationKeyStr: OperationKeyStr) => void;
 	setOrderMarkerSeriesRef: (ref: ISeriesMarkersPluginApi<Time>) => void;
 	getOrderMarkerSeriesRef: () => ISeriesMarkersPluginApi<Time> | null;
 	deleteOrderMarkerSeriesRef: () => void;
-	setSubChartPaneRef: (
+	setIndicatorSubChartPaneRef: (
 		indicatorKeyStr: IndicatorKeyStr,
 		ref: IPaneApi<Time>,
 	) => void;
-	deleteSubChartPaneRef: (indicatorKeyStr: IndicatorKeyStr) => void;
-	getSubChartPaneRef: (
+	deleteIndicatorSubChartPaneRef: (indicatorKeyStr: IndicatorKeyStr) => void;
+	getIndicatorSubChartPaneRef: (
 		indicatorKeyStr: IndicatorKeyStr,
 	) => IPaneApi<Time> | null;
-	addSubChartPaneHtmlElementRef: (
+	addIndicatorSubChartPaneHtmlElementRef: (
 		indicatorKeyStr: IndicatorKeyStr,
 		htmlElement: HTMLElement,
 	) => void;
-	getSubChartPaneHtmlElementRef: (
+	getIndicatorSubChartPaneHtmlElementRef: (
 		indicatorKeyStr: IndicatorKeyStr,
+	) => HTMLElement | null;
+	setOperationSubChartPaneRef: (
+		operationKeyStr: OperationKeyStr,
+		ref: IPaneApi<Time>,
+	) => void;
+	getOperationSubChartPaneRef: (
+		operationKeyStr: OperationKeyStr,
+	) => IPaneApi<Time> | null;
+	deleteOperationSubChartPaneRef: (operationKeyStr: OperationKeyStr) => void;
+	addOperationSubChartPaneHtmlElementRef: (
+		operationKeyStr: OperationKeyStr,
+		htmlElement: HTMLElement,
+	) => void;
+	getOperationSubChartPaneHtmlElementRef: (
+		operationKeyStr: OperationKeyStr,
 	) => HTMLElement | null;
 	getPaneVersion: () => number;
 	incrementPaneVersion: () => void;
@@ -173,6 +200,10 @@ export interface EventHandlerSlice {
 		indicatorKeyStr: KeyStr,
 		indicatorData: Record<keyof IndicatorValueConfig, SingleValueData[]>,
 	) => void;
+	onNewOperation: (
+		operationKeyStr: KeyStr,
+		operationData: Record<string, SingleValueData[]>,
+	) => void;
 	onNewOrder: (newOrder: VirtualOrder) => void;
 	onOrderFilled: (order: VirtualOrder) => void;
 	onOrderCreated: (order: VirtualOrder) => void;
@@ -202,6 +233,12 @@ export interface DataInitializationSlice {
 		datetime: string,
 		circleId: number,
 	) => Promise<void>;
+	initOperationData: (
+		strategyId: number,
+		operationKeyStr: OperationKeyStr,
+		datetime: string,
+		circleId: number,
+	) => Promise<void>;
 	initVirtualOrderData: (strategyId: number) => Promise<void>;
 	initVirtualPositionData: (strategyId: number) => Promise<void>;
 	_processKlineData: (
@@ -214,6 +251,11 @@ export interface DataInitializationSlice {
 		keyStr: KeyStr,
 		datetime: string,
 	) => Promise<Record<keyof IndicatorValueConfig, SingleValueData[]> | null>;
+	_processOperationData: (
+		strategyId: number,
+		keyStr: KeyStr,
+		datetime: string,
+	) => Promise<Record<string, SingleValueData[]> | null>;
 }
 
 // ==================== Utility Slice Types ====================

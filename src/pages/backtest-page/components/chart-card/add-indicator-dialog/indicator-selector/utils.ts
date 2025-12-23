@@ -1,5 +1,5 @@
 import type { TFunction } from "i18next";
-import { type IndicatorType, MAType } from "@/types/indicator";
+import type { IndicatorType, MAType } from "@/types/indicator";
 import { getIndicatorConfig } from "@/types/indicator/indicator-config";
 
 export interface IndicatorOption {
@@ -9,18 +9,6 @@ export interface IndicatorOption {
 	indicatorConfig: Record<string, unknown>;
 }
 
-// MA type label mapping
-const MA_TYPE_LABELS: Record<MAType, string> = {
-	[MAType.SMA]: "SMA",
-	[MAType.EMA]: "EMA",
-	[MAType.WMA]: "WMA",
-	[MAType.DEMA]: "DEMA",
-	[MAType.TEMA]: "TEMA",
-	[MAType.TRIMA]: "TRIMA",
-	[MAType.KAMA]: "KAMA",
-	[MAType.MANA]: "MANA",
-	[MAType.T3]: "T3",
-};
 
 // Get indicator parameter display text based on new config structure
 export const getIndicatorConfigDisplay = (

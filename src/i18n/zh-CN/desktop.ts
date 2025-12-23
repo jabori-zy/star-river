@@ -61,6 +61,7 @@ const translation = {
     },
     backtestPage: {
         indicator: "指标",
+        operation: "自定义运算",
         deleteChart: "删除图表",
         addChart: "添加图表",
         saveChart: "保存图表",
@@ -81,6 +82,10 @@ const translation = {
         addIndicator: "添加指标",
         addIndicatorDescription: "选择要添加到图表的技术指标。",
         addIndicatorPlaceholder: "选择要添加的指标",
+        addOperation: "添加运算",
+        addOperationDescription: "选择要添加到图表的自定义运算。",
+        addOperationPlaceholder: "选择要添加的运算",
+        inMainChart: "显示在主图",
         variable: {
             type: "类型",
             varType: "变量类型",

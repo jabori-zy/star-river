@@ -1,5 +1,5 @@
 // import RealtimeTickingStockCharts from "@/components/chart/SciChart";
-import { ChartSpline, Ellipsis, Search, Trash2 } from "lucide-react";
+import { ChartSpline, Ellipsis, Group, Search, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import BacktestChart from "@/components/chart/backtest-chart";
@@ -11,9 +11,10 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
-import type { IndicatorChartConfig } from "@/types/chart";
+import type { IndicatorChartConfig, OperationChartConfig } from "@/types/chart";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import AddIndicatorDialog from "./add-indicator-dialog";
+import AddOperationDialog from "./add-operation-dialog";
 import SymbolListDialog from "./symbol-list-dialog";
 
 interface ChartCardProps {
@@ -24,11 +25,12 @@ interface ChartCardProps {
 const ChartCard: React.FC<ChartCardProps> = ({ chartConfig, strategyId }) => {
 	const { t } = useTranslation();
 	// Use methods from store
-	const { deleteChart, addIndicator, changeKline } =
+	const { deleteChart, addIndicator, addOperation, changeKline } =
 		useBacktestChartConfigStore();
 
 	const [isSymbolDialogOpen, setIsSymbolDialogOpen] = useState(false);
 	const [isIndicatorDialogOpen, setIsIndicatorDialogOpen] = useState(false);
+	const [isOperationDialogOpen, setIsOperationDialogOpen] = useState(false);
 
 	// Handle kline selection
 	const handleKlineSelect = (klineCacheKeyStr: string) => {
@@ -38,6 +40,11 @@ const ChartCard: React.FC<ChartCardProps> = ({ chartConfig, strategyId }) => {
 	// Handle indicator addition
 	const handleIndicatorAdd = (indicatorChartConfig: IndicatorChartConfig) => {
 		addIndicator(chartConfig.id, indicatorChartConfig);
+	};
+
+	// Handle operation addition
+	const handleOperationAdd = (operationChartConfig: OperationChartConfig) => {
+		addOperation(chartConfig.id, operationChartConfig);
 	};
 
 	return (
@@ -61,6 +68,15 @@ const ChartCard: React.FC<ChartCardProps> = ({ chartConfig, strategyId }) => {
 					>
 						<ChartSpline className="w-4 h-4 text-gray-500" />
 						{t("desktop.backtestPage.indicator")}
+					</Button>
+					<div className="w-[1px] h-4 bg-gray-300" />
+					<Button
+						className="flex flex-row items-center gap-2 text-sm font-medium"
+						variant="ghost"
+						onClick={() => setIsOperationDialogOpen(true)}
+					>
+						<Group className="w-4 h-4 text-gray-500" />
+						{t("desktop.backtestPage.operation")}
 					</Button>
 				</div>
 
@@ -98,6 +114,15 @@ const ChartCard: React.FC<ChartCardProps> = ({ chartConfig, strategyId }) => {
 				onOpenChange={setIsIndicatorDialogOpen}
 				strategyId={strategyId}
 				onIndicatorAdd={handleIndicatorAdd}
+			/>
+
+			{/* Operation addition Dialog */}
+			<AddOperationDialog
+				chartConfig={chartConfig}
+				open={isOperationDialogOpen}
+				onOpenChange={setIsOperationDialogOpen}
+				strategyId={strategyId}
+				onOperationAdd={handleOperationAdd}
 			/>
 		</div>
 	);

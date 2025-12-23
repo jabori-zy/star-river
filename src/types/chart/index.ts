@@ -6,7 +6,7 @@ import type {
 	Time,
 } from "lightweight-charts";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
-import type { IndicatorKeyStr, KeyStr } from "@/types/symbol-key";
+import type { IndicatorKeyStr, KeyStr, OperationKeyStr } from "@/types/symbol-key";
 import type { StrategyStatsName } from "../statistics";
 
 export type { BacktestStrategyChartConfig } from "./backtest-chart";
@@ -32,8 +32,13 @@ export type SeriesBaseConfig = {
 };
 
 // Indicator chart data series configuration
-export type SeriesConfig = {
+export type IndicatorSeriesConfig = {
 	indicatorValueKey: keyof IndicatorValueConfig; // Indicator value key name
+} & SeriesBaseConfig;
+
+
+export type OperationSeriesConfig = {
+	outputSeriesKey: string;
 } & SeriesBaseConfig;
 
 // Stats chart data series configuration
@@ -44,7 +49,7 @@ export type StatsSeriesConfig = {
 export type IndicatorChartBaseConfig = {
 	isInMainChart: boolean; // isInMainChart
 	visible?: boolean; // Indicator visibility
-	seriesConfigs: SeriesConfig[];
+	seriesConfigs: IndicatorSeriesConfig[];
 };
 
 export type IndicatorChartConfig = IndicatorChartBaseConfig & {
@@ -58,6 +63,26 @@ export type KlineChartConfig = {
 	upColor?: string; // Up color
 	downColor?: string; // Down color
 };
+
+
+export type OperationChartConfig = {
+	isInMainChart: boolean;
+	visible?: boolean;
+	operationKeyStr: OperationKeyStr;
+	isDelete: boolean;
+	seriesConfigs: OperationSeriesConfig[];
+};
+
+
+
+
+
+
+
+
+
+
+
 
 export type OrderMarker = {
 	time: Time;

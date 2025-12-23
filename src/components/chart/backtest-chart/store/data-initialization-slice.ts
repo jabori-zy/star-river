@@ -19,7 +19,7 @@ import type { Kline } from "@/types/kline";
 import type { VirtualOrder } from "@/types/order";
 import { OrderStatus, OrderType } from "@/types/order";
 import type { VirtualPosition } from "@/types/position";
-import type { IndicatorKeyStr, KeyStr } from "@/types/symbol-key";
+import type { IndicatorKeyStr, KeyStr, KlineKey, OperationKeyStr } from "@/types/symbol-key";
 import { parseKey } from "@/utils/parse-key";
 import {
 	getChartAlignedUtcTimestamp,
@@ -155,6 +155,72 @@ export const createDataInitializationSlice =
 			}
 		},
 
+		// Private method: process operation data
+		_processOperationData: async (
+			strategyId: number,
+			keyStr: KeyStr,
+			datetime: string,
+		) => {
+			const state = get();
+			const initialOperationData = (await getStrategyDataApi({
+				strategyId,
+				keyStr,
+				datetime,
+				limit: INITIAL_DATA_LENGTH,
+			})) as Record<string, number | Date>[];
+
+			// Safety check: ensure operation data exists
+			if (
+				initialOperationData &&
+				Array.isArray(initialOperationData) &&
+				initialOperationData.length > 0
+			) {
+				const operationData: Record<string, SingleValueData[]> = {};
+				initialOperationData.forEach((item) => {
+					Object.entries(item).forEach(([outputKey, value]) => {
+						// Skip datetime field, only process operation values, and filter out zero and null values
+						if (outputKey !== "datetime" && value !== 0 && value !== null) {
+							operationData[outputKey] = [
+								...(operationData[outputKey] || []),
+								{
+									time: getChartAlignedUtcTimestamp(
+										item.datetime as unknown as string,
+									) as UTCTimestamp,
+									value: value as number,
+								} as SingleValueData,
+							];
+						}
+					});
+				});
+
+				const currentChartConfig = get().chartConfig;
+				const operationChartConfig =
+					currentChartConfig?.operationChartConfigs.find(
+						(config) => config.operationKeyStr === keyStr,
+					);
+				setTimeout(() => {
+					if (operationChartConfig) {
+						operationChartConfig.seriesConfigs.forEach((seriesConfig) => {
+							const operationSeriesRef = state.getOperationSeriesRef(
+								operationChartConfig.operationKeyStr,
+								seriesConfig.outputSeriesKey,
+							);
+							if (operationSeriesRef) {
+								operationSeriesRef.setData(
+									operationData[seriesConfig.outputSeriesKey],
+								);
+							}
+						});
+					}
+				}, 10);
+
+				return operationData;
+			} else {
+				console.warn(`No operation data received for keyStr: ${keyStr}`);
+				return null;
+			}
+		},
+
 		initChartData: async (
 			datetime: string,
 			circleId: number,
@@ -173,6 +239,12 @@ export const createDataInitializationSlice =
 						await state._processKlineData(strategyId, keyStr, datetime);
 					} else if (key.type === "indicator") {
 						return await state._processIndicatorData(
+							strategyId,
+							keyStr,
+							datetime,
+						);
+					} else if (key.type === "operation") {
+						return await state._processOperationData(
 							strategyId,
 							keyStr,
 							datetime,
@@ -239,6 +311,38 @@ export const createDataInitializationSlice =
 			}
 		},
 
+		initOperationData: async (
+			strategyId: number,
+			operationKeyStr: OperationKeyStr,
+			datetime: string,
+			circleId: number,
+		) => {
+			if (circleId === 0) {
+				return;
+			}
+			const state = get();
+
+			try {
+				const key = parseKey(operationKeyStr);
+
+				// Only process operation type keys
+				if (key.type === "operation") {
+					await state._processOperationData(
+						strategyId,
+						operationKeyStr,
+						datetime,
+					);
+				} else {
+					console.warn(`Key ${operationKeyStr} is not an operation key`);
+				}
+			} catch (error) {
+				console.error(
+					`Error loading operation data for keyStr: ${operationKeyStr}`,
+					error,
+				);
+			}
+		},
+
 		initVirtualOrderData: async (strategyId: number) => {
 			const virtualOrderData = await getVirtualOrder(strategyId);
 			// Clear order markers
@@ -284,7 +388,7 @@ export const createDataInitializationSlice =
 			const chartConfig = get().chartConfig;
 			const klineKeyStr = chartConfig?.klineChartConfig.klineKeyStr;
 			if (klineKeyStr) {
-				const klineKey = parseKey(klineKeyStr);
+				const klineKey = parseKey(klineKeyStr) as KlineKey;
 				const virtualPositionData = await getVirtualPosition(strategyId);
 				const orderPriceLine: PositionPriceLine[] = [];
 				// Get current symbol positions

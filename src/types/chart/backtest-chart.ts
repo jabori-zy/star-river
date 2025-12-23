@@ -2,6 +2,7 @@ import type {
 	IndicatorChartConfig,
 	KlineChartConfig,
 	LayoutMode,
+	OperationChartConfig,
 	// SubChartConfig,
 } from ".";
 
@@ -11,6 +12,7 @@ export type BacktestChartConfig = {
 	chartName: string;
 	klineChartConfig: KlineChartConfig;
 	indicatorChartConfigs: IndicatorChartConfig[];
+	operationChartConfigs: OperationChartConfig[];
 };
 
 export type BacktestStrategyChartConfig = {

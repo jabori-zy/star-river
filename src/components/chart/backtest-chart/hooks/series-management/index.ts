@@ -9,6 +9,11 @@ export type {
 } from "./use-kline-series-manager";
 export { useKlineSeriesManager } from "./use-kline-series-manager";
 export type {
+	UseOperationSeriesManagerProps,
+	UseOperationSeriesManagerReturn,
+} from "./use-operation-series-manager";
+export { useOperationSeriesManager } from "./use-operation-series-manager";
+export type {
 	UseSeriesConfigManagerProps,
 	UseSeriesConfigManagerReturn,
 } from "./use-series-config-manager";

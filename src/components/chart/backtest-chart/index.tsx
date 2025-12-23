@@ -2,14 +2,19 @@ import type { IChartApi } from "lightweight-charts";
 import { ArrowRightToLine } from "lucide-react";
 import { useCallback, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { useBacktestChart } from "@/hooks/chart/backtest-chart";
+import { useBacktestChart } from "@/components/chart/backtest-chart/hooks";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import { useBacktestChartStore } from "./backtest-chart-store";
 import { chartOptions } from "./chart-config";
-// import IndicatorDebugPanel from "./debug/indicator-debug-panel";
+import ChartDebugPanel from "./debug/chart-debug-panel";
 import { KlineLegend } from "./kline-legend";
-import MainChartIndicatorLegend from "./main-chart-indicator-legend";
-import { SubchartIndicatorLegend } from "./subchart-indicator-legend";
+import MainChartIndicatorLegend from "./indicator-legend/main-chart-indicator-legend";
+import MainChartOperationLegend from "./operation-legend/main-chart-operation-legend";
+import { SubchartIndicatorLegend } from "./indicator-legend/subchart-indicator-legend";
+import { SubchartOperationLegend } from "./operation-legend/subchart-operation-legend";
+
+// Check if in development mode
+const isDev = import.meta.env.DEV;
 
 interface BacktestChartProps {
 	strategyId: number;
@@ -107,6 +112,26 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 					/>
 				))}
 
+			{/* Main chart operation legends */}
+			{(chartConfig.operationChartConfigs || [])
+				.filter(
+					(operationConfig) =>
+						operationConfig.isInMainChart && !operationConfig.isDelete,
+				)
+				.map((operationConfig, index) => (
+					<MainChartOperationLegend
+						key={operationConfig.operationKeyStr}
+						chartId={chartConfig.id}
+						operationKeyStr={operationConfig.operationKeyStr}
+						index={index}
+						indicatorCount={
+							chartConfig.indicatorChartConfigs.filter(
+								(config) => config.isInMainChart && !config.isDelete,
+							).length
+						}
+					/>
+				))}
+
 			{/* Subchart indicator legends - use Portal to render to corresponding Pane */}
 			{chartConfig.indicatorChartConfigs
 				.filter((config) => !config.isInMainChart && !config.isDelete)
@@ -120,11 +145,26 @@ const BacktestChart = ({ strategyId, chartConfig }: BacktestChartProps) => {
 					);
 				})}
 
-			{/* Debug panel
-			<IndicatorDebugPanel
-				chartConfig={chartConfig}
-				chartApiRef={chartApiRef}
-			/> */}
+			{/* Subchart operation legends - use Portal to render to corresponding Pane */}
+			{(chartConfig.operationChartConfigs || [])
+				.filter((config) => !config.isInMainChart && !config.isDelete)
+				.map((operationConfig) => {
+					return (
+						<SubchartOperationLegend
+							key={operationConfig.operationKeyStr}
+							chartId={chartConfig.id}
+							operationKeyStr={operationConfig.operationKeyStr}
+						/>
+					);
+				})}
+
+			{/* Debug panel - only visible in development mode */}
+			{isDev && (
+				<ChartDebugPanel
+					chartConfig={chartConfig}
+					chartApiRef={chartApiRef}
+				/>
+			)}
 		</div>
 	);
 };

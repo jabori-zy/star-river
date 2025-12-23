@@ -64,6 +64,7 @@ const translation = {
 	},
 	backtestPage: {
 		indicator: "Indicator",
+		operation: "Operation",
 		deleteChart: "Delete Chart",
 		addChart: "Add Chart",
 		saveChart: "Save Chart",
@@ -86,6 +87,11 @@ const translation = {
 		addIndicatorDescription:
 			"Select the technical indicators to add to the chart.",
 		addIndicatorPlaceholder: "Choose the indicator you want to add",
+		addOperation: "Add Operation",
+		addOperationDescription:
+			"Select the custom operation to add to the chart.",
+		addOperationPlaceholder: "Choose the operation you want to add",
+		inMainChart: "In main chart",
 		showHistoryPositions: "Show History Positions",
 		variable: {
 			type: "Type",

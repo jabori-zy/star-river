@@ -28,8 +28,15 @@ export const useChartLifecycle = ({
 	initializeBacktestChart,
 	chartId,
 }: UseChartLifecycleProps): void => {
-	const { getChartRef, setChartRef, initChartData } =
-		useBacktestChartStore(chartId);
+	const {
+		getChartRef,
+		setChartRef,
+		initChartData,
+		// Cleanup methods
+		cleanupSubscriptions,
+		deleteKlineSeriesRef,
+		deleteOrderMarkerSeriesRef,
+	} = useBacktestChartStore(chartId);
 
 	/**
 	 * Container reference validity monitoring
@@ -47,9 +54,11 @@ export const useChartLifecycle = ({
 	 * 3. Compare whether the actually bound DOM element is still a child of the current container
 	 *
 	 * Repair process:
-	 * 1. Destroy old chart instance (chart.remove())
-	 * 2. Clear chart reference in store (setChartRef(null))
-	 * 3. Reset initialization state to trigger complete re-initialization flow
+	 * 1. Clean up all subscriptions to prevent data pushing to destroyed series
+	 * 2. Clear all series refs (kline, indicator, operation)
+	 * 3. Destroy old chart instance (chart.remove())
+	 * 4. Clear chart reference in store (setChartRef(null))
+	 * 5. Reset initialization state to trigger complete re-initialization flow
 	 */
 	useEffect(() => {
 		const chart = getChartRef();
@@ -60,18 +69,35 @@ export const useChartLifecycle = ({
 			// Check if chart is still correctly bound to current container
 			// If container doesn't exist or its parent element is not the current container, reference is lost
 			if (!container || container.parentElement !== chartContainerRef.current) {
-				// Step 1: Destroy old chart instance, release resources
+				// Step 1: Clean up all subscriptions first to prevent data pushing to destroyed series
+				// This is critical to avoid "Value is null" errors
+				cleanupSubscriptions();
+
+				// Step 2: Clear all series refs before destroying chart
+				deleteKlineSeriesRef();
+				deleteOrderMarkerSeriesRef();
+				// Note: indicator and operation series refs will be rebuilt during re-initialization
+
+				// Step 3: Destroy old chart instance, release resources
 				chart.remove();
 
-				// Step 2: Clear chart reference in store, ensure subsequent initialization can proceed normally
+				// Step 4: Clear chart reference in store, ensure subsequent initialization can proceed normally
 				setChartRef(null);
 
-				// Step 3: Reset initialization state, trigger complete re-initialization flow
+				// Step 5: Reset initialization state, trigger complete re-initialization flow
 				// This will cause useEffect to re-run initChartData and initializeBacktestChart
 				setIsInitialized(false);
 			}
 		}
-	}, [getChartRef, chartContainerRef, setChartRef, setIsInitialized]);
+	}, [
+		getChartRef,
+		chartContainerRef,
+		setChartRef,
+		setIsInitialized,
+		cleanupSubscriptions,
+		deleteKlineSeriesRef,
+		deleteOrderMarkerSeriesRef,
+	]);
 
 	/**
 	 * Data initialization

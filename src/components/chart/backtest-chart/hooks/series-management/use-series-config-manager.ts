@@ -16,13 +16,13 @@ interface UseSeriesConfigManagerReturn {
  * Responsibilities:
  * - Modify K-line visibility
  * - Modify indicator series color and visibility
+ * - Modify operation series color and visibility
  */
 export const useSeriesConfigManager = ({
 	chartConfig,
 }: UseSeriesConfigManagerProps): UseSeriesConfigManagerReturn => {
-	const { getKlineSeriesRef, getIndicatorSeriesRef } = useBacktestChartStore(
-		chartConfig.id,
-	);
+	const { getKlineSeriesRef, getIndicatorSeriesRef, getOperationSeriesRef } =
+		useBacktestChartStore(chartConfig.id);
 
 	const changeSeriesConfig = useCallback(() => {
 		// Toggle candlestick visibility
@@ -48,9 +48,27 @@ export const useSeriesConfigManager = ({
 				}
 			});
 		});
+
+		// Get seriesApi based on operationChartConfig
+		(chartConfig.operationChartConfigs || []).forEach((config) => {
+			config.seriesConfigs.forEach((seriesConfig) => {
+				const seriesApi = getOperationSeriesRef(
+					config.operationKeyStr,
+					seriesConfig.outputSeriesKey,
+				);
+				if (seriesApi) {
+					seriesApi.applyOptions({
+						visible: config.visible,
+						color: seriesConfig.color,
+					});
+				}
+			});
+		});
 	}, [
 		getIndicatorSeriesRef,
+		getOperationSeriesRef,
 		chartConfig.indicatorChartConfigs,
+		chartConfig.operationChartConfigs,
 		getKlineSeriesRef,
 		chartConfig.klineChartConfig.visible,
 	]);

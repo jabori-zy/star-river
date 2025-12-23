@@ -2,7 +2,7 @@ import { Bolt, Eye, EyeOff } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import type { KlineLegendData } from "@/hooks/chart/backtest-chart/use-kline-legend";
+import type { KlineLegendData } from "@/components/chart/backtest-chart/hooks/use-kline-legend";
 import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
 
 interface KlineLegendProps {
@@ -31,6 +31,7 @@ const KlineLegend: React.FC<KlineLegendProps> = ({
 	const maxLengthsRef = useRef<Record<string, number>>({});
 
 	// Reset mechanism: reset max length when chartId changes
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation> we don't need to re-run this effect when maxLengthsRef changes
 	useEffect(() => {
 		maxLengthsRef.current = {};
 	}, [chartId]);

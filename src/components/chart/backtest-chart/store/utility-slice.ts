@@ -28,7 +28,12 @@ export const createUtilitySlice =
 				.filter((indicatorConfig) => !indicatorConfig.isDelete)
 				.map((indicatorConfig) => indicatorConfig.indicatorKeyStr);
 
-			const keyStrs = [klineKeyStr, ...indicatorKeyStrs];
+			// Get all non-deleted operation keyStr from operationChartConfigs array
+			const operationKeyStrs = (chartConfig?.operationChartConfigs || [])
+				.filter((operationConfig) => !operationConfig.isDelete)
+				.map((operationConfig) => operationConfig.operationKeyStr);
+
+			const keyStrs = [klineKeyStr, ...indicatorKeyStrs, ...operationKeyStrs];
 			return keyStrs;
 		},
 
@@ -51,6 +56,17 @@ export const createUtilitySlice =
 			Object.entries(state.indicatorSeriesRef).forEach(
 				([_, indicatorSeries]) => {
 					Object.values(indicatorSeries).forEach((seriesRef) => {
+						if (seriesRef) {
+							seriesRef.setData([]);
+						}
+					});
+				},
+			);
+
+			// Clear all operation series data
+			Object.entries(state.operationSeriesRef).forEach(
+				([_, operationSeries]) => {
+					Object.values(operationSeries).forEach((seriesRef) => {
 						if (seriesRef) {
 							seriesRef.setData([]);
 						}

@@ -4,15 +4,18 @@ import type {
 	SingleValueData,
 	Time,
 } from "lightweight-charts";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useBacktestChartStore } from "@/components/chart/backtest-chart/backtest-chart-store";
 import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
-import type { IndicatorChartConfig, SeriesConfig } from "@/types/chart";
+import type { IndicatorChartConfig, IndicatorSeriesConfig } from "@/types/chart";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import { getIndicatorConfig } from "@/types/indicator/indicator-config";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
 import type { IndicatorKey, IndicatorKeyStr } from "@/types/symbol-key";
 import { parseKey } from "@/utils/parse-key";
+
+// Stable empty object reference to avoid infinite loop caused by || {}
+const EMPTY_SERIES_MAP: Record<string, unknown> = {};
 
 export type IndicatorLegendData = {
 	indicatorName: string;
@@ -87,7 +90,7 @@ const getIndicatorValueColorFromConfig = (
 
 	if (indicatorConfig) {
 		const seriesConfig = indicatorConfig.seriesConfigs?.find(
-			(config: SeriesConfig) => config.indicatorValueKey === valueKey,
+			(config: IndicatorSeriesConfig) => config.indicatorValueKey === valueKey,
 		);
 		if (seriesConfig?.color) {
 			return seriesConfig.color;
@@ -155,7 +158,7 @@ const getLastDataLegendData = (
 	indicatorKeyStr: IndicatorKeyStr,
 	indicatorData: Record<keyof IndicatorValueConfig, SingleValueData[]>,
 	chartConfig: BacktestChartConfig,
-): IndicatorLegendData => {
+): IndicatorLegendData | null => {
 	let latestTime: Time | null = null;
 
 	for (const [_, data] of Object.entries(indicatorData)) {
@@ -166,8 +169,11 @@ const getLastDataLegendData = (
 		}
 	}
 
-	// If no time is found, use current time as default value
-	const time = latestTime || (Math.floor(Date.now() / 1000) as Time);
+	// If no time is found, do not fallback to Date.now() to avoid render loops.
+	if (!latestTime) {
+		return null;
+	}
+	const time = latestTime;
 
 	const indicatorName = parseIndicatorName(indicatorKeyStr);
 	const values = processIndicatorValues(
@@ -183,6 +189,68 @@ const getLastDataLegendData = (
 		time,
 		timeString: timeToString(time),
 	};
+};
+
+// Build empty legend data from chart config (when no series data available)
+const buildEmptyLegendDataFromConfig = (
+	indicatorKeyStr: IndicatorKeyStr,
+	chartConfig: BacktestChartConfig,
+): IndicatorLegendData | null => {
+	const indicatorConfig = chartConfig.indicatorChartConfigs?.find(
+		(config: IndicatorChartConfig) =>
+			config.indicatorKeyStr === indicatorKeyStr && !config.isDelete,
+	);
+
+	if (!indicatorConfig) {
+		return null;
+	}
+
+	const indicatorName = parseIndicatorName(indicatorKeyStr);
+	const values: Record<string, { label: string; value: string; color?: string }> = {};
+
+	// Build empty values from series configs
+	indicatorConfig.seriesConfigs?.forEach((seriesConfig: IndicatorSeriesConfig) => {
+		values[seriesConfig.indicatorValueKey] = {
+			label: seriesConfig.indicatorValueKey,
+			value: "--",
+			color: seriesConfig.color || getIndicatorValueColorFromConfig(
+				indicatorKeyStr,
+				seriesConfig.indicatorValueKey,
+				chartConfig,
+			),
+		};
+	});
+
+	return {
+		indicatorName,
+		values,
+		time: 0 as Time,
+		timeString: "",
+	};
+};
+
+const isIndicatorLegendDataEqual = (
+	a: IndicatorLegendData | null,
+	b: IndicatorLegendData | null,
+): boolean => {
+	if (a === b) return true;
+	if (!a || !b) return false;
+	if (a.time !== b.time) return false;
+
+	const aKeys = Object.keys(a.values);
+	const bKeys = Object.keys(b.values);
+	if (aKeys.length !== bKeys.length) return false;
+
+	for (const key of aKeys) {
+		const av = a.values[key];
+		const bv = b.values[key];
+		if (!bv) return false;
+		if (av.label !== bv.label) return false;
+		if (av.value !== bv.value) return false;
+		if (av.color !== bv.color) return false;
+	}
+
+	return true;
 };
 
 interface UseIndicatorLegendProps {
@@ -201,7 +269,12 @@ export const useIndicatorLegend = ({
 	const chartConfig = useBacktestChartConfigStore
 		.getState()
 		.getChartConfig(chartId) as BacktestChartConfig;
-	const indicatorSeriesMap = indicatorSeriesRef[indicatorKeyStr] || {};
+
+	// Use stable reference to avoid infinite loop
+	const indicatorSeriesMap = useMemo(
+		() => indicatorSeriesRef[indicatorKeyStr] ?? EMPTY_SERIES_MAP,
+		[indicatorSeriesRef, indicatorKeyStr],
+	);
 
 	const buildLegendDataFromSeries = useCallback(() => {
 		const indicatorAllSeriesRef = getIndicatorAllSeriesRef(indicatorKeyStr);
@@ -215,10 +288,15 @@ export const useIndicatorLegend = ({
 		});
 
 		if (Object.keys(indicatorData).length === 0) {
-			return null;
+			// Fallback to empty legend from config when no series data
+			return buildEmptyLegendDataFromConfig(indicatorKeyStr, chartConfig);
 		}
 
-		return getLastDataLegendData(indicatorKeyStr, indicatorData, chartConfig);
+		// Try to get legend data from series, fallback to empty legend if no data
+		return (
+			getLastDataLegendData(indicatorKeyStr, indicatorData, chartConfig) ||
+			buildEmptyLegendDataFromConfig(indicatorKeyStr, chartConfig)
+		);
 	}, [chartConfig, getIndicatorAllSeriesRef, indicatorKeyStr]);
 
 	// Initialize legendData
@@ -228,9 +306,14 @@ export const useIndicatorLegend = ({
 	// console.log("indicator legend initialization", legendData);
 
 	// Sync current series data to legend, ensuring display even when data is ready on first load
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation> aaa
 	useEffect(() => {
 		const latestLegendData = buildLegendDataFromSeries();
-		setLegendData(latestLegendData);
+		setLegendData((prev) =>
+			isIndicatorLegendDataEqual(prev, latestLegendData)
+				? prev
+				: latestLegendData,
+		);
 	}, [buildLegendDataFromSeries, indicatorSeriesMap]);
 
 	// Listen to indicator data change events
@@ -247,12 +330,12 @@ export const useIndicatorLegend = ({
 						seriesRef.data() as SingleValueData[];
 				}
 			});
-			const newLegendData = getLastDataLegendData(
-				indicatorKeyStr,
-				indicatorData,
-				chartConfig,
+			const newLegendData =
+				getLastDataLegendData(indicatorKeyStr, indicatorData, chartConfig) ||
+				buildEmptyLegendDataFromConfig(indicatorKeyStr, chartConfig);
+			setLegendData((prev) =>
+				isIndicatorLegendDataEqual(prev, newLegendData) ? prev : newLegendData,
 			);
-			setLegendData(newLegendData);
 		},
 		[chartConfig, getIndicatorAllSeriesRef, indicatorKeyStr],
 	);
@@ -271,8 +354,21 @@ export const useIndicatorLegend = ({
 				}
 			});
 
+			// If crosshair time is not available, fallback to the latest bar or empty legend
+			if (!param?.time) {
+				const latestLegendData =
+					getLastDataLegendData(indicatorKeyStr, indicatorData, chartConfig) ||
+					buildEmptyLegendDataFromConfig(indicatorKeyStr, chartConfig);
+				setLegendData((prev) =>
+					isIndicatorLegendDataEqual(prev, latestLegendData)
+						? prev
+						: latestLegendData,
+				);
+				return;
+			}
+
 			const indicatorName = parseIndicatorName(indicatorKeyStr);
-			const time = param?.time || null;
+			const time = param.time;
 
 			// Use generic function to process indicator values
 			const values = processIndicatorValues(
@@ -282,15 +378,16 @@ export const useIndicatorLegend = ({
 				chartConfig,
 			);
 
-			const currentTime = time || (Math.floor(Date.now() / 1000) as Time);
-			const newLegendData = {
+			const newLegendData: IndicatorLegendData = {
 				indicatorName,
 				values,
-				time: currentTime,
-				timeString: timeToString(currentTime),
+				time,
+				timeString: timeToString(time),
 			};
 
-			setLegendData(newLegendData);
+			setLegendData((prev) =>
+				isIndicatorLegendDataEqual(prev, newLegendData) ? prev : newLegendData,
+			);
 		},
 		[chartConfig, getIndicatorAllSeriesRef, indicatorKeyStr],
 	);

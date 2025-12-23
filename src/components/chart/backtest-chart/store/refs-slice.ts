@@ -6,16 +6,19 @@ import type {
 	Time,
 } from "lightweight-charts";
 import type { IndicatorValueConfig } from "@/types/indicator/schemas";
-import type { IndicatorKeyStr } from "@/types/symbol-key";
+import type { IndicatorKeyStr, OperationKeyStr } from "@/types/symbol-key";
 import type { RefsSlice, SliceCreator } from "./types";
 
 export const createRefsSlice: SliceCreator<RefsSlice> = (set, get) => ({
 	chartRef: null,
 	klineSeriesRef: null,
 	indicatorSeriesRef: {},
+	operationSeriesRef: {},
 	orderMarkerSeriesRef: null,
-	subChartPaneRef: {},
-	subChartPaneHtmlElementRef: {},
+	indicatorSubChartPaneRef: {},
+	indicatorSubChartPaneHtmlElementRef: {},
+	operationSubChartPaneRef: {},
+	operationSubChartPaneHtmlElementRef: {},
 	paneVersion: 0,
 
 	/**
@@ -62,13 +65,38 @@ export const createRefsSlice: SliceCreator<RefsSlice> = (set, get) => ({
 	getIndicatorAllSeriesRef: (indicatorKeyStr: IndicatorKeyStr) =>
 		get().indicatorSeriesRef[indicatorKeyStr] || {},
 
-	deleteIndicatorSeriesRef: (indicatorKeyStr: IndicatorKeyStr) =>
+	deleteIndicatorSeriesRef: (indicatorKeyStr: IndicatorKeyStr) => {
+		const { [indicatorKeyStr]: _, ...rest } = get().indicatorSeriesRef;
+		set({ indicatorSeriesRef: rest });
+	},
+
+	setOperationSeriesRef: (
+		operationKeyStr: OperationKeyStr,
+		outputSeriesKey: string,
+		ref: ISeriesApi<"Line"> | ISeriesApi<"Area"> | ISeriesApi<"Histogram">,
+	) =>
 		set({
-			indicatorSeriesRef: {
-				...get().indicatorSeriesRef,
-				[indicatorKeyStr]: {},
+			operationSeriesRef: {
+				...get().operationSeriesRef,
+				[operationKeyStr]: {
+					...get().operationSeriesRef[operationKeyStr],
+					[outputSeriesKey]: ref,
+				},
 			},
 		}),
+
+	getOperationSeriesRef: (
+		operationKeyStr: OperationKeyStr,
+		outputSeriesKey: string,
+	) => get().operationSeriesRef[operationKeyStr]?.[outputSeriesKey] || null,
+
+	getOperationAllSeriesRef: (operationKeyStr: OperationKeyStr) =>
+		get().operationSeriesRef[operationKeyStr] || {},
+
+	deleteOperationSeriesRef: (operationKeyStr: OperationKeyStr) => {
+		const { [operationKeyStr]: _, ...rest } = get().operationSeriesRef;
+		set({ operationSeriesRef: rest });
+	},
 
 	setOrderMarkerSeriesRef: (ref: ISeriesMarkersPluginApi<Time>) =>
 		set({ orderMarkerSeriesRef: ref }),
@@ -77,32 +105,67 @@ export const createRefsSlice: SliceCreator<RefsSlice> = (set, get) => ({
 
 	deleteOrderMarkerSeriesRef: () => set({ orderMarkerSeriesRef: null }),
 
-	setSubChartPaneRef: (indicatorKeyStr: IndicatorKeyStr, ref: IPaneApi<Time>) =>
+	setIndicatorSubChartPaneRef: (indicatorKeyStr: IndicatorKeyStr, ref: IPaneApi<Time>) =>
 		set({
-			subChartPaneRef: { ...get().subChartPaneRef, [indicatorKeyStr]: ref },
+			indicatorSubChartPaneRef: { ...get().indicatorSubChartPaneRef, [indicatorKeyStr]: ref },
 		}),
 
-	getSubChartPaneRef: (indicatorKeyStr: IndicatorKeyStr) =>
-		get().subChartPaneRef[indicatorKeyStr] || null,
+	getIndicatorSubChartPaneRef: (indicatorKeyStr: IndicatorKeyStr) =>
+		get().indicatorSubChartPaneRef[indicatorKeyStr] || null,
 
-	deleteSubChartPaneRef: (indicatorKeyStr: IndicatorKeyStr) =>
+	deleteIndicatorSubChartPaneRef: (indicatorKeyStr: IndicatorKeyStr) => {
+		const { [indicatorKeyStr]: _, ...restPaneRef } = get().indicatorSubChartPaneRef;
+		const { [indicatorKeyStr]: __, ...restHtmlRef } = get().indicatorSubChartPaneHtmlElementRef;
 		set({
-			subChartPaneRef: { ...get().subChartPaneRef, [indicatorKeyStr]: null },
-		}),
+			indicatorSubChartPaneRef: restPaneRef,
+			indicatorSubChartPaneHtmlElementRef: restHtmlRef,
+		});
+	},
 
-	addSubChartPaneHtmlElementRef: (
+	addIndicatorSubChartPaneHtmlElementRef: (
 		indicatorKeyStr: IndicatorKeyStr,
 		htmlElement: HTMLElement,
 	) =>
 		set({
-			subChartPaneHtmlElementRef: {
-				...get().subChartPaneHtmlElementRef,
+			indicatorSubChartPaneHtmlElementRef: {
+				...get().indicatorSubChartPaneHtmlElementRef,
 				[indicatorKeyStr]: htmlElement,
 			},
 		}),
 
-	getSubChartPaneHtmlElementRef: (indicatorKeyStr: IndicatorKeyStr) =>
-		get().subChartPaneHtmlElementRef[indicatorKeyStr] || null,
+	getIndicatorSubChartPaneHtmlElementRef: (indicatorKeyStr: IndicatorKeyStr) =>
+		get().indicatorSubChartPaneHtmlElementRef[indicatorKeyStr] || null,
+
+	setOperationSubChartPaneRef: (operationKeyStr: OperationKeyStr, ref: IPaneApi<Time>) =>
+		set({
+			operationSubChartPaneRef: { ...get().operationSubChartPaneRef, [operationKeyStr]: ref },
+		}),
+
+	getOperationSubChartPaneRef: (operationKeyStr: OperationKeyStr) =>
+		get().operationSubChartPaneRef[operationKeyStr] || null,
+
+	deleteOperationSubChartPaneRef: (operationKeyStr: OperationKeyStr) => {
+		const { [operationKeyStr]: _, ...restPaneRef } = get().operationSubChartPaneRef;
+		const { [operationKeyStr]: __, ...restHtmlRef } = get().operationSubChartPaneHtmlElementRef;
+		set({
+			operationSubChartPaneRef: restPaneRef,
+			operationSubChartPaneHtmlElementRef: restHtmlRef,
+		});
+	},
+
+	addOperationSubChartPaneHtmlElementRef: (
+		operationKeyStr: OperationKeyStr,
+		htmlElement: HTMLElement,
+	) =>
+		set({
+			operationSubChartPaneHtmlElementRef: {
+				...get().operationSubChartPaneHtmlElementRef,
+				[operationKeyStr]: htmlElement,
+			},
+		}),
+
+	getOperationSubChartPaneHtmlElementRef: (operationKeyStr: OperationKeyStr) =>
+		get().operationSubChartPaneHtmlElementRef[operationKeyStr] || null,
 
 	// Pane version number management
 	getPaneVersion: () => get().paneVersion,

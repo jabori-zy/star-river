@@ -54,6 +54,8 @@ const translation = {
     createTime: "创建时间",
     success: "成功",
     failed: "失败",
+    loading: "加载中...",
+    error: "错误",
     confirmQuit: "确认退出",
 }
 

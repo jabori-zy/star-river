@@ -3,6 +3,7 @@ import type { Subscription } from "rxjs";
 import {
 	createIndicatorStreamFromKey,
 	createKlineStreamFromKey,
+	createOperationGroupLatestResultStreamFromKey,
 	createOrderStreamForSymbol,
 	createPositionStreamForSymbol,
 } from "@/hooks/obs/backtest-strategy-event-obs";
@@ -134,6 +135,37 @@ export const createSubscriptionSlice: SliceCreator<SubscriptionSlice> = (
 						},
 					});
 					state._addObserverSubscription(keyStr, indicatorSubscription);
+				} else if (key.type === "operation") {
+					const operationStream = createOperationGroupLatestResultStreamFromKey(keyStr, true);
+					const operationSubscription = operationStream.subscribe({
+						next: (operationData: Record<string, number>) => {
+							// Convert operation data format to Record<string, SingleValueData[]>
+							const operation: Record<string, SingleValueData[]> = {};
+
+							Object.entries(operationData).forEach(
+								([outputKey, value]) => {
+									// Skip datetime field, only process operation values
+									if (outputKey === "datetime") return;
+
+									operation[outputKey] = [
+										...(operation[outputKey] || []),
+										{
+											time: getChartAlignedUtcTimestamp(
+												operationData.datetime as unknown as string,
+											) as UTCTimestamp,
+											value: value as number,
+										} as SingleValueData,
+									];
+								},
+							);
+							// Update operation
+							state.onNewOperation(keyStr, operation);
+						},
+						error: (error: Error) => {
+							console.error("Operation data stream subscription error:", error);
+						},
+					});
+					state._addObserverSubscription(keyStr, operationSubscription);
 				}
 			});
 		} catch (error) {
@@ -142,7 +174,6 @@ export const createSubscriptionSlice: SliceCreator<SubscriptionSlice> = (
 	},
 
 	unsubscribe: (keyStr: KeyStr) => {
-		console.log("Unsubscribing:", keyStr);
 		const state = get();
 		state.subscriptions[keyStr]?.forEach((subscription) => {
 			subscription.unsubscribe();
@@ -172,7 +203,6 @@ export const createSubscriptionSlice: SliceCreator<SubscriptionSlice> = (
 			const orderStream = createOrderStreamForSymbol(key.exchange, key.symbol);
 			const orderSubscription = orderStream.subscribe(
 				(virtualOrderEvent: VirtualOrderEvent) => {
-					console.log("virtualOrderEvent", virtualOrderEvent);
 					if (
 						virtualOrderEvent.event === "futures-order-filled-event" ||
 						virtualOrderEvent.event === "take-profit-order-filled-event" ||
@@ -245,6 +275,36 @@ export const createSubscriptionSlice: SliceCreator<SubscriptionSlice> = (
 				},
 			});
 			state._addObserverSubscription(keyStr, indicatorSubscription);
+		} else if (key.type === "operation") {
+			const operationStream = createOperationGroupLatestResultStreamFromKey(keyStr, true);
+			const operationSubscription = operationStream.subscribe({
+				next: (operationData: Record<string, number>) => {
+					// Convert operation data format to Record<string, SingleValueData[]>
+					const operation: Record<string, SingleValueData[]> = {};
+					Object.entries(operationData).forEach(
+						([outputKey, value]) => {
+							// Skip datetime field, only process operation values
+							if (outputKey === "datetime") return;
+
+							operation[outputKey] = [
+								...(operation[outputKey] || []),
+								{
+									time: getChartAlignedUtcTimestamp(
+										operationData.datetime as unknown as string,
+									) as UTCTimestamp,
+									value: value as number,
+								} as SingleValueData,
+							];
+						},
+					);
+					// Update operation
+					state.onNewOperation(keyStr, operation);
+				},
+				error: (error: Error) => {
+					console.error("Operation data stream subscription error:", error);
+				},
+			});
+			state._addObserverSubscription(keyStr, operationSubscription);
 		}
 	},
 
@@ -264,7 +324,6 @@ export const createSubscriptionSlice: SliceCreator<SubscriptionSlice> = (
 			subscriptions.forEach((subscription, index) => {
 				try {
 					subscription.unsubscribe();
-					// console.log(`Subscription ${index} cleaned up`);
 				} catch (error) {
 					console.error(`Error cleaning up subscription ${index}:`, error);
 				}

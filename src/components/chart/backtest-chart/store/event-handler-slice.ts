@@ -103,6 +103,41 @@ export const createEventHandlerSlice =
 			// }));
 		},
 
+		onNewOperation: (
+			operationKeyStr: KeyStr,
+			operation: Record<string, SingleValueData[]>,
+		) => {
+			Object.entries(operation).forEach(([outputKey, newDataArray]) => {
+				// Process each data point in the new data array
+				newDataArray.forEach((newDataPoint) => {
+					// Filter out 0 values
+					if (newDataPoint.value === 0 || newDataPoint.value === null) {
+						return;
+					}
+
+					// update
+					const operationSeriesRef = get().getOperationSeriesRef(
+						operationKeyStr,
+						outputKey,
+					);
+					if (operationSeriesRef) {
+						operationSeriesRef.update(newDataPoint);
+
+						// If operation data length exceeds limit, delete first 50 data points
+						const visibleLogicalRangeFrom = get().getVisibleLogicalRange();
+						if (
+							visibleLogicalRangeFrom &&
+							visibleLogicalRangeFrom.from > 100 &&
+							operationSeriesRef.data().length > MAX_DATA_LENGTH
+						) {
+							const newData = operationSeriesRef.data().slice(50);
+							operationSeriesRef.setData(newData);
+						}
+					}
+				});
+			});
+		},
+
 		onNewOrder: (newOrder: VirtualOrder) => {
 			// Backend returns time, convert to timestamp: 2025-07-25T00:20:00Z -> timestamp
 			// Open position order
