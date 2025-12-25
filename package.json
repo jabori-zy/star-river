@@ -1,7 +1,7 @@
 {
 	"name": "star-river",
 	"private": true,
-	"version": "0.1.0",
+	"version": "0.1.2",
 	"author": "Jabori",
 	"description": "Star River Desktop",
 	"type": "module",
@@ -141,7 +141,7 @@
 		"react-i18next": "^15.5.2",
 		"react-icons": "^5.5.0",
 		"react-resizable-panels": "^3.0.4",
-		"react-router": "^7.2.0",
+		"react-router": "^7.11.0",
 		"react-sortablejs": "^6.1.4",
 		"rxjs": "^7.8.2",
 		"sonner": "^2.0.7",

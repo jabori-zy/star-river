@@ -12,6 +12,8 @@ const StrategyControl: React.FC<StrategyControlProps> = ({
 	strategyName,
 	tradeMode,
 	strategyRunState,
+	saveStatus,
+	onSave,
 	onOperationSuccess,
 }) => {
 	const { t } = useTranslation();
@@ -42,9 +44,14 @@ const StrategyControl: React.FC<StrategyControlProps> = ({
 	const handleRunBacktest = useCallback(() => {
 		if (!strategyId) return;
 
+		// Save first if there are unsaved changes (silent mode, no toast)
+		if (saveStatus === "unsaved") {
+			onSave(true);
+		}
+
 		// Initialize backtest strategy
 		initBacktestStrategy({ strategyId });
-	}, [strategyId, initBacktestStrategy]);
+	}, [strategyId, initBacktestStrategy, saveStatus, onSave]);
 
 	const handleStopBacktest = useCallback(() => {
 		if (!strategyId) return;

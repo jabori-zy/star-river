@@ -1,5 +1,5 @@
 import { useReactFlow } from "@xyflow/react";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import type { UpdateStrategyRequest } from "@/service/strategy-management/update-strategy";
 import type { Strategy, StrategyRunState, TradeMode } from "@/types/strategy";
 import StrategyPageHeader from "../header";
@@ -11,10 +11,12 @@ interface WorkFlowProps {
 	saveStatus: "saved" | "unsaved" | "saving";
 	handleStrategyChange: (updates: Partial<Strategy>) => void;
 	updateStrategy: (params: UpdateStrategyRequest) => void;
+	autoUpdateStrategy: (params: UpdateStrategyRequest) => void;
 	strategyRunState: StrategyRunState;
 	tradeMode: TradeMode;
 	handleSaveStatusChange: (saveStatus: "saved" | "unsaved" | "saving") => void;
 	onOperationSuccess?: (operationType: OperationType) => void;
+	onRegisterSaveHandler?: (handler: () => void) => void;
 }
 
 export function WorkFlow({
@@ -22,26 +24,44 @@ export function WorkFlow({
 	saveStatus,
 	handleStrategyChange,
 	updateStrategy,
+	autoUpdateStrategy,
 	strategyRunState,
 	tradeMode,
 	handleSaveStatusChange,
 	onOperationSuccess,
+	onRegisterSaveHandler,
 }: WorkFlowProps) {
 	const { getNodes, getEdges } = useReactFlow();
 
-	const handleSave = useCallback(() => {
-		const nodes = getNodes();
-		const edges = getEdges();
+	const handleSave = useCallback(
+		(autoSave?: boolean) => {
+			const nodes = getNodes();
+			const edges = getEdges();
 
-		updateStrategy({
-			strategyId: strategy.id,
-			name: strategy.name,
-			description: strategy.description,
-			tradeMode: tradeMode,
-			nodes,
-			edges,
-		});
-	}, [getNodes, getEdges, updateStrategy, strategy, tradeMode]);
+			const params = {
+				strategyId: strategy.id,
+				name: strategy.name,
+				description: strategy.description,
+				tradeMode: tradeMode,
+				nodes,
+				edges,
+			};
+
+			if (autoSave) {
+				autoUpdateStrategy(params);
+			} else {
+				updateStrategy(params);
+			}
+		},
+		[getNodes, getEdges, updateStrategy, autoUpdateStrategy, strategy, tradeMode],
+	);
+
+	// Register save handler for navigation guard (silent mode, no toast)
+	useEffect(() => {
+		if (onRegisterSaveHandler) {
+			onRegisterSaveHandler(() => handleSave(true));
+		}
+	}, [onRegisterSaveHandler, handleSave]);
 
 	return (
 		<>

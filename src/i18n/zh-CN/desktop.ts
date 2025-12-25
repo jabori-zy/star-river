@@ -56,6 +56,8 @@ const translation = {
         running: "运行中...",
         stopping: "停止中...",
         error: "错误",
+        unsavedChangesTitle: "未保存的更改",
+        unsavedChangesDescription: "您有未保存的策略更改。确定要离开吗？您的更改将会丢失。",
     },
     backtestPage: {
         indicator: "指标",

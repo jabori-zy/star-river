@@ -58,6 +58,9 @@ const translation = {
 		running: "Running...",
 		stopping: "Stopping...",
 		error: "Error",
+		unsavedChangesTitle: "Unsaved Changes",
+		unsavedChangesDescription:
+			"You have unsaved changes to this strategy. Are you sure you want to leave? Your changes will be lost.",
 	},
 	backtestPage: {
 		indicator: "Indicator",

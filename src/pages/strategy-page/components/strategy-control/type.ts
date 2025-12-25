@@ -7,6 +7,8 @@ export interface StrategyControlProps {
 	strategyName: string;
 	tradeMode: TradeMode;
 	strategyRunState: StrategyRunState;
+	saveStatus: "saved" | "unsaved" | "saving";
+	onSave: (autoSave?: boolean) => void;
 	onOperationSuccess?: (operationType: OperationType) => void;
 }
 

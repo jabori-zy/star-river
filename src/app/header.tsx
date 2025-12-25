@@ -7,9 +7,19 @@ import {
 	Square,
 	X,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import ConfirmBox from "@/components/confirm-box";
 import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/components/ui/sidebar";
@@ -19,6 +29,7 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { useNavigationGuardStore } from "@/store/use-navigation-guard-store";
 import { usePlatform } from "@/store/use-platform";
 import useSidebarToggleStore from "@/store/use-sidebar-toggle-store";
 
@@ -67,45 +78,129 @@ function SidebarTrigger() {
 function RouteArrow() {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
+	const location = useLocation();
+	const getActiveGuard = useNavigationGuardStore((state) => state.getActiveGuard);
+	const [showAlert, setShowAlert] = useState(false);
+	const [pendingNavigation, setPendingNavigation] = useState<number | null>(null);
+	const [activeGuard, setActiveGuard] = useState<ReturnType<typeof getActiveGuard>>(null);
+	const [isSaving, setIsSaving] = useState(false);
+
+	// Check if can go back (location.key is "default" for the initial page)
+	const canGoBack = location.key !== "default";
+
+	const handleNavigation = useCallback(
+		(direction: number) => {
+			const guard = getActiveGuard();
+			if (guard) {
+				setActiveGuard(guard);
+				setPendingNavigation(direction);
+				setShowAlert(true);
+			} else {
+				navigate(direction);
+			}
+		},
+		[getActiveGuard, navigate],
+	);
+
+	const handleDiscardAndLeave = useCallback(() => {
+		setShowAlert(false);
+		if (pendingNavigation !== null) {
+			navigate(pendingNavigation);
+		}
+		setPendingNavigation(null);
+		setActiveGuard(null);
+	}, [navigate, pendingNavigation]);
+
+	const handleSaveAndLeave = useCallback(async () => {
+		if (activeGuard?.onSave) {
+			setIsSaving(true);
+			try {
+				await activeGuard.onSave();
+				setShowAlert(false);
+				if (pendingNavigation !== null) {
+					navigate(pendingNavigation);
+				}
+			} finally {
+				setIsSaving(false);
+				setPendingNavigation(null);
+				setActiveGuard(null);
+			}
+		}
+	}, [activeGuard, navigate, pendingNavigation]);
+
+	const handleCancel = useCallback(() => {
+		setShowAlert(false);
+		setPendingNavigation(null);
+		setActiveGuard(null);
+	}, []);
+
 	return (
-		<div className="flex items-center gap-0.5">
-			{/* Go back */}
-			<Tooltip>
-				<TooltipTrigger asChild>
-					<Button
-						variant="ghost"
-						size="icon"
-						onClick={() => {
-							navigate(-1);
-						}}
-						className="w-6 h-6 cursor-pointer"
-					>
-						<ChevronLeft />
-					</Button>
-				</TooltipTrigger>
-				<TooltipContent side="bottom">
-					{t("desktop.header.goBack")}
-				</TooltipContent>
-			</Tooltip>
-			{/* Go forward */}
-			<Tooltip>
-				<TooltipTrigger asChild>
-					<Button
-						variant="ghost"
-						size="icon"
-						onClick={() => {
-							navigate(1);
-						}}
-						className="w-6 h-6 cursor-pointer"
-					>
-						<ChevronRight />
-					</Button>
-				</TooltipTrigger>
-				<TooltipContent side="bottom">
-					{t("desktop.header.goForward")}
-				</TooltipContent>
-			</Tooltip>
-		</div>
+		<>
+			<AlertDialog open={showAlert} onOpenChange={setShowAlert}>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>
+							{activeGuard?.title || t("common.unsavedChanges")}
+						</AlertDialogTitle>
+						<AlertDialogDescription>
+							{activeGuard?.description || t("common.unsavedChangesDescription")}
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel onClick={handleCancel}>
+							{t("common.cancel")}
+						</AlertDialogCancel>
+						<AlertDialogAction
+							className="bg-destructive text-white hover:bg-destructive/90"
+							onClick={handleDiscardAndLeave}
+						>
+							{t("common.discardAndLeave")}
+						</AlertDialogAction>
+						{activeGuard?.onSave && (
+							<AlertDialogAction onClick={handleSaveAndLeave} disabled={isSaving}>
+								{isSaving ? t("common.saving") : t("common.saveAndLeave")}
+							</AlertDialogAction>
+						)}
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
+
+			<div className="flex items-center gap-0.5">
+				{/* Go back */}
+				<Tooltip>
+					<TooltipTrigger asChild>
+						<Button
+							variant="ghost"
+							size="icon"
+							onClick={() => handleNavigation(-1)}
+							disabled={!canGoBack}
+							className="w-6 h-6 cursor-pointer disabled:cursor-not-allowed disabled:opacity-30"
+						>
+							<ChevronLeft />
+						</Button>
+					</TooltipTrigger>
+					<TooltipContent side="bottom">
+						{t("desktop.header.goBack")}
+					</TooltipContent>
+				</Tooltip>
+				{/* Go forward */}
+				<Tooltip>
+					<TooltipTrigger asChild>
+						<Button
+							variant="ghost"
+							size="icon"
+							onClick={() => handleNavigation(1)}
+							className="w-6 h-6 cursor-pointer"
+						>
+							<ChevronRight />
+						</Button>
+					</TooltipTrigger>
+					<TooltipContent side="bottom">
+						{t("desktop.header.goForward")}
+					</TooltipContent>
+				</Tooltip>
+			</div>
+		</>
 	);
 }
 
