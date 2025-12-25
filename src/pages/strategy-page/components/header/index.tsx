@@ -1,30 +1,20 @@
-import {
-	Blend,
-	Check,
-	Cloud,
-	Construction,
-	MoreVertical,
-	Pencil,
-	Save,
-} from "lucide-react";
+import { Check, CircleArrowOutUpRight, Cloud, Pencil, Save } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuSub,
-	DropdownMenuSubContent,
-	DropdownMenuSubTrigger,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 import type { Strategy, StrategyRunState, TradeMode } from "@/types/strategy";
 import { formatTimeWithTimezone } from "@/utils/date-format";
+import { exportStrategy } from "@/utils/export-strategy";
 import StrategyControl from "../strategy-control";
 import type { OperationType } from "../strategy-control/type";
+import HeaderDropdownMenu from "./dropdown-menu";
 
 interface StrategyPageHeaderProps {
 	strategy: Strategy;
@@ -161,15 +151,16 @@ export default function StrategyPageHeader({
 								className="font-semibold text-lg h-7 w-full min-w-[200px] max-w-[300px] px-2"
 							/>
 						) : (
-							<div
-								className="group flex items-center gap-2 cursor-pointer select-none"
+							<button
+								type="button"
+								className="group flex items-center gap-2 cursor-pointer select-none bg-transparent border-none p-0"
 								onClick={() => setIsEditingTitle(true)}
 							>
 								<h1 className="font-semibold text-lg text-slate-900 truncate max-w-[300px] leading-tight">
 									{titleInput}
 								</h1>
 								<Pencil className="w-3.5 h-3.5 text-slate-400 opacity-0 group-hover:opacity-100 transition-all -ml-1 group-hover:ml-0" />
-							</div>
+							</button>
 						)}
 
 						{/* Status Badge */}
@@ -221,8 +212,9 @@ export default function StrategyPageHeader({
 								className="text-sm h-6 w-full min-w-[300px] max-w-[450px] px-2"
 							/>
 						) : (
-							<div
-								className="group flex items-center gap-2 cursor-pointer select-none"
+							<button
+								type="button"
+								className="group flex items-center gap-2 cursor-pointer select-none bg-transparent border-none p-0"
 								onClick={() => setIsEditingDesc(true)}
 							>
 								<p
@@ -236,7 +228,7 @@ export default function StrategyPageHeader({
 										t("desktop.strategyWorkflowPage.addStrategyDescription")}
 								</p>
 								<Pencil className="w-3 h-3 text-slate-400 opacity-0 group-hover:opacity-100 transition-all" />
-							</div>
+							</button>
 						)}
 					</div>
 				</div>
@@ -272,45 +264,29 @@ export default function StrategyPageHeader({
 					strategyRunState={strategyRunState}
 					onOperationSuccess={onOperationSuccess}
 				/>
+				<div className="flex gap-1 items-center">
+					<Tooltip>
+						<TooltipTrigger asChild>
+							<Button
+								variant="ghost"
+								size="sm"
+								className="text-slate-500 p-0"
+								onClick={() => exportStrategy(strategy.id, strategy.name)}
+							>
+								<CircleArrowOutUpRight className="w-4 h-4" />
+							</Button>
+						</TooltipTrigger>
+						<TooltipContent>
+							{t("desktop.strategyWorkflowPage.share")}
+						</TooltipContent>
+					</Tooltip>
 
-				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<Button
-							variant="ghost"
-							size="sm"
-							className="text-slate-500 h-9 w-9 p-0"
-						>
-							<MoreVertical className="w-4 h-4" />
-						</Button>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent align="end">
-						<DropdownMenuSub>
-							<DropdownMenuSubTrigger>
-								<Blend className="w-4 h-4" />
-								{t("desktop.strategyWorkflowPage.tradeMode")}
-							</DropdownMenuSubTrigger>
-							<DropdownMenuSubContent>
-								<DropdownMenuItem disabled={true}>
-									<div className="flex items-center justify-center gap-4 ">
-										{t("desktop.strategyWorkflowPage.live")}
-										<Construction className="w-4 h-4 text-yellow-500" />
-									</div>
-								</DropdownMenuItem>
-								<DropdownMenuItem>
-									<div className="flex items-center justify-center gap-4">
-										{t("desktop.strategyWorkflowPage.backtest")}
-									</div>
-								</DropdownMenuItem>
-								<DropdownMenuItem disabled={true}>
-									<div className="flex items-center justify-center gap-4">
-										{t("desktop.strategyWorkflowPage.simulate")}
-										<Construction className="w-4 h-4 text-yellow-500" />
-									</div>
-								</DropdownMenuItem>
-							</DropdownMenuSubContent>
-						</DropdownMenuSub>
-					</DropdownMenuContent>
-				</DropdownMenu>
+					<div className="h-5 w-px bg-slate-200" />
+
+					<HeaderDropdownMenu />
+				</div>
+
+				
 			</div>
 		</header>
 	);

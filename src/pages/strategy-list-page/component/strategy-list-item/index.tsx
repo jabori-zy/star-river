@@ -1,4 +1,4 @@
-import { ArrowUpRight, Eye } from "lucide-react";
+import { ArrowUpRight} from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
 import { TimeDisplay } from "@/components/time-display";

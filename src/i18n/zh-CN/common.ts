@@ -39,6 +39,7 @@ const translation = {
     unsaved: "未保存",
     haveUnsavedChanges: "有未保存的更改",
     cancel: "取消",
+    clear: "清除",
     close: "关闭",
     next: "下一步",
     previous: "上一步",

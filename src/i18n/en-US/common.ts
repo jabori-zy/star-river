@@ -43,6 +43,7 @@ const translation = {
 	unsaved: "Unsaved",
 	haveUnsavedChanges: "have unsaved changes",
 	cancel: "Cancel",
+	clear: "Clear",
 	close: "Close",
 	next: "Next",
 	previous: "Previous",

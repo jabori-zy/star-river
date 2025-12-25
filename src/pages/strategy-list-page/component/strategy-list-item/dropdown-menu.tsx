@@ -1,17 +1,6 @@
-import { MoreVertical, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { CircleArrowOutUpRight, MoreVertical, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-	AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import ConfirmBox from "@/components/confirm-box";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -20,6 +9,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useDeleteStrategy } from "@/service/strategy-management/delete-strategy";
+import { exportStrategy } from "@/utils/export-strategy";
 
 interface StrategyItemDropdownMenuProps {
 	strategyId: number;
@@ -32,10 +22,9 @@ export function StrategyItemDropdownMenu({
 	strategyName,
 	onDelete,
 }: StrategyItemDropdownMenuProps) {
-	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 	const { t } = useTranslation();
 
-	const { mutate: deleteStrategy, isPending: isDeleting } = useDeleteStrategy({
+	const { mutate: deleteStrategy } = useDeleteStrategy({
 		meta: {
 			successMessage: t("apiMessage.deleteStrategySuccess"),
 			showSuccessToast: true,
@@ -44,15 +33,15 @@ export function StrategyItemDropdownMenu({
 		},
 		onSuccess: () => {
 			onDelete();
-			setShowDeleteDialog(false);
-		},
-		onError: () => {
-			setShowDeleteDialog(false);
 		},
 	});
 
 	const handleDelete = () => {
 		deleteStrategy({ strategyId });
+	};
+
+	const handleExport = () => {
+		exportStrategy(strategyId, strategyName);
 	};
 
 	return (
@@ -67,51 +56,27 @@ export function StrategyItemDropdownMenu({
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end">
-				<AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-					<AlertDialogTrigger asChild>
-						<DropdownMenuItem
-							className="text-red-500 focus:text-red-500 focus:bg-red-50"
-							onSelect={(e) => {
-								e.preventDefault();
-								setShowDeleteDialog(true);
-							}}
-						>
-							<Trash2 className="h-4 w-4 mr-2" />
-							{t("desktop.strategyListPage.deleteStrategy")}
-						</DropdownMenuItem>
-					</AlertDialogTrigger>
-					<AlertDialogContent>
-						<AlertDialogHeader>
-							<AlertDialogTitle>
-								{t("desktop.strategyListPage.confirmDeleteStrategy")}
-							</AlertDialogTitle>
-							<AlertDialogDescription>
-								{t("desktop.strategyListPage.confirmDeleteStrategyMessage", {
-									strategyName: `"${strategyName}"`,
-								})}
-							</AlertDialogDescription>
-						</AlertDialogHeader>
-						<AlertDialogFooter>
-							<AlertDialogCancel disabled={isDeleting}>
-								{t("common.cancel")}
-							</AlertDialogCancel>
-							<AlertDialogAction
-								onClick={handleDelete}
-								disabled={isDeleting}
-								className="bg-red-500 hover:bg-red-600 text-white"
-							>
-								{isDeleting ? (
-									<>
-										<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-										{t("common.deleting")}
-									</>
-								) : (
-									t("common.confirm")
-								)}
-							</AlertDialogAction>
-						</AlertDialogFooter>
-					</AlertDialogContent>
-				</AlertDialog>
+				<DropdownMenuItem onClick={handleExport}>
+					<CircleArrowOutUpRight className="h-4 w-4 mr-1" />
+					{t("desktop.strategyListPage.exportStrategy")}
+				</DropdownMenuItem>
+				<ConfirmBox
+					title={t("desktop.strategyListPage.confirmDeleteStrategy")}
+					description={t("desktop.strategyListPage.confirmDeleteStrategyMessage", {
+						strategyName: `"${strategyName}"`,
+					})}
+					confirmText={t("common.confirm")}
+					cancelText={t("common.cancel")}
+					onConfirm={handleDelete}
+				>
+					<DropdownMenuItem
+						className="text-red-500 focus:text-red-500 focus:bg-red-50"
+						onSelect={(e) => e.preventDefault()}
+					>
+						<Trash2 className="h-4 w-4 mr-1" />
+						{t("desktop.strategyListPage.deleteStrategy")}
+					</DropdownMenuItem>
+				</ConfirmBox>
 			</DropdownMenuContent>
 		</DropdownMenu>
 	);

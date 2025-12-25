@@ -1,4 +1,5 @@
-const { ipcMain, BrowserWindow } = require("electron");
+const { ipcMain, BrowserWindow, dialog } = require("electron");
+const fs = require("node:fs");
 const {
 	closeBacktestWindow,
 	checkOrOpenBacktestWindow,
@@ -60,6 +61,28 @@ const setupIpcHandlers = () => {
 	// Get backend port
 	ipcMain.handle("get-backend-port", () => {
 		return getBackendPort();
+	});
+
+	// Show save file dialog and save content
+	ipcMain.handle("save-file-dialog", async (_, options) => {
+		const { defaultFileName, content, filters } = options;
+		const focusedWindow = BrowserWindow.getFocusedWindow();
+
+		const result = await dialog.showSaveDialog(focusedWindow, {
+			defaultPath: defaultFileName,
+			filters: filters || [{ name: "Text Files", extensions: ["txt"] }],
+		});
+
+		if (result.canceled || !result.filePath) {
+			return { success: false, canceled: true };
+		}
+
+		try {
+			fs.writeFileSync(result.filePath, content, "utf-8");
+			return { success: true, filePath: result.filePath };
+		} catch (error) {
+			return { success: false, error: error.message };
+		}
 	});
 };
 

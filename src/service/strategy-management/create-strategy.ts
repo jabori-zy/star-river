@@ -24,6 +24,8 @@ const getApiUrl = () => `${getApiBaseUrl()}/${API_VERSION}/${ROUTER}`;
 export interface CreateStrategyRequest {
 	name: string;
 	description: string;
+	nodes?: unknown[];
+	edges?: unknown[];
 }
 
 // ============================================
@@ -68,6 +70,8 @@ export async function createStrategyApi(
 	const requestBody: CreateStrategyRequest = {
 		name: params.name.trim(),
 		description: params.description.trim(),
+		...(params.nodes && { nodes: params.nodes }),
+		...(params.edges && { edges: params.edges }),
 	};
 
 	// Step 3: Log request (development environment)
