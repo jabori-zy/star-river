@@ -4,7 +4,7 @@ const translation = {
     technicalIndicators: "技术指标",
     noIndicatorConfig: "无指标配置",
     dataSource: "数据源",
-    noConfig: "无配置",
+    noConfig: "未配置",
     symbol: "交易对",
     interval: "周期",
     exchange: "交易所",

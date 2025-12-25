@@ -1,9 +1,10 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { ReactFlowProvider } from "@xyflow/react";
 import { Loader2 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router";
+import { useNavigationGuard } from "@/hooks/use-navigation-guard";
 import { useGetStrategyRunState } from "@/service/backtest-strategy/strategy-run-state";
 import { useGetStrategyById } from "@/service/strategy-management/get-strategy-by-id";
 import { strategyKeys } from "@/service/strategy-management/query-keys";
@@ -38,6 +39,9 @@ export default function StrategyPage() {
 		BacktestStrategyRunState.Stopped,
 	);
 
+	// ✅ Ref to store save function from WorkFlow
+	const saveHandlerRef = useRef<(() => void) | null>(null);
+
 	// ✅ Use React Query Hook to get strategy (renamed to queryStrategy to avoid conflict)
 	const {
 		data: queryStrategy,
@@ -54,7 +58,7 @@ export default function StrategyPage() {
 		enabled: !!strategyId && strategyId > 0,
 	});
 
-	// ✅ Use useUpdateStrategy hook
+	// ✅ Use useUpdateStrategy hook (with toast for manual save)
 	const { mutate: updateStrategy, isPending } = useUpdateStrategy({
 		meta: {
 			successMessage: t("apiMessage.strategySavedSuccess"),
@@ -72,12 +76,28 @@ export default function StrategyPage() {
 		},
 	});
 
+	// ✅ Auto update strategy (without toast for auto save)
+	const { mutate: autoUpdateStrategy, isPending: isAutoSavePending } =
+		useUpdateStrategy({
+			meta: {
+				showSuccessToast: false,
+				showErrorToast: false,
+			},
+			onSuccess: (updatedStrategy) => {
+				setStrategy(updatedStrategy);
+				setSaveStatus("saved");
+			},
+			onError: () => {
+				setSaveStatus("unsaved");
+			},
+		});
+
 	// Monitor isPending state to update saveStatus
 	useEffect(() => {
-		if (isPending) {
+		if (isPending || isAutoSavePending) {
 			setSaveStatus("saving");
 		}
-	}, [isPending]);
+	}, [isPending, isAutoSavePending]);
 
 	// ✅ When React Query data updates, sync to local state
 	useEffect(() => {
@@ -161,6 +181,36 @@ export default function StrategyPage() {
 		[],
 	);
 
+	// ✅ Callback for WorkFlow to register its save handler
+	const registerSaveHandler = useCallback((handler: () => void) => {
+		saveHandlerRef.current = handler;
+	}, []);
+
+	// ✅ Navigation guard save callback
+	const handleNavigationGuardSave = useCallback(() => {
+		if (saveHandlerRef.current) {
+			saveHandlerRef.current();
+		}
+	}, []);
+
+	// ✅ Navigation guard for unsaved changes
+	const navigationGuardTitle = useMemo(
+		() => t("desktop.strategyWorkflowPage.unsavedChangesTitle"),
+		[t],
+	);
+	const navigationGuardDescription = useMemo(
+		() => t("desktop.strategyWorkflowPage.unsavedChangesDescription"),
+		[t],
+	);
+
+	useNavigationGuard({
+		id: "strategy",
+		hasUnsavedChanges: saveStatus === "unsaved",
+		title: navigationGuardTitle,
+		description: navigationGuardDescription,
+		onSave: handleNavigationGuardSave,
+	});
+
 	// Handle loading state
 	if (isLoading) {
 		return (
@@ -200,10 +250,12 @@ export default function StrategyPage() {
 					saveStatus={saveStatus}
 					handleStrategyChange={handleStrategyChange}
 					updateStrategy={updateStrategy}
+					autoUpdateStrategy={autoUpdateStrategy}
 					tradeMode={tradingMode}
 					handleSaveStatusChange={handleSaveStatusChange}
 					strategyRunState={strategyRunState}
 					onOperationSuccess={handleOperationSuccess}
+					onRegisterSaveHandler={registerSaveHandler}
 				/>
 				<StrategyLoadingDialog
 					title={dialogTitle}

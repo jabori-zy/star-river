@@ -1,9 +1,7 @@
 import {
-	Blend,
 	Check,
+	CircleArrowOutUpRight,
 	Cloud,
-	Construction,
-	MoreVertical,
 	Pencil,
 	Save,
 } from "lucide-react";
@@ -11,26 +9,25 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuSub,
-	DropdownMenuSubContent,
-	DropdownMenuSubTrigger,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 import type { Strategy, StrategyRunState, TradeMode } from "@/types/strategy";
 import { formatTimeWithTimezone } from "@/utils/date-format";
+import { exportStrategy } from "@/utils/export-strategy";
 import StrategyControl from "../strategy-control";
 import type { OperationType } from "../strategy-control/type";
+import HeaderDropdownMenu from "./dropdown-menu";
 
 interface StrategyPageHeaderProps {
 	strategy: Strategy;
 	tradeMode: TradeMode;
 	saveStatus: "saved" | "unsaved" | "saving";
-	onSave: () => void;
+	onSave: (autoSave?: boolean) => void;
 	strategyRunState: StrategyRunState;
 	onStrategyChange?: (updates: Partial<Strategy>) => void;
 	onOperationSuccess?: (operationType: OperationType) => void;
@@ -51,6 +48,7 @@ export default function StrategyPageHeader({
 	const [titleInput, setTitleInput] = useState(strategy.name);
 	const [descInput, setDescInput] = useState(strategy.description);
 	const [timeDisplay, setTimeDisplay] = useState("");
+	const [isAutoSaving, setIsAutoSaving] = useState(false);
 
 	const titleInputRef = useRef<HTMLInputElement>(null);
 	const descInputRef = useRef<HTMLInputElement>(null);
@@ -81,6 +79,23 @@ export default function StrategyPageHeader({
 		const interval = setInterval(updateTimer, 5000); // Update every 5 seconds
 		return () => clearInterval(interval);
 	}, [strategy.updateTime, t]);
+
+	// Auto save every 60 seconds when there are unsaved changes
+	useEffect(() => {
+		const autoSaveInterval = setInterval(() => {
+			if (saveStatus === "unsaved" && !isAutoSaving) {
+				setIsAutoSaving(true);
+				onSave(true); // autoSave mode, no toast
+
+				// Keep showing for at least 1 second
+				setTimeout(() => {
+					setIsAutoSaving(false);
+				}, 1000);
+			}
+		}, 60000); // 60 seconds
+
+		return () => clearInterval(autoSaveInterval);
+	}, [saveStatus, onSave, isAutoSaving]);
 
 	// Auto focus input box
 	useEffect(() => {
@@ -161,15 +176,16 @@ export default function StrategyPageHeader({
 								className="font-semibold text-lg h-7 w-full min-w-[200px] max-w-[300px] px-2"
 							/>
 						) : (
-							<div
-								className="group flex items-center gap-2 cursor-pointer select-none"
+							<button
+								type="button"
+								className="group flex items-center gap-2 cursor-pointer select-none bg-transparent border-none p-0"
 								onClick={() => setIsEditingTitle(true)}
 							>
 								<h1 className="font-semibold text-lg text-slate-900 truncate max-w-[300px] leading-tight">
 									{titleInput}
 								</h1>
 								<Pencil className="w-3.5 h-3.5 text-slate-400 opacity-0 group-hover:opacity-100 transition-all -ml-1 group-hover:ml-0" />
-							</div>
+							</button>
 						)}
 
 						{/* Status Badge */}
@@ -221,8 +237,9 @@ export default function StrategyPageHeader({
 								className="text-sm h-6 w-full min-w-[300px] max-w-[450px] px-2"
 							/>
 						) : (
-							<div
-								className="group flex items-center gap-2 cursor-pointer select-none"
+							<button
+								type="button"
+								className="group flex items-center gap-2 cursor-pointer select-none bg-transparent border-none p-0"
 								onClick={() => setIsEditingDesc(true)}
 							>
 								<p
@@ -236,7 +253,7 @@ export default function StrategyPageHeader({
 										t("desktop.strategyWorkflowPage.addStrategyDescription")}
 								</p>
 								<Pencil className="w-3 h-3 text-slate-400 opacity-0 group-hover:opacity-100 transition-all" />
-							</div>
+							</button>
 						)}
 					</div>
 				</div>
@@ -245,15 +262,22 @@ export default function StrategyPageHeader({
 			{/* Right Section: Actions */}
 			<div className="flex items-center gap-3 shrink-0">
 				<div className="flex flex-col items-end mr-1 hidden md:flex">
-					<span className="text-xs text-slate-400 font-medium tabular-nums">
-						{getSaveStatusText()}
-					</span>
+					{isAutoSaving ? (
+						<span className="text-xs text-blue-500 font-medium flex items-center gap-1.5">
+							<Spinner className="w-3 h-3" />
+							{t("common.autoSaving")}...
+						</span>
+					) : (
+						<span className="text-xs text-slate-400 font-medium tabular-nums">
+							{getSaveStatusText()}
+						</span>
+					)}
 				</div>
 
 				<Button
 					variant="outline"
 					size="sm"
-					onClick={onSave}
+					onClick={() => onSave(false)}
 					disabled={saveStatus === "saved" || saveStatus === "saving"}
 					className={`min-w-[80px] ${
 						saveStatus === "unsaved"
@@ -270,47 +294,33 @@ export default function StrategyPageHeader({
 					strategyName={strategy.name}
 					tradeMode={tradeMode}
 					strategyRunState={strategyRunState}
+					saveStatus={saveStatus}
+					onSave={onSave}
 					onOperationSuccess={onOperationSuccess}
 				/>
+				<div className="flex gap-1 items-center">
+					<Tooltip>
+						<TooltipTrigger asChild>
+							<Button
+								variant="ghost"
+								size="sm"
+								className="text-slate-500 p-0"
+								onClick={() => exportStrategy(strategy.id, strategy.name)}
+							>
+								<CircleArrowOutUpRight className="w-4 h-4" />
+							</Button>
+						</TooltipTrigger>
+						<TooltipContent>
+							{t("desktop.strategyWorkflowPage.share")}
+						</TooltipContent>
+					</Tooltip>
 
-				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<Button
-							variant="ghost"
-							size="sm"
-							className="text-slate-500 h-9 w-9 p-0"
-						>
-							<MoreVertical className="w-4 h-4" />
-						</Button>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent align="end">
-						<DropdownMenuSub>
-							<DropdownMenuSubTrigger>
-								<Blend className="w-4 h-4" />
-								{t("desktop.strategyWorkflowPage.tradeMode")}
-							</DropdownMenuSubTrigger>
-							<DropdownMenuSubContent>
-								<DropdownMenuItem disabled={true}>
-									<div className="flex items-center justify-center gap-4 ">
-										{t("desktop.strategyWorkflowPage.live")}
-										<Construction className="w-4 h-4 text-yellow-500" />
-									</div>
-								</DropdownMenuItem>
-								<DropdownMenuItem>
-									<div className="flex items-center justify-center gap-4">
-										{t("desktop.strategyWorkflowPage.backtest")}
-									</div>
-								</DropdownMenuItem>
-								<DropdownMenuItem disabled={true}>
-									<div className="flex items-center justify-center gap-4">
-										{t("desktop.strategyWorkflowPage.simulate")}
-										<Construction className="w-4 h-4 text-yellow-500" />
-									</div>
-								</DropdownMenuItem>
-							</DropdownMenuSubContent>
-						</DropdownMenuSub>
-					</DropdownMenuContent>
-				</DropdownMenu>
+					<div className="h-5 w-px bg-slate-200" />
+
+					<HeaderDropdownMenu />
+				</div>
+
+				
 			</div>
 		</header>
 	);

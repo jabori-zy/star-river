@@ -1,10 +1,12 @@
 // Fill in strategy name, description and other information
 
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { ButtonGroup, ButtonGroupText } from "@/components/ui/button-group";
 import {
 	Dialog,
 	DialogContent,
@@ -13,9 +15,16 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import {
+	InputGroup,
+	InputGroupAddon,
+	InputGroupButton,
+	InputGroupInput,
+} from "@/components/ui/input-group";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useCreateStrategy } from "@/service/strategy-management/create-strategy";
+import { checkImportStrategy } from "@/utils/import-strategy";
 
 interface CreateStrategyDialogProps {
 	open: boolean;
@@ -30,7 +39,23 @@ const CreateStrategyDialog = ({
 	const navigate = useNavigate();
 	const [strategyName, setStrategyName] = useState("");
 	const [description, setDescription] = useState("");
+	const [importFile, setImportFile] = useState<File | null>(null);
+	const fileInputRef = useRef<HTMLInputElement>(null);
 	const { t } = useTranslation();
+
+	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (file) {
+			setImportFile(file);
+		}
+	};
+
+	const handleClearFile = () => {
+		setImportFile(null);
+		if (fileInputRef.current) {
+			fileInputRef.current.value = "";
+		}
+	};
 	// Use TanStack Query Hook
 	const { mutate: createStrategy, isPending } = useCreateStrategy({
 		meta: {
@@ -46,6 +71,7 @@ const CreateStrategyDialog = ({
 			// Clear form
 			setStrategyName("");
 			setDescription("");
+			handleClearFile();
 
 			// Navigate to strategy edit page
 			navigate("/strategy", {
@@ -62,11 +88,38 @@ const CreateStrategyDialog = ({
 		},
 	});
 
-	const handleCreate = () => {
+	const handleCreate = async () => {
+		let nodes: unknown[] | undefined;
+		let edges: unknown[] | undefined;
+
+		// If import file is selected, read and parse it
+		if (importFile) {
+			try {
+				const fileContent = await importFile.text();
+				const parsed = JSON.parse(fileContent);
+
+				// Validate imported strategy data
+				const checkResult = checkImportStrategy(parsed);
+				if (!checkResult.valid) {
+					toast.error(t("desktop.strategyCorrupted"));
+					return;
+				}
+
+				nodes = checkResult.nodes;
+				edges = checkResult.edges;
+			} catch (_) {
+				// console.error("Failed to parse import file:", error);
+				toast.error(t("desktop.strategyCorrupted"));
+				return;
+			}
+		}
+
 		// Call mutation (toast is handled globally)
 		createStrategy({
 			name: strategyName.trim(),
 			description: description.trim(),
+			nodes,
+			edges,
 		});
 	};
 
@@ -74,6 +127,7 @@ const CreateStrategyDialog = ({
 		onOpenChange(false);
 		setStrategyName("");
 		setDescription("");
+		handleClearFile();
 	};
 
 	return (
@@ -120,12 +174,43 @@ const CreateStrategyDialog = ({
 							}}
 						/>
 					</div>
+					<div className="space-y-2">
+						<Label>
+							{t("desktop.importStrategy")}
+							<span className="text-sm text-muted-foreground">
+								({t("desktop.optional")})
+							</span>
+						</Label>
+						<ButtonGroup className="w-full">
+							<ButtonGroupText className="whitespace-nowrap">{t("desktop.chooseFile")}</ButtonGroupText>
+							<InputGroup>
+								<InputGroupInput
+									ref={fileInputRef}
+									type="file"
+									accept=".txt"
+									onChange={handleFileChange}
+									className="file:hidden text-sm leading-7 hover:cursor-pointer "
+								/>
+								{importFile && (
+									<InputGroupAddon align="inline-end">
+										<InputGroupButton
+											variant="ghost"
+											onClick={handleClearFile}
+											className="text-red-500 hover:text-red-600"
+										>
+											{t("common.clear")}
+										</InputGroupButton>
+									</InputGroupAddon>
+								)}
+							</InputGroup>
+						</ButtonGroup>
+					</div>
 				</div>
 				<DialogFooter>
 					<Button variant="outline" onClick={handleCancel} disabled={isPending}>
 						{t("common.cancel")}
 					</Button>
-					<Button onClick={handleCreate} disabled={isPending}>
+					<Button onClick={handleCreate} disabled={isPending || !strategyName.trim()}>
 						{isPending ? (
 							<>
 								<Loader2 className="mr-2 h-4 w-4 animate-spin" />

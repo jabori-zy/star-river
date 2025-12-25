@@ -7,6 +7,55 @@ const { app } = require("electron");
 // Check if development environment
 const isDev = process.env.NODE_ENV === "development" || !app.isPackaged;
 
+// Load TEST_BACKEND_PORT from .env file
+const loadEnvFile = () => {
+	try {
+		const envPath = path.join(__dirname, "..", ".env");
+		if (fs.existsSync(envPath)) {
+			const envContent = fs.readFileSync(envPath, "utf-8");
+			const lines = envContent.split("\n");
+			for (const line of lines) {
+				const trimmed = line.trim();
+				if (trimmed && !trimmed.startsWith("#")) {
+					const [key, ...valueParts] = trimmed.split("=");
+					const value = valueParts.join("=");
+					if (key && value && !process.env[key]) {
+						process.env[key] = value;
+					}
+				}
+			}
+		}
+	} catch (error) {
+		console.error("Failed to load .env file:", error.message);
+	}
+};
+
+// Get backend port from environment variable
+// Usage: npm run dev:local (reads TEST_BACKEND_PORT from .env)
+// Or: BACKEND_PORT=3100 npm run dev
+const getSpecifiedPort = () => {
+	// First check BACKEND_PORT (for direct env var usage)
+	let portStr = process.env.BACKEND_PORT;
+	// Then check TEST_BACKEND_PORT (from .env file)
+	if (!portStr) {
+		portStr = process.env.TEST_BACKEND_PORT;
+	}
+	if (portStr) {
+		const port = parseInt(portStr, 10);
+		if (!isNaN(port) && port > 0 && port < 65536) {
+			return port;
+		}
+	}
+	return null;
+};
+
+// Load .env file if USE_LOCAL_BACKEND is set
+if (process.env.USE_LOCAL_BACKEND === "true") {
+	loadEnvFile();
+}
+
+const specifiedPort = getSpecifiedPort();
+
 let backendProcess = null;
 let backendHealthCheckInterval = null;
 let backendPort = null;
@@ -105,6 +154,13 @@ const getBackendPath = () => {
 };
 
 const createRustBackend = async () => {
+	// If --port is specified, skip backend startup and use the specified port
+	if (specifiedPort) {
+		backendPort = specifiedPort;
+		console.log(`Using external backend at port: ${backendPort}`);
+		return true;
+	}
+
 	const backendPath = getBackendPath();
 
 	// Check backend executable path

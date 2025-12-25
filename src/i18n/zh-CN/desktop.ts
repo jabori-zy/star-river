@@ -3,7 +3,7 @@ const translation = {
         loading: "加载系统配置中...",
     },
     header: {
-        toggleSidebar: "切换侧边栏",
+        toggleSidebar: "侧边栏",
         goBack: "后退",
         goForward: "前进",
         settings: "设置",
@@ -20,6 +20,9 @@ const translation = {
     tradeAccount: "交易账户",
     setting: "设置",
     newStrategy: "新建策略",
+    importStrategy: "导入策略",
+    strategyCorrupted: "策略已损坏",
+    chooseFile: "选择文件",
     strategyName: "策略名称",
     strategyDescription: "策略描述",
     optional: "可选",
@@ -28,6 +31,7 @@ const translation = {
     build: "构建",
     strategyListPage: {
         view: "查看",
+        exportStrategy: "导出策略",
         deleteStrategy: "删除策略",
         confirmDeleteStrategy: "确认删除策略",
         confirmDeleteStrategyMessage: "您确定要删除策略 {{strategyName}} 吗？此操作无法撤销。",
@@ -36,6 +40,8 @@ const translation = {
     strategyWorkflowPage: {
         addStrategyDescription: "添加策略描述...",
         searchNode: "搜索节点",
+        share: "分享",
+        settings: "设置",
         tradeMode: "交易模式",
         live: "实盘",
         backtest: "回测",
@@ -50,6 +56,8 @@ const translation = {
         running: "运行中...",
         stopping: "停止中...",
         error: "错误",
+        unsavedChangesTitle: "未保存的更改",
+        unsavedChangesDescription: "您有未保存的策略更改。确定要离开吗？您的更改将会丢失。",
     },
     backtestPage: {
         indicator: "指标",
