@@ -51,6 +51,7 @@ export type IndicatorNodeBacktestConfig = {
 	dataSource: BacktestDataSource; // Data source
 	fileModeConfig: IndicatorNodeBacktestFileConfig | null; // File data source configuration
 	exchangeModeConfig: IndicatorNodeBacktestExchangeModeConfig | null; // Exchange data source configuration
+	sourceSeriesLength?: number; // Source series length
 };
 
 // Indicator node data type

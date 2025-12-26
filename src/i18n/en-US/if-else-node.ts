@@ -22,6 +22,7 @@ const translation = {
 	noBranches: "No Branches",
 	case: "Case",
 	noVariables: "No variables",
+	noAvailableNodes: "No available nodes",
 	kline: "Kline",
 	comparisonSymbols: {
 		equal: "=",
@@ -40,6 +41,12 @@ const translation = {
 		isNotEmpty: "is not empty",
 		contains: "contains",
 		notContains: "not contains",
+	},
+	noAvailableVariables: "No available variables",
+	seriesIndex: {
+		latest: "Latest",
+		previous: "Previous",
+		first: "First",
 	},
 };
 

@@ -147,7 +147,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 						<CollapsibleContent className="mt-2">
 							<div className="flex flex-col gap-2 bg-gray-100 rounded-md p-2">
 								<div className="flex flex-col gap-1 text-sm">
-									<div className="flex items-center gap-2">
+									<div className="flex items-center justify-between gap-2">
 										<span className="text-gray-600">
 											{t("startNode.startTime")}:
 										</span>
@@ -166,7 +166,7 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 											className="text-sm truncate"
 										/>
 									</div>
-									<div className="flex items-center gap-2">
+									<div className="flex items-center justify-between gap-2">
 										<span className="text-gray-600">
 											{t("startNode.endTime")}:
 										</span>
@@ -196,14 +196,16 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 			<div className="space-y-2">
 				{!backtestConfig.customVariables ||
 				backtestConfig.customVariables.length === 0 ? (
-					<div className="flex items-center justify-between gap-2 rounded-md">
+					<div className="flex flex-col gap-1 rounded-md">
 						<Label className="text-xm font-bold text-muted-foreground">
 							{t("startNode.customVariables")}
 						</Label>
-						<span className="text-sm text-red-500">
-							{" "}
-							{t("startNode.noVariable")}{" "}
-						</span>
+						<div className="bg-gray-100 p-2 rounded-md">
+							<span className="text-sm text-red-500">
+								{t("startNode.noVariable")}
+							</span>
+						</div>
+						
 					</div>
 				) : (
 					<Collapsible open={isVariablesOpen} onOpenChange={setIsVariablesOpen}>

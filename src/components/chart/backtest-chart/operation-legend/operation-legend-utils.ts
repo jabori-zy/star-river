@@ -3,6 +3,7 @@
  * Example: node_group_olzbhnj:operation_group2_output:2 -> operation_group2_output
  */
 export const parseSeriesName = (name: string): string => {
+	console.log("name", name);
 	const parts = name.split(":");
 	return parts.length >= 2 ? parts[1] : name;
 };

@@ -24,7 +24,7 @@ const MA_TYPE_LABELS: Record<MAType, string> = {
 	[MAType.TEMA]: "TEMA",
 	[MAType.TRIMA]: "TRIMA",
 	[MAType.KAMA]: "KAMA",
-	[MAType.MANA]: "MANA",
+	[MAType.MAMA]: "MAMA",
 	[MAType.T3]: "T3",
 };
 

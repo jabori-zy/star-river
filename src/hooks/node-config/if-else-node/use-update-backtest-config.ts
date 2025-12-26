@@ -118,7 +118,7 @@ export const useBacktestConfig = ({ id }: UseBacktestConfigProps) => {
 		updateConfig((draft) => {
 			draft.cases = [emptyCase];
 		});
-	}, [updateConfig]);
+	}, [id, updateConfig]);
 
 	/**
 	 * Reset a variable (left or right) in a specific condition

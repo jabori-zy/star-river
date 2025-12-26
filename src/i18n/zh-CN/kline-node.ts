@@ -10,6 +10,7 @@ const translation = {
 	startTime: "开始时间",
 	endTime: "结束时间",
 	kline: "K线",
+	cacheLength: "缓存长度",
 	symbolDialog: {
 		addTitle: "添加交易对",
 		editTitle: "编辑交易对",

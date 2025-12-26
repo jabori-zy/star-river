@@ -566,6 +566,14 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 		});
 	};
 
+	// Handle dataflow series index change
+	const handleSeriesIndexChangeDataflow = (seriesIndex: number) => {
+		updateDataflowConfig((prev) => ({
+			...prev,
+			seriesIndex,
+		}));
+	};
+
 	// Handle update operation type change (condition/timer mode)
 	const handleUpdateOperationTypeChange = (
 		operation: UpdateVarValueOperation,
@@ -819,12 +827,14 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 											selectedVariableName={
 												dataflowConfig?.fromVarDisplayName || null
 											}
+											selectedSeriesIndex={dataflowConfig?.seriesIndex}
 											updateOperationType={config.updateVarValueOperation}
 											availableOperations={availableOps}
 											targetVariableType={selectedVar?.varValueType}
 											targetVariableDisplayName={selectedVar?.varDisplayName}
 											onNodeChange={handleNodeChange}
 											onVariableChange={handleVariableChangeDataflow}
+											onSeriesIndexChange={handleSeriesIndexChangeDataflow}
 											onOperationTypeChange={handleOperationTypeChangeDataflow}
 										/>
 									);

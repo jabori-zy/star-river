@@ -39,7 +39,7 @@ export enum MAType {
 	TEMA = "TEMA",
 	TRIMA = "TRIMA",
 	KAMA = "KAMA",
-	MANA = "MANA",
+	MAMA = "MAMA",
 	T3 = "T3",
 }
 

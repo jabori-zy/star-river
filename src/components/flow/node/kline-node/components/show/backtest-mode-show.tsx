@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Label } from "@/components/ui/label";
 import type { KlineNodeBacktestConfig } from "@/types/node/kline-node";
 import { SymbolItem } from "./kline-config-show-item";
-import { TimeDisplay } from "@/components/time-display";
+// import { TimeDisplay } from "@/components/time-display";
 
 interface BacktestModeShowProps {
 	handleColor: string;
@@ -19,9 +19,9 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 	const selectedAccount = backtestConfig?.exchangeModeConfig?.selectedAccount;
 	const selectedSymbols =
 		backtestConfig?.exchangeModeConfig?.selectedSymbols || [];
-	const localTimeRange = backtestConfig?.exchangeModeConfig?.timeRange || null;
-	const startDate = localTimeRange?.startDate;
-	const endDate = localTimeRange?.endDate;
+	// const localTimeRange = backtestConfig?.exchangeModeConfig?.timeRange || null;
+	// const startDate = localTimeRange?.startDate;
+	// const endDate = localTimeRange?.endDate;
 
 	return (
 		<div className="space-y-2">
@@ -82,6 +82,16 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 						</div>
 					</div>
 				)}
+			</div>
+
+			{/* Cache length display */}
+			<div className="space-y-2">
+				<Label className="text-xm font-bold text-muted-foreground">
+					{t("klineNode.cacheLength")}
+				</Label>
+				<div className="flex items-center gap-2 bg-gray-100 p-2 rounded-md">
+					<span className="text-xs">{backtestConfig?.seriesLength ?? 200}</span>
+				</div>
 			</div>
 			{/* Backtest time range display */}
 			{/* <div className="space-y-2">

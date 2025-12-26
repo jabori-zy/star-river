@@ -5,6 +5,7 @@ import {
 	renderNodeOptions,
 	renderVariableOptions,
 } from "@/components/flow/node/node-utils";
+import SeriesIndexDropdown from "@/components/flow/node/shared/series-index-dropdown";
 import { ButtonGroup } from "@/components/ui/button-group";
 import type { VariableItem } from "@/hooks/flow/use-strategy-workflow";
 import type { NodeType } from "@/types/node/index";
@@ -32,6 +33,7 @@ interface DataFlowSelectorProps {
 	selectedHandleId: string | null;
 	selectedVariable: string | null;
 	selectedVariableName: string | null;
+	selectedSeriesIndex?: number; // Series index for time series data
 	updateOperationType: UpdateVarValueOperation;
 	availableOperations: UpdateVarValueOperation[];
 	targetVariableType?: VariableValueType; // Target variable type, used to filter dataflow variables
@@ -48,6 +50,7 @@ interface DataFlowSelectorProps {
 		variableName: string,
 		variableValueType: VariableValueType,
 	) => void;
+	onSeriesIndexChange?: (seriesIndex: number) => void; // Series index change callback
 	onOperationTypeChange: (operationType: UpdateVarValueOperation) => void;
 }
 
@@ -80,16 +83,19 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 	selectedHandleId,
 	selectedVariable,
 	selectedVariableName,
+	selectedSeriesIndex,
 	updateOperationType,
 	availableOperations,
 	targetVariableType,
 	targetVariableDisplayName,
 	onNodeChange,
 	onVariableChange,
+	onSeriesIndexChange,
 	onOperationTypeChange,
 }) => {
 	const [localNodeId, setLocalNodeId] = useState<string>(selectedNodeId || "");
 	const [variableString, setVariableString] = useState<string>("");
+	const [seriesIndex, setSeriesIndex] = useState<number>(selectedSeriesIndex ?? 0);
 	const { t, i18n } = useTranslation();
 	const language = i18n.language;
 
@@ -134,6 +140,11 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 		selectedVariableName,
 		generateOptionValue,
 	]);
+
+	// Sync series index state
+	useEffect(() => {
+		setSeriesIndex(selectedSeriesIndex ?? 0);
+	}, [selectedSeriesIndex]);
 
 	// Handle node selection
 	const handleNodeChange = (nodeId: string) => {
@@ -194,6 +205,20 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 			(item) => item.nodeId === localNodeId,
 		);
 		return selectedNode?.variables || [];
+	};
+
+	// Get seriesLength of selected node
+	const getSelectedNodeSeriesLength = useCallback(() => {
+		const selectedNode = variableItemList.find(
+			(item) => item.nodeId === localNodeId,
+		);
+		return selectedNode?.seriesLength;
+	}, [variableItemList, localNodeId]);
+
+	// Handle series index change
+	const handleSeriesIndexChange = (newSeriesIndex: number) => {
+		setSeriesIndex(newSeriesIndex);
+		onSeriesIndexChange?.(newSeriesIndex);
 	};
 
 	// Filter node list: only keep nodes with valid variables
@@ -316,6 +341,7 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 
 	return (
 		<div className="flex flex-col gap-2">
+			{/* Row 1: Operator selector + Node selector */}
 			<ButtonGroup className="w-full">
 				{/* Operator selector */}
 				<SelectInDialog
@@ -343,7 +369,10 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 					disabled={hasNoNodes}
 					className="h-8 text-xs font-normal min-w-20 flex-1"
 				/>
+			</ButtonGroup>
 
+			{/* Row 2: Variable selector + Series index selector */}
+			<ButtonGroup className="w-full">
 				{/* Variable selector */}
 				<SelectInDialog
 					value={variableString}
@@ -364,6 +393,14 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 						whitelistValueType: targetVariableType || null,
 					})}
 				</SelectInDialog>
+
+				{/* Series index selector */}
+				<SeriesIndexDropdown
+					seriesLength={getSelectedNodeSeriesLength()}
+					value={seriesIndex}
+					onChange={handleSeriesIndexChange}
+					disabled={!localNodeId || !variableString}
+				/>
 			</ButtonGroup>
 
 			{/* Hint text */}

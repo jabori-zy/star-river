@@ -32,18 +32,12 @@ interface EditDialogProps {
 	onSave: (config: SelectedIndicator) => void;
 	nodeId: string;
 	initialIndicatorType?: IndicatorType; // New: Indicator type passed from indicator viewer panel
+	sourceSeriesLength?: number; // Source kline series length for validation
 }
 
 // Form data type
 type FormDataValue = string | number | PriceSource | MAType;
 type FormData = Record<string, FormDataValue>;
-
-// Indicator option type
-interface IndicatorOption {
-	value: IndicatorType;
-	label: string;
-}
-
 // Select box option type
 interface SelectOption {
 	value: string | number | PriceSource | MAType;
@@ -67,7 +61,7 @@ const MA_TYPE_OPTIONS: SelectOption[] = [
 	{ value: MAType.TEMA, label: "indicator.maType.tema" },
 	{ value: MAType.TRIMA, label: "indicator.maType.trima" },
 	{ value: MAType.KAMA, label: "indicator.maType.kama" },
-	{ value: MAType.MANA, label: "indicator.maType.mana" },
+	{ value: MAType.MAMA, label: "indicator.maType.mama" },
 	{ value: MAType.T3, label: "indicator.maType.t3" },
 ];
 
@@ -80,6 +74,7 @@ const EditDialog: React.FC<EditDialogProps> = ({
 	onSave,
 	nodeId,
 	initialIndicatorType,
+	sourceSeriesLength,
 }) => {
 	const [indicatorType, setIndicatorType] = useState<IndicatorType>(
 		initialIndicatorType || IndicatorType.MA,
@@ -117,6 +112,42 @@ const EditDialog: React.FC<EditDialogProps> = ({
 				const formValue = formData[key];
 				return configValue === formValue;
 			});
+		});
+	};
+
+	// Check if form has validation errors (empty required fields or exceeds series length)
+	const hasFormValidationErrors = (): boolean => {
+		const configInstance = getCurrentConfigInstance();
+		if (!configInstance) return false;
+
+		return Object.entries(configInstance.params).some(([key, param]) => {
+			const value = formData[key];
+			const defaultValue = param.defaultValue;
+
+			// Check number type fields
+			if (typeof defaultValue === "number") {
+				// Check if empty or <= 0 for required fields
+				if (param.required) {
+					if (
+						value === undefined ||
+						value === "" ||
+						(isNumber(value) && value <= 0)
+					) {
+						return true;
+					}
+				}
+				// Check if exceeds sourceSeriesLength
+				if (
+					sourceSeriesLength !== undefined &&
+					sourceSeriesLength > 0 &&
+					value !== undefined &&
+					isNumber(value) &&
+					value > sourceSeriesLength
+				) {
+					return true;
+				}
+			}
+			return false;
 		});
 	};
 
@@ -289,6 +320,12 @@ const EditDialog: React.FC<EditDialogProps> = ({
 
 		// Determine field type based on default value type
 		if (typeof defaultValue === "number") {
+			const exceedsSeriesLength =
+				sourceSeriesLength !== undefined &&
+				sourceSeriesLength > 0 &&
+				isNumber(value) &&
+				value > sourceSeriesLength;
+
 			return (
 				<div key={key} className="grid gap-2">
 					<Label htmlFor={key} className="text-left">
@@ -308,7 +345,15 @@ const EditDialog: React.FC<EditDialogProps> = ({
 							}
 						}}
 						step={1}
+						className={exceedsSeriesLength ? "border-red-500" : ""}
 					/>
+					{exceedsSeriesLength && (
+						<span className="text-xs text-red-500">
+							{t("indicatorNode.editDialog.maxSeriesLength", {
+								length: sourceSeriesLength,
+							})}
+						</span>
+					)}
 				</div>
 			);
 		}
@@ -393,7 +438,10 @@ const EditDialog: React.FC<EditDialogProps> = ({
 						</Button>
 						<Button
 							onClick={handleSave}
-							disabled={isIndicatorConfigExists(editingIndex || undefined)}
+							disabled={
+								isIndicatorConfigExists(editingIndex || undefined) ||
+								hasFormValidationErrors()
+							}
 						>
 							{isIndicatorConfigExists(editingIndex || undefined)
 								? t("indicatorNode.editDialog.configExists")

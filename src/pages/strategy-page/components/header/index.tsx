@@ -92,7 +92,7 @@ export default function StrategyPageHeader({
 					setIsAutoSaving(false);
 				}, 1000);
 			}
-		}, 60000); // 60 seconds
+		}, 180000); // 180 seconds
 
 		return () => clearInterval(autoSaveInterval);
 	}, [saveStatus, onSave, isAutoSaving]);

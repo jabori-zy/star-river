@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import type { Variable } from "@/types/node/if-else-node";
 import type { NodeType } from "@/types/node/index";
 import { VariableValueType } from "@/types/variable";
+import SeriesIndexDropdown from "@/components/flow/node/shared/series-index-dropdown";
 
 interface VariableSelectorProps {
 	variableItemList: VariableItem[];
@@ -35,6 +36,7 @@ interface VariableSelectorProps {
 		variableName: string,
 		varValueType: VariableValueType,
 	) => void; // Variable selection callback
+	onSeriesIndexChange?: (seriesIndex: number) => void; // Series index change callback
 	whitelistValueType?: VariableValueType | null; // Optional: whitelist - only keep specified type
 	blacklistValueType?: VariableValueType | null; // Optional: blacklist - exclude specified type
 	excludeVariable?: {
@@ -50,6 +52,7 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 	variable,
 	onNodeChange,
 	onVariableChange,
+	onSeriesIndexChange,
 	whitelistValueType,
 	blacklistValueType,
 	excludeVariable,
@@ -58,6 +61,9 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 		variable?.nodeId || "",
 	);
 	const [variableString, setVariableString] = useState<string>("");
+	const [seriesIndex, setSeriesIndex] = useState<number>(
+		variable?.seriesIndex ?? 0,
+	);
 	const { t } = useTranslation();
 	// Generate option value, format: nodeId|handleId|variable|variableName
 	const generateOptionValue = useCallback(
@@ -128,10 +134,14 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 			} else {
 				setVariableString("");
 			}
+
+			// Update series index
+			setSeriesIndex(variable.seriesIndex ?? 0);
 		} else {
 			// If variable is null, clear state
 			setSelectedNodeId("");
 			setVariableString("");
+			setSeriesIndex(0);
 		}
 	}, [variable, generateOptionValue]);
 
@@ -213,6 +223,20 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 		return selectedNode?.variables || [];
 	};
 
+	// Get seriesLength of selected node
+	const getSelectedNodeSeriesLength = useCallback(() => {
+		const selectedNode = variableItemList.find(
+			(item) => item.nodeId === selectedNodeId,
+		);
+		return selectedNode?.seriesLength;
+	}, [variableItemList, selectedNodeId]);
+
+	// Handle series index change
+	const handleSeriesIndexChange = (newSeriesIndex: number) => {
+		setSeriesIndex(newSeriesIndex);
+		onSeriesIndexChange?.(newSeriesIndex);
+	};
+
 	// Check if currently selected node has available variables
 	const hasAvailableVariables = () => {
 		const variables = getSelectedNodeVariables();
@@ -263,12 +287,12 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 	};
 
 	return (
-		<ButtonGroup className="w-full">
-			{/* Node selector */}
+		<div className="flex flex-col gap-1 w-full">
+			{/* Row 1: Node selector */}
 			<Select value={selectedNodeId} onValueChange={handleNodeChange}>
 				<SelectTrigger
 					className={cn(
-						"h-8 text-xs font-normal min-w-20 flex-1 bg-transparent hover:bg-gray-200 border-gray-300 transition-colors",
+						"h-8 text-xs font-normal bg-transparent hover:bg-gray-200 border-gray-300 transition-colors",
 					)}
 				>
 					<SelectValue
@@ -279,7 +303,7 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 				<SelectContent className="max-h-80">
 					{filteredVariableItemList.length === 0 ? (
 						<div className="py-2 text-center text-sm text-muted-foreground">
-							无可用节点
+							{t("ifElseNode.noAvailableNodes")}
 						</div>
 					) : (
 						filteredVariableItemList.map((item) => (
@@ -300,29 +324,39 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 				</SelectContent>
 			</Select>
 
-			{/* Variable selector */}
-			<Select
-				value={variableString}
-				onValueChange={handleVariableChange}
-				disabled={!selectedNodeId}
-			>
-				<SelectTrigger
-					className={cn(
-						"h-8 text-xs font-normal min-w-20 flex-1 bg-transparent hover:bg-gray-200 border-gray-300 transition-colors",
-						!selectedNodeId &&
-							"opacity-50 cursor-not-allowed hover:bg-transparent",
-					)}
+			{/* Row 2: Variable selector + Series index selector */}
+			<ButtonGroup className="w-full">
+				<Select
+					value={variableString}
+					onValueChange={handleVariableChange}
+					disabled={!selectedNodeId}
 				>
-					<SelectValue
-						placeholder={getVariablePlaceholder()}
-						className="truncate"
-					/>
-				</SelectTrigger>
-				<SelectContent className="max-h-80">
-					{renderVariableContent()}
-				</SelectContent>
-			</Select>
-		</ButtonGroup>
+					<SelectTrigger
+						className={cn(
+							"h-8 text-xs font-normal flex-1 bg-transparent hover:bg-gray-200 border-gray-300 transition-colors",
+							!selectedNodeId &&
+								"opacity-50 cursor-not-allowed hover:bg-transparent",
+						)}
+					>
+						<SelectValue
+							placeholder={getVariablePlaceholder()}
+							className="truncate"
+						/>
+					</SelectTrigger>
+					<SelectContent className="max-h-80">
+						{renderVariableContent()}
+					</SelectContent>
+				</Select>
+
+				{/* Series index selector - only render when seriesLength exists */}
+				<SeriesIndexDropdown
+					seriesLength={getSelectedNodeSeriesLength()}
+					value={seriesIndex}
+					onChange={handleSeriesIndexChange}
+					disabled={!selectedNodeId || !variableString}
+				/>
+			</ButtonGroup>
+		</div>
 	);
 };
 

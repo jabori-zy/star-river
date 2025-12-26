@@ -4,10 +4,10 @@ import { z } from "zod";
 
 // Sum all inputs
 const SumOperationSchema = z.object({ type: z.literal("Sum"), inputType: z.literal("Nary"), category: z.literal("Horizontal") });
-const SubtractOperationSchema = z.object({ type: z.literal("Subtract"), inputType: z.literal("Nary"), category: z.literal("Horizontal") });
 const MultiplyOperationSchema = z.object({ type: z.literal("Multiply"), inputType: z.literal("Nary"), category: z.literal("Horizontal") });
-const DivideOperationSchema = z.object({ type: z.literal("Divide"), inputType: z.literal("Nary"), category: z.literal("Horizontal") });
 const MeanOperationSchema = z.object({ type: z.literal("Mean"), inputType: z.literal("Nary"), category: z.literal("Horizontal") });
+const MinOperationSchema = z.object({ type: z.literal("Min"), inputType: z.literal("Nary"), category: z.literal("Horizontal") });
+const MaxOperationSchema = z.object({ type: z.literal("Max"), inputType: z.literal("Nary"), category: z.literal("Horizontal") });
 
 // weighted sum operation
 const WeightedSumOperationSchema = z.object({
@@ -44,10 +44,10 @@ const BottomNOperationSchema = z.object({
 // Union of all n-ary operations
 export const NaryOperationSchema = z.discriminatedUnion("type", [
     SumOperationSchema,
-    SubtractOperationSchema,
     MultiplyOperationSchema,
-    DivideOperationSchema,
     MeanOperationSchema,
+    MinOperationSchema,
+    MaxOperationSchema,
     WeightedSumOperationSchema,
     RankOperationSchema,
     TopNOperationSchema,
@@ -58,9 +58,10 @@ export type NaryOperation = z.infer<typeof NaryOperationSchema>;
 // Operation type constants (for UI selection)
 export const NaryOperationTypes = [
     "Sum",
-    "Subtract",
     "Multiply",
-    "Divide",
+    "Mean",
+    "Min",
+    "Max",
     "WeightedSum",
     "Mean",
     "Rank",
@@ -73,11 +74,11 @@ export const NaryOperationTypes = [
 // Schema map for getting default values
 const narySchemaMap: Record<string, z.ZodTypeAny> = {
     Sum: SumOperationSchema,
-    Subtract: SubtractOperationSchema,
     Multiply: MultiplyOperationSchema,
-    Divide: DivideOperationSchema,
-    WeightedSum: WeightedSumOperationSchema,
     Mean: MeanOperationSchema,
+    Min: MinOperationSchema,
+    Max: MaxOperationSchema,
+    WeightedSum: WeightedSumOperationSchema,
     Rank: RankOperationSchema,
     TopN: TopNOperationSchema,
     BottomN: BottomNOperationSchema,

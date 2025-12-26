@@ -197,6 +197,7 @@ export type Variable = {
 	varName: string | null; // Variable, if constant, the value is the constant value
 	varDisplayName: string | null; // Variable name (user-set variable name, or default name)
 	varValueType: VariableValueType; // Variable value type
+	seriesIndex?: number; // Series index
 	extraInfo?: Record<string, string | number | boolean | null> | null; // Extra info
 };
 

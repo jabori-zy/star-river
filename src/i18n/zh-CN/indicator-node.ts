@@ -8,6 +8,7 @@ const translation = {
     symbol: "交易对",
     interval: "周期",
     exchange: "交易所",
+    seriesLength: "序列长度",
     indicatorViewer: {
         searchPlaceholder: "搜索",
         allIndicators: "所有指标",
@@ -18,6 +19,8 @@ const translation = {
         maType: "MA类型",
         period: "周期",
         dataSource: "数据源",
+        maxSeriesLength: "最大计算长度为 {{length}}",
+        exceedsSeriesLength: "超过序列长度",
     },
     selectSymbol: "选择交易对",
     noSymbol: "无交易对",

@@ -29,6 +29,7 @@ export const createDefaultKlineBacktestConfig = (): KlineNodeBacktestConfig => {
 			},
 		},
 		fileModeConfig: null,
+		seriesLength: 200,
 	};
 };
 
@@ -173,6 +174,15 @@ export const useBacktestConfig = ({ id }: UseBacktestConfigProps) => {
 		[updateConfig],
 	);
 
+	const updateSeriesLength = useCallback(
+		(seriesLength: number) => {
+			updateConfig((draft) => {
+				draft.seriesLength = seriesLength;
+			});
+		},
+		[updateConfig],
+	);
+
 	return {
 		backtestConfig,
 		setDefaultBacktestConfig,
@@ -183,5 +193,6 @@ export const useBacktestConfig = ({ id }: UseBacktestConfigProps) => {
 		updateSelectedAccount,
 		updateSelectedSymbols,
 		updateTimeRange,
+		updateSeriesLength,
 	};
 };

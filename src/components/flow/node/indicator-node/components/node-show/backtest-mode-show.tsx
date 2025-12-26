@@ -101,6 +101,14 @@ const BacktestModeShow: React.FC<BacktestModeShowProps> = ({
 									{exchangeModeConfig.selectedAccount.exchange}
 								</span>
 							</div>
+							<div className="flex flex-row items-center justify-between gap-2 pr-2">
+								<span className="text-xs font-bold">
+									{t("indicatorNode.seriesLength")}:
+								</span>
+								<span className="text-xs">
+									{data?.backtestConfig?.sourceSeriesLength ?? "-"}
+								</span>
+							</div>
 						</div>
 					</div>
 				)}

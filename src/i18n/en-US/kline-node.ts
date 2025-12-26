@@ -10,6 +10,7 @@ const translation = {
 	startTime: "Start Time",
 	endTime: "End Time",
 	kline: "Kline",
+	cacheLength: "Cache Length",
 	symbolDialog: {
 		addTitle: "Add Symbol",
 		editTitle: "Edit Symbol",

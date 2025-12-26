@@ -25,7 +25,9 @@ export const useSyncSourceNode = ({
 	id: string;
 	currentNodeData: IndicatorNodeData;
 }) => {
-	const { updateSelectedSymbol } = useBacktestConfig({ id });
+	const { updateSelectedSymbol, updateSourceSeriesLength } = useBacktestConfig({
+		id,
+	});
 
 	// Get current node's input connections
 	const connections = useNodeConnections({ id, handleType: "target" });
@@ -41,9 +43,10 @@ export const useSyncSourceNode = ({
 			return;
 		}
 
-		// Rule 2: Clear selected symbol when disconnected
+		// Rule 2: Clear selected symbol and series length when disconnected
 		if (sourceNodes.length === 0) {
 			updateSelectedSymbol(null);
+			updateSourceSeriesLength(0);
 			return;
 		}
 
@@ -55,39 +58,53 @@ export const useSyncSourceNode = ({
 				return;
 			}
 
-			// Sync Kline node's Symbol configuration
-			syncSymbolFromKlineNode(
+			// Sync Kline node's Symbol and seriesLength configuration
+			syncFromKlineNode(
 				sourceNodes[0].data as KlineNodeData,
 				currentNodeData,
 				updateSelectedSymbol,
+				updateSourceSeriesLength,
 			);
 		}
-	}, [sourceNodes, id, updateSelectedSymbol]);
+	}, [sourceNodes, id, updateSelectedSymbol, updateSourceSeriesLength]);
 };
 
 /**
- * Sync Symbol from Kline node to Indicator node
+ * Sync Symbol and seriesLength from Kline node to Indicator node
  *
  * Sync rules:
- * 1. If Kline node has no Symbol configuration, clear Indicator node's selection
- * 2. If Indicator node has no selected Symbol, do nothing
- * 3. If Indicator node's Symbol doesn't exist in Kline node, clear selection
- * 4. If Symbol's symbol or interval changes, update selection
+ * 1. Always sync seriesLength from Kline node
+ * 2. If Kline node has no Symbol configuration, clear Indicator node's selection
+ * 3. If Indicator node has no selected Symbol, skip symbol sync
+ * 4. If Indicator node's Symbol doesn't exist in Kline node, clear selection
+ * 5. If Symbol's symbol or interval changes, update selection
  *
  * @param klineNodeData - Kline node data
  * @param indicatorNodeData - Indicator node data
  * @param updateSelectedSymbol - Callback function to update Symbol
+ * @param updateSourceSeriesLength - Callback function to update seriesLength
  */
-function syncSymbolFromKlineNode(
+function syncFromKlineNode(
 	klineNodeData: KlineNodeData,
 	indicatorNodeData: IndicatorNodeData,
 	updateSelectedSymbol: (symbol: SelectedSymbol | null) => void,
+	updateSourceSeriesLength: (seriesLength: number) => void,
 ) {
+	// Sync seriesLength from Kline node
+	const klineSeriesLength =
+		klineNodeData.backtestConfig?.seriesLength ?? 200;
+	const currentSourceSeriesLength =
+		indicatorNodeData?.backtestConfig?.sourceSeriesLength;
+
+	if (klineSeriesLength !== currentSourceSeriesLength) {
+		updateSourceSeriesLength(klineSeriesLength);
+	}
+
 	// Get currently selected symbol of indicator node
 	const selectedSymbol =
 		indicatorNodeData?.backtestConfig?.exchangeModeConfig?.selectedSymbol;
 
-	// If indicator node has no selected symbol, no need to sync
+	// If indicator node has no selected symbol, no need to sync symbol
 	if (!selectedSymbol) {
 		return;
 	}

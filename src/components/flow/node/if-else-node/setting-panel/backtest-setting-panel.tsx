@@ -4,7 +4,7 @@ import { ReactSortable } from "react-sortablejs";
 import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import useStrategyWorkflow, {} from "@/hooks/flow/use-strategy-workflow";
+import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
 import { useBacktestConfig } from "@/hooks/node-config/if-else-node";
 import { type CaseItem, LogicalSymbol } from "@/types/node/if-else-node";
 import { TradeMode } from "@/types/strategy";
@@ -23,6 +23,7 @@ const IfElseNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id }) => {
 	const connections = useNodeConnections({ id, handleType: "target" });
 
 	const variables = getConnectedNodeVariables(connections, TradeMode.BACKTEST);
+	console.log("variables", variables);
 
 	// Add ELIF branch
 	const handleAddElif = () => {

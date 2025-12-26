@@ -2,11 +2,6 @@ import { Position, useReactFlow } from "@xyflow/react";
 import { useTranslation } from "react-i18next";
 import BaseHandle from "@/components/flow/base/BaseHandle";
 import { Badge } from "@/components/ui/badge";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
 import type {
 	CaseItem,
 	Condition,
@@ -21,7 +16,6 @@ import {
 	getComparisonLabel,
 	getLogicalLabel,
 	getVariableLabel,
-	getVariableTooltipLabel,
 } from "./utils";
 
 interface IfElseCaseItemProps {
@@ -45,78 +39,78 @@ const ConditionItem = ({
 	const { t } = useTranslation();
 
 	return (
-		<div className="flex items-center gap-1 flex-wrap">
+		<div className="flex items-end gap-1 flex-wrap">
 			{/* Left variable */}
-			<Tooltip>
-				<TooltipTrigger asChild>
-					<div className="flex items-start gap-1 px-1 py-1 bg-gray-50 rounded-md border hover:bg-gray-200 transition-colors cursor-default max-w-[200px]">
-						{condition.left?.varValueType &&
-							(() => {
-								const IconComponent = getVariableValueTypeIcon(
-									condition.left.varValueType,
-								);
-								const iconColorClass = getVariableValueTypeIconColor(
-									condition.left.varValueType,
-								);
-								return (
-									<IconComponent
-										className={`text-sm shrink-0 ${iconColorClass} mt-0.5`}
-									/>
-								);
-							})()}
-						<span className="text-xs font-medium text-gray-900 break-words break-all">
-							{getVariableLabel(condition.left, nodes, t)}
-						</span>
-					</div>
-				</TooltipTrigger>
-				<TooltipContent>
-					<p>{getVariableTooltipLabel(condition.left, t)}</p>
-				</TooltipContent>
-			</Tooltip>
+			<div className="flex flex-col max-w-[200px]">
+				{condition.left?.nodeName && (
+					<span className="text-xs text-gray-400">
+						{condition.left.nodeName}
+					</span>
+				)}
+				<div className="flex items-start gap-1 px-1 py-1 bg-gray-50 rounded-md border">
+					{condition.left?.varValueType &&
+						(() => {
+							const IconComponent = getVariableValueTypeIcon(
+								condition.left.varValueType,
+							);
+							const iconColorClass = getVariableValueTypeIconColor(
+								condition.left.varValueType,
+							);
+							return (
+								<IconComponent
+									className={`text-sm shrink-0 ${iconColorClass} mt-0.5`}
+								/>
+							);
+						})()}
+					<span className="text-xs font-medium text-gray-900 break-words break-all">
+						{getVariableLabel(condition.left, nodes, t)}
+					</span>
+				</div>
+			</div>
 
 			{/* Comparison symbol */}
 			{condition.comparisonSymbol && (
 				<Badge
 					variant="secondary"
-					className="bg-orange-100 text-orange-700 border-orange-200 text-xs shrink-0 font-bold"
+					className="bg-orange-100 text-orange-700 border-orange-200 text-xs shrink-0 font-bold py-1"
 				>
 					{getComparisonLabel(condition.comparisonSymbol, t)}
 				</Badge>
 			)}
 
 			{/* Right variable */}
-			<Tooltip>
-				<TooltipTrigger asChild>
-					<div className="flex items-start gap-1 px-1 py-1 bg-gray-50 rounded-md border hover:bg-gray-200 transition-colors cursor-default max-w-[200px]">
-						{condition.right?.varValueType &&
-							(() => {
-								const IconComponent = getVariableValueTypeIcon(
-									condition.right.varValueType,
-								);
-								const iconColorClass = getVariableValueTypeIconColor(
-									condition.right.varValueType,
-								);
-								return (
-									<IconComponent
-										className={`text-sm shrink-0 ${iconColorClass} mt-0.5`}
-									/>
-								);
-							})()}
-						<span className="text-xs font-medium text-gray-900 break-words break-all">
-							{getVariableLabel(condition.right, nodes, t)}
-						</span>
-					</div>
-				</TooltipTrigger>
-				<TooltipContent>
-					<p>{getVariableTooltipLabel(condition.right, t)}</p>
-				</TooltipContent>
-			</Tooltip>
+			<div className="flex flex-col max-w-[200px]">
+				{condition.right && "nodeName" in condition.right && condition.right.nodeName && (
+					<span className="text-xs text-gray-400">
+						{condition.right.nodeName}
+					</span>
+				)}
+				<div className="flex items-start gap-1 px-1 py-1 bg-gray-50 rounded-md border">
+					{condition.right?.varValueType &&
+						(() => {
+							const IconComponent = getVariableValueTypeIcon(
+								condition.right.varValueType,
+							);
+							const iconColorClass = getVariableValueTypeIconColor(
+								condition.right.varValueType,
+							);
+							return (
+								<IconComponent
+									className={`text-sm shrink-0 ${iconColorClass} mt-0.5`}
+								/>
+							);
+						})()}
+					<span className="text-xs font-medium text-gray-900 break-words break-all">
+						{getVariableLabel(condition.right, nodes, t)}
+					</span>
+				</div>
+			</div>
 
 			{/* Logical symbol (shown when not the last condition) */}
 			{!isLast && logicalSymbol && (
 				<Badge
 					variant="secondary"
-					className="bg-purple-100 text-purple-700 border-purple-200 text-xs shrink-0"
+					className="bg-purple-100 text-purple-700 border-purple-200 text-xs shrink-0 py-1"
 				>
 					{getLogicalLabel(logicalSymbol)}
 				</Badge>

@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { AlertCircle } from "lucide-react";
 import AccountSelector from "@/components/flow/account-selector";
 import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
 import FileUpload from "@/components/ui/file-upload";
@@ -15,6 +16,7 @@ import {
 	TradeMode,
 } from "@/types/strategy";
 import SymbolSelector from "../components/symbol-selector";
+import { InputWithTooltip } from "@/components/input-components/input-with-tooltip";
 
 const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id }) => {
 	const { t } = useTranslation();
@@ -24,11 +26,10 @@ const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id }) => {
 		startNodeData?.backtestConfig?.exchangeModeConfig?.selectedAccounts || [];
 
 	// ✅ Use new version hook to manage backtest config
-	const { backtestConfig, updateSelectedAccount, updateSelectedSymbols } =
+	const { backtestConfig, updateSelectedAccount, updateSelectedSymbols, updateSeriesLength } =
 		useBacktestConfig({ id });
 
 	const selectedAccount = backtestConfig?.exchangeModeConfig?.selectedAccount;
-	const timeRange = backtestConfig?.exchangeModeConfig?.timeRange;
 
 	// Get symbol list and supported kline intervals (fetched at parent to avoid duplicate requests in child components)
 	const { data: symbolList = [] } = useSymbolList(selectedAccount?.id ?? 0);
@@ -76,6 +77,25 @@ const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id }) => {
 							symbolList={symbolList}
 							supportKlineInterval={supportKlineInterval}
 						/>
+						<div className="space-y-2 p-2">
+							<Label className="text-sm font-medium">Series Length</Label>
+							<InputWithTooltip
+								value={backtestConfig?.seriesLength?.toString() || "200"}
+								onChange={(value) => updateSeriesLength(Number(value))}
+								tooltipContent="Output series length. Between 1 and 1000"
+								type="number"
+								min={1}
+								max={1000}
+							/>
+							<div className="flex items-start gap-1.5 rounded-md bg-amber-50 px-2 py-1.5 text-xs text-amber-700">
+								<AlertCircle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
+								<span>
+									Series length controls the kline series passed to the next
+									node, affecting indicator calculations, custom operations, and
+									conditional logic.
+								</span>
+							</div>
+						</div>
 						{/* <div className="flex items-center justify-between gap-2 bg-gray-100 p-2 rounded-md">
 							<Label className="text-sm font-bold whitespace-nowrap">
 								{" "}

@@ -16,12 +16,14 @@ interface IndicatorEditorProps {
 	id: string; // Node ID, used to generate handleId
 	selectedIndicators: SelectedIndicator[];
 	onSelectedIndicatorsChange: (indicators: SelectedIndicator[]) => void;
+	sourceSeriesLength?: number; // Source kline series length for validation
 }
 
 const IndicatorEditor: React.FC<IndicatorEditorProps> = ({
 	id,
 	selectedIndicators,
 	onSelectedIndicatorsChange,
+	sourceSeriesLength,
 }) => {
 	// Local state management
 	const { t } = useTranslation();
@@ -262,6 +264,7 @@ const IndicatorEditor: React.FC<IndicatorEditorProps> = ({
 				onSave={handleSave}
 				nodeId={id}
 				initialIndicatorType={selectedIndicatorType}
+				sourceSeriesLength={sourceSeriesLength}
 			/>
 
 			{/* Indicator viewer panel */}

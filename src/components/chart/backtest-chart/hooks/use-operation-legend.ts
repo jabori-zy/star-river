@@ -386,7 +386,7 @@ export const useOperationLegend = ({
 	);
 
 	// Sync current series data to legend, ensuring display even when data is ready on first load
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation> we don't need to re-run this effect when operationSeriesMap changes
 	useEffect(() => {
 		const latestLegendData = buildLegendDataFromSeries();
 		setLegendData((prev) =>

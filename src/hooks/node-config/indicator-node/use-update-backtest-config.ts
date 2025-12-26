@@ -32,6 +32,7 @@ export const createDefaultIndicatorBacktestConfig =
 				},
 			},
 			fileModeConfig: null,
+			sourceSeriesLength: undefined,
 		};
 	};
 
@@ -202,6 +203,15 @@ export const useBacktestConfig = ({ id }: UseBacktestConfigProps) => {
 		[updateConfig],
 	);
 
+	const updateSourceSeriesLength = useCallback(
+		(sourceSeriesLength: number) => {
+			updateConfig((draft) => {
+				draft.sourceSeriesLength = sourceSeriesLength;
+			});
+		},
+		[updateConfig],
+	);
+
 	return {
 		backtestConfig,
 		setDefaultBacktestConfig,
@@ -213,5 +223,6 @@ export const useBacktestConfig = ({ id }: UseBacktestConfigProps) => {
 		updateSelectedSymbol,
 		updateSelectedIndicators,
 		updateTimeRange,
+		updateSourceSeriesLength,
 	};
 };

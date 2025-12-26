@@ -16,7 +16,6 @@ import type {
 	OperationGroupData,
 	InputSource,
 } from "@/types/node/group/operation-group";
-import { isFromParentGroup } from "@/types/node/group/operation-group";
 import type { ScalarSource } from "./components/input-configer";
 import type { OperationNodeData } from "@/types/node/operation-node";
 import type { KlineNodeData } from "@/types/node/kline-node";
@@ -41,7 +40,7 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 		connections,
 		TradeMode.BACKTEST,
 	);
-	console.log("🔍 variableItemList", variableItemList);
+	// console.log("🔍 variableItemList", variableItemList);
 
 	// Find EndNode ID within this group
 	const childEndNodeId = useMemo(() => {

@@ -15,6 +15,11 @@ const translation = {
 	operationNode: "Operation Node",
 	operationStartNode: "Operation Start Node",
 	operationEndNode: "Operation End Node",
+	seriesIndex: {
+		latest: "Latest",
+		previous: "Previous",
+		first: "First",
+	},
 };
 
 export default translation;

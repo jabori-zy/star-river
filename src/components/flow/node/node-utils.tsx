@@ -76,6 +76,11 @@ export const isOperationOutputConfig = (
 export const isOperationNodeOutputConfig = (
 	variable: AnyVariable,
 ): variable is OperationNodeOutputConfig => {
+	// Exclude OperationGroup outputs by checking for their specific fields
+	// OperationGroup outputs have sourceNodeId, sourceNodeName, sourceHandleId, etc.
+	if ('sourceNodeId' in variable || 'sourceScalarName' in variable || 'sourceSeriesName' in variable) {
+		return false;
+	}
 	return isOperationNodeSeriesOutput(variable) || isOperationNodeScalarOutput(variable);
 };
 
@@ -267,12 +272,12 @@ export const renderVariableOptions = ({
 							<div className="flex items-center w-full gap-1">
 								<div className="flex items-center gap-0.5 flex-shrink-0">
 									<TypeIconComponent className={`h-4 w-4 ${typeIconColor}`} />
-									{/* <Badge
+									<Badge
 										variant="outline"
 										className="flex items-center justify-center text-[10px] leading-none py-1 border-gray-400 rounded-sm"
 									>
 										{variable.indicatorType}
-									</Badge> */}
+									</Badge>
 								</div>
 								<span className="font-medium text-gray-900 flex-1 text-right truncate">
 									{t(`indicator.indicatorValueField.${varName}`)}
@@ -288,12 +293,12 @@ export const renderVariableOptions = ({
 					<SelectLabel className="text-xs font-semibold text-blue-600 px-2 py-1.5">
 						<div className="flex items-center gap-2">
 							{t("indicatorNode.indicator")} {indicatorId}
-							<Badge
+							{/* <Badge
 								variant="outline"
 								className="flex items-center justify-center text-[10px] leading-none py-1 border-gray-400 rounded-sm"
 							>
 								{variables[0].indicatorType}
-							</Badge>
+							</Badge> */}
 						</div>
 					</SelectLabel>
 					{groupItems}
@@ -365,12 +370,12 @@ export const renderVariableOptions = ({
 							<div className="flex items-center w-full gap-1">
 								<div className="flex items-center gap-0.5 flex-shrink-0">
 									<TypeIconComponent className={`h-4 w-4 ${typeIconColor}`} />
-									{/* <Badge
+									<Badge
 										variant="outline"
 										className="flex items-center justify-center text-[10px] leading-none py-1 border-gray-400 rounded-sm"
 									>
 										{variable.symbol}|{variable.interval}
-									</Badge> */}
+									</Badge>
 								</div>
 								<span className="font-medium text-gray-900 flex-1 text-right truncate">
 									{t(`market.klineValueField.${field}`)}
@@ -386,12 +391,12 @@ export const renderVariableOptions = ({
 					<SelectLabel className="text-xs font-semibold text-green-600 px-2 py-1.5">
 						<div className="flex items-center gap-2">
 							{t("klineNode.kline")} {configId}
-							<Badge
+							{/* <Badge
 								variant="outline"
 								className="flex items-center justify-center text-[10px] leading-none py-1 border-gray-400 rounded-sm"
 							>
 								{variables[0].symbol}|{variables[0].interval}
-							</Badge>
+							</Badge> */}
 						</div>
 					</SelectLabel>
 					{groupItems}
@@ -687,6 +692,10 @@ export const getNodeTypeLabel = (
 			return t("node.variable");
 		case NodeType.FuturesOrderNode:
 			return t("node.order");
+		case NodeType.OperationGroup:
+			return t("node.operationGroup");
+		case NodeType.OperationNode:
+			return t("node.operationNode");
 		default:
 			return t("ifElseNode.config");
 	}

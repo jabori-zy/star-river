@@ -21,6 +21,7 @@ export interface VariableItem {
 	nodeId: string;
 	nodeName: string;
 	nodeType: NodeType;
+	seriesLength?: number;
 	variables: (SelectedIndicator | SelectedSymbol | VariableConfig | OperationOutputConfig | OperationInputConfig | OutputConfig)[]; // Can contain data from indicator nodes, kline nodes, variable nodes, and operation nodes
 }
 
@@ -38,6 +39,7 @@ const useNodeVariables = () => {
 	 * @param nodeName Node name
 	 * @param nodeType Node type
 	 * @param variable Variable to add
+	 * @param seriesLength Optional series length for kline and indicator nodes
 	 */
 	const addOrUpdateVariableItem = useCallback(
 		(
@@ -46,6 +48,7 @@ const useNodeVariables = () => {
 			nodeName: string,
 			nodeType: NodeType,
 			variable: SelectedIndicator | SelectedSymbol | VariableConfig | OperationOutputConfig | OperationInputConfig | OutputConfig,
+			seriesLength?: number,
 		) => {
 			// Find if a variable item with the same node ID already exists
 			const existingItem = variableList.find((item) => item.nodeId === nodeId);
@@ -69,6 +72,7 @@ const useNodeVariables = () => {
 					nodeId,
 					nodeName,
 					nodeType,
+					seriesLength,
 					variables: [variable],
 				});
 			}
@@ -112,6 +116,11 @@ const useNodeVariables = () => {
 							? indicatorNodeData?.liveConfig?.selectedIndicators
 							: indicatorNodeData?.backtestConfig?.exchangeModeConfig
 									?.selectedIndicators;
+					// Get series length for backtest mode
+					const seriesLength =
+						tradeMode === TradeMode.BACKTEST
+							? indicatorNodeData?.backtestConfig?.sourceSeriesLength
+							: undefined;
 
 					if (isDefaultOutput) {
 						// Default output: add all indicator variables
@@ -122,6 +131,7 @@ const useNodeVariables = () => {
 								indicatorNodeData.nodeName,
 								NodeType.IndicatorNode,
 								indicator,
+								seriesLength,
 							);
 						});
 					} else {
@@ -137,6 +147,7 @@ const useNodeVariables = () => {
 								indicatorNodeData.nodeName,
 								NodeType.IndicatorNode,
 								selectedIndicator,
+								seriesLength,
 							);
 						}
 					}
@@ -150,6 +161,11 @@ const useNodeVariables = () => {
 							? klineNodeData?.liveConfig?.selectedSymbols
 							: klineNodeData?.backtestConfig?.exchangeModeConfig
 									?.selectedSymbols;
+					// Get series length for backtest mode
+					const seriesLength =
+						tradeMode === TradeMode.BACKTEST
+							? klineNodeData?.backtestConfig?.seriesLength
+							: undefined;
 
 					if (isDefaultOutput) {
 						// Default output: add all kline variables
@@ -160,6 +176,7 @@ const useNodeVariables = () => {
 								klineNodeData.nodeName,
 								NodeType.KlineNode,
 								symbol,
+								seriesLength,
 							);
 						});
 					} else {
@@ -175,6 +192,7 @@ const useNodeVariables = () => {
 								klineNodeData.nodeName,
 								NodeType.KlineNode,
 								selectedSymbol,
+								seriesLength,
 							);
 						}
 					}

@@ -9,6 +9,7 @@ const translation = {
 	noSymbol: "No Symbol",
 	interval: "Interval",
 	exchange: "Exchange",
+	seriesLength: "Series Length",
 	addIndicatorHint: "Click + to add technical indicators",
 	indicatorViewer: {
 		searchPlaceholder: "Search",
@@ -20,6 +21,8 @@ const translation = {
 		maType: "MA Type",
 		period: "Period",
 		dataSource: "Data Source",
+		maxSeriesLength: "Maximum calculation length is {{length}}",
+		exceedsSeriesLength: "Exceeds series length",
 	},
 };
 

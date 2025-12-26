@@ -40,6 +40,13 @@ const translation = {
 	noBranches: "无分支",
 	noVariables: "无变量",
 	kline: "K线",
+	noAvailableVariables: "无可用变量",
+	noAvailableNodes: "无可用节点",
+	seriesIndex: {
+		latest: "最新",
+		previous: "前一个",
+		first: "最早",
+	},
 };
 
 export default translation;

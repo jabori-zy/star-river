@@ -15,7 +15,7 @@ export function SymbolItem({
 }) {
 	const { t } = useTranslation();
 	return (
-		<div className="flex items-center justify-between px-2 py-2 bg-gray-100 rounded-md relative">
+		<div className="flex flex-row gap-8 items-center justify-between px-2 py-2 bg-gray-100 rounded-md relative">
 			<div className="flex flex-col gap-1 flex-1">
 				<span className="text-sm font-medium">{symbol.symbol}</span>
 				<div className="flex items-center gap-1">

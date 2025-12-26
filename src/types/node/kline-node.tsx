@@ -44,6 +44,7 @@ export type KlineNodeBacktestConfig = {
 	dataSource: BacktestDataSource; // Data source
 	fileModeConfig: KlineNodeBacktestFileModeConfig | null; // File data source configuration
 	exchangeModeConfig: KlineNodeBacktestExchangeModeConfig | null; // Exchange data source configuration
+	seriesLength?: number; // Series length
 };
 
 export type KlineData = {

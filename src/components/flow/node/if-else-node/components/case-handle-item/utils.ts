@@ -38,6 +38,15 @@ export const getLogicalLabel = (symbol: LogicalSymbol | null) => {
 	return logicalMap[symbol] || symbol;
 };
 
+// Format series index for display
+// Only show when seriesIndex is defined
+const formatSeriesIndex = (seriesIndex?: number): string => {
+	if (seriesIndex === undefined) {
+		return "";
+	}
+	return `/[${seriesIndex}]`;
+};
+
 // Get variable display text
 const formatConstantValue = (constant: Constant): string => {
 	const { varValue } = constant;
@@ -82,6 +91,8 @@ export const getVariableLabel = (
 			return getIndicatorNodeVariableLabel(variable, nodes, t);
 		} else if (variable.nodeType === NodeType.VariableNode) {
 			return getVariableNodeVariableLable(variable, t);
+		} else if (variable.nodeType === NodeType.OperationGroup) {
+			return getOperationGroupVariableLabel(variable);
 		}
 	}
 
@@ -101,7 +112,8 @@ export const getKlineNodeVariableLabel = (
 		(symbol) => symbol.configId === variable.varConfigId,
 	);
 	if (selectedSymbol) {
-		return `${selectedSymbol.symbol}/${selectedSymbol.interval}/${variable.varDisplayName}`;
+		const seriesIndexStr = formatSeriesIndex(variable.seriesIndex);
+		return `${selectedSymbol.symbol}/${selectedSymbol.interval}/${variable.varDisplayName}${seriesIndexStr}`;
 	}
 	return t("ifElseNode.notSet");
 };
@@ -119,7 +131,8 @@ export const getIndicatorNodeVariableLabel = (
 		(indicator) => indicator.configId === variable.varConfigId,
 	);
 	if (selectedIndicator) {
-		return `${selectedIndicator.indicatorType}-${variable.varDisplayName}`;
+		const seriesIndexStr = formatSeriesIndex(variable.seriesIndex);
+		return `${selectedIndicator.indicatorType}-${variable.varDisplayName}${seriesIndexStr}`;
 	}
 	return t("ifElseNode.notSet");
 };
@@ -128,7 +141,16 @@ export const getVariableNodeVariableLable = (
 	variable: Variable,
 	_t: (key: string) => string,
 ) => {
-	return `${variable.varDisplayName}`;
+	const seriesIndexStr = formatSeriesIndex(variable.seriesIndex);
+	return `${variable.varDisplayName}${seriesIndexStr}`;
+};
+
+export const getOperationGroupVariableLabel = (
+	variable: Variable,
+) => {
+	// For OperationGroup, display the output name directly
+	const seriesIndexStr = formatSeriesIndex(variable.seriesIndex);
+	return `${variable.varDisplayName}${seriesIndexStr}`;
 };
 
 // Get variable Tooltip text

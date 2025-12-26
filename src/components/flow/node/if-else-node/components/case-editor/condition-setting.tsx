@@ -193,6 +193,8 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 			varName: variable,
 			varDisplayName: variableName,
 			varValueType: varValueType,
+			// Preserve seriesIndex when switching variables within the same node, default to 0
+			seriesIndex: currentLeftVariable?.seriesIndex ?? 0,
 		};
 
 		// Intelligently handle right variable
@@ -351,19 +353,19 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 		}
 
 		const right = localCondition.right;
+		const rightVar = right?.varType === VarType.variable ? right as Variable : null;
 		const newRightVariable: Variable = {
 			varType: VarType.variable,
-			nodeId:
-				(right?.varType === VarType.variable ? right.nodeId : null) ?? null,
-			nodeType:
-				(right?.varType === VarType.variable ? right.nodeType : null) ?? null,
-			nodeName:
-				(right?.varType === VarType.variable ? right.nodeName : null) ?? null,
+			nodeId: rightVar?.nodeId ?? null,
+			nodeType: rightVar?.nodeType ?? null,
+			nodeName: rightVar?.nodeName ?? null,
 			outputHandleId: handleId,
 			varConfigId: variableId,
 			varName: variable,
 			varDisplayName: variableName,
 			varValueType: varValueType,
+			// Preserve seriesIndex when switching variables within the same node, default to 0
+			seriesIndex: rightVar?.seriesIndex ?? 0,
 		};
 		const newCondition = { ...localCondition, right: newRightVariable };
 		if (areConditionsEqual(localCondition, newCondition)) {
@@ -692,6 +694,55 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 		return null;
 	};
 
+	// Update left variable seriesIndex
+	const handleUpdateLeftSeriesIndex = (seriesIndex: number) => {
+		const currentLeftVariable = localCondition.left;
+		if (!currentLeftVariable) return;
+
+		// Check if actually changed
+		if (currentLeftVariable.seriesIndex === seriesIndex) {
+			return;
+		}
+
+		const newLeftVariable: Variable = {
+			...currentLeftVariable,
+			seriesIndex,
+		};
+
+		const newCondition: Condition = {
+			...localCondition,
+			left: newLeftVariable,
+		};
+
+		setLocalCondition(newCondition);
+		onConditionChange(newCondition);
+	};
+
+	// Update right variable seriesIndex
+	const handleUpdateRightSeriesIndex = (seriesIndex: number) => {
+		const currentRightVariable = localCondition.right;
+		if (!currentRightVariable || currentRightVariable.varType !== VarType.variable) return;
+
+		const rightVar = currentRightVariable as Variable;
+		// Check if actually changed
+		if (rightVar.seriesIndex === seriesIndex) {
+			return;
+		}
+
+		const newRightVariable: Variable = {
+			...rightVar,
+			seriesIndex,
+		};
+
+		const newCondition: Condition = {
+			...localCondition,
+			right: newRightVariable,
+		};
+
+		setLocalCondition(newCondition);
+		onConditionChange(newCondition);
+	};
+
 	return (
 		<div className="flex flex-row justify-between px-2 py-2 rounded-md bg-gray-100 w-full">
 			<div className="flex flex-col flex-1">
@@ -715,6 +766,7 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 						variable={localCondition.left || null}
 						onNodeChange={handleUpdateLeftNode}
 						onVariableChange={handleUpdateLeftVariable}
+						onSeriesIndexChange={handleUpdateLeftSeriesIndex}
 					/>
 				</div>
 				<div className="flex flex-col gap-1 p-2 min-h-16">
@@ -753,6 +805,7 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 								}
 								onNodeChange={handleUpdateRightNode}
 								onVariableChange={handleUpdateRightVariable}
+								onSeriesIndexChange={handleUpdateRightSeriesIndex}
 								whitelistValueType={getRightVariableWhitelist()}
 								blacklistValueType={getRightVariableBlacklist()}
 								// excludeVariable={excludeVariable}
