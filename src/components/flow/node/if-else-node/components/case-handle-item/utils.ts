@@ -105,9 +105,14 @@ export const getKlineNodeVariableLabel = (
 	t: (key: string) => string,
 ) => {
 	const klineNode = nodes.find((node) => node.id === variable.nodeId);
-	const klineNodeData = klineNode?.data as KlineNodeData;
+	if (!klineNode) {
+		// Node was deleted, show variable display name as fallback
+		const seriesIndexStr = formatSeriesIndex(variable.seriesIndex);
+		return `${variable.varDisplayName || t("ifElseNode.notSet")}${seriesIndexStr}`;
+	}
+	const klineNodeData = klineNode.data as KlineNodeData;
 	const selectedSymbols =
-		klineNodeData.backtestConfig?.exchangeModeConfig?.selectedSymbols;
+		klineNodeData?.backtestConfig?.exchangeModeConfig?.selectedSymbols;
 	const selectedSymbol = selectedSymbols?.find(
 		(symbol) => symbol.configId === variable.varConfigId,
 	);
@@ -124,9 +129,14 @@ export const getIndicatorNodeVariableLabel = (
 	t: (key: string) => string,
 ) => {
 	const indicatorNode = nodes.find((node) => node.id === variable.nodeId);
-	const indicatorNodeData = indicatorNode?.data as IndicatorNodeData;
+	if (!indicatorNode) {
+		// Node was deleted, show variable display name as fallback
+		const seriesIndexStr = formatSeriesIndex(variable.seriesIndex);
+		return `${variable.varDisplayName || t("ifElseNode.notSet")}${seriesIndexStr}`;
+	}
+	const indicatorNodeData = indicatorNode.data as IndicatorNodeData;
 	const selectedIndicators =
-		indicatorNodeData.backtestConfig?.exchangeModeConfig?.selectedIndicators;
+		indicatorNodeData?.backtestConfig?.exchangeModeConfig?.selectedIndicators;
 	const selectedIndicator = selectedIndicators?.find(
 		(indicator) => indicator.configId === variable.varConfigId,
 	);
