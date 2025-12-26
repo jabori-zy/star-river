@@ -206,11 +206,61 @@ export default function StrategyFlow({
 				y: event.clientY,
 			});
 
+			// Node types allowed to be nested in OperationGroup
+			const allowedNodeTypes = [NodeType.OperationGroup, NodeType.OperationNode];
+
 			// Use functional state update, generate unique ID based on timestamp and random number
 			setNodes((currentNodes) => {
 				// Generate unique ID: node type + random number
 				const random = Math.random().toString(36).substring(2, 9);
 				const uniqueId = `${dragNodeItem.nodeId}_${random}`;
+
+				// Check if drop position is inside an expanded OperationGroup
+				let targetGroupId: string | null = null;
+				let relativePosition = position;
+
+				// Only check for allowed node types
+				if (allowedNodeTypes.includes(dragNodeItem.nodeType as NodeType)) {
+					// Build node map for depth calculation
+					const nodeMap = new Map(currentNodes.map((n) => [n.id, n]));
+
+					// Find all expanded OperationGroup nodes
+					const expandedGroups = currentNodes.filter((n) => {
+						if (n.type !== NodeType.OperationGroup) return false;
+						const groupData = n.data as OperationGroupData;
+						return !groupData?.isCollapsed;
+					});
+
+					// Check each group to see if the drop position is inside
+					let maxDepth = -1;
+					for (const group of expandedGroups) {
+						// Get absolute position of the group
+						const internalNode = getInternalNode(group.id);
+						const absolutePos = internalNode?.internals.positionAbsolute ?? group.position;
+						const groupWidth = group.width ?? 200;
+						const groupHeight = group.height ?? 150;
+
+						// Check if position is inside this group
+						if (
+							position.x >= absolutePos.x &&
+							position.x <= absolutePos.x + groupWidth &&
+							position.y >= absolutePos.y &&
+							position.y <= absolutePos.y + groupHeight
+						) {
+							// Calculate depth of this group
+							const depth = getNodeDepth(group, nodeMap);
+							if (depth > maxDepth) {
+								maxDepth = depth;
+								targetGroupId = group.id;
+								// Calculate relative position to the group
+								relativePosition = {
+									x: position.x - absolutePos.x,
+									y: position.y - absolutePos.y,
+								};
+							}
+						}
+					}
+				}
 
 				let defaultNodeData: Record<string, unknown>;
 				switch (dragNodeItem.nodeType) {
@@ -292,11 +342,18 @@ export default function StrategyFlow({
 				console.log("defaultNodeData", defaultNodeData);
 
 				if (dragNodeItem.nodeType === NodeType.OperationGroup) {
-					const newNode = {
+					// If dropped inside another group, set as child group
+					const newNode: Node = {
 						id: uniqueId,
 						type: dragNodeItem.nodeType,
-						position,
-						data: defaultNodeData,
+						position: relativePosition,
+						data: targetGroupId
+							? { ...defaultNodeData, isChildGroup: true, inputWindow: null }
+							: defaultNodeData,
+						...(targetGroupId && {
+							parentId: targetGroupId,
+							extent: 'parent' as const,
+						}),
 					};
 					const operationStartNodeData = createDefaultOperationStartNodeData(
 						strategy.id,
@@ -333,7 +390,22 @@ export default function StrategyFlow({
 						parentId: uniqueId,
 						extent: 'parent' as const,
 					};
-					return currentNodes.concat(newNode, operationStartNode, operationEndNode);
+					const updatedNodes = currentNodes.concat(newNode, operationStartNode, operationEndNode);
+					return sortNodesTopologically(updatedNodes);
+				}
+
+				// For OperationNode dropped inside a group, set parent relationship
+				if (dragNodeItem.nodeType === NodeType.OperationNode && targetGroupId) {
+					const newNode: Node = {
+						id: uniqueId,
+						type: dragNodeItem.nodeType,
+						position: relativePosition,
+						data: defaultNodeData,
+						parentId: targetGroupId,
+						extent: 'parent' as const,
+					};
+					const updatedNodes = currentNodes.concat(newNode);
+					return sortNodesTopologically(updatedNodes);
 				}
 
 				const newNode = {
@@ -358,6 +430,7 @@ export default function StrategyFlow({
 			strategy.name,
 			setDragNodeItem,
 			t,
+			getInternalNode,
 		],
 	);
 
