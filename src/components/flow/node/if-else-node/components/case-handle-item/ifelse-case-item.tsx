@@ -62,7 +62,7 @@ const ConditionItem = ({
 								/>
 							);
 						})()}
-					<span className="text-xs font-medium text-gray-900 break-words break-all">
+					<span className="text-xs font-medium text-gray-900 warp-break-words break-all">
 						{getVariableLabel(condition.left, nodes, t)}
 					</span>
 				</div>
@@ -100,7 +100,7 @@ const ConditionItem = ({
 								/>
 							);
 						})()}
-					<span className="text-xs font-medium text-gray-900 break-words break-all">
+					<span className="text-xs font-medium text-gray-900 warp-break-words break-all">
 						{getVariableLabel(condition.right, nodes, t)}
 					</span>
 				</div>

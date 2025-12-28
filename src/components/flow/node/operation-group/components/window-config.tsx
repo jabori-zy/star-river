@@ -1,4 +1,5 @@
 import type React from "react";
+import { useEffect } from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
@@ -31,45 +32,47 @@ export const WindowConfig: React.FC<WindowConfigProps> = ({
 	limitInfo,
 	className,
 }) => {
-	// Get current size value based on window type
+	// Get current size value (only applicable for rolling window)
 	const currentSize =
-		windowConfig.windowType === "rolling"
-			? windowConfig.windowSize
-			: windowConfig.initialWindowSize;
+		windowConfig.windowType === "rolling" ? windowConfig.windowSize : minSize;
 
-	const handleTypeChange = (windowType: "rolling" | "expanding") => {
-		// Convert between rolling and expanding config
-		if (windowType === "rolling") {
+	// Auto-clamp window size when maxSize changes (only for rolling window)
+	useEffect(() => {
+		if (windowConfig.windowType === "rolling" && currentSize > maxSize) {
 			onChange({
 				windowType: "rolling",
-				windowSize: currentSize,
+				windowSize: maxSize,
+			});
+		}
+	}, [maxSize, currentSize, windowConfig.windowType, onChange]);
+
+	const handleTypeChange = (windowType: "rolling" | "expanding") => {
+		if (windowType === "rolling") {
+			// Clamp the value when switching to rolling
+			const clampedSize = Math.max(minSize, Math.min(maxSize, currentSize));
+			onChange({
+				windowType: "rolling",
+				windowSize: clampedSize,
 			});
 		} else {
+			// Expanding window has no size configuration
 			onChange({
 				windowType: "expanding",
-				initialWindowSize: currentSize,
 			});
 		}
 	};
 
 	const handleSizeChange = (size: number) => {
-		if (windowConfig.windowType === "rolling") {
-			onChange({
-				windowType: "rolling",
-				windowSize: size,
-			});
-		} else {
-			onChange({
-				windowType: "expanding",
-				initialWindowSize: size,
-			});
-		}
+		// Clamp the value between minSize and maxSize
+		const clampedSize = Math.max(minSize, Math.min(maxSize, size));
+		onChange({
+			windowType: "rolling",
+			windowSize: clampedSize,
+		});
 	};
 
 	return (
 		<div className={cn("space-y-4", className)}>
-			{/* <Label className="text-sm font-medium">Window</Label> */}
-
 			{/* Window Type */}
 			<div className="space-y-2">
 				<Label className="text-xs text-muted-foreground">Window Type</Label>
@@ -93,49 +96,49 @@ export const WindowConfig: React.FC<WindowConfigProps> = ({
 				</RadioGroup>
 			</div>
 
-			{/* Window Size */}
-			<div className="space-y-2">
-				<div className="flex items-center justify-between">
-					<Label className="text-xs text-muted-foreground">
-						{windowConfig.windowType === "expanding" ? "Initial Window Size" : "Window Size"}
-					</Label>
-					<Input
-						type="number"
-						value={currentSize}
-						onChange={(e) => handleSizeChange(Number(e.target.value))}
+			{/* Window Size - Only show for rolling window */}
+			{windowConfig.windowType === "rolling" && (
+				<div className="space-y-2">
+					<div className="flex items-center justify-between">
+						<Label className="text-xs text-muted-foreground">Window Size</Label>
+						<Input
+							type="number"
+							value={currentSize}
+							onChange={(e) => handleSizeChange(Number(e.target.value))}
+							min={minSize}
+							max={maxSize}
+							className="w-20 h-8 text-sm text-right"
+						/>
+					</div>
+					<Slider
+						value={[currentSize]}
+						onValueChange={(values) => handleSizeChange(values[0])}
 						min={minSize}
 						max={maxSize}
-						className="w-20 h-8 text-sm text-right"
+						step={1}
+						className="w-full"
 					/>
+					<div className="flex justify-between text-xs text-muted-foreground">
+						<span>{minSize}</span>
+						<span>{maxSize}</span>
+					</div>
+					{/* Limit warning */}
+					{limitInfo && (
+						<p className="text-xs text-yellow-600 mt-2 flex items-start gap-1">
+							<CircleAlert className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+							{limitInfo.limitType === "parent-input" ? (
+								<span>
+									Limited by parent <span className="text-blue-600 font-medium">{limitInfo.nodeName}</span> input window size: {limitInfo.size}
+								</span>
+							) : (
+								<span>
+									Limited by upstream <span className="text-blue-600 font-medium">{limitInfo.nodeName}</span> output window size: {limitInfo.size}
+								</span>
+							)}
+						</p>
+					)}
 				</div>
-				<Slider
-					value={[currentSize]}
-					onValueChange={(values) => handleSizeChange(values[0])}
-					min={minSize}
-					max={maxSize}
-					step={1}
-					className="w-full"
-				/>
-				<div className="flex justify-between text-xs text-muted-foreground">
-					<span>{minSize}</span>
-					<span>{maxSize}</span>
-				</div>
-				{/* Limit warning */}
-				{limitInfo && (
-					<p className="text-xs text-yellow-600 mt-2 flex items-start gap-1">
-						<CircleAlert className="h-3.5 w-3.5 flex-shrink-0 mt-0.5" />
-						{limitInfo.limitType === "parent-input" ? (
-							<span>
-								Limited by parent <span className="text-blue-600 font-medium">{limitInfo.nodeName}</span> input window size: {limitInfo.size}
-							</span>
-						) : (
-							<span>
-								Limited by upstream <span className="text-blue-600 font-medium">{limitInfo.nodeName}</span> output window size: {limitInfo.size}
-							</span>
-						)}
-					</p>
-				)}
-			</div>
+			)}
 		</div>
 	);
 };

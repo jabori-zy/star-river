@@ -196,6 +196,7 @@ export type DataFlowTrigger = {
 	fromVarDisplayName: string;
 	fromVarValueType: VariableValueType;
 	fromVarConfigId: number;
+	fromVarShape: "Scalar" | "Series";
 	seriesIndex?: number;
 	expireDuration: {
 		unit: TimerUnit;

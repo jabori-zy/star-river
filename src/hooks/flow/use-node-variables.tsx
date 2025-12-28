@@ -234,6 +234,16 @@ const useNodeVariables = () => {
 				} else if (nodeType === NodeType.OperationGroup) {
 					// Handle operation group node (only has default output)
 					const operationGroupNodeData = node.data as OperationGroupData;
+					// Get series length from inputWindow config
+					// For rolling window: use windowSize
+					// For expanding window: use 9999 (virtually unlimited)
+					const inputWindow = operationGroupNodeData.inputWindow;
+					const seriesLength = inputWindow?.windowType === "rolling"
+						? inputWindow.windowSize
+						: inputWindow?.windowType === "expanding"
+							? 10000
+							: undefined;
+
 					operationGroupNodeData.outputConfigs.forEach((outputConfig: OperationOutputConfig) => {
 						addOrUpdateVariableItem(
 							tempVariableItemList,
@@ -241,6 +251,7 @@ const useNodeVariables = () => {
 							operationGroupNodeData.nodeName,
 							NodeType.OperationGroup,
 							outputConfig,
+							seriesLength,
 						);
 					});
 				}

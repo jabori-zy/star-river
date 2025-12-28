@@ -81,7 +81,9 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 			aVar.varConfigId === bVar.varConfigId &&
 			aVar.varName === bVar.varName &&
 			aVar.varDisplayName === bVar.varDisplayName &&
-			aVar.varValueType === bVar.varValueType
+			aVar.varValueType === bVar.varValueType &&
+			aVar.shape === bVar.shape &&
+			aVar.seriesIndex === bVar.seriesIndex
 		);
 	};
 
@@ -130,6 +132,7 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 
 		// Create new left variable (partial information, waiting for user to select specific variable)
 		// Keep previous varValueType to avoid unnecessary type reset
+		// Default shape to Series, will be updated when user selects a specific variable
 		const newLeftVariable: Variable = {
 			varType: VarType.variable,
 			nodeId: nodeId,
@@ -141,6 +144,7 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 			varDisplayName: null,
 			varValueType:
 				currentLeftVariable?.varValueType ?? VariableValueType.NUMBER,
+			shape: currentLeftVariable?.shape ?? "Series",
 		};
 
 		// Create new condition - keep right variable and comparison symbol
@@ -164,6 +168,7 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 		variable: string,
 		variableName: string,
 		varValueType: VariableValueType,
+		shape: "Scalar" | "Series",
 	) => {
 		const currentLeftVariable = localCondition.left;
 		const currentRightVariable = localCondition.right;
@@ -175,7 +180,8 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 			currentLeftVariable.outputHandleId === handleId &&
 			currentLeftVariable.varName === variable &&
 			currentLeftVariable.varDisplayName === variableName &&
-			currentLeftVariable.varValueType === varValueType
+			currentLeftVariable.varValueType === varValueType &&
+			currentLeftVariable.shape === shape
 		) {
 			return;
 		}
@@ -183,6 +189,7 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 		// Check if left variable type has changed (compared with right variable)
 		const hasTypeChanged = currentLeftVariable?.varValueType !== varValueType;
 
+		// Create base variable without seriesIndex
 		const newLeftVariable: Variable = {
 			varType: VarType.variable,
 			nodeId: currentLeftVariable?.nodeId ?? null,
@@ -193,8 +200,11 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 			varName: variable,
 			varDisplayName: variableName,
 			varValueType: varValueType,
-			// Preserve seriesIndex when switching variables within the same node, default to 0
-			seriesIndex: currentLeftVariable?.seriesIndex ?? 0,
+			shape: shape,
+			// Only include seriesIndex for Series shape
+			...(shape === "Series" && {
+				seriesIndex: currentLeftVariable?.seriesIndex ?? 0,
+			}),
 		};
 
 		// Intelligently handle right variable
@@ -251,6 +261,7 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 							varName: null,
 							varDisplayName: null,
 							varValueType: varValueType,
+							shape: "Series", // Default shape
 						};
 					}
 				}
@@ -313,6 +324,7 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 			return;
 		}
 
+		// Default shape to Series, will be updated when user selects a specific variable
 		const newRightVariable: Variable = {
 			varType: VarType.variable,
 			nodeId: nodeId,
@@ -323,6 +335,7 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 			varName: null,
 			varDisplayName: null,
 			varValueType: VariableValueType.NUMBER, // Default type
+			shape: "Series", // Default shape
 		};
 		const newCondition = { ...localCondition, right: newRightVariable };
 		if (areConditionsEqual(localCondition, newCondition)) {
@@ -339,6 +352,7 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 		variable: string,
 		variableName: string,
 		varValueType: VariableValueType,
+		shape: "Scalar" | "Series",
 	) => {
 		const currentRightVariable = localCondition.right;
 		if (
@@ -347,13 +361,15 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 			currentRightVariable.varConfigId === variableId &&
 			currentRightVariable.varName === variable &&
 			currentRightVariable.varDisplayName === variableName &&
-			currentRightVariable.varValueType === varValueType
+			currentRightVariable.varValueType === varValueType &&
+			currentRightVariable.shape === shape
 		) {
 			return;
 		}
 
 		const right = localCondition.right;
 		const rightVar = right?.varType === VarType.variable ? right as Variable : null;
+		// Create base variable without seriesIndex
 		const newRightVariable: Variable = {
 			varType: VarType.variable,
 			nodeId: rightVar?.nodeId ?? null,
@@ -364,8 +380,11 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 			varName: variable,
 			varDisplayName: variableName,
 			varValueType: varValueType,
-			// Preserve seriesIndex when switching variables within the same node, default to 0
-			seriesIndex: rightVar?.seriesIndex ?? 0,
+			shape: shape,
+			// Only include seriesIndex for Series shape
+			...(shape === "Series" && {
+				seriesIndex: rightVar?.seriesIndex ?? 0,
+			}),
 		};
 		const newCondition = { ...localCondition, right: newRightVariable };
 		if (areConditionsEqual(localCondition, newCondition)) {
@@ -540,6 +559,7 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 				varName: null,
 				varDisplayName: null,
 				varValueType: leftVarType,
+				shape: "Series", // Default shape
 			};
 		}
 
@@ -694,10 +714,13 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 		return null;
 	};
 
-	// Update left variable seriesIndex
+	// Update left variable seriesIndex (only for Series shape)
 	const handleUpdateLeftSeriesIndex = (seriesIndex: number) => {
 		const currentLeftVariable = localCondition.left;
 		if (!currentLeftVariable) return;
+
+		// Only update seriesIndex for Series shape
+		if (currentLeftVariable.shape !== "Series") return;
 
 		// Check if actually changed
 		if (currentLeftVariable.seriesIndex === seriesIndex) {
@@ -718,12 +741,16 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 		onConditionChange(newCondition);
 	};
 
-	// Update right variable seriesIndex
+	// Update right variable seriesIndex (only for Series shape)
 	const handleUpdateRightSeriesIndex = (seriesIndex: number) => {
 		const currentRightVariable = localCondition.right;
 		if (!currentRightVariable || currentRightVariable.varType !== VarType.variable) return;
 
 		const rightVar = currentRightVariable as Variable;
+
+		// Only update seriesIndex for Series shape
+		if (rightVar.shape !== "Series") return;
+
 		// Check if actually changed
 		if (rightVar.seriesIndex === seriesIndex) {
 			return;
@@ -744,23 +771,26 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 	};
 
 	return (
-		<div className="flex flex-row justify-between px-2 py-2 rounded-md bg-gray-100 w-full">
-			<div className="flex flex-col flex-1">
-				<div className="flex flex-col gap-1 p-2 min-h-16">
-					<div className="flex flex-row justify-between">
-						<span className="text-sm font-bold text-muted-foreground text-left">
-							{t("ifElseNode.leftVariable")}
-						</span>
-						<Button
-							variant="ghost"
-							size="icon"
-							className="text-muted-foreground hover:text-red-500 p-1 h-6 w-6"
-							onClick={() => onConditionRemove(condition.conditionId)}
-						>
-							<Trash2 className="w-2 h-2" />
-						</Button>
-					</div>
-					{/* Left variable selector */}
+		<div className="flex flex-col w-full gap-2 p-2 rounded-xl border bg-card text-card-foreground group">
+			{/* Header with Delete Button */}
+			<div className="flex items-center justify-between">
+				<span className="text-sm font-semibold text-foreground flex items-center gap-2">
+					<div className="w-1 h-4 bg-primary rounded-full" />
+					{t("ifElseNode.leftVariable")}
+				</span>
+				<Button
+					variant="ghost"
+					size="icon"
+					className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors h-8 w-8"
+					onClick={() => onConditionRemove(condition.conditionId)}
+				>
+					<Trash2 className="w-4 h-4" />
+				</Button>
+			</div>
+
+			<div className="flex flex-col gap-4">
+				{/* Left Variable Section */}
+				{/* <div className="p-3 rounded-lg bg-muted/30 border border-border/50"> */}
 					<VariableSelector
 						variableItemList={variableItemList}
 						variable={localCondition.left || null}
@@ -768,14 +798,16 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 						onVariableChange={handleUpdateLeftVariable}
 						onSeriesIndexChange={handleUpdateLeftSeriesIndex}
 					/>
-				</div>
-				<div className="flex flex-col gap-1 p-2 min-h-16">
-					<div className="text-sm font-bold text-muted-foreground text-left">
+				{/* </div> */}
+
+				{/* Operator Section */}
+				<div className="flex flex-col gap-2">
+					<span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
 						{t("ifElseNode.operator")}
-					</div>
+					</span>
 					<ButtonGroup>
 						<ComparisonSymbolSelector
-							className="w-24"
+							className="flex-1"
 							comparisonSymbol={
 								localCondition.comparisonSymbol || ComparisonSymbol.equal
 							}
@@ -783,48 +815,53 @@ const ConditionSetting: React.FC<ConditionSettingProps> = ({
 							leftVarValueType={leftVarValueType}
 						/>
 						<VarTypeSelector
-							className="w-24"
+							className="w-32 shadow-none! hover:bg-gray-100"
 							varType={rightVarType || VarType.variable}
 							onVarTypeChange={handleUpdateRightVarType}
 							disabled={!needsRightVariable}
 						/>
 					</ButtonGroup>
 				</div>
+
+				{/* Right Variable Section */}
 				{needsRightVariable && (
-					<div className="flex flex-col gap-1 p-2 min-h-16">
-						<div className="text-sm font-bold text-muted-foreground text-left">
+					<div className="flex flex-col gap-2">
+						<span className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+							<div className="w-1 h-4 bg-primary rounded-full" />
 							{t("ifElseNode.rightVariable")}
-						</div>
-						{rightVarType !== VarType.constant ? (
-							<VariableSelector
-								variableItemList={variableItemList}
-								variable={
-									localCondition.right?.varType === VarType.variable
-										? (localCondition.right as Variable)
-										: null
-								}
-								onNodeChange={handleUpdateRightNode}
-								onVariableChange={handleUpdateRightVariable}
-								onSeriesIndexChange={handleUpdateRightSeriesIndex}
-								whitelistValueType={getRightVariableWhitelist()}
-								blacklistValueType={getRightVariableBlacklist()}
-								// excludeVariable={excludeVariable}
-							/>
-						) : (
-							<ConstantInput
-								className="w-full"
-								value={getRightConstantValue()}
-								onValueChange={handleUpdateRightConstantValue}
-								valueType={
-									localCondition.comparisonSymbol === ComparisonSymbol.isIn ||
-									localCondition.comparisonSymbol === ComparisonSymbol.isNotIn
-										? VariableValueType.ENUM
-										: leftVarValueType || VariableValueType.NUMBER
-								}
-								comparisonSymbol={localCondition.comparisonSymbol}
-								leftVarValueType={leftVarValueType}
-							/>
-						)}
+						</span>
+						{/* <div className="p-3 rounded-lg bg-muted/30 border border-border/50"> */}
+							{rightVarType !== VarType.constant ? (
+								<VariableSelector
+									variableItemList={variableItemList}
+									variable={
+										localCondition.right?.varType === VarType.variable
+											? (localCondition.right as Variable)
+											: null
+									}
+									onNodeChange={handleUpdateRightNode}
+									onVariableChange={handleUpdateRightVariable}
+									onSeriesIndexChange={handleUpdateRightSeriesIndex}
+									whitelistValueType={getRightVariableWhitelist()}
+									blacklistValueType={getRightVariableBlacklist()}
+									// excludeVariable={excludeVariable}
+								/>
+							) : (
+								<ConstantInput
+									className="w-full"
+									value={getRightConstantValue()}
+									onValueChange={handleUpdateRightConstantValue}
+									valueType={
+										localCondition.comparisonSymbol === ComparisonSymbol.isIn ||
+										localCondition.comparisonSymbol === ComparisonSymbol.isNotIn
+											? VariableValueType.ENUM
+											: leftVarValueType || VariableValueType.NUMBER
+									}
+									comparisonSymbol={localCondition.comparisonSymbol}
+									leftVarValueType={leftVarValueType}
+								/>
+							)}
+						{/* </div> */}
 					</div>
 				)}
 			</div>

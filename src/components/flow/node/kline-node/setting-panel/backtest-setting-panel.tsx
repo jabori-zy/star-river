@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { AlertCircle } from "lucide-react";
 import AccountSelector from "@/components/flow/account-selector";
@@ -30,6 +31,24 @@ const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id }) => {
 		useBacktestConfig({ id });
 
 	const selectedAccount = backtestConfig?.exchangeModeConfig?.selectedAccount;
+
+	// Local state for series length input (save on blur)
+	const [localSeriesLength, setLocalSeriesLength] = useState(
+		backtestConfig?.seriesLength?.toString() || "200"
+	);
+
+	// Sync local state when backtestConfig changes (e.g., from external updates)
+	useEffect(() => {
+		setLocalSeriesLength(backtestConfig?.seriesLength?.toString() || "200");
+	}, [backtestConfig?.seriesLength]);
+
+	// Handle series length save on blur
+	const handleSeriesLengthBlur = (value: string) => {
+		const numValue = Number(value);
+		if (!Number.isNaN(numValue) && numValue >= 1 && numValue <= 1000) {
+			updateSeriesLength(numValue);
+		}
+	};
 
 	// Get symbol list and supported kline intervals (fetched at parent to avoid duplicate requests in child components)
 	const { data: symbolList = [] } = useSymbolList(selectedAccount?.id ?? 0);
@@ -80,15 +99,16 @@ const KlineNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id }) => {
 						<div className="space-y-2 p-2">
 							<Label className="text-sm font-medium">Series Length</Label>
 							<InputWithTooltip
-								value={backtestConfig?.seriesLength?.toString() || "200"}
-								onChange={(value) => updateSeriesLength(Number(value))}
+								value={localSeriesLength}
+								onChange={setLocalSeriesLength}
+								onBlur={handleSeriesLengthBlur}
 								tooltipContent="Output series length. Between 1 and 1000"
 								type="number"
 								min={1}
 								max={1000}
 							/>
 							<div className="flex items-start gap-1.5 rounded-md bg-amber-50 px-2 py-1.5 text-xs text-amber-700">
-								<AlertCircle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
+								<AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
 								<span>
 									Series length controls the kline series passed to the next
 									node, affecting indicator calculations, custom operations, and

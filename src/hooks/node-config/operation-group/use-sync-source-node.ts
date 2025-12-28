@@ -13,6 +13,7 @@ import type {
 	OperationInputConfig,
 	OperationGroup,
 	OperationOutputConfig,
+	WindowConfig,
 } from "@/types/node/group/operation-group";
 import { useUpdateOpGroupConfig } from "./use-update-op-group-config";
 
@@ -688,6 +689,7 @@ export const useSyncSourceNode = ({
 		updateScalarChildGroupConfigById,
 		updateParentGroupScalarValueConfigById,
 		updateOutputConfigById,
+		setInputWindow,
 	} = useUpdateOpGroupConfig({ id });
 
 	// Get current Group's input connections
@@ -754,6 +756,50 @@ export const useSyncSourceNode = ({
 	const connectedSourceNodeIds = useMemo(() => {
 		return new Set(connections.map((conn) => conn.source));
 	}, [connections]);
+
+	// Compute minimum series length from upstream nodes (KlineNode, IndicatorNode)
+	const minUpstreamSeriesLength = useMemo(() => {
+		let minLength: number | undefined;
+
+		for (const sourceNode of sourceNodes) {
+			if (!sourceNode?.data) continue;
+
+			let seriesLength: number | undefined;
+
+			if (isKlineNode(sourceNode as StrategyFlowNode)) {
+				const klineData = sourceNode.data as KlineNodeData;
+				seriesLength = klineData.backtestConfig?.seriesLength;
+			} else if (isIndicatorNode(sourceNode as StrategyFlowNode)) {
+				const indicatorData = sourceNode.data as IndicatorNodeData;
+				seriesLength = indicatorData.backtestConfig?.sourceSeriesLength;
+			}
+
+			if (seriesLength !== undefined) {
+				if (minLength === undefined || seriesLength < minLength) {
+					minLength = seriesLength;
+				}
+			}
+		}
+
+		return minLength;
+	}, [sourceNodes]);
+
+	// Sync rolling window size when upstream series length shrinks
+	useEffect(() => {
+		if (minUpstreamSeriesLength === undefined) return;
+
+		const inputWindow = currentNodeData.inputWindow;
+		if (!inputWindow || inputWindow.windowType !== "rolling") return;
+
+		// If current window size exceeds upstream series length, clamp it
+		if (inputWindow.windowSize > minUpstreamSeriesLength) {
+			const newConfig: WindowConfig = {
+				windowType: "rolling",
+				windowSize: minUpstreamSeriesLength,
+			};
+			setInputWindow(newConfig);
+		}
+	}, [minUpstreamSeriesLength, currentNodeData.inputWindow, setInputWindow]);
 
 	// Sync effect for outer nodes (Kline, Indicator, Variable)
 	// biome-ignore lint/correctness/useExhaustiveDependencies: currentNodeData changes should trigger sync

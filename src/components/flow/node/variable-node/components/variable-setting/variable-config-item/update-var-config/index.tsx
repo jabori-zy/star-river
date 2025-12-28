@@ -256,6 +256,8 @@ const createEmptyDataflowTrigger = (): DataFlowTrigger => ({
 	fromVarConfigId: 0,
 	fromNodeType: NodeType.VariableNode,
 	fromVarValueType: VariableValueType.NUMBER,
+	fromVarShape: "Series",
+	seriesIndex: 0,
 	expireDuration: {
 		unit: "hour",
 		duration: 1,
@@ -545,6 +547,7 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 		variable: string,
 		variableName: string,
 		variableValueType: VariableValueType,
+		shape: "Scalar" | "Series",
 	) => {
 		updateDataflowConfig((prev) => ({
 			...prev,
@@ -553,6 +556,9 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 			fromVarDisplayName: variableName,
 			fromVarValueType: variableValueType,
 			fromVarConfigId: variableId,
+			fromVarShape: shape,
+			// Clear seriesIndex when switching to Scalar
+			...(shape === "Scalar" ? { seriesIndex: undefined } : {}),
 		}));
 	};
 
@@ -684,15 +690,15 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 					<CollapsibleTrigger asChild>
 						<div className="flex items-center gap-2 cursor-pointer">
 							{isOpen ? (
-								<ChevronDown className="h-4 w-4 flex-shrink-0" />
+								<ChevronDown className="h-4 w-4 shrink-0" />
 							) : (
-								<ChevronRight className="h-4 w-4 flex-shrink-0" />
+								<ChevronRight className="h-4 w-4 shrink-0" />
 							)}
 							<Tooltip>
 								<TooltipTrigger asChild>
 									{/* First line: icon + operation title + trigger method + operation type */}
 									<div className="flex items-center gap-2">
-										<TbEdit className="h-4 w-4 text-green-600 flex-shrink-0" />
+										<TbEdit className="h-4 w-4 text-green-600 shrink-0" />
 										<span className="text-sm font-medium">
 											{t("variableNode.updateVariable")}
 										</span>
@@ -828,6 +834,7 @@ const UpdateVarConfigItem: React.FC<UpdateVarConfigItemProps> = ({
 												dataflowConfig?.fromVarDisplayName || null
 											}
 											selectedSeriesIndex={dataflowConfig?.seriesIndex}
+											selectedShape={dataflowConfig?.fromVarShape}
 											updateOperationType={config.updateVarValueOperation}
 											availableOperations={availableOps}
 											targetVariableType={selectedVar?.varValueType}

@@ -218,7 +218,7 @@ export type RollingWindowConfig = z.infer<typeof RollingWindowConfigSchema>;
 
 export const ExpandingWindowConfigSchema = z.object({
     windowType: z.literal("expanding"),
-    initialWindowSize: z.number().int().min(1),
+    // initialWindowSize: z.number().int().min(1),
 });
 export type ExpandingWindowConfig = z.infer<typeof ExpandingWindowConfigSchema>;
 

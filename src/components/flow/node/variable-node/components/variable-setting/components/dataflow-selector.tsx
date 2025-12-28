@@ -26,6 +26,7 @@ import {
 	generateTimeHint,
 } from "../../../hint-generators";
 import type { OperationOutputConfig, OperationInputConfig } from "@/types/node/group/operation-group";
+import type { OutputConfig } from "@/types/node/operation-node";
 
 interface DataFlowSelectorProps {
 	variableItemList: VariableItem[];
@@ -34,6 +35,7 @@ interface DataFlowSelectorProps {
 	selectedVariable: string | null;
 	selectedVariableName: string | null;
 	selectedSeriesIndex?: number; // Series index for time series data
+	selectedShape?: "Scalar" | "Series"; // Shape of selected variable
 	updateOperationType: UpdateVarValueOperation;
 	availableOperations: UpdateVarValueOperation[];
 	targetVariableType?: VariableValueType; // Target variable type, used to filter dataflow variables
@@ -49,6 +51,7 @@ interface DataFlowSelectorProps {
 		variable: string,
 		variableName: string,
 		variableValueType: VariableValueType,
+		shape: "Scalar" | "Series",
 	) => void;
 	onSeriesIndexChange?: (seriesIndex: number) => void; // Series index change callback
 	onOperationTypeChange: (operationType: UpdateVarValueOperation) => void;
@@ -56,13 +59,13 @@ interface DataFlowSelectorProps {
 
 // Type guards - used to determine variable types
 const isVariableConfig = (
-	variable: SelectedIndicator | SelectedSymbol | VariableConfig | OperationOutputConfig | OperationInputConfig,
+	variable: SelectedIndicator | SelectedSymbol | VariableConfig | OperationOutputConfig | OperationInputConfig | OutputConfig,
 ): variable is VariableConfig => {
 	return "varOperation" in variable;
 };
 
 const isSelectedIndicator = (
-	variable: SelectedIndicator | SelectedSymbol | VariableConfig | OperationOutputConfig | OperationInputConfig,
+	variable: SelectedIndicator | SelectedSymbol | VariableConfig | OperationOutputConfig | OperationInputConfig | OutputConfig,
 ): variable is SelectedIndicator => {
 	return (
 		"value" in variable && "configId" in variable && "indicatorType" in variable
@@ -70,11 +73,25 @@ const isSelectedIndicator = (
 };
 
 const isSelectedSymbol = (
-	variable: SelectedIndicator | SelectedSymbol | VariableConfig | OperationOutputConfig | OperationInputConfig,
+	variable: SelectedIndicator | SelectedSymbol | VariableConfig | OperationOutputConfig | OperationInputConfig | OutputConfig,
 ): variable is SelectedSymbol => {
 	return (
 		"symbol" in variable && "interval" in variable && "configId" in variable
 	);
+};
+
+const isOperationOutputConfig = (
+	variable: SelectedIndicator | SelectedSymbol | VariableConfig | OperationOutputConfig | OperationInputConfig | OutputConfig,
+): variable is OperationOutputConfig => {
+	// Check for OperationOutputConfig-specific properties (sourceNodeId distinguishes it from OperationInputConfig)
+	return "outputHandleId" in variable && "outputName" in variable && "sourceNodeId" in variable;
+};
+
+const isOutputConfig = (
+	variable: SelectedIndicator | SelectedSymbol | VariableConfig | OperationOutputConfig | OperationInputConfig | OutputConfig,
+): variable is OutputConfig => {
+	// OutputConfig has outputHandleId and outputName but no sourceNodeId (different from OperationOutputConfig)
+	return "outputHandleId" in variable && "outputName" in variable && !("sourceNodeId" in variable);
 };
 
 const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
@@ -84,6 +101,7 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 	selectedVariable,
 	selectedVariableName,
 	selectedSeriesIndex,
+	selectedShape,
 	updateOperationType,
 	availableOperations,
 	targetVariableType,
@@ -96,6 +114,7 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 	const [localNodeId, setLocalNodeId] = useState<string>(selectedNodeId || "");
 	const [variableString, setVariableString] = useState<string>("");
 	const [seriesIndex, setSeriesIndex] = useState<number>(selectedSeriesIndex ?? 0);
+	const [localShape, setLocalShape] = useState<"Scalar" | "Series">(selectedShape ?? "Series");
 	const { t, i18n } = useTranslation();
 	const language = i18n.language;
 
@@ -146,6 +165,11 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 		setSeriesIndex(selectedSeriesIndex ?? 0);
 	}, [selectedSeriesIndex]);
 
+	// Sync shape state
+	useEffect(() => {
+		setLocalShape(selectedShape ?? "Series");
+	}, [selectedShape]);
+
 	// Handle node selection
 	const handleNodeChange = (nodeId: string) => {
 		const nodeType = variableItemList.find(
@@ -166,12 +190,21 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 		const selectedNode = variableItemList.find(
 			(item) => item.nodeId === nodeId,
 		);
-		const selectedVar = selectedNode?.variables.find(
-			(v) => 'outputHandleId' in v && v.outputHandleId === outputHandleId,
-		);
+		// For OperationGroup outputs, match by outputName since multiple outputs share same outputHandleId
+		const selectedVar = selectedNode?.variables.find((v) => {
+			if ('outputHandleId' in v && v.outputHandleId === outputHandleId) {
+				// For OperationGroup/OperationNode outputs, also match by outputName
+				if ('outputName' in v) {
+					return v.outputName === variable;
+				}
+				return true;
+			}
+			return false;
+		});
 
 		let variableId = 0;
 		let variableValueType = VariableValueType.NUMBER; // Default to NUMBER type
+		let shape: "Scalar" | "Series" = "Series"; // Default to Series
 
 		if (selectedVar) {
 			variableId = selectedVar.configId;
@@ -187,15 +220,22 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 				// Indicator node and Kline node: both are NUMBER type
 				variableValueType = VariableValueType.NUMBER;
 			}
+
+			// Determine shape: OperationGroup/OperationNode outputs can be Scalar
+			if ('type' in selectedVar && selectedVar.type === "Scalar") {
+				shape = "Scalar";
+			}
 		}
 
 		setVariableString(variableValue);
+		setLocalShape(shape); // Update local shape immediately
 		onVariableChange(
 			variableId,
 			outputHandleId,
 			variable,
 			variableName || variable,
 			variableValueType,
+			shape,
 		);
 	};
 
@@ -238,6 +278,14 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 				// Variable node filters based on its specific type
 				if (isVariableConfig(v)) {
 					return v.varValueType === targetVariableType;
+				}
+				// OperationGroup outputs are NUMBER type (both Series and Scalar)
+				if (isOperationOutputConfig(v)) {
+					return targetVariableType === VariableValueType.NUMBER;
+				}
+				// OperationNode outputs are NUMBER type (both Series and Scalar)
+				if (isOutputConfig(v)) {
+					return targetVariableType === VariableValueType.NUMBER;
 				}
 				return false;
 			});
@@ -333,6 +381,7 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 				fromVarDisplayName,
 				fromVarValueType,
 				fromVarConfigId,
+				fromVarShape: localShape,
 				expireDuration: { unit: "hour", duration: 1 },
 				errorPolicy: {},
 			},
@@ -394,13 +443,15 @@ const DataFlowSelector: React.FC<DataFlowSelectorProps> = ({
 					})}
 				</SelectInDialog>
 
-				{/* Series index selector */}
-				<SeriesIndexDropdown
-					seriesLength={getSelectedNodeSeriesLength()}
-					value={seriesIndex}
-					onChange={handleSeriesIndexChange}
-					disabled={!localNodeId || !variableString}
-				/>
+				{/* Series index selector - only show for Series shape */}
+				{localShape !== "Scalar" && (
+					<SeriesIndexDropdown
+						seriesLength={getSelectedNodeSeriesLength()}
+						value={seriesIndex}
+						onChange={handleSeriesIndexChange}
+						disabled={!localNodeId || !variableString}
+					/>
+				)}
 			</ButtonGroup>
 
 			{/* Hint text */}

@@ -5,6 +5,7 @@ import { CircleAlert } from "lucide-react";
 import type { SettingProps } from "@/components/flow/base/BasePanel/setting-panel";
 import { Separator } from "@/components/ui/separator";
 import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
+import useSourceSeriesLength from "@/hooks/flow/use-source-series-length";
 import { useUpdateOpGroupConfig } from "@/hooks/node-config/operation-group";
 import { NodeType } from "@/types/node";
 import type {
@@ -23,13 +24,14 @@ import type { IndicatorNodeData } from "@/types/node/indicator-node";
 import { TradeMode } from "@/types/strategy";
 import { InputConfiger } from "./components/input-configer";
 import { OutputConfiger, type OutputOption } from "./components/output-configer";
-import { WindowConfig } from "./components/window-config";
+import { WindowConfig, type WindowSizeLimitInfo } from "./components/window-config";
 import { FillingMethodSelector } from "./components/filling-method-selector";
 import { OutputNameInput } from "./components/output_name_input";
 import { Label } from "@/components/ui/label";
 
 export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 	const { getConnectedNodeVariables } = useStrategyWorkflow();
+	const { getMinSeriesLengthLimit } = useSourceSeriesLength();
 	const { getNodes } = useReactFlow();
 
 	// Get all incoming connections to this node
@@ -41,6 +43,18 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 		TradeMode.BACKTEST,
 	);
 	// console.log("🔍 variableItemList", variableItemList);
+
+	// Get the minimum series length limit from upstream nodes
+	// This is used to limit the rolling window size
+	const windowLimitInfo = useMemo((): WindowSizeLimitInfo | null => {
+		const minLimit = getMinSeriesLengthLimit(connections, TradeMode.BACKTEST);
+		if (!minLimit) return null;
+		return {
+			limitType: "upstream-output",
+			nodeName: minLimit.nodeName,
+			size: minLimit.seriesLength,
+		};
+	}, [connections, getMinSeriesLengthLimit]);
 
 	// Find EndNode ID within this group
 	const childEndNodeId = useMemo(() => {
@@ -656,6 +670,8 @@ export const OperationGroupPanel: React.FC<SettingProps> = ({ id }) => {
 							<WindowConfig
 								windowConfig={inputWindow}
 								onChange={setInputWindow}
+								maxSize={windowLimitInfo?.size ?? 200}
+								limitInfo={windowLimitInfo}
 							/>
 						</div>
 					)}

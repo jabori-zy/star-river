@@ -35,6 +35,7 @@ interface VariableSelectorProps {
 		variable: string,
 		variableName: string,
 		varValueType: VariableValueType,
+		shape: "Scalar" | "Series",
 	) => void; // Variable selection callback
 	onSeriesIndexChange?: (seriesIndex: number) => void; // Series index change callback
 	whitelistValueType?: VariableValueType | null; // Optional: whitelist - only keep specified type
@@ -182,12 +183,21 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 		const selectedNode = variableItemList.find(
 			(item) => item.nodeId === nodeId,
 		);
-		const selectedVar = selectedNode?.variables.find(
-			(v) => 'outputHandleId' in v && v.outputHandleId === outputHandleId,
-		);
+		// For OperationGroup outputs, match by outputName since multiple outputs share same outputHandleId
+		const selectedVar = selectedNode?.variables.find((v) => {
+			if ('outputHandleId' in v && v.outputHandleId === outputHandleId) {
+				// For OperationGroup/OperationNode outputs, also match by outputName
+				if ('outputName' in v) {
+					return v.outputName === variable;
+				}
+				return true;
+			}
+			return false;
+		});
 
 		let variableId = 0;
 		let varValueType = VariableValueType.NUMBER; // Default to NUMBER type
+		let shape: "Scalar" | "Series" = "Series"; // Default to Series
 
 		if (selectedVar) {
 			variableId = selectedVar.configId;
@@ -203,6 +213,11 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 				// Indicator node and K-line node: both are NUMBER type
 				varValueType = VariableValueType.NUMBER;
 			}
+
+			// Determine shape: OperationGroup/OperationNode outputs can be Scalar
+			if ('type' in selectedVar && selectedVar.type === "Scalar") {
+				shape = "Scalar";
+			}
 		}
 
 		setVariableString(variableValue);
@@ -212,6 +227,7 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 			variable,
 			variableName || variable,
 			varValueType,
+			shape,
 		);
 	};
 
@@ -230,6 +246,12 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 		);
 		return selectedNode?.seriesLength;
 	}, [variableItemList, selectedNodeId]);
+
+	// Check if the selected variable is a Scalar shape
+	// Use the variable.shape property directly from props
+	const isSelectedVariableScalar = useCallback(() => {
+		return variable?.shape === "Scalar";
+	}, [variable?.shape]);
 
 	// Handle series index change
 	const handleSeriesIndexChange = (newSeriesIndex: number) => {
@@ -287,75 +309,87 @@ const VariableSelector: React.FC<VariableSelectorProps> = ({
 	};
 
 	return (
-		<div className="flex flex-col gap-1 w-full">
-			{/* Row 1: Node selector */}
-			<Select value={selectedNodeId} onValueChange={handleNodeChange}>
-				<SelectTrigger
-					className={cn(
-						"h-8 text-xs font-normal bg-transparent hover:bg-gray-200 border-gray-300 transition-colors",
-					)}
-				>
-					<SelectValue
-						placeholder={t("ifElseNode.selectNode")}
-						className="truncate"
-					/>
-				</SelectTrigger>
-				<SelectContent className="max-h-80">
-					{filteredVariableItemList.length === 0 ? (
-						<div className="py-2 text-center text-sm text-muted-foreground">
-							{t("ifElseNode.noAvailableNodes")}
-						</div>
-					) : (
-						filteredVariableItemList.map((item) => (
-							<SelectItem
-								key={item.nodeId}
-								value={item.nodeId}
-								className="text-xs font-normal py-2 px-3"
-								textValue={item.nodeName}
-							>
-								<div className="flex items-center gap-1">
-									<span className="font-medium text-gray-900">
-										{item.nodeName}
-									</span>
-								</div>
-							</SelectItem>
-						))
-					)}
-				</SelectContent>
-			</Select>
-
-			{/* Row 2: Variable selector + Series index selector */}
-			<ButtonGroup className="w-full">
-				<Select
-					value={variableString}
-					onValueChange={handleVariableChange}
-					disabled={!selectedNodeId}
-				>
+		<div className="flex flex-col gap-2 w-full p-2 rounded-md border border-gray-200">
+			{/* Node selector group */}
+			<div className="flex flex-col gap-1">
+				<span className="text-xs text-gray-500 font-medium">
+					{t("node.node")}
+				</span>
+				<Select value={selectedNodeId} onValueChange={handleNodeChange}>
 					<SelectTrigger
 						className={cn(
-							"h-8 text-xs font-normal flex-1 bg-transparent hover:bg-gray-200 border-gray-300 transition-colors",
-							!selectedNodeId &&
-								"opacity-50 cursor-not-allowed hover:bg-transparent",
+							"h-8 text-xs font-normal bg-transparent hover:bg-gray-100 border-gray-300 transition-colors shadow-none!",
 						)}
 					>
 						<SelectValue
-							placeholder={getVariablePlaceholder()}
+							placeholder={t("ifElseNode.selectNode")}
 							className="truncate"
 						/>
 					</SelectTrigger>
 					<SelectContent className="max-h-80">
-						{renderVariableContent()}
+						{filteredVariableItemList.length === 0 ? (
+							<div className="py-2 text-center text-sm text-muted-foreground">
+								{t("ifElseNode.noAvailableNodes")}
+							</div>
+						) : (
+							filteredVariableItemList.map((item) => (
+								<SelectItem
+									key={item.nodeId}
+									value={item.nodeId}
+									className="text-xs font-normal py-2 px-3"
+									textValue={item.nodeName}
+								>
+									<div className="flex items-center gap-1">
+										<span className="font-medium text-gray-900">
+											{item.nodeName}
+										</span>
+									</div>
+								</SelectItem>
+							))
+						)}
 					</SelectContent>
 				</Select>
+			</div>
 
-				{/* Series index selector - only render when seriesLength exists */}
-				<SeriesIndexDropdown
-					seriesLength={getSelectedNodeSeriesLength()}
-					value={seriesIndex}
-					onChange={handleSeriesIndexChange}
-					disabled={!selectedNodeId || !variableString}
-				/>
-			</ButtonGroup>
+			{/* Variable selector group */}
+			<div className="flex flex-col gap-1">
+				<span className="text-xs text-gray-500 font-medium">
+					{t("node.variable")}
+				</span>
+				<ButtonGroup className="w-full">
+					<Select
+						value={variableString}
+						onValueChange={handleVariableChange}
+						disabled={!selectedNodeId}
+					>
+						<SelectTrigger
+							className={cn(
+								"h-8 text-xs font-normal flex-1 bg-transparent hover:bg-gray-100 border-gray-300 transition-colors shadow-none!",
+								!selectedNodeId &&
+									"opacity-50 cursor-not-allowed hover:bg-transparent shadow-none!",
+							)}
+						>
+							<SelectValue
+								placeholder={getVariablePlaceholder()}
+								className="truncate"
+							/>
+						</SelectTrigger>
+						<SelectContent className="max-h-80">
+							{renderVariableContent()}
+						</SelectContent>
+					</Select>
+
+					{/* Series index selector - only render when seriesLength exists and variable is not Scalar */}
+					{!isSelectedVariableScalar() && (
+						<SeriesIndexDropdown
+							seriesLength={getSelectedNodeSeriesLength()}
+							value={seriesIndex}
+							onChange={handleSeriesIndexChange}
+							disabled={!selectedNodeId || !variableString}
+						/>
+					)}
+				</ButtonGroup>
+			</div>
 		</div>
 	);
 };

@@ -15,6 +15,7 @@ import {
 interface InputWithTooltipProps {
 	value: string;
 	onChange: (value: string) => void;
+	onBlur?: (value: string) => void;
 	placeholder?: string;
 	tooltipContent: React.ReactNode;
 	type?: "text" | "number";
@@ -25,6 +26,7 @@ interface InputWithTooltipProps {
 export const InputWithTooltip: React.FC<InputWithTooltipProps> = ({
 	value,
 	onChange,
+	onBlur,
 	placeholder,
 	tooltipContent,
 	type = "text",
@@ -62,6 +64,12 @@ export const InputWithTooltip: React.FC<InputWithTooltipProps> = ({
 		onChange(newValue);
 	};
 
+	const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+		if (onBlur) {
+			onBlur(e.target.value);
+		}
+	};
+
 	return (
 		<div className="space-y-2">
 			<InputGroup>
@@ -69,6 +77,7 @@ export const InputWithTooltip: React.FC<InputWithTooltipProps> = ({
 					placeholder={placeholder}
 					value={value}
 					onChange={handleChange}
+					onBlur={handleBlur}
 				/>
 				<InputGroupAddon align="inline-end">
 					<Tooltip>
