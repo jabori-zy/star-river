@@ -56,12 +56,22 @@ export const ReceiveIfElseNodeEventSchema = BaseEventPropsSchema.extend({
 export type ReceiveIfElseNodeEvent = z.infer<typeof ReceiveIfElseNodeEventSchema>;
 
 
+export const ReceiveOperationGroupEventSchema = BaseEventPropsSchema.extend({
+    eventName: z.string(),
+    operationKey: z.string(),
+    resultLength: z.number(),
+});
+
+export type ReceiveOperationGroupEvent = z.infer<typeof ReceiveOperationGroupEventSchema>;
+
+
 export const ReceivedEventUpdateSchema = z.union([
     ReceiveKlineNodeEventSchema,
     ReceiveIndicatorNodeEventSchema,
     ReceiveExecuteOverEventSchema,
     ReceiveTriggerEventSchema,
     ReceiveIfElseNodeEventSchema,
+    ReceiveOperationGroupEventSchema,
 ]);
 
 export type ReceivedEventUpdate = z.infer<typeof ReceivedEventUpdateSchema>;
@@ -89,4 +99,8 @@ export function isReceiveTriggerEvent(event: ReceivedEventUpdate): event is Rece
 
 export function isReceiveIfElseNodeEvent(event: ReceivedEventUpdate): event is ReceiveIfElseNodeEvent {
     return event.event === "receive-if-else-node-event";
+}
+
+export function isReceiveOperationGroupEvent(event: ReceivedEventUpdate): event is ReceiveOperationGroupEvent {
+    return event.event === "receive-operation-group-event";
 }

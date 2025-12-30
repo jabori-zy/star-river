@@ -36,7 +36,7 @@ const NodeSupportConnectionMap: Record<NodeType, NodeType[]> = {
 	],
 	[NodeType.PositionNode]: [NodeType.IfElseNode, NodeType.VariableNode, NodeType.EventTestNode],
 	[NodeType.VariableNode]: [NodeType.IfElseNode, NodeType.VariableNode, NodeType.OperationGroup, NodeType.EventTestNode],
-	[NodeType.OperationGroup]: [NodeType.IfElseNode, NodeType.VariableNode, NodeType.OperationEndNode, NodeType.OperationGroup, NodeType.OperationNode],
+	[NodeType.OperationGroup]: [NodeType.IfElseNode, NodeType.VariableNode, NodeType.OperationEndNode, NodeType.OperationGroup, NodeType.OperationNode, NodeType.EventTestNode],
 	[NodeType.OperationStartNode]: [NodeType.OperationNode, NodeType.OperationGroup],
 	[NodeType.OperationNode]: [NodeType.OperationNode, NodeType.OperationEndNode, NodeType.OperationGroup],
 	[NodeType.OperationEndNode]: [],

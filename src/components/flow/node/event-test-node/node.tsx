@@ -8,6 +8,7 @@ import {
 } from "@xyflow/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Subscription } from "rxjs";
+import { CircleOff } from "lucide-react";
 import BaseNode from "@/components/flow/base/BaseNode";
 import { createBacktestEventTestStream } from "@/hooks/obs/backtest-event-test-obs";
 import type { StrategyFlowNode } from "@/types/node/index";
@@ -27,11 +28,13 @@ import {
 	isReceiveExecuteOverEvent,
 	isReceiveTriggerEvent,
 	isReceiveIfElseNodeEvent,
+	isReceiveOperationGroupEvent,
 } from "@/types/strategy-event/event-received-event";
 import { ExecuteOverEventShow } from "./components/execute-over-event-show";
 import { KlineNodeEventShow } from "./components/kline-node-event-show";
 import { IndicatorNodeEventShow } from "./components/indicator-node-event-show";
 import { IfElseNodeEventShow } from "./components/if-else-event-show";
+import { OperationGroupEventShow } from "./components/operation-group-event-show";
 
 const EventTestNode: React.FC<NodeProps<EventTestNodeType>> = ({
 	id,
@@ -159,8 +162,17 @@ const EventTestNode: React.FC<NodeProps<EventTestNodeType>> = ({
 				} else {
 					return;
 				}
+			} else if (sourceNodeType === NodeType.OperationGroup) {
+				// OperationGroup should only receive operation-group events or execute-over events from itself
+				if (isReceiveOperationGroupEvent(eventUpdate)) {
+					// Accept operation-group events, component will filter by sourceHandleId
+				} else if (isReceiveExecuteOverEvent(eventUpdate) && eventUpdate.nodeId === sourceNodeId) {
+					// Accept execute-over events only from the connected operation-group node
+				} else {
+					return;
+				}
 			} else {
-				// For other node types, reject kline, indicator and if-else events
+				// For other node types, reject kline, indicator, if-else and operation-group events
 				if (isReceiveKlineNodeEvent(eventUpdate)) {
 					return;
 				}
@@ -168,6 +180,9 @@ const EventTestNode: React.FC<NodeProps<EventTestNodeType>> = ({
 					return;
 				}
 				if (isReceiveIfElseNodeEvent(eventUpdate)) {
+					return;
+				}
+				if (isReceiveOperationGroupEvent(eventUpdate)) {
 					return;
 				}
 				// Accept execute-over and trigger events
@@ -197,6 +212,8 @@ const EventTestNode: React.FC<NodeProps<EventTestNodeType>> = ({
 	const indicatorNodeEvents = receivedEvents.filter(isReceiveIndicatorNodeEvent);
 	// Filter if-else node events
 	const ifElseNodeEvents = receivedEvents.filter(isReceiveIfElseNodeEvent);
+	// Filter operation-group node events
+	const operationGroupEvents = receivedEvents.filter(isReceiveOperationGroupEvent);
 
 	return (
 		<BaseNode
@@ -219,31 +236,45 @@ const EventTestNode: React.FC<NodeProps<EventTestNodeType>> = ({
 			}}
 		>
 
+			{/* Disabled indicator when receive event is off */}
+			{!enableReceiveEvent && (
+				<div className="flex items-center justify-center p-2">
+					<CircleOff className="h-5 w-5 text-red-500" />
+				</div>
+			)}
+
 			{/* Execute Over Events Display */}
-			{((enableAllEvents || enableReceiveExecuteOverEvent) && executeOverEvents.length > 0) && (
+			{((enableAllEvents || enableReceiveExecuteOverEvent) && executeOverEvents.length > 0 && sourceNodeType !== NodeType.OperationGroup) && (
 				<div className="p-1.5 w-full">
 					<ExecuteOverEventShow events={executeOverEvents} />
 				</div>
 			)}
 
 			{/* Kline Node Events Display */}
-			{(enableAllEvents && sourceNodeType === NodeType.KlineNode) && (
+			{(enableReceiveEvent && sourceNodeType === NodeType.KlineNode) && (
 				<div className="p-1.5 w-full">
 					<KlineNodeEventShow events={klineNodeEvents} sourceHandleId={sourceHandleId} />
 				</div>
 			)}
 
 			{/* Indicator Node Events Display */}
-			{(enableAllEvents && sourceNodeType === NodeType.IndicatorNode) && (
+			{(enableReceiveEvent && sourceNodeType === NodeType.IndicatorNode) && (
 				<div className="p-1.5 w-full">
 					<IndicatorNodeEventShow events={indicatorNodeEvents} sourceHandleId={sourceHandleId} />
 				</div>
 			)}
 
 			{/* If-Else Node Events Display */}
-			{(enableAllEvents && sourceNodeType === NodeType.IfElseNode) && (
+			{(enableReceiveEvent && sourceNodeType === NodeType.IfElseNode) && (
 				<div className="p-1.5 w-full">
 					<IfElseNodeEventShow events={ifElseNodeEvents} sourceHandleId={sourceHandleId} />
+				</div>
+			)}
+
+			{/* Operation Group Events Display */}
+			{(enableReceiveEvent && sourceNodeType === NodeType.OperationGroup) && (
+				<div className="p-1.5 w-full">
+					<OperationGroupEventShow events={operationGroupEvents} sourceHandleId={sourceHandleId} />
 				</div>
 			)}
 		</BaseNode>

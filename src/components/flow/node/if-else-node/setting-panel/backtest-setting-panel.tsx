@@ -23,7 +23,7 @@ const IfElseNodeBacktestSettingPanel: React.FC<SettingProps> = ({ id }) => {
 	const connections = useNodeConnections({ id, handleType: "target" });
 
 	const variables = getConnectedNodeVariables(connections, TradeMode.BACKTEST);
-	console.log("variables", variables);
+	// console.log("variables", variables);
 
 	// Add ELIF branch
 	const handleAddElif = () => {
