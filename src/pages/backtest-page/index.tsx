@@ -210,6 +210,7 @@ export default function BacktestPage() {
 		strategyDashboardRef.current?.clearRunningLogs();
 		strategyDashboardRef.current?.clearVariableEvents();
 		strategyDashboardRef.current?.clearPerformanceData();
+		strategyDashboardRef.current?.clearOperationResults();
 	};
 
 	// Handle panel expansion

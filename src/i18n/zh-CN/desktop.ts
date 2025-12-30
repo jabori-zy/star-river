@@ -73,6 +73,7 @@ const translation = {
             logs: "日志",
             variables: "变量",
             benchmark: "性能",
+            operation: "运算",
         },
         pause: "暂停",
         play: "播放",
@@ -146,6 +147,9 @@ const translation = {
             horizontal: "横向布局",
             grid: "网格布局",
             grid2: "网格布局2",
+        },
+        operationResult: {
+            datetime: "时间",
         },
         confirmQuitDescription: "确认关闭回测窗口吗？所有未保存的更改可能会丢失。",
     },

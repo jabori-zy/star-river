@@ -77,6 +77,7 @@ const translation = {
 			logs: "Logs",
 			variables: "Variables",
 			benchmark: "Benchmark",
+			operation: "Operation",
 		},
 		pause: "Pause",
 		play: "Play",
@@ -154,6 +155,9 @@ const translation = {
 			grid: "Grid",
 			grid2: "Grid2",
 		},
+		operationResult: {
+			datetime: "Datetime",
+		}
 	},
 
 	settingPage: {

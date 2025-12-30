@@ -115,35 +115,18 @@ const OperationLegend = forwardRef<HTMLDivElement, OperationLegendProps>(
 						const valueEntries = Object.entries(
 							operationLegendData?.values || {},
 						);
-						const isSingleValue = valueEntries.length === 1;
-
 						return valueEntries.map(([key, valueInfo]) => (
 							<span key={key} className="inline-flex items-center">
-								{/* Single value: don't show field name, multiple values: show field name */}
-								{isSingleValue ? (
-									<span
-										className="font-mono text-center inline-block"
-										style={{
-											color: valueInfo.color,
-											width: getMaxWidth(key),
-										}}
-									>
-										{valueInfo.value}
-									</span>
-								) : (
-									<>
-										{parseSeriesName(valueInfo.label)}:{" "}
-										<span
-											className="text-xs mr-2 font-mono text-center inline-block"
-											style={{
-												color: valueInfo.color,
-												width: getMaxWidth(key),
-											}}
-										>
-											{valueInfo.value}
-										</span>
-									</>
-								)}
+								{parseSeriesName(valueInfo.label)}:{" "}
+								<span
+									className="text-xs mr-2 font-mono text-center inline-block"
+									style={{
+										color: valueInfo.color,
+										width: getMaxWidth(key),
+									}}
+								>
+									{valueInfo.value}
+								</span>
 							</span>
 						));
 					})()}

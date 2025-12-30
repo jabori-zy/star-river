@@ -78,6 +78,9 @@ export const useBacktestChart = ({
 	const { changeKline } = useKlineSeriesManager({
 		strategyId,
 		chartConfig,
+		chartContainerRef,
+		chartOptions,
+		onCrosshairMove,
 		onSeriesDataUpdate,
 	});
 

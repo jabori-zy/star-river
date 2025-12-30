@@ -73,7 +73,7 @@ export async function getStrategyDataApi(
 
 		// Step 3: Build URL
 		const url = `${getApiUrl()}/${params.strategyId}/data?${queryParams.toString()}`;
-
+		// console.log("getStrategyDataApi url", decodeURIComponent(url));
 		// Step 5: Send GET request
 		const response = await axios.get<ApiResponse<GetStrategyDataResponse>>(
 			url,
@@ -105,6 +105,7 @@ export async function getStrategyDataApi(
 			return [];
 		}
 
+		// console.log("getStrategyDataApi data", data);
 		return data;
 	} catch (error) {
 		// Unified error handling

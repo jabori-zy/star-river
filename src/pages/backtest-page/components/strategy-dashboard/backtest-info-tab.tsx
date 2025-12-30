@@ -5,6 +5,7 @@ import {
 	FileCode,
 	FileText,
 	Package,
+	SquareSigma,
 	TrendingUp,
 	Variable as VariableIcon,
 } from "lucide-react";
@@ -16,6 +17,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { LayoutMode } from "@/types/chart";
 import type { BacktestStrategyChartConfig } from "@/types/chart/backtest-chart";
 import ChartManageButton from "./chart-manage-button";
+import OperationResult, {
+	type OperationResultRef,
+} from "./operation-result";
 import OrderRecord, { type OrderRecordRef } from "./order-record";
 import PositionRecord, { type PositionRecordRef } from "./position-record";
 import RunningLog, { type RunningLogRef } from "./running-log";
@@ -52,6 +56,7 @@ export interface BacktestInfoTabsRef {
 	clearRunningLogs: () => void;
 	clearVariableEvents: () => void;
 	clearPerformanceData: () => void;
+	clearOperationResults: () => void;
 }
 
 const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
@@ -78,6 +83,7 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 		const transactionRecordRef = useRef<TransactionRecordRef>(null);
 		const variableRef = useRef<StrategyVariableRef>(null);
 		const benchmarkRef = useRef<StrategyBenchmarkRef>(null);
+		const operationResultRef = useRef<OperationResultRef>(null);
 		// Expose methods for clearing order records and position records
 		useImperativeHandle(
 			ref,
@@ -99,6 +105,9 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 				},
 				clearPerformanceData: () => {
 					benchmarkRef.current?.clearPerformanceData();
+				},
+				clearOperationResults: () => {
+					operationResultRef.current?.clearResults();
 				},
 			}),
 			[],
@@ -135,12 +144,12 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 				>
 					{/* Left side: Tab components and collapse button */}
 					<div className="flex items-center gap-2 justify-self-start min-w-0">
-						<TabsList className="grid grid-cols-7 gap-1">
+						<TabsList className="grid grid-cols-8 gap-1">
 							<TabsTrigger
 								value="performance"
 								className="flex items-center gap-1 px-1 xl:px-2 py-1 min-w-[32px] overflow-hidden"
 							>
-								<TrendingUp className="h-4 w-4 flex-shrink-0 xl:hidden" />
+								<TrendingUp className="h-4 w-4 shrink-0 xl:hidden" />
 								<span className="hidden xl:block text-xs truncate">
 									{t("desktop.backtestPage.dashboardTab.performance")}
 								</span>
@@ -149,7 +158,7 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 								value="positions"
 								className="flex items-center gap-1 px-1 xl:px-2 py-1 min-w-[32px] overflow-hidden"
 							>
-								<Package className="h-4 w-4 flex-shrink-0 xl:hidden" />
+								<Package className="h-4 w-4 shrink-0 xl:hidden" />
 								<span className="hidden xl:block text-xs truncate">
 									{t("desktop.backtestPage.dashboardTab.positions")}
 								</span>
@@ -158,7 +167,7 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 								value="orders"
 								className="flex items-center gap-1 px-1 xl:px-2 py-1 min-w-[32px] overflow-hidden"
 							>
-								<FileText className="h-4 w-4 flex-shrink-0 xl:hidden" />
+								<FileText className="h-4 w-4 shrink-0 xl:hidden" />
 								<span className="hidden xl:block text-xs truncate">
 									{t("desktop.backtestPage.dashboardTab.orders")}
 								</span>
@@ -167,7 +176,7 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 								value="trades"
 								className="flex items-center gap-1 px-1 xl:px-2 py-1 min-w-[32px] overflow-hidden"
 							>
-								<CheckCircle className="h-4 w-4 flex-shrink-0 xl:hidden" />
+								<CheckCircle className="h-4 w-4 shrink-0 xl:hidden" />
 								<span className="hidden xl:block text-xs truncate">
 									{t("desktop.backtestPage.dashboardTab.transaction")}
 								</span>
@@ -176,7 +185,7 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 								value="logs"
 								className="flex items-center gap-1 px-1 xl:px-2 py-1 min-w-[32px] overflow-hidden"
 							>
-								<FileCode className="h-4 w-4 flex-shrink-0 xl:hidden" />
+								<FileCode className="h-4 w-4 shrink-0 xl:hidden" />
 								<span className="hidden xl:block text-xs truncate">
 									{t("desktop.backtestPage.dashboardTab.logs")}
 								</span>
@@ -185,7 +194,7 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 								value="variables"
 								className="flex items-center gap-1 px-1 xl:px-2 py-1 min-w-[32px] overflow-hidden"
 							>
-								<VariableIcon className="h-4 w-4 flex-shrink-0 xl:hidden" />
+								<VariableIcon className="h-4 w-4 shrink-0 xl:hidden" />
 								<span className="hidden xl:block text-xs truncate">
 									{t("desktop.backtestPage.dashboardTab.variables")}
 								</span>
@@ -194,9 +203,18 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 								value="benchmark"
 								className="flex items-center gap-1 px-1 xl:px-2 py-1 min-w-[32px] overflow-hidden"
 							>
-								<Cpu className="h-4 w-4 flex-shrink-0 xl:hidden" />
+								<Cpu className="h-4 w-4 shrink-0 xl:hidden" />
 								<span className="hidden xl:block text-xs truncate">
 									{t("desktop.backtestPage.dashboardTab.benchmark")}
+								</span>
+							</TabsTrigger>
+							<TabsTrigger
+								value="operation"
+								className="flex items-center gap-1 px-1 xl:px-2 py-1 min-w-[32px] overflow-hidden"
+							>
+								<SquareSigma className="h-4 w-4 shrink-0 xl:hidden" />
+								<span className="hidden xl:block text-xs truncate">
+									{t("desktop.backtestPage.dashboardTab.operation")}
 								</span>
 							</TabsTrigger>
 						</TabsList>
@@ -206,7 +224,7 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 							<Button
 								variant="ghost"
 								onClick={handleCollapse}
-								className="flex items-center justify-center p-1 rounded-md hover:bg-gray-100 transition-colors flex-shrink-0"
+								className="flex items-center justify-center p-1 rounded-md hover:bg-gray-100 transition-colors shrink-0"
 								title="Collapse panel"
 							>
 								<ChevronDown className="h-4 w-4 text-muted-foreground" />
@@ -242,19 +260,19 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 						</TabsContent>
 
 						<TabsContent value="orders" className="w-full overflow-hidden">
-							<div className="flex flex-col h-full pl-2">
+							<div className="flex flex-col h-full pl-2 pr-4">
 								<OrderRecord ref={orderRecordRef} strategyId={strategyId} />
 							</div>
 						</TabsContent>
 
 						<TabsContent value="logs" className="w-full overflow-hidden">
-							<div className="flex flex-col h-full pl-2">
+							<div className="flex flex-col h-full pl-2 pr-4">
 								<RunningLog ref={runningLogRef} strategyId={strategyId} />
 							</div>
 						</TabsContent>
 
 						<TabsContent value="trades" className="w-full overflow-hidden">
-							<div className="flex flex-col h-full pl-2">
+							<div className="flex flex-col h-full pl-2 pr-4">
 								<TransactionRecord
 									ref={transactionRecordRef}
 									strategyId={strategyId}
@@ -266,7 +284,7 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 							value="positions"
 							className="w-full overflow-hidden"
 						>
-							<div className="flex flex-col h-full pl-2">
+							<div className="flex flex-col h-full pl-2 pr-4">
 								<PositionRecord
 									ref={positionRecordRef}
 									strategyId={strategyId}
@@ -274,13 +292,21 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 							</div>
 						</TabsContent>
 						<TabsContent value="variables" className="w-full overflow-hidden">
-							<div className="flex flex-col h-full pl-2">
+							<div className="flex flex-col h-full pl-2 pr-4">
 								<StrategyVariable ref={variableRef} strategyId={strategyId} />
 							</div>
 						</TabsContent>
 						<TabsContent value="benchmark" className="w-full overflow-hidden">
-							<div className="flex flex-col h-full pl-2">
+							<div className="flex flex-col h-full p-2">
 								<StrategyBenchmark ref={benchmarkRef} strategyId={strategyId} />
+							</div>
+						</TabsContent>
+						<TabsContent value="operation" className="w-full overflow-hidden">
+							<div className="flex flex-col h-full pl-2 pr-4">
+								<OperationResult
+									ref={operationResultRef}
+									strategyId={strategyId}
+								/>
 							</div>
 						</TabsContent>
 					</div>

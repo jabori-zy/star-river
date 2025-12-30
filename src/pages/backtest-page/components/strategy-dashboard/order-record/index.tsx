@@ -76,7 +76,7 @@ const OrderRecord = forwardRef<OrderRecordRef, OrderRecordProps>(
 		}, []);
 
 		return (
-			<div>
+			<div className="h-full w-full">
 				<OrderTable data={orderData} />
 			</div>
 		);
