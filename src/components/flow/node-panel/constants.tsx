@@ -9,6 +9,7 @@ import StartNodeSettingPanel from "../node/start-node/setting-panel";
 import { VariableNodeSettingPanel } from "../node/variable-node";
 import OperationGroupSettingPanel from "../node/operation-group";
 import OperationNodeSettingPanel from "../node/operation-node";
+import EventTestNodeSettingPanel from "../node/event-test-node";
 
 /**
  * Panel component mapping table - similar to dify's PanelComponentMap
@@ -24,4 +25,5 @@ export const PanelComponentMap: Partial<Record<NodeType, SettingPanelProps>> = {
 	[NodeType.VariableNode]: VariableNodeSettingPanel,
 	[NodeType.OperationGroup]: OperationGroupSettingPanel,
 	[NodeType.OperationNode]: OperationNodeSettingPanel,
+	[NodeType.EventTestNode]: EventTestNodeSettingPanel,
 };

@@ -65,6 +65,13 @@ export const nodeList = [
 				nodeIconBackgroundColor: getNodeDefaultColor(NodeType.OperationNode),
 				nodeDescription: "操作节点",
 			} as NodeItemProps,
+			{
+				nodeId: "event_test_node",
+				nodeType: NodeType.EventTestNode,
+				nodeIcon: getNodeIconName(NodeType.EventTestNode),
+				nodeIconBackgroundColor: getNodeDefaultColor(NodeType.EventTestNode),
+				nodeDescription: "事件测试节点",
+			} as NodeItemProps,
 		],
 	},
 ];

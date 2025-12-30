@@ -12,46 +12,52 @@ import { NodeType } from "@/types/node/index";
 
 // Node connection support map - defines which node types each node type can connect to
 const NodeSupportConnectionMap: Record<NodeType, NodeType[]> = {
-	[NodeType.StartNode]: [NodeType.KlineNode, NodeType.VariableNode],
+	[NodeType.StartNode]: [NodeType.KlineNode, NodeType.VariableNode, NodeType.EventTestNode],
 	[NodeType.KlineNode]: [
 		NodeType.IndicatorNode,
 		NodeType.IfElseNode,
 		NodeType.VariableNode,
 		NodeType.OperationGroup,
+		NodeType.EventTestNode,
 	],
-	[NodeType.IndicatorNode]: [NodeType.IfElseNode, NodeType.VariableNode, NodeType.OperationGroup],
+	[NodeType.IndicatorNode]: [NodeType.IfElseNode, NodeType.VariableNode, NodeType.OperationGroup, NodeType.EventTestNode],
 	[NodeType.IfElseNode]: [
 		NodeType.FuturesOrderNode,
 		NodeType.VariableNode,
 		NodeType.PositionNode,
 		NodeType.IfElseNode,
+		NodeType.EventTestNode,
 	],
 	[NodeType.FuturesOrderNode]: [
 		// NodeType.IfElseNode,
 		// NodeType.PositionNode,
 		// NodeType.VariableNode,
+		NodeType.EventTestNode,
 	],
-	[NodeType.PositionNode]: [NodeType.IfElseNode, NodeType.VariableNode],
-	[NodeType.VariableNode]: [NodeType.IfElseNode, NodeType.VariableNode, NodeType.OperationGroup],
+	[NodeType.PositionNode]: [NodeType.IfElseNode, NodeType.VariableNode, NodeType.EventTestNode],
+	[NodeType.VariableNode]: [NodeType.IfElseNode, NodeType.VariableNode, NodeType.OperationGroup, NodeType.EventTestNode],
 	[NodeType.OperationGroup]: [NodeType.IfElseNode, NodeType.VariableNode, NodeType.OperationEndNode, NodeType.OperationGroup, NodeType.OperationNode],
 	[NodeType.OperationStartNode]: [NodeType.OperationNode, NodeType.OperationGroup],
 	[NodeType.OperationNode]: [NodeType.OperationNode, NodeType.OperationEndNode, NodeType.OperationGroup],
 	[NodeType.OperationEndNode]: [],
+	[NodeType.EventTestNode]: [],
 };
 
 // Node connection limit - defines the maximum number of incoming connections for each node type (-1 means unlimited)
+// -1 means unlimited
 const NodeSupportConnectionLimit: Record<NodeType, number> = {
 	[NodeType.StartNode]: 0, // Start node cannot receive connections
 	[NodeType.KlineNode]: 1, // Can only have one incoming connection
 	[NodeType.IndicatorNode]: 1, // Can only have one incoming connection
-	[NodeType.IfElseNode]: -1, // -1 means unlimited
-	[NodeType.FuturesOrderNode]: -1, // -1 means unlimited
-	[NodeType.PositionNode]: -1, // -1 means unlimited
-	[NodeType.VariableNode]: -1, // -1 means unlimited
-	[NodeType.OperationGroup]: -1, // -1 means unlimited
-	[NodeType.OperationStartNode]: -1, // -1 means unlimited
-	[NodeType.OperationNode]: -1, // -1 means unlimited
-	[NodeType.OperationEndNode]: -1, // -1 means unlimited
+	[NodeType.IfElseNode]: -1,
+	[NodeType.FuturesOrderNode]: -1,
+	[NodeType.PositionNode]: -1,
+	[NodeType.VariableNode]: -1,
+	[NodeType.OperationGroup]: -1,
+	[NodeType.OperationStartNode]: -1,
+	[NodeType.OperationNode]: -1,
+	[NodeType.OperationEndNode]: -1,
+	[NodeType.EventTestNode]: 1,
 };
 
 // Node types that must be inside a group and can only connect within the same group

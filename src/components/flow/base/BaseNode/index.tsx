@@ -122,18 +122,18 @@ const BaseNode: React.FC<BaseNodeProps> = ({
 					{/* Icon */}
 					{iconName && (
 						<div
-							className="p-1 rounded-sm flex-shrink-0 mt-0.5"
+							className="p-1 rounded-sm shrink-0 mt-0.5"
 							style={{ backgroundColor: iconBackgroundColor }}
 						>
 							<DynamicIcon
 								name={iconName}
-								className="w-3 h-3 text-white flex-shrink-0"
+								className="w-3 h-3 text-white shrink-0"
 							/>
 						</div>
 					)}
 
 					{/* Title text */}
-					<div className="text-base font-bold text-black break-words leading-relaxed">
+					<div className="text-base font-bold text-black wrap-break-word leading-relaxed">
 						{nodeName}
 					</div>
 				</div>

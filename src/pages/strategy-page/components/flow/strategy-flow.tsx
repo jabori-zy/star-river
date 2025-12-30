@@ -44,6 +44,7 @@ import { createDefaultOperationGroupNodeData } from "@/hooks/node-config/operati
 import { createDefaultOperationStartNodeData } from "@/hooks/node-config/operation-start-node";
 import { createDefaultOperationNodeData } from "@/hooks/node-config/operation-node";
 import { createDefaultOperationEndNodeData } from "@/hooks/node-config/operation-end-node";
+import { createDefaultEventTestNodeData } from "@/hooks/node-config/event-test-node";
 import { useDndNodeStore } from "@/store/use-dnd-node-store";
 import { NodeType } from "@/types/node";
 import type { Strategy } from "@/types/strategy";
@@ -330,6 +331,13 @@ export default function StrategyFlow({
 						break;
 					case NodeType.OperationNode:
 						defaultNodeData = createDefaultOperationNodeData(
+							strategy.id,
+							strategy.name,
+							t,
+						);
+						break;
+					case NodeType.EventTestNode:
+						defaultNodeData = createDefaultEventTestNodeData(
 							strategy.id,
 							strategy.name,
 							t,

@@ -15,6 +15,7 @@ const translation = {
 	operationNode: "Operation Node",
 	operationStartNode: "Operation Start Node",
 	operationEndNode: "Operation End Node",
+	eventTestNode: "Event Test Node",
 	seriesIndex: {
 		latest: "Latest",
 		previous: "Previous",

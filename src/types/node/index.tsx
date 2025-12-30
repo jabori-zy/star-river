@@ -11,6 +11,7 @@ import type { OperationGroup, OperationGroupData } from "./group/operation-group
 import type { OperationStartNode, OperationStartNodeData } from "./group/operation-group/operation-start-node";
 import type { OperationEndNode, OperationEndNodeData } from "./group/operation-group/operation-end-node";
 import type { OperationNode, OperationNodeData } from "./operation-node";
+import type { EventTestNode, EventTestNodeData } from "./event-test-node";
 
 export type NodeId = string;
 export type NodeName = string;
@@ -27,6 +28,7 @@ export enum NodeType {
 	OperationStartNode = "operationStartNode", // operation start node
 	OperationEndNode = "operationEndNode", // operation end node
 	OperationNode = "operationNode", // operation node
+	EventTestNode = "eventTestNode", // event test node
 	// LogicGroup = "logicGroup",
 }
 
@@ -54,6 +56,8 @@ export const getNodeTypeName = (nodeType: NodeType, t: TFunction): string => {
 			return t("node.operationEndNode");
 		case NodeType.OperationNode:
 			return t("node.operationNode");
+		case NodeType.EventTestNode:
+			return t("node.eventTestNode");
 		default:
 			return "";
 	}
@@ -72,6 +76,7 @@ export const NodeDefaultColorsMap: Record<NodeType, string> = {
 	[NodeType.OperationStartNode]: "#7c3aed", // Violet - Operation start node
 	[NodeType.OperationEndNode]: "#dc2626", // Red - Operation end node
 	[NodeType.OperationNode]: "#ea580c", // Orange - Operation node
+	[NodeType.EventTestNode]: "#0f766e", // Red - Event test node
 };
 
 // Get the border color corresponding to the node type
@@ -91,6 +96,7 @@ export const NodeIconsMap: Record<NodeType, IconName> = {
 	[NodeType.OperationStartNode]: "play",
 	[NodeType.OperationEndNode]: "play",
 	[NodeType.OperationNode]: "square-function",
+	[NodeType.EventTestNode]: "test-tube",
 };
 
 export const getNodeIconName = (nodeType: NodeType): IconName => {
@@ -121,6 +127,8 @@ export const getNodeDefaultInputHandleId = (id: NodeId, nodeType: NodeType) => {
 			return `${id}_default_input`;
 		case NodeType.OperationGroup:
 			return `${id}_default_input`;
+		case NodeType.EventTestNode:
+			return `${id}_default_input`;
 	}
 };
 
@@ -150,6 +158,8 @@ export const getNodeDefaultOutputHandleId = (
 		case NodeType.OperationNode:
 			return `${id}_default_output`;
 		case NodeType.OperationGroup:
+			return `${id}_default_output`;
+		case NodeType.EventTestNode:
 			return `${id}_default_output`;
 	}
 };
@@ -205,7 +215,8 @@ export type NodeData =
 	| OperationGroupData
 	| OperationStartNodeData
 	| OperationEndNodeData
-	| OperationNodeData;
+	| OperationNodeData
+	| EventTestNodeData;
 
 export type StrategyFlowNode =
 	| StartNode
@@ -217,7 +228,8 @@ export type StrategyFlowNode =
 	| OperationGroup
 	| OperationStartNode
 	| OperationEndNode
-	| OperationNode;
+	| OperationNode
+	| EventTestNode;
 
 // Node type guards
 export const isStartNode = (node: StrategyFlowNode): node is StartNode => {
@@ -240,4 +252,7 @@ export const isPositionNode = (
 	node: StrategyFlowNode,
 ): node is PositionNode => {
 	return node.type === NodeType.PositionNode;
+};
+export const isEventTestNode = (node: StrategyFlowNode): node is EventTestNode => {
+	return node.type === NodeType.EventTestNode;
 };

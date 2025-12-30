@@ -9,6 +9,7 @@ import OperationGroup from "@/components/flow/node/operation-group/node";
 import OperationStartNode from "@/components/flow/node/operation-start-node/node";
 import OperationNode from "@/components/flow/node/operation-node/node";
 import OperationEndNode from "@/components/flow/node/operation-end-node/node";
+import EventTestNode from "@/components/flow/node/event-test-node/node";
 
 export const nodeTypes = {
 	startNode: StartNode,
@@ -22,4 +23,5 @@ export const nodeTypes = {
 	operationStartNode: OperationStartNode,
 	operationEndNode: OperationEndNode,
 	operationNode: OperationNode,
+	eventTestNode: EventTestNode,
 };
