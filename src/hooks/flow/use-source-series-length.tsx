@@ -1,6 +1,6 @@
 import { type Connection, useReactFlow } from "@xyflow/react";
-import { useCallback, useMemo } from "react";
-import { isDefaultOutputHandleId, NodeType } from "@/types/node/index";
+import { useCallback } from "react";
+import { NodeType } from "@/types/node/index";
 import type { IndicatorNodeData } from "@/types/node/indicator-node";
 import type { KlineNodeData } from "@/types/node/kline-node";
 import { TradeMode } from "@/types/strategy";

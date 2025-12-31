@@ -7,8 +7,10 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 // import { stopStrategy } from "@/service/strategy"; // Commented out - no longer stops strategy
 
+import { useGetStrategyRunState } from "@/service/backtest-strategy/strategy-run-state";
 import { useBacktestChartConfigStore } from "@/store/use-backtest-chart-config-store";
 import { useBacktestStrategyControlStore } from "@/store/use-backtest-strategy-control-store";
+import { BacktestStrategyRunState } from "@/types/strategy/backtest-strategy";
 import BacktestWindowHeader from "../../components/backtest/backtest-window-header";
 import ChartContainer from "./components/chart-container";
 // import useBacktestStrategySSE from "../../hooks/sse/use-backtest-strategy-sse";
@@ -34,10 +36,15 @@ export default function BacktestPage() {
 	} = useBacktestChartConfigStore();
 
 	// Subscribe to required states and methods separately
-	const isRunning = useBacktestStrategyControlStore((state) => state.isRunning);
+	const strategyRunState = useBacktestStrategyControlStore(
+		(state) => state.strategyRunState,
+	);
 	const onStop = useBacktestStrategyControlStore((state) => state.onStop);
 	const setControlStrategyId = useBacktestStrategyControlStore(
 		(state) => state.setStrategyId,
+	);
+	const setStrategyRunState = useBacktestStrategyControlStore(
+		(state) => state.setStrategyRunState,
 	);
 	const startEventListening = useBacktestStrategyControlStore(
 		(state) => state.startEventListening,
@@ -45,6 +52,11 @@ export default function BacktestPage() {
 	const stopEventListening = useBacktestStrategyControlStore(
 		(state) => state.stopEventListening,
 	);
+
+	// Fetch strategy run state from API
+	const { data: apiStrategyRunState } = useGetStrategyRunState(strategyId ?? 0, {
+		enabled: !!strategyId && strategyId > 0,
+	});
 
 	// Get strategyId from URL parameters
 	const getStrategyIdFromParams = useCallback((): number | null => {
@@ -98,6 +110,13 @@ export default function BacktestPage() {
 		}
 	}, [strategyId, loadChartConfig]);
 
+	// Sync strategy run state from API to store
+	useEffect(() => {
+		if (apiStrategyRunState) {
+			setStrategyRunState(apiStrategyRunState);
+		}
+	}, [apiStrategyRunState, setStrategyRunState]);
+
 	// Window size monitoring
 	useEffect(() => {
 		const handleResize = () => {
@@ -134,7 +153,7 @@ export default function BacktestPage() {
 
 	// Listen for kline playback completion
 	useEffect(() => {
-		if (isRunning) {
+		if (strategyRunState === BacktestStrategyRunState.Playing) {
 			startEventListening();
 		} else {
 			stopEventListening();
@@ -144,7 +163,7 @@ export default function BacktestPage() {
 		return () => {
 			stopEventListening();
 		};
-	}, [isRunning, startEventListening, stopEventListening]);
+	}, [strategyRunState, startEventListening, stopEventListening]);
 
 	// Handle quit confirmation
 	const handleQuit = async () => {
@@ -265,7 +284,7 @@ export default function BacktestPage() {
 
 	return (
 		<div className="h-screen flex flex-col overflow-hidden bg-gray-100">
-			<div className="flex-shrink-0 border-b ">
+			<div className="shrink-0 border-b ">
 				<BacktestWindowHeader
 					strategyName={strategyName || `Strategy ${strategyId}`}
 					onQuit={handleQuit}

@@ -101,11 +101,11 @@ export default function OperationSelector({
 	}, [strategyId, klineConfig, fetchCacheKeys]);
 
 	// Get selected option
-	const selectedOption = selectedOperationKey
-		? availableOperationOptions.find(
-				(option) => option.key === selectedOperationKey,
-			)
-		: undefined;
+	// const selectedOption = selectedOperationKey
+	// 	? availableOperationOptions.find(
+	// 			(option) => option.key === selectedOperationKey,
+	// 		)
+	// 	: undefined;
 
 	if (loading) {
 		return (

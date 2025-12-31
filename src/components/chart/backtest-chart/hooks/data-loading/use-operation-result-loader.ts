@@ -19,6 +19,7 @@ interface UseOperationResultLoaderReturn {
 		operationKeyStr: string,
 		firstOperationDateTime: string,
 		seriesConfigs: SeriesConfig[],
+		length: number,
 	) => Promise<void>;
 }
 
@@ -41,13 +42,14 @@ export const useOperationResultLoader = ({
 			operationKeyStr: string,
 			firstOperationDateTime: string,
 			seriesConfigs: SeriesConfig[],
+			length: number,
 		) => {
 			try {
 				const data = await getStrategyDataApi({
 					strategyId,
 					keyStr: operationKeyStr,
 					datetime: firstOperationDateTime,
-					limit: 100,
+					limit: length,
 				});
 
 				const operationData = data as Record<string, number | Date>[];

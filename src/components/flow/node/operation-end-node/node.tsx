@@ -48,7 +48,7 @@ const OperationEndNode: React.FC<NodeProps<OperationEndNodeType>> = ({
             selectedBorderColor={operationEndNodeData.nodeConfig.borderColor}
             selected={selected}
             isHovered={operationEndNodeData.nodeConfig.isHovered}
-            className="!w-16 !h-16 !min-w-0 !min-h-0 !p-0 flex items-center justify-center"
+            className="w-16! h-16! min-w-0! min-h-0! p-0! flex items-center justify-center"
             showTitle={false}
         >
             <Tooltip>
@@ -65,7 +65,7 @@ const OperationEndNode: React.FC<NodeProps<OperationEndNodeType>> = ({
 				position={Position.Left}
 				handleColor={handleColor}
 				heightPositionClassName="!top-1/2 !-translate-y-[2px]"
-				className="!left-[-1px]"
+				className="-left-px!"
 			/>
         </BaseNode>
     );

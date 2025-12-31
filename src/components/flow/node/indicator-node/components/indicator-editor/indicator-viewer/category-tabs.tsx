@@ -19,7 +19,7 @@ const CategoryTabs: React.FC<CategoryTabsProps> = ({
 	getCategoryDisplayName,
 }) => {
 	return (
-		<div className="px-6 py-3 border-b flex-shrink-0">
+		<div className="px-6 py-3 border-b shrink-0">
 			<div className="flex flex-wrap gap-2">
 				{categories.map((category) => (
 					<Badge

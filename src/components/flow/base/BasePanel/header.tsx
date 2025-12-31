@@ -47,16 +47,16 @@ const BasePanelHeader: React.FC<BasePanelHeaderProps> = ({
 				{icon && (
 					// p-1 - padding
 					// rounded-sm - rounded corners
-					// flex-shrink-0 - effect is, if content overflows, don't shrink
+					// shrink-0 - effect is, if content overflows, don't shrink
 					// bg-red-400 - background color
 					// mr-2 - right margin
 					<div
-						className="p-1 mr-2 rounded-sm flex-shrink-0"
+						className="p-1 mr-2 rounded-sm shrink-0"
 						style={{ backgroundColor: iconBackgroundColor }}
 					>
 						<DynamicIcon
 							name={icon}
-							className="w-4 h-4 text-white flex-shrink-0"
+							className="w-4 h-4 text-white shrink-0"
 						/>
 					</div>
 				)}
@@ -100,13 +100,13 @@ const BasePanelHeader: React.FC<BasePanelHeaderProps> = ({
 			</div>
 
 			{/*
-                flex-shrink-0 - prevent button from being compressed
+                shrink-0 - prevent button from being compressed
                 hover:bg-gray-100 - background color on hover
             */}
 			<Button
 				variant="ghost"
 				size="icon"
-				className="flex-shrink-0 hover:bg-gray-100"
+				className="shrink-0 hover:bg-gray-100"
 				onClick={onClosePanel}
 			>
 				<X className="h-4 w-4" />

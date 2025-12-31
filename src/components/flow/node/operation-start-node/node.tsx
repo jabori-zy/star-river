@@ -48,7 +48,7 @@ const OperationStartNode: React.FC<NodeProps<OperationStartNodeType>> = ({
             selectedBorderColor={operationStartNodeData.nodeConfig.borderColor}
             selected={selected}
             isHovered={operationStartNodeData.nodeConfig.isHovered}
-            className="!w-16 !h-16 !min-w-0 !min-h-0 !p-0 flex items-center justify-center"
+            className="w-16! h-16! min-w-0! min-h-0! p-0! flex items-center justify-center"
             showTitle={false}
         >
             <Tooltip>
@@ -65,7 +65,7 @@ const OperationStartNode: React.FC<NodeProps<OperationStartNodeType>> = ({
 				position={Position.Right}
 				handleColor={handleColor}
 				heightPositionClassName="!top-1/2 !-translate-y-[2px]"
-				className="!right-[-1px]"
+				className="-right-px!"
 			/>
         </BaseNode>
     );

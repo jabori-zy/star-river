@@ -1,5 +1,5 @@
 import { type NodeProps, Position } from "@xyflow/react";
-import { memo, useEffect } from "react";
+import { memo } from "react";
 import type { BaseHandleProps } from "@/components/flow/base/BaseHandle";
 import BaseNode from "@/components/flow/base/BaseNode";
 import useStrategyWorkflow from "@/hooks/flow/use-strategy-workflow";
@@ -64,7 +64,7 @@ const IfElseNode: React.FC<NodeProps<IfElseNodeType>> = ({ id, selected }) => {
 			isHovered={currentNodeData?.nodeConfig?.isHovered || false}
 			selected={selected}
 			defaultInputHandle={defaultInputHandle}
-			className="!max-w-none"
+			className="max-w-none!"
 		>
 			{tradingMode === TradeMode.BACKTEST && (
 				<BacktestModeShow

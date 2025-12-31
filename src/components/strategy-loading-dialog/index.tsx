@@ -76,13 +76,13 @@
 // 				className="max-w-2xl flex flex-col "
 // 				aria-describedby={undefined}
 // 			>
-// 				<DialogHeader className="flex-shrink-0">
+// 				<DialogHeader className="shrink-0">
 // 					<DialogTitle>{title}</DialogTitle>
 // 				</DialogHeader>
 
 // 				<div className="flex-1 flex flex-col space-y-4 overflow-hidden">
 // 					{/* Top status section */}
-// 					<div className="flex-shrink-0">
+// 					<div className="shrink-0">
 // 						<StatusSection currentStage={currentStage} logs={logs} />
 // 					</div>
 

@@ -82,8 +82,6 @@ export const createDataInitializationSlice =
 			keyStr: KeyStr,
 			datetime: string,
 		) => {
-			const state = get();
-			// console.log("circleId: ", circleId);
 			const initialIndicatorData = (await getStrategyDataApi({
 				strategyId,
 				keyStr,
@@ -130,9 +128,10 @@ export const createDataInitializationSlice =
 						(config) => config.indicatorKeyStr === keyStr,
 					);
 				setTimeout(() => {
+					const currentState = get(); // Get latest state
 					if (indicatorChartConfigs) {
 						indicatorChartConfigs.seriesConfigs.forEach((seriesConfig) => {
-							const indicatorSeriesRef = state.getIndicatorSeriesRef(
+							const indicatorSeriesRef = currentState.getIndicatorSeriesRef(
 								indicatorChartConfigs.indicatorKeyStr,
 								seriesConfig.indicatorValueKey,
 							);
@@ -161,7 +160,6 @@ export const createDataInitializationSlice =
 			keyStr: KeyStr,
 			datetime: string,
 		) => {
-			const state = get();
 			const initialOperationData = (await getStrategyDataApi({
 				strategyId,
 				keyStr,
@@ -199,9 +197,10 @@ export const createDataInitializationSlice =
 						(config) => config.operationKeyStr === keyStr,
 					);
 				setTimeout(() => {
+					const currentState = get(); // Get latest state
 					if (operationChartConfig) {
 						operationChartConfig.seriesConfigs.forEach((seriesConfig) => {
-							const operationSeriesRef = state.getOperationSeriesRef(
+							const operationSeriesRef = currentState.getOperationSeriesRef(
 								operationChartConfig.operationKeyStr,
 								seriesConfig.outputSeriesKey,
 							);

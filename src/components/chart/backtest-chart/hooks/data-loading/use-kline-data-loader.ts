@@ -14,6 +14,7 @@ interface UseKlineDataLoaderReturn {
 	loadKlineHistory: (
 		firstKlineDateTime: string,
 		klineKeyStr: string,
+		length: number,
 	) => Promise<void>;
 }
 
@@ -32,13 +33,13 @@ export const useKlineDataLoader = ({
 	const { getKlineSeriesRef } = useBacktestChartStore(chartId);
 
 	const loadKlineHistory = useCallback(
-		async (firstKlineDateTime: string, klineKeyStr: string) => {
+		async (firstKlineDateTime: string, klineKeyStr: string, length: number) => {
 			try {
 				const data = await getStrategyDataApi({
 					strategyId,
 					keyStr: klineKeyStr,
 					datetime: firstKlineDateTime,
-					limit: 100,
+					limit: length,
 				});
 
 				const klinedata = data as Kline[];
@@ -59,7 +60,6 @@ export const useKlineDataLoader = ({
 						close: kline.close,
 					}),
 				);
-				// console.log("Loading K-line historical data", partialKlineData.length);
 
 				// Add delay to avoid infinite triggering of visible range change events
 				setTimeout(() => {

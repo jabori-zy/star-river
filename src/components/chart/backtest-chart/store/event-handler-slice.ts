@@ -19,8 +19,6 @@ import {
 } from "../utls";
 import type { EventHandlerSlice, SliceCreator, StoreContext } from "./types";
 
-const MAX_DATA_LENGTH = 500;
-
 export const createEventHandlerSlice =
 	(_context: StoreContext): SliceCreator<EventHandlerSlice> =>
 	(_set, get) => ({
@@ -41,19 +39,8 @@ export const createEventHandlerSlice =
 			const klineSeries = get().getKlineSeriesRef();
 			if (klineSeries) {
 				klineSeries.update(candlestickData);
-				// If kline data length exceeds 10, delete the first 5 klines
-				const visibleLogicalRangeFrom = get().getVisibleLogicalRange();
-				// console.log("visibleLogicalRangeFrom", visibleLogicalRangeFrom, "data length", klineSeries.data().length);
-				// If visible logical range start is greater than 10 and kline data length exceeds 200, delete the first 50 klines
-				if (
-					visibleLogicalRangeFrom &&
-					visibleLogicalRangeFrom.from > 100 &&
-					klineSeries.data().length > MAX_DATA_LENGTH
-				) {
-					// console.log("Delete first 50 klines");
-					const newData = klineSeries.data().slice(50);
-					klineSeries.setData(newData);
-				}
+				// Trim data if exceeds limit
+				get().trimKlineData();
 			}
 		},
 
@@ -78,18 +65,8 @@ export const createEventHandlerSlice =
 					);
 					if (indicatorSeriesRef) {
 						indicatorSeriesRef.update(newDataPoint);
-
-						// If indicator data length exceeds 10, delete the first 5 indicator data points
-						const visibleLogicalRangeFrom = get().getVisibleLogicalRange();
-						if (
-							visibleLogicalRangeFrom &&
-							visibleLogicalRangeFrom.from > 100 &&
-							indicatorSeriesRef.data().length > MAX_DATA_LENGTH
-						) {
-							// console.log("Delete first 50 indicator data points", indicatorValueKey);
-							const newData = indicatorSeriesRef.data().slice(50);
-							indicatorSeriesRef.setData(newData);
-						}
+						// Trim data if exceeds limit
+						get().trimIndicatorData(indicatorKeyStr, indicatorValueKey);
 					}
 				});
 			});
@@ -122,17 +99,8 @@ export const createEventHandlerSlice =
 					);
 					if (operationSeriesRef) {
 						operationSeriesRef.update(newDataPoint);
-
-						// If operation data length exceeds limit, delete first 50 data points
-						const visibleLogicalRangeFrom = get().getVisibleLogicalRange();
-						if (
-							visibleLogicalRangeFrom &&
-							visibleLogicalRangeFrom.from > 100 &&
-							operationSeriesRef.data().length > MAX_DATA_LENGTH
-						) {
-							const newData = operationSeriesRef.data().slice(50);
-							operationSeriesRef.setData(newData);
-						}
+						// Trim data if exceeds limit
+						get().trimOperationData(operationKeyStr, outputKey);
 					}
 				});
 			});

@@ -10,17 +10,16 @@ import {
 	playOne,
 	stop,
 } from "@/service/backtest-strategy/backtest-strategy-control";
+import { BacktestStrategyRunState } from "@/types/strategy/backtest-strategy";
 
 interface BacktestStrategyControlState {
-	isRunning: boolean;
-	isPlayFinished: boolean;
 	strategyId: number | null;
 	strategyEventSubscription: Subscription | null;
+	strategyRunState: BacktestStrategyRunState;
 
 	// Actions
 	setStrategyId: (strategyId: number | null) => void;
-	setIsRunning: (isRunning: boolean) => void;
-	setIsPlayFinished: (isPlayFinished: boolean) => void;
+	setStrategyRunState: (state: BacktestStrategyRunState) => void;
 	onPlay: () => Promise<void>;
 	onPause: () => void;
 	onStop: (clearDataCallback?: () => void) => void;
@@ -32,34 +31,41 @@ interface BacktestStrategyControlState {
 
 export const useBacktestStrategyControlStore =
 	create<BacktestStrategyControlState>((set, get) => ({
-		isRunning: false,
-		isPlayFinished: false,
 		strategyId: null,
 		strategyEventSubscription: null,
+		strategyRunState: BacktestStrategyRunState.Ready,
 
 		setStrategyId: (strategyId) => {
 			set({ strategyId });
 		},
 
-		setIsRunning: (isRunning) => {
-			set({ isRunning });
-		},
-
-		setIsPlayFinished: (isPlayFinished) => {
-			set({ isPlayFinished });
+		setStrategyRunState: (state) => {
+			set({ strategyRunState: state });
 		},
 
 		onPlay: async () => {
-			const { strategyId } = get();
+			const { strategyId, strategyRunState } = get();
 			if (!strategyId) return;
 
-			set({ isRunning: true });
+			// Prevent duplicate calls - only allow play from Ready or Pausing state
+			if (
+				strategyRunState !== BacktestStrategyRunState.Ready &&
+				strategyRunState !== BacktestStrategyRunState.Pausing
+			) {
+				console.log("Cannot play: current state is", strategyRunState);
+				return;
+			}
+
+			// Save the previous state to restore on failure
+			const previousState = strategyRunState;
+
+			set({ strategyRunState: BacktestStrategyRunState.Playing });
 			try {
 				await play(strategyId);
 				// After play() starts successfully, backtest completion will be notified via events
 			} catch (error: any) {
-				// play failed to start, stop running state
-				set({ isRunning: false });
+				// Play failed to start, revert to previous state
+				set({ strategyRunState: previousState });
 				console.error("play error:", error);
 			}
 		},
@@ -68,7 +74,7 @@ export const useBacktestStrategyControlStore =
 			const { strategyId } = get();
 			if (!strategyId) return;
 
-			set({ isRunning: false });
+			set({ strategyRunState: BacktestStrategyRunState.Pausing });
 			pause(strategyId);
 		},
 
@@ -76,7 +82,7 @@ export const useBacktestStrategyControlStore =
 			const { strategyId } = get();
 			if (!strategyId) return;
 
-			set({ isRunning: false, isPlayFinished: false });
+			set({ strategyRunState: BacktestStrategyRunState.Ready });
 			stop(strategyId);
 
 			// Reset chart stores
@@ -102,7 +108,7 @@ export const useBacktestStrategyControlStore =
 					errorCode === "STRATEGY_ENGINE_1001" &&
 					errorCodeChain?.includes("BACKTEST_STRATEGY_1012")
 				) {
-					set({ isRunning: false, isPlayFinished: true });
+					set({ strategyRunState: BacktestStrategyRunState.PlayComplete });
 					toast.success("Backtest completed");
 				} else {
 					// Throw other errors normally
@@ -112,7 +118,7 @@ export const useBacktestStrategyControlStore =
 		},
 
 		startEventListening: () => {
-			const { isRunning, strategyEventSubscription } = get();
+			const { strategyRunState, strategyEventSubscription } = get();
 
 			// Clean up existing subscription
 			if (strategyEventSubscription) {
@@ -121,7 +127,7 @@ export const useBacktestStrategyControlStore =
 			}
 
 			// If not playing, no need to listen
-			if (!isRunning) {
+			if (strategyRunState !== BacktestStrategyRunState.Playing) {
 				console.log("Not playing, skipping event listener start");
 				return;
 			}
@@ -153,7 +159,7 @@ export const useBacktestStrategyControlStore =
 				return;
 			}
 
-			set({ isRunning: false, isPlayFinished: true });
+			set({ strategyRunState: BacktestStrategyRunState.PlayComplete });
 			toast.success("Backtest completed");
 		},
 	}));

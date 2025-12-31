@@ -1,5 +1,6 @@
 import { ArrowRightToLine, Pause, Play, Square } from "lucide-react";
 import type React from "react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,6 +10,7 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useBacktestStrategyControlStore } from "@/store/use-backtest-strategy-control-store";
+import { BacktestStrategyRunState } from "@/types/strategy/backtest-strategy";
 
 interface StrategyControlProps {
 	onStop: () => void;
@@ -17,13 +19,58 @@ interface StrategyControlProps {
 const StrategyControl: React.FC<StrategyControlProps> = ({ onStop }) => {
 	const { t } = useTranslation();
 	// Subscribe to states separately to ensure component responds correctly to changes
-	const isRunning = useBacktestStrategyControlStore((state) => state.isRunning);
-	const isPlayFinished = useBacktestStrategyControlStore(
-		(state) => state.isPlayFinished,
+	const strategyRunState = useBacktestStrategyControlStore(
+		(state) => state.strategyRunState,
 	);
 	const onPlay = useBacktestStrategyControlStore((state) => state.onPlay);
 	const onPause = useBacktestStrategyControlStore((state) => state.onPause);
 	const onPlayOne = useBacktestStrategyControlStore((state) => state.onPlayOne);
+
+	// Calculate button states based on strategyRunState
+	const buttonStates = useMemo(() => {
+		switch (strategyRunState) {
+			case BacktestStrategyRunState.Ready:
+				// Ready: stop disabled, play and next enabled
+				return {
+					stopDisabled: true,
+					playDisabled: false,
+					nextDisabled: false,
+					isPlaying: false,
+				};
+			case BacktestStrategyRunState.Playing:
+				// Playing: play button shows pause icon, stop and next disabled
+				return {
+					stopDisabled: true,
+					playDisabled: false,
+					nextDisabled: true,
+					isPlaying: true,
+				};
+			case BacktestStrategyRunState.Pausing:
+				// Pausing: all three buttons enabled
+				return {
+					stopDisabled: false,
+					playDisabled: false,
+					nextDisabled: false,
+					isPlaying: false,
+				};
+			case BacktestStrategyRunState.PlayComplete:
+				// PlayComplete: stop enabled, play and next disabled
+				return {
+					stopDisabled: false,
+					playDisabled: true,
+					nextDisabled: true,
+					isPlaying: false,
+				};
+			default:
+				// Default: all buttons enabled
+				return {
+					stopDisabled: false,
+					playDisabled: false,
+					nextDisabled: false,
+					isPlaying: false,
+				};
+		}
+	}, [strategyRunState]);
 
 	return (
 		<TooltipProvider>
@@ -32,7 +79,7 @@ const StrategyControl: React.FC<StrategyControlProps> = ({ onStop }) => {
 					<TooltipTrigger asChild>
 						<Button
 							variant="outline"
-							disabled={isRunning}
+							disabled={buttonStates.stopDisabled}
 							onClick={() => {
 								onStop();
 							}}
@@ -48,10 +95,10 @@ const StrategyControl: React.FC<StrategyControlProps> = ({ onStop }) => {
 					<TooltipTrigger asChild>
 						<Button
 							variant="outline"
-							disabled={isPlayFinished}
+							disabled={buttonStates.playDisabled}
 							onClick={() => {
-								// If running, pause
-								if (isRunning) {
+								// If playing, pause
+								if (buttonStates.isPlaying) {
 									onPause();
 								} else {
 									// If paused, play
@@ -59,7 +106,7 @@ const StrategyControl: React.FC<StrategyControlProps> = ({ onStop }) => {
 								}
 							}}
 						>
-							{isRunning ? (
+							{buttonStates.isPlaying ? (
 								<Pause className="w-4 h-4" />
 							) : (
 								<Play className="w-4 h-4" />
@@ -68,7 +115,7 @@ const StrategyControl: React.FC<StrategyControlProps> = ({ onStop }) => {
 					</TooltipTrigger>
 					<TooltipContent>
 						<p>
-							{isRunning
+							{buttonStates.isPlaying
 								? t("desktop.backtestPage.pause")
 								: t("desktop.backtestPage.play")}
 						</p>
@@ -78,7 +125,7 @@ const StrategyControl: React.FC<StrategyControlProps> = ({ onStop }) => {
 					<TooltipTrigger asChild>
 						<Button
 							variant="outline"
-							disabled={isRunning || isPlayFinished}
+							disabled={buttonStates.nextDisabled}
 							onClick={() => onPlayOne()}
 						>
 							<ArrowRightToLine className="w-4 h-4" />

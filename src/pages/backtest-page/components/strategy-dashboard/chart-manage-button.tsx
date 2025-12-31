@@ -61,16 +61,16 @@ const ChartManageButton = ({
 				className="flex items-center gap-1"
 				onClick={handleAddChart}
 			>
-				<PlusCircle className="h-4 w-4 flex-shrink-0" />
+				<PlusCircle className="h-4 w-4 shrink-0" />
 				<span className="hidden lg:inline">
 					{t("desktop.backtestPage.addChart")}
 				</span>
 			</Button>
 			<Button variant="default" onClick={saveChartConfig} disabled={isSaving}>
 				{isSaving ? (
-					<Loader2 className="w-4 h-4 animate-spin flex-shrink-0" />
+					<Loader2 className="w-4 h-4 animate-spin shrink-0" />
 				) : (
-					<Save className="w-4 h-4 flex-shrink-0" />
+					<Save className="w-4 h-4 shrink-0" />
 				)}
 				<span className="hidden lg:inline">
 					{isSaving ? t("common.saving") : t("desktop.backtestPage.saveChart")}

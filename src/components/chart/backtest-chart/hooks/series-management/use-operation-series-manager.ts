@@ -23,7 +23,6 @@ interface UseOperationSeriesManagerReturn {
  * - Batch data initialization
  */
 export const useOperationSeriesManager = ({
-	strategyId,
 	chartConfig,
 }: UseOperationSeriesManagerProps): UseOperationSeriesManagerReturn => {
 	const {

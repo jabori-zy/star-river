@@ -1,5 +1,13 @@
+import { toast } from "sonner";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
+import type { IndicatorValueConfig } from "@/types/indicator/schemas";
+import type { IndicatorKeyStr, OperationKeyStr } from "@/types/symbol-key";
 import type { SliceCreator, StoreContext, UtilitySlice } from "./types";
+
+// Data trimming constants
+const MAX_DATA_LENGTH = 1000;
+const TRIM_AMOUNT = 500;
+const VISIBLE_RANGE_THRESHOLD = 100;
 
 export const createUtilitySlice =
 	(context: StoreContext): SliceCreator<UtilitySlice> =>
@@ -91,5 +99,77 @@ export const createUtilitySlice =
 				orderPriceLine: [],
 				// Keep visibility state during reset, don't clear
 			});
+		},
+
+		trimKlineData: () => {
+			const visibleLogicalRange = get().getVisibleLogicalRange();
+			const klineSeries = get().getKlineSeriesRef();
+
+			if (
+				!klineSeries ||
+				!visibleLogicalRange ||
+				visibleLogicalRange.from <= VISIBLE_RANGE_THRESHOLD ||
+				klineSeries.data().length <= MAX_DATA_LENGTH
+			) {
+				return;
+			}
+			// console.log("klineSeries", klineSeries, "visibleLogicalRange", visibleLogicalRange);
+			const newData = klineSeries.data().slice(TRIM_AMOUNT);
+			klineSeries.setData(newData);
+
+			if (import.meta.env.DEV) {
+				toast.info(`kline trim ${TRIM_AMOUNT} data`);
+			}
+		},
+
+		trimIndicatorData: (
+			indicatorKeyStr: IndicatorKeyStr,
+			indicatorValueKey: keyof IndicatorValueConfig,
+		) => {
+			const visibleLogicalRange = get().getVisibleLogicalRange();
+			const indicatorSeriesRef = get().getIndicatorSeriesRef(
+				indicatorKeyStr,
+				indicatorValueKey,
+			);
+
+			if (
+				!indicatorSeriesRef ||
+				!visibleLogicalRange ||
+				visibleLogicalRange.from <= VISIBLE_RANGE_THRESHOLD ||
+				indicatorSeriesRef.data().length <= MAX_DATA_LENGTH
+			) {
+				return;
+			}
+
+			const newData = indicatorSeriesRef.data().slice(TRIM_AMOUNT);
+			indicatorSeriesRef.setData(newData);
+
+			if (import.meta.env.DEV) {
+				toast.info(`${indicatorKeyStr} trim ${TRIM_AMOUNT} data`);
+			}
+		},
+
+		trimOperationData: (operationKeyStr: OperationKeyStr, outputKey: string) => {
+			const visibleLogicalRange = get().getVisibleLogicalRange();
+			const operationSeriesRef = get().getOperationSeriesRef(
+				operationKeyStr,
+				outputKey,
+			);
+
+			if (
+				!operationSeriesRef ||
+				!visibleLogicalRange ||
+				visibleLogicalRange.from <= VISIBLE_RANGE_THRESHOLD ||
+				operationSeriesRef.data().length <= MAX_DATA_LENGTH
+			) {
+				return;
+			}
+
+			const newData = operationSeriesRef.data().slice(TRIM_AMOUNT);
+			operationSeriesRef.setData(newData);
+
+			if (import.meta.env.DEV) {
+				toast.info(`${operationKeyStr} trim ${TRIM_AMOUNT} data`);
+			}
 		},
 	});

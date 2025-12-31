@@ -23,7 +23,7 @@ const SelectPopoverContent: React.FC<
 				side={side}
 				sideOffset={sideOffset}
 				className={cn(
-					"z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-0 text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+					"z-50 min-w-32 overflow-hidden rounded-md border bg-popover p-0 text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
 					className,
 				)}
 				{...props}
@@ -118,7 +118,7 @@ export const SelectWithSearch: React.FC<SelectWithSearchProps> = ({
 					<ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
 				</Button>
 			</PopoverTrigger>
-			<SelectPopoverContent className="w-[var(--radix-popover-trigger-width)]">
+			<SelectPopoverContent className="w-(--radix-popover-trigger-width)">
 				<Command shouldFilter={false}>
 					<CommandInput
 						placeholder={searchPlaceholder}
@@ -141,7 +141,7 @@ export const SelectWithSearch: React.FC<SelectWithSearchProps> = ({
 									>
 										<Check
 											className={cn(
-												"h-4 w-4 flex-shrink-0",
+												"h-4 w-4 shrink-0",
 												value === option.value ? "opacity-100" : "opacity-0",
 											)}
 										/>

@@ -34,6 +34,7 @@ export const useVisibleRangeHandler = ({
 		getOperationSeriesRef,
 		getKlineKeyStr,
 		setVisibleLogicalRange,
+		getVisibleLogicalRange,
 	} = useBacktestChartStore(chartConfig.id);
 
 	const { loadKlineHistory } = useKlineDataLoader({
@@ -56,143 +57,169 @@ export const useVisibleRangeHandler = ({
 			return;
 		}
 
-		// Use ref to track if loading is in progress, to prevent duplicate requests
-		const loadingRef = { current: false };
-
+		// Handle visible range change - only update store
 		const handleVisibleRangeChange = (logicalRange: LogicalRange | null) => {
-			if (!logicalRange || loadingRef.current) {
+			if (!logicalRange) {
+				return;
+			}
+			setVisibleLogicalRange(logicalRange);
+		};
+
+		// Infinite load kline history data
+		const infiniteLoadKlineHistory = (logicalRange: LogicalRange) => {
+			// Get current klineSeries
+			const currentKlineSeries = getKlineSeriesRef();
+			if (!currentKlineSeries) {
 				return;
 			}
 
-			// console.log("visibleRangeChange", logicalRange);
-			setVisibleLogicalRange(logicalRange);
+			const klineData = currentKlineSeries.data();
+			const firstKline = klineData[0];
+			const firstKlineDateTime = firstKline
+				? getDateTimeFromChartTimestamp(firstKline.time as number)
+				: null;
 
-			// Only load more data when approaching the boundary
+			if (!firstKlineDateTime) {
+				return;
+			}
+
+			// Get klineKeyStr
+			const klineKeyStr = getKlineKeyStr();
+			if (!klineKeyStr) {
+				return;
+			}
+
+			// Calculate length: abs(from) + 100
+			const length = Math.ceil(Math.abs(logicalRange.from)) + 100;
+			// Load kline history data
+			loadKlineHistory(firstKlineDateTime, klineKeyStr, length).catch((error) => {
+				console.error("Error loading K-line historical data:", error);
+			});
+		};
+
+		// Handle mouse up - check if need to load history data
+		const handleMouseUp = () => {
+			// Get current visible logical range from store
+			const logicalRange = getVisibleLogicalRange();
+			if (!logicalRange) {
+				return;
+			}
+
+			// Only load more data when approaching the left boundary
 			if (logicalRange.from >= 30) {
 				return;
 			}
 
-			// Set loading flag to prevent duplicate requests
-			loadingRef.current = true;
+			// Load kline history
+			infiniteLoadKlineHistory(logicalRange);
 
-			// Get current klineSeries (from the latest ref)
-			const currentKlineSeries = getKlineSeriesRef();
-			if (currentKlineSeries) {
-				const klineData = currentKlineSeries.data();
-				const firstKline = klineData[0];
-				const firstKlineDateTime = firstKline
-					? getDateTimeFromChartTimestamp(firstKline.time as number)
-					: null;
+			// Load indicator history
+			infiniteLoadIndicatorHistory(logicalRange);
 
-				if (firstKlineDateTime) {
-					console.log("firstKlineDateTime:", firstKlineDateTime);
-					// Get klineKeyStr, return early if it doesn't exist
-					const klineKeyStr = getKlineKeyStr();
-					if (!klineKeyStr) {
-						loadingRef.current = false;
-						return;
-					}
+			// Load operation history
+			infiniteLoadOperationHistory(logicalRange);
+		};
 
-					// Get 100 K-lines before the first K-line
-					loadKlineHistory(firstKlineDateTime, klineKeyStr)
-						.catch((error) => {
-							console.error("Error loading K-line historical data:", error);
-						})
-						.finally(() => {
-							// Reset loading flag
-							loadingRef.current = false;
-						});
-				}
-			}
-
-			// Handle indicator data
+		// Infinite load indicator history data
+		const infiniteLoadIndicatorHistory = (logicalRange: LogicalRange) => {
 			const indicatorsNeedingData = chartConfig.indicatorChartConfigs.filter(
 				(config) => !config.isDelete,
 			);
 
-			if (indicatorsNeedingData.length > 0) {
-				indicatorsNeedingData.forEach((config) => {
-					// Use find instead of forEach + return to more efficiently get the first timestamp
-					let firstIndicatorDateTime = "";
+			if (indicatorsNeedingData.length === 0) {
+				return;
+			}
 
-					for (const seriesConfig of config.seriesConfigs) {
-						const indicatorSeriesRef = getIndicatorSeriesRef(
-							config.indicatorKeyStr,
-							seriesConfig.indicatorValueKey,
-						);
-						if (indicatorSeriesRef) {
-							const firstData = indicatorSeriesRef.data()[0];
-							if (firstData) {
-								const firstDataTime = getDateTimeFromChartTimestamp(
-									firstData.time as number,
-								);
-								if (firstDataTime) {
-									firstIndicatorDateTime = firstDataTime;
-									break; // Exit immediately after finding the first valid time
-								}
+			// Calculate length: abs(from) + 100
+			const length = Math.ceil(Math.abs(logicalRange.from)) + 100;
+
+			indicatorsNeedingData.forEach((config) => {
+				let firstIndicatorDateTime = "";
+
+				for (const seriesConfig of config.seriesConfigs) {
+					const indicatorSeriesRef = getIndicatorSeriesRef(
+						config.indicatorKeyStr,
+						seriesConfig.indicatorValueKey,
+					);
+					if (indicatorSeriesRef) {
+						const firstData = indicatorSeriesRef.data()[0];
+						if (firstData) {
+							const firstDataTime = getDateTimeFromChartTimestamp(
+								firstData.time as number,
+							);
+							if (firstDataTime) {
+								firstIndicatorDateTime = firstDataTime;
+								break;
 							}
 						}
 					}
+				}
 
-					if (firstIndicatorDateTime) {
-						// Get 100 data points before the indicator
-						loadIndicatorHistory(
-							config.indicatorKeyStr,
-							firstIndicatorDateTime,
-							config.seriesConfigs,
-						).catch((error) => {
-							console.error(
-								`Error loading historical data for indicator ${config.indicatorKeyStr}:`,
-								error,
-							);
-						});
-					}
-				});
-			}
+				if (firstIndicatorDateTime) {
+					loadIndicatorHistory(
+						config.indicatorKeyStr,
+						firstIndicatorDateTime,
+						config.seriesConfigs,
+						length,
+					).catch((error) => {
+						console.error(
+							`Error loading historical data for indicator ${config.indicatorKeyStr}:`,
+							error,
+						);
+					});
+				}
+			});
+		};
 
-			// Handle operation data
+		// Infinite load operation history data
+		const infiniteLoadOperationHistory = (logicalRange: LogicalRange) => {
 			const operationsNeedingData = chartConfig.operationChartConfigs.filter(
 				(config) => !config.isDelete,
 			);
 
-			if (operationsNeedingData.length > 0) {
-				operationsNeedingData.forEach((config) => {
-					let firstOperationDateTime = "";
+			if (operationsNeedingData.length === 0) {
+				return;
+			}
 
-					for (const seriesConfig of config.seriesConfigs) {
-						const operationSeriesRef = getOperationSeriesRef(
-							config.operationKeyStr,
-							seriesConfig.outputSeriesKey,
-						);
-						if (operationSeriesRef) {
-							const firstData = operationSeriesRef.data()[0];
-							if (firstData) {
-								const firstDataTime = getDateTimeFromChartTimestamp(
-									firstData.time as number,
-								);
-								if (firstDataTime) {
-									firstOperationDateTime = firstDataTime;
-									break; // Exit immediately after finding the first valid time
-								}
+			// Calculate length: abs(from) + 100
+			const length = Math.ceil(Math.abs(logicalRange.from)) + 100;
+
+			operationsNeedingData.forEach((config) => {
+				let firstOperationDateTime = "";
+
+				for (const seriesConfig of config.seriesConfigs) {
+					const operationSeriesRef = getOperationSeriesRef(
+						config.operationKeyStr,
+						seriesConfig.outputSeriesKey,
+					);
+					if (operationSeriesRef) {
+						const firstData = operationSeriesRef.data()[0];
+						if (firstData) {
+							const firstDataTime = getDateTimeFromChartTimestamp(
+								firstData.time as number,
+							);
+							if (firstDataTime) {
+								firstOperationDateTime = firstDataTime;
+								break;
 							}
 						}
 					}
+				}
 
-					if (firstOperationDateTime) {
-						// Get 100 data points before the operation
-						loadOperationHistory(
-							config.operationKeyStr,
-							firstOperationDateTime,
-							config.seriesConfigs,
-						).catch((error) => {
-							console.error(
-								`Error loading historical data for operation ${config.operationKeyStr}:`,
-								error,
-							);
-						});
-					}
-				});
-			}
+				if (firstOperationDateTime) {
+					loadOperationHistory(
+						config.operationKeyStr,
+						firstOperationDateTime,
+						config.seriesConfigs,
+						length,
+					).catch((error) => {
+						console.error(
+							`Error loading historical data for operation ${config.operationKeyStr}:`,
+							error,
+						);
+					});
+				}
+			});
 		};
 
 		// Subscribe to visible range changes
@@ -200,11 +227,32 @@ export const useVisibleRangeHandler = ({
 			.timeScale()
 			.subscribeVisibleLogicalRangeChange(handleVisibleRangeChange);
 
+		// Track if dragging started from chart element
+		let isDragging = false;
+		const chartElement = chart.chartElement();
+
+		const handleMouseDown = () => {
+			isDragging = true;
+		};
+
+		const handleDocumentMouseUp = () => {
+			if (isDragging) {
+				isDragging = false;
+				handleMouseUp();
+			}
+		};
+
+		// Listen mousedown on chart element, mouseup on document
+		chartElement.addEventListener("mousedown", handleMouseDown);
+		document.addEventListener("mouseup", handleDocumentMouseUp);
+
 		// Cleanup function: Unsubscribe
 		return () => {
 			chart
 				.timeScale()
 				.unsubscribeVisibleLogicalRangeChange(handleVisibleRangeChange);
+			chartElement.removeEventListener("mousedown", handleMouseDown);
+			document.removeEventListener("mouseup", handleDocumentMouseUp);
 		};
 	}, [
 		isInitialized,
@@ -216,6 +264,7 @@ export const useVisibleRangeHandler = ({
 		getOperationSeriesRef,
 		getKlineKeyStr,
 		setVisibleLogicalRange,
+		getVisibleLogicalRange,
 		loadKlineHistory,
 		loadIndicatorHistory,
 		loadOperationHistory,

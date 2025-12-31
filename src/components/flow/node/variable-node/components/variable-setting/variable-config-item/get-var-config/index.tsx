@@ -385,9 +385,9 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 				value: customVar.varName,
 				label: (
 					<div className="flex items-center gap-2">
-						<User className="h-3.5 w-3.5 text-green-600 flex-shrink-0" />
+						<User className="h-3.5 w-3.5 text-green-600 shrink-0" />
 						<TypeIconComponent
-							className={`h-4 w-4 ${typeIconColor} flex-shrink-0`}
+							className={`h-4 w-4 ${typeIconColor} shrink-0`}
 						/>
 						<span>{customVar.varName}</span>
 						{/* <span className="text-xs text-muted-foreground">
@@ -410,9 +410,9 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 				value: sysVar,
 				label: (
 					<div className="flex items-center gap-2">
-						<Settings className="h-3.5 w-3.5 text-gray-600 flex-shrink-0" />
+						<Settings className="h-3.5 w-3.5 text-gray-600 shrink-0" />
 						<TypeIconComponent
-							className={`h-4 w-4 ${typeIconColor} flex-shrink-0`}
+							className={`h-4 w-4 ${typeIconColor} shrink-0`}
 						/>
 						<span>{metadata.varName}</span>
 						{/* <span className="text-xs text-muted-foreground">
@@ -497,15 +497,15 @@ const GetVarConfigItem: React.FC<GetVarConfigItemProps> = ({
 					<CollapsibleTrigger asChild>
 						<div className="flex items-center gap-2 cursor-pointer">
 							{isOpen ? (
-								<ChevronDown className="h-4 w-4 flex-shrink-0" />
+								<ChevronDown className="h-4 w-4 shrink-0" />
 							) : (
-								<ChevronRight className="h-4 w-4 flex-shrink-0" />
+								<ChevronRight className="h-4 w-4 shrink-0" />
 							)}
 							<Tooltip>
 								<TooltipTrigger asChild>
 									{/* First row: icon + operation title + trigger method */}
 									<div className="flex items-center gap-2">
-										<TbFileImport className="h-4 w-4 text-blue-600 flex-shrink-0" />
+										<TbFileImport className="h-4 w-4 text-blue-600 shrink-0" />
 										<span className="text-sm font-medium">
 											{t("variableNode.getVariable")}
 										</span>

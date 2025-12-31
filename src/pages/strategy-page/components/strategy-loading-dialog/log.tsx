@@ -74,7 +74,7 @@ export const LogDisplay: React.FC<LogDisplayProps> = ({ logs }) => {
 
 	return (
 		<div className="flex flex-col h-full space-y-2">
-			<div className="flex items-center space-x-2 text-sm font-medium text-gray-700 flex-shrink-0">
+			<div className="flex items-center space-x-2 text-sm font-medium text-gray-700 shrink-0">
 				<Terminal className="w-4 h-4 text-gray-500" />
 				<span className="text-gray-700 font-medium">Logs</span>
 			</div>

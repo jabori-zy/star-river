@@ -270,7 +270,7 @@ export const renderVariableOptions = ({
 							)}
 						>
 							<div className="flex items-center w-full gap-1">
-								<div className="flex items-center gap-0.5 flex-shrink-0">
+								<div className="flex items-center gap-0.5 shrink-0">
 									<TypeIconComponent className={`h-4 w-4 ${typeIconColor}`} />
 									<Badge
 										variant="outline"
@@ -368,7 +368,7 @@ export const renderVariableOptions = ({
 							)}
 						>
 							<div className="flex items-center w-full gap-1">
-								<div className="flex items-center gap-0.5 flex-shrink-0">
+								<div className="flex items-center gap-0.5 shrink-0">
 									<TypeIconComponent className={`h-4 w-4 ${typeIconColor}`} />
 									<Badge
 										variant="outline"
@@ -448,7 +448,7 @@ export const renderVariableOptions = ({
 					)}
 				>
 					<div className="flex items-center w-full gap-1">
-						<div className="flex items-center gap-0.5 flex-shrink-0">
+						<div className="flex items-center gap-0.5 shrink-0">
 							<TypeIconComponent className={`h-4 w-4 ${typeIconColor}`} />
 							{/* {"symbol" in variable && variable.symbol && (
 								<Badge

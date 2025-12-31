@@ -2,7 +2,7 @@ import type React from "react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { OperationOutputConfig } from "@/types/node/group/operation-group";
-import { isSeriesOutput, isScalarOutput } from "@/types/node/group/operation-group";
+import { isSeriesOutput } from "@/types/node/group/operation-group";
 
 // Output badge type
 type OutputBadgeType = "Series" | "Scalar";

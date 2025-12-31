@@ -66,7 +66,7 @@ export const UpdateVarHandleItem: React.FC<UpdateVarHandleItemProps> = ({
 		<div className="relative">
 			<div className="flex items-center justify-between gap-2 pr-2 pl-1 mb-1 relative ">
 				<div className="flex items-center gap-1">
-					<TbEdit className="h-3 w-3 text-green-600 flex-shrink-0" />
+					<TbEdit className="h-3 w-3 text-green-600 shrink-0" />
 					<span className="text-xs font-bold text-muted-foreground">
 						{t("variableNode.updateVariable")}
 					</span>
@@ -89,7 +89,7 @@ export const UpdateVarHandleItem: React.FC<UpdateVarHandleItemProps> = ({
 									{variableConfig.varDisplayName}
 								</span>
 								<Badge
-									className={`h-5 text-[10px] ${typeInfo.badgeColor} flex-shrink-0`}
+									className={`h-5 text-[10px] ${typeInfo.badgeColor} shrink-0`}
 								>
 									<TriggerIcon className="h-3 w-3" />
 									{typeInfo.label}

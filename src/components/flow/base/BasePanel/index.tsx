@@ -191,7 +191,7 @@ const BasePanel: React.FC<BasePanelProps> = ({
 				</div>
 
 				{/* Title area - fixed height */}
-				<div className="flex-shrink-0 p-2 pb-0">
+				<div className="shrink-0 p-2 pb-0">
 					{nodeConfig && (
 						<BasePanelHeader
 							id={id}

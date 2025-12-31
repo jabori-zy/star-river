@@ -40,7 +40,7 @@ export const ExpireDurationSection: React.FC<ExpireDurationSectionProps> = ({
 						})
 					}
 					options={timeUnitOptions}
-					className="h-8 w-auto flex-shrink-0"
+					className="h-8 w-auto shrink-0"
 				/>
 			</div>
 		</div>

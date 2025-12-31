@@ -20,6 +20,7 @@ interface UseIndicatorDataLoaderReturn {
 		indicatorKeyStr: string,
 		firstIndicatorDateTime: string,
 		seriesConfigs: SeriesConfig[],
+		length: number,
 	) => Promise<void>;
 }
 
@@ -42,13 +43,14 @@ export const useIndicatorDataLoader = ({
 			indicatorKeyStr: string,
 			firstIndicatorDateTime: string,
 			seriesConfigs: SeriesConfig[],
+			length: number,
 		) => {
 			try {
 				const data = await getStrategyDataApi({
 					strategyId,
 					keyStr: indicatorKeyStr,
 					datetime: firstIndicatorDateTime,
-					limit: 100,
+					limit: length,
 				});
 
 				const indicatorData = data as Record<
@@ -64,7 +66,6 @@ export const useIndicatorDataLoader = ({
 				if (trimmedData.length === 0) {
 					return;
 				}
-				// console.log("Loading indicator historical data", trimmedData.length);
 
 				const partialIndicatorData: Record<
 					keyof IndicatorValueConfig,

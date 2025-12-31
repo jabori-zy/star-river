@@ -44,7 +44,7 @@ function NodeItem(props: NodeItemProps) {
 		>
 			{props.nodeIcon && (
 				<div
-					className="w-6 h-6 rounded-sm flex items-center justify-center flex-shrink-0"
+					className="w-6 h-6 rounded-sm flex items-center justify-center shrink-0"
 					style={{ backgroundColor: props.nodeIconBackgroundColor }}
 				>
 					<DynamicIcon

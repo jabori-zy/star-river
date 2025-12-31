@@ -136,7 +136,7 @@ export const StrategyLoadingDialog: React.FC<StrategyLoadingDialogProps> = ({
 				className="max-w-2xl flex flex-col min-h-100"
 				aria-describedby={undefined}
 			>
-				<DialogHeader className="flex-shrink-0">
+				<DialogHeader className="shrink-0">
 					<DialogTitle className="flex items-center gap-2">
 						{!(
 							strategyRunState === BacktestStrategyRunState.Error ||
@@ -152,14 +152,14 @@ export const StrategyLoadingDialog: React.FC<StrategyLoadingDialogProps> = ({
 					<div className="flex flex-row items-center justify-between gap-2 p-2 rounded-md border border-dashed border-gray-200 shadow-xs">
 						<div className="flex flex-row items-center gap-2 flex-1">
 							<div
-								className="p-1 rounded-sm flex-shrink-0"
+								className="p-1 rounded-sm shrink-0"
 								style={{
 									backgroundColor: getNodeDefaultColor(processingNode.nodeType),
 								}}
 							>
 								<DynamicIcon
 									name={getNodeIconName(processingNode.nodeType)}
-									className="w-3 h-3 text-white flex-shrink-0"
+									className="w-3 h-3 text-white shrink-0"
 								/>
 							</div>
 							<div className="flex flex-col gap-1">
@@ -173,7 +173,7 @@ export const StrategyLoadingDialog: React.FC<StrategyLoadingDialogProps> = ({
 						</div>
 
 						{/* Pulsing dot indicator */}
-						<span className="relative flex h-2 w-2 flex-shrink-0">
+						<span className="relative flex h-2 w-2 shrink-0">
 							<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
 							<span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500" />
 						</span>

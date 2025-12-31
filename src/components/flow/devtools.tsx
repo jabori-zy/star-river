@@ -37,6 +37,11 @@ type ChangeInfoProps = {
 	change: NodeChange;
 };
 
+type ChangeWithKey = {
+	change: NodeChange;
+	key: string;
+};
+
 function ChangeInfo({ change }: ChangeInfoProps) {
 	const id = "id" in change ? change.id : "-";
 	const { type } = change;
@@ -60,15 +65,20 @@ function ChangeInfo({ change }: ChangeInfoProps) {
 }
 
 export function ChangeLogger({ limit = 20 }: ChangeLoggerProps) {
-	const [changes, setChanges] = useState<NodeChange[]>([]);
+	const [changes, setChanges] = useState<ChangeWithKey[]>([]);
 	const store = useStoreApi();
 
 	// Memoize the callback for handling node changes
 	const handleNodeChanges: OnNodesChange = useCallback(
 		(newChanges: NodeChange[]) => {
-			setChanges((prevChanges) =>
-				[...newChanges, ...prevChanges].slice(0, limit),
-			);
+			setChanges((prevChanges) => {
+				// Assign unique keys to new changes using timestamp and index
+				const changesWithKeys = newChanges.map((change, idx) => ({
+					change,
+					key: `${Date.now()}-${idx}`,
+				}));
+				return [...changesWithKeys, ...prevChanges].slice(0, limit);
+			});
 		},
 		[limit],
 	);
@@ -86,8 +96,8 @@ export function ChangeLogger({ limit = 20 }: ChangeLoggerProps) {
 			{changes.length === 0 ? (
 				<NoChanges />
 			) : (
-				changes.map((change, index) => (
-					<ChangeInfo key={index} change={change} />
+				changes.map(({ change, key }) => (
+					<ChangeInfo key={key} change={change} />
 				))
 			)}
 		</>

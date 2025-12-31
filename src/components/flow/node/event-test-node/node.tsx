@@ -132,7 +132,7 @@ const EventTestNode: React.FC<NodeProps<EventTestNodeType>> = ({
 
 		const eventStream = createBacktestEventTestStream(enableReceiveEvent);
 		const subscription = eventStream.subscribe((eventUpdate) => {
-			console.log("eventUpdate:", eventUpdate);
+			// console.log("eventUpdate:", eventUpdate);
 			// First, filter by sourceNodeType (highest priority)
 			if (sourceNodeType === NodeType.KlineNode) {
 				// KlineNode should only receive kline events or execute-over events from itself

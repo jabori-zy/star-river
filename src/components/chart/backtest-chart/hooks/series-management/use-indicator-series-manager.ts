@@ -45,7 +45,6 @@ export const useIndicatorSeriesManager = ({
 	// Add series
 	const addSeries = useCallback(async () => {
 		const chart = getChartRef();
-		console.log("chartConfig", chartConfig);
 		if (chart) {
 			// To simplify logic, initialize all indicator data
 			const indicatorsNeedingData = chartConfig.indicatorChartConfigs.filter(

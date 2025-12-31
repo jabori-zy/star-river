@@ -252,7 +252,7 @@ export const OperationSelector: React.FC<OperationSelectorProps> = ({
 							<Badge
 								variant="outline"
 								className={cn(
-									"text-[10px] px-1.5 py-0 h-4 flex-shrink-0",
+									"text-[10px] px-1.5 py-0 h-4 shrink-0",
 									getCategoryBadgeStyle(meta.category),
 								)}
 							>

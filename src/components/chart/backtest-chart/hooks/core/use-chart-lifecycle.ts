@@ -131,6 +131,7 @@ export const useChartLifecycle = ({
 					return;
 				}
 				initializeBacktestChart();
+				setIsInitialized(true);
 			} catch (error) {
 				console.error("Error initializing backtest chart:", error);
 			}
@@ -141,7 +142,7 @@ export const useChartLifecycle = ({
 		return () => {
 			isCancelled = true;
 		};
-	}, [strategyId, initChartData, initializeBacktestChart, isInitialized]);
+	}, [strategyId, initChartData, initializeBacktestChart, isInitialized, setIsInitialized]);
 };
 
 export type { UseChartLifecycleProps };

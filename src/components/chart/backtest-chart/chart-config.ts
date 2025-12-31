@@ -56,5 +56,8 @@ export const chartOptions: DeepPartial<ChartOptions> = {
 		visible: true,
 		timeVisible: true,
 		rightOffset: 50,
+		enableConflation: true,
+		conflationThresholdFactor: 4.0,
+		precomputeConflationOnInit: true,
 	},
 };

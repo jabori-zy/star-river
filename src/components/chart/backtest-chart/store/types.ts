@@ -266,6 +266,12 @@ export interface UtilitySlice {
 	getChartConfig: () => BacktestChartConfig;
 	getKeyStr: () => KeyStr[];
 	resetData: () => void;
+	trimKlineData: () => void;
+	trimIndicatorData: (
+		indicatorKeyStr: IndicatorKeyStr,
+		indicatorValueKey: keyof IndicatorValueConfig,
+	) => void;
+	trimOperationData: (operationKeyStr: OperationKeyStr, outputKey: string) => void;
 }
 
 // ==================== Complete Store Type ====================

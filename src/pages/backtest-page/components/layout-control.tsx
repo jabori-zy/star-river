@@ -54,7 +54,7 @@ export default function LayoutControl({
 						<div className="flex items-center gap-1 xl:gap-2 justify-center xl:justify-start w-full">
 							{currentOption && (
 								<>
-									<currentOption.icon className="h-4 w-4 flex-shrink-0" />
+									<currentOption.icon className="h-4 w-4 shrink-0" />
 									<span className="hidden xl:inline whitespace-nowrap">
 										{t(currentOption.label)}
 									</span>

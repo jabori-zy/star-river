@@ -189,7 +189,7 @@ export default function StrategyPageHeader({
 						)}
 
 						{/* Status Badge */}
-						<div className="flex-shrink-0">
+						<div className="shrink-0">
 							{saveStatus === "saving" && (
 								<Badge
 									variant="secondary"
@@ -261,7 +261,7 @@ export default function StrategyPageHeader({
 
 			{/* Right Section: Actions */}
 			<div className="flex items-center gap-3 shrink-0">
-				<div className="flex flex-col items-end mr-1 hidden md:flex">
+				<div className="flex flex-col items-end mr-1 md:flex">
 					{isAutoSaving ? (
 						<span className="text-xs text-blue-500 font-medium flex items-center gap-1.5">
 							<Spinner className="w-3 h-3" />

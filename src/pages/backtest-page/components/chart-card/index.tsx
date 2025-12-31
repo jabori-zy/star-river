@@ -49,7 +49,7 @@ const ChartCard: React.FC<ChartCardProps> = ({ chartConfig, strategyId }) => {
 
 	return (
 		<div className="flex flex-col h-full min-h-0 overflow-hidden">
-			<div className="flex items-center justify-between px-2 mb-2 flex-shrink-0">
+			<div className="flex items-center justify-between px-2 mb-2 shrink-0">
 				<div className="flex flex-row items-center gap-2">
 					<Button
 						className="flex flex-row items-center gap-2 text-sm font-medium"
@@ -60,7 +60,7 @@ const ChartCard: React.FC<ChartCardProps> = ({ chartConfig, strategyId }) => {
 						{chartConfig.chartName}
 					</Button>
 					{/* Vertical divider line */}
-					<div className="w-[1px] h-4 bg-gray-300" />
+					<div className="w-px h-4 bg-gray-300" />
 					<Button
 						className="flex flex-row items-center gap-2 text-sm font-medium"
 						variant="ghost"
@@ -69,7 +69,7 @@ const ChartCard: React.FC<ChartCardProps> = ({ chartConfig, strategyId }) => {
 						<ChartSpline className="w-4 h-4 text-gray-500" />
 						{t("desktop.backtestPage.indicator")}
 					</Button>
-					<div className="w-[1px] h-4 bg-gray-300" />
+					<div className="w-px h-4 bg-gray-300" />
 					<Button
 						className="flex flex-row items-center gap-2 text-sm font-medium"
 						variant="ghost"

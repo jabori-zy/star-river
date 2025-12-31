@@ -308,15 +308,15 @@ const ResetVarConfigItem: React.FC<ResetVarConfigItemProps> = ({
 					<CollapsibleTrigger asChild>
 						<div className="flex items-center gap-2 cursor-pointer">
 							{isOpen ? (
-								<ChevronDown className="h-4 w-4 flex-shrink-0" />
+								<ChevronDown className="h-4 w-4 shrink-0" />
 							) : (
-								<ChevronRight className="h-4 w-4 flex-shrink-0" />
+								<ChevronRight className="h-4 w-4 shrink-0" />
 							)}
 							<Tooltip>
 								<TooltipTrigger asChild>
 									{/* First row: icon + operation title + trigger method */}
 									<div className="flex items-center gap-2">
-										<TbRefresh className="h-4 w-4 text-orange-600 flex-shrink-0" />
+										<TbRefresh className="h-4 w-4 text-orange-600 shrink-0" />
 										<span className="text-sm font-medium">
 											{t("variableNode.resetVariable")}
 										</span>

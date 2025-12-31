@@ -61,7 +61,7 @@ const TradeModeSwitcher: React.FC<TradeModeSwitcherProps> = ({
                 h-auto: auto height
 
             */}
-			<TabsList className="flex flex-wrap h-10 gap-1 w-full px-2 flex-shrink-0">
+			<TabsList className="flex flex-wrap h-10 gap-1 w-full px-2 shrink-0">
 				<Tooltip>
 					<TooltipTrigger asChild>
 						<span className="flex-1">
