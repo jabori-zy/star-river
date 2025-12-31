@@ -1,5 +1,5 @@
 import type React from "react";
-import { ArrowDown, ArrowRight, RulerDimensionLine, BetweenVerticalStart, Settings2, CircleAlert } from "lucide-react";
+import { ArrowDown, ArrowRight, RulerDimensionLine, BetweenVerticalStart, Settings2, CircleAlert, Tag } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import {
 	Tooltip,
@@ -20,7 +20,7 @@ const getWindowDisplayText = (windowConfig: WindowConfig): string => {
 	if (windowConfig.windowType === "rolling") {
 		return `Rolling: ${windowConfig.windowSize}`;
 	}
-	return `Expanding: ${windowConfig.initialWindowSize}`;
+	return `Expanding`;
 };
 
 // Get filling method display text
@@ -62,7 +62,7 @@ const WindowFillingSection: React.FC<{
 };
 
 const GroupShow: React.FC<GroupShowProps> = ({ data }) => {
-	const { inputConfigs, outputConfigs, inputWindow, fillingMethod, isChildGroup } = data;
+	const { inputConfigs, outputConfigs, inputWindow, fillingMethod, isChildGroup, groupOutputName } = data;
 
 	return (
 		<div className="space-y-3">
@@ -81,6 +81,21 @@ const GroupShow: React.FC<GroupShowProps> = ({ data }) => {
 						</TooltipContent>
 					</Tooltip>
 				</TooltipProvider>
+			)}
+
+			{/* Group Output Name - only for non-child groups */}
+			{!isChildGroup && groupOutputName && (
+				<div className="space-y-1">
+					<div className="flex items-center gap-2">
+						<Tag className="w-3.5 h-3.5 text-pink-500" />
+						<Label className="text-sm font-bold text-muted-foreground">
+							Output Name
+						</Label>
+					</div>
+					<div className="bg-gray-100 p-2 rounded-md">
+						<span className="text-sm font-bold">{groupOutputName}</span>
+					</div>
+				</div>
 			)}
 
 			{/* Window and Filling Settings */}

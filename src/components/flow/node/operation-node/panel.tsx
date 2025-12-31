@@ -330,6 +330,19 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 	return (
 		<div className="h-full overflow-y-auto bg-white p-4">
 			<div className="flex flex-col gap-4">
+
+				{/* Output Config */}
+				<OutputConfig
+					operationType={currentOperation.type}
+					inputArrayType={currentInputArrayType}
+					displayName={getOutputDisplayName()}
+					onDisplayNameChange={handleOutputDisplayNameChange}
+					binaryInput1={getBinaryInput1()}
+					binaryInput2={getBinaryInput2()}
+				/>
+
+				<Separator />
+
 				{/* Input Type */}
 				<InputTypeSelector
 					value={currentInputArrayType}
@@ -362,18 +375,6 @@ export const OperationNodePanel: React.FC<SettingProps> = ({ id }) => {
 					onChangeInput1={setBinaryInput1}
 					onChangeInput2={setBinaryInput2}
 					onChangeInputs={setNaryInputs}
-				/>
-
-				<Separator />
-
-				{/* Output Config */}
-				<OutputConfig
-					operationType={currentOperation.type}
-					inputArrayType={currentInputArrayType}
-					displayName={getOutputDisplayName()}
-					onDisplayNameChange={handleOutputDisplayNameChange}
-					binaryInput1={getBinaryInput1()}
-					binaryInput2={getBinaryInput2()}
 				/>
 			</div>
 		</div>

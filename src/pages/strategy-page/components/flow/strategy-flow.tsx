@@ -379,7 +379,7 @@ export default function StrategyFlow({
 					const operationStartNode = {
 						id: `operation_start_node_${random}`,
 						type: NodeType.OperationStartNode,
-						position: { x: 40, y: 60 },  // Fixed position relative to group's top-left corner
+						position: { x: 40, y: 100 },  // Fixed position relative to group's top-left corner
 						data: operationStartNodeData,
 						draggable: true,
 						selectable: false,
@@ -391,7 +391,7 @@ export default function StrategyFlow({
 					const operationEndNode = {
 						id: `operation_end_node_${random1}`,
 						type: NodeType.OperationEndNode,
-						position: { x: 120, y: 60 },  // Fixed position relative to group's top-left corner
+						position: { x: 120, y: 100 },  // Fixed position relative to group's top-left corner
 						data: operationEndNodeData,
 						draggable: true,
 						selectable: false,

@@ -25,19 +25,18 @@ export const WindowConfig: React.FC<WindowConfigProps> = ({
 	const currentSize =
 		windowConfig.windowType === "rolling"
 			? windowConfig.windowSize
-			: windowConfig.initialWindowSize;
+			: undefined;
 
 	const handleTypeChange = (windowType: "rolling" | "expanding") => {
 		// Convert between rolling and expanding config
 		if (windowType === "rolling") {
 			onChange({
 				windowType: "rolling",
-				windowSize: currentSize,
+				windowSize: currentSize ?? 0,
 			});
 		} else {
 			onChange({
 				windowType: "expanding",
-				initialWindowSize: currentSize,
 			});
 		}
 	};
@@ -51,7 +50,6 @@ export const WindowConfig: React.FC<WindowConfigProps> = ({
 		} else {
 			onChange({
 				windowType: "expanding",
-				initialWindowSize: size,
 			});
 		}
 	};
@@ -99,7 +97,7 @@ export const WindowConfig: React.FC<WindowConfigProps> = ({
 					/>
 				</div>
 				<Slider
-					value={[currentSize]}
+					value={[currentSize ?? 0]}
 					onValueChange={(values) => handleSizeChange(values[0])}
 					min={minSize}
 					max={maxSize}

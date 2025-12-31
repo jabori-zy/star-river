@@ -374,17 +374,18 @@ const NodeShow: React.FC<NodeShowProps> = ({ data }) => {
 
 	return (
 		<div className="space-y-3">
+			<OutputSection
+				outputConfig={data.outputConfig}
+				isOpen={isOutputOpen}
+				onOpenChange={setIsOutputOpen}
+			/>
 			<OperationSection data={data} />
 			<InputSection
 				inputConfig={data.inputConfig}
 				isOpen={isInputOpen}
 				onOpenChange={setIsInputOpen}
 			/>
-			<OutputSection
-				outputConfig={data.outputConfig}
-				isOpen={isOutputOpen}
-				onOpenChange={setIsOutputOpen}
-			/>
+			
 		</div>
 	);
 };
