@@ -45,7 +45,6 @@ const ChartCard: React.FC<ChartCardProps> = ({ chartConfig, strategyId }) => {
 			<div className="flex items-center justify-between px-2 mb-2 shrink-0">
 				<div className="flex flex-row items-center gap-2">
 					<div className="flex flex-row items-center gap-2 text-sm font-medium px-3 py-2">
-						{/* <Search className="w-4 h-4 text-gray-500" /> */}
 						{chartConfig.chartName}
 					</div>
 					{/* Vertical divider line */}

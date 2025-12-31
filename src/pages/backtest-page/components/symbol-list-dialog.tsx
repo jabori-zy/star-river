@@ -15,7 +15,7 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { getStrategyCacheKeys } from "@/service/strategy";
-import type { IndicatorKey, KlineKey } from "@/types/symbol-key";
+import type { KlineKey } from "@/types/symbol-key";
 import { parseKey } from "@/utils/parse-key";
 
 interface SymbolListDialogProps {
@@ -45,24 +45,16 @@ export default function SymbolListDialog({
 		setLoading(true);
 		try {
 			const keys = await getStrategyCacheKeys(strategyId);
-			const parsedKeyMap: Record<string, KlineKey | IndicatorKey> = {};
-
-			keys.forEach((keyString) => {
-				parsedKeyMap[keyString] = parseKey(keyString) as
-					| KlineKey
-					| IndicatorKey;
-			});
-
-			// Filter out kline options
 			const options: { key: string; data: KlineKey }[] = [];
-			Object.entries(parsedKeyMap).forEach(([key, value]) => {
+
+			for (const key of keys) {
 				if (key.startsWith("kline|")) {
 					options.push({
 						key,
-						data: value as KlineKey,
+						data: parseKey(key) as KlineKey,
 					});
 				}
-			});
+			}
 
 			setKlineOptions(options);
 		} catch (error) {
