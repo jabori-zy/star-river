@@ -174,7 +174,7 @@ export default function StrategyPage() {
 				await openBacktestWindow(strategyId, strategyName);
 				// Close dialog after success
 				setShowLoadingDialog(false);
-			} catch (error) {
+			} catch (_error) {
 				// Error has been handled in utility function
 			}
 		},

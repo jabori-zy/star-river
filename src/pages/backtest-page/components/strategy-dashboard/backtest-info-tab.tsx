@@ -240,6 +240,7 @@ const BacktestInfoTabs = forwardRef<BacktestInfoTabsRef, BacktestInfoTabsProps>(
 					{/* Right side: Chart management component */}
 					<div className="flex justify-end">
 						<ChartManageButton
+							strategyId={strategyId}
 							onAddChart={addChart}
 							saveChartConfig={saveChartConfig}
 							isSaving={isSaving}

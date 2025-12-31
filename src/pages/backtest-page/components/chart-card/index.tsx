@@ -1,5 +1,5 @@
 // import RealtimeTickingStockCharts from "@/components/chart/SciChart";
-import { ChartSpline, Ellipsis, Group, Search, Trash2 } from "lucide-react";
+import { ChartSpline, Ellipsis, Group, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import BacktestChart from "@/components/chart/backtest-chart";
@@ -15,7 +15,6 @@ import type { IndicatorChartConfig, OperationChartConfig } from "@/types/chart";
 import type { BacktestChartConfig } from "@/types/chart/backtest-chart";
 import AddIndicatorDialog from "./add-indicator-dialog";
 import AddOperationDialog from "./add-operation-dialog";
-import SymbolListDialog from "./symbol-list-dialog";
 
 interface ChartCardProps {
 	strategyId: number;
@@ -25,17 +24,11 @@ interface ChartCardProps {
 const ChartCard: React.FC<ChartCardProps> = ({ chartConfig, strategyId }) => {
 	const { t } = useTranslation();
 	// Use methods from store
-	const { deleteChart, addIndicator, addOperation, changeKline } =
+	const { deleteChart, addIndicator, addOperation } =
 		useBacktestChartConfigStore();
 
-	const [isSymbolDialogOpen, setIsSymbolDialogOpen] = useState(false);
 	const [isIndicatorDialogOpen, setIsIndicatorDialogOpen] = useState(false);
 	const [isOperationDialogOpen, setIsOperationDialogOpen] = useState(false);
-
-	// Handle kline selection
-	const handleKlineSelect = (klineCacheKeyStr: string) => {
-		changeKline(chartConfig.id, klineCacheKeyStr);
-	};
 
 	// Handle indicator addition
 	const handleIndicatorAdd = (indicatorChartConfig: IndicatorChartConfig) => {
@@ -51,14 +44,10 @@ const ChartCard: React.FC<ChartCardProps> = ({ chartConfig, strategyId }) => {
 		<div className="flex flex-col h-full min-h-0 overflow-hidden">
 			<div className="flex items-center justify-between px-2 mb-2 shrink-0">
 				<div className="flex flex-row items-center gap-2">
-					<Button
-						className="flex flex-row items-center gap-2 text-sm font-medium"
-						variant="ghost"
-						onClick={() => setIsSymbolDialogOpen(true)}
-					>
-						<Search className="w-4 h-4 text-gray-500" />
+					<div className="flex flex-row items-center gap-2 text-sm font-medium px-3 py-2">
+						{/* <Search className="w-4 h-4 text-gray-500" /> */}
 						{chartConfig.chartName}
-					</Button>
+					</div>
 					{/* Vertical divider line */}
 					<div className="w-px h-4 bg-gray-300" />
 					<Button
@@ -97,15 +86,6 @@ const ChartCard: React.FC<ChartCardProps> = ({ chartConfig, strategyId }) => {
 			<div className="flex-1 w-full h-full">
 				<BacktestChart strategyId={strategyId} chartConfig={chartConfig} />
 			</div>
-
-			{/* Symbol selection Dialog */}
-			<SymbolListDialog
-				open={isSymbolDialogOpen}
-				onOpenChange={setIsSymbolDialogOpen}
-				strategyId={strategyId}
-				selectedKlineCacheKeyStr={chartConfig.klineChartConfig.klineKeyStr}
-				onKlineSelect={handleKlineSelect}
-			/>
 
 			{/* Indicator addition Dialog */}
 			<AddIndicatorDialog

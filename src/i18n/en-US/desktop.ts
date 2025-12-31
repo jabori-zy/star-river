@@ -83,7 +83,8 @@ const translation = {
 		play: "Play",
 		next: "Next",
 		reset: "Reset",
-		selectKline: "Select Kline",
+		selectKline: "Select Symbol",
+		noKlineData: "No symbol available",
 		addIndicator: "Add Indicator",
 		addIndicatorDescription:
 			"Select the technical indicators to add to the chart.",

@@ -1,12 +1,16 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import ConfirmBox from "@/components/confirm-box";
+import {
+	Selector,
+	type SelectorOption,
+} from "@/components/select-components/select";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
 	DialogContent,
 	DialogDescription,
+	DialogFooter,
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
@@ -34,6 +38,7 @@ export default function SymbolListDialog({
 		{ key: string; data: KlineKey }[]
 	>([]);
 	const [loading, setLoading] = useState(false);
+	const [selectedValue, setSelectedValue] = useState<string>("");
 
 	// Get available kline data
 	const fetchKlineOptions = useCallback(async () => {
@@ -61,7 +66,7 @@ export default function SymbolListDialog({
 
 			setKlineOptions(options);
 		} catch (error) {
-			console.error("获取kline选项失败:", error);
+			console.error("Failed to fetch kline options:", error);
 		} finally {
 			setLoading(false);
 		}
@@ -71,27 +76,39 @@ export default function SymbolListDialog({
 	useEffect(() => {
 		if (open) {
 			fetchKlineOptions();
+			// Reset selected value when dialog opens
+			setSelectedValue(selectedKlineCacheKeyStr || "");
 		}
-	}, [open, fetchKlineOptions]);
+	}, [open, fetchKlineOptions, selectedKlineCacheKeyStr]);
 
-	// Handle kline selection
-	const handleKlineSelect = (klineCacheKeyStr: string) => {
-		onKlineSelect(klineCacheKeyStr);
+	// Handle confirm
+	const handleConfirm = () => {
+		if (selectedValue) {
+			onKlineSelect(selectedValue);
+			onOpenChange(false);
+		}
+	};
+
+	// Handle cancel
+	const handleCancel = () => {
 		onOpenChange(false);
 	};
 
-	// Render kline item
-	const renderKlineItem = (klineCacheKey: KlineKey) => (
-		<div className="flex items-center gap-2">
-			<Badge variant="outline">{klineCacheKey.exchange}</Badge>
-			<span className="font-medium">{klineCacheKey.symbol}</span>
-			<Badge variant="secondary">{klineCacheKey.interval}</Badge>
-		</div>
-	);
+	// Convert kline options to selector options
+	const selectorOptions: SelectorOption[] = klineOptions.map((option) => ({
+		value: option.key,
+		label: (
+			<div className="flex items-center gap-2">
+				<Badge variant="outline">{option.data.exchange}</Badge>
+				<span className="font-medium">{option.data.symbol}</span>
+				<Badge variant="secondary">{option.data.interval}</Badge>
+			</div>
+		),
+	}));
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange} modal={false}>
-			<DialogContent className="sm:max-w-[500px]">
+			<DialogContent className="sm:max-w-[400px]">
 				<DialogHeader>
 					<DialogTitle>{t("desktop.backtestPage.selectKline")}</DialogTitle>
 				</DialogHeader>
@@ -99,61 +116,31 @@ export default function SymbolListDialog({
 				<div className="grid gap-4 py-4">
 					{loading ? (
 						<div className="flex items-center justify-center py-8">
-							<div className="text-sm text-gray-500">正在加载K线数据...</div>
+							<div className="text-sm text-gray-500">
+								{t("common.loading")}...
+							</div>
+						</div>
+					) : klineOptions.length === 0 ? (
+						<div className="text-center py-8 text-gray-500">
+							{t("desktop.backtestPage.noKlineData")}
 						</div>
 					) : (
-						<div className="grid gap-2 max-h-96 overflow-y-auto">
-							{klineOptions.map((option) => {
-								const needsConfirmation =
-									selectedKlineCacheKeyStr &&
-									selectedKlineCacheKeyStr !== option.key;
-
-								const buttonContent = (
-									<Button
-										key={option.key}
-										variant={
-											selectedKlineCacheKeyStr === option.key
-												? "secondary"
-												: "outline"
-										}
-										className={`flex items-center justify-start gap-2 h-auto p-3 w-full ${
-											selectedKlineCacheKeyStr === option.key
-												? "bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
-												: ""
-										}`}
-										onClick={
-											needsConfirmation
-												? undefined
-												: () => handleKlineSelect(option.key)
-										}
-									>
-										{renderKlineItem(option.data)}
-									</Button>
-								);
-
-								return needsConfirmation ? (
-									<ConfirmBox
-										key={option.key}
-										title="确认切换交易对吗？"
-										description="切换后，所有添加的指标将被删除。"
-										confirmText="确认"
-										cancelText="取消"
-										onConfirm={() => handleKlineSelect(option.key)}
-									>
-										{buttonContent}
-									</ConfirmBox>
-								) : (
-									buttonContent
-								);
-							})}
-							{klineOptions.length === 0 && (
-								<div className="text-center py-8 text-gray-500">
-									暂无可用的K线数据
-								</div>
-							)}
-						</div>
+						<Selector
+							options={selectorOptions}
+							value={selectedValue}
+							onValueChange={setSelectedValue}
+							placeholder={t("desktop.backtestPage.selectKline")}
+						/>
 					)}
 				</div>
+				<DialogFooter>
+					<Button variant="outline" onClick={handleCancel}>
+						{t("common.cancel")}
+					</Button>
+					<Button onClick={handleConfirm} disabled={!selectedValue || loading}>
+						{t("common.confirm")}
+					</Button>
+				</DialogFooter>
 			</DialogContent>
 		</Dialog>
 	);
